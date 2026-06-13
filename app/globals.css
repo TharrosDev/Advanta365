@@ -367,7 +367,7 @@
   animation: a365-reveal-fade 650ms ease-out forwards;
 }
 
-html { scroll-behavior: smooth; }
+html { scroll-behavior: smooth; scroll-padding-top: 5.5rem; }
 
 @media (prefers-reduced-motion: reduce) {
   .reveal,

@@ -24,9 +24,21 @@ const revealClass: Record<RevealDirection, string> = {
   fade: "reveal-in-fade",
 };
 
+// Polymorphic render target. Cast through a concrete component type so the
+// `children` prop resolves to ReactNode — importing @react-three/fiber augments
+// the global JSX intrinsics, which otherwise collapses a bare `ElementType`'s
+// children type to `never`.
+type PolyProps = {
+  ref?: React.Ref<HTMLElement>;
+  id?: string;
+  className?: string;
+  style?: CSSProperties;
+  children?: React.ReactNode;
+};
+
 export default function MotionReveal({
   children,
-  as: Tag = "div",
+  as: asTag = "div",
   from = "up",
   delay = 0,
   threshold = 0.15,
@@ -35,6 +47,7 @@ export default function MotionReveal({
   style,
   id,
 }: MotionRevealProps) {
+  const Tag = asTag as unknown as React.ComponentType<PolyProps>;
   const ref = useRef<HTMLElement | null>(null);
   const [visible, setVisible] = useState(false);
   const [reduced, setReduced] = useState(false);
