@@ -10,13 +10,12 @@ export const SITE_TAGLINE = "Enterprise Microsoft 365 Adoption, Governance & Rol
 export const SITE_LOCALE = "en_US";
 export const SITE_LANG = "en";
 
-/** Primary OG/Twitter image — use the hero asset, not the favicon. */
+/** Primary OG/Twitter image — branded 1200×630 card served from /public. */
 export const OG_IMAGE = {
-  url:
-    "https://d2xsxph8kpxj0f.cloudfront.net/310519663677163857/g8wGKX5v4ST4YMyg6HYL47/hero-main-W2BZehWshgnFmxuU4eaztg.webp",
+  url: `${SITE_URL}/og.png`,
   width: 1200,
-  height: 800,
-  alt: "ADVANTA365 — Enterprise Microsoft 365 framework",
+  height: 630,
+  alt: "ADVANTA365 — Microsoft 365, governed and adopted at scale.",
 };
 
 /** Brand keywords used as a base; per-page metadata adds specific terms. */
