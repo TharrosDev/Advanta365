@@ -1,20 +1,23 @@
-// Advanta365 Content Library - All content preserved from original site
+// ADVANTA365 content library — single source of truth for site copy.
+// Curated and deliberately concise: the site shows less, and says it well.
 
 export const siteTitle = "ADVANTA365";
 export const siteTagline = "Enterprise Microsoft 365 Adoption, Governance & Rollout";
 
 export const heroContent = {
   subtitle: "Enterprise Microsoft 365 framework",
-  title: "Make Microsoft 365 governed, adopted, and sustainable — at enterprise scale.",
-  description: "ADVANTA365 is an enterprise-grade Microsoft 365 adoption, governance, implementation, and enablement framework. It helps large, complex organizations deploy, govern, scale, and sustain modern digital workplaces built on SharePoint Online, Microsoft Teams, OneDrive, and the broader Microsoft 365 ecosystem.",
-  cta1: "Start a roadmap conversation",
-  cta2: "Explore the framework",
+  title: "Microsoft 365, governed and adopted at scale.",
+  description:
+    "One operating model for governance, adoption, and rollout — across SharePoint, Teams, and OneDrive.",
+  cta1: "Book a call",
+  cta2: "See the framework",
 };
 
+// Trust strip — truthful, scannable numbers.
 export const stats = [
-  { number: "7", label: "Stage delivery model" },
-  { number: "6", label: "WOW onboarding workshops" },
-  { number: "5", label: "ADVANTA modules" },
+  { number: "6", label: "Delivery stages" },
+  { number: "5", label: "Working modules" },
+  { number: "4", label: "Role-based tracks" },
 ];
 
 export const deliveryStages = [
@@ -26,187 +29,115 @@ export const deliveryStages = [
   { number: "06", label: "Sustainment" },
 ];
 
-export const deliveryNote = "Governance is embedded at every stage — by design, not as an afterthought.";
+export const deliveryNote =
+  "Governance is embedded at every stage — by design, not as an afterthought.";
 
 export const whatIsSection = {
   title: "What is ADVANTA365",
   subtitle: "A framework — not just a deployment.",
-  description: "ADVANTA365 combines governance, change management, structured rollouts, role-based enablement, and long-term sustainment into one repeatable operating model for the modern digital workplace.",
-  cta: "See the framework",
+  description:
+    "Governance, change management, structured rollout, and long-term sustainment in one repeatable operating model for the modern digital workplace.",
   principles: [
     { title: "Governance by design", description: "Embedded in provisioning, templates, and onboarding." },
     { title: "Business-led model", description: "Owned by the business with central enablement." },
-    { title: "Role-based enablement", description: "Site Owners, IM, end users, executives." },
-    { title: "Sustainment built-in", description: "Communities of Practice and learning continue." },
+    { title: "Role-based enablement", description: "Site owners, IM leads, end users, executives." },
+    { title: "Sustainment built-in", description: "Communities of practice and learning continue." },
   ],
 };
 
-export const problems = [
-  { title: "Uncontrolled Microsoft Teams Sprawl", description: "Organizations create unmanaged collaboration spaces with inconsistent governance and no clear ownership." },
-  { title: "SharePoint Chaos", description: "No standardization, inconsistent structures, poor metadata, and weak search experiences." },
-  { title: "Poor Adoption", description: "Users continue using email, shared drives, or legacy repositories despite new platforms being available." },
-  { title: "Governance Failure", description: "Policies exist on paper but are not embedded into provisioning, onboarding, or daily user workflows." },
-  { title: "Training That Does Not Stick", description: "One-time training sessions fail to produce long-term behavioural change or operational confidence." },
-  { title: "Lack of Ownership", description: "Nobody understands who owns sites, content, permissions, or lifecycle decisions." },
-  { title: "Inconsistent User Experience", description: "Every business group structures information differently — there is no shared digital workplace experience." },
-  { title: "Poor Findability", description: "Content becomes impossible to locate due to inconsistent metadata, naming, and structure." },
-  { title: "Failed Change Management", description: "Organizations deploy technology without structured onboarding, communications, or adoption reinforcement." },
+// The three signature problems we solve (was nine — distilled).
+export const keyProblems = [
+  { title: "Teams sprawl", description: "Unmanaged collaboration spaces with no clear ownership." },
+  { title: "Poor adoption", description: "Users stay on email and shared drives despite new platforms." },
+  { title: "Governance failure", description: "Policies exist on paper but never reach daily workflows." },
 ];
 
-export const coreprinciples = [
-  { title: "Business-Driven Ownership", description: "Business areas own their content and operational adoption — not central IT alone." },
-  { title: "Centrally Enabled Delivery", description: "A central team provides governance, tools, enablement, and support that scale." },
-  { title: "Governance by Design", description: "Governance is embedded directly into provisioning and onboarding experiences." },
-  { title: "Role-Based Enablement", description: "Site Owners, IM leads, end users, and executives each get tailored onboarding." },
-  { title: "Structured Adoption", description: "Users progress through guided onboarding journeys rather than one-off training." },
-  { title: "Reinforcement Over Time", description: "Adoption is reinforced through workshops, check-ins, CoPs, and learning portals." },
-  { title: "Sustainability by Design", description: "The platform and operating model continue evolving beyond initial rollout." },
+// Three principles surfaced in the governance section.
+export const governancePrinciples = [
+  { title: "Governance by design", description: "Embedded directly into provisioning and onboarding." },
+  {
+    title: "Business-driven ownership",
+    description: "Business areas own their content and adoption — not central IT alone.",
+  },
+  {
+    title: "Sustainability by design",
+    description: "The platform and operating model keep evolving beyond rollout.",
+  },
 ];
 
+// The five working modules — short noun titles, one-line copy, eyebrow tag.
 export const modules = [
-  {
-    title: "ADVANTA Requests — Workspaces",
-    description: "Governed workspace provisioning. Business users request Teams, sites, and collaboration spaces through approved templates with embedded controls.",
-  },
-  {
-    title: "ADVANTA Requests — Repositories",
-    description: "Provisioning of libraries, metadata, repositories, and information structures aligned to enterprise IM standards.",
-  },
-  {
-    title: "ADVANTA Blueprint",
-    description: "Template and governance catalog management. A controlled inventory of approved templates and patterns used across the enterprise.",
-  },
-  {
-    title: "ADVANTA Classify",
-    description: "Metadata, taxonomy, content types, and classification management — making information findable, governed, and consistent.",
-  },
-  {
-    title: "ADVANTA Engage",
-    description: "The people-side engine — change management, adoption, learning, communications, and sustainment that make the platform real.",
-  },
+  { tag: "Requests", title: "Workspaces", description: "Governed provisioning of Teams and sites from approved templates." },
+  { tag: "Requests", title: "Repositories", description: "Libraries, metadata, and structures aligned to IM standards." },
+  { tag: "Catalog", title: "Blueprint", description: "A controlled inventory of approved templates and patterns." },
+  { tag: "Information", title: "Classify", description: "Taxonomy and content types that keep information findable." },
+  { tag: "People", title: "Engage", description: "Change, adoption, learning, and sustainment — the human side." },
 ];
 
-export const differentiators = [
-  { title: "Governance + Adoption Together", description: "Most solutions focus on one or the other. ADVANTA365 treats them as inseparable." },
-  { title: "Business-Led Model", description: "The framework is owned by the business with central enablement — not IT-driven alone." },
-  { title: "Role-Based Onboarding", description: "Site Owners, IM leads, end users, and executives each receive tailored experiences." },
-  { title: "Structured Rollout Methodology", description: "A repeatable rollout engine — not isolated training sessions or one-off projects." },
-  { title: "Sustainment Built-In", description: "Communities of Practice and learning ecosystems continue evolving long after rollout." },
-  { title: "Enterprise Scale", description: "Designed specifically for large, complex, and regulated organizations." },
-  { title: "Practical Change Management", description: "Grounded in operational reality — drawn from Prosci, ADKAR, and real enterprise experience." },
-  { title: "Modern Microsoft 365 Expertise", description: "Built specifically around SharePoint Online, Microsoft Teams, OneDrive, and Microsoft 365 collaboration." },
+// Four reasons surfaced on the page (the first is the signature differentiator).
+export const keyDifferentiators = [
+  { title: "Governance + adoption together", description: "Most solutions pick one. We treat them as inseparable." },
+  { title: "Business-led model", description: "Owned by the business with central enablement — not IT alone." },
+  {
+    title: "Role-based onboarding",
+    description: "Site owners, IM leads, end users, and executives each get tailored journeys.",
+  },
+  { title: "Sustainment built-in", description: "Communities of practice and learning continue long after rollout." },
 ];
 
 export const microsoft365Focus = [
   {
     name: "SharePoint Online",
-    role: "The enterprise content management platform and corporate knowledge repository.",
-    themes: [
-      "Metadata-driven organization",
-      "Structured collaboration",
-      "Governance-enabled self-service",
-      "Search-first experiences",
-      "Standardized templates",
-      "Lifecycle management",
-      "Integration with Teams and OneDrive",
-    ],
+    role: "The enterprise content platform and corporate knowledge repository.",
+    themes: ["Metadata-driven structure", "Governance-enabled self-service", "Search-first experiences"],
   },
   {
     name: "Microsoft Teams",
-    role: "The collaboration and communication layer — a hub for conversations, meetings, tasks, and files.",
-    themes: [
-      "Aligned to structured information management",
-      "Governance that coexists with collaboration",
-      "Lifecycle for teams and channels",
-      "Integrated with SharePoint and OneDrive",
-      "Not a replacement for governance",
-    ],
+    role: "The collaboration layer — conversations, meetings, tasks, and files.",
+    themes: ["Structured information management", "Governed lifecycle for teams", "Integrated with SharePoint"],
   },
   {
     name: "OneDrive",
-    role: "Personal work storage, draft collaboration, and individual productivity content.",
-    themes: [
-      "Personal and draft work",
-      "Temporary working content",
-      "Clear hand-off to SharePoint",
-      "SharePoint remains the authoritative repository",
-    ],
+    role: "Personal work, drafts, and individual productivity.",
+    themes: ["Personal and draft work", "Clear hand-off to SharePoint", "SharePoint stays authoritative"],
   },
 ];
 
-export const focusAreasShort = [
-  "SharePoint Online",
-  "Microsoft Teams",
-  "OneDrive",
-  "Microsoft 365 Collaboration",
-  "Modern Work",
-  "Information Management",
-  "Content Governance",
-  "Metadata",
-  "Search",
-  "Permissions Management",
-  "Site Ownership",
-  "Digital Workplace Transformation",
-  "User Adoption",
-  "Change Management",
+// Role-based onboarding tracks (lifted from the former WOW program page).
+export const wowRoles = [
+  { number: "01", title: "Site owners", description: "Operational ownership of sites, content, and permissions." },
+  { number: "02", title: "IM leads", description: "Information management, metadata, and classification standards." },
+  { number: "03", title: "End users", description: "Day-to-day work in Teams, SharePoint, and OneDrive." },
+  { number: "04", title: "Executives", description: "Sponsorship, visible support, and program direction." },
 ];
 
-export const targetAudience = [
-  "Government departments",
-  "Enterprise organizations",
-  "Microsoft 365 program teams",
-  "Change management teams",
-  "Information Management teams",
-  "SharePoint Online implementation teams",
-  "Digital workplace transformation teams",
-  "CIO organizations",
-  "Corporate services groups",
-  "Knowledge management teams",
-];
-
-export const trainingPrinciples = [
-  "Role-based",
-  "Practical and scenario-driven",
-  "Short-form where possible",
-  "Reinforced over time",
-  "Supported by job aids",
-  "Built around real tasks",
-];
-
-export const communicationsChannels = [
-  "Executive messages",
-  "Intranet news",
-  "Videos",
-  "AMAs and town halls",
-  "Learning portal updates",
-  "Newsletters",
-  "Champions networks",
-  "Awareness campaigns",
-];
-
+// The conditions that make adoption stick (was seven — distilled to four).
 export const adoptionSuccessFactors = [
-  "Users understand WIIFM — what's in it for me",
+  "Users understand what's in it for them",
   "Leadership visibly supports the initiative",
-  "Users receive guided onboarding",
-  "Learning continues over time",
+  "Onboarding is guided, and learning continues",
   "Governance feels practical, not bureaucratic",
-  "Tools simplify work rather than complicate it",
-  "The experience feels modern and intuitive",
 ];
 
-// Navigation items
+// In-page anchor navigation (single-page site).
 export const navItems = [
-  { label: "Framework", href: "/framework" },
-  { label: "WOW Program", href: "/wow" },
-  { label: "Governance", href: "/governance" },
-  { label: "Adoption", href: "/adoption" },
-  { label: "Microsoft 365", href: "/microsoft-365" },
-  { label: "Why ADVANTA365", href: "/why" },
+  { label: "Framework", href: "/#framework" },
+  { label: "Delivery", href: "/#delivery" },
+  { label: "Modules", href: "/#modules" },
+  { label: "Governance", href: "/#governance" },
+  { label: "Adoption", href: "/#adoption" },
+  { label: "Why", href: "/#why" },
 ];
 
 export const contactCTA = {
   title: "Ready to transform your Microsoft 365 program?",
-  description: "Start a conversation with our team about your organization's adoption, governance, and enablement needs.",
+  description: "Let's talk about your organization's adoption, governance, and enablement needs.",
   button: "Talk to us",
   href: "/contact",
+};
+
+export const contact = {
+  email: "mark.abdelnour@gmail.com",
+  // PLACEHOLDER — replace with the real booking link before launch.
+  bookingUrl: "https://cal.com/advanta365",
 };

@@ -174,6 +174,7 @@ export default function SiteLayout({ children }: SiteLayoutProps) {
                   <Link
                     key={item.href}
                     href={item.href}
+                    onClick={() => setMobileMenuOpen(false)}
                     aria-current={active ? "page" : undefined}
                     className={cn(
                       "flex items-baseline gap-4 border-b border-rule py-3.5 transition-colors",
