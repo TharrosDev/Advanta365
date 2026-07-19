@@ -68,6 +68,9 @@
 html {
   -webkit-text-size-adjust: 100%;
   scroll-padding-top: 6rem;
+  /* The skewed marquee wrapper can poke a few px past the viewport edge;
+     clip at the root so scrollWidth never grows. */
+  overflow-x: clip;
 }
 /* Native smooth-scroll is owned by Lenis when JS runs; off otherwise. */
 html:not(.lenis) {
@@ -287,7 +290,14 @@ html.lenis body {
   border: 1px solid var(--color-line);
 }
 
-/* HUD corner ticks — four L-marks framing a stage. Decorative. */
+/* HUD corner ticks — four L-marks framing a stage. Decorative. The frame
+   must never intercept pointer events meant for the canvas or content. */
+.hud-frame {
+  position: absolute;
+  z-index: 2;
+  inset: calc(var(--nav-h) + 0.75rem) var(--gutter) 0.9rem;
+  pointer-events: none;
+}
 .hud-corner {
   position: absolute;
   width: 14px;
@@ -360,7 +370,7 @@ html.lenis body {
 .btn-primary {
   background: var(--color-bone);
   color: var(--color-void);
-  font-weight: 600;
+  font-weight: 500;
 }
 .btn-primary:hover {
   color: var(--color-on-cobalt);
@@ -377,7 +387,7 @@ html.lenis body {
 .btn-invert {
   background: var(--color-on-cobalt);
   color: var(--color-cobalt-deep);
-  font-weight: 600;
+  font-weight: 500;
 }
 .btn-invert::after {
   background: var(--color-void);
@@ -442,11 +452,12 @@ html.lenis body {
   margin-right: 0.2rem;
 }
 
-/* Full-screen mobile menu */
+/* Full-screen mobile menu. Sits *below* the nav bar (z 100) so the toggle
+   button stays visible and clickable above the open panel. */
 .mobile-menu {
   position: fixed;
   inset: 0;
-  z-index: 200;
+  z-index: 90;
   display: flex;
   flex-direction: column;
   background: var(--color-abyss);
@@ -691,6 +702,7 @@ html.lenis body {
   display: flex;
   width: max-content;
   animation: marquee var(--marquee-duration, 46s) linear infinite;
+  will-change: transform;
 }
 .marquee:hover .marquee-track,
 .is-off .marquee-track {

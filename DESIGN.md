@@ -89,6 +89,13 @@ elements whose hidden state lives in the stylesheet.
 
 ### Cascade/transform gotchas (inherited from the parent, still true)
 
+00. **`backdrop-filter` creates a containing block for fixed descendants.**
+   The solid nav bar uses backdrop blur, so a `position: fixed` panel
+   rendered *inside* the nav element gets sized against the nav's box, not
+   the viewport (the mobile menu once rendered 128px tall because of this).
+   Full-screen overlays are rendered as *siblings* of the nav, never
+   children — and sit below the nav's z-index so the toggle stays visible.
+
 0. **Tailwind's scanner can't see utilities inside class-name templates.**
    Structural CSS (position, z-index) for stateful components lives in named
    classes in `globals.css`, never in template-assembled utilities.
