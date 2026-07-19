@@ -1,16 +1,20 @@
 {
-  "name": "ADVANTA365 — Enterprise Microsoft 365 Framework",
+  "name": "ADVANTA365 \u2014 Enterprise Microsoft 365 Framework",
   "short_name": "ADVANTA365",
   "description": "Enterprise Microsoft 365 adoption, governance, implementation, and enablement framework.",
   "start_url": "/",
   "scope": "/",
   "display": "standalone",
-  "background_color": "#f3efe7",
-  "theme_color": "#f3efe7",
+  "background_color": "#1b1814",
+  "theme_color": "#1b1814",
   "orientation": "any",
   "lang": "en",
   "dir": "ltr",
-  "categories": ["business", "productivity", "technology"],
+  "categories": [
+    "business",
+    "productivity",
+    "technology"
+  ],
   "icons": [
     {
       "src": "/favicon.svg",
