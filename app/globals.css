@@ -121,7 +121,7 @@ html.lenis body {
   outline-color: var(--color-on-cobalt);
 }
 /* On bone-inverted surfaces swap to the deep ring. */
-.plat-cell :focus-visible {
+.plat-row :focus-visible {
   outline-color: var(--color-cobalt);
 }
 
@@ -260,6 +260,144 @@ html.lenis body {
 }
 .band-3 {
   background: var(--color-void-3);
+}
+
+/* ---------- The dossier chapter system ----------
+   The site's core architecture: every chapter is a two-column split.
+   Left: a rail that stays pinned (pure CSS sticky) carrying the chapter
+   index, word, kicker, and a scroll-progress line. Right: the chapter's
+   content scrolling past it. On small screens the rail collapses to a
+   compact header above the body. */
+.ch {
+  border-top: 1px solid var(--color-line);
+}
+@media (min-width: 1024px) {
+  .ch {
+    display: grid;
+    grid-template-columns: clamp(16rem, 26vw, 23rem) 1fr;
+    align-items: stretch;
+  }
+}
+.ch-rail {
+  padding: clamp(1.75rem, 3vw, 3rem) var(--gutter) 0;
+}
+@media (min-width: 1024px) {
+  .ch-rail {
+    padding: 0 0 0 var(--gutter);
+  }
+}
+.ch-rail-inner {
+  display: flex;
+  flex-direction: column;
+  gap: 1.1rem;
+}
+@media (min-width: 1024px) {
+  .ch-rail-inner {
+    position: sticky;
+    top: var(--nav-h);
+    min-height: calc(100svh - var(--nav-h));
+    padding-block: clamp(2rem, 4vh, 3.5rem);
+    justify-content: flex-start;
+  }
+}
+.ch-index {
+  font-family: var(--font-display);
+  font-variation-settings: "wdth" 125;
+  font-weight: 800;
+  font-size: clamp(2.6rem, 4.5vw, 4.4rem);
+  line-height: 1;
+  letter-spacing: -0.02em;
+  -webkit-text-stroke: 1.4px var(--color-line-cobalt);
+  color: transparent;
+  font-variant-numeric: tabular-nums;
+}
+.ch-word {
+  font-family: var(--font-display);
+  font-variation-settings: "wdth" 122;
+  font-weight: 780;
+  font-size: clamp(1.9rem, 2.6vw, 2.9rem);
+  line-height: 0.98;
+  letter-spacing: -0.01em;
+  text-transform: uppercase;
+}
+/* The rail's scroll line: fills as the chapter scrolls through the
+   viewport (additive scrub — static without JS). Desktop only. */
+.ch-progress {
+  display: none;
+}
+@media (min-width: 1024px) {
+  .ch-progress {
+    display: flex;
+    align-items: center;
+    gap: 0.9rem;
+    margin-top: auto;
+    padding-top: 2rem;
+  }
+  .ch-progress-rail {
+    position: relative;
+    width: 1px;
+    height: clamp(4rem, 12vh, 7rem);
+    background: var(--color-line);
+    overflow: hidden;
+  }
+  .ch-progress-fill {
+    position: absolute;
+    inset: 0;
+    background: var(--color-cobalt-hot);
+    transform: scaleY(0);
+    transform-origin: top center;
+  }
+  .ch-progress-pct {
+    font-family: var(--font-mono);
+    font-size: 0.7rem;
+    letter-spacing: 0.14em;
+    color: var(--color-bone-muted);
+    font-variant-numeric: tabular-nums;
+  }
+}
+.ch-body {
+  padding: clamp(1.75rem, 3vw, 3rem) var(--gutter) var(--pad-xl);
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+@media (min-width: 1024px) {
+  .ch-body {
+    border-left: 1px solid var(--color-line);
+    padding: clamp(2.5rem, 5vh, 4rem) var(--gutter) var(--pad-xl)
+      clamp(2rem, 3.5vw, 3.5rem);
+  }
+}
+/* Chapter heading inside the body: smaller than the old full-width h2. */
+.ch-h {
+  font-family: var(--font-display);
+  font-variation-settings: "wdth" 118;
+  font-weight: 750;
+  font-size: clamp(1.6rem, 3vw, 2.9rem);
+  line-height: 1.04;
+  letter-spacing: -0.01em;
+  text-transform: uppercase;
+  text-wrap: balance;
+}
+.ch-gap {
+  margin-top: clamp(2rem, 3.5vw, 3.25rem);
+}
+
+/* Generic dossier card */
+.d-card {
+  background: var(--color-void-2);
+  border: 1px solid var(--color-line);
+  border-radius: 4px;
+  padding: clamp(1.4rem, 2.4vw, 2.25rem);
+  transition: border-color 0.35s ease, background 0.4s var(--ease-expo),
+    transform 0.5s var(--ease-expo);
+}
+@media (hover: hover) {
+  .d-card:hover {
+    border-color: var(--color-line-cobalt);
+    background: var(--color-void-3);
+    transform: translateY(-3px);
+  }
 }
 
 /* ---------- Atmosphere ---------- */
@@ -557,16 +695,63 @@ html.lenis body {
 }
 
 /* ---------- Hero ---------- */
+/* The cover: same split architecture as the chapters, full-viewport, with
+   the grid field behind. The rail carries the dossier ID block; the body
+   carries the headline. */
 .hero-stage {
   position: relative;
   min-height: 100svh;
+  overflow: hidden;
+  padding-top: calc(var(--nav-h) + 1.5rem);
+}
+.cover-rail-inner {
   display: flex;
   flex-direction: column;
-  justify-content: flex-end;
-  overflow: hidden;
-  /* Content taller than the viewport (small screens) must clear the fixed
-     nav instead of sliding under it. */
-  padding-top: calc(var(--nav-h) + 2.5rem);
+  gap: 1.1rem;
+}
+@media (min-width: 1024px) {
+  .cover-rail-inner {
+    position: sticky;
+    top: var(--nav-h);
+    min-height: calc(100svh - var(--nav-h) - 1.5rem);
+    padding-block: clamp(2rem, 4vh, 3.5rem);
+  }
+  .cover-rail-inner .cover-meta {
+    margin-top: auto;
+  }
+}
+.cover-meta {
+  display: flex;
+  flex-direction: column;
+  gap: 0.55rem;
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  letter-spacing: 0.08em;
+  color: var(--color-bone-muted);
+}
+.cover-body {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  min-width: 0;
+}
+/* Cover headline: sized for the split column, not the full viewport. */
+.cover-title {
+  font-family: var(--font-display);
+  font-variation-settings: "wdth" 125;
+  font-weight: 800;
+  font-size: clamp(2rem, 4.6vw, 4.7rem);
+  line-height: 0.98;
+  letter-spacing: -0.015em;
+  text-transform: uppercase;
+  text-wrap: balance;
+}
+@media (min-width: 1024px) {
+  .cover-body {
+    min-height: calc(100svh - var(--nav-h) - 1.5rem);
+    padding-block: clamp(2rem, 4vh, 3.5rem);
+  }
 }
 
 /* The grid field canvas layer. Fallback (no JS / no canvas / reduced
@@ -623,16 +808,11 @@ html.lenis body {
   background: linear-gradient(180deg, transparent, var(--color-void) 82%);
 }
 
-/* Bottom meta bar: mono facts in ruled columns. */
+/* Meta bar: mono facts in ruled columns — 2×2 inside the cover body. */
 .hero-meta {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
   border-top: 1px solid var(--color-line);
-}
-@media (min-width: 900px) {
-  .hero-meta {
-    grid-template-columns: repeat(4, 1fr) auto;
-  }
 }
 .hero-meta-cell {
   display: flex;
@@ -652,11 +832,6 @@ html.lenis body {
   font-size: clamp(0.78rem, 1vw, 0.9rem);
   letter-spacing: 0.02em;
   color: var(--color-bone);
-}
-@media (min-width: 900px) {
-  .hero-meta-val {
-    white-space: nowrap;
-  }
 }
 
 /* Hero scroll cue — a slow travelling tick */
@@ -797,68 +972,59 @@ html.lenis body {
   color: transparent;
 }
 
-/* ---------- Problem: the incident ledger ---------- */
-.inc-row {
-  display: grid;
-  gap: 0.6rem clamp(1.5rem, 3.5vw, 3.5rem);
-  padding-block: clamp(1.7rem, 3vw, 2.6rem);
-  border-top: 1px solid var(--color-line);
-  transition: padding-left 0.5s var(--ease-expo), background 0.35s ease;
+/* ---------- Problem: incident cards ---------- */
+.inc-card {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  background: var(--color-void-2);
+  border: 1px solid var(--color-line);
+  border-left: 3px solid var(--color-line-cobalt);
+  border-radius: 4px;
+  padding: clamp(1.4rem, 2.4vw, 2rem);
+  transition: border-color 0.35s ease, background 0.4s var(--ease-expo);
 }
-.inc-row:last-child {
-  border-bottom: 1px solid var(--color-line);
-}
-@media (min-width: 900px) {
-  .inc-row {
-    grid-template-columns: 11rem 1fr 1.15fr auto;
-    align-items: baseline;
+@media (hover: hover) {
+  .inc-card:hover {
+    background: var(--color-void-3);
+    border-left-color: var(--color-cobalt-hot);
   }
+}
+.inc-card-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
 }
 .inc-code {
   font-family: var(--font-mono);
-  font-size: 0.82rem;
+  font-size: 0.8rem;
   letter-spacing: 0.12em;
-  color: var(--color-bone-muted);
-  transition: color 0.35s ease;
+  color: var(--color-cobalt-hot);
 }
 .inc-title {
   font-family: var(--font-display);
   font-variation-settings: "wdth" 112;
   font-weight: 700;
-  font-size: clamp(1.4rem, 2.6vw, 2.2rem);
+  font-size: clamp(1.3rem, 2.2vw, 1.9rem);
   line-height: 1.05;
   letter-spacing: -0.01em;
   text-transform: uppercase;
 }
 .inc-body {
   color: var(--color-bone-muted);
-  max-width: 46ch;
+  max-width: 56ch;
 }
 .inc-flag {
-  justify-self: start;
   font-family: var(--font-mono);
-  font-size: 0.72rem;
+  font-size: 0.68rem;
   letter-spacing: 0.16em;
   text-transform: uppercase;
-  color: var(--color-cobalt-hot);
-  border: 1px solid var(--color-line-cobalt);
+  color: var(--color-bone-muted);
+  border: 1px solid var(--color-line);
   border-radius: 2px;
-  padding: 0.3rem 0.6rem;
+  padding: 0.28rem 0.55rem;
   white-space: nowrap;
-}
-@media (min-width: 900px) {
-  .inc-flag {
-    justify-self: end;
-  }
-}
-@media (hover: hover) {
-  .inc-row:hover {
-    padding-left: 1rem;
-    background: oklch(0.952 0.012 82 / 0.025);
-  }
-  .inc-row:hover .inc-code {
-    color: var(--color-cobalt-hot);
-  }
 }
 
 /* ---------- Framework: principle cells in a keyline grid ---------- */
@@ -907,310 +1073,151 @@ html.lenis body {
   border-color: var(--color-cobalt-hot);
 }
 
-/* ---------- Delivery sequence (the centerpiece pin) ---------- */
-/* Default layout (no JS, touch, small screens, reduced motion): a vertical
-   ledger. When the pinned horizontal scrub engages, the component adds
-   `.is-pinned` and the track becomes a wide row translated by ScrollTrigger. */
-.dlv-viewport {
-  position: relative;
-}
-.dlv-track {
-  display: flex;
-  flex-direction: column;
-}
-.dlv-panel {
+/* ---------- Delivery: vertical stage ledger ----------
+   Stages scroll past the pinned chapter rail; the row nearest the viewport
+   centre gets `.is-active` (small client observer, additive - without JS
+   every numeral simply renders stroked and all text stays readable). */
+.stg-row {
   display: grid;
-  gap: 0.75rem clamp(1.5rem, 4vw, 4rem);
-  padding-block: clamp(2rem, 4vw, 3.25rem);
+  grid-template-columns: minmax(4.5rem, auto) 1fr;
+  gap: 0.5rem clamp(1.25rem, 2.5vw, 2.5rem);
+  align-items: start;
+  padding-block: clamp(1.6rem, 2.8vw, 2.4rem);
   border-top: 1px solid var(--color-line);
 }
-@media (min-width: 700px) {
-  .dlv-panel {
-    grid-template-columns: minmax(11rem, auto) 1fr;
-    align-items: center;
-  }
+.stg-row:last-child {
+  border-bottom: 1px solid var(--color-line);
 }
-.dlv-key {
+.stg-num {
   font-family: var(--font-display);
   font-variation-settings: "wdth" 125;
   font-weight: 800;
-  font-size: clamp(4.5rem, 11vw, 9rem);
-  line-height: 0.85;
+  font-size: clamp(2.6rem, 5vw, 4.6rem);
+  line-height: 0.9;
   letter-spacing: -0.02em;
   color: transparent;
-  -webkit-text-stroke: 1.6px var(--color-line-cobalt);
+  -webkit-text-stroke: 1.5px var(--color-line-cobalt);
   font-variant-numeric: tabular-nums;
+  transition: color 0.4s ease;
 }
-.dlv-panel.is-active .dlv-key,
-.dlv-track:not(.is-horizontal) .dlv-key {
+.stg-row.is-active .stg-num {
   color: var(--color-cobalt-hot);
   -webkit-text-stroke: 0;
 }
-.dlv-stage-num {
-  font-family: var(--font-mono);
-  font-size: 0.72rem;
-  letter-spacing: 0.2em;
-  text-transform: uppercase;
-  color: var(--color-bone-muted);
-}
-.dlv-stage-name {
+.stg-name {
   font-family: var(--font-display);
   font-variation-settings: "wdth" 115;
   font-weight: 700;
-  font-size: clamp(1.5rem, 2.4vw, 2.2rem);
-  letter-spacing: -0.01em;
+  font-size: clamp(1.25rem, 2vw, 1.8rem);
+  letter-spacing: -0.008em;
   text-transform: uppercase;
 }
-/* Progress rail shown only in pinned mode. */
-.dlv-progress {
-  display: none;
+.stg-body {
+  color: var(--color-bone-muted);
+  max-width: 52ch;
 }
 
-/* Horizontal pinned mode (added by JS on wide screens). */
-.is-pinned .dlv-viewport {
+/* ---------- Modules: registry cards ---------- */
+.mod-card {
   display: flex;
   flex-direction: column;
-  justify-content: center;
-  min-height: 100svh;
-  overflow: hidden;
-  padding-block: clamp(1.25rem, 3.5vh, 2.75rem);
+  gap: 0.8rem;
 }
-.is-pinned .dlv-track.is-horizontal {
-  flex-direction: row;
-  width: max-content;
-  align-items: stretch;
-  will-change: transform;
-}
-.is-pinned .dlv-track.is-horizontal .dlv-panel {
-  grid-template-columns: 1fr;
-  align-content: start;
-  width: clamp(24rem, 32vw, 33rem);
-  flex: 0 0 auto;
-  border-top: 0;
-  border-left: 1px solid var(--color-line);
-  padding: clamp(1.5rem, 2.5vw, 2.5rem) clamp(1.75rem, 3vw, 3rem)
-    clamp(1.5rem, 2.5vw, 2.5rem);
-  transition: opacity 0.4s ease;
-}
-.is-pinned .dlv-track.is-horizontal .dlv-key {
-  font-size: clamp(8rem, 22vh, 14rem);
-  transition: color 0.4s ease;
-}
-.is-pinned .dlv-panel:not(.is-active) {
-  opacity: 0.42;
-}
-.is-pinned .dlv-panel:not(.is-active) .dlv-key {
-  color: transparent;
-  -webkit-text-stroke: 1.6px var(--color-line-cobalt);
-}
-.is-pinned .dlv-progress {
+.mod-card-top {
   display: flex;
   align-items: center;
-  gap: 1.25rem;
-  margin-bottom: clamp(2rem, 5vh, 4rem);
-}
-.dlv-progress-rail {
-  position: relative;
-  flex: 1;
-  height: 2px;
-  background: var(--color-line);
-  overflow: hidden;
-}
-.dlv-progress-fill {
-  position: absolute;
-  inset: 0;
-  background: var(--color-cobalt-hot);
-  transform: scaleX(0);
-  transform-origin: left center;
-}
-.dlv-progress-count {
-  font-family: var(--font-mono);
-  font-size: 0.78rem;
-  letter-spacing: 0.16em;
-  color: var(--color-bone);
-  font-variant-numeric: tabular-nums;
-  white-space: nowrap;
-}
-
-/* Shorter laptops: compress the pinned composition so the full sequence fits
-   one viewport with no clipping. */
-@media (max-height: 880px) {
-  .is-pinned .dlv-viewport .t-h2 {
-    font-size: clamp(1.7rem, 2.8vw, 2.5rem);
-  }
-  .is-pinned .dlv-viewport .t-lead {
-    font-size: 1.05rem;
-    line-height: 1.45;
-  }
-  .is-pinned .dlv-viewport .section-gap {
-    margin-top: 1.75rem;
-  }
-  .is-pinned .dlv-progress {
-    margin-bottom: 1.5rem;
-  }
-  .is-pinned .dlv-track.is-horizontal .dlv-key {
-    font-size: clamp(5.5rem, 16vh, 9rem);
-  }
-  .is-pinned .dlv-track.is-horizontal .dlv-panel {
-    padding-block: 1.25rem;
-  }
-}
-
-/* ---------- Modules: registry rows with cobalt hover flood ---------- */
-.mod-row {
-  position: relative;
-  display: grid;
-  gap: 0.9rem clamp(1.5rem, 3.5vw, 3.5rem);
-  padding-block: clamp(1.9rem, 3.4vw, 3rem);
-  border-top: 1px solid var(--color-line);
-  isolation: isolate;
-}
-.mod-row:last-child {
-  border-bottom: 1px solid var(--color-line);
-}
-@media (min-width: 900px) {
-  .mod-row {
-    grid-template-columns: 8.5rem 1.05fr 1fr auto;
-    align-items: start;
-  }
-}
-/* Full-row cobalt flood on hover. Text flips to the on-cobalt palette. */
-.mod-row::before {
-  content: "";
-  position: absolute;
-  inset: 0 calc(-1 * var(--gutter));
-  z-index: -1;
-  background: var(--color-cobalt);
-  transform: scaleY(0);
-  transform-origin: center bottom;
-  transition: transform 0.5s var(--ease-expo);
+  justify-content: space-between;
+  gap: 1rem;
 }
 .mod-code {
   font-family: var(--font-mono);
-  font-size: 0.82rem;
+  font-size: 0.8rem;
   letter-spacing: 0.12em;
-  color: var(--color-bone-muted);
-  transition: color 0.35s ease;
+  color: var(--color-cobalt-hot);
 }
 .mod-title {
-  transition: color 0.35s ease, transform 0.5s var(--ease-expo);
+  font-family: var(--font-display);
+  font-variation-settings: "wdth" 115;
+  font-weight: 720;
+  font-size: clamp(1.35rem, 2.3vw, 2rem);
+  line-height: 1.05;
+  letter-spacing: -0.008em;
+  text-transform: uppercase;
 }
 .mod-body {
   color: var(--color-bone-muted);
-  transition: color 0.35s ease;
-}
-.mod-tag {
-  justify-self: start;
-  transition: color 0.35s ease, border-color 0.35s ease;
-}
-@media (min-width: 900px) {
-  .mod-tag {
-    justify-self: end;
-  }
-}
-.mod-arrow {
-  position: absolute;
-  right: 0;
-  bottom: clamp(1.9rem, 3.4vw, 3rem);
-  opacity: 0;
-  color: var(--color-on-cobalt);
-  transform: translateX(-14px);
-  transition: opacity 0.35s ease, transform 0.5s var(--ease-expo);
-}
-@media (hover: hover) {
-  .mod-row:hover::before {
-    transform: scaleY(1);
-    transform-origin: center top;
-  }
-  .mod-row:hover .mod-code {
-    color: var(--color-on-cobalt);
-  }
-  .mod-row:hover .mod-title {
-    color: var(--color-on-cobalt);
-    transform: translateX(8px);
-  }
-  .mod-row:hover .mod-body {
-    color: var(--color-on-cobalt-muted);
-  }
-  .mod-row:hover .mod-tag {
-    color: var(--color-on-cobalt);
-    border-color: var(--color-line-on-cobalt);
-  }
-  .mod-row:hover .mod-arrow {
-    opacity: 1;
-    transform: translateX(0);
-  }
+  max-width: 56ch;
 }
 
-/* ---------- Platforms: keyline columns that invert to bone ---------- */
-.plat-grid {
-  display: grid;
-  gap: 1px;
-  background: var(--color-line);
-  border: 1px solid var(--color-line);
-}
-@media (min-width: 900px) {
-  .plat-grid {
-    grid-template-columns: repeat(3, 1fr);
-  }
-}
-.plat-cell {
+/* ---------- Platforms: stacked rows with bone inversion ---------- */
+.plat-row {
   display: flex;
   flex-direction: column;
-  gap: 1.1rem;
+  gap: 0.9rem;
+  border: 1px solid var(--color-line);
+  border-radius: 4px;
   background: var(--color-void);
-  padding: clamp(1.7rem, 3vw, 2.75rem);
-  transition: background 0.45s var(--ease-expo);
+  padding: clamp(1.4rem, 2.4vw, 2.1rem);
+  transition: background 0.45s var(--ease-expo), border-color 0.35s ease;
+}
+.plat-row + .plat-row {
+  margin-top: 0.85rem;
 }
 .plat-name {
   font-family: var(--font-display);
   font-variation-settings: "wdth" 112;
   font-weight: 700;
-  font-size: clamp(1.35rem, 2vw, 1.8rem);
+  font-size: clamp(1.25rem, 2vw, 1.7rem);
   letter-spacing: -0.008em;
   text-transform: uppercase;
   transition: color 0.35s ease;
 }
 .plat-role {
   color: var(--color-bone-muted);
+  max-width: 56ch;
   transition: color 0.35s ease;
 }
-.plat-theme {
+.plat-themes {
   display: flex;
-  align-items: baseline;
-  gap: 0.7rem;
-  padding-block: 0.55rem;
-  border-top: 1px solid var(--color-line);
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+.plat-theme {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.55rem;
+  padding: 0.4rem 0.8rem;
+  border: 1px solid var(--color-line);
+  border-radius: 2px;
   font-family: var(--font-mono);
-  font-size: 0.8rem;
-  letter-spacing: 0.02em;
+  font-size: 0.74rem;
+  letter-spacing: 0.04em;
   color: var(--color-bone-soft);
   transition: color 0.35s ease, border-color 0.35s ease;
 }
 .plat-theme::before {
   content: "";
-  flex: 0 0 auto;
-  width: 6px;
-  height: 6px;
+  width: 5px;
+  height: 5px;
   background: var(--color-cobalt-hot);
-  transform: translateY(-1px);
   transition: background 0.35s ease;
 }
 @media (hover: hover) {
-  .plat-cell:hover {
+  .plat-row:hover {
     background: var(--color-bone);
+    border-color: var(--color-bone);
   }
-  .plat-cell:hover .plat-name {
+  .plat-row:hover .plat-name {
     color: var(--color-void);
   }
-  .plat-cell:hover .plat-role {
+  .plat-row:hover .plat-role {
     color: oklch(0.435 0.012 62);
   }
-  .plat-cell:hover .plat-theme {
+  .plat-row:hover .plat-theme {
     color: oklch(0.335 0.013 62);
-    border-color: oklch(0.205 0.014 64 / 0.14);
+    border-color: oklch(0.205 0.014 64 / 0.2);
   }
-  .plat-cell:hover .plat-theme::before {
+  .plat-row:hover .plat-theme::before {
     background: var(--color-cobalt);
   }
 }

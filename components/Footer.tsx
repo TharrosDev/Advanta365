@@ -72,6 +72,11 @@ export default function Footer() {
           </div>
         </div>
 
+        <div className="flex items-center justify-between gap-4 border-t border-line py-4">
+          <span className="t-coord">End of dossier</span>
+          <span className="t-coord tabular-nums">08 / 08</span>
+        </div>
+
         <a href="/#top" className="footer-mega" aria-label="ADVANTA365 — back to top">
           ADVANTA365
         </a>
