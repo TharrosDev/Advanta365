@@ -1,16 +1,16 @@
 import Script from "next/script";
-import SiteLayout from "@/components/SiteLayout";
-import Hero from "@/components/home/Hero";
-import ProofStrip from "@/components/home/ProofStrip";
-import WhatIs from "@/components/home/WhatIs";
-import DeliveryScroll from "@/components/home/DeliveryScroll";
-import ModuleShowcase from "@/components/home/ModuleShowcase";
-import Governance from "@/components/home/Governance";
-import Adoption from "@/components/home/Adoption";
-import Platforms from "@/components/home/Platforms";
-import Why from "@/components/home/Why";
-import CTABand from "@/components/sections/CTABand";
-import { contact, contactCTA, deliveryStages, modules } from "@/lib/content";
+import SiteShell from "@/components/SiteShell";
+import Hero from "@/components/sections/Hero";
+import Marquee from "@/components/fx/Marquee";
+import Problem from "@/components/sections/Problem";
+import Framework from "@/components/sections/Framework";
+import Delivery from "@/components/sections/Delivery";
+import Modules from "@/components/sections/Modules";
+import Platforms from "@/components/sections/Platforms";
+import Adoption from "@/components/sections/Adoption";
+import Why from "@/components/sections/Why";
+import ContactClose from "@/components/sections/ContactClose";
+import { delivery, registry } from "@/lib/content";
 import {
   buildMetadata,
   itemListSchema,
@@ -53,19 +53,22 @@ const homeGraph = {
     itemListSchema({
       name: "ADVANTA Modules",
       path: "/",
-      items: modules.map((m) => ({ name: `ADVANTA ${m.title}`, description: m.description })),
+      items: registry.modules.map((m) => ({
+        name: `ADVANTA ${m.title}`,
+        description: m.body,
+      })),
     }),
     itemListSchema({
       name: "ADVANTA365 Delivery Stages",
       path: "/",
-      items: deliveryStages.map((s) => ({ name: s.label })),
+      items: delivery.stages.map((s) => ({ name: s.name })),
     }),
   ],
 };
 
 export default function Home() {
   return (
-    <SiteLayout>
+    <SiteShell>
       <Script
         id="ld-home"
         type="application/ld+json"
@@ -74,23 +77,15 @@ export default function Home() {
       />
 
       <Hero />
-      <ProofStrip />
-      <WhatIs />
-      <DeliveryScroll />
-      <ModuleShowcase />
-      <Governance />
-      <Adoption />
+      <Marquee />
+      <Problem />
+      <Framework />
+      <Delivery />
+      <Modules />
       <Platforms />
+      <Adoption />
       <Why />
-
-      <CTABand
-        label="Get started"
-        title={contactCTA.title}
-        lede={contactCTA.description}
-        primary={{ label: "Book a call", href: "/contact" }}
-        secondary={{ label: "Email us", href: `mailto:${contact.email}` }}
-        tone="dark"
-      />
-    </SiteLayout>
+      <ContactClose />
+    </SiteShell>
   );
 }

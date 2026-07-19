@@ -1,8 +1,7 @@
 import type { Metadata, Viewport } from "next";
-import { Bricolage_Grotesque, Spline_Sans, Spline_Sans_Mono } from "next/font/google";
+import { Archivo, IBM_Plex_Mono, Public_Sans } from "next/font/google";
 import Script from "next/script";
 import "./globals.css";
-import Providers from "./providers";
 import {
   BASE_KEYWORDS,
   OG_IMAGE,
@@ -15,25 +14,27 @@ import {
   websiteSchema,
 } from "@/lib/seo";
 
-const bricolage = Bricolage_Grotesque({
+/* Display: Archivo variable with the width axis — expanded uppercase is the
+   site's broadcast voice. Body: Public Sans (the USWDS typeface, shared with
+   the Echofive parent site). Mono: IBM Plex Mono for coordinates. */
+const archivo = Archivo({
   subsets: ["latin"],
-  variable: "--font-bricolage",
+  variable: "--font-archivo",
   display: "swap",
-  weight: ["400", "500", "600", "700", "800"],
+  axes: ["wdth"],
 });
 
-const spline = Spline_Sans({
+const publicSans = Public_Sans({
   subsets: ["latin"],
-  variable: "--font-spline",
+  variable: "--font-public",
   display: "swap",
-  weight: ["400", "500", "600", "700"],
 });
 
-const splineMono = Spline_Sans_Mono({
+const plexMono = IBM_Plex_Mono({
   subsets: ["latin"],
-  variable: "--font-spline-mono",
+  variable: "--font-plex",
   display: "swap",
-  weight: ["400", "500"],
+  weight: ["400", "500", "600"],
 });
 
 const ROOT_DESCRIPTION =
@@ -87,9 +88,7 @@ export const metadata: Metadata = {
     images: [OG_IMAGE.url],
   },
   icons: {
-    icon: [
-      { url: "/favicon.svg", type: "image/svg+xml" },
-    ],
+    icon: [{ url: "/favicon.svg", type: "image/svg+xml" }],
     apple: "/favicon.svg",
   },
   manifest: "/manifest.json",
@@ -101,8 +100,8 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
-  themeColor: "#f3efe7",
-  colorScheme: "light",
+  themeColor: "#1b1814",
+  colorScheme: "dark",
   width: "device-width",
   initialScale: 1,
 };
@@ -121,11 +120,16 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${bricolage.variable} ${spline.variable} ${splineMono.variable}`}
+      className={`${archivo.variable} ${publicSans.variable} ${plexMono.variable}`}
       suppressHydrationWarning
     >
-      <body className="font-sans antialiased" style={{ margin: 0, padding: 0 }}>
-        <Providers>{children}</Providers>
+      <body className="antialiased">
+        {/* Flags JS availability before paint: reveal start-states are gated
+            behind `.js` so no-JS visitors and crawlers see everything. */}
+        <Script id="js-flag" strategy="beforeInteractive">
+          {`document.documentElement.classList.add("js");`}
+        </Script>
+        {children}
         <Script
           id="ld-root"
           type="application/ld+json"
