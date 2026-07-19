@@ -129,8 +129,7 @@ export function organizationSchema() {
       "Enterprise Microsoft 365 adoption, governance, implementation, and enablement framework for large, complex, and regulated organizations.",
     logo: {
       "@type": "ImageObject",
-      url:
-        "https://d2xsxph8kpxj0f.cloudfront.net/310519663677163857/g8wGKX5v4ST4YMyg6HYL47/favicon-H7Z8tUbL6UHeFwN2z6g6tN.png",
+      url: `${SITE_URL}/favicon.svg`,
       width: 512,
       height: 512,
     },

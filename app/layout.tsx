@@ -34,7 +34,8 @@ const plexMono = IBM_Plex_Mono({
   subsets: ["latin"],
   variable: "--font-plex",
   display: "swap",
-  weight: ["400", "500", "600"],
+  // Two weights only — every mono treatment on the site uses 400 or 500.
+  weight: ["400", "500"],
 });
 
 const ROOT_DESCRIPTION =

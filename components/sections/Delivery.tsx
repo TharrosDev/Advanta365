@@ -41,6 +41,12 @@ export default function Delivery() {
       track.classList.add("is-horizontal");
       setActive(0);
 
+      // In pinned mode the panels present through the horizontal scrub, not
+      // the entrance reveal — and a fast scroll-jump past the pin can outrace
+      // the scrubbed track so IntersectionObserver never sees the later
+      // panels, leaving them at opacity 0 forever. Force them visible here.
+      gsap.set(panels, { opacity: 1, x: 0, y: 0, scale: 1 });
+
       try {
         const dist = () =>
           Math.max(

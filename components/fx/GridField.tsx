@@ -159,8 +159,14 @@ export default function GridField() {
     if (wrap) wrap.dataset.live = "true";
     start();
 
+    // Track the pointer at window level: the hero content and HUD layers sit
+    // above the canvas, so events rarely reach the canvas itself. The rect is
+    // cached and refreshed on scroll/resize instead of read per event.
+    let rect = canvas.getBoundingClientRect();
+    const refreshRect = () => {
+      rect = canvas.getBoundingClientRect();
+    };
     const onMove = (e: PointerEvent) => {
-      const rect = canvas.getBoundingClientRect();
       pointer.x = e.clientX - rect.left;
       pointer.y = e.clientY - rect.top;
     };
@@ -168,8 +174,10 @@ export default function GridField() {
       pointer.x = -9999;
       pointer.y = -9999;
     };
-    canvas.addEventListener("pointermove", onMove, { passive: true });
-    canvas.addEventListener("pointerleave", onLeave, { passive: true });
+    window.addEventListener("pointermove", onMove, { passive: true });
+    window.addEventListener("pointerdown", onMove, { passive: true });
+    document.documentElement.addEventListener("pointerleave", onLeave);
+    window.addEventListener("scroll", refreshRect, { passive: true });
 
     const io = new IntersectionObserver(
       ([entry]) => {
@@ -189,6 +197,7 @@ export default function GridField() {
 
     const ro = new ResizeObserver(() => {
       build();
+      refreshRect();
     });
     ro.observe(canvas);
 
@@ -197,8 +206,10 @@ export default function GridField() {
       io.disconnect();
       ro.disconnect();
       document.removeEventListener("visibilitychange", onVisibility);
-      canvas.removeEventListener("pointermove", onMove);
-      canvas.removeEventListener("pointerleave", onLeave);
+      window.removeEventListener("pointermove", onMove);
+      window.removeEventListener("pointerdown", onMove);
+      document.documentElement.removeEventListener("pointerleave", onLeave);
+      window.removeEventListener("scroll", refreshRect);
       if (wrap) delete wrap.dataset.live;
     };
   }, []);

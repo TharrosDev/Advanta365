@@ -128,6 +128,7 @@ export default function Nav() {
   };
 
   return (
+    <>
     <nav
       className={`site-nav${solid || open || pathname !== "/" ? " is-solid" : ""}${
         hidden && !open ? " nav-hidden" : ""
@@ -151,7 +152,9 @@ export default function Nav() {
                 active && item.href.endsWith(`#${active}`) ? "" : undefined
               }
             >
-              <sup className="nav-index">{item.index}</sup>
+              <sup className="nav-index" aria-hidden="true">
+                {item.index}
+              </sup>
               {item.label}
             </a>
           ))}
@@ -199,37 +202,44 @@ export default function Nav() {
         </div>
       </div>
 
-      {open && (
-        <div
-          id="mobile-menu"
-          ref={panelRef}
-          className="mobile-menu lg:hidden"
-          role="dialog"
-          aria-modal="true"
-          aria-label="Site menu"
-        >
-          <div className="flex flex-col">
-            {navItems.map((item) => (
-              <a
-                key={item.href}
-                href={item.href}
-                onClick={(e) => onAnchorClick(e, item.href)}
-                className="mobile-link"
-              >
-                <span className="t-coord">{item.index}</span>
-                {item.label}
-              </a>
-            ))}
-          </div>
-          <a
-            href="/#contact"
-            onClick={(e) => onAnchorClick(e, "/#contact")}
-            className="btn btn-primary mt-8 self-start"
-          >
-            Talk to us
-          </a>
-        </div>
-      )}
     </nav>
+
+    {/* Rendered as a sibling of the nav, never inside it: the solid nav's
+        backdrop-filter makes it the containing block for fixed descendants,
+        which would clip this full-screen panel to the nav bar's box. */}
+    {open && (
+      <div
+        id="mobile-menu"
+        ref={panelRef}
+        className="mobile-menu lg:hidden"
+        role="dialog"
+        aria-modal="true"
+        aria-label="Site menu"
+      >
+        <div className="flex flex-col">
+          {navItems.map((item) => (
+            <a
+              key={item.href}
+              href={item.href}
+              onClick={(e) => onAnchorClick(e, item.href)}
+              className="mobile-link"
+            >
+              <span className="t-coord" aria-hidden="true">
+                {item.index}
+              </span>
+              {item.label}
+            </a>
+          ))}
+        </div>
+        <a
+          href="/#contact"
+          onClick={(e) => onAnchorClick(e, "/#contact")}
+          className="btn btn-primary mt-8 self-start"
+        >
+          Talk to us
+        </a>
+      </div>
+    )}
+    </>
   );
 }

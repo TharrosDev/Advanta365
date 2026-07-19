@@ -114,11 +114,7 @@ export default function Hero() {
       <div className="hero-fade" aria-hidden="true" />
 
       {/* HUD frame */}
-      <div
-        className="absolute z-[2]"
-        style={{ inset: "calc(var(--nav-h) + 0.75rem) var(--gutter) 0.9rem" }}
-        aria-hidden="true"
-      >
+      <div className="hud-frame" aria-hidden="true">
         <span className="hud-corner" data-pos="tl" />
         <span className="hud-corner" data-pos="tr" />
         <span className="hud-corner" data-pos="bl" />
