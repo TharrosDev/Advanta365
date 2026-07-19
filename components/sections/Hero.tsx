@@ -8,15 +8,15 @@ import { useSmoothScroll } from "@/components/providers/SmoothScroll";
 import GridField from "@/components/fx/GridField";
 
 /**
- * Full-viewport command deck: the grid field settling behind an expanded
- * uppercase headline, HUD corner ticks, and a mono meta bar. The entrance
+ * The dossier cover: the same split architecture as every chapter — ID rail
+ * on the left (index 00, status, document meta), headline in the scrolling
+ * column — with the grid field settling behind the whole stage. The entrance
  * timeline plays on mount with a safety timer so a failed tween can never
- * leave the hero hidden; reduced-motion visitors get everything visible
+ * leave the cover hidden; reduced-motion visitors get everything visible
  * from CSS.
  */
 export default function Hero() {
   const stageRef = useRef<HTMLElement>(null);
-  const innerRef = useRef<HTMLDivElement>(null);
   const { scrollTo } = useSmoothScroll();
 
   useEffect(() => {
@@ -47,24 +47,24 @@ export default function Hero() {
     let tl: gsap.core.Timeline | null = null;
     try {
       tl = gsap.timeline({ defaults: { ease: EASE } });
-      tl.to(stage.querySelectorAll("[data-hero='chip']"), {
+      tl.to(stage.querySelectorAll("[data-hero='rail']"), {
         opacity: 1,
-        duration: 0.6,
+        duration: 0.7,
+        stagger: 0.08,
       })
         .fromTo(
           words,
           { y: 0, yPercent: 110 },
           { yPercent: 0, duration: 1.05, stagger: 0.05 },
-          0.1,
+          0.15,
         )
         .to(
           stage.querySelectorAll(
             "[data-hero='lede'], [data-hero='ctas'], [data-hero='meta']",
           ),
           { opacity: 1, y: 0, duration: 0.8, stagger: 0.1 },
-          0.55,
+          0.6,
         );
-      // The headline masks are ready — the line wrappers can show.
       lines.forEach((l) => {
         l.style.opacity = "1";
       });
@@ -72,29 +72,9 @@ export default function Hero() {
       heroEls.forEach((el) => (el.style.opacity = "1"));
     }
 
-    // Additive scroll-exit drift: the composition rises and softens as the
-    // hero leaves. Scrub-only; failure leaves everything readable.
-    let drift: gsap.core.Tween | null = null;
-    const inner = innerRef.current;
-    if (inner) {
-      drift = gsap.to(inner, {
-        yPercent: -6,
-        opacity: 0.35,
-        ease: "none",
-        scrollTrigger: {
-          trigger: stage,
-          start: "top top",
-          end: "bottom top",
-          scrub: 0.6,
-        },
-      });
-    }
-
     return () => {
       window.clearTimeout(safety);
       tl?.kill();
-      drift?.scrollTrigger?.kill();
-      drift?.kill();
       splits.forEach((s) => s.revert());
     };
   }, []);
@@ -121,28 +101,42 @@ export default function Hero() {
         <span className="hud-corner" data-pos="br" />
       </div>
 
-      <div ref={innerRef} className="relative z-[2] u-container pb-6 md:pb-8">
-        <p data-hero="chip" className="chip mb-7">
-          <span className="status-dot" aria-hidden="true" />
-          {hero.kicker}
-        </p>
-
-        <h1 className="t-display">
-          {hero.titleLines.map((line) => (
-            <span key={line} data-hero data-hero-line className="block">
-              {line}
+      <div className="ch relative z-[2]" style={{ borderTop: "none" }}>
+        <div className="ch-rail">
+          <div className="cover-rail-inner">
+            <p data-hero="rail" className="chip">
+              <span className="status-dot" aria-hidden="true" />
+              {hero.kicker}
+            </p>
+            <span data-hero="rail" className="ch-index" aria-hidden="true">
+              00
             </span>
-          ))}
-        </h1>
+            <span data-hero="rail" className="ch-word" aria-hidden="true">
+              Dossier
+            </span>
+            <div data-hero="rail" className="cover-meta">
+              {hero.meta.map((m) => (
+                <span key={m.key}>
+                  {m.key} / {m.value}
+                </span>
+              ))}
+            </div>
+          </div>
+        </div>
 
-        <div className="mt-8 grid gap-8 md:grid-cols-12 md:items-end">
-          <p data-hero="lede" className="t-lead measure-wide md:col-span-7">
+        <div className="cover-body ch-body">
+          <h1 className="cover-title">
+            {hero.titleLines.map((line) => (
+              <span key={line} data-hero data-hero-line className="block">
+                {line}
+              </span>
+            ))}
+          </h1>
+
+          <p data-hero="lede" className="t-lead measure-wide mt-8">
             {hero.lede}
           </p>
-          <div
-            data-hero="ctas"
-            className="flex flex-wrap gap-3 md:col-span-5 md:justify-end"
-          >
+          <div data-hero="ctas" className="mt-8 flex flex-wrap gap-3">
             <a
               href={contact.bookingUrl}
               target="_blank"
@@ -159,19 +153,24 @@ export default function Hero() {
               {hero.cta2}
             </a>
           </div>
-        </div>
 
-        <div data-hero="meta" className="hero-meta mt-10">
-          {hero.meta.map((m, i) => (
-            <div key={m.key} className="hero-meta-cell">
-              <span className="hero-meta-num">
-                {String(i + 1).padStart(2, "0")} / {m.key}
-              </span>
-              <span className="hero-meta-val">{m.value}</span>
-            </div>
-          ))}
-          <div className="hero-meta-cell hidden items-end md:flex">
+          <div data-hero="meta" className="hero-meta mt-12">
+            {hero.meta.slice(0, 4).map((m, i) => (
+              <div key={m.key} className="hero-meta-cell">
+                <span className="hero-meta-num">
+                  {String(i + 1).padStart(2, "0")} / {m.key}
+                </span>
+                <span className="hero-meta-val">{m.value}</span>
+              </div>
+            ))}
+          </div>
+
+          <div
+            data-hero="meta"
+            className="mt-8 hidden items-center gap-3 md:flex"
+          >
             <span className="scroll-cue" aria-hidden="true" />
+            <span className="t-coord">Scroll the dossier</span>
           </div>
         </div>
       </div>

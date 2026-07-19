@@ -30,6 +30,7 @@ export const marqueeWords = ["Governance", "Adoption", "Rollout", "Sustainment"]
 
 export const problem = {
   index: "01",
+  word: "Problem",
   kicker: "The failure state",
   heading: "Deployment is not adoption.",
   lede:
@@ -59,6 +60,7 @@ export const problem = {
 
 export const framework = {
   index: "02",
+  word: "System",
   kicker: "The framework",
   heading: "One operating model. Not another deployment.",
   lede:
@@ -87,7 +89,8 @@ export const framework = {
 
 export const delivery = {
   index: "03",
-  kicker: "Delivery",
+  word: "Delivery",
+  kicker: "Six stages",
   heading: "Six stages. Governance in every one.",
   lede:
     "A structured path from first intent to a living platform. Each stage has defined outcomes, owners, and readiness criteria before the next begins.",
@@ -130,6 +133,7 @@ export const delivery = {
 
 export const registry = {
   index: "04",
+  word: "Modules",
   kicker: "The registry",
   heading: "Five modules. One governed system.",
   lede:
@@ -172,7 +176,8 @@ export const registry = {
 
 export const platforms = {
   index: "05",
-  kicker: "The surface",
+  word: "Surface",
+  kicker: "Three platforms",
   heading: "Three platforms. One system of record.",
   lede:
     "Each platform has a defined role and a governed hand-off, so information always has one authoritative home.",
@@ -211,6 +216,7 @@ export const platforms = {
 
 export const adoption = {
   index: "06",
+  word: "People",
   kicker: "The human layer",
   heading: "Adoption is engineered, not hoped for.",
   lede:
@@ -254,6 +260,7 @@ export const adoption = {
 
 export const why = {
   index: "07",
+  word: "Position",
   kicker: "Why ADVANTA365",
   heading: "Governance and adoption. Inseparable.",
   statement:

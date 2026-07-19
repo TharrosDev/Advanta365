@@ -69,12 +69,10 @@ IntersectionObserver; **ScrollTrigger carries only additive scrub moments**:
   masked headlines; content sections stay server components. The hero
   entrance plays on mount with a safety timer so it can never be left hidden.
 - **Scrub moments (ScrollTrigger, additive only):**
-  - Hero scroll-exit drift.
+  - The chapter rails' vertical progress lines (`ChapterRail`).
   - `TextScrub` pull statements (faint → full bone, one-way).
-  - **The delivery sequence pins** on wide screens (≥1024×720) and travels
-    horizontally under a filling cobalt rail — the signature scroll moment,
-    with a vertical ledger fallback for small screens / no JS / reduced
-    motion.
+  - The delivery ledger's centre-tracking stage numerals
+    (IntersectionObserver, additive).
 - **Signature surfaces:** the giant stroked marquee with scroll-velocity skew,
   full-row cobalt hover floods on the module registry, bone-inversion hovers
   on the platform columns, count-up stat numerals, the cobalt-drenched
@@ -105,15 +103,27 @@ elements whose hidden state lives in the stylesheet.
 3. **Tailwind v4 `scale-*` composes with GSAP transforms.** Anything GSAP
    scales gets its initial scale from GSAP (`fromTo`), not Tailwind classes.
 
-## Layout
+## Layout — the Split Dossier
 
-- `.u-container`: max 88rem, fluid inline padding (`--gutter`).
-- Section padding via `.pad-block-2xl/xl` so the scroll has a beat.
-- Keylines (`--color-line`) structure cell grids (principles, platforms,
-  tracks) and editorial rows (incidents, modules, reasons).
-- One-page narrative: Hero → Marquee → Problem → Framework → Delivery (pin) →
-  Modules → Platforms → Adoption → Why → Contact (cobalt drench) → Footer
-  (abyss, oversized wordmark).
+The architecture is a **permanent two-column split**, modeled on the split
+school of Awwwards winners (Ochi Design SOTD, Exo Ape SOTD) and deliberately
+distinct from the parent site's full-width editorial bands:
+
+- Every chapter (`components/ui/Chapter.tsx`) is a grid of **sticky left
+  rail** (stroked index, chapter word, kicker, and a scroll-progress line
+  fed by an additive scrub) and **scrolling right body** separated by a
+  keyline. Stickiness is pure CSS; the rail collapses to a compact header
+  on small screens.
+- The hero is "Chapter 00 / Dossier": the same split, full-viewport, with
+  the grid field behind and the document meta in the rail.
+- Delivery is a vertical stage ledger — the row nearest the viewport centre
+  lights its numeral (IntersectionObserver, additive), replacing the old
+  pinned horizontal scrub.
+- Full-bleed moments are reserved for the marquee divider, the cobalt
+  contact drench, and the abyss footer (which closes with an
+  "End of dossier — 08 / 08" register above the oversized wordmark).
+- Narrative: Cover → Marquee → Problem → Framework → Delivery → Modules →
+  Platforms → Adoption → Why → Contact → Footer.
 
 ## Conversion
 
