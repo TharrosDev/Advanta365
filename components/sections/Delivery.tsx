@@ -65,7 +65,7 @@ export default function Delivery() {
         ))}
       </ol>
 
-      <p data-reveal className="t-coord mt-8 !text-cobalt-hot">
+      <p data-reveal className="t-coord mt-8 !text-cobalt-deep">
         {delivery.note}
       </p>
     </Chapter>

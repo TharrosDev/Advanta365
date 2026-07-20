@@ -50,7 +50,7 @@ export default function Adoption() {
                 {track.num}
               </span>
               <h4 className="t-h3">{track.title}</h4>
-              <p className="t-body text-bone-muted">{track.body}</p>
+              <p className="t-body text-ink-muted">{track.body}</p>
             </article>
           ))}
         </div>

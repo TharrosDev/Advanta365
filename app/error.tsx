@@ -3,7 +3,7 @@
 import { useEffect } from "react";
 
 /**
- * Route-level error boundary. Styled inline with the Night Grid tokens from
+ * Route-level error boundary. Styled inline with the Day Grid tokens from
  * globals.css (still loaded via the root layout when this renders).
  */
 export default function ErrorPage({

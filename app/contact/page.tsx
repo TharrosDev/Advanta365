@@ -105,7 +105,7 @@ export default function Contact() {
                   INF-{String(i + 1).padStart(2, "0")}
                 </span>
                 <h2 className="t-h3">{c.key}</h2>
-                <p className="t-body text-bone-muted">{c.body}</p>
+                <p className="t-body text-ink-muted">{c.body}</p>
               </article>
             ))}
           </div>

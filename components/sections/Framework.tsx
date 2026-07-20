@@ -28,7 +28,7 @@ export default function Framework() {
               PRN-{String(i + 1).padStart(2, "0")}
             </span>
             <h3 className="t-h3">{p.title}</h3>
-            <p className="t-body text-bone-muted">{p.body}</p>
+            <p className="t-body text-ink-muted">{p.body}</p>
           </article>
         ))}
       </div>

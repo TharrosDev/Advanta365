@@ -1,44 +1,52 @@
 @import "tailwindcss";
 
 /* ================================================================== *
- * ADVANTA365 — "Night Grid"
- * The dark sibling of Echofive's "Bone & Cobalt". Same family DNA:
- * warm bone, warm ink, one electric cobalt. Polarity inverted — a deep
- * warm-ink ground with bone type, styled as a governed control room:
- * expanded-grotesque uppercase display (Archivo), IBM Plex Mono
- * coordinates, keyline grids, HUD corner ticks, and a canvas field
- * where scattered points settle into a governed grid (sprawl → order,
- * the product's whole argument in one visual).
+ * ADVANTA365 — "Day Grid"
+ * The light, government-facing polarity of the Echofive family system
+ * ("Bone & Cobalt"). Same family DNA: warm bone paper, warm ink, one
+ * electric cobalt. The governed control room now reads as a printed
+ * dossier in daylight: expanded-grotesque uppercase display (Archivo),
+ * IBM Plex Mono coordinates, keyline grids, HUD corner ticks, and a
+ * canvas field where scattered points settle into a governed grid
+ * (sprawl → order, the product's whole argument in one visual).
+ * Two deliberate dark anchors remain: the cobalt-drenched contact
+ * close and the deep-ink abyss footer.
  * Motion: Lenis smooth scroll; IntersectionObserver entrance reveals;
- * GSAP ScrollTrigger only for additive scrub moments (the pinned
- * delivery sequence, scrubbed statements, progress rails).
+ * GSAP ScrollTrigger only for additive scrub moments (progress rails,
+ * scrubbed statements).
  * ================================================================== */
 @theme {
-  /* ---- Grounds: deep warm ink, layered for depth ---- */
-  --color-void: oklch(0.165 0.01 68); /* base ground */
-  --color-void-2: oklch(0.19 0.012 68); /* raised band */
-  --color-void-3: oklch(0.215 0.013 66); /* highest band */
-  --color-panel: oklch(0.225 0.013 66); /* raised surface */
-  --color-abyss: oklch(0.135 0.008 68); /* footer, deeper than base */
+  /* ---- Grounds: warm bone paper, layered for depth ---- */
+  --color-paper: oklch(0.958 0.011 82); /* base ground */
+  --color-paper-2: oklch(0.936 0.013 80); /* raised band */
+  --color-paper-3: oklch(0.914 0.014 79); /* highest band */
+  --color-card: oklch(0.98 0.007 84); /* raised surface */
+  --color-abyss: oklch(0.155 0.01 68); /* footer, the one deep anchor */
 
-  /* ---- Bone: the family paper, now carrying text ---- */
-  --color-bone: oklch(0.952 0.012 82); /* = Echofive --color-paper */
+  /* ---- Ink: the family text color, carrying type on paper ---- */
+  --color-ink: oklch(0.25 0.016 64);
+  --color-ink-soft: oklch(0.37 0.016 64);
+  --color-ink-muted: oklch(0.46 0.015 64); /* AA on every paper band */
+
+  /* ---- Bone: the family paper tone, now text on dark anchors ---- */
+  --color-bone: oklch(0.952 0.012 82);
   --color-bone-soft: oklch(0.82 0.014 80);
-  --color-bone-muted: oklch(0.7 0.012 78); /* AA on every void band */
+  --color-bone-muted: oklch(0.7 0.012 78); /* AA on abyss */
 
   /* ---- Cobalt: the shared family accent ---- */
-  --color-cobalt: oklch(0.52 0.247 266); /* = Echofive --color-cobalt, fills */
-  --color-cobalt-hot: oklch(0.64 0.21 266); /* luminous variant for dark grounds */
-  --color-cobalt-deep: oklch(0.44 0.214 266);
-  --color-cobalt-soft: oklch(0.9 0.055 266);
+  --color-cobalt: oklch(0.52 0.247 266); /* fills, large accents */
+  --color-cobalt-deep: oklch(0.44 0.214 266); /* small accent text on paper */
+  --color-cobalt-hot: oklch(0.64 0.21 266); /* luminous, dark grounds only */
+  --color-cobalt-wash: oklch(0.945 0.032 266); /* pale tint, hover surfaces */
   --color-on-cobalt: oklch(0.985 0.01 250);
   --color-on-cobalt-muted: oklch(0.985 0.01 250 / 0.88);
 
-  /* ---- Keylines (bone at alpha) ---- */
-  --color-line: oklch(0.952 0.012 82 / 0.13);
-  --color-line-soft: oklch(0.952 0.012 82 / 0.07);
-  --color-line-strong: oklch(0.952 0.012 82 / 0.26);
-  --color-line-cobalt: oklch(0.64 0.21 266 / 0.5);
+  /* ---- Keylines (ink at alpha; bone at alpha on the abyss) ---- */
+  --color-line: oklch(0.25 0.016 64 / 0.16);
+  --color-line-soft: oklch(0.25 0.016 64 / 0.08);
+  --color-line-strong: oklch(0.25 0.016 64 / 0.34);
+  --color-line-cobalt: oklch(0.52 0.247 266 / 0.5);
+  --color-line-bone: oklch(0.952 0.012 82 / 0.16);
   --color-line-on-cobalt: oklch(0.985 0.01 250 / 0.28);
 
   --font-display: var(--font-archivo), "Archivo", system-ui, sans-serif;
@@ -58,11 +66,11 @@
   --container: 88rem;
   --gutter: clamp(1.25rem, 5vw, 4.5rem);
   --nav-h: 4.5rem;
-  color-scheme: dark;
+  color-scheme: light;
 }
 
 .cobalt {
-  color: var(--color-cobalt-hot);
+  color: var(--color-cobalt-deep);
 }
 
 html {
@@ -78,8 +86,8 @@ html:not(.lenis) {
 }
 
 body {
-  background: var(--color-void);
-  color: var(--color-bone);
+  background: var(--color-paper);
+  color: var(--color-ink);
   font-family: var(--font-sans);
   font-size: 1.0625rem;
   line-height: 1.62;
@@ -112,7 +120,7 @@ html.lenis body {
 
 /* ---------- Accessibility ---------- */
 :focus-visible {
-  outline: 2px solid var(--color-cobalt-hot);
+  outline: 2px solid var(--color-cobalt);
   outline-offset: 3px;
   border-radius: 2px;
 }
@@ -120,9 +128,9 @@ html.lenis body {
 .drench :focus-visible {
   outline-color: var(--color-on-cobalt);
 }
-/* On bone-inverted surfaces swap to the deep ring. */
-.plat-row :focus-visible {
-  outline-color: var(--color-cobalt);
+/* On the dark abyss footer swap to the luminous ring. */
+.bg-abyss :focus-visible {
+  outline-color: var(--color-cobalt-hot);
 }
 
 .u-sr {
@@ -143,8 +151,8 @@ html.lenis body {
   left: 0.75rem;
   z-index: 300;
   padding: 0.6rem 1rem;
-  background: var(--color-bone);
-  color: var(--color-void);
+  background: var(--color-ink);
+  color: var(--color-bone);
   font-family: var(--font-mono);
   font-size: 0.8rem;
   transform: translateY(-160%);
@@ -169,7 +177,7 @@ html.lenis body {
   font-weight: 500;
   letter-spacing: 0.18em;
   text-transform: uppercase;
-  color: var(--color-bone-muted);
+  color: var(--color-ink-muted);
 }
 
 /* Display: expanded-width uppercase Archivo — the broadcast voice. */
@@ -207,8 +215,9 @@ html.lenis body {
 .t-lead {
   font-size: clamp(1.14rem, 1.8vw, 1.5rem);
   line-height: 1.52;
-  color: var(--color-bone-soft);
-  font-weight: 380;
+  color: var(--color-ink-soft);
+  /* Dark-on-light reads thinner than the old light-on-dark; compensate. */
+  font-weight: 420;
   text-wrap: pretty;
 }
 
@@ -256,10 +265,10 @@ html.lenis body {
 }
 
 .band-2 {
-  background: var(--color-void-2);
+  background: var(--color-paper-2);
 }
 .band-3 {
-  background: var(--color-void-3);
+  background: var(--color-paper-3);
 }
 
 /* ---------- The dossier chapter system ----------
@@ -343,7 +352,7 @@ html.lenis body {
   .ch-progress-fill {
     position: absolute;
     inset: 0;
-    background: var(--color-cobalt-hot);
+    background: var(--color-cobalt);
     transform: scaleY(0);
     transform-origin: top center;
   }
@@ -351,7 +360,7 @@ html.lenis body {
     font-family: var(--font-mono);
     font-size: 0.7rem;
     letter-spacing: 0.14em;
-    color: var(--color-bone-muted);
+    color: var(--color-ink-muted);
     font-variant-numeric: tabular-nums;
   }
 }
@@ -383,25 +392,29 @@ html.lenis body {
   margin-top: clamp(2rem, 3.5vw, 3.25rem);
 }
 
-/* Generic dossier card */
+/* Generic dossier card. On paper, elevation is carried by a lighter
+   surface plus a soft ink shadow on hover (light themes need shadow
+   where dark themes used brighter bands). */
 .d-card {
-  background: var(--color-void-2);
+  background: var(--color-card);
   border: 1px solid var(--color-line);
   border-radius: 4px;
   padding: clamp(1.4rem, 2.4vw, 2.25rem);
-  transition: border-color 0.35s ease, background 0.4s var(--ease-expo),
+  transition:
+    border-color 0.35s ease,
+    box-shadow 0.4s var(--ease-expo),
     transform 0.5s var(--ease-expo);
 }
 @media (hover: hover) {
   .d-card:hover {
     border-color: var(--color-line-cobalt);
-    background: var(--color-void-3);
+    box-shadow: 0 14px 34px oklch(0.25 0.016 64 / 0.09);
     transform: translateY(-3px);
   }
 }
 
 /* ---------- Atmosphere ---------- */
-/* Fixed film grain. Screen blend lifts the dark ground very slightly. */
+/* Fixed film grain. Multiply adds paper tooth to the light ground. */
 .grain {
   position: fixed;
   inset: 0;
@@ -409,14 +422,14 @@ html.lenis body {
   pointer-events: none;
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
   background-size: 180px 180px;
-  opacity: 0.05;
-  mix-blend-mode: screen;
+  opacity: 0.04;
+  mix-blend-mode: multiply;
 }
 
 /* Faint dot lattice — the governed grid, used as section atmosphere. */
 .bg-dots {
   background-image: radial-gradient(
-    oklch(0.952 0.012 82 / 0.055) 1px,
+    oklch(0.25 0.016 64 / 0.07) 1px,
     transparent 1.4px
   );
   background-size: 26px 26px;
@@ -424,7 +437,7 @@ html.lenis body {
 
 /* Raised card */
 .card {
-  background: var(--color-panel);
+  background: var(--color-card);
   border: 1px solid var(--color-line);
 }
 
@@ -506,8 +519,8 @@ html.lenis body {
   transform: translateY(0);
 }
 .btn-primary {
-  background: var(--color-bone);
-  color: var(--color-void);
+  background: var(--color-ink);
+  color: var(--color-bone);
   font-weight: 500;
 }
 .btn-primary:hover {
@@ -515,7 +528,7 @@ html.lenis body {
 }
 .btn-ghost {
   border-color: var(--color-line-strong);
-  color: var(--color-bone);
+  color: var(--color-ink);
 }
 .btn-ghost:hover {
   color: var(--color-on-cobalt);
@@ -528,7 +541,7 @@ html.lenis body {
   font-weight: 500;
 }
 .btn-invert::after {
-  background: var(--color-void);
+  background: var(--color-ink);
 }
 .btn-invert:hover {
   color: var(--color-bone);
@@ -549,7 +562,7 @@ html.lenis body {
   border-bottom: 1px solid transparent;
 }
 .site-nav.is-solid {
-  background: oklch(0.165 0.01 68 / 0.82);
+  background: oklch(0.958 0.011 82 / 0.85);
   backdrop-filter: blur(14px);
   border-bottom-color: var(--color-line);
 }
@@ -559,14 +572,14 @@ html.lenis body {
 
 .nav-link {
   position: relative;
-  color: var(--color-bone-soft);
+  color: var(--color-ink-soft);
   transition: color 0.3s ease;
 }
 .nav-link:hover {
-  color: var(--color-bone);
+  color: var(--color-ink);
 }
 .nav-link[data-active] {
-  color: var(--color-cobalt-hot);
+  color: var(--color-cobalt-deep);
 }
 .nav-link::after {
   content: "";
@@ -575,7 +588,7 @@ html.lenis body {
   right: 0;
   bottom: -7px;
   height: 2px;
-  background: var(--color-cobalt-hot);
+  background: var(--color-cobalt);
   transform: scaleX(0);
   transform-origin: left center;
   transition: transform 0.4s var(--ease-expo);
@@ -584,7 +597,7 @@ html.lenis body {
   transform: scaleX(1);
 }
 .nav-index {
-  color: var(--color-cobalt-hot);
+  color: var(--color-cobalt-deep);
   font-size: 0.62rem;
   vertical-align: super;
   margin-right: 0.2rem;
@@ -598,7 +611,7 @@ html.lenis body {
   z-index: 90;
   display: flex;
   flex-direction: column;
-  background: var(--color-abyss);
+  background: var(--color-paper);
   padding: calc(var(--nav-h) + 1.5rem) var(--gutter) 2rem;
   overflow-y: auto;
 }
@@ -614,15 +627,17 @@ html.lenis body {
   font-size: clamp(1.7rem, 7vw, 2.6rem);
   text-transform: uppercase;
   letter-spacing: -0.01em;
-  color: var(--color-bone);
-  transition: color 0.3s ease, padding-left 0.4s var(--ease-expo);
+  color: var(--color-ink);
+  transition:
+    color 0.3s ease,
+    padding-left 0.4s var(--ease-expo);
 }
 .mobile-link:hover {
-  color: var(--color-cobalt-hot);
+  color: var(--color-cobalt-deep);
   padding-left: 0.5rem;
 }
 .mobile-link .t-coord {
-  color: var(--color-cobalt-hot);
+  color: var(--color-cobalt-deep);
 }
 
 .link-arrow {
@@ -632,7 +647,7 @@ html.lenis body {
   font-family: var(--font-mono);
   font-size: 0.8rem;
   letter-spacing: 0.03em;
-  color: var(--color-cobalt-hot);
+  color: var(--color-cobalt-deep);
   border-bottom: 1px solid var(--color-line-cobalt);
   padding-bottom: 3px;
   transition:
@@ -641,7 +656,7 @@ html.lenis body {
 }
 .link-arrow:hover {
   gap: 0.85rem;
-  border-color: var(--color-cobalt-hot);
+  border-color: var(--color-cobalt-deep);
 }
 .link-arrow svg {
   transition: transform 0.4s var(--ease-expo);
@@ -662,8 +677,8 @@ html.lenis body {
   font-size: 0.75rem;
   letter-spacing: 0.06em;
   text-transform: uppercase;
-  color: var(--color-bone-soft);
-  background: oklch(0.952 0.012 82 / 0.04);
+  color: var(--color-ink-soft);
+  background: oklch(0.25 0.016 64 / 0.04);
 }
 
 /* Live status dot */
@@ -673,14 +688,14 @@ html.lenis body {
   width: 7px;
   height: 7px;
   border-radius: 50%;
-  background: var(--color-cobalt-hot);
+  background: var(--color-cobalt);
 }
 .status-dot::after {
   content: "";
   position: absolute;
   inset: 0;
   border-radius: 50%;
-  background: var(--color-cobalt-hot);
+  background: var(--color-cobalt);
   animation: pulse-ring 2.6s var(--ease-expo) infinite;
 }
 @keyframes pulse-ring {
@@ -727,7 +742,7 @@ html.lenis body {
   font-family: var(--font-mono);
   font-size: 0.75rem;
   letter-spacing: 0.08em;
-  color: var(--color-bone-muted);
+  color: var(--color-ink-muted);
 }
 .cover-body {
   position: relative;
@@ -755,7 +770,7 @@ html.lenis body {
 }
 
 /* The grid field canvas layer. Fallback (no JS / no canvas / reduced
-   motion): a static governed lattice with a cobalt bloom. */
+   motion): a static governed lattice with a cobalt bloom on paper. */
 .gridfield {
   position: absolute;
   inset: 0;
@@ -763,12 +778,12 @@ html.lenis body {
   background:
     radial-gradient(
       55% 48% at 74% 34%,
-      oklch(0.52 0.247 266 / 0.16) 0%,
+      oklch(0.52 0.247 266 / 0.1) 0%,
       transparent 62%
     ),
     radial-gradient(
       45% 55% at 18% 85%,
-      oklch(0.215 0.013 66 / 0.9) 0%,
+      oklch(0.914 0.014 79 / 0.9) 0%,
       transparent 55%
     );
 }
@@ -776,7 +791,7 @@ html.lenis body {
   position: absolute;
   inset: 0;
   background-image: radial-gradient(
-    oklch(0.952 0.012 82 / 0.09) 1px,
+    oklch(0.25 0.016 64 / 0.13) 1px,
     transparent 1.4px
   );
   background-size: 30px 30px;
@@ -805,7 +820,7 @@ html.lenis body {
   height: 40%;
   z-index: 1;
   pointer-events: none;
-  background: linear-gradient(180deg, transparent, var(--color-void) 82%);
+  background: linear-gradient(180deg, transparent, var(--color-paper) 82%);
 }
 
 /* Meta bar: mono facts in ruled columns — 2×2 inside the cover body. */
@@ -825,13 +840,13 @@ html.lenis body {
   font-size: 0.68rem;
   letter-spacing: 0.16em;
   text-transform: uppercase;
-  color: var(--color-bone-muted);
+  color: var(--color-ink-muted);
 }
 .hero-meta-val {
   font-family: var(--font-mono);
   font-size: clamp(0.78rem, 1vw, 0.9rem);
   letter-spacing: 0.02em;
-  color: var(--color-bone);
+  color: var(--color-ink);
 }
 
 /* Hero scroll cue — a slow travelling tick */
@@ -847,7 +862,7 @@ html.lenis body {
   content: "";
   position: absolute;
   inset: 0;
-  background: var(--color-cobalt-hot);
+  background: var(--color-cobalt);
   transform: translateY(-100%);
   animation: cue 2.4s var(--ease-expo) infinite;
 }
@@ -895,17 +910,17 @@ html.lenis body {
   text-transform: uppercase;
   white-space: nowrap;
   color: transparent;
-  -webkit-text-stroke: 1.5px oklch(0.952 0.012 82 / 0.32);
+  -webkit-text-stroke: 1.5px oklch(0.25 0.016 64 / 0.3);
 }
 .marquee-giant .mg-sep {
   -webkit-text-stroke: 0;
-  color: var(--color-cobalt-hot);
+  color: var(--color-cobalt);
   font-weight: 400;
   padding-inline: clamp(1.1rem, 2.5vw, 2.2rem);
 }
 .marquee-giant .mg-solid {
   -webkit-text-stroke: 0;
-  color: var(--color-bone);
+  color: var(--color-ink);
 }
 
 /* ---------- Split-text masks ---------- */
@@ -934,7 +949,7 @@ html.lenis body {
   z-index: 250;
   transform-origin: left center;
   transform: scaleX(0);
-  background: var(--color-cobalt-hot);
+  background: var(--color-cobalt);
 }
 
 /* ---------- GSAP reveal initial states (JS only) ---------- */
@@ -967,7 +982,6 @@ html.lenis body {
   font-weight: 780;
   font-size: clamp(2rem, 4vw, 3.2rem);
   line-height: 1;
-  letter-spacing: -0.02em;
   -webkit-text-stroke: 1.2px var(--color-line-strong);
   color: transparent;
 }
@@ -977,17 +991,19 @@ html.lenis body {
   display: flex;
   flex-direction: column;
   gap: 0.75rem;
-  background: var(--color-void-2);
+  background: var(--color-card);
   border: 1px solid var(--color-line);
   border-left: 3px solid var(--color-line-cobalt);
   border-radius: 4px;
   padding: clamp(1.4rem, 2.4vw, 2rem);
-  transition: border-color 0.35s ease, background 0.4s var(--ease-expo);
+  transition:
+    border-color 0.35s ease,
+    box-shadow 0.4s var(--ease-expo);
 }
 @media (hover: hover) {
   .inc-card:hover {
-    background: var(--color-void-3);
-    border-left-color: var(--color-cobalt-hot);
+    box-shadow: 0 14px 34px oklch(0.25 0.016 64 / 0.09);
+    border-left-color: var(--color-cobalt);
   }
 }
 .inc-card-top {
@@ -1000,7 +1016,7 @@ html.lenis body {
   font-family: var(--font-mono);
   font-size: 0.8rem;
   letter-spacing: 0.12em;
-  color: var(--color-cobalt-hot);
+  color: var(--color-cobalt-deep);
 }
 .inc-title {
   font-family: var(--font-display);
@@ -1012,7 +1028,7 @@ html.lenis body {
   text-transform: uppercase;
 }
 .inc-body {
-  color: var(--color-bone-muted);
+  color: var(--color-ink-muted);
   max-width: 56ch;
 }
 .inc-flag {
@@ -1020,7 +1036,7 @@ html.lenis body {
   font-size: 0.68rem;
   letter-spacing: 0.16em;
   text-transform: uppercase;
-  color: var(--color-bone-muted);
+  color: var(--color-ink-muted);
   border: 1px solid var(--color-line);
   border-radius: 2px;
   padding: 0.28rem 0.55rem;
@@ -1044,18 +1060,18 @@ html.lenis body {
   display: flex;
   flex-direction: column;
   gap: 1rem;
-  background: var(--color-void-2);
+  background: var(--color-card);
   padding: clamp(1.6rem, 3vw, 2.6rem);
   transition: background 0.4s var(--ease-expo);
 }
 .cell:hover {
-  background: var(--color-void-3);
+  background: var(--color-cobalt-wash);
 }
 .cell-num {
   font-family: var(--font-mono);
   font-size: 0.75rem;
   letter-spacing: 0.18em;
-  color: var(--color-cobalt-hot);
+  color: var(--color-cobalt-deep);
 }
 .cell::after {
   /* corner tick that brightens on hover */
@@ -1070,7 +1086,7 @@ html.lenis body {
   transition: border-color 0.35s ease;
 }
 .cell:hover::after {
-  border-color: var(--color-cobalt-hot);
+  border-color: var(--color-cobalt);
 }
 
 /* ---------- Delivery: vertical stage ledger ----------
@@ -1101,7 +1117,7 @@ html.lenis body {
   transition: color 0.4s ease;
 }
 .stg-row.is-active .stg-num {
-  color: var(--color-cobalt-hot);
+  color: var(--color-cobalt);
   -webkit-text-stroke: 0;
 }
 .stg-name {
@@ -1113,7 +1129,7 @@ html.lenis body {
   text-transform: uppercase;
 }
 .stg-body {
-  color: var(--color-bone-muted);
+  color: var(--color-ink-muted);
   max-width: 52ch;
 }
 
@@ -1133,7 +1149,7 @@ html.lenis body {
   font-family: var(--font-mono);
   font-size: 0.8rem;
   letter-spacing: 0.12em;
-  color: var(--color-cobalt-hot);
+  color: var(--color-cobalt-deep);
 }
 .mod-title {
   font-family: var(--font-display);
@@ -1145,20 +1161,24 @@ html.lenis body {
   text-transform: uppercase;
 }
 .mod-body {
-  color: var(--color-bone-muted);
+  color: var(--color-ink-muted);
   max-width: 56ch;
 }
 
-/* ---------- Platforms: stacked rows with bone inversion ---------- */
+/* ---------- Platforms: stacked rows with ink inversion ----------
+   The dark polarity inverted rows to bone on hover; on paper the drama
+   flips the other way — rows invert to deep ink with bone type. */
 .plat-row {
   display: flex;
   flex-direction: column;
   gap: 0.9rem;
   border: 1px solid var(--color-line);
   border-radius: 4px;
-  background: var(--color-void);
+  background: var(--color-card);
   padding: clamp(1.4rem, 2.4vw, 2.1rem);
-  transition: background 0.45s var(--ease-expo), border-color 0.35s ease;
+  transition:
+    background 0.45s var(--ease-expo),
+    border-color 0.35s ease;
 }
 .plat-row + .plat-row {
   margin-top: 0.85rem;
@@ -1173,7 +1193,7 @@ html.lenis body {
   transition: color 0.35s ease;
 }
 .plat-role {
-  color: var(--color-bone-muted);
+  color: var(--color-ink-muted);
   max-width: 56ch;
   transition: color 0.35s ease;
 }
@@ -1192,33 +1212,35 @@ html.lenis body {
   font-family: var(--font-mono);
   font-size: 0.74rem;
   letter-spacing: 0.04em;
-  color: var(--color-bone-soft);
-  transition: color 0.35s ease, border-color 0.35s ease;
+  color: var(--color-ink-soft);
+  transition:
+    color 0.35s ease,
+    border-color 0.35s ease;
 }
 .plat-theme::before {
   content: "";
   width: 5px;
   height: 5px;
-  background: var(--color-cobalt-hot);
+  background: var(--color-cobalt);
   transition: background 0.35s ease;
 }
 @media (hover: hover) {
   .plat-row:hover {
-    background: var(--color-bone);
-    border-color: var(--color-bone);
+    background: var(--color-ink);
+    border-color: var(--color-ink);
   }
   .plat-row:hover .plat-name {
-    color: var(--color-void);
+    color: var(--color-bone);
   }
   .plat-row:hover .plat-role {
-    color: oklch(0.435 0.012 62);
+    color: var(--color-bone-muted);
   }
   .plat-row:hover .plat-theme {
-    color: oklch(0.335 0.013 62);
-    border-color: oklch(0.205 0.014 64 / 0.2);
+    color: var(--color-bone-soft);
+    border-color: var(--color-line-bone);
   }
   .plat-row:hover .plat-theme::before {
-    background: var(--color-cobalt);
+    background: var(--color-cobalt-hot);
   }
 }
 
@@ -1230,7 +1252,7 @@ html.lenis body {
   font-size: clamp(4.5rem, 10vw, 9rem);
   line-height: 0.85;
   letter-spacing: -0.02em;
-  color: var(--color-bone);
+  color: var(--color-ink);
   font-variant-numeric: tabular-nums;
 }
 .stat-cell {
@@ -1253,12 +1275,12 @@ html.lenis body {
   display: flex;
   flex-direction: column;
   gap: 0.8rem;
-  background: var(--color-void-2);
+  background: var(--color-card);
   padding: clamp(1.5rem, 2.5vw, 2.25rem);
   transition: background 0.4s var(--ease-expo);
 }
 .track-cell:hover {
-  background: var(--color-void-3);
+  background: var(--color-cobalt-wash);
 }
 .track-num {
   font-family: var(--font-display);
@@ -1288,7 +1310,7 @@ html.lenis body {
   margin-top: 0.22rem;
   border: 1px solid var(--color-line-cobalt);
   border-radius: 2px;
-  color: var(--color-cobalt-hot);
+  color: var(--color-cobalt-deep);
 }
 
 /* ---------- Why: reason rows ---------- */
@@ -1319,10 +1341,12 @@ html.lenis body {
   -webkit-text-stroke: 1.2px var(--color-line-strong);
   color: transparent;
   font-variant-numeric: tabular-nums;
-  transition: color 0.35s ease, -webkit-text-stroke-color 0.35s ease;
+  transition:
+    color 0.35s ease,
+    -webkit-text-stroke-color 0.35s ease;
 }
 .why-row:hover .why-num {
-  color: var(--color-cobalt-hot);
+  color: var(--color-cobalt);
   -webkit-text-stroke-color: transparent;
 }
 .why-title {
@@ -1334,7 +1358,7 @@ html.lenis body {
   text-transform: uppercase;
 }
 .why-body {
-  color: var(--color-bone-muted);
+  color: var(--color-ink-muted);
 }
 
 /* ---------- Contact: the cobalt-drenched close ---------- */
@@ -1343,7 +1367,7 @@ html.lenis body {
   color: var(--color-on-cobalt);
 }
 .drench ::selection {
-  background: var(--color-void);
+  background: var(--color-ink);
   color: var(--color-bone);
 }
 .drench .t-coord {
@@ -1403,13 +1427,25 @@ html.lenis body {
   color: var(--color-on-cobalt);
 }
 
-/* ---------- Footer ---------- */
+/* ---------- Footer (the abyss anchor) ----------
+   The footer keeps the deep-ink ground as the dossier's closing plate.
+   Its markup shares utilities with the light chapters (`border-line`,
+   `.t-coord`, `.cobalt`), so the dark-ground values are re-scoped here. */
+.bg-abyss {
+  --color-line: var(--color-line-bone);
+}
+.bg-abyss .t-coord {
+  color: var(--color-bone-muted);
+}
+.bg-abyss .cobalt {
+  color: var(--color-cobalt-hot);
+}
 .footer-link {
   color: color-mix(in oklch, var(--color-bone) 72%, transparent);
   transition: color 0.3s ease;
 }
 .footer-link:hover {
-  color: var(--color-cobalt-soft);
+  color: var(--color-cobalt-hot);
 }
 /* Oversized closing wordmark: stroked bone, fills on hover. */
 .footer-mega {
@@ -1425,8 +1461,11 @@ html.lenis body {
   text-transform: uppercase;
   white-space: nowrap;
   color: transparent;
-  -webkit-text-stroke: 1.5px color-mix(in oklch, var(--color-bone) 38%, transparent);
-  transition: color 0.6s var(--ease-expo), -webkit-text-stroke-color 0.6s ease;
+  -webkit-text-stroke: 1.5px
+    color-mix(in oklch, var(--color-bone) 38%, transparent);
+  transition:
+    color 0.6s var(--ease-expo),
+    -webkit-text-stroke-color 0.6s ease;
 }
 .footer-mega:hover {
   color: var(--color-bone);
@@ -1441,7 +1480,9 @@ html.lenis body {
   border-radius: 50%;
   border: 1px solid color-mix(in oklch, var(--color-bone) 30%, transparent);
   color: var(--color-bone);
-  transition: background 0.4s var(--ease-expo), border-color 0.4s ease,
+  transition:
+    background 0.4s var(--ease-expo),
+    border-color 0.4s ease,
     color 0.4s ease;
 }
 .footer-top-btn:hover {
