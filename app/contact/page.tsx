@@ -1,4 +1,3 @@
-import Script from "next/script";
 import SiteShell from "@/components/SiteShell";
 import { contact, contactSection } from "@/lib/content";
 import {
@@ -55,10 +54,10 @@ const cells = [
 export default function Contact() {
   return (
     <SiteShell>
-      <Script
-        id="ld-contact"
+      {/* Raw tag: keeps the structured data in the static HTML for non-JS
+          crawlers (next/script would defer it into the __next_s queue). */}
+      <script
         type="application/ld+json"
-        strategy="beforeInteractive"
         dangerouslySetInnerHTML={{ __html: jsonLd(contactGraph) }}
       />
 

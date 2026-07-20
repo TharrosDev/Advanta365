@@ -43,7 +43,6 @@ export default function GridField() {
     const lowPower =
       (navigator.hardwareConcurrency ?? 8) <= 4 ||
       ((navigator as { deviceMemory?: number }).deviceMemory ?? 8) <= 4;
-    const dpr = Math.min(window.devicePixelRatio || 1, lowPower ? 1.5 : 2);
 
     let points: Point[] = [];
     let width = 0;
@@ -55,6 +54,9 @@ export default function GridField() {
     const pointer = { x: -9999, y: -9999 };
 
     const build = () => {
+      // Read DPR per build: it changes when the window moves between
+      // monitors, and the ResizeObserver re-runs build for us then.
+      const dpr = Math.min(window.devicePixelRatio || 1, lowPower ? 1.5 : 2);
       const rect = canvas.getBoundingClientRect();
       width = Math.max(1, rect.width);
       height = Math.max(1, rect.height);
@@ -62,13 +64,14 @@ export default function GridField() {
       canvas.height = Math.round(height * dpr);
       ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
 
-      const spacing = Math.max(34, Math.min(52, width / 34)) * (lowPower ? 1.35 : 1);
+      const spacing =
+        Math.max(34, Math.min(52, width / 34)) * (lowPower ? 1.35 : 1);
       const cols = Math.ceil(width / spacing) + 1;
       const rows = Math.ceil(height / spacing) + 1;
       points = [];
       for (let c = 0; c < cols; c++) {
         for (let r = 0; r < rows; r++) {
-          const hx = c * spacing + (spacing / 2) * (r % 2 === 0 ? 0 : 0); // square lattice
+          const hx = c * spacing; // square lattice
           const hy = r * spacing;
           points.push({
             hx,
@@ -133,9 +136,7 @@ export default function GridField() {
         const alpha = 0.1 + 0.16 * order + glow * 0.55;
         const size = 1.6 + glow * 1.2;
         ctx.fillStyle =
-          glow > 0.08
-            ? `rgba(${COBALT}, ${alpha})`
-            : `rgba(${BONE}, ${alpha})`;
+          glow > 0.08 ? `rgba(${COBALT}, ${alpha})` : `rgba(${BONE}, ${alpha})`;
         ctx.fillRect(x - size / 2, y - size / 2, size, size);
       }
 
@@ -185,7 +186,7 @@ export default function GridField() {
         if (inView) start();
         else stop();
       },
-      { threshold: 0 },
+      { threshold: 0 }
     );
     io.observe(canvas);
 
@@ -199,7 +200,13 @@ export default function GridField() {
       build();
       refreshRect();
     });
-    ro.observe(canvas);
+    // device-pixel-content-box also fires on DPR changes (window dragged to
+    // another monitor); Safari doesn't support it, so fall back to css-box.
+    try {
+      ro.observe(canvas, { box: "device-pixel-content-box" });
+    } catch {
+      ro.observe(canvas);
+    }
 
     return () => {
       stop();

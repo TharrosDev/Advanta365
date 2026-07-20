@@ -4,6 +4,7 @@ import {
   createContext,
   useContext,
   useEffect,
+  useMemo,
   useRef,
   type ReactNode,
 } from "react";
@@ -13,10 +14,16 @@ import { gsap, ScrollTrigger, prefersReducedMotion } from "@/lib/gsap";
 type ScrollToTarget = string | number | HTMLElement;
 type LenisContextValue = {
   scrollTo: (target: ScrollToTarget, options?: { offset?: number }) => void;
+  /** Freeze wheel-driven smooth scroll (e.g. while a modal is open). */
+  stop: () => void;
+  /** Resume after `stop`. */
+  start: () => void;
 };
 
 const LenisContext = createContext<LenisContextValue>({
   scrollTo: () => {},
+  stop: () => {},
+  start: () => {},
 });
 
 export const useSmoothScroll = () => useContext(LenisContext);
@@ -34,7 +41,7 @@ export default function SmoothScroll({ children }: { children: ReactNode }) {
 
     const lenis = new Lenis({
       duration: 1.1,
-      easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
+      easing: t => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
       smoothWheel: true,
       // Native momentum on touch reads better than synthetic on mobile.
       syncTouch: false,
@@ -76,27 +83,35 @@ export default function SmoothScroll({ children }: { children: ReactNode }) {
     };
   }, []);
 
-  const scrollTo: LenisContextValue["scrollTo"] = (target, options) => {
-    const offset = options?.offset ?? -72;
-    const lenis = lenisRef.current;
-    if (lenis) {
-      lenis.scrollTo(target, { offset, duration: 1.25 });
-      return;
-    }
-    // Reduced-motion / pre-ready fallback.
-    const el =
-      typeof target === "string" ? document.querySelector(target) : null;
-    if (el instanceof HTMLElement) {
-      const top = el.getBoundingClientRect().top + window.scrollY + offset;
-      window.scrollTo({ top, behavior: "smooth" });
-    } else if (typeof target === "number") {
-      window.scrollTo({ top: target, behavior: "smooth" });
-    }
-  };
+  const value = useMemo<LenisContextValue>(
+    () => ({
+      scrollTo: (target, options) => {
+        const offset = options?.offset ?? -72;
+        const lenis = lenisRef.current;
+        if (lenis) {
+          // force: the call may race the release of a menu scroll lock.
+          lenis.scrollTo(target, { offset, duration: 1.25, force: true });
+          return;
+        }
+        // Reduced-motion / pre-ready fallback.
+        const el =
+          typeof target === "string" ? document.querySelector(target) : null;
+        if (el instanceof HTMLElement) {
+          const top = el.getBoundingClientRect().top + window.scrollY + offset;
+          window.scrollTo({ top, behavior: "smooth" });
+        } else if (typeof target === "number") {
+          window.scrollTo({ top: target, behavior: "smooth" });
+        }
+      },
+      // Lenis drives wheel scrolling itself, so a CSS overflow lock alone
+      // does not stop it — the instance has to be stopped explicitly.
+      stop: () => lenisRef.current?.stop(),
+      start: () => lenisRef.current?.start(),
+    }),
+    []
+  );
 
   return (
-    <LenisContext.Provider value={{ scrollTo }}>
-      {children}
-    </LenisContext.Provider>
+    <LenisContext.Provider value={value}>{children}</LenisContext.Provider>
   );
 }
