@@ -1,40 +1,43 @@
-# ADVANTA365 — Design System ("Night Grid")
+# ADVANTA365 — Design System ("Day Grid")
 
 The implementation reference. Tokens live in the `@theme` block of
 `app/globals.css`; this document explains the intent behind them.
 
-ADVANTA365 is the product of Echofive Solutions, and this site is the **dark
-sibling** of the parent's "Bone & Cobalt" system. Same family DNA — warm bone,
-warm ink, one electric cobalt — with the polarity inverted: a deep warm-ink
-ground carrying bone type. The concept is **sprawl brought under governance**:
-a control room for the digital workplace. Direction is drawn from the dark,
-structural, mono-labeled school of Awwwards winners (basement.studio, Igloo
-Inc, darkroom.engineering): expanded-grotesque uppercase display type, mono
-"coordinates" everywhere, keyline grids, HUD corner ticks, and one luminous
-accent doing all the signaling.
+ADVANTA365 is the product of Echofive Solutions, and this site now shares the
+parent's **"Bone & Cobalt" light polarity**, tuned for a government-facing
+audience. Same family DNA — warm bone paper, warm ink, one electric cobalt —
+reading as a printed dossier in daylight. The concept is **sprawl brought
+under governance**: a control room for the digital workplace, drawn from the
+structural, mono-labeled school of Awwwards winners: expanded-grotesque
+uppercase display type, mono "coordinates" everywhere, keyline grids, HUD
+corner ticks, and one committed accent doing all the signaling. Two deliberate
+dark anchors remain — the cobalt contact drench and the deep-ink abyss footer.
 
 ## Color
 
-Strategy: **one committed accent on a deep warm field**. Grounds are layered
-void tones for depth; bone (the parent site's paper color, verbatim) carries
-text; the family cobalt carries meaning. All OKLCH.
+Strategy: **one committed accent on a warm paper field**. Grounds are layered
+paper tones for depth; ink carries text; the family cobalt carries meaning.
+All OKLCH; every text/ground pair holds WCAG AA.
 
 | Token | Role |
 | --- | --- |
-| `--color-void` | Base ground (deep warm ink) |
-| `--color-void-2` / `--color-void-3` | Raised bands for section rhythm |
-| `--color-panel` | Raised surfaces |
-| `--color-abyss` | Footer, deeper than base |
-| `--color-bone` | Primary text — identical to Echofive `--color-paper` |
-| `--color-bone-soft` / `--color-bone-muted` | Secondary / tertiary text (AA on every band) |
-| `--color-cobalt` | The family accent, used for fills (identical to Echofive) |
-| `--color-cobalt-hot` | Luminous variant for text/keylines on dark grounds |
+| `--color-paper` | Base ground (warm bone paper) |
+| `--color-paper-2` / `--color-paper-3` | Deeper bands for section rhythm |
+| `--color-card` | Raised surfaces (lighter than ground) |
+| `--color-abyss` | Footer — the one deep-ink anchor |
+| `--color-ink` | Primary text (warm ink) |
+| `--color-ink-soft` / `--color-ink-muted` | Secondary / tertiary text (AA on every band) |
+| `--color-bone` / `--color-bone-*` | The family paper tone — text on the dark anchors |
+| `--color-cobalt` | The family accent: fills and large accents |
+| `--color-cobalt-deep` | Darker variant for small accent text on paper (AA) |
+| `--color-cobalt-hot` | Luminous variant, dark grounds (footer) only |
+| `--color-cobalt-wash` | Pale cobalt tint for hover surfaces |
 | `--color-on-cobalt` | Light text on cobalt fills |
-| `--color-line*` | Keylines (bone at alpha) and cobalt keylines |
+| `--color-line*` | Keylines (ink at alpha; bone at alpha on the abyss) and cobalt keylines |
 
-Rhythm comes from alternating `void` / `void-2` / `void-3` section grounds,
+Rhythm comes from alternating `paper` / `paper-2` / `paper-3` section grounds,
 closing on the cobalt-drenched contact section (the family's shared conversion
-signature) and the near-black `abyss` footer.
+signature) and the deep-ink `abyss` footer.
 
 ## Typography
 
@@ -70,15 +73,15 @@ IntersectionObserver; **ScrollTrigger carries only additive scrub moments**:
   entrance plays on mount with a safety timer so it can never be left hidden.
 - **Scrub moments (ScrollTrigger, additive only):**
   - The chapter rails' vertical progress lines (`ChapterRail`).
-  - `TextScrub` pull statements (faint → full bone, one-way).
+  - `TextScrub` pull statements (faint → full ink, one-way).
   - The delivery ledger's centre-tracking stage numerals
     (IntersectionObserver, additive).
 - **Signature surfaces:** the giant stroked marquee with scroll-velocity skew,
-  full-row cobalt hover floods on the module registry, bone-inversion hovers
+  full-row cobalt hover floods on the module registry, ink-inversion hovers
   on the platform columns, count-up stat numerals, the cobalt-drenched
   contact close, and the oversized stroked footer wordmark.
 - FX: scroll-progress bar, hide-on-scroll-down nav with scrollspy, HUD corner
-  ticks, film grain (screen blend), dot-lattice atmosphere.
+  ticks, film grain (multiply blend), dot-lattice atmosphere.
 
 Rules: initial hidden states are gated behind the `.js` class (no-JS users see
 everything); `prefers-reduced-motion` forces all final states in CSS and skips

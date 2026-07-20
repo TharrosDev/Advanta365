@@ -3,9 +3,9 @@
 Marketing site for ADVANTA365 — the enterprise Microsoft 365 adoption,
 governance, and enablement framework from Echofive Solutions.
 
-A one-page cinematic narrative in the "Night Grid" design system — the dark
-sibling of the Echofive parent site's "Bone & Cobalt". See `DESIGN.md` for
-the system reference.
+A one-page cinematic narrative in the "Day Grid" design system — the light,
+government-facing polarity of the Echofive parent site's "Bone & Cobalt".
+See `DESIGN.md` for the system reference.
 
 ## Stack
 

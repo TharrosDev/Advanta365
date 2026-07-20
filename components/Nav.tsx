@@ -200,7 +200,7 @@ export default function Nav() {
             <button
               ref={toggleRef}
               type="button"
-              className="grid h-11 w-11 place-items-center text-bone lg:hidden"
+              className="grid h-11 w-11 place-items-center text-ink lg:hidden"
               onClick={() => setOpen(v => !v)}
               aria-label={open ? "Close menu" : "Open menu"}
               aria-expanded={open}

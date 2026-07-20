@@ -26,8 +26,8 @@ type Point = {
   drift: number;
 };
 
-const BONE = "243, 239, 231";
-const COBALT = "94, 122, 255";
+const INK = "56, 50, 43"; // ≈ oklch(0.25 0.016 64), the site's ink
+const COBALT = "59, 85, 255"; // deep cobalt reads on the paper ground
 
 export default function GridField() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -133,10 +133,10 @@ export default function GridField() {
         const sd = Math.abs(x - scanX);
         const glow = scanStrength * Math.max(0, 1 - sd / 130);
 
-        const alpha = 0.1 + 0.16 * order + glow * 0.55;
+        const alpha = 0.13 + 0.19 * order + glow * 0.5;
         const size = 1.6 + glow * 1.2;
         ctx.fillStyle =
-          glow > 0.08 ? `rgba(${COBALT}, ${alpha})` : `rgba(${BONE}, ${alpha})`;
+          glow > 0.08 ? `rgba(${COBALT}, ${alpha})` : `rgba(${INK}, ${alpha})`;
         ctx.fillRect(x - size / 2, y - size / 2, size, size);
       }
 
