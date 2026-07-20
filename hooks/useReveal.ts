@@ -24,6 +24,12 @@ export function useReveal<T extends HTMLElement = HTMLElement>(): RefObject<T | 
     if (prefersReducedMotion()) return; // CSS already shows the final state
 
     const tweens: gsap.core.Tween[] = [];
+    // Everything observed but not yet revealed — the fast-scroll catch-up
+    // sweep below force-completes any of these that end up fully above the
+    // viewport (a violent scroll can fly an element through the viewport
+    // between IntersectionObserver ticks, which would otherwise leave it
+    // hidden until it re-enters).
+    const pending = new Set<HTMLElement>();
 
     const revealGroup = (group: HTMLElement) => {
       const items = group.querySelectorAll<HTMLElement>("[data-reveal]");
@@ -69,29 +75,71 @@ export function useReveal<T extends HTMLElement = HTMLElement>(): RefObject<T | 
       );
     };
 
+    const reveal = (node: HTMLElement) => {
+      io.unobserve(node);
+      pending.delete(node);
+      if (node.hasAttribute("data-reveal-group")) revealGroup(node);
+      else if (node.hasAttribute("data-split")) revealSplit(node);
+      else revealSolo(node);
+    };
+
+    /** Instantly land the final state — for elements already scrolled past. */
+    const complete = (node: HTMLElement) => {
+      io.unobserve(node);
+      pending.delete(node);
+      if (node.hasAttribute("data-reveal-group")) {
+        gsap.set(node.querySelectorAll<HTMLElement>("[data-reveal]"), {
+          opacity: 1,
+          x: 0,
+          y: 0,
+          scale: 1,
+        });
+      } else if (node.hasAttribute("data-split")) {
+        gsap.set(node.querySelectorAll<HTMLElement>(".split-word"), {
+          y: 0,
+          yPercent: 0,
+        });
+      } else {
+        gsap.set(node, { opacity: 1, x: 0, y: 0, scale: 1 });
+      }
+    };
+
     const io = new IntersectionObserver(
       (entries) => {
         for (const entry of entries) {
           if (!entry.isIntersecting) continue;
-          const node = entry.target as HTMLElement;
-          io.unobserve(node);
-          if (node.hasAttribute("data-reveal-group")) revealGroup(node);
-          else if (node.hasAttribute("data-split")) revealSplit(node);
-          else revealSolo(node);
+          reveal(entry.target as HTMLElement);
         }
       },
       { rootMargin: "0px 0px -8% 0px", threshold: 0 },
     );
 
-    el.querySelectorAll<HTMLElement>("[data-reveal-group]").forEach((g) =>
-      io.observe(g),
-    );
-    el.querySelectorAll<HTMLElement>("[data-split]").forEach((n) => io.observe(n));
+    const observe = (n: HTMLElement) => {
+      pending.add(n);
+      io.observe(n);
+    };
+    el.querySelectorAll<HTMLElement>("[data-reveal-group]").forEach(observe);
+    el.querySelectorAll<HTMLElement>("[data-split]").forEach(observe);
     Array.from(el.querySelectorAll<HTMLElement>("[data-reveal]"))
       .filter((n) => !n.closest("[data-reveal-group]"))
-      .forEach((n) => io.observe(n));
+      .forEach(observe);
+
+    // Fast-scroll catch-up sweep (rAF-throttled, passive).
+    let raf = 0;
+    const sweep = () => {
+      raf = 0;
+      for (const node of Array.from(pending)) {
+        if (node.getBoundingClientRect().bottom < 0) complete(node);
+      }
+    };
+    const onScroll = () => {
+      if (!raf && pending.size) raf = requestAnimationFrame(sweep);
+    };
+    window.addEventListener("scroll", onScroll, { passive: true });
 
     return () => {
+      window.removeEventListener("scroll", onScroll);
+      if (raf) cancelAnimationFrame(raf);
       io.disconnect();
       tweens.forEach((t) => t.kill());
     };
