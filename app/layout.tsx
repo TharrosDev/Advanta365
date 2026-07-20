@@ -1,6 +1,5 @@
 import type { Metadata, Viewport } from "next";
 import { Archivo, IBM_Plex_Mono, Public_Sans } from "next/font/google";
-import Script from "next/script";
 import "./globals.css";
 import {
   BASE_KEYWORDS,
@@ -49,7 +48,6 @@ export const metadata: Metadata = {
   },
   description: ROOT_DESCRIPTION,
   applicationName: SITE_NAME,
-  generator: "Next.js",
   referrer: "origin-when-cross-origin",
   creator: SITE_NAME,
   publisher: SITE_NAME,
@@ -125,16 +123,22 @@ export default function RootLayout({
       suppressHydrationWarning
     >
       <body className="antialiased">
-        {/* Flags JS availability before paint: reveal start-states are gated
-            behind `.js` so no-JS visitors and crawlers see everything. */}
-        <Script id="js-flag" strategy="beforeInteractive">
-          {`document.documentElement.classList.add("js");`}
-        </Script>
+        {/* Flags JS availability before first paint: reveal start-states are
+            gated behind `.js` so no-JS visitors and crawlers see everything.
+            A raw inline script (not next/script) is required here — it must
+            execute synchronously during HTML parse, before any styled content
+            paints, or reveal-hidden states flash in after first render. */}
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `document.documentElement.classList.add("js");`,
+          }}
+        />
         {children}
-        <Script
-          id="ld-root"
+        {/* Raw script tag so the structured data exists in the static HTML.
+            next/script serializes beforeInteractive payloads into the
+            __next_s queue, which non-JS crawlers never see. */}
+        <script
           type="application/ld+json"
-          strategy="beforeInteractive"
           dangerouslySetInnerHTML={{ __html: jsonLd(rootGraph) }}
         />
       </body>

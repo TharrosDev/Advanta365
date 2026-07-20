@@ -1,12 +1,36 @@
 import type { NextConfig } from "next";
 
+const isDev = process.env.NODE_ENV === "development";
+
+/* Content-Security-Policy. The site is fully static and self-contained: no
+   third-party scripts, styles, fonts, frames, or API calls. Inline allowances
+   are required by Next's bootstrap scripts, the pre-paint `.js` flag, JSON-LD
+   blocks, and React style attributes; `data:` images cover the CSS grain
+   texture. Dev additionally needs eval + websockets for HMR. */
+const csp = [
+  "default-src 'self'",
+  `script-src 'self' 'unsafe-inline'${isDev ? " 'unsafe-eval'" : ""}`,
+  "style-src 'self' 'unsafe-inline'",
+  "img-src 'self' data:",
+  "font-src 'self'",
+  `connect-src 'self'${isDev ? " ws:" : ""}`,
+  "object-src 'none'",
+  "base-uri 'self'",
+  "form-action 'self'",
+  "frame-ancestors 'none'",
+  ...(isDev ? [] : ["upgrade-insecure-requests"]),
+].join("; ");
+
 /* Baseline security headers. The site embeds nothing and is embedded by
    nothing, so the policy can be strict. HSTS is safe: production is
    HTTPS-only on Vercel. */
 const securityHeaders = [
+  { key: "Content-Security-Policy", value: csp },
   { key: "X-Content-Type-Options", value: "nosniff" },
   { key: "X-Frame-Options", value: "DENY" },
   { key: "Referrer-Policy", value: "strict-origin-when-cross-origin" },
+  { key: "Cross-Origin-Opener-Policy", value: "same-origin" },
+  { key: "Cross-Origin-Resource-Policy", value: "same-origin" },
   {
     key: "Permissions-Policy",
     value: "camera=(), microphone=(), geolocation=(), payment=()",
@@ -21,7 +45,17 @@ const config: NextConfig = {
   reactStrictMode: true,
   poweredByHeader: false,
   async headers() {
-    return [{ source: "/(.*)", headers: securityHeaders }];
+    return [
+      { source: "/(.*)", headers: securityHeaders },
+      // The OG card must stay embeddable by link-preview clients that
+      // hotlink it cross-origin (listed after the global rule so it wins).
+      {
+        source: "/og.png",
+        headers: [
+          { key: "Cross-Origin-Resource-Policy", value: "cross-origin" },
+        ],
+      },
+    ];
   },
   // The former standalone pages are now sections of the single-page site.
   // Preserve inbound links by redirecting old routes to their anchors.

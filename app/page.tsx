@@ -1,4 +1,3 @@
-import Script from "next/script";
 import SiteShell from "@/components/SiteShell";
 import Hero from "@/components/sections/Hero";
 import Marquee from "@/components/fx/Marquee";
@@ -53,7 +52,7 @@ const homeGraph = {
     itemListSchema({
       name: "ADVANTA Modules",
       path: "/",
-      items: registry.modules.map((m) => ({
+      items: registry.modules.map(m => ({
         name: `ADVANTA ${m.title}`,
         description: m.body,
       })),
@@ -61,7 +60,7 @@ const homeGraph = {
     itemListSchema({
       name: "ADVANTA365 Delivery Stages",
       path: "/",
-      items: delivery.stages.map((s) => ({ name: s.name })),
+      items: delivery.stages.map(s => ({ name: s.name })),
     }),
   ],
 };
@@ -69,10 +68,10 @@ const homeGraph = {
 export default function Home() {
   return (
     <SiteShell>
-      <Script
-        id="ld-home"
+      {/* Raw tag: keeps the structured data in the static HTML for non-JS
+          crawlers (next/script would defer it into the __next_s queue). */}
+      <script
         type="application/ld+json"
-        strategy="beforeInteractive"
         dangerouslySetInnerHTML={{ __html: jsonLd(homeGraph) }}
       />
 
