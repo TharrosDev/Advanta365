@@ -1,57 +1,49 @@
 @import "tailwindcss";
 
 /* ================================================================== *
- * ADVANTA365 — "Day Grid"
- * The light, government-facing polarity of the Echofive family system
- * ("Bone & Cobalt"). Same family DNA: warm bone paper, warm ink, one
- * electric cobalt. The governed control room now reads as a printed
- * dossier in daylight: expanded-grotesque uppercase display (Archivo),
- * IBM Plex Mono coordinates, keyline grids, HUD corner ticks, and a
- * canvas field where scattered points settle into a governed grid
- * (sprawl → order, the product's whole argument in one visual).
- * Two deliberate dark anchors remain: the cobalt-drenched contact
- * close and the deep-ink abyss footer.
+ * ADVANTA365 — "Blueprint"
+ * The framework rendered as a living set of technical drawings. Warm
+ * bone-paper sheets under a faint drafting grid; governance shown as
+ * connector lines that draw themselves and hand-off arrows between
+ * platforms. One accent — cobalt, doubling as blueprint ink-blue —
+ * carries every signal. Light throughout: no dark anchors.
+ *
+ * Type: Familjen Grotesk (display / plate + node titles, mixed case),
+ * Hanken Grotesk (body + tracked-caps annotation labels). No mono.
+ *
  * Motion: Lenis smooth scroll; IntersectionObserver entrance reveals;
- * GSAP ScrollTrigger only for additive scrub moments (progress rails,
- * scrubbed statements).
+ * SVG connectors draw via stroke-dashoffset when their sheet enters
+ * view. Reduced-motion and no-JS both land on the fully-drawn state.
  * ================================================================== */
 @theme {
-  /* ---- Grounds: warm bone paper, layered for depth ---- */
-  --color-paper: oklch(0.958 0.011 82); /* base ground */
-  --color-paper-2: oklch(0.936 0.013 80); /* raised band */
-  --color-paper-3: oklch(0.914 0.014 79); /* highest band */
-  --color-card: oklch(0.98 0.007 84); /* raised surface */
-  --color-abyss: oklch(0.155 0.01 68); /* footer, the one deep anchor */
+  /* ---- Grounds: warm bone paper, layered for sheet rhythm ---- */
+  --color-paper: oklch(0.958 0.011 82); /* base sheet */
+  --color-paper-2: oklch(0.938 0.013 80); /* raised band */
+  --color-paper-3: oklch(0.916 0.014 79); /* deepest band */
+  --color-card: oklch(0.982 0.007 84); /* node / plate surface */
 
-  /* ---- Ink: the family text color, carrying type on paper ---- */
+  /* ---- Ink: the family text color ---- */
   --color-ink: oklch(0.25 0.016 64);
   --color-ink-soft: oklch(0.37 0.016 64);
-  --color-ink-muted: oklch(0.46 0.015 64); /* AA on every paper band */
+  --color-ink-muted: oklch(0.455 0.015 64); /* AA on every paper band */
 
-  /* ---- Bone: the family paper tone, now text on dark anchors ---- */
-  --color-bone: oklch(0.952 0.012 82);
-  --color-bone-soft: oklch(0.82 0.014 80);
-  --color-bone-muted: oklch(0.7 0.012 78); /* AA on abyss */
+  /* ---- Cobalt: the accent, doubling as blueprint ink-blue ---- */
+  --color-cobalt: oklch(0.52 0.247 266); /* fills, connectors, nodes */
+  --color-cobalt-deep: oklch(0.435 0.214 266); /* small accent text on paper (AA) */
+  --color-cobalt-ink: oklch(0.34 0.14 266); /* deepest, for headings-on-wash */
+  --color-cobalt-wash: oklch(0.947 0.03 266); /* pale tint, active surfaces */
+  --color-cobalt-wash-2: oklch(0.915 0.05 266); /* deeper wash, stamp field */
+  --color-on-cobalt: oklch(0.985 0.01 250); /* light text on cobalt fills */
 
-  /* ---- Cobalt: the shared family accent ---- */
-  --color-cobalt: oklch(0.52 0.247 266); /* fills, large accents */
-  --color-cobalt-deep: oklch(0.44 0.214 266); /* small accent text on paper */
-  --color-cobalt-hot: oklch(0.64 0.21 266); /* luminous, dark grounds only */
-  --color-cobalt-wash: oklch(0.945 0.032 266); /* pale tint, hover surfaces */
-  --color-on-cobalt: oklch(0.985 0.01 250);
-  --color-on-cobalt-muted: oklch(0.985 0.01 250 / 0.88);
+  /* ---- Keylines & drafting grid ---- */
+  --color-line: oklch(0.25 0.016 64 / 0.14);
+  --color-line-soft: oklch(0.25 0.016 64 / 0.07);
+  --color-line-strong: oklch(0.25 0.016 64 / 0.32);
+  --color-draft: oklch(0.52 0.247 266 / 0.09); /* faint cobalt grid rules */
+  --color-line-cobalt: oklch(0.52 0.247 266 / 0.42);
 
-  /* ---- Keylines (ink at alpha; bone at alpha on the abyss) ---- */
-  --color-line: oklch(0.25 0.016 64 / 0.16);
-  --color-line-soft: oklch(0.25 0.016 64 / 0.08);
-  --color-line-strong: oklch(0.25 0.016 64 / 0.34);
-  --color-line-cobalt: oklch(0.52 0.247 266 / 0.5);
-  --color-line-bone: oklch(0.952 0.012 82 / 0.16);
-  --color-line-on-cobalt: oklch(0.985 0.01 250 / 0.28);
-
-  --font-display: var(--font-archivo), "Archivo", system-ui, sans-serif;
-  --font-sans: var(--font-public), "Public Sans", system-ui, sans-serif;
-  --font-mono: var(--font-plex), "IBM Plex Mono", ui-monospace, monospace;
+  --font-display: var(--font-familjen), "Familjen Grotesk", system-ui, sans-serif;
+  --font-sans: var(--font-hanken), "Hanken Grotesk", system-ui, sans-serif;
 
   /* ---- Motion ---- */
   --ease-expo: cubic-bezier(0.16, 1, 0.3, 1);
@@ -61,26 +53,19 @@
    sets border-box. An unlayered `*` rule would override every layered utility. */
 
 :root {
-  --pad-2xl: clamp(5.5rem, 9.5vw, 9rem);
-  --pad-xl: clamp(4.25rem, 7vw, 7rem);
-  --container: 88rem;
-  --gutter: clamp(1.25rem, 5vw, 4.5rem);
+  --pad-2xl: clamp(5rem, 9vw, 8.5rem);
+  --pad-xl: clamp(3.75rem, 6.5vw, 6.5rem);
+  --container: 84rem;
+  --gutter: clamp(1.25rem, 5vw, 4rem);
   --nav-h: 4.5rem;
   color-scheme: light;
-}
-
-.cobalt {
-  color: var(--color-cobalt-deep);
 }
 
 html {
   -webkit-text-size-adjust: 100%;
   scroll-padding-top: 6rem;
-  /* The skewed marquee wrapper can poke a few px past the viewport edge;
-     clip at the root so scrollWidth never grows. */
   overflow-x: clip;
 }
-/* Native smooth-scroll is owned by Lenis when JS runs; off otherwise. */
 html:not(.lenis) {
   scroll-behavior: smooth;
 }
@@ -124,14 +109,6 @@ html.lenis body {
   outline-offset: 3px;
   border-radius: 2px;
 }
-/* On cobalt ground the cobalt ring vanishes — swap to the light ring. */
-.drench :focus-visible {
-  outline-color: var(--color-on-cobalt);
-}
-/* On the dark abyss footer swap to the luminous ring. */
-.bg-abyss :focus-visible {
-  outline-color: var(--color-cobalt-hot);
-}
 
 .u-sr {
   position: absolute;
@@ -152,9 +129,11 @@ html.lenis body {
   z-index: 300;
   padding: 0.6rem 1rem;
   background: var(--color-ink);
-  color: var(--color-bone);
-  font-family: var(--font-mono);
+  color: var(--color-paper);
+  font-family: var(--font-sans);
+  font-weight: 600;
   font-size: 0.8rem;
+  letter-spacing: 0.02em;
   transform: translateY(-160%);
   transition: transform 0.2s ease;
 }
@@ -166,75 +145,68 @@ html.lenis body {
 .font-display {
   font-family: var(--font-display);
 }
-.font-mono {
-  font-family: var(--font-mono);
-}
 
-/* Mono coordinate label — section index, nav, eyebrows, form labels */
-.t-coord {
-  font-family: var(--font-mono);
-  font-size: 0.75rem;
-  font-weight: 500;
-  letter-spacing: 0.18em;
+/* Drafting annotation label — the drawing-set voice. Small tracked caps in
+   the body face; replaces the old mono "coordinate". */
+.annot {
+  font-family: var(--font-sans);
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.2em;
   text-transform: uppercase;
+  color: var(--color-cobalt-deep);
+}
+.annot-ink {
   color: var(--color-ink-muted);
 }
 
-/* Display: expanded-width uppercase Archivo — the broadcast voice. */
 .t-display {
   font-family: var(--font-display);
-  font-variation-settings: "wdth" 125;
-  font-weight: 800;
-  font-size: clamp(2.1rem, 6.3vw, 6.4rem);
+  font-weight: 700;
+  font-size: clamp(2.4rem, 6.2vw, 5.4rem);
   line-height: 0.98;
-  letter-spacing: -0.015em;
-  text-transform: uppercase;
+  letter-spacing: -0.03em;
   text-wrap: balance;
 }
 
 .t-h2 {
   font-family: var(--font-display);
-  font-variation-settings: "wdth" 120;
-  font-weight: 750;
-  font-size: clamp(1.8rem, 4.4vw, 3.7rem);
-  line-height: 1.02;
-  letter-spacing: -0.012em;
-  text-transform: uppercase;
+  font-weight: 700;
+  font-size: clamp(1.9rem, 4.3vw, 3.5rem);
+  line-height: 1.03;
+  letter-spacing: -0.025em;
   text-wrap: balance;
 }
 
 .t-h3 {
   font-family: var(--font-display);
-  font-variation-settings: "wdth" 108;
-  font-weight: 640;
-  font-size: clamp(1.3rem, 2.2vw, 1.9rem);
+  font-weight: 600;
+  font-size: clamp(1.3rem, 2.2vw, 1.85rem);
   line-height: 1.12;
-  letter-spacing: -0.008em;
+  letter-spacing: -0.015em;
 }
 
 .t-lead {
-  font-size: clamp(1.14rem, 1.8vw, 1.5rem);
-  line-height: 1.52;
+  font-size: clamp(1.14rem, 1.7vw, 1.42rem);
+  line-height: 1.5;
   color: var(--color-ink-soft);
-  /* Dark-on-light reads thinner than the old light-on-dark; compensate. */
-  font-weight: 420;
+  font-weight: 400;
   text-wrap: pretty;
 }
 
 .t-body {
   font-size: 1.0625rem;
-  line-height: 1.68;
+  line-height: 1.66;
 }
 
 .measure {
   max-width: 42ch;
 }
 .measure-wide {
-  max-width: 60ch;
+  max-width: 62ch;
 }
-/* Max-width measured in the element's own (display) font, for big statements. */
 .measure-statement {
-  max-width: 24ch;
+  max-width: 20ch;
 }
 
 /* ---------- Layout ---------- */
@@ -251,10 +223,7 @@ html.lenis body {
   padding-block: var(--pad-xl);
 }
 .section-gap {
-  margin-top: clamp(2.75rem, 5vw, 4.5rem);
-}
-.section-gap-lg {
-  margin-top: clamp(3.75rem, 6.5vw, 6rem);
+  margin-top: clamp(2.5rem, 5vw, 4rem);
 }
 
 .rule-top {
@@ -271,414 +240,173 @@ html.lenis body {
   background: var(--color-paper-3);
 }
 
-/* ---------- The dossier chapter system ----------
-   The site's core architecture: every chapter is a two-column split.
-   Left: a rail that stays pinned (pure CSS sticky) carrying the chapter
-   index, word, kicker, and a scroll-progress line. Right: the chapter's
-   content scrolling past it. On small screens the rail collapses to a
-   compact header above the body. */
-.ch {
-  border-top: 1px solid var(--color-line);
+/* ---------- The drafting grid ----------
+   Faint cobalt-tinted graph paper. The literal ground of every drawing;
+   masked soft at the edges so it never fights the type. */
+.draft-grid {
+  position: relative;
 }
-@media (min-width: 1024px) {
-  .ch {
+.draft-grid::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background-image:
+    linear-gradient(var(--color-draft) 1px, transparent 1px),
+    linear-gradient(90deg, var(--color-draft) 1px, transparent 1px);
+  background-size: 3.25rem 3.25rem;
+  -webkit-mask-image: radial-gradient(
+    120% 90% at 50% 0%,
+    black 40%,
+    transparent 92%
+  );
+  mask-image: radial-gradient(120% 90% at 50% 0%, black 40%, transparent 92%);
+}
+.draft-grid > * {
+  position: relative;
+  z-index: 1;
+}
+
+/* ---------- The sheet system ----------
+   Every section is a titled plate in the drawing set: a header row with the
+   plate name and a drafting annotation, then the schematic body. */
+.sheet {
+  position: relative;
+}
+.sheet-head {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+@media (min-width: 900px) {
+  .sheet-head {
     display: grid;
-    grid-template-columns: clamp(16rem, 26vw, 23rem) 1fr;
-    align-items: stretch;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 0.9fr);
+    align-items: end;
+    gap: clamp(2rem, 5vw, 5rem);
   }
 }
-.ch-rail {
-  padding: clamp(1.75rem, 3vw, 3rem) var(--gutter) 0;
-}
-@media (min-width: 1024px) {
-  .ch-rail {
-    padding: 0 0 0 var(--gutter);
-  }
-}
-.ch-rail-inner {
-  display: flex;
-  flex-direction: column;
-  gap: 1.1rem;
-}
-@media (min-width: 1024px) {
-  .ch-rail-inner {
-    position: sticky;
-    top: var(--nav-h);
-    min-height: calc(100svh - var(--nav-h));
-    padding-block: clamp(2rem, 4vh, 3.5rem);
-    justify-content: flex-start;
-  }
-}
-.ch-index {
+.plate-title {
   font-family: var(--font-display);
-  font-variation-settings: "wdth" 125;
-  font-weight: 800;
-  font-size: clamp(2.6rem, 4.5vw, 4.4rem);
-  line-height: 1;
-  letter-spacing: -0.02em;
-  -webkit-text-stroke: 1.4px var(--color-line-cobalt);
-  color: transparent;
-  font-variant-numeric: tabular-nums;
-}
-.ch-word {
-  font-family: var(--font-display);
-  font-variation-settings: "wdth" 122;
-  font-weight: 780;
-  font-size: clamp(1.9rem, 2.6vw, 2.9rem);
-  line-height: 0.98;
-  letter-spacing: -0.01em;
-  text-transform: uppercase;
-}
-/* The rail's scroll line: fills as the chapter scrolls through the
-   viewport (additive scrub — static without JS). Desktop only. */
-.ch-progress {
-  display: none;
-}
-@media (min-width: 1024px) {
-  .ch-progress {
-    display: flex;
-    align-items: center;
-    gap: 0.9rem;
-    margin-top: auto;
-    padding-top: 2rem;
-  }
-  .ch-progress-rail {
-    position: relative;
-    width: 1px;
-    height: clamp(4rem, 12vh, 7rem);
-    background: var(--color-line);
-    overflow: hidden;
-  }
-  .ch-progress-fill {
-    position: absolute;
-    inset: 0;
-    background: var(--color-cobalt);
-    transform: scaleY(0);
-    transform-origin: top center;
-  }
-  .ch-progress-pct {
-    font-family: var(--font-mono);
-    font-size: 0.7rem;
-    letter-spacing: 0.14em;
-    color: var(--color-ink-muted);
-    font-variant-numeric: tabular-nums;
-  }
-}
-.ch-body {
-  padding: clamp(1.75rem, 3vw, 3rem) var(--gutter) var(--pad-xl);
-  display: flex;
-  flex-direction: column;
-  min-width: 0;
-}
-@media (min-width: 1024px) {
-  .ch-body {
-    border-left: 1px solid var(--color-line);
-    padding: clamp(2.5rem, 5vh, 4rem) var(--gutter) var(--pad-xl)
-      clamp(2rem, 3.5vw, 3.5rem);
-  }
-}
-/* Chapter heading inside the body: smaller than the old full-width h2. */
-.ch-h {
-  font-family: var(--font-display);
-  font-variation-settings: "wdth" 118;
-  font-weight: 750;
-  font-size: clamp(1.6rem, 3vw, 2.9rem);
-  line-height: 1.04;
-  letter-spacing: -0.01em;
-  text-transform: uppercase;
+  font-weight: 700;
+  font-size: clamp(1.9rem, 4.1vw, 3.3rem);
+  line-height: 1.02;
+  letter-spacing: -0.025em;
   text-wrap: balance;
 }
-.ch-gap {
-  margin-top: clamp(2rem, 3.5vw, 3.25rem);
-}
-
-/* Generic dossier card. On paper, elevation is carried by a lighter
-   surface plus a soft ink shadow on hover (light themes need shadow
-   where dark themes used brighter bands). */
-.d-card {
-  background: var(--color-card);
-  border: 1px solid var(--color-line);
-  border-radius: 4px;
-  padding: clamp(1.4rem, 2.4vw, 2.25rem);
-  transition:
-    border-color 0.35s ease,
-    box-shadow 0.4s var(--ease-expo),
-    transform 0.5s var(--ease-expo);
-}
-@media (hover: hover) {
-  .d-card:hover {
-    border-color: var(--color-line-cobalt);
-    box-shadow: 0 14px 34px oklch(0.25 0.016 64 / 0.09);
-    transform: translateY(-3px);
-  }
-}
-
-/* ---------- Atmosphere ---------- */
-/* Fixed film grain. Multiply adds paper tooth to the light ground. */
-.grain {
-  position: fixed;
-  inset: 0;
-  z-index: 1;
-  pointer-events: none;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
-  background-size: 180px 180px;
-  opacity: 0.04;
-  mix-blend-mode: multiply;
-}
-
-/* Faint dot lattice — the governed grid, used as section atmosphere. */
-.bg-dots {
-  background-image: radial-gradient(
-    oklch(0.25 0.016 64 / 0.07) 1px,
-    transparent 1.4px
-  );
-  background-size: 26px 26px;
-}
-
-/* Raised card */
-.card {
-  background: var(--color-card);
-  border: 1px solid var(--color-line);
-}
-
-/* HUD corner ticks — four L-marks framing a stage. Decorative. The frame
-   must never intercept pointer events meant for the canvas or content. */
-.hud-frame {
-  position: absolute;
-  z-index: 2;
-  inset: calc(var(--nav-h) + 0.75rem) var(--gutter) 0.9rem;
-  pointer-events: none;
-}
-.hud-corner {
-  position: absolute;
-  width: 14px;
-  height: 14px;
-  border: 0 solid var(--color-line-strong);
-  pointer-events: none;
-}
-.hud-corner[data-pos="tl"] {
-  top: 0;
-  left: 0;
-  border-top-width: 1px;
-  border-left-width: 1px;
-}
-.hud-corner[data-pos="tr"] {
-  top: 0;
-  right: 0;
-  border-top-width: 1px;
-  border-right-width: 1px;
-}
-.hud-corner[data-pos="bl"] {
-  bottom: 0;
-  left: 0;
-  border-bottom-width: 1px;
-  border-left-width: 1px;
-}
-.hud-corner[data-pos="br"] {
-  bottom: 0;
-  right: 0;
-  border-bottom-width: 1px;
-  border-right-width: 1px;
-}
-
-/* ---------- Buttons ---------- */
-/* Sharp rectangles, mono labels — console controls, not pills. */
-.btn {
-  position: relative;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.6rem;
-  font-family: var(--font-mono);
-  font-size: 0.8rem;
-  font-weight: 500;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  padding: 1.02rem 1.7rem;
-  border: 1px solid transparent;
-  border-radius: 2px;
-  cursor: pointer;
-  overflow: hidden;
-  isolation: isolate;
-  transition:
-    color 0.5s var(--ease-expo),
-    border-color 0.5s var(--ease-expo),
-    background 0.5s var(--ease-expo);
-}
-.btn::after {
-  /* wipe fill on hover */
-  content: "";
-  position: absolute;
-  inset: 0;
-  z-index: -1;
-  background: var(--color-cobalt);
-  transform: translateY(101%);
-  transition: transform 0.55s var(--ease-expo);
-}
-.btn:hover::after {
-  transform: translateY(0);
-}
-.btn-primary {
-  background: var(--color-ink);
-  color: var(--color-bone);
-  font-weight: 500;
-}
-.btn-primary:hover {
-  color: var(--color-on-cobalt);
-}
-.btn-ghost {
-  border-color: var(--color-line-strong);
-  color: var(--color-ink);
-}
-.btn-ghost:hover {
-  color: var(--color-on-cobalt);
-  border-color: var(--color-cobalt);
-}
-/* Inverted button for the cobalt-drenched close: light fill, ink wipe. */
-.btn-invert {
-  background: var(--color-on-cobalt);
-  color: var(--color-cobalt-deep);
-  font-weight: 500;
-}
-.btn-invert::after {
-  background: var(--color-ink);
-}
-.btn-invert:hover {
-  color: var(--color-bone);
-}
-
-/* ---------- Nav ---------- */
-/* Positioning lives here (not in utility classes) so the stacking order can't
-   silently vanish if a class-name template hides a utility from the scanner. */
-.site-nav {
-  position: fixed;
-  inset-inline: 0;
-  top: 0;
-  z-index: 100;
-  transition:
-    transform 0.6s var(--ease-expo),
-    background 0.4s ease,
-    border-color 0.4s ease;
-  border-bottom: 1px solid transparent;
-}
-.site-nav.is-solid {
-  background: oklch(0.958 0.011 82 / 0.85);
-  backdrop-filter: blur(14px);
-  border-bottom-color: var(--color-line);
-}
-.site-nav.nav-hidden {
-  transform: translateY(-100%);
-}
-
-.nav-link {
-  position: relative;
-  color: var(--color-ink-soft);
-  transition: color 0.3s ease;
-}
-.nav-link:hover {
-  color: var(--color-ink);
-}
-.nav-link[data-active] {
-  color: var(--color-cobalt-deep);
-}
-.nav-link::after {
-  content: "";
-  position: absolute;
-  left: 0;
-  right: 0;
-  bottom: -7px;
-  height: 2px;
-  background: var(--color-cobalt);
-  transform: scaleX(0);
-  transform-origin: left center;
-  transition: transform 0.4s var(--ease-expo);
-}
-.nav-link[data-active]::after {
-  transform: scaleX(1);
-}
-.nav-index {
-  color: var(--color-cobalt-deep);
-  font-size: 0.62rem;
-  vertical-align: super;
-  margin-right: 0.2rem;
-}
-
-/* Full-screen mobile menu. Sits *below* the nav bar (z 100) so the toggle
-   button stays visible and clickable above the open panel. */
-.mobile-menu {
-  position: fixed;
-  inset: 0;
-  z-index: 90;
-  display: flex;
-  flex-direction: column;
-  background: var(--color-paper);
-  padding: calc(var(--nav-h) + 1.5rem) var(--gutter) 2rem;
-  overflow-y: auto;
-}
-.mobile-link {
+.plate-meta {
   display: flex;
   align-items: baseline;
-  gap: 1.1rem;
-  padding-block: 0.9rem;
-  border-bottom: 1px solid var(--color-line);
+  gap: 0.9rem;
+  margin-bottom: 0.4rem;
+}
+/* The sheet's drawing number: a real reference, kept small and quiet — not a
+   decorative 01/02 eyebrow stacked above every heading. */
+.sheet-ref {
   font-family: var(--font-display);
-  font-variation-settings: "wdth" 118;
   font-weight: 700;
-  font-size: clamp(1.7rem, 7vw, 2.6rem);
+  font-size: 0.95rem;
+  letter-spacing: 0.02em;
+  color: var(--color-cobalt-deep);
+  font-variant-numeric: tabular-nums;
+}
+
+/* ---------- Nodes ----------
+   A drawing node: a labelled box in a schematic. Corner ticks read as
+   drafting registration marks; the cobalt title dot is the connector port. */
+.node {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 0.7rem;
+  background: var(--color-card);
+  border: 1px solid var(--color-line);
+  border-radius: 3px;
+  padding: clamp(1.35rem, 2.3vw, 2.1rem);
+  transition:
+    border-color 0.4s ease,
+    box-shadow 0.45s var(--ease-expo),
+    transform 0.5s var(--ease-expo);
+}
+.node::after {
+  content: "";
+  position: absolute;
+  top: 0.55rem;
+  right: 0.55rem;
+  width: 9px;
+  height: 9px;
+  border-top: 1px solid var(--color-line-strong);
+  border-right: 1px solid var(--color-line-strong);
+  transition: border-color 0.4s ease;
+}
+@media (hover: hover) {
+  .node:hover {
+    border-color: var(--color-line-cobalt);
+    box-shadow: 0 16px 38px oklch(0.25 0.016 64 / 0.1);
+    transform: translateY(-3px);
+  }
+  .node:hover::after {
+    border-color: var(--color-cobalt);
+  }
+}
+.node-code {
+  font-family: var(--font-sans);
+  font-weight: 600;
+  font-size: 0.74rem;
+  letter-spacing: 0.14em;
   text-transform: uppercase;
-  letter-spacing: -0.01em;
-  color: var(--color-ink);
-  transition:
-    color 0.3s ease,
-    padding-left 0.4s var(--ease-expo);
-}
-.mobile-link:hover {
   color: var(--color-cobalt-deep);
-  padding-left: 0.5rem;
 }
-.mobile-link .t-coord {
-  color: var(--color-cobalt-deep);
+.node-title {
+  font-family: var(--font-display);
+  font-weight: 650;
+  font-size: clamp(1.25rem, 2vw, 1.65rem);
+  line-height: 1.08;
+  letter-spacing: -0.015em;
+}
+.node-body {
+  color: var(--color-ink-muted);
+  max-width: 56ch;
 }
 
-.link-arrow {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.5rem;
-  font-family: var(--font-mono);
-  font-size: 0.8rem;
-  letter-spacing: 0.03em;
-  color: var(--color-cobalt-deep);
-  border-bottom: 1px solid var(--color-line-cobalt);
-  padding-bottom: 3px;
+/* ---------- Connector draw-in ----------
+   SVG paths tagged `.draw` carry pathLength="1"; JS-only start state hides
+   them, and a `data-drawn` flag (set by the reveal observer when the sheet
+   enters view) transitions them in. No-JS and reduced-motion never hide. */
+.js [data-draw] .draw {
+  stroke-dashoffset: 1;
+  stroke-dasharray: 1;
+  transition: stroke-dashoffset 1.1s var(--ease-expo);
+}
+.js [data-draw][data-drawn] .draw {
+  stroke-dashoffset: 0;
+}
+.js [data-draw] .draw-node {
+  opacity: 0;
   transition:
-    gap 0.4s var(--ease-expo),
-    border-color 0.4s ease;
+    opacity 0.6s ease,
+    transform 0.6s var(--ease-expo);
 }
-.link-arrow:hover {
-  gap: 0.85rem;
-  border-color: var(--color-cobalt-deep);
-}
-.link-arrow svg {
-  transition: transform 0.4s var(--ease-expo);
-}
-.link-arrow:hover svg {
-  transform: translateX(3px);
+.js [data-draw][data-drawn] .draw-node {
+  opacity: 1;
 }
 
-/* Pill / chip */
+/* ---------- Chip ---------- */
 .chip {
   display: inline-flex;
   align-items: center;
   gap: 0.5rem;
-  padding: 0.45rem 0.9rem;
+  padding: 0.4rem 0.85rem;
   border: 1px solid var(--color-line);
   border-radius: 2px;
-  font-family: var(--font-mono);
-  font-size: 0.75rem;
-  letter-spacing: 0.06em;
+  font-family: var(--font-sans);
+  font-size: 0.74rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
   text-transform: uppercase;
   color: var(--color-ink-soft);
-  background: oklch(0.25 0.016 64 / 0.04);
+  background: var(--color-card);
 }
 
 /* Live status dot */
@@ -709,98 +437,211 @@ html.lenis body {
   }
 }
 
+/* ---------- Buttons ---------- */
+.btn {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.55rem;
+  font-family: var(--font-sans);
+  font-size: 0.9rem;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  padding: 0.9rem 1.5rem;
+  border: 1px solid transparent;
+  border-radius: 3px;
+  cursor: pointer;
+  overflow: hidden;
+  isolation: isolate;
+  transition:
+    color 0.5s var(--ease-expo),
+    border-color 0.5s var(--ease-expo),
+    background 0.5s var(--ease-expo);
+}
+.btn::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background: var(--color-cobalt);
+  transform: translateY(101%);
+  transition: transform 0.55s var(--ease-expo);
+}
+.btn:hover::after {
+  transform: translateY(0);
+}
+.btn-primary {
+  background: var(--color-ink);
+  color: var(--color-paper);
+}
+.btn-primary:hover {
+  color: var(--color-on-cobalt);
+}
+.btn-ghost {
+  border-color: var(--color-line-strong);
+  color: var(--color-ink);
+}
+.btn-ghost:hover {
+  color: var(--color-on-cobalt);
+  border-color: var(--color-cobalt);
+}
+
+/* Arrow link — a drawn dimension leader */
+.link-arrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-family: var(--font-sans);
+  font-weight: 600;
+  font-size: 0.9rem;
+  color: var(--color-cobalt-deep);
+  border-bottom: 1px solid var(--color-line-cobalt);
+  padding-bottom: 3px;
+  transition:
+    gap 0.4s var(--ease-expo),
+    border-color 0.4s ease;
+}
+.link-arrow:hover {
+  gap: 0.8rem;
+  border-color: var(--color-cobalt-deep);
+}
+.link-arrow svg {
+  transition: transform 0.4s var(--ease-expo);
+}
+.link-arrow:hover svg {
+  transform: translateX(3px);
+}
+
+/* ---------- Nav ---------- */
+.site-nav {
+  position: fixed;
+  inset-inline: 0;
+  top: 0;
+  z-index: 100;
+  transition:
+    transform 0.6s var(--ease-expo),
+    background 0.4s ease,
+    border-color 0.4s ease;
+  border-bottom: 1px solid transparent;
+}
+.site-nav.is-solid {
+  background: oklch(0.958 0.011 82 / 0.85);
+  backdrop-filter: blur(14px);
+  border-bottom-color: var(--color-line);
+}
+.site-nav.nav-hidden {
+  transform: translateY(-100%);
+}
+.nav-link {
+  position: relative;
+  font-family: var(--font-sans);
+  font-weight: 500;
+  font-size: 0.95rem;
+  color: var(--color-ink-soft);
+  transition: color 0.3s ease;
+}
+.nav-link:hover {
+  color: var(--color-ink);
+}
+.nav-link[data-active] {
+  color: var(--color-cobalt-deep);
+}
+.nav-link::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: -7px;
+  height: 2px;
+  background: var(--color-cobalt);
+  transform: scaleX(0);
+  transform-origin: left center;
+  transition: transform 0.4s var(--ease-expo);
+}
+.nav-link[data-active]::after {
+  transform: scaleX(1);
+}
+
+.mobile-menu {
+  position: fixed;
+  inset: 0;
+  z-index: 90;
+  display: flex;
+  flex-direction: column;
+  background: var(--color-paper);
+  padding: calc(var(--nav-h) + 1.5rem) var(--gutter) 2rem;
+  overflow-y: auto;
+}
+.mobile-link {
+  display: flex;
+  align-items: baseline;
+  gap: 1.1rem;
+  padding-block: 0.95rem;
+  border-bottom: 1px solid var(--color-line);
+  font-family: var(--font-display);
+  font-weight: 650;
+  font-size: clamp(1.7rem, 7vw, 2.5rem);
+  letter-spacing: -0.02em;
+  color: var(--color-ink);
+  transition: color 0.3s ease;
+}
+.mobile-link:hover {
+  color: var(--color-cobalt-deep);
+}
+.mobile-link .annot {
+  align-self: center;
+}
+
 /* ---------- Hero ---------- */
-/* The cover: same split architecture as the chapters, full-viewport, with
-   the grid field behind. The rail carries the dossier ID block; the body
-   carries the headline. */
 .hero-stage {
   position: relative;
   min-height: 100svh;
+  display: flex;
+  align-items: center;
   overflow: hidden;
-  padding-top: calc(var(--nav-h) + 1.5rem);
+  padding-top: calc(var(--nav-h) + clamp(2rem, 6vh, 4rem));
+  padding-bottom: clamp(2.5rem, 6vh, 4.5rem);
 }
-.cover-rail-inner {
-  display: flex;
-  flex-direction: column;
-  gap: 1.1rem;
-}
-@media (min-width: 1024px) {
-  .cover-rail-inner {
-    position: sticky;
-    top: var(--nav-h);
-    min-height: calc(100svh - var(--nav-h) - 1.5rem);
-    padding-block: clamp(2rem, 4vh, 3.5rem);
-  }
-  .cover-rail-inner .cover-meta {
-    margin-top: auto;
-  }
-}
-.cover-meta {
-  display: flex;
-  flex-direction: column;
-  gap: 0.55rem;
-  font-family: var(--font-mono);
-  font-size: 0.75rem;
-  letter-spacing: 0.08em;
-  color: var(--color-ink-muted);
-}
-.cover-body {
-  position: relative;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  min-width: 0;
-}
-/* Cover headline: sized for the split column, not the full viewport. */
-.cover-title {
-  font-family: var(--font-display);
-  font-variation-settings: "wdth" 125;
-  font-weight: 800;
-  font-size: clamp(2rem, 4.6vw, 4.7rem);
-  line-height: 0.98;
-  letter-spacing: -0.015em;
-  text-transform: uppercase;
-  text-wrap: balance;
-}
-@media (min-width: 1024px) {
-  .cover-body {
-    min-height: calc(100svh - var(--nav-h) - 1.5rem);
-    padding-block: clamp(2rem, 4vh, 3.5rem);
-  }
-}
-
-/* The grid field canvas layer. Fallback (no JS / no canvas / reduced
-   motion): a static governed lattice with a cobalt bloom on paper. */
-.gridfield {
+.hero-grid {
   position: absolute;
   inset: 0;
   z-index: 0;
+  background-image:
+    linear-gradient(var(--color-draft) 1px, transparent 1px),
+    linear-gradient(90deg, var(--color-draft) 1px, transparent 1px);
+  background-size: 3.25rem 3.25rem;
+  -webkit-mask-image: radial-gradient(
+    75% 70% at 72% 42%,
+    black 0%,
+    transparent 78%
+  );
+  mask-image: radial-gradient(75% 70% at 72% 42%, black 0%, transparent 78%);
+}
+.hero-bloom {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
   background:
     radial-gradient(
-      55% 48% at 74% 34%,
+      52% 46% at 74% 36%,
       oklch(0.52 0.247 266 / 0.1) 0%,
       transparent 62%
     ),
     radial-gradient(
-      45% 55% at 18% 85%,
-      oklch(0.914 0.014 79 / 0.9) 0%,
+      46% 54% at 16% 88%,
+      oklch(0.916 0.014 79 / 0.9) 0%,
       transparent 55%
     );
 }
-.no-js-dots {
+.hero-canvas {
   position: absolute;
   inset: 0;
-  background-image: radial-gradient(
-    oklch(0.25 0.016 64 / 0.13) 1px,
-    transparent 1.4px
-  );
-  background-size: 30px 30px;
-  mask-image: radial-gradient(70% 70% at 68% 40%, black 30%, transparent 78%);
+  z-index: 0;
+  pointer-events: none;
 }
-.js .gridfield[data-live="true"] .no-js-dots {
-  display: none;
-}
-.gridfield canvas {
+.hero-canvas canvas {
   display: block;
   width: 100%;
   height: 100%;
@@ -812,49 +653,64 @@ html.lenis body {
     opacity: 1;
   }
 }
-/* Soft floor fade so the meta bar reads over the field. */
-.hero-fade {
-  position: absolute;
-  inset-inline: 0;
-  bottom: 0;
-  height: 40%;
-  z-index: 1;
-  pointer-events: none;
-  background: linear-gradient(180deg, transparent, var(--color-paper) 82%);
+.hero-inner {
+  position: relative;
+  z-index: 2;
+  width: 100%;
+}
+.cover-title {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: clamp(2.5rem, 6.6vw, 5.6rem);
+  line-height: 0.98;
+  letter-spacing: -0.035em;
+  text-wrap: balance;
 }
 
-/* Meta bar: mono facts in ruled columns — 2×2 inside the cover body. */
+/* Hero meta — mono-free drafting facts in ruled cells */
 .hero-meta {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
-  border-top: 1px solid var(--color-line);
+  gap: 1px;
+  background: var(--color-line);
+  border: 1px solid var(--color-line);
+  border-radius: 3px;
+  overflow: hidden;
+}
+@media (min-width: 640px) {
+  .hero-meta {
+    grid-template-columns: repeat(4, 1fr);
+  }
 }
 .hero-meta-cell {
   display: flex;
   flex-direction: column;
-  gap: 0.4rem;
-  padding: 1.1rem clamp(0.75rem, 2vw, 1.5rem) 0.35rem 0;
+  gap: 0.45rem;
+  padding: 1rem 1.1rem;
+  background: var(--color-card);
 }
-.hero-meta-num {
-  font-family: var(--font-mono);
+.hero-meta-key {
+  font-family: var(--font-sans);
   font-size: 0.68rem;
-  letter-spacing: 0.16em;
+  font-weight: 600;
+  letter-spacing: 0.14em;
   text-transform: uppercase;
   color: var(--color-ink-muted);
 }
 .hero-meta-val {
-  font-family: var(--font-mono);
-  font-size: clamp(0.78rem, 1vw, 0.9rem);
-  letter-spacing: 0.02em;
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: 0.95rem;
+  letter-spacing: -0.01em;
   color: var(--color-ink);
 }
 
-/* Hero scroll cue — a slow travelling tick */
+/* Hero scroll cue */
 .scroll-cue {
   position: relative;
   display: inline-block;
   width: 1px;
-  height: 38px;
+  height: 34px;
   background: var(--color-line-strong);
   overflow: hidden;
 }
@@ -876,7 +732,7 @@ html.lenis body {
   }
 }
 
-/* ---------- Marquee ---------- */
+/* ---------- Ribbon (was marquee): a drafting dimension strip ---------- */
 @keyframes marquee {
   from {
     transform: translateX(0);
@@ -885,42 +741,41 @@ html.lenis body {
     transform: translateX(-50%);
   }
 }
-.marquee {
+.ribbon {
   overflow: hidden;
+  background: var(--color-ink);
+  color: var(--color-paper);
+  padding-block: 0.85rem;
 }
-.marquee-track {
+.ribbon-track {
   display: flex;
   width: max-content;
-  animation: marquee var(--marquee-duration, 46s) linear infinite;
+  animation: marquee var(--marquee-duration, 42s) linear infinite;
   will-change: transform;
 }
-.marquee:hover .marquee-track,
-.is-off .marquee-track {
+.ribbon:hover .ribbon-track,
+.ribbon.is-off .ribbon-track {
   animation-play-state: paused;
 }
-
-/* Giant outlined marquee — stroked expanded display, cobalt separators. */
-.marquee-giant {
+.ribbon-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 1.5rem;
+  padding-inline: 1.5rem;
   font-family: var(--font-display);
-  font-variation-settings: "wdth" 125;
-  font-weight: 780;
-  font-size: clamp(3.2rem, 8.6vw, 8rem);
-  line-height: 1.08;
+  font-weight: 600;
+  font-size: clamp(1rem, 1.6vw, 1.3rem);
   letter-spacing: -0.01em;
-  text-transform: uppercase;
   white-space: nowrap;
-  color: transparent;
-  -webkit-text-stroke: 1.5px oklch(0.25 0.016 64 / 0.3);
 }
-.marquee-giant .mg-sep {
-  -webkit-text-stroke: 0;
-  color: var(--color-cobalt);
-  font-weight: 400;
-  padding-inline: clamp(1.1rem, 2.5vw, 2.2rem);
+.ribbon-sep {
+  width: 6px;
+  height: 6px;
+  background: var(--color-cobalt);
+  transform: rotate(45deg);
 }
-.marquee-giant .mg-solid {
-  -webkit-text-stroke: 0;
-  color: var(--color-ink);
+.ribbon-mark {
+  color: var(--color-on-cobalt);
 }
 
 /* ---------- Split-text masks ---------- */
@@ -932,9 +787,6 @@ html.lenis body {
 .split-word {
   display: inline-block;
 }
-
-/* Scroll-scrubbed statements: word opacity is driven entirely by GSAP, so
-   content is fully visible whenever the scrub is not running. */
 .scrub-word {
   display: inline-block;
 }
@@ -953,17 +805,15 @@ html.lenis body {
 }
 
 /* ---------- GSAP reveal initial states (JS only) ---------- */
-/* Gated behind `.js` so no-JS / crawlers keep content visible. GSAP leaves the
-   inline end-state in place (no clearProps), so these only set the start. */
 .js [data-reveal] {
   opacity: 0;
-  transform: translateY(28px);
+  transform: translateY(26px);
 }
 .js [data-reveal="left"] {
-  transform: translateX(-34px);
+  transform: translateX(-32px);
 }
 .js [data-reveal="scale"] {
-  transform: translateY(16px) scale(0.97);
+  transform: translateY(14px) scale(0.97);
 }
 .js [data-reveal="fade"] {
   transform: none;
@@ -975,80 +825,70 @@ html.lenis body {
   transform: translateY(110%);
 }
 
-/* ---------- Index numerals ---------- */
-.index-num {
-  font-family: var(--font-display);
-  font-variation-settings: "wdth" 125;
-  font-weight: 780;
-  font-size: clamp(2rem, 4vw, 3.2rem);
-  line-height: 1;
-  -webkit-text-stroke: 1.2px var(--color-line-strong);
-  color: transparent;
-}
-
-/* ---------- Problem: incident cards ---------- */
-.inc-card {
+/* ---------- Problem: failure-state schematic ---------- */
+.fault-node {
   display: flex;
   flex-direction: column;
-  gap: 0.75rem;
+  gap: 0.7rem;
   background: var(--color-card);
   border: 1px solid var(--color-line);
-  border-left: 3px solid var(--color-line-cobalt);
-  border-radius: 4px;
-  padding: clamp(1.4rem, 2.4vw, 2rem);
+  border-radius: 3px;
+  padding: clamp(1.35rem, 2.3vw, 2rem);
   transition:
-    border-color 0.35s ease,
-    box-shadow 0.4s var(--ease-expo);
+    border-color 0.4s ease,
+    box-shadow 0.45s var(--ease-expo);
 }
 @media (hover: hover) {
-  .inc-card:hover {
-    box-shadow: 0 14px 34px oklch(0.25 0.016 64 / 0.09);
-    border-left-color: var(--color-cobalt);
+  .fault-node:hover {
+    border-color: var(--color-line-cobalt);
+    box-shadow: 0 16px 38px oklch(0.25 0.016 64 / 0.1);
   }
 }
-.inc-card-top {
+.fault-top {
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 1rem;
 }
-.inc-code {
-  font-family: var(--font-mono);
-  font-size: 0.8rem;
+.fault-code {
+  font-family: var(--font-sans);
+  font-weight: 600;
+  font-size: 0.78rem;
   letter-spacing: 0.12em;
   color: var(--color-cobalt-deep);
 }
-.inc-title {
+.fault-title {
   font-family: var(--font-display);
-  font-variation-settings: "wdth" 112;
-  font-weight: 700;
-  font-size: clamp(1.3rem, 2.2vw, 1.9rem);
-  line-height: 1.05;
-  letter-spacing: -0.01em;
-  text-transform: uppercase;
+  font-weight: 650;
+  font-size: clamp(1.25rem, 2vw, 1.65rem);
+  line-height: 1.08;
+  letter-spacing: -0.015em;
 }
-.inc-body {
+.fault-body {
   color: var(--color-ink-muted);
   max-width: 56ch;
 }
-.inc-flag {
-  font-family: var(--font-mono);
-  font-size: 0.68rem;
-  letter-spacing: 0.16em;
+.fault-flag {
+  font-family: var(--font-sans);
+  font-weight: 600;
+  font-size: 0.66rem;
+  letter-spacing: 0.14em;
   text-transform: uppercase;
-  color: var(--color-ink-muted);
-  border: 1px solid var(--color-line);
+  color: var(--color-cobalt-deep);
+  border: 1px solid var(--color-line-cobalt);
   border-radius: 2px;
   padding: 0.28rem 0.55rem;
   white-space: nowrap;
 }
 
-/* ---------- Framework: principle cells in a keyline grid ---------- */
+/* ---------- Framework: node grid around a core ---------- */
 .cell-grid {
   display: grid;
   gap: 1px;
   background: var(--color-line);
   border: 1px solid var(--color-line);
+  border-radius: 3px;
+  overflow: hidden;
 }
 @media (min-width: 700px) {
   .cell-grid {
@@ -1059,143 +899,164 @@ html.lenis body {
   position: relative;
   display: flex;
   flex-direction: column;
-  gap: 1rem;
+  gap: 0.85rem;
   background: var(--color-card);
-  padding: clamp(1.6rem, 3vw, 2.6rem);
+  padding: clamp(1.6rem, 3vw, 2.5rem);
   transition: background 0.4s var(--ease-expo);
 }
 .cell:hover {
   background: var(--color-cobalt-wash);
 }
-.cell-num {
-  font-family: var(--font-mono);
-  font-size: 0.75rem;
-  letter-spacing: 0.18em;
+.cell-code {
+  font-family: var(--font-sans);
+  font-weight: 600;
+  font-size: 0.74rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
   color: var(--color-cobalt-deep);
 }
-.cell::after {
-  /* corner tick that brightens on hover */
+
+/* ---------- Delivery: the stage flow-track ---------- */
+.flow {
+  display: grid;
+  gap: 0;
+}
+.flow-row {
+  position: relative;
+  display: grid;
+  grid-template-columns: minmax(3.5rem, auto) 1fr;
+  gap: 0.4rem clamp(1.25rem, 2.5vw, 2.25rem);
+  align-items: start;
+  padding-block: clamp(1.5rem, 2.6vw, 2.2rem);
+  padding-left: 0.25rem;
+  border-top: 1px solid var(--color-line);
+}
+.flow-row:last-child {
+  border-bottom: 1px solid var(--color-line);
+}
+/* The connector spine: a vertical line down the numeral column with a node
+   dot per stage. Fills cobalt as the active row passes the viewport centre. */
+.flow-marker {
+  position: relative;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  width: 2.6rem;
+  padding-top: 0.35rem;
+}
+/* The connector spine: a continuous datum line down the marker column that
+   the stage nodes sit on. */
+.flow-marker::before {
   content: "";
   position: absolute;
   top: 0;
-  right: 0;
-  width: 10px;
-  height: 10px;
-  border-top: 1px solid var(--color-line-strong);
-  border-right: 1px solid var(--color-line-strong);
-  transition: border-color 0.35s ease;
+  bottom: -1px;
+  left: 50%;
+  width: 1.5px;
+  transform: translateX(-50%);
+  background: var(--color-line-cobalt);
 }
-.cell:hover::after {
+.flow-row:first-child .flow-marker::before {
+  top: 0.75rem;
+}
+.flow-row:last-child .flow-marker::before {
+  bottom: auto;
+  height: 0.75rem;
+}
+.flow-dot {
+  position: relative;
+  z-index: 1;
+  width: 0.9rem;
+  height: 0.9rem;
+  border-radius: 50%;
+  border: 1.5px solid var(--color-line-cobalt);
+  background: var(--color-paper);
+  transition:
+    background 0.4s ease,
+    border-color 0.4s ease,
+    box-shadow 0.4s ease;
+}
+.flow-row.is-active .flow-dot {
+  background: var(--color-cobalt);
   border-color: var(--color-cobalt);
+  box-shadow: 0 0 0 5px var(--color-cobalt-wash);
 }
-
-/* ---------- Delivery: vertical stage ledger ----------
-   Stages scroll past the pinned chapter rail; the row nearest the viewport
-   centre gets `.is-active` (small client observer, additive - without JS
-   every numeral simply renders stroked and all text stays readable). */
-.stg-row {
-  display: grid;
-  grid-template-columns: minmax(4.5rem, auto) 1fr;
-  gap: 0.5rem clamp(1.25rem, 2.5vw, 2.5rem);
-  align-items: start;
-  padding-block: clamp(1.6rem, 2.8vw, 2.4rem);
-  border-top: 1px solid var(--color-line);
-}
-.stg-row:last-child {
-  border-bottom: 1px solid var(--color-line);
-}
-.stg-num {
-  font-family: var(--font-display);
-  font-variation-settings: "wdth" 125;
-  font-weight: 800;
-  font-size: clamp(2.6rem, 5vw, 4.6rem);
-  line-height: 0.9;
-  letter-spacing: -0.02em;
-  color: transparent;
-  -webkit-text-stroke: 1.5px var(--color-line-cobalt);
-  font-variant-numeric: tabular-nums;
+.flow-stage {
+  font-family: var(--font-sans);
+  font-weight: 600;
+  font-size: 0.72rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--color-ink-muted);
   transition: color 0.4s ease;
 }
-.stg-row.is-active .stg-num {
-  color: var(--color-cobalt);
-  -webkit-text-stroke: 0;
-}
-.stg-name {
-  font-family: var(--font-display);
-  font-variation-settings: "wdth" 115;
-  font-weight: 700;
-  font-size: clamp(1.25rem, 2vw, 1.8rem);
-  letter-spacing: -0.008em;
-  text-transform: uppercase;
-}
-.stg-body {
-  color: var(--color-ink-muted);
-  max-width: 52ch;
-}
-
-/* ---------- Modules: registry cards ---------- */
-.mod-card {
-  display: flex;
-  flex-direction: column;
-  gap: 0.8rem;
-}
-.mod-card-top {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 1rem;
-}
-.mod-code {
-  font-family: var(--font-mono);
-  font-size: 0.8rem;
-  letter-spacing: 0.12em;
+.flow-row.is-active .flow-stage {
   color: var(--color-cobalt-deep);
 }
-.mod-title {
+.flow-name {
   font-family: var(--font-display);
-  font-variation-settings: "wdth" 115;
-  font-weight: 720;
-  font-size: clamp(1.35rem, 2.3vw, 2rem);
+  font-weight: 650;
+  font-size: clamp(1.3rem, 2.1vw, 1.85rem);
+  letter-spacing: -0.02em;
   line-height: 1.05;
-  letter-spacing: -0.008em;
-  text-transform: uppercase;
 }
-.mod-body {
+.flow-body {
   color: var(--color-ink-muted);
-  max-width: 56ch;
+  max-width: 54ch;
 }
 
-/* ---------- Platforms: stacked rows with ink inversion ----------
-   The dark polarity inverted rows to bone on hover; on paper the drama
-   flips the other way — rows invert to deep ink with bone type. */
+/* ---------- Platforms: the data-flow stack ---------- */
 .plat-row {
+  position: relative;
   display: flex;
   flex-direction: column;
-  gap: 0.9rem;
+  gap: 0.85rem;
   border: 1px solid var(--color-line);
-  border-radius: 4px;
+  border-radius: 3px;
   background: var(--color-card);
-  padding: clamp(1.4rem, 2.4vw, 2.1rem);
+  padding: clamp(1.4rem, 2.4vw, 2rem);
   transition:
     background 0.45s var(--ease-expo),
     border-color 0.35s ease;
 }
 .plat-row + .plat-row {
-  margin-top: 0.85rem;
+  margin-top: 1.4rem;
+}
+/* Hand-off leader between stacked platforms: a short vertical connector with
+   a downward arrowhead, drawn between one platform and the next. */
+.plat-link {
+  display: flex;
+  justify-content: center;
+  height: 1.4rem;
+  margin: -0.7rem 0;
+  position: relative;
+  z-index: 2;
+  pointer-events: none;
+}
+.plat-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 1rem;
+  flex-wrap: wrap;
 }
 .plat-name {
   font-family: var(--font-display);
-  font-variation-settings: "wdth" 112;
-  font-weight: 700;
-  font-size: clamp(1.25rem, 2vw, 1.7rem);
-  letter-spacing: -0.008em;
+  font-weight: 650;
+  font-size: clamp(1.3rem, 2vw, 1.7rem);
+  letter-spacing: -0.02em;
+}
+.plat-tag {
+  font-family: var(--font-sans);
+  font-weight: 600;
+  font-size: 0.7rem;
+  letter-spacing: 0.12em;
   text-transform: uppercase;
-  transition: color 0.35s ease;
+  color: var(--color-cobalt-deep);
 }
 .plat-role {
   color: var(--color-ink-muted);
-  max-width: 56ch;
-  transition: color 0.35s ease;
+  max-width: 60ch;
 }
 .plat-themes {
   display: flex;
@@ -1205,61 +1066,39 @@ html.lenis body {
 .plat-theme {
   display: inline-flex;
   align-items: center;
-  gap: 0.55rem;
-  padding: 0.4rem 0.8rem;
+  gap: 0.5rem;
+  padding: 0.38rem 0.75rem;
   border: 1px solid var(--color-line);
   border-radius: 2px;
-  font-family: var(--font-mono);
-  font-size: 0.74rem;
-  letter-spacing: 0.04em;
+  font-family: var(--font-sans);
+  font-weight: 500;
+  font-size: 0.78rem;
   color: var(--color-ink-soft);
-  transition:
-    color 0.35s ease,
-    border-color 0.35s ease;
+  background: var(--color-paper);
 }
 .plat-theme::before {
   content: "";
   width: 5px;
   height: 5px;
   background: var(--color-cobalt);
-  transition: background 0.35s ease;
-}
-@media (hover: hover) {
-  .plat-row:hover {
-    background: var(--color-ink);
-    border-color: var(--color-ink);
-  }
-  .plat-row:hover .plat-name {
-    color: var(--color-bone);
-  }
-  .plat-row:hover .plat-role {
-    color: var(--color-bone-muted);
-  }
-  .plat-row:hover .plat-theme {
-    color: var(--color-bone-soft);
-    border-color: var(--color-line-bone);
-  }
-  .plat-row:hover .plat-theme::before {
-    background: var(--color-cobalt-hot);
-  }
+  transform: rotate(45deg);
 }
 
-/* ---------- Adoption: counters, tracks, checklist ---------- */
+/* ---------- Adoption: counters + swimlanes + checklist ---------- */
 .stat-num {
   font-family: var(--font-display);
-  font-variation-settings: "wdth" 125;
-  font-weight: 800;
-  font-size: clamp(4.5rem, 10vw, 9rem);
+  font-weight: 700;
+  font-size: clamp(4rem, 9vw, 7.5rem);
   line-height: 0.85;
-  letter-spacing: -0.02em;
-  color: var(--color-ink);
+  letter-spacing: -0.04em;
+  color: var(--color-cobalt);
   font-variant-numeric: tabular-nums;
 }
 .stat-cell {
   display: flex;
   flex-direction: column;
-  gap: 0.9rem;
-  padding: clamp(1.5rem, 2.5vw, 2.25rem) clamp(1.25rem, 2vw, 2rem);
+  gap: 0.75rem;
+  padding: clamp(1.4rem, 2.5vw, 2rem) clamp(1.1rem, 2vw, 1.75rem);
 }
 .stat-cell + .stat-cell {
   border-top: 1px solid var(--color-line);
@@ -1271,26 +1110,57 @@ html.lenis body {
   }
 }
 
-.track-cell {
+/* Role swimlane: a labelled parallel track */
+.lane {
+  position: relative;
   display: flex;
   flex-direction: column;
-  gap: 0.8rem;
+  gap: 0.65rem;
   background: var(--color-card);
-  padding: clamp(1.5rem, 2.5vw, 2.25rem);
-  transition: background 0.4s var(--ease-expo);
+  border: 1px solid var(--color-line);
+  border-radius: 3px;
+  padding: clamp(1.35rem, 2.3vw, 1.9rem);
+  padding-left: clamp(1.6rem, 2.5vw, 2.1rem);
+  overflow: hidden;
+  transition:
+    border-color 0.4s ease,
+    box-shadow 0.45s var(--ease-expo);
 }
-.track-cell:hover {
-  background: var(--color-cobalt-wash);
+.lane::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 4px;
+  background: var(--color-cobalt-wash-2);
+  transition: background 0.4s ease;
 }
-.track-num {
+@media (hover: hover) {
+  .lane:hover {
+    border-color: var(--color-line-cobalt);
+    box-shadow: 0 16px 38px oklch(0.25 0.016 64 / 0.1);
+  }
+  .lane:hover::before {
+    background: var(--color-cobalt);
+  }
+}
+.lane-track {
+  font-family: var(--font-sans);
+  font-weight: 600;
+  font-size: 0.7rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--color-cobalt-deep);
+}
+.lane-title {
   font-family: var(--font-display);
-  font-variation-settings: "wdth" 125;
-  font-weight: 780;
-  font-size: clamp(1.8rem, 3vw, 2.6rem);
-  line-height: 1;
-  -webkit-text-stroke: 1.2px var(--color-line-cobalt);
-  color: transparent;
-  font-variant-numeric: tabular-nums;
+  font-weight: 650;
+  font-size: clamp(1.2rem, 1.9vw, 1.5rem);
+  letter-spacing: -0.015em;
+}
+.lane-body {
+  color: var(--color-ink-muted);
 }
 
 .check-item {
@@ -1305,88 +1175,91 @@ html.lenis body {
   flex: 0 0 auto;
   display: grid;
   place-items: center;
-  width: 1.15rem;
-  height: 1.15rem;
-  margin-top: 0.22rem;
-  border: 1px solid var(--color-line-cobalt);
-  border-radius: 2px;
-  color: var(--color-cobalt-deep);
+  width: 1.2rem;
+  height: 1.2rem;
+  margin-top: 0.2rem;
+  border-radius: 50%;
+  background: var(--color-cobalt);
+  color: var(--color-on-cobalt);
 }
 
-/* ---------- Why: reason rows ---------- */
+/* ---------- Why: annotated callouts ---------- */
 .why-row {
   display: grid;
   grid-template-columns: 1fr;
-  gap: 0.4rem;
+  gap: 0.5rem;
   padding-block: clamp(1.4rem, 2.4vw, 2rem);
   border-bottom: 1px solid var(--color-line);
-  transition: padding-left 0.5s var(--ease-expo);
 }
 @media (min-width: 768px) {
   .why-row {
-    grid-template-columns: 7rem 1fr 1.1fr;
+    grid-template-columns: 0.9fr 1.1fr;
     align-items: baseline;
-    gap: 2rem;
-  }
-  .why-row:hover {
-    padding-left: 1rem;
+    gap: 2.5rem;
   }
 }
-.why-num {
-  font-family: var(--font-display);
-  font-variation-settings: "wdth" 125;
-  font-weight: 780;
-  font-size: clamp(1.5rem, 2.4vw, 2.2rem);
-  line-height: 1;
-  -webkit-text-stroke: 1.2px var(--color-line-strong);
-  color: transparent;
-  font-variant-numeric: tabular-nums;
-  transition:
-    color 0.35s ease,
-    -webkit-text-stroke-color 0.35s ease;
+.why-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.65rem;
 }
-.why-row:hover .why-num {
-  color: var(--color-cobalt);
-  -webkit-text-stroke-color: transparent;
+.why-marker {
+  width: 0.55rem;
+  height: 0.55rem;
+  background: var(--color-cobalt);
+  transform: rotate(45deg);
+  flex: 0 0 auto;
 }
 .why-title {
   font-family: var(--font-display);
-  font-variation-settings: "wdth" 110;
-  font-weight: 680;
-  font-size: clamp(1.2rem, 2vw, 1.6rem);
-  letter-spacing: -0.008em;
-  text-transform: uppercase;
+  font-weight: 650;
+  font-size: clamp(1.25rem, 2vw, 1.6rem);
+  letter-spacing: -0.02em;
+  line-height: 1.1;
 }
 .why-body {
   color: var(--color-ink-muted);
 }
 
-/* ---------- Contact: the cobalt-drenched close ---------- */
-.drench {
-  background: var(--color-cobalt);
-  color: var(--color-on-cobalt);
+/* ---------- Contact: the cobalt sign-off stamp (light) ---------- */
+.signoff {
+  background: var(--color-cobalt-wash);
 }
-.drench ::selection {
-  background: var(--color-ink);
-  color: var(--color-bone);
+.stamp-frame {
+  border: 2px solid var(--color-line-cobalt);
+  border-radius: 4px;
+  padding: clamp(1.75rem, 4vw, 3.25rem);
+  background: var(--color-card);
+  position: relative;
 }
-.drench .t-coord {
-  color: var(--color-on-cobalt-muted);
+.stamp-badge {
+  position: absolute;
+  top: clamp(1.25rem, 3vw, 2.25rem);
+  right: clamp(1.25rem, 3vw, 2.25rem);
+  display: none;
+  padding: 0.55rem 1rem;
+  border: 2px solid var(--color-cobalt);
+  border-radius: 3px;
+  color: var(--color-cobalt-deep);
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 0.85rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  transform: rotate(6deg);
 }
-.drench .t-lead {
-  color: var(--color-on-cobalt-muted);
-}
-.drench .index-num {
-  -webkit-text-stroke-color: var(--color-line-on-cobalt);
+@media (min-width: 640px) {
+  .stamp-badge {
+    display: block;
+  }
 }
 .contact-email {
   position: relative;
   font-family: var(--font-display);
-  font-variation-settings: "wdth" 110;
   font-weight: 700;
-  font-size: clamp(1.4rem, 3.4vw, 2.6rem);
-  letter-spacing: -0.015em;
-  color: var(--color-on-cobalt);
+  font-size: clamp(1.4rem, 3.2vw, 2.4rem);
+  letter-spacing: -0.025em;
+  color: var(--color-cobalt-ink);
   width: fit-content;
   padding-bottom: 0.15em;
   overflow-wrap: anywhere;
@@ -1398,7 +1271,7 @@ html.lenis body {
   right: 0;
   bottom: 0;
   height: 2px;
-  background: var(--color-on-cobalt);
+  background: var(--color-cobalt);
   transform: scaleX(0);
   transform-origin: right center;
   transition: transform 0.55s var(--ease-expo);
@@ -1407,79 +1280,86 @@ html.lenis body {
   transform: scaleX(1);
   transform-origin: left center;
 }
-.drench-meta {
+.signoff-meta {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(12rem, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(11rem, 1fr));
   gap: 1.25rem 2rem;
-  border-top: 1px solid var(--color-line-on-cobalt);
+  border-top: 1px solid var(--color-line-cobalt);
   padding-top: 1.5rem;
 }
-.drench-meta-key {
-  font-family: var(--font-mono);
-  font-size: 0.7rem;
-  letter-spacing: 0.16em;
+.signoff-key {
+  font-family: var(--font-sans);
+  font-weight: 600;
+  font-size: 0.68rem;
+  letter-spacing: 0.14em;
   text-transform: uppercase;
-  color: var(--color-on-cobalt-muted);
+  color: var(--color-cobalt-deep);
 }
-.drench-meta-val {
-  font-family: var(--font-mono);
-  font-size: 0.88rem;
-  color: var(--color-on-cobalt);
+.signoff-val {
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: 0.95rem;
+  color: var(--color-ink);
 }
 
-/* ---------- Footer (the abyss anchor) ----------
-   The footer keeps the deep-ink ground as the dossier's closing plate.
-   Its markup shares utilities with the light chapters (`border-line`,
-   `.t-coord`, `.cobalt`), so the dark-ground values are re-scoped here. */
-.bg-abyss {
-  --color-line: var(--color-line-bone);
+/* ---------- Footer: the drafting title block (light) ---------- */
+.title-block {
+  background: var(--color-paper-3);
+  border-top: 1px solid var(--color-line-strong);
 }
-.bg-abyss .t-coord {
-  color: var(--color-bone-muted);
+.tb-cell {
+  padding: clamp(1.5rem, 2.5vw, 2.25rem) var(--gutter);
+  border-bottom: 1px solid var(--color-line);
 }
-.bg-abyss .cobalt {
-  color: var(--color-cobalt-hot);
+@media (min-width: 768px) {
+  .tb-grid {
+    display: grid;
+    grid-template-columns: 1.4fr 1fr 1fr;
+  }
+  .tb-cell {
+    border-bottom: 0;
+    border-right: 1px solid var(--color-line);
+  }
+  .tb-cell:last-child {
+    border-right: 0;
+  }
 }
 .footer-link {
-  color: color-mix(in oklch, var(--color-bone) 72%, transparent);
+  color: var(--color-ink-soft);
   transition: color 0.3s ease;
 }
 .footer-link:hover {
-  color: var(--color-cobalt-hot);
+  color: var(--color-cobalt-deep);
 }
-/* Oversized closing wordmark: stroked bone, fills on hover. */
+/* Oversized closing wordmark: stroked ink, fills cobalt on hover. */
 .footer-mega {
   display: block;
   width: 100%;
   text-align: center;
   font-family: var(--font-display);
-  font-variation-settings: "wdth" 125;
-  font-weight: 800;
-  font-size: clamp(2.3rem, 10vw, 11rem);
-  line-height: 0.92;
-  letter-spacing: -0.015em;
-  text-transform: uppercase;
-  white-space: nowrap;
+  font-weight: 700;
+  font-size: clamp(2.6rem, 12vw, 11rem);
+  line-height: 0.9;
+  letter-spacing: -0.04em;
   color: transparent;
-  -webkit-text-stroke: 1.5px
-    color-mix(in oklch, var(--color-bone) 38%, transparent);
+  -webkit-text-stroke: 1.4px var(--color-line-strong);
   transition:
     color 0.6s var(--ease-expo),
     -webkit-text-stroke-color 0.6s ease;
 }
 .footer-mega:hover {
-  color: var(--color-bone);
+  color: var(--color-cobalt);
   -webkit-text-stroke-color: transparent;
 }
 .footer-top-btn {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 3.25rem;
-  height: 3.25rem;
+  width: 3.1rem;
+  height: 3.1rem;
   border-radius: 50%;
-  border: 1px solid color-mix(in oklch, var(--color-bone) 30%, transparent);
-  color: var(--color-bone);
+  border: 1px solid var(--color-line-strong);
+  color: var(--color-ink);
   transition:
     background 0.4s var(--ease-expo),
     border-color 0.4s ease,
@@ -1515,13 +1395,20 @@ html.lenis body {
     opacity: 1 !important;
     transform: none !important;
   }
-  .marquee-track {
+  .js [data-draw] .draw {
+    stroke-dashoffset: 0 !important;
+  }
+  .js [data-draw] .draw-node {
+    opacity: 1 !important;
+    transform: none !important;
+  }
+  .ribbon-track {
     animation: none !important;
   }
   .status-dot::after {
     display: none !important;
   }
-  .gridfield canvas {
+  .hero-canvas canvas {
     display: none !important;
   }
 }

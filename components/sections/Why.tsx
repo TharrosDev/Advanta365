@@ -1,40 +1,35 @@
-import Chapter from "@/components/ui/Chapter";
-import SplitText from "@/components/ui/SplitText";
+import Sheet from "@/components/ui/Sheet";
 import TextScrub from "@/components/fx/TextScrub";
 import { why } from "@/lib/content";
 
 /**
- * Chapter 07 — the position: statement plus four differentiator rows.
- * Server component.
+ * Sheet 07 — the position: a scrubbed statement over four differentiator
+ * callouts, each marked but unnumbered. Server component.
  */
 export default function Why() {
   return (
-    <Chapter
+    <Sheet
       id="why"
-      index={why.index}
-      word={why.word}
+      refNo={why.index}
       kicker={why.kicker}
+      title={why.heading}
       className="band-3"
     >
-      <p className="ch-h">
-        <SplitText text={why.heading} />
-      </p>
-
-      <div className="mt-8">
-        <TextScrub text={why.statement} className="t-lead measure-wide" />
+      <div className="max-w-4xl">
+        <TextScrub text={why.statement} className="t-lead" />
       </div>
 
-      <ul className="ch-gap rule-top" data-reveal-group>
+      <ul className="section-gap rule-top" data-reveal-group>
         {why.reasons.map((r) => (
           <li key={r.num} data-reveal className="why-row">
-            <span className="why-num" aria-hidden="true">
-              {r.num}
-            </span>
-            <h3 className="why-title">{r.title}</h3>
-            <p className="why-body">{r.body}</p>
+            <div className="why-tag">
+              <span className="why-marker" aria-hidden="true" />
+              <h3 className="why-title">{r.title}</h3>
+            </div>
+            <p className="why-body t-body">{r.body}</p>
           </li>
         ))}
       </ul>
-    </Chapter>
+    </Sheet>
   );
 }

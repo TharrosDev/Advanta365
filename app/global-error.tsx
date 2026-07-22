@@ -23,9 +23,9 @@ export default function GlobalError({
   return (
     <html lang="en">
       <body className="antialiased">
-        <main className="grid min-h-svh place-items-center bg-dots">
+        <main className="draft-grid grid min-h-svh place-items-center">
           <div className="u-container py-24 text-center">
-            <p className="t-coord">ERR-500 / Runtime fault</p>
+            <p className="annot">ERR-500 / Runtime fault</p>
             <h1 className="t-display mt-6">Something broke.</h1>
             <p className="t-lead mx-auto mt-6 max-w-md">
               An unexpected error interrupted the page. You can try again.

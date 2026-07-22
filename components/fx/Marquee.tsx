@@ -1,13 +1,12 @@
 "use client";
 
 import { useEffect, useRef } from "react";
-import { gsap, prefersReducedMotion } from "@/lib/gsap";
 import { marqueeWords } from "@/lib/content";
 
 /**
- * Giant stroked marquee with scroll-velocity skew. The travel itself is a CSS
- * animation (runs without JS); GSAP only adds the skew, and an
- * IntersectionObserver pauses the loop off-screen. Decorative: aria-hidden.
+ * A thin ink ribbon of the framework's four movements, travelling on a CSS
+ * animation (runs without JS). An IntersectionObserver pauses it off-screen;
+ * hover pauses it too. Decorative: aria-hidden.
  */
 export default function Marquee() {
   const wrapRef = useRef<HTMLDivElement>(null);
@@ -15,68 +14,32 @@ export default function Marquee() {
   useEffect(() => {
     const wrap = wrapRef.current;
     if (!wrap) return;
-
     const io = new IntersectionObserver(
-      ([entry]) => {
-        wrap.classList.toggle("is-off", !entry.isIntersecting);
-      },
+      ([entry]) => wrap.classList.toggle("is-off", !entry.isIntersecting),
       { threshold: 0 },
     );
     io.observe(wrap);
-
-    if (prefersReducedMotion()) return () => io.disconnect();
-
-    // Skew follows scroll velocity, decaying back to level.
-    const quickSkew = gsap.quickTo(wrap, "skewX", {
-      duration: 0.5,
-      ease: "power2.out",
-    });
-    let lastY = window.scrollY;
-    let raf = 0;
-    const onScroll = () => {
-      if (raf) return;
-      raf = requestAnimationFrame(() => {
-        raf = 0;
-        const y = window.scrollY;
-        const v = gsap.utils.clamp(-6, 6, (y - lastY) * 0.12);
-        lastY = y;
-        quickSkew(v);
-      });
-    };
-    window.addEventListener("scroll", onScroll, { passive: true });
-
-    return () => {
-      io.disconnect();
-      window.removeEventListener("scroll", onScroll);
-      if (raf) cancelAnimationFrame(raf);
-      gsap.set(wrap, { skewX: 0 });
-    };
+    return () => io.disconnect();
   }, []);
 
-  const run = marqueeWords.map((w, i) => (
-    <span key={i}>
-      {w}
-      <span className="mg-sep">▪</span>
+  const run = (
+    <span className="ribbon-item">
+      {marqueeWords.map((w) => (
+        <span key={w} className="flex items-center gap-6">
+          {w}
+          <span className="ribbon-sep" aria-hidden="true" />
+        </span>
+      ))}
+      <span className="ribbon-mark">ADVANTA365</span>
+      <span className="ribbon-sep" aria-hidden="true" />
     </span>
-  ));
+  );
 
   return (
-    <div
-      ref={wrapRef}
-      className="marquee rule-top rule-bottom py-6 md:py-8"
-      aria-hidden="true"
-    >
-      <div className="marquee-track marquee-giant">
-        <span className="flex shrink-0 items-center">
-          {run}
-          <span className="mg-solid">ADVANTA365</span>
-          <span className="mg-sep">▪</span>
-        </span>
-        <span className="flex shrink-0 items-center">
-          {run}
-          <span className="mg-solid">ADVANTA365</span>
-          <span className="mg-sep">▪</span>
-        </span>
+    <div ref={wrapRef} className="ribbon" aria-hidden="true">
+      <div className="ribbon-track">
+        <span className="flex shrink-0">{run}</span>
+        <span className="flex shrink-0">{run}</span>
       </div>
     </div>
   );

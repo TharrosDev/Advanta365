@@ -1,23 +1,22 @@
 "use client";
 
 import { useEffect, useRef } from "react";
-import Chapter from "@/components/ui/Chapter";
-import SplitText from "@/components/ui/SplitText";
+import Sheet from "@/components/ui/Sheet";
 import { delivery } from "@/lib/content";
 
 /**
- * Chapter 03 — the six delivery stages as a vertical ledger scrolling past
- * the pinned rail. The row nearest the viewport centre lights its numeral
- * in cobalt (IntersectionObserver, additive: without JS every numeral is
- * stroked and everything stays readable).
+ * Sheet 03 — the six delivery stages as a drawn flow-track. A connector spine
+ * runs down the marker column; the row nearest the viewport centre lights its
+ * node (IntersectionObserver, additive — without JS every row simply renders
+ * with an open node dot and all text stays readable).
  */
 export default function Delivery() {
-  const listRef = useRef<HTMLOListElement>(null);
+  const listRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const list = listRef.current;
     if (!list) return;
-    const rows = Array.from(list.querySelectorAll<HTMLElement>(".stg-row"));
+    const rows = Array.from(list.querySelectorAll<HTMLElement>(".flow-row"));
     if (!rows.length) return;
 
     const io = new IntersectionObserver(
@@ -29,45 +28,39 @@ export default function Delivery() {
           );
         }
       },
-      // A band around the viewport centre.
-      { rootMargin: "-38% 0px -38% 0px", threshold: 0 },
+      { rootMargin: "-42% 0px -42% 0px", threshold: 0 },
     );
     rows.forEach((r) => io.observe(r));
     return () => io.disconnect();
   }, []);
 
   return (
-    <Chapter
+    <Sheet
       id="delivery"
-      index={delivery.index}
-      word={delivery.word}
+      refNo={delivery.index}
       kicker={delivery.kicker}
+      title={delivery.heading}
+      lede={delivery.lede}
       className="band-3"
     >
-      <p className="ch-h">
-        <SplitText text={delivery.heading} />
-      </p>
-      <p data-reveal className="t-lead measure-wide mt-6">
-        {delivery.lede}
-      </p>
-
-      <ol ref={listRef} className="ch-gap" data-reveal-group>
+      <div ref={listRef} className="flow" data-reveal-group>
         {delivery.stages.map((stage) => (
-          <li key={stage.num} data-reveal className="stg-row">
-            <span className="stg-num" aria-hidden="true">
-              {stage.num}
-            </span>
-            <div className="flex flex-col gap-2">
-              <h3 className="stg-name">{stage.name}</h3>
-              <p className="stg-body">{stage.body}</p>
+          <div key={stage.num} data-reveal className="flow-row">
+            <div className="flow-marker" aria-hidden="true">
+              <span className="flow-dot" />
             </div>
-          </li>
+            <div className="flex flex-col gap-2">
+              <span className="flow-stage">Stage {stage.num}</span>
+              <h3 className="flow-name">{stage.name}</h3>
+              <p className="flow-body">{stage.body}</p>
+            </div>
+          </div>
         ))}
-      </ol>
+      </div>
 
-      <p data-reveal className="t-coord mt-8 !text-cobalt-deep">
+      <p data-reveal className="annot section-gap max-w-2xl !tracking-[0.14em]">
         {delivery.note}
       </p>
-    </Chapter>
+    </Sheet>
   );
 }

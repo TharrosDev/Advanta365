@@ -13,7 +13,10 @@ import { gsap, EASE, prefersReducedMotion } from "@/lib/gsap";
  * Attach the returned ref to a wrapper. Reveals:
  *  - `[data-reveal-group]` → its `[data-reveal]` children, staggered as one;
  *  - standalone `[data-reveal]`;
- *  - `.split-word` fragments inside `[data-split]` headings.
+ *  - `.split-word` fragments inside `[data-split]` headings;
+ *  - `[data-draw]` schematics → flags `data-drawn` so CSS transitions the
+ *    SVG connector paths (`.draw`) and nodes (`.draw-node`) in. Purely a
+ *    class flag: no-JS and reduced-motion always show the fully-drawn state.
  */
 export function useReveal<T extends HTMLElement = HTMLElement>(): RefObject<T | null> {
   const scope = useRef<T>(null);
@@ -75,9 +78,10 @@ export function useReveal<T extends HTMLElement = HTMLElement>(): RefObject<T | 
           if (!entry.isIntersecting) continue;
           const node = entry.target as HTMLElement;
           io.unobserve(node);
+          if (node.hasAttribute("data-draw")) node.setAttribute("data-drawn", "");
           if (node.hasAttribute("data-reveal-group")) revealGroup(node);
           else if (node.hasAttribute("data-split")) revealSplit(node);
-          else revealSolo(node);
+          else if (node.hasAttribute("data-reveal")) revealSolo(node);
         }
       },
       { rootMargin: "0px 0px -8% 0px", threshold: 0 },
@@ -87,6 +91,7 @@ export function useReveal<T extends HTMLElement = HTMLElement>(): RefObject<T | 
       io.observe(g),
     );
     el.querySelectorAll<HTMLElement>("[data-split]").forEach((n) => io.observe(n));
+    el.querySelectorAll<HTMLElement>("[data-draw]").forEach((n) => io.observe(n));
     Array.from(el.querySelectorAll<HTMLElement>("[data-reveal]"))
       .filter((n) => !n.closest("[data-reveal-group]"))
       .forEach((n) => io.observe(n));

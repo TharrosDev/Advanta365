@@ -9,11 +9,10 @@ function Wordmark() {
   return (
     <a
       href="/#top"
-      className="font-display text-lg font-bold uppercase tracking-tight md:text-xl"
-      style={{ fontVariationSettings: '"wdth" 125' }}
+      className="font-display text-lg font-bold uppercase tracking-[-0.03em] md:text-xl"
       aria-label="ADVANTA365 home"
     >
-      ADVANTA<span className="cobalt">365</span>
+      ADVANTA<span style={{ color: "var(--color-cobalt-deep)" }}>365</span>
     </a>
   );
 }
@@ -176,14 +175,11 @@ export default function Nav() {
                 key={item.href}
                 href={item.href}
                 onClick={e => onAnchorClick(e, item.href)}
-                className="nav-link font-mono text-[0.8rem] tracking-[0.06em] uppercase"
+                className="nav-link"
                 data-active={
                   active && item.href.endsWith(`#${active}`) ? "" : undefined
                 }
               >
-                <sup className="nav-index" aria-hidden="true">
-                  {item.index}
-                </sup>
                 {item.label}
               </a>
             ))}
@@ -252,9 +248,6 @@ export default function Nav() {
                 onClick={e => onAnchorClick(e, item.href)}
                 className="mobile-link"
               >
-                <span className="t-coord" aria-hidden="true">
-                  {item.index}
-                </span>
                 {item.label}
               </a>
             ))}

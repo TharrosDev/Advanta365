@@ -1,37 +1,31 @@
-import Chapter from "@/components/ui/Chapter";
-import SplitText from "@/components/ui/SplitText";
+import Sheet from "@/components/ui/Sheet";
 import { framework } from "@/lib/content";
 
 /**
- * Chapter 02 — the operating model and its four principles. Server component.
+ * Sheet 02 — the operating model as a four-node keyline grid: each principle
+ * a labelled cell wired into one governed system. Server component.
  */
 export default function Framework() {
   return (
-    <Chapter
+    <Sheet
       id="framework"
-      index={framework.index}
-      word={framework.word}
+      refNo={framework.index}
       kicker={framework.kicker}
-      className="bg-dots"
+      title={framework.heading}
+      lede={framework.lede}
+      className="draft-grid"
     >
-      <p className="ch-h">
-        <SplitText text={framework.heading} />
-      </p>
-      <p data-reveal className="t-lead measure-wide mt-6">
-        {framework.lede}
-      </p>
-
-      <div className="cell-grid ch-gap" data-reveal-group>
+      <div className="cell-grid" data-reveal-group>
         {framework.principles.map((p, i) => (
           <article key={p.title} data-reveal className="cell">
-            <span className="cell-num">
+            <span className="cell-code">
               PRN-{String(i + 1).padStart(2, "0")}
             </span>
-            <h3 className="t-h3">{p.title}</h3>
-            <p className="t-body text-ink-muted">{p.body}</p>
+            <h3 className="node-title">{p.title}</h3>
+            <p className="node-body t-body">{p.body}</p>
           </article>
         ))}
       </div>
-    </Chapter>
+    </Sheet>
   );
 }

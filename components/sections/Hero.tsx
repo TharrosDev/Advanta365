@@ -8,12 +8,11 @@ import { useSmoothScroll } from "@/components/providers/SmoothScroll";
 import GridField from "@/components/fx/GridField";
 
 /**
- * The dossier cover: the same split architecture as every chapter — ID rail
- * on the left (index 00, status, document meta), headline in the scrolling
- * column — with the grid field settling behind the whole stage. The entrance
- * timeline plays on mount with a safety timer so a failed tween can never
- * leave the cover hidden; reduced-motion visitors get everything visible
- * from CSS.
+ * The cover sheet: the headline over a drafting grid and the connective field
+ * (scattered points settling into a governed lattice — the product argument in
+ * one visual). The entrance timeline plays on mount with a safety timer so a
+ * failed tween can never leave the cover hidden; reduced-motion visitors get
+ * everything visible from CSS.
  */
 export default function Hero() {
   const stageRef = useRef<HTMLElement>(null);
@@ -31,11 +30,8 @@ export default function Hero() {
       stage.querySelectorAll<HTMLElement>("[data-hero-line]"),
     );
 
-    // Safety net: whatever happens below, nothing stays hidden.
     const safety = window.setTimeout(() => {
-      heroEls.forEach((el) => {
-        el.style.opacity = "1";
-      });
+      heroEls.forEach((el) => (el.style.opacity = "1"));
       stage
         .querySelectorAll<HTMLElement>(".split-word")
         .forEach((w) => (w.style.transform = "none"));
@@ -47,27 +43,24 @@ export default function Hero() {
     let tl: gsap.core.Timeline | null = null;
     try {
       tl = gsap.timeline({ defaults: { ease: EASE } });
-      tl.to(stage.querySelectorAll("[data-hero='rail']"), {
+      tl.to(stage.querySelectorAll("[data-hero='kicker']"), {
         opacity: 1,
-        duration: 0.7,
-        stagger: 0.08,
+        duration: 0.6,
       })
         .fromTo(
           words,
           { y: 0, yPercent: 110 },
           { yPercent: 0, duration: 1.05, stagger: 0.05 },
-          0.15,
+          0.1,
         )
         .to(
           stage.querySelectorAll(
             "[data-hero='lede'], [data-hero='ctas'], [data-hero='meta']",
           ),
           { opacity: 1, y: 0, duration: 0.8, stagger: 0.1 },
-          0.6,
+          0.55,
         );
-      lines.forEach((l) => {
-        l.style.opacity = "1";
-      });
+      lines.forEach((l) => (l.style.opacity = "1"));
     } catch {
       heroEls.forEach((el) => (el.style.opacity = "1"));
     }
@@ -87,45 +80,20 @@ export default function Hero() {
 
   return (
     <section ref={stageRef} id="top" className="hero-stage">
-      <div className="gridfield">
-        <div className="no-js-dots" aria-hidden="true" />
+      <div className="hero-grid" aria-hidden="true" />
+      <div className="hero-bloom" aria-hidden="true" />
+      <div className="hero-canvas" aria-hidden="true">
         <GridField />
       </div>
-      <div className="hero-fade" aria-hidden="true" />
 
-      {/* HUD frame */}
-      <div className="hud-frame" aria-hidden="true">
-        <span className="hud-corner" data-pos="tl" />
-        <span className="hud-corner" data-pos="tr" />
-        <span className="hud-corner" data-pos="bl" />
-        <span className="hud-corner" data-pos="br" />
-      </div>
+      <div className="hero-inner u-container">
+        <div className="max-w-3xl">
+          <p data-hero="kicker" className="chip">
+            <span className="status-dot" aria-hidden="true" />
+            {hero.kicker}
+          </p>
 
-      <div className="ch relative z-[2]" style={{ borderTop: "none" }}>
-        <div className="ch-rail">
-          <div className="cover-rail-inner">
-            <p data-hero="rail" className="chip">
-              <span className="status-dot" aria-hidden="true" />
-              {hero.kicker}
-            </p>
-            <span data-hero="rail" className="ch-index" aria-hidden="true">
-              00
-            </span>
-            <span data-hero="rail" className="ch-word" aria-hidden="true">
-              Dossier
-            </span>
-            <div data-hero="rail" className="cover-meta">
-              {hero.meta.map((m) => (
-                <span key={m.key}>
-                  {m.key} / {m.value}
-                </span>
-              ))}
-            </div>
-          </div>
-        </div>
-
-        <div className="cover-body ch-body">
-          <h1 className="cover-title">
+          <h1 className="cover-title mt-7">
             {hero.titleLines.map((line) => (
               <span key={line} data-hero data-hero-line className="block">
                 {line}
@@ -133,9 +101,10 @@ export default function Hero() {
             ))}
           </h1>
 
-          <p data-hero="lede" className="t-lead measure-wide mt-8">
+          <p data-hero="lede" className="t-lead measure-wide mt-7">
             {hero.lede}
           </p>
+
           <div data-hero="ctas" className="mt-8 flex flex-wrap gap-3">
             <a
               href={contact.bookingUrl}
@@ -153,25 +122,23 @@ export default function Hero() {
               {hero.cta2}
             </a>
           </div>
+        </div>
 
-          <div data-hero="meta" className="hero-meta mt-12">
-            {hero.meta.slice(0, 4).map((m, i) => (
-              <div key={m.key} className="hero-meta-cell">
-                <span className="hero-meta-num">
-                  {String(i + 1).padStart(2, "0")} / {m.key}
-                </span>
-                <span className="hero-meta-val">{m.value}</span>
-              </div>
-            ))}
-          </div>
+        <div data-hero="meta" className="hero-meta mt-14 max-w-5xl">
+          {hero.meta.map((m) => (
+            <div key={m.key} className="hero-meta-cell">
+              <span className="hero-meta-key">{m.key}</span>
+              <span className="hero-meta-val">{m.value}</span>
+            </div>
+          ))}
+        </div>
 
-          <div
-            data-hero="meta"
-            className="mt-8 hidden items-center gap-3 md:flex"
-          >
-            <span className="scroll-cue" aria-hidden="true" />
-            <span className="t-coord">Scroll the dossier</span>
-          </div>
+        <div
+          data-hero="meta"
+          className="mt-8 hidden items-center gap-3 md:flex"
+        >
+          <span className="scroll-cue" aria-hidden="true" />
+          <span className="annot annot-ink">Scroll the drawing set</span>
         </div>
       </div>
     </section>

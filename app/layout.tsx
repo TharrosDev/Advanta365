@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from "next";
-import { Archivo, IBM_Plex_Mono, Public_Sans } from "next/font/google";
+import { Familjen_Grotesk, Hanken_Grotesk } from "next/font/google";
 import "./globals.css";
 import {
   BASE_KEYWORDS,
@@ -13,28 +13,22 @@ import {
   websiteSchema,
 } from "@/lib/seo";
 
-/* Display: Archivo variable with the width axis — expanded uppercase is the
-   site's broadcast voice. Body: Public Sans (the USWDS typeface, shared with
-   the Echofive parent site). Mono: IBM Plex Mono for coordinates. */
-const archivo = Archivo({
+/* Blueprint system. Display: Familjen Grotesk — a warm structural grotesque
+   used mixed-case for plate titles and node headings (replaces the old
+   all-uppercase Archivo shout). Body/UI/annotations: Hanken Grotesk — a
+   highly legible humanist sans that carries text and, in small tracked caps,
+   the drafting annotation labels. No mono: the point is leaving the
+   mono-as-technical costume behind. */
+const displayFont = Familjen_Grotesk({
   subsets: ["latin"],
-  variable: "--font-archivo",
-  display: "swap",
-  axes: ["wdth"],
-});
-
-const publicSans = Public_Sans({
-  subsets: ["latin"],
-  variable: "--font-public",
+  variable: "--font-familjen",
   display: "swap",
 });
 
-const plexMono = IBM_Plex_Mono({
+const sansFont = Hanken_Grotesk({
   subsets: ["latin"],
-  variable: "--font-plex",
+  variable: "--font-hanken",
   display: "swap",
-  // Two weights only — every mono treatment on the site uses 400 or 500.
-  weight: ["400", "500"],
 });
 
 const ROOT_DESCRIPTION =
@@ -119,7 +113,7 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${archivo.variable} ${publicSans.variable} ${plexMono.variable}`}
+      className={`${displayFont.variable} ${sansFont.variable}`}
       suppressHydrationWarning
     >
       <body className="antialiased">
