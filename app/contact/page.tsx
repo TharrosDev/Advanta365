@@ -61,36 +61,34 @@ export default function Contact() {
         dangerouslySetInnerHTML={{ __html: jsonLd(contactGraph) }}
       />
 
-      <section className="drench" style={{ paddingTop: "var(--nav-h)" }}>
+      <section className="signoff" style={{ paddingTop: "var(--nav-h)" }}>
         <div className="u-container pad-block-2xl">
-          <p data-reveal className="t-coord">
-            {contactSection.kicker}
-          </p>
-          <h1 data-reveal className="t-display mt-6 measure-statement">
-            Get in touch.
-          </h1>
-          <div className="mt-10 grid gap-10 md:grid-cols-12 md:gap-16">
-            <div className="md:col-span-7">
-              <p data-reveal className="t-lead measure-wide">
-                {contactSection.lede}
-              </p>
-              <div data-reveal className="mt-8 flex flex-col gap-5">
-                <span className="t-coord">{contactSection.emailLabel}</span>
-                <a href={`mailto:${contact.email}`} className="contact-email">
-                  {contact.email}
+          <div className="stamp-frame" data-reveal>
+            <span className="stamp-badge" aria-hidden="true">
+              365
+            </span>
+            <span className="annot">{contactSection.kicker}</span>
+            <h1 className="t-display mt-6 measure-statement">Get in touch.</h1>
+            <div className="mt-10 grid gap-10 md:grid-cols-12 md:gap-16">
+              <div className="md:col-span-7">
+                <p className="t-lead measure-wide">{contactSection.lede}</p>
+                <div className="mt-8 flex flex-col gap-4">
+                  <span className="annot">{contactSection.emailLabel}</span>
+                  <a href={`mailto:${contact.email}`} className="contact-email">
+                    {contact.email}
+                  </a>
+                </div>
+              </div>
+              <div className="flex flex-col md:col-span-5 md:items-end md:justify-end">
+                <a
+                  href={contact.bookingUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="btn btn-primary !px-7 !py-4"
+                >
+                  {contactSection.bookLabel}
                 </a>
               </div>
-            </div>
-            <div className="flex flex-col md:col-span-5 md:items-end md:justify-end">
-              <a
-                data-reveal
-                href={contact.bookingUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="btn btn-invert"
-              >
-                {contactSection.bookLabel}
-              </a>
             </div>
           </div>
         </div>
@@ -98,14 +96,17 @@ export default function Contact() {
 
       <section className="rule-top band-2">
         <div className="u-container pad-block-xl">
-          <div className="cell-grid" data-reveal-group>
+          <div
+            className="grid gap-4 md:grid-cols-3"
+            data-reveal-group
+          >
             {cells.map((c, i) => (
-              <article key={c.key} data-reveal className="cell">
-                <span className="cell-num">
+              <article key={c.key} data-reveal className="node">
+                <span className="node-code">
                   INF-{String(i + 1).padStart(2, "0")}
                 </span>
-                <h2 className="t-h3">{c.key}</h2>
-                <p className="t-body text-ink-muted">{c.body}</p>
+                <h2 className="node-title">{c.key}</h2>
+                <p className="node-body">{c.body}</p>
               </article>
             ))}
           </div>

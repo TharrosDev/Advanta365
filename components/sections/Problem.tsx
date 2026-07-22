@@ -1,47 +1,37 @@
-import Chapter from "@/components/ui/Chapter";
-import SplitText from "@/components/ui/SplitText";
+import Sheet from "@/components/ui/Sheet";
 import TextScrub from "@/components/fx/TextScrub";
 import { problem } from "@/lib/content";
 
 /**
- * Chapter 01 — the failure state: incident cards scrolling past the rail,
- * closed by a scroll-scrubbed statement. Server component.
+ * Sheet 01 — the failure state as a fault register: three labelled fault
+ * nodes, closed by a scroll-scrubbed statement. Server component.
  */
 export default function Problem() {
   return (
-    <Chapter
+    <Sheet
       id="problem"
-      index={problem.index}
-      word={problem.word}
+      refNo={problem.index}
       kicker={problem.kicker}
+      title={problem.heading}
+      lede={problem.lede}
       className="band-2"
     >
-      <p className="ch-h">
-        <SplitText text={problem.heading} />
-      </p>
-      <p data-reveal className="t-lead measure-wide mt-6">
-        {problem.lede}
-      </p>
-
-      <ul className="ch-gap flex flex-col gap-4" data-reveal-group>
+      <div className="grid gap-4 md:grid-cols-3" data-reveal-group>
         {problem.incidents.map((inc) => (
-          <li key={inc.code} data-reveal className="inc-card">
-            <div className="inc-card-top">
-              <span className="inc-code">{inc.code}</span>
-              <span className="inc-flag">Unresolved</span>
+          <article key={inc.code} data-reveal className="fault-node">
+            <div className="fault-top">
+              <span className="fault-code">{inc.code}</span>
+              <span className="fault-flag">Unresolved</span>
             </div>
-            <h3 className="inc-title">{inc.title}</h3>
-            <p className="inc-body">{inc.body}</p>
-          </li>
+            <h3 className="fault-title">{inc.title}</h3>
+            <p className="fault-body">{inc.body}</p>
+          </article>
         ))}
-      </ul>
-
-      <div className="ch-gap">
-        <TextScrub
-          text={problem.statement}
-          className="t-h2 measure-statement"
-        />
       </div>
-    </Chapter>
+
+      <div className="section-gap max-w-4xl">
+        <TextScrub text={problem.statement} className="t-h2" />
+      </div>
+    </Sheet>
   );
 }

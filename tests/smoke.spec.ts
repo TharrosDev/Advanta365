@@ -38,7 +38,7 @@ test.describe("Home", () => {
     page,
   }) => {
     await page.goto("/");
-    const card = page.locator(".inc-card").first();
+    const card = page.locator(".fault-node").first();
     await card.scrollIntoViewIfNeeded();
     await expect(card).toBeVisible();
     // The reveal tween must land at full opacity, not leave content hidden.

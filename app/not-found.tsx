@@ -10,9 +10,9 @@ export const metadata = buildMetadata({
 
 export default function NotFound() {
   return (
-    <main className="grid min-h-svh place-items-center bg-dots">
+    <main className="draft-grid grid min-h-svh place-items-center">
       <div className="u-container py-24 text-center">
-        <p className="t-coord">ERR-404 / Outside the framework</p>
+        <p className="annot">ERR-404 / Outside the framework</p>
         <h1 className="t-display mt-6">Not found.</h1>
         <p className="t-lead mx-auto mt-6 max-w-md">
           This page is not part of the governed structure. Return to the start.

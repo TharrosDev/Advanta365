@@ -5,21 +5,21 @@
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 <link
-  href="https://fonts.googleapis.com/css2?family=Archivo:ital,wdth,wght@0,62..125,100..900&family=IBM+Plex+Mono:wght@400;500&display=block"
+  href="https://fonts.googleapis.com/css2?family=Familjen+Grotesk:wght@400..700&family=Hanken+Grotesk:wght@400..700&display=block"
   rel="stylesheet"
 />
 <style>
   :root {
     --paper: oklch(0.958 0.011 82);
-    --paper-3: oklch(0.914 0.014 79);
-    --card: oklch(0.98 0.007 84);
+    --paper-3: oklch(0.916 0.014 79);
+    --card: oklch(0.982 0.007 84);
     --ink: oklch(0.25 0.016 64);
-    --ink-muted: oklch(0.46 0.015 64);
+    --ink-muted: oklch(0.455 0.015 64);
     --cobalt: oklch(0.52 0.247 266);
-    --cobalt-deep: oklch(0.44 0.214 266);
-    --line: oklch(0.25 0.016 64 / 0.16);
-    --line-strong: oklch(0.25 0.016 64 / 0.34);
-    --line-cobalt: oklch(0.52 0.247 266 / 0.5);
+    --cobalt-deep: oklch(0.435 0.214 266);
+    --draft: oklch(0.52 0.247 266 / 0.11);
+    --line: oklch(0.25 0.016 64 / 0.14);
+    --line-cobalt: oklch(0.52 0.247 266 / 0.42);
   }
   * { margin: 0; box-sizing: border-box; }
   body {
@@ -27,70 +27,62 @@
     height: 630px;
     overflow: hidden;
     background:
-      radial-gradient(55% 60% at 82% 30%, oklch(0.52 0.247 266 / 0.09) 0%, transparent 62%),
-      radial-gradient(45% 55% at 10% 95%, oklch(0.914 0.014 79 / 0.9) 0%, transparent 55%),
+      radial-gradient(52% 58% at 82% 32%, oklch(0.52 0.247 266 / 0.09) 0%, transparent 62%),
+      radial-gradient(45% 55% at 8% 96%, oklch(0.916 0.014 79 / 0.9) 0%, transparent 55%),
       var(--paper);
     color: var(--ink);
-    font-family: "Archivo", sans-serif;
+    font-family: "Hanken Grotesk", sans-serif;
     position: relative;
   }
-  .dots {
+  .grid {
     position: absolute;
     inset: 0;
-    background-image: radial-gradient(oklch(0.25 0.016 64 / 0.12) 1.5px, transparent 2px);
-    background-size: 34px 34px;
-    -webkit-mask-image: radial-gradient(75% 75% at 72% 40%, black 25%, transparent 80%);
+    background-image:
+      linear-gradient(var(--draft) 1px, transparent 1px),
+      linear-gradient(90deg, var(--draft) 1px, transparent 1px);
+    background-size: 52px 52px;
+    -webkit-mask-image: radial-gradient(78% 78% at 74% 40%, black 20%, transparent 82%);
   }
-  /* HUD corner ticks */
-  .hud { position: absolute; inset: 28px 36px; pointer-events: none; }
-  .hud span { position: absolute; width: 18px; height: 18px; border: 0 solid var(--line-strong); }
-  .hud .tl { top: 0; left: 0; border-top-width: 2px; border-left-width: 2px; }
-  .hud .tr { top: 0; right: 0; border-top-width: 2px; border-right-width: 2px; }
-  .hud .bl { bottom: 0; left: 0; border-bottom-width: 2px; border-left-width: 2px; }
-  .hud .br { bottom: 0; right: 0; border-bottom-width: 2px; border-right-width: 2px; }
-
   .stage {
     position: relative;
     height: 100%;
-    padding: 64px 76px 56px;
+    padding: 66px 76px 58px;
     display: flex;
     flex-direction: column;
   }
   .wordmark {
-    font-variation-settings: "wdth" 125;
-    font-weight: 800;
-    font-size: 34px;
-    letter-spacing: -0.01em;
+    font-family: "Familjen Grotesk", sans-serif;
+    font-weight: 700;
+    font-size: 32px;
+    letter-spacing: -0.03em;
     text-transform: uppercase;
   }
-  .wordmark b { color: var(--cobalt-deep); font-weight: 800; }
+  .wordmark b { color: var(--cobalt-deep); font-weight: 700; }
   .chip {
-    margin-top: 44px;
+    margin-top: 46px;
     display: inline-flex;
     align-items: center;
-    gap: 10px;
+    gap: 11px;
     width: fit-content;
     padding: 9px 16px;
-    border: 1.5px solid var(--line);
+    border: 1px solid var(--line);
     border-radius: 3px;
-    background: oklch(0.25 0.016 64 / 0.04);
-    font-family: "IBM Plex Mono", monospace;
-    font-size: 16.5px;
-    font-weight: 500;
+    background: var(--card);
+    font-size: 16px;
+    font-weight: 600;
     letter-spacing: 0.16em;
     text-transform: uppercase;
-    color: var(--ink-muted);
+    color: var(--cobalt-deep);
   }
   .dot { width: 9px; height: 9px; border-radius: 50%; background: var(--cobalt); }
   h1 {
-    margin-top: 26px;
-    font-variation-settings: "wdth" 125;
-    font-weight: 800;
-    font-size: 82px;
-    line-height: 0.98;
-    letter-spacing: -0.015em;
-    text-transform: uppercase;
-    max-width: 690px;
+    font-family: "Familjen Grotesk", sans-serif;
+    margin-top: 28px;
+    font-weight: 700;
+    font-size: 86px;
+    line-height: 0.97;
+    letter-spacing: -0.035em;
+    max-width: 700px;
   }
   h1 .cb { color: var(--cobalt); }
   .meta {
@@ -98,26 +90,23 @@
     display: flex;
     align-items: baseline;
     justify-content: space-between;
-    border-top: 1.5px solid var(--line);
+    border-top: 1px solid var(--line);
     padding-top: 22px;
-    font-family: "IBM Plex Mono", monospace;
     font-size: 17px;
-    font-weight: 500;
-    letter-spacing: 0.14em;
-    text-transform: uppercase;
+    font-weight: 600;
+    letter-spacing: 0.05em;
     color: var(--ink-muted);
   }
   .meta .url { color: var(--cobalt-deep); }
-  .meta .sep { color: var(--cobalt); }
+  .meta .sep { color: var(--cobalt); font-size: 12px; }
 
-  /* Governed grid motif: scattered points settling into a lattice */
-  .field { position: absolute; top: 148px; right: 72px; width: 340px; height: 340px; }
+  /* Governed grid motif: scattered points settling into a lattice, framed. */
+  .field { position: absolute; top: 150px; right: 74px; width: 340px; height: 340px; }
   .field svg { display: block; }
 </style>
 </head>
 <body>
-  <div class="dots"></div>
-  <div class="hud"><span class="tl"></span><span class="tr"></span><span class="bl"></span><span class="br"></span></div>
+  <div class="grid"></div>
 
   <div class="field" id="field"></div>
 
@@ -126,14 +115,14 @@
     <div class="chip"><span class="dot"></span>Enterprise Microsoft 365 Framework</div>
     <h1>Microsoft&nbsp;365, <span class="cb">governed and adopted</span> at&nbsp;scale.</h1>
     <div class="meta">
-      <span>6 stages <span class="sep">▪</span> 5 modules <span class="sep">▪</span> 4 tracks</span>
+      <span>6 stages <span class="sep">◆</span> 5 modules <span class="sep">◆</span> 4 tracks</span>
       <span class="url">advanta365.com</span>
     </div>
   </div>
 
   <script>
-    // The hero's argument as a still: points mid-settle into a governed grid.
-    // Left/looser cells still drift; right cells have locked to the lattice.
+    // The hero's argument as a still: points mid-settle into a governed grid,
+    // connected by drawn lines on the locked (right) side.
     const NS = "http://www.w3.org/2000/svg";
     const svg = document.createElementNS(NS, "svg");
     const SIZE = 340, N = 8, CELL = SIZE / N;
@@ -141,30 +130,52 @@
     svg.setAttribute("viewBox", `-10 -10 ${SIZE + 20} ${SIZE + 20}`);
     let seed = 7;
     const rnd = () => (seed = (seed * 16807) % 2147483647) / 2147483647;
+    const pos = [];
+    for (let c = 0; c <= N; c++) {
+      pos[c] = [];
+      for (let r = 0; r <= N; r++) {
+        const order = Math.min(1, Math.max(0, (c - 1) / (N - 3)));
+        const jitter = (1 - order) * CELL * 0.6;
+        pos[c][r] = {
+          x: c * CELL + (rnd() - 0.5) * jitter * 2,
+          y: r * CELL + (rnd() - 0.5) * jitter * 2,
+          order,
+        };
+      }
+    }
+    // Connector lines on the settled side.
+    for (let c = 0; c < N; c++) {
+      for (let r = 0; r <= N; r++) {
+        const a = pos[c][r], b = pos[c + 1][r];
+        if (Math.min(a.order, b.order) < 0.55) continue;
+        const ln = document.createElementNS(NS, "line");
+        ln.setAttribute("x1", a.x); ln.setAttribute("y1", a.y);
+        ln.setAttribute("x2", b.x); ln.setAttribute("y2", b.y);
+        ln.setAttribute("stroke", "oklch(0.52 0.247 266 / 0.35)");
+        ln.setAttribute("stroke-width", "1");
+        svg.appendChild(ln);
+      }
+    }
     for (let c = 0; c <= N; c++) {
       for (let r = 0; r <= N; r++) {
-        // Hard settle gradient: left third scattered, right half locked.
-        const order = Math.min(1, Math.max(0, (c - 1) / (N - 3)));
-        const jitter = (1 - order) * CELL * 0.62;
-        const x = c * CELL + (rnd() - 0.5) * jitter * 2;
-        const y = r * CELL + (rnd() - 0.5) * jitter * 2;
-        const onScan = c === 6; // cobalt scan column
-        const s = onScan ? 8 : 5.5 + order * 1.5;
+        const p = pos[c][r];
+        const onScan = c === 6;
+        const s = onScan ? 8 : 5 + p.order * 1.5;
         const rect = document.createElementNS(NS, "rect");
-        rect.setAttribute("x", x - s / 2); rect.setAttribute("y", y - s / 2);
+        rect.setAttribute("x", p.x - s / 2); rect.setAttribute("y", p.y - s / 2);
         rect.setAttribute("width", s); rect.setAttribute("height", s);
+        rect.setAttribute("rx", onScan ? 0 : 1);
         rect.setAttribute("fill", onScan
           ? "oklch(0.52 0.247 266)"
-          : `oklch(0.25 0.016 64 / ${0.3 + order * 0.55})`);
+          : `oklch(0.25 0.016 64 / ${0.28 + p.order * 0.5})`);
         svg.appendChild(rect);
       }
     }
-    // keyline ring hinting the governed boundary
     const ring = document.createElementNS(NS, "rect");
     ring.setAttribute("x", 0.75); ring.setAttribute("y", 0.75);
     ring.setAttribute("width", SIZE - 1.5); ring.setAttribute("height", SIZE - 1.5);
     ring.setAttribute("fill", "none");
-    ring.setAttribute("stroke", "oklch(0.52 0.247 266 / 0.5)");
+    ring.setAttribute("stroke", "oklch(0.52 0.247 266 / 0.42)");
     ring.setAttribute("stroke-width", "1.5");
     svg.appendChild(ring);
     document.getElementById("field").appendChild(svg);
