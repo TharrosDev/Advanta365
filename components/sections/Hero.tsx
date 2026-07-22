@@ -5,12 +5,12 @@ import { gsap, EASE, prefersReducedMotion } from "@/lib/gsap";
 import { splitWords } from "@/lib/splitText";
 import { contact, hero } from "@/lib/content";
 import { useSmoothScroll } from "@/components/providers/SmoothScroll";
-import GridField from "@/components/fx/GridField";
+import HeroSchematic from "@/components/fx/HeroSchematic";
 
 /**
- * The cover sheet: the headline over a drafting grid and the connective field
- * (scattered points settling into a governed lattice — the product argument in
- * one visual). The entrance timeline plays on mount with a safety timer so a
+ * The cover sheet: the headline set against the framed hero schematic (a node
+ * field settling into a governed lattice — the product argument in one
+ * drawing). The entrance timeline plays on mount with a safety timer so a
  * failed tween can never leave the cover hidden; reduced-motion visitors get
  * everything visible from CSS.
  */
@@ -55,10 +55,10 @@ export default function Hero() {
         )
         .to(
           stage.querySelectorAll(
-            "[data-hero='lede'], [data-hero='ctas'], [data-hero='meta']",
+            "[data-hero='lede'], [data-hero='ctas'], [data-hero='meta'], [data-hero='fig']",
           ),
-          { opacity: 1, y: 0, duration: 0.8, stagger: 0.1 },
-          0.55,
+          { opacity: 1, y: 0, duration: 0.8, stagger: 0.09 },
+          0.5,
         );
       lines.forEach((l) => (l.style.opacity = "1"));
     } catch {
@@ -82,49 +82,52 @@ export default function Hero() {
     <section ref={stageRef} id="top" className="hero-stage">
       <div className="hero-grid" aria-hidden="true" />
       <div className="hero-bloom" aria-hidden="true" />
-      <div className="hero-canvas" aria-hidden="true">
-        <GridField />
-      </div>
 
       <div className="hero-inner u-container">
-        <div className="max-w-3xl">
-          <p data-hero="kicker" className="chip">
-            <span className="status-dot" aria-hidden="true" />
-            {hero.kicker}
-          </p>
+        <div className="hero-cols">
+          <div className="hero-copy">
+            <p data-hero="kicker" className="chip self-start">
+              <span className="status-dot" aria-hidden="true" />
+              {hero.kicker}
+            </p>
 
-          <h1 className="cover-title mt-7">
-            {hero.titleLines.map((line) => (
-              <span key={line} data-hero data-hero-line className="block">
-                {line}
-              </span>
-            ))}
-          </h1>
+            <h1 className="cover-title">
+              {hero.titleLines.map((line) => (
+                <span key={line} data-hero data-hero-line className="block">
+                  {line}
+                </span>
+              ))}
+            </h1>
 
-          <p data-hero="lede" className="t-lead measure-wide mt-7">
-            {hero.lede}
-          </p>
+            <p data-hero="lede" className="t-lead measure-wide">
+              {hero.lede}
+            </p>
 
-          <div data-hero="ctas" className="mt-8 flex flex-wrap gap-3">
-            <a
-              href={contact.bookingUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="btn btn-primary"
-            >
-              {hero.cta1}
-            </a>
-            <a
-              href="#framework"
-              onClick={onFrameworkClick}
-              className="btn btn-ghost"
-            >
-              {hero.cta2}
-            </a>
+            <div data-hero="ctas" className="hero-ctas">
+              <a
+                href={contact.bookingUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="btn btn-primary"
+              >
+                {hero.cta1}
+              </a>
+              <a
+                href="#framework"
+                onClick={onFrameworkClick}
+                className="btn btn-ghost"
+              >
+                {hero.cta2}
+              </a>
+            </div>
+          </div>
+
+          <div data-hero="fig" className="hero-fig-wrap">
+            <HeroSchematic />
           </div>
         </div>
 
-        <div data-hero="meta" className="hero-meta mt-14 max-w-5xl">
+        <div data-hero="meta" className="hero-meta">
           {hero.meta.map((m) => (
             <div key={m.key} className="hero-meta-cell">
               <span className="hero-meta-key">{m.key}</span>
@@ -133,10 +136,7 @@ export default function Hero() {
           ))}
         </div>
 
-        <div
-          data-hero="meta"
-          className="mt-8 hidden items-center gap-3 md:flex"
-        >
+        <div data-hero="meta" className="hero-scroll">
           <span className="scroll-cue" aria-hidden="true" />
           <span className="annot annot-ink">Scroll the drawing set</span>
         </div>
