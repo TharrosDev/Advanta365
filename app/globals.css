@@ -750,7 +750,7 @@ html.lenis body {
 .ribbon-track {
   display: flex;
   width: max-content;
-  animation: marquee var(--marquee-duration, 42s) linear infinite;
+  animation: marquee 42s linear infinite;
   will-change: transform;
 }
 .ribbon:hover .ribbon-track,

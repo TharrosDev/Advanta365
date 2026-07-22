@@ -7,8 +7,8 @@ import Footer from "@/components/Footer";
 
 /**
  * Shared page chrome: skip link, smooth scroll + reveal providers, fixed
- * nav, grain atmosphere, and the abyss footer. Sections passed as children
- * stay server components.
+ * nav, and the title-block footer. Sections passed as children stay server
+ * components.
  */
 export default function SiteShell({ children }: { children: ReactNode }) {
   return (
@@ -18,7 +18,6 @@ export default function SiteShell({ children }: { children: ReactNode }) {
       </a>
       <ScrollProgress />
       <Nav />
-      <div className="grain" aria-hidden="true" />
       <main id="main">
         <RevealRoot>{children}</RevealRoot>
       </main>

@@ -55,11 +55,11 @@ export default function Adoption() {
           {adoption.factors.map((f) => (
             <li key={f} data-reveal className="check-item">
               <span className="check-box" aria-hidden="true">
-                <svg width="11" height="11" viewBox="0 0 10 10" fill="none">
+                <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
                   <path
-                    d="M1.5 5.5 4 8l4.5-6"
+                    d="M2.5 6.25 5 8.75 9.5 3.5"
                     stroke="currentColor"
-                    strokeWidth="1.7"
+                    strokeWidth="1.5"
                     strokeLinecap="round"
                     strokeLinejoin="round"
                   />

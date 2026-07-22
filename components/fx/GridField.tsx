@@ -10,9 +10,8 @@ import { prefersReducedMotion } from "@/lib/gsap";
  * grid; the pointer scatters nearby points and they return to their cells.
  *
  * Robustness rules: never mounts for reduced-motion visitors (the CSS
- * fallback lattice stays), pauses off-screen and on hidden tabs, caps DPR,
- * rebuilds on resize, and marks the wrapper `data-live` only once it is
- * actually drawing so the static fallback is never removed prematurely.
+ * drafting grid + bloom stay), pauses off-screen and on hidden tabs, caps
+ * DPR, and rebuilds on resize.
  */
 
 type Point = {
@@ -39,7 +38,6 @@ export default function GridField() {
     const ctx = canvas.getContext("2d", { alpha: true });
     if (!ctx) return;
 
-    const wrap = canvas.parentElement;
     const lowPower =
       (navigator.hardwareConcurrency ?? 8) <= 4 ||
       ((navigator as { deviceMemory?: number }).deviceMemory ?? 8) <= 4;
@@ -157,7 +155,6 @@ export default function GridField() {
     };
 
     build();
-    if (wrap) wrap.dataset.live = "true";
     start();
 
     // Track the pointer at window level: the hero content and HUD layers sit
@@ -217,7 +214,6 @@ export default function GridField() {
       window.removeEventListener("pointerdown", onMove);
       document.documentElement.removeEventListener("pointerleave", onLeave);
       window.removeEventListener("scroll", refreshRect);
-      if (wrap) delete wrap.dataset.live;
     };
   }, []);
 

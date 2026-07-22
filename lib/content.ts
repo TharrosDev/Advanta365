@@ -1,7 +1,6 @@
 // ADVANTA365 content library — single source of truth for site copy.
 // Voice: precise, declarative, systems language. No em-dashes, no filler.
 
-export const siteTitle = "ADVANTA365";
 export const siteTagline = "Enterprise Microsoft 365 Adoption, Governance & Rollout";
 
 /* ---------------------------------------------------------------- hero */
@@ -315,12 +314,12 @@ export const contact = {
 /* ----------------------------------------------------------- site nav */
 
 export const navItems = [
-  { label: "Problem", href: "/#problem", index: "01" },
-  { label: "Framework", href: "/#framework", index: "02" },
-  { label: "Delivery", href: "/#delivery", index: "03" },
-  { label: "Modules", href: "/#modules", index: "04" },
-  { label: "Adoption", href: "/#adoption", index: "06" },
-  { label: "Contact", href: "/#contact", index: "08" },
+  { label: "Problem", href: "/#problem" },
+  { label: "Framework", href: "/#framework" },
+  { label: "Delivery", href: "/#delivery" },
+  { label: "Modules", href: "/#modules" },
+  { label: "Adoption", href: "/#adoption" },
+  { label: "Contact", href: "/#contact" },
 ];
 
 /* -------------------------------------------------------------- footer */

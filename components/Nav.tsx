@@ -213,13 +213,15 @@ export default function Nav() {
                   <path
                     d="M4 4l14 14M18 4L4 18"
                     stroke="currentColor"
-                    strokeWidth="1.6"
+                    strokeWidth="1.5"
+                    strokeLinecap="round"
                   />
                 ) : (
                   <path
                     d="M2 6h18M2 11h18M2 16h18"
                     stroke="currentColor"
-                    strokeWidth="1.6"
+                    strokeWidth="1.5"
+                    strokeLinecap="round"
                   />
                 )}
               </svg>
