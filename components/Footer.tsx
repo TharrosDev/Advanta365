@@ -30,7 +30,7 @@ export default function Footer() {
                 <path
                   d="M3 11 11 3M5 3h6v6"
                   stroke="currentColor"
-                  strokeWidth="1.4"
+                  strokeWidth="1.5"
                   strokeLinecap="round"
                   strokeLinejoin="round"
                 />

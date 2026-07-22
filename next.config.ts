@@ -5,13 +5,13 @@ const isDev = process.env.NODE_ENV === "development";
 /* Content-Security-Policy. The site is fully static and self-contained: no
    third-party scripts, styles, fonts, frames, or API calls. Inline allowances
    are required by Next's bootstrap scripts, the pre-paint `.js` flag, JSON-LD
-   blocks, and React style attributes; `data:` images cover the CSS grain
-   texture. Dev additionally needs eval + websockets for HMR. */
+   blocks, and React style attributes. Images are all first-party files (the
+   favicon and OG card). Dev additionally needs eval + websockets for HMR. */
 const csp = [
   "default-src 'self'",
   `script-src 'self' 'unsafe-inline'${isDev ? " 'unsafe-eval'" : ""}`,
   "style-src 'self' 'unsafe-inline'",
-  "img-src 'self' data:",
+  "img-src 'self'",
   "font-src 'self'",
   `connect-src 'self'${isDev ? " ws:" : ""}`,
   "object-src 'none'",
@@ -44,6 +44,9 @@ const securityHeaders = [
 const config: NextConfig = {
   reactStrictMode: true,
   poweredByHeader: false,
+  // Pin the workspace root: a stray lockfile in a parent directory otherwise
+  // makes Next infer the wrong root and warn on every build.
+  turbopack: { root: __dirname },
   async headers() {
     return [
       { source: "/(.*)", headers: securityHeaders },

@@ -5,16 +5,17 @@ import { platforms } from "@/lib/content";
 function HandOff() {
   return (
     <div className="plat-link" aria-hidden="true">
-      <svg width="26" height="24" viewBox="0 0 26 24" fill="none">
+      <svg width="24" height="22" viewBox="0 0 24 22" fill="none">
         <path
           className="draw"
-          d="M13 1 V16"
+          d="M12 2 V15"
           stroke="var(--color-cobalt)"
           strokeWidth="1.5"
+          strokeLinecap="round"
           pathLength="1"
         />
         <path
-          d="M8 12 L13 17.5 L18 12"
+          d="M7.5 10.5 L12 15.5 L16.5 10.5"
           stroke="var(--color-cobalt)"
           strokeWidth="1.5"
           strokeLinecap="round"
