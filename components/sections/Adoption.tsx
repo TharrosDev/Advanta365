@@ -48,7 +48,7 @@ export default function Adoption() {
       </div>
 
       <div className="section-gap max-w-3xl">
-        <h3 data-reveal className="annot mb-3">
+        <h3 data-reveal className="annot mb-5">
           What makes it stick
         </h3>
         <ul data-reveal-group>

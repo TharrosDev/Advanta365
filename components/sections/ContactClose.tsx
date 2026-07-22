@@ -41,7 +41,7 @@ export default function ContactClose() {
             </div>
           </div>
 
-          <div className="signoff-meta mt-14">
+          <div className="signoff-meta mt-12">
             {contactSection.meta.map((m) => (
               <div key={m.key} className="flex flex-col gap-1.5">
                 <span className="signoff-key">{m.key}</span>
