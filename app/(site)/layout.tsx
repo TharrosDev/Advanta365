@@ -1,5 +1,5 @@
-import Link from "next/link";
 import type { ReactNode } from "react";
+import { CartButton } from "@/components/cart/cart-button";
 import { BetaBanner } from "@/components/layout/beta-banner";
 import { Footer } from "@/components/layout/footer";
 import { Header } from "@/components/layout/header";
@@ -19,11 +19,7 @@ export default async function SiteLayout({ children }: { children: ReactNode }) 
       {isSample && <BetaBanner />}
       <Header
         phases={phases}
-        cart={
-          <Link href="/cart" className="flex min-h-11 items-center rounded-md px-3 text-sm font-medium">
-            Cart
-          </Link>
-        }
+        cart={<CartButton />}
       />
       <main id="main" className="grow">
         {children}
