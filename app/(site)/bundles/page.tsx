@@ -23,7 +23,7 @@ export default async function BundlesPage() {
   return (
     <Container className="py-10 sm:py-14">
       <h1 className="text-4xl font-semibold">Bundles</h1>
-      <p className="mt-3 max-w-2xl text-muted">
+      <p className="text-muted mt-3 max-w-2xl">
         Curated sets for a whole phase or a whole rollout. Each bundle costs less than its templates
         bought one at a time.
       </p>

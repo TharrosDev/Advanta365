@@ -8,17 +8,28 @@ import { getBundleTemplates, getBundles, getPhases, getTemplates } from "@/lib/c
 
 const CREDENTIALS = [
   { figure: "30 years", label: "of change management and user adoption practice" },
-  { figure: "SharePoint-first", label: "with coverage across Teams, OneDrive, Outlook and Copilot" },
+  {
+    figure: "SharePoint-first",
+    label: "with coverage across Teams, OneDrive, Outlook and Copilot",
+  },
   { figure: "Private and public", label: "sector organizations, from municipal to federal" },
   { figure: "Every step", label: "of a rollout, from first sponsor meeting to handover" },
 ];
 
-function SectionHeading({ title, lead, action }: { title: string; lead?: string; action?: { href: string; label: string } }) {
+function SectionHeading({
+  title,
+  lead,
+  action,
+}: {
+  title: string;
+  lead?: string;
+  action?: { href: string; label: string };
+}) {
   return (
     <div className="mb-8 flex flex-wrap items-end justify-between gap-4">
       <div>
         <h2 className="text-3xl font-semibold">{title}</h2>
-        {lead && <p className="mt-2 max-w-2xl text-muted">{lead}</p>}
+        {lead && <p className="text-muted mt-2 max-w-2xl">{lead}</p>}
       </div>
       {action && (
         <Button href={action.href} variant="ghost">
@@ -30,7 +41,11 @@ function SectionHeading({ title, lead, action }: { title: string; lead?: string;
 }
 
 export default async function Home() {
-  const [phases, templates, bundles] = await Promise.all([getPhases(), getTemplates(), getBundles()]);
+  const [phases, templates, bundles] = await Promise.all([
+    getPhases(),
+    getTemplates(),
+    getBundles(),
+  ]);
   const phaseNames = new Map(phases.map((phase) => [phase.slug, phase.name]));
   const featuredTemplates = templates.filter((t) => t.featured).slice(0, 6);
   const featuredBundles = await Promise.all(
@@ -45,15 +60,15 @@ export default async function Home() {
 
   return (
     <>
-      <section className="border-b border-rule">
+      <section className="border-rule border-b">
         <Container className="py-16 sm:py-24">
-          <p className="text-sm font-medium tracking-wide text-accent uppercase">
+          <p className="text-accent text-sm font-medium tracking-wide uppercase">
             SharePoint · Teams · Microsoft 365
           </p>
           <h1 className="mt-4 max-w-3xl text-4xl font-semibold sm:text-6xl">
             Change management templates for Microsoft 365 rollouts
           </h1>
-          <p className="mt-6 max-w-2xl text-lg text-muted">
+          <p className="text-muted mt-6 max-w-2xl text-lg">
             The plans, communications, training and measurement tools a rollout needs, drawn from 30
             years of practice and aligned with Prosci methodology. Open them, tailor them, and put
             them to work the same day.
@@ -77,7 +92,7 @@ export default async function Home() {
         <PhaseNav phases={phases} />
       </Container>
 
-      <section className="border-y border-rule bg-surface">
+      <section className="border-rule bg-surface border-y">
         <Container className="py-16 sm:py-20">
           <SectionHeading
             title="Bundles"
@@ -95,7 +110,10 @@ export default async function Home() {
       </section>
 
       <Container className="py-16 sm:py-20">
-        <SectionHeading title="Featured templates" action={{ href: "/catalog", label: "All templates" }} />
+        <SectionHeading
+          title="Featured templates"
+          action={{ href: "/catalog", label: "All templates" }}
+        />
         <ul className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {featuredTemplates.map((template) => (
             <li key={template.slug}>
@@ -105,14 +123,14 @@ export default async function Home() {
         </ul>
       </Container>
 
-      <section className="border-y border-rule bg-surface">
+      <section className="border-rule bg-surface border-y">
         <Container className="py-14">
           <h2 className="sr-only">Why Advanta365</h2>
           <dl className="grid gap-8 sm:grid-cols-2 lg:grid-cols-4">
             {CREDENTIALS.map((item) => (
-              <div key={item.figure} className="border-l-2 border-accent pl-4">
+              <div key={item.figure} className="border-accent border-l-2 pl-4">
                 <dt className="font-display text-2xl font-semibold">{item.figure}</dt>
-                <dd className="mt-1 text-sm text-muted">{item.label}</dd>
+                <dd className="text-muted mt-1 text-sm">{item.label}</dd>
               </div>
             ))}
           </dl>
@@ -123,7 +141,7 @@ export default async function Home() {
         <h2 className="mx-auto max-w-2xl text-3xl font-semibold sm:text-4xl">
           Spend your time on the people, not on the paperwork
         </h2>
-        <p className="mx-auto mt-4 max-w-xl text-muted">
+        <p className="text-muted mx-auto mt-4 max-w-xl">
           Find the template for the step you are on, or take a bundle that covers the whole phase.
         </p>
         <div className="mt-8 flex flex-wrap justify-center gap-3">

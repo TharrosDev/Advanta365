@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useRef, useTransition } from "react";
+import { useOptimistic, useRef, useTransition } from "react";
 import { buttonClass } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import {
@@ -30,14 +30,24 @@ type FilterPanelProps = {
   phases: { slug: string; name: string }[];
 };
 
-export function FilterPanel({ criteria, facets, phases }: FilterPanelProps) {
+export function FilterPanel({ criteria: committed, facets, phases }: FilterPanelProps) {
   const router = useRouter();
   const dialogRef = useRef<HTMLDialogElement>(null);
   const [isPending, startTransition] = useTransition();
+  // Tick the box immediately; the results follow when the server responds.
+  const [criteria, setOptimisticCriteria] = useOptimistic(committed);
 
   const groups: Group[] = [
-    { key: "phase", title: "Phase", options: phases.map((p) => ({ value: p.slug, label: p.name })) },
-    { key: "type", title: "Deliverable type", options: options(DELIVERABLE_TYPES, DELIVERABLE_TYPE_LABELS) },
+    {
+      key: "phase",
+      title: "Phase",
+      options: phases.map((p) => ({ value: p.slug, label: p.name })),
+    },
+    {
+      key: "type",
+      title: "Deliverable type",
+      options: options(DELIVERABLE_TYPES, DELIVERABLE_TYPE_LABELS),
+    },
     { key: "app", title: "Microsoft 365 app", options: options(APPS, APP_LABELS) },
     { key: "audience", title: "Audience", options: options(AUDIENCES, AUDIENCE_LABELS) },
     { key: "format", title: "File format", options: options(FORMATS, FORMAT_LABELS) },
@@ -49,8 +59,12 @@ export function FilterPanel({ criteria, facets, phases }: FilterPanelProps) {
     const current = criteria[key] as string[];
     const next = checked ? [...current, value] : current.filter((v) => v !== value);
     // Any filter change returns to the first page.
-    const query = serializeCatalogParams({ ...criteria, [key]: next, page: 1 });
-    startTransition(() => router.replace(query ? `/catalog?${query}` : "/catalog", { scroll: false }));
+    const nextCriteria = { ...criteria, [key]: next, page: 1 };
+    const query = serializeCatalogParams(nextCriteria);
+    startTransition(() => {
+      setOptimisticCriteria(nextCriteria);
+      router.replace(query ? `/catalog?${query}` : "/catalog", { scroll: false });
+    });
   }
 
   const fields = (
@@ -77,7 +91,10 @@ export function FilterPanel({ criteria, facets, phases }: FilterPanelProps) {
         </fieldset>
       ))}
       {selectedCount > 0 && (
-        <Link href={criteria.q ? `/catalog?q=${encodeURIComponent(criteria.q)}` : "/catalog"} className="inline-flex min-h-11 items-center text-sm font-medium text-accent underline underline-offset-4">
+        <Link
+          href={criteria.q ? `/catalog?q=${encodeURIComponent(criteria.q)}` : "/catalog"}
+          className="text-accent inline-flex min-h-11 items-center text-sm font-medium underline underline-offset-4"
+        >
           Clear all filters
         </Link>
       )}
@@ -102,10 +119,10 @@ export function FilterPanel({ criteria, facets, phases }: FilterPanelProps) {
         <dialog
           ref={dialogRef}
           aria-label="Filters"
-          className="m-0 ml-auto h-dvh max-h-none w-[min(22rem,100vw)] max-w-none bg-surface p-0 text-ink backdrop:bg-ink/40"
+          className="bg-surface text-ink backdrop:bg-ink/40 m-0 ml-auto h-dvh max-h-none w-[min(22rem,100vw)] max-w-none p-0"
         >
           <div className="flex h-full flex-col">
-            <div className="flex items-center justify-between border-b border-rule px-5 py-3">
+            <div className="border-rule flex items-center justify-between border-b px-5 py-3">
               <h2 className="text-lg font-semibold">Filters</h2>
               <button
                 type="button"
@@ -116,7 +133,7 @@ export function FilterPanel({ criteria, facets, phases }: FilterPanelProps) {
               </button>
             </div>
             <div className="grow overflow-y-auto px-5 py-5">{fields}</div>
-            <div className="border-t border-rule p-4">
+            <div className="border-rule border-t p-4">
               <button
                 type="button"
                 className={buttonClass("primary", "md", "w-full")}

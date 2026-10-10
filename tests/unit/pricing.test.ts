@@ -3,7 +3,10 @@ import { bundleSavingsCents, bundleValueCents } from "@/lib/catalog/pricing";
 import type { Bundle } from "@/lib/catalog/schema";
 import { makeTemplate, rawBundle } from "./fixtures/catalog";
 
-const templates = [makeTemplate({ priceCents: 4900 }), makeTemplate({ slug: "b", priceCents: 2900 })];
+const templates = [
+  makeTemplate({ priceCents: 4900 }),
+  makeTemplate({ slug: "b", priceCents: 2900 }),
+];
 const bundle = (priceCents: number) => rawBundle({ priceCents }) as Bundle;
 
 test("bundle value is the sum of its template prices", () => {

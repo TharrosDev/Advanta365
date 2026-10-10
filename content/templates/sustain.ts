@@ -17,7 +17,12 @@ export const sustainTemplates = sample("sustain", [
     summary: "Track speed of adoption, utilization and proficiency for the first 90 days.",
     description:
       "A scorecard that turns usage data and survey results into a single view for the sponsor. Targets and thresholds are set once and the charts update as you enter results.",
-    includes: ["Scorecard workbook", "Target-setting sheet", "Sponsor summary chart", "Data entry guide"],
+    includes: [
+      "Scorecard workbook",
+      "Target-setting sheet",
+      "Sponsor summary chart",
+      "Data entry guide",
+    ],
   },
   {
     slug: "usage-analytics-reporting-guide",
@@ -62,7 +67,8 @@ export const sustainTemplates = sample("sustain", [
     adkar: ["ability"],
     priceCents: 3900,
     pageCount: 9,
-    summary: "Check whether staff can actually perform the key tasks, not just that they logged in.",
+    summary:
+      "Check whether staff can actually perform the key tasks, not just that they logged in.",
     description:
       "A task-based assessment covering the everyday SharePoint activities. Results show managers where follow-up coaching is needed.",
     includes: ["Task-based assessment", "Scoring guide", "Manager results summary"],
@@ -131,7 +137,12 @@ export const sustainTemplates = sample("sustain", [
     summary: "A plan for keeping the change in place after the project team moves on.",
     description:
       "Sets out how progress will be celebrated, how gaps will be corrected, and who is responsible. Covers the six months after launch, when people most often slip back to old habits.",
-    includes: ["Ten-page plan", "Recognition ideas list", "Six-month activity calendar", "Manager checklist"],
+    includes: [
+      "Ten-page plan",
+      "Recognition ideas list",
+      "Six-month activity calendar",
+      "Manager checklist",
+    ],
   },
   {
     slug: "success-story-spotlight-template",

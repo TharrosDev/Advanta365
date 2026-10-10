@@ -16,7 +16,7 @@ export function SortSelect({ criteria }: { criteria: CatalogCriteria }) {
   const router = useRouter();
 
   return (
-    <label className="flex items-center gap-2 text-sm text-muted">
+    <label className="text-muted flex items-center gap-2 text-sm">
       <span className="shrink-0">Sort by</span>
       <Select
         value={criteria.sort}

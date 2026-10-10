@@ -3,12 +3,19 @@ import type { Phase } from "@/lib/catalog/schema";
 import { SITE } from "@/lib/site";
 import { Container } from "./container";
 
-const LINK = "inline-flex min-h-9 items-center text-sm text-muted underline-offset-4 hover:text-ink hover:underline";
+const LINK =
+  "inline-flex min-h-9 items-center text-sm text-muted underline-offset-4 hover:text-ink hover:underline";
 
-function FooterColumn({ title, links }: { title: string; links: { href: string; label: string }[] }) {
+function FooterColumn({
+  title,
+  links,
+}: {
+  title: string;
+  links: { href: string; label: string }[];
+}) {
   return (
     <div>
-      <h2 className="font-sans text-sm font-semibold tracking-normal text-ink">{title}</h2>
+      <h2 className="text-ink font-sans text-sm font-semibold tracking-normal">{title}</h2>
       <ul className="mt-3">
         {links.map((link) => (
           <li key={link.href}>
@@ -24,13 +31,13 @@ function FooterColumn({ title, links }: { title: string; links: { href: string; 
 
 export function Footer({ phases }: { phases: Phase[] }) {
   return (
-    <footer className="mt-24 border-t border-rule bg-surface">
+    <footer className="border-rule bg-surface mt-24 border-t">
       <Container className="grid gap-10 py-12 sm:grid-cols-2 lg:grid-cols-[2fr_1fr_1fr_1fr]">
         <div>
           <p className="font-display text-xl font-semibold">
             Advanta<span className="text-accent">365</span>
           </p>
-          <p className="mt-3 max-w-sm text-sm text-muted">{SITE.description}</p>
+          <p className="text-muted mt-3 max-w-sm text-sm">{SITE.description}</p>
         </div>
         <FooterColumn
           title="By phase"
@@ -52,8 +59,8 @@ export function Footer({ phases }: { phases: Phase[] }) {
           ]}
         />
       </Container>
-      <div className="border-t border-rule">
-        <Container className="py-6 text-xs text-muted">
+      <div className="border-rule border-t">
+        <Container className="text-muted py-6 text-xs">
           <p>
             © {new Date().getFullYear()} {SITE.name}. Templates are aligned with Prosci methodology.{" "}
             {SITE.name} is an independent provider and is not affiliated with or endorsed by Prosci

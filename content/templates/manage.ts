@@ -17,7 +17,12 @@ export const manageTemplates = sample("manage", [
     summary: "Every message, audience, sender, channel and date for the rollout in one plan.",
     description:
       "A communications calendar organized by audience, with the preferred sender for each message. Pre-filled with the messages a typical SharePoint rollout needs, from first announcement to post-launch follow-up.",
-    includes: ["Communications calendar", "Audience and sender matrix", "Pre-filled message list", "Status tracker"],
+    includes: [
+      "Communications calendar",
+      "Audience and sender matrix",
+      "Pre-filled message list",
+      "Status tracker",
+    ],
   },
   {
     slug: "launch-announcement-email-series",
@@ -46,7 +51,8 @@ export const manageTemplates = sample("manage", [
     adkar: ["awareness", "desire"],
     priceCents: 2900,
     pageCount: 6,
-    summary: "What people managers should say to their teams, and how to answer the hard questions.",
+    summary:
+      "What people managers should say to their teams, and how to answer the hard questions.",
     description:
       "Gives managers a short script for team meetings plus answers to the questions staff are most likely to raise. Staff hear about personal impact best from their own manager.",
     includes: ["Team meeting script", "Hard questions and answers", "Follow-up checklist"],
@@ -144,10 +150,16 @@ export const manageTemplates = sample("manage", [
     priceCents: 6900,
     pageCount: 42,
     featured: true,
-    summary: "A 60-minute instructor-led session on finding, sharing and co-authoring in SharePoint.",
+    summary:
+      "A 60-minute instructor-led session on finding, sharing and co-authoring in SharePoint.",
     description:
       "Covers the everyday tasks staff need on day one, with hands-on exercises after each topic. Screens are generic so you can replace them with your own environment.",
-    includes: ["42-slide training deck", "Instructor notes", "Five hands-on exercises", "Participant handout"],
+    includes: [
+      "42-slide training deck",
+      "Instructor notes",
+      "Five hands-on exercises",
+      "Participant handout",
+    ],
   },
   {
     slug: "teams-quick-reference-guides",
@@ -196,7 +208,12 @@ export const manageTemplates = sample("manage", [
     summary: "A 90-minute workshop that gets staff writing useful Copilot prompts.",
     description:
       "Introduces a simple prompt structure and has participants practice on their own work. Includes a section on responsible use and checking results.",
-    includes: ["30-slide workshop deck", "Prompt practice sheets", "Responsible use guide", "Follow-up exercises"],
+    includes: [
+      "30-slide workshop deck",
+      "Prompt practice sheets",
+      "Responsible use guide",
+      "Follow-up exercises",
+    ],
   },
   {
     slug: "train-the-trainer-kit",

@@ -102,11 +102,19 @@ describe("queryTemplates", () => {
   });
 
   test("sorts featured first, then by title", () => {
-    expect(query().items.slice(0, 3).map((t) => t.slug)).toEqual(["t05", "t20", "t04"]);
+    expect(
+      query()
+        .items.slice(0, 3)
+        .map((t) => t.slug),
+    ).toEqual(["t05", "t20", "t04"]);
   });
 
   test("sorts by title", () => {
-    expect(query({ sort: "title" }).items.slice(0, 3).map((t) => t.slug)).toEqual(["t04", "t00", "t01"]);
+    expect(
+      query({ sort: "title" })
+        .items.slice(0, 3)
+        .map((t) => t.slug),
+    ).toEqual(["t04", "t00", "t01"]);
   });
 
   test("sorts by price ascending and descending", () => {
@@ -134,7 +142,13 @@ describe("queryTemplates", () => {
   test("zero results still returns a page and all facet keys", () => {
     const result = query({ q: "zzzz" });
     expect(result).toMatchObject({ items: [], total: 0, page: 1, pageCount: 1 });
-    expect(Object.keys(result.facets).sort()).toEqual(["app", "audience", "format", "phase", "type"]);
+    expect(Object.keys(result.facets).sort()).toEqual([
+      "app",
+      "audience",
+      "format",
+      "phase",
+      "type",
+    ]);
   });
 
   test("a facet's counts ignore its own selection but respect the others", () => {

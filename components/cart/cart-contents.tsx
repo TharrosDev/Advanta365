@@ -31,14 +31,14 @@ export function CartContents({ items }: { items: CartItem[] }) {
   }, [hasStaleLines, cart, known]);
 
   if (!cart.ready) {
-    return <p className="mt-10 text-muted">Loading your cart…</p>;
+    return <p className="text-muted mt-10">Loading your cart…</p>;
   }
 
   if (lines.length === 0) {
     return (
-      <div className="mt-10 rounded-lg border border-dashed border-ink/25 px-6 py-16 text-center">
+      <div className="border-ink/25 mt-10 rounded-lg border border-dashed px-6 py-16 text-center">
         <h2 className="text-xl font-semibold">Your cart is empty.</h2>
-        <p className="mx-auto mt-2 max-w-sm text-sm text-muted">
+        <p className="text-muted mx-auto mt-2 max-w-sm text-sm">
           Browse the catalog or start with a bundle for the phase you are in.
         </p>
         <div className="mt-6 flex flex-wrap justify-center gap-3">
@@ -56,14 +56,20 @@ export function CartContents({ items }: { items: CartItem[] }) {
 
   return (
     <div className="mt-10 grid gap-10 lg:grid-cols-[1fr_20rem]">
-      <ul className="divide-y divide-rule border-y border-rule">
+      <ul className="divide-rule border-rule divide-y border-y">
         {rows.map((row) => (
-          <li key={keyOf(row)} className="flex flex-wrap items-center justify-between gap-x-6 gap-y-2 py-4">
+          <li
+            key={keyOf(row)}
+            className="flex flex-wrap items-center justify-between gap-x-6 gap-y-2 py-4"
+          >
             <div className="min-w-0">
-              <p className="text-xs font-medium text-accent uppercase">
+              <p className="text-accent text-xs font-medium uppercase">
                 {row.kind === "bundle" ? "Bundle" : "Template"}
               </p>
-              <Link href={row.href} className="font-display text-lg font-semibold break-words underline-offset-4 hover:underline">
+              <Link
+                href={row.href}
+                className="font-display text-lg font-semibold break-words underline-offset-4 hover:underline"
+              >
                 {row.title}
               </Link>
             </div>
@@ -83,7 +89,7 @@ export function CartContents({ items }: { items: CartItem[] }) {
       </ul>
 
       <aside aria-label="Order summary" className="lg:self-start">
-        <div className="rounded-lg border border-rule bg-surface p-6">
+        <div className="border-rule bg-surface rounded-lg border p-6">
           <div className="flex items-baseline justify-between">
             <span className="text-muted">Subtotal</span>
             <span className="font-display text-3xl font-semibold tabular-nums">
@@ -93,7 +99,7 @@ export function CartContents({ items }: { items: CartItem[] }) {
           <button type="button" disabled className={buttonClass("primary", "lg", "mt-5 w-full")}>
             Checkout — coming soon
           </button>
-          <p className="mt-3 text-sm text-muted">
+          <p className="text-muted mt-3 text-sm">
             Purchasing is not available in this beta. Your cart is saved in this browser.
           </p>
         </div>

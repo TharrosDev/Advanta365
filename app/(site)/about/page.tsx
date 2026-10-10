@@ -4,7 +4,8 @@ import { Button } from "@/components/ui/button";
 
 export const metadata: Metadata = {
   title: "About",
-  description: "Thirty years of change management and user adoption practice, packaged as templates.",
+  description:
+    "Thirty years of change management and user adoption practice, packaged as templates.",
 };
 
 const PRINCIPLES = [
@@ -29,7 +30,7 @@ export default function AboutPage() {
         <h1 className="text-4xl font-semibold sm:text-5xl">
           Thirty years of change practice, ready to use
         </h1>
-        <p className="mt-6 text-lg text-muted">
+        <p className="text-muted mt-6 text-lg">
           Advanta365 is a library of the change management and user adoption materials built over a
           30-year career helping organizations adopt new technology.
         </p>
@@ -46,11 +47,11 @@ export default function AboutPage() {
         </p>
       </div>
 
-      <dl className="mt-14 grid gap-8 border-t border-rule pt-10 md:grid-cols-3">
+      <dl className="border-rule mt-14 grid gap-8 border-t pt-10 md:grid-cols-3">
         {PRINCIPLES.map((principle) => (
           <div key={principle.title}>
             <dt className="font-display text-xl font-semibold">{principle.title}</dt>
-            <dd className="mt-2 text-muted">{principle.body}</dd>
+            <dd className="text-muted mt-2">{principle.body}</dd>
           </div>
         ))}
       </dl>

@@ -67,7 +67,9 @@ export function validateCatalog(input: {
   for (const bundle of bundles) {
     for (const templateSlug of bundle.templateSlugs) {
       if (!templateSlugs.has(templateSlug)) {
-        throw new CatalogError(`Bundle "${bundle.slug}" references missing template "${templateSlug}"`);
+        throw new CatalogError(
+          `Bundle "${bundle.slug}" references missing template "${templateSlug}"`,
+        );
       }
     }
   }

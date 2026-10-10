@@ -18,7 +18,12 @@ describe("parseCatalogParams", () => {
   });
 
   test("drops unknown values", () => {
-    const criteria = parse({ type: "training,poster", phase: "nope", format: "exe", audience: "ceo" });
+    const criteria = parse({
+      type: "training,poster",
+      phase: "nope",
+      format: "exe",
+      audience: "ceo",
+    });
     expect(criteria.type).toEqual(["training"]);
     expect(criteria.phase).toEqual([]);
     expect(criteria.format).toEqual([]);
@@ -29,9 +34,12 @@ describe("parseCatalogParams", () => {
     expect(parse({ app: ["teams", "sharepoint,teams"] }).app).toEqual(["teams", "sharepoint"]);
   });
 
-  test.each([["abc"], ["-3"], ["0"], ["2.5"], [""], ["1e9999"]])("page %j falls back to 1", (page) => {
-    expect(parse({ page }).page).toBe(1);
-  });
+  test.each([["abc"], ["-3"], ["0"], ["2.5"], [""], ["1e9999"]])(
+    "page %j falls back to 1",
+    (page) => {
+      expect(parse({ page }).page).toBe(1);
+    },
+  );
 
   test("reads a valid page, taking the first of repeated keys", () => {
     expect(parse({ page: "3" }).page).toBe(3);
@@ -55,7 +63,12 @@ describe("serializeCatalogParams", () => {
   });
 
   test("emits keys in a fixed order and omits defaults", () => {
-    const criteria: CatalogCriteria = { ...DEFAULT_CRITERIA, page: 2, app: ["teams", "sharepoint"], q: "kick off" };
+    const criteria: CatalogCriteria = {
+      ...DEFAULT_CRITERIA,
+      page: 2,
+      app: ["teams", "sharepoint"],
+      q: "kick off",
+    };
     expect(serializeCatalogParams(criteria)).toBe("q=kick+off&app=teams%2Csharepoint&page=2");
   });
 

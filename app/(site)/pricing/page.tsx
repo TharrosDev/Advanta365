@@ -54,7 +54,7 @@ export default async function PricingPage() {
   return (
     <Container className="py-10 sm:py-14">
       <h1 className="text-4xl font-semibold">Pricing</h1>
-      <p className="mt-3 max-w-2xl text-muted">
+      <p className="text-muted mt-3 max-w-2xl">
         Buy the one template you need today, or take a bundle that covers a whole phase. Every
         purchase is a one-time payment for files you can edit.
       </p>
@@ -62,10 +62,10 @@ export default async function PricingPage() {
       <div className="mt-10 grid gap-4 md:grid-cols-2">
         <Card as="section">
           <h2 className="text-2xl font-semibold">Single templates</h2>
-          <p className="mt-4 font-display text-4xl font-semibold tabular-nums">
+          <p className="font-display mt-4 text-4xl font-semibold tabular-nums">
             {formatPrice(Math.min(...prices))} – {formatPrice(Math.max(...prices))}
           </p>
-          <p className="mt-3 text-muted">
+          <p className="text-muted mt-3">
             Priced by depth: a one-page handout costs less than a full strategy document or a
             training deck.
           </p>
@@ -75,11 +75,11 @@ export default async function PricingPage() {
         </Card>
         <Card as="section">
           <h2 className="text-2xl font-semibold">Bundles</h2>
-          <p className="mt-4 font-display text-4xl font-semibold tabular-nums">
+          <p className="font-display mt-4 text-4xl font-semibold tabular-nums">
             {formatPrice(Math.min(...bundles.map((b) => b.priceCents)))} –{" "}
             {formatPrice(Math.max(...bundles.map((b) => b.priceCents)))}
           </p>
-          <p className="mt-3 text-muted">
+          <p className="text-muted mt-3">
             Curated sets for a phase or a full rollout, priced well below the same templates bought
             one at a time.
           </p>
@@ -93,21 +93,32 @@ export default async function PricingPage() {
 
       <section className="mt-16">
         <h2 className="text-2xl font-semibold">Bundle prices</h2>
-        <div className="mt-6 overflow-x-auto rounded-lg border border-rule bg-surface">
+        <div className="border-rule bg-surface mt-6 overflow-x-auto rounded-lg border">
           <table className="w-full min-w-[32rem] text-left text-sm">
-            <thead className="border-b border-rule text-muted">
+            <thead className="border-rule text-muted border-b">
               <tr>
-                <th scope="col" className="px-5 py-3 font-medium">Bundle</th>
-                <th scope="col" className="px-5 py-3 text-right font-medium">Templates</th>
-                <th scope="col" className="px-5 py-3 text-right font-medium">Price</th>
-                <th scope="col" className="px-5 py-3 text-right font-medium">You save</th>
+                <th scope="col" className="px-5 py-3 font-medium">
+                  Bundle
+                </th>
+                <th scope="col" className="px-5 py-3 text-right font-medium">
+                  Templates
+                </th>
+                <th scope="col" className="px-5 py-3 text-right font-medium">
+                  Price
+                </th>
+                <th scope="col" className="px-5 py-3 text-right font-medium">
+                  You save
+                </th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-rule">
+            <tbody className="divide-rule divide-y">
               {bundleRows.map(({ bundle, count, savings }) => (
                 <tr key={bundle.slug}>
                   <th scope="row" className="px-5 py-3 font-medium">
-                    <Link href={`/bundles/${bundle.slug}`} className="text-accent underline underline-offset-4">
+                    <Link
+                      href={`/bundles/${bundle.slug}`}
+                      className="text-accent underline underline-offset-4"
+                    >
                       {bundle.title}
                     </Link>
                   </th>
@@ -125,14 +136,14 @@ export default async function PricingPage() {
 
       <section className="mt-16 max-w-3xl">
         <h2 className="text-2xl font-semibold">Questions</h2>
-        <p className="mt-2 text-sm text-muted">
+        <p className="text-muted mt-2 text-sm">
           Beta note: these answers are provisional and will be confirmed before launch.
         </p>
-        <dl className="mt-6 divide-y divide-rule border-y border-rule">
+        <dl className="divide-rule border-rule mt-6 divide-y border-y">
           {FAQ.map((item) => (
             <div key={item.question} className="py-5">
               <dt className="font-semibold">{item.question}</dt>
-              <dd className="mt-2 text-muted">{item.answer}</dd>
+              <dd className="text-muted mt-2">{item.answer}</dd>
             </div>
           ))}
         </dl>

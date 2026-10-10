@@ -19,7 +19,9 @@ describe("validateCatalog", () => {
 
   test("names the template and field when a price is not positive", () => {
     expect(() => validateCatalog(withTemplate({ priceCents: 0 }))).toThrow(CatalogError);
-    expect(() => validateCatalog(withTemplate({ priceCents: 0 }))).toThrow(/kickoff-deck.*priceCents/s);
+    expect(() => validateCatalog(withTemplate({ priceCents: 0 }))).toThrow(
+      /kickoff-deck.*priceCents/s,
+    );
   });
 
   test("rejects duplicate template slugs", () => {
@@ -39,7 +41,9 @@ describe("validateCatalog", () => {
   });
 
   test("rejects a step that belongs to a different phase", () => {
-    expect(() => validateCatalog(withTemplate({ phase: "prepare", step: "train" }))).toThrow(CatalogError);
+    expect(() => validateCatalog(withTemplate({ phase: "prepare", step: "train" }))).toThrow(
+      CatalogError,
+    );
   });
 
   test("rejects a bundle that references a missing template", () => {
@@ -49,7 +53,9 @@ describe("validateCatalog", () => {
   });
 
   test("rejects an unknown deliverable type", () => {
-    expect(() => validateCatalog(withTemplate({ deliverableType: "poster" }))).toThrow(CatalogError);
+    expect(() => validateCatalog(withTemplate({ deliverableType: "poster" }))).toThrow(
+      CatalogError,
+    );
   });
 
   test("rejects a slug that is not lower-case kebab", () => {

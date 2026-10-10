@@ -17,7 +17,11 @@ export function Pagination({ page, pageCount, hrefFor }: PaginationProps) {
       )}
       {pages.map((n) =>
         n === page ? (
-          <span key={n} aria-current="page" className={`${ITEM} bg-accent font-medium text-accent-ink`}>
+          <span
+            key={n}
+            aria-current="page"
+            className={`${ITEM} bg-accent text-accent-ink font-medium`}
+          >
             <span className="sr-only">Page </span>
             {n}
           </span>

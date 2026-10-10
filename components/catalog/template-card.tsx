@@ -6,7 +6,7 @@ import { formatPrice } from "@/lib/format";
 
 export function TemplateCard({ template, phaseName }: { template: Template; phaseName?: string }) {
   return (
-    <article className="group relative flex h-full flex-col rounded-lg border border-rule bg-surface p-5 transition-colors hover:border-accent">
+    <article className="group border-rule bg-surface hover:border-accent relative flex h-full flex-col rounded-lg border p-5 transition-colors">
       <div className="flex flex-wrap gap-1.5">
         {phaseName && <Badge tone="accent">{phaseName}</Badge>}
         <Badge>{DELIVERABLE_TYPE_LABELS[template.deliverableType]}</Badge>
@@ -19,9 +19,9 @@ export function TemplateCard({ template, phaseName }: { template: Template; phas
           {template.title}
         </Link>
       </h3>
-      <p className="mt-2 grow text-sm text-muted">{template.summary}</p>
-      <div className="mt-4 flex items-baseline justify-between border-t border-rule pt-3">
-        <span className="text-xs text-muted">{FORMAT_LABELS[template.format]}</span>
+      <p className="text-muted mt-2 grow text-sm">{template.summary}</p>
+      <div className="border-rule mt-4 flex items-baseline justify-between border-t pt-3">
+        <span className="text-muted text-xs">{FORMAT_LABELS[template.format]}</span>
         <span className="font-semibold tabular-nums">{formatPrice(template.priceCents)}</span>
       </div>
     </article>

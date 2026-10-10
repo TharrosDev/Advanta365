@@ -4,7 +4,7 @@ type CardProps = { as?: "div" | "article" | "section"; className?: string; child
 
 export function Card({ as: Tag = "div", className = "", children }: CardProps) {
   return (
-    <Tag className={`rounded-lg border border-rule bg-surface p-5 sm:p-6 ${className}`.trim()}>
+    <Tag className={`border-rule bg-surface rounded-lg border p-5 sm:p-6 ${className}`.trim()}>
       {children}
     </Tag>
   );

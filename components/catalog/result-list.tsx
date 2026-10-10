@@ -15,9 +15,9 @@ export function ResultList({ result, criteria, phases }: ResultListProps) {
 
   if (result.total === 0) {
     return (
-      <div className="rounded-lg border border-dashed border-ink/25 px-6 py-16 text-center">
+      <div className="border-ink/25 rounded-lg border border-dashed px-6 py-16 text-center">
         <h2 className="text-xl font-semibold">No templates match these filters.</h2>
-        <p className="mx-auto mt-2 max-w-sm text-sm text-muted">
+        <p className="text-muted mx-auto mt-2 max-w-sm text-sm">
           Try a different search term or remove a filter.
         </p>
         <div className="mt-6">

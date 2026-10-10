@@ -19,23 +19,11 @@ export const APPS = [
   "m365-general",
 ] as const;
 
-export const AUDIENCES = [
-  "sponsor",
-  "change-lead",
-  "manager",
-  "end-user",
-  "it-admin",
-] as const;
+export const AUDIENCES = ["sponsor", "change-lead", "manager", "end-user", "it-admin"] as const;
 
 export const FORMATS = ["docx", "pptx", "xlsx", "pdf"] as const;
 
-export const ADKAR = [
-  "awareness",
-  "desire",
-  "knowledge",
-  "ability",
-  "reinforcement",
-] as const;
+export const ADKAR = ["awareness", "desire", "knowledge", "ability", "reinforcement"] as const;
 
 export const DELIVERABLE_TYPE_LABELS: Record<(typeof DELIVERABLE_TYPES)[number], string> = {
   communication: "Communications",

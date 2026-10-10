@@ -10,7 +10,8 @@ import { parseCatalogParams } from "@/lib/catalog/search-params";
 
 export const metadata: Metadata = {
   title: "Catalog",
-  description: "Search and filter every change management template by phase, type, app and audience.",
+  description:
+    "Search and filter every change management template by phase, type, app and audience.",
 };
 
 type CatalogPageProps = {
@@ -18,7 +19,11 @@ type CatalogPageProps = {
 };
 
 export default async function CatalogPage({ searchParams }: CatalogPageProps) {
-  const [params, phases, templates] = await Promise.all([searchParams, getPhases(), getTemplates()]);
+  const [params, phases, templates] = await Promise.all([
+    searchParams,
+    getPhases(),
+    getTemplates(),
+  ]);
   const parsed = parseCatalogParams(
     params,
     phases.map((phase) => phase.slug),
@@ -31,7 +36,7 @@ export default async function CatalogPage({ searchParams }: CatalogPageProps) {
   return (
     <Container className="py-10 sm:py-14">
       <h1 className="text-4xl font-semibold">Template catalog</h1>
-      <p className="mt-3 max-w-2xl text-muted">
+      <p className="text-muted mt-3 max-w-2xl">
         Every template, organized by where it fits in your rollout. Search by name or narrow by
         phase, deliverable type, app and audience.
       </p>
@@ -44,7 +49,7 @@ export default async function CatalogPage({ searchParams }: CatalogPageProps) {
       <div className="mt-8 grid gap-8 lg:grid-cols-[15rem_1fr]">
         <FilterPanel criteria={criteria} facets={result.facets} phases={phaseOptions} />
         <section aria-labelledby="results-heading">
-          <p id="results-heading" role="status" className="mb-4 text-sm text-muted">
+          <p id="results-heading" role="status" className="text-muted mb-4 text-sm">
             {result.total} {result.total === 1 ? "template" : "templates"}
             {criteria.q && (
               <>

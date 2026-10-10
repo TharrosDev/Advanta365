@@ -11,7 +11,7 @@ export function CartButton() {
     <Link
       href="/cart"
       aria-label={`Cart, ${shown} ${shown === 1 ? "item" : "items"}`}
-      className="flex min-h-11 items-center gap-2 rounded-md px-3 text-sm font-medium hover:bg-accent-soft"
+      className="hover:bg-accent-soft flex min-h-11 items-center gap-2 rounded-md px-3 text-sm font-medium"
     >
       Cart
       <span

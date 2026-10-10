@@ -17,7 +17,11 @@ export const prepareTemplates = sample("prepare", [
     summary: "A charter that frames the rollout as a people change, not just a technology project.",
     description:
       "Sets out the reason for the change, the outcomes expected and who is accountable. Written to be signed by the sponsor before planning starts.",
-    includes: ["Charter document with guidance notes", "Scope and out-of-scope table", "Sign-off page"],
+    includes: [
+      "Charter document with guidance notes",
+      "Scope and out-of-scope table",
+      "Sign-off page",
+    ],
   },
   {
     slug: "success-metrics-workshop-deck",
@@ -50,7 +54,12 @@ export const prepareTemplates = sample("prepare", [
     summary: "The deck a sponsor presents to launch a SharePoint rollout with authority.",
     description:
       "Gives the executive sponsor a clear story: why now, what changes, and what they are asking of leaders. Speaker notes are written in plain language so it can be delivered with little preparation.",
-    includes: ["16-slide kickoff deck", "Speaker notes", "One-page leave-behind", "Customization checklist"],
+    includes: [
+      "16-slide kickoff deck",
+      "Speaker notes",
+      "One-page leave-behind",
+      "Customization checklist",
+    ],
   },
   {
     slug: "adoption-business-case-one-pager",
@@ -128,10 +137,16 @@ export const prepareTemplates = sample("prepare", [
     adkar: ["awareness"],
     priceCents: 6900,
     featured: true,
-    summary: "Score how a SharePoint migration affects each group across ten aspects of their work.",
+    summary:
+      "Score how a SharePoint migration affects each group across ten aspects of their work.",
     description:
       "Rates the degree of change for every impacted group across process, tools, roles and behaviors. Produces a heatmap that shows where to concentrate communication and training.",
-    includes: ["Impact scoring workbook", "Auto-generated heatmap", "Interview question set", "Summary slide"],
+    includes: [
+      "Impact scoring workbook",
+      "Auto-generated heatmap",
+      "Interview question set",
+      "Summary slide",
+    ],
   },
   {
     slug: "stakeholder-map-and-analysis",
@@ -242,7 +257,12 @@ export const prepareTemplates = sample("prepare", [
     summary: "The master strategy document for a Microsoft 365 rollout, ready to tailor.",
     description:
       "Covers the nature of the change, the groups affected, the sponsorship model, and the approach to communication, training and resistance. Every section includes guidance and example wording.",
-    includes: ["22-page strategy document", "Section-by-section guidance", "Example wording", "Executive summary slide"],
+    includes: [
+      "22-page strategy document",
+      "Section-by-section guidance",
+      "Example wording",
+      "Executive summary slide",
+    ],
   },
   {
     slug: "sponsorship-roadmap",
@@ -274,7 +294,12 @@ export const prepareTemplates = sample("prepare", [
     summary: "A complete governance framework for sites, permissions, naming and content.",
     description:
       "Defines who can create what, how sites are named and reviewed, and who decides when rules need to change. Written so that non-technical site owners can follow it.",
-    includes: ["28-page framework", "Decision rights table", "Naming convention examples", "Policy summary for site owners"],
+    includes: [
+      "28-page framework",
+      "Decision rights table",
+      "Naming convention examples",
+      "Policy summary for site owners",
+    ],
   },
   {
     slug: "change-team-raci-matrix",

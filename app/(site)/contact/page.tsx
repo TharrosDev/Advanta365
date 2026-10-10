@@ -12,14 +12,14 @@ export default function ContactPage() {
     <Container className="py-10 sm:py-14">
       <div className="max-w-2xl">
         <h1 className="text-4xl font-semibold">Contact</h1>
-        <p className="mt-4 text-lg text-muted">
+        <p className="text-muted mt-4 text-lg">
           Questions about a template, licensing for your organization, or buying by purchase order?
           Send an email and you will get a reply from a person.
         </p>
         <p className="mt-8">
           <a
             href={`mailto:${SITE.contactEmail}`}
-            className="font-display text-2xl font-semibold break-all text-accent underline underline-offset-4"
+            className="font-display text-accent text-2xl font-semibold break-all underline underline-offset-4"
           >
             {SITE.contactEmail}
           </a>

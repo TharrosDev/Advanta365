@@ -55,7 +55,12 @@ export default async function TemplatePage({ params }: TemplatePageProps) {
   const facts = [
     { label: "Format", value: FORMAT_LABELS[template.format] },
     ...(template.pageCount
-      ? [{ label: "Length", value: `${template.pageCount} ${template.pageCount === 1 ? "page" : "pages"}` }]
+      ? [
+          {
+            label: "Length",
+            value: `${template.pageCount} ${template.pageCount === 1 ? "page" : "pages"}`,
+          },
+        ]
       : []),
     { label: "Works with", value: template.apps.map((app) => APP_LABELS[app]).join(", ") },
     { label: "Written for", value: template.audiences.map((a) => AUDIENCE_LABELS[a]).join(", ") },
@@ -78,11 +83,11 @@ export default async function TemplatePage({ params }: TemplatePageProps) {
             <Badge>{DELIVERABLE_TYPE_LABELS[template.deliverableType]}</Badge>
           </div>
           <h1 className="mt-4 text-4xl font-semibold break-words sm:text-5xl">{template.title}</h1>
-          <p className="mt-4 text-xl text-muted">{template.summary}</p>
+          <p className="text-muted mt-4 text-xl">{template.summary}</p>
           <p className="mt-6 max-w-2xl">{template.description}</p>
 
           <h2 className="mt-10 text-2xl font-semibold">What’s included</h2>
-          <ul className="mt-4 max-w-2xl divide-y divide-rule border-y border-rule">
+          <ul className="divide-rule border-rule mt-4 max-w-2xl divide-y border-y">
             {template.includes.map((item) => (
               <li key={item} className="py-3">
                 {item}
@@ -97,7 +102,7 @@ export default async function TemplatePage({ params }: TemplatePageProps) {
                 Use this in the{" "}
                 <Link
                   href={`/phases/${phase.slug}#${step.slug}`}
-                  className="font-medium text-accent underline underline-offset-4"
+                  className="text-accent font-medium underline underline-offset-4"
                 >
                   {phase.name} phase, at the “{step.name}” step
                 </Link>
@@ -108,18 +113,18 @@ export default async function TemplatePage({ params }: TemplatePageProps) {
         </div>
 
         <aside aria-label="Purchase" className="lg:sticky lg:top-6 lg:self-start">
-          <div className="rounded-lg border border-rule bg-surface p-6">
+          <div className="border-rule bg-surface rounded-lg border p-6">
             <p className="font-display text-4xl font-semibold tabular-nums">
               {formatPrice(template.priceCents)}
             </p>
-            <p className="mt-1 text-sm text-muted">One-time purchase, editable file</p>
+            <p className="text-muted mt-1 text-sm">One-time purchase, editable file</p>
             <div className="mt-5">
               <AddToCart line={{ kind: "template", slug: template.slug }} />
             </div>
-            <dl className="mt-6 space-y-3 border-t border-rule pt-5 text-sm">
+            <dl className="border-rule mt-6 space-y-3 border-t pt-5 text-sm">
               {facts.map((fact) => (
                 <div key={fact.label} className="flex justify-between gap-4">
-                  <dt className="shrink-0 text-muted">{fact.label}</dt>
+                  <dt className="text-muted shrink-0">{fact.label}</dt>
                   <dd className="text-right">{fact.value}</dd>
                 </div>
               ))}
@@ -129,7 +134,7 @@ export default async function TemplatePage({ params }: TemplatePageProps) {
       </div>
 
       {bundleCards.length > 0 && (
-        <section className="mt-16 border-t border-rule pt-10">
+        <section className="border-rule mt-16 border-t pt-10">
           <h2 className="text-2xl font-semibold">Included in these bundles</h2>
           <ul className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
             {bundleCards.map(({ bundle, count, savings }) => (
@@ -142,7 +147,7 @@ export default async function TemplatePage({ params }: TemplatePageProps) {
       )}
 
       {related.length > 0 && (
-        <section className="mt-16 border-t border-rule pt-10">
+        <section className="border-rule mt-16 border-t pt-10">
           <h2 className="text-2xl font-semibold">Related templates</h2>
           <ul className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
             {related.map((item) => (

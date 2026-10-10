@@ -18,9 +18,7 @@ export const rawPhases = [
     prosciPhase: "Prepare Approach",
     summary: "Get ready.",
     order: 1,
-    steps: [
-      { slug: "define", name: "Define", summary: "Define success.", order: 1 },
-    ],
+    steps: [{ slug: "define", name: "Define", summary: "Define success.", order: 1 }],
   },
 ];
 

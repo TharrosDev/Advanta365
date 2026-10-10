@@ -18,7 +18,11 @@ describe("sample catalog", () => {
   test("has three phases in order, each with three steps", async () => {
     const phases = await getPhases();
     expect(phases.map((p) => p.slug)).toEqual(["prepare", "manage", "sustain"]);
-    expect(phases.map((p) => p.prosciPhase)).toEqual(["Prepare Approach", "Manage Change", "Sustain Outcomes"]);
+    expect(phases.map((p) => p.prosciPhase)).toEqual([
+      "Prepare Approach",
+      "Manage Change",
+      "Sustain Outcomes",
+    ]);
     expect(phases.every((p) => p.steps.length === 3)).toBe(true);
     expect((await getPhase("manage"))?.steps.map((s) => s.slug)).toEqual([
       "plan-and-communicate",
@@ -32,7 +36,9 @@ describe("sample catalog", () => {
     expect(templates.length).toBeGreaterThanOrEqual(60);
     for (const phase of await getPhases()) {
       for (const step of phase.steps) {
-        const count = templates.filter((t) => t.phase === phase.slug && t.step === step.slug).length;
+        const count = templates.filter(
+          (t) => t.phase === phase.slug && t.step === step.slug,
+        ).length;
         expect(count, `${phase.slug}/${step.slug}`).toBeGreaterThanOrEqual(6);
       }
     }
@@ -40,10 +46,26 @@ describe("sample catalog", () => {
 
   test("uses every taxonomy value at least once", async () => {
     const templates = await getTemplates();
-    for (const type of DELIVERABLE_TYPES) expect(templates.some((t) => t.deliverableType === type), type).toBe(true);
-    for (const app of APPS) expect(templates.some((t) => t.apps.includes(app)), app).toBe(true);
-    for (const audience of AUDIENCES) expect(templates.some((t) => t.audiences.includes(audience)), audience).toBe(true);
-    for (const format of FORMATS) expect(templates.some((t) => t.format === format), format).toBe(true);
+    for (const type of DELIVERABLE_TYPES)
+      expect(
+        templates.some((t) => t.deliverableType === type),
+        type,
+      ).toBe(true);
+    for (const app of APPS)
+      expect(
+        templates.some((t) => t.apps.includes(app)),
+        app,
+      ).toBe(true);
+    for (const audience of AUDIENCES)
+      expect(
+        templates.some((t) => t.audiences.includes(audience)),
+        audience,
+      ).toBe(true);
+    for (const format of FORMATS)
+      expect(
+        templates.some((t) => t.format === format),
+        format,
+      ).toBe(true);
   });
 
   test("every record is flagged as sample content", async () => {
@@ -89,7 +111,9 @@ describe("repository lookups", () => {
 
   test("finds a template and a bundle by slug", async () => {
     expect((await getTemplate("executive-sponsor-kickoff-deck"))?.phase).toBe("prepare");
-    expect((await getBundle("sponsor-essentials"))?.templateSlugs).toContain("executive-sponsor-kickoff-deck");
+    expect((await getBundle("sponsor-essentials"))?.templateSlugs).toContain(
+      "executive-sponsor-kickoff-deck",
+    );
   });
 
   test("related templates exclude the template itself and list same-step ones first", async () => {
@@ -103,7 +127,9 @@ describe("repository lookups", () => {
     expect(wide).toHaveLength(10);
     const firstOtherStep = wide.findIndex((t) => t.step !== source.step);
     expect(firstOtherStep).toBeGreaterThan(0);
-    expect(wide.slice(firstOtherStep).every((t) => t.step !== source.step && t.phase === source.phase)).toBe(true);
+    expect(
+      wide.slice(firstOtherStep).every((t) => t.step !== source.step && t.phase === source.phase),
+    ).toBe(true);
   });
 
   test("related templates of an unknown slug is empty", async () => {

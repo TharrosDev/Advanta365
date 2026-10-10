@@ -34,7 +34,11 @@ export default async function BundlePage({ params }: BundlePageProps) {
   return (
     <Container className="py-10 sm:py-14">
       <Breadcrumbs
-        items={[{ href: "/", label: "Home" }, { href: "/bundles", label: "Bundles" }, { label: bundle.title }]}
+        items={[
+          { href: "/", label: "Home" },
+          { href: "/bundles", label: "Bundles" },
+          { label: bundle.title },
+        ]}
       />
 
       <div className="mt-8 grid gap-10 lg:grid-cols-[1fr_20rem]">
@@ -44,12 +48,12 @@ export default async function BundlePage({ params }: BundlePageProps) {
             <Badge>{templates.length} templates</Badge>
           </div>
           <h1 className="mt-4 text-4xl font-semibold break-words sm:text-5xl">{bundle.title}</h1>
-          <p className="mt-4 text-xl text-muted">{bundle.summary}</p>
+          <p className="text-muted mt-4 text-xl">{bundle.summary}</p>
           <p className="mt-6 max-w-2xl">{bundle.description}</p>
         </div>
 
         <aside aria-label="Purchase" className="lg:sticky lg:top-6 lg:self-start">
-          <div className="rounded-lg border border-rule bg-surface p-6">
+          <div className="border-rule bg-surface rounded-lg border p-6">
             <p className="font-display text-4xl font-semibold tabular-nums">
               {formatPrice(bundle.priceCents)}
             </p>
@@ -63,7 +67,7 @@ export default async function BundlePage({ params }: BundlePageProps) {
                 <dd className="tabular-nums">{formatPrice(bundle.priceCents)}</dd>
               </div>
               {savings > 0 && (
-                <div className="flex justify-between gap-4 border-t border-rule pt-2 font-semibold text-accent">
+                <div className="border-rule text-accent flex justify-between gap-4 border-t pt-2 font-semibold">
                   <dt>You save</dt>
                   <dd className="tabular-nums">{formatPrice(savings)}</dd>
                 </div>
@@ -77,7 +81,7 @@ export default async function BundlePage({ params }: BundlePageProps) {
       </div>
 
       {groups.map(({ phase, templates: inPhase }) => (
-        <section key={phase.slug} className="mt-14 border-t border-rule pt-10">
+        <section key={phase.slug} className="border-rule mt-14 border-t pt-10">
           <h2 className="text-2xl font-semibold">
             {phase.name} <span className="text-muted">· {inPhase.length}</span>
           </h2>
