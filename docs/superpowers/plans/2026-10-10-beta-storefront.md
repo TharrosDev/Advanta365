@@ -201,7 +201,7 @@ hasSampleContent(): Promise<boolean>
 
 Content decisions:
 - Phases and steps exactly as the spec's taxonomy table; phase slugs `prepare`, `manage`, `sustain`; step slugs are the kebab-cased step names (e.g. `define-success`, `train-and-enable`, `transfer-ownership`). `prosciPhase` holds "Prepare Approach", "Manage Change", "Sustain Outcomes".
-- 60 templates: at least 6 per step. Titles are concrete rollout deliverables (e.g. "SharePoint Migration Impact Assessment", "Executive Sponsor Kickoff Deck", "Teams Champion Network Charter", "90-Day Adoption Scorecard"). Each has a one-sentence `summary`, a 2–3 sentence `description`, 3–5 `includes` bullets, price between 1900 and 7900 in steps of 500 (+ 400, i.e. $19, $24 … $79). About 10 are `featured`. At least half include `sharepoint` in `apps`.
+- 60 templates: at least 6 per step. Titles are concrete rollout deliverables (e.g. "SharePoint Migration Impact Assessment", "Executive Sponsor Kickoff Deck", "Teams Champion Network Charter", "90-Day Adoption Scorecard"). Each has a one-sentence `summary`, a 2–3 sentence `description`, 3–5 `includes` bullets, `priceCents` of 1900 plus a multiple of 500, up to 7900 ($19, $24 … $79). About 10 are `featured`. At least half include `sharepoint` in `apps`.
 - 5 bundles: `prepare-phase-kit`, `manage-phase-kit`, `sustain-phase-kit` (8–12 templates each from that phase), `sharepoint-rollout-complete` (20 templates across all phases), `sponsor-essentials` (6 sponsor-audience templates). Each priced 30–40% below the sum of its templates. Three are `featured`.
 
 - [ ] **Step 1: Failing tests:**
