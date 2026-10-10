@@ -21,7 +21,13 @@
       {
         "name": "next"
       }
-    ]
+    ],
+    "noUncheckedIndexedAccess": true,
+    "paths": {
+      "@/*": [
+        "./*"
+      ]
+    }
   },
   "include": [
     "next-env.d.ts",
