@@ -3,6 +3,7 @@ import type { ReactNode } from "react";
 import type { Phase } from "@/lib/catalog/schema";
 import { NAV, SITE } from "@/lib/site";
 import { Container } from "./container";
+import { MobileMenu } from "./mobile-menu";
 
 const NAV_LINK = "rounded-sm py-2 text-sm font-medium text-ink underline-offset-8 hover:underline";
 
@@ -29,25 +30,7 @@ export function Header({ phases, cart }: { phases: Phase[]; cart: ReactNode }) {
         </nav>
         <div className="flex items-center gap-2">
           {cart}
-          <details className="group relative md:hidden">
-            <summary className="border-ink/25 flex min-h-11 cursor-pointer list-none items-center rounded-md border px-3 text-sm font-medium [&::-webkit-details-marker]:hidden">
-              Menu
-            </summary>
-            <nav
-              aria-label="Main"
-              className="border-rule bg-surface absolute right-0 z-20 mt-2 flex w-56 flex-col rounded-lg border p-2 shadow-lg"
-            >
-              {NAV.map((item) => (
-                <Link
-                  key={item.href}
-                  href={item.href}
-                  className="hover:bg-accent-soft flex min-h-11 items-center rounded-md px-3 text-sm font-medium"
-                >
-                  {item.label}
-                </Link>
-              ))}
-            </nav>
-          </details>
+          <MobileMenu />
         </div>
       </Container>
 

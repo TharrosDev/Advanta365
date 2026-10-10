@@ -39,6 +39,11 @@ function write(next: CartLine[]) {
   listeners.forEach((listener) => listener());
 }
 
+/** Replaces the whole cart, e.g. after dropping lines that left the catalog. */
+export function replaceCartLines(next: CartLine[]) {
+  write(next);
+}
+
 function subscribe(listener: () => void) {
   listeners.add(listener);
   // Pick up changes made in another tab.
@@ -72,6 +77,5 @@ export function useCart() {
     has: (line: CartLine) => hasLine(current, line),
     add: (line: CartLine) => write(addLine(read(), line)),
     remove: (line: CartLine) => write(removeLine(read(), line)),
-    replace: (next: CartLine[]) => write(next),
   };
 }

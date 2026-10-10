@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useMemo } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { Button, buttonClass } from "@/components/ui/button";
 import { pruneLines, type CartLine } from "@/lib/cart/store";
 import { formatPrice } from "@/lib/format";
@@ -23,12 +23,20 @@ export function CartContents({ items }: { items: CartItem[] }) {
   );
 
   const lines = pruneLines(cart.lines, known);
-  const hasStaleLines = lines.length !== cart.lines.length;
+  const lineCount = lines.length;
 
-  // Forget lines whose template or bundle has left the catalog.
+  const listRef = useRef<HTMLUListElement>(null);
+  const emptyRef = useRef<HTMLHeadingElement>(null);
+  const [removedAt, setRemovedAt] = useState<number | null>(null);
+
+  // Removing a line unmounts the button that had focus; move focus to the
+  // line that took its place, or to the empty-cart heading.
   useEffect(() => {
-    if (hasStaleLines) cart.replace(pruneLines(cart.lines, known));
-  }, [hasStaleLines, cart, known]);
+    if (removedAt === null) return;
+    const buttons = listRef.current?.querySelectorAll<HTMLButtonElement>("button");
+    const next = buttons?.[Math.min(removedAt, buttons.length - 1)];
+    (next ?? emptyRef.current)?.focus();
+  }, [removedAt, lineCount]);
 
   if (!cart.ready) {
     return <p className="text-muted mt-10">Loading your cart…</p>;
@@ -37,7 +45,9 @@ export function CartContents({ items }: { items: CartItem[] }) {
   if (lines.length === 0) {
     return (
       <div className="border-ink/25 mt-10 rounded-lg border border-dashed px-6 py-16 text-center">
-        <h2 className="text-xl font-semibold">Your cart is empty.</h2>
+        <h2 ref={emptyRef} tabIndex={-1} className="text-xl font-semibold">
+          Your cart is empty.
+        </h2>
         <p className="text-muted mx-auto mt-2 max-w-sm text-sm">
           Browse the catalog or start with a bundle for the phase you are in.
         </p>
@@ -56,8 +66,8 @@ export function CartContents({ items }: { items: CartItem[] }) {
 
   return (
     <div className="mt-10 grid gap-10 lg:grid-cols-[1fr_20rem]">
-      <ul className="divide-rule border-rule divide-y border-y">
-        {rows.map((row) => (
+      <ul ref={listRef} className="divide-rule border-rule divide-y border-y">
+        {rows.map((row, index) => (
           <li
             key={keyOf(row)}
             className="flex flex-wrap items-center justify-between gap-x-6 gap-y-2 py-4"
@@ -79,7 +89,10 @@ export function CartContents({ items }: { items: CartItem[] }) {
                 type="button"
                 className={buttonClass("ghost", "md")}
                 aria-label={`Remove ${row.title}`}
-                onClick={() => cart.remove({ kind: row.kind, slug: row.slug })}
+                onClick={() => {
+                  setRemovedAt(index);
+                  cart.remove({ kind: row.kind, slug: row.slug });
+                }}
               >
                 Remove
               </button>

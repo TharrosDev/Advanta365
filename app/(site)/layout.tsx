@@ -1,12 +1,18 @@
 import type { ReactNode } from "react";
 import { CartButton } from "@/components/cart/cart-button";
+import { CartSync } from "@/components/cart/cart-sync";
 import { BetaBanner } from "@/components/layout/beta-banner";
 import { Footer } from "@/components/layout/footer";
 import { Header } from "@/components/layout/header";
-import { getPhases, hasSampleContent } from "@/lib/catalog/repository";
+import { getBundles, getPhases, getTemplates, hasSampleContent } from "@/lib/catalog/repository";
 
 export default async function SiteLayout({ children }: { children: ReactNode }) {
-  const [phases, isSample] = await Promise.all([getPhases(), hasSampleContent()]);
+  const [phases, isSample, templates, bundles] = await Promise.all([
+    getPhases(),
+    hasSampleContent(),
+    getTemplates(),
+    getBundles(),
+  ]);
 
   return (
     <div className="flex min-h-screen flex-col">
@@ -16,6 +22,7 @@ export default async function SiteLayout({ children }: { children: ReactNode }) 
       >
         Skip to content
       </a>
+      <CartSync templates={templates.map((t) => t.slug)} bundles={bundles.map((b) => b.slug)} />
       {isSample && <BetaBanner />}
       <Header phases={phases} cart={<CartButton />} />
       <main id="main" className="grow">
