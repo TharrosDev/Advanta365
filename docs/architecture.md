@@ -275,7 +275,7 @@ Tokens live in `app/globals.css` under `:root`. The file also imports `app/motio
 | Errors | `--alert`, `--alert-wash` |
 | Overlays | `--scrim`, `--bar-shadow` |
 | Pigments (read by the ink engine) | `--pigment-paper`, `--pigment-binder`, `--pigment-black`, `--pigment-blue`, `--pigment-blue-dark`, `--pigment-pale` |
-| Elevation | `--depth-0` to `--depth-4`, `--depth-on-ink`, `--lift` (alias of `--depth-3`) |
+| Elevation | `--depth-0` to `--depth-4` |
 | Semantic | `--ground`, `--surface`, `--stripe`, `--tile`, `--text`, `--text-soft`, `--text-faint`, `--line`, `--line-firm`, `--line-ink`, `--focus-ring` |
 
 The semantic layer is redefined per band. `[data-band]` sets `background: var(--ground)` and
@@ -292,7 +292,6 @@ Type faces and classes:
 | `.type-poster` | Display | 800 / 0.86 |
 | `.type-hero` | Display | 600 / 1.04 |
 | `.type-statement` | Display | 600 / 1.06 |
-| `.type-figure` | Display | 800 / 0.9 |
 | `.type-banner` | Display | 600 / 1.12 |
 | `.type-page` | Display | 600 / 1.16 |
 | `.type-section` | Display | 600 / 1.24 |
@@ -312,7 +311,7 @@ Spacing uses a 7px module: `--s-1` (0.4375rem) through `--s-9` (10.5rem). Page l
 (77rem), `--page-pad`, `--col-gap`, `--band-pad` (`--s-6`, `--s-7` from 40em), `--bar-h` (3.5rem, 4.375rem
 from 68em) and `--rail-h` (2.625rem). Controls use `--tap` (2.75rem, the minimum target below 68em),
 `--control-sm` (2.5rem, desktop bar only), `--control` (3rem) and `--control-lg` (3.5rem). Shapes use
-`--round-1` to `--round-3`, `--edge` (2px) and `--hair` (1px). Layers are `--layer-over` (5),
+`--round-1` to `--round-3`, `--edge` (2px) and `--hair` (1px). Layers are
 `--layer-bar` (50), `--layer-skip` (90) and `--layer-cover` (100).
 
 Media queries in use: `(min-width: 40em)`, `(min-width: 68em)`, `(hover: hover)`,
@@ -874,7 +873,6 @@ Timing and curve tokens (`app/globals.css`):
 
 | Token | Value | Used for |
 |---|---|---|
-| `--time-press` | 90ms | Pressed states |
 | `--time-swap` | 120ms | Drawer item stagger base |
 | `--time-enter` | 240ms | Tally start delay |
 | `--time-exit` | 160ms | Scrim fade |

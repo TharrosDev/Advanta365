@@ -67,8 +67,6 @@
     0 10px 20px -8px rgb(11 13 18 / 0.12), 0 28px 44px -24px rgb(11 13 18 / 0.14);
   --depth-3: 0 0 0 1px rgb(11 13 18 / 0.05), 0 12px 24px -8px rgb(11 13 18 / 0.18);
   --depth-4: 0 0 0 1px rgb(11 13 18 / 0.05), 0 20px 40px -12px rgb(11 13 18 / 0.24);
-  --depth-on-ink: 0 0 0 1px rgb(255 255 255 / 0.08), 0 20px 40px -12px rgb(0 0 0 / 0.6);
-  --lift: var(--depth-3); /* alias of --depth-3 */
 
   /*
    * Semantic layer: what components read. Each [data-band] redefines it. The focus ring is ink on
@@ -93,7 +91,6 @@
   --size-poster: clamp(7rem, 2.171rem + 19.81vw, 20rem); /* 112 to 320 */
   --size-hero: clamp(2.5rem, 1.5714rem + 3.8095vw, 5rem); /* 40 to 80; 73.9 at 1280 */
   --size-statement: clamp(2.125rem, 1.243rem + 3.619vw, 4.5rem); /* 34 to 72 */
-  --size-figure: clamp(6rem, 3.809rem + 8.989vw, 11rem);
   --size-banner: clamp(2.125rem, 1.5225rem + 2.472vw, 3.5rem);
   --size-page: clamp(1.75rem, 1.4213rem + 1.348vw, 2.5rem);
   --size-section: clamp(1.375rem, 1.2654rem + 0.449vw, 1.625rem);
@@ -143,13 +140,11 @@
   --hair: 1px;
 
   /* Layers (dialogs use the top layer) */
-  --layer-over: 5;
   --layer-bar: 50;
   --layer-skip: 90;
   --layer-cover: 100;
 
   /* Motion: app/motion.css and the modules read these */
-  --time-press: 90ms;
   --time-swap: 120ms;
   --time-enter: 240ms;
   --time-exit: 160ms;
@@ -366,14 +361,6 @@ select {
   letter-spacing: 0;
 }
 
-.type-figure {
-  font-family: var(--face-display);
-  font-size: var(--size-figure);
-  line-height: 0.9;
-  font-weight: 800;
-  letter-spacing: 0;
-}
-
 .type-banner {
   font-family: var(--face-display);
   font-size: var(--size-banner);
@@ -479,7 +466,6 @@ select {
 .type-poster,
 .type-hero,
 .type-statement,
-.type-figure,
 .type-banner,
 .type-page,
 .type-section,

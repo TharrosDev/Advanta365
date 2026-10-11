@@ -49,7 +49,7 @@ Defined on `:root` in `app/globals.css`.
 | `--ink-soft` | `#3a3f4c` | Secondary text. |
 | `--ink-faint` | `#596072` | Tertiary text, captions, counts. |
 | `--mark` | `#86c1ff` | The highlighter. Fills marked blocks and the logo tail. |
-| `--mark-deep` | `#5fa8f5` | A marked fill under the pointer or focus. |
+| `--mark-deep` | `#5fa8f5` | A solid button while pressed; a checked checkbox under the pointer. |
 | `--mark-wash` | `#eaf4ff` | The mark diluted to a ground for the wash band and hover rows. |
 | `--on-mark` | `var(--ink)` | Text on a mark fill. |
 | `--on-ink` | `#ffffff` | Text on an ink fill. |
@@ -192,7 +192,6 @@ Display sizes are fluid. The minimum and maximum below are the rendered sizes.
 | `--size-poster` | 112px | 320px | The 404 numeral and the solution figure. |
 | `--size-hero` | 40px | 80px | The home headline. |
 | `--size-statement` | 34px | 72px | Wide title blocks and statements. |
-| `--size-figure` | 96px | 176px | Large figures. |
 | `--size-banner` | 34px | 56px | Standard page titles and section statements. |
 | `--size-page` | 28px | 40px | Page headings in shelves. |
 | `--size-section` | 22px | 26px | Section headings and large row labels. |
@@ -214,7 +213,6 @@ Apply a class; do not set the family or size by hand.
 | `.type-poster` | Display | 800 | 0.86 | 0 | The largest numeral or word. |
 | `.type-hero` | Display | 600 | 1.04 | 0 | The home headline. |
 | `.type-statement` | Display | 600 | 1.06 | 0 | Statements and wide titles. |
-| `.type-figure` | Display | 800 | 0.9 | 0 | Large figures. |
 | `.type-banner` | Display | 600 | 1.12 | 0 | Page titles and section statements. |
 | `.type-page` | Display | 600 | 1.16 | 0 | Shelf headings. |
 | `.type-section` | Display | 600 | 1.24 | 0 | Section headings. |
@@ -225,13 +223,13 @@ Apply a class; do not set the family or size by hand.
 | `.type-ui` | Text | 600 | 1.375 | 0 | Controls and labels. |
 | `.type-note` | Text | 400 | 1.43 | 0 | Notes and captions. |
 | `.type-eyebrow` | Text | 700 | 1.385 | 0.08em | Uppercase eyebrow. |
-| `.type-tag` | Text | 700 | 1.333 | 0.06em | Uppercase tag. |
+| `.type-tag` | Text | 700 | 1.333 | 0.06em | The uppercase format tag. The saving tag uses `.type-note` and the plain tag `.type-ui`. |
 
 Display classes keep the font's own figures: they set `font-feature-settings: "tnum" 0`, because Besley's tabular zero is drawn thin above weight 600. Use `.tabular` (tabular and lining numerals) on text figures, such as prices and counts in Text-family classes.
 
 Writing rules:
 
-- One `h1` per page. Use `.type-banner` or `.type-hero` for it.
+- One `h1` per page. The home headline uses `.type-hero`; inner page titles use `.type-banner`, or `.type-statement` in the wide title block.
 - Measure body copy with `--wrap-copy` (36rem) and lead copy with `--wrap-lead` (40rem). Headings take `--wrap-head` (22em).
 - Headings use `text-wrap: balance`; paragraphs use `text-wrap: pretty`.
 - Copy uses typographic apostrophes and quotation marks. The content tests reject straight quotes and exclamation marks in copy.
@@ -249,7 +247,7 @@ The space scale runs on a 7px module.
 | `--s-2` | 14px | Row padding, small gaps. |
 | `--s-3` | 21px | Sheet padding (small), block gaps. |
 | `--s-4` | 28px | Sheet padding (large), group gaps. |
-| `--s-5` | 42px | Control minimum, space under a shelf heading. |
+| `--s-5` | 42px | Space under a shelf heading. The minimum target is `--tap` (44px). |
 | `--s-6` | 56px | Band padding (small screens). |
 | `--s-7` | 84px | Band padding (from 40em). |
 | `--s-8` | 112px | Roomy band padding. |
@@ -297,13 +295,12 @@ Two viewport breakpoints exist: `40em` and `68em`. Below 40em is the phone layou
 | --- | --- | --- |
 | `--round-1` | 3px | Tags, counts, small tiles. |
 | `--round-2` | 6px | Pagination and small panels. |
-| `--round-3` | 10px | Sheets and large panels. |
+| `--round-3` | 10px | The top corners of the filter sheet on phones. |
 | `--edge` | 2px | Ink rings and inset borders. |
 | `--hair` | 1px | Hairlines and forced-colour borders. |
 
 | Layer token | Value | Stack order |
 | --- | --- | --- |
-| `--layer-over` | 5 | Overlays on content. |
 | `--layer-bar` | 50 | The sticky bar. |
 | `--layer-skip` | 90 | The skip link. |
 | `--layer-cover` | 100 | The first-load cover. |
@@ -319,9 +316,8 @@ Depth is a shadow scale. Level 0 is a hairline ring, and higher levels lift obje
 | `--depth-0` | Hairline ring | A sheet sitting flat on the desk. |
 | `--depth-1` | Thumbnail or tab | Phase tabs and small covers. |
 | `--depth-2` | At rest | Sheets at rest. The default for `PaperSheet`. |
-| `--depth-3` | Lifted or panel | The purchase panel and lifted sheets. `--lift` is an alias of this level. |
+| `--depth-3` | Lifted or panel | The purchase panel and lifted sheets. |
 | `--depth-4` | Top of a stack | The menu drawer and dialogs. |
-| `--depth-on-ink` | On a black ground | A sheet on the binder: a white hairline and a deep shadow. |
 
 Values, as written in `globals.css`:
 
@@ -333,7 +329,7 @@ Values, as written in `globals.css`:
 --depth-4: 0 0 0 1px rgb(11 13 18 / 0.05), 0 20px 40px -12px rgb(11 13 18 / 0.24);  /* 68em: 4 layers */
 ```
 
-Level 3 and level 4 at 68em are the four-layer forms defined in the same file. Shadows on paper use the ink colour. `--depth-on-ink` is the exception: a white hairline and a black shadow.
+Level 3 and level 4 at 68em are the four-layer forms defined in the same file. Shadows on paper use the ink colour.
 
 ## 8. Motion
 
@@ -360,7 +356,6 @@ Level 3 and level 4 at 68em are the four-layer forms defined in the same file. S
 
 | Token | Value | Use |
 | --- | --- | --- |
-| `--time-press` | 90ms | Press feedback. |
 | `--time-swap` | 120ms | Swapping a state (a tab, an icon). |
 | `--time-enter` | 240ms | Entering a small element. |
 | `--time-exit` | 160ms | Leaving a small element. |
@@ -734,7 +729,7 @@ In stylesheets, the allowed media queries are exactly these, and the design gate
 | `(hover: hover)` | Hover states and the sheet tilt. |
 | `(prefers-reduced-motion: no-preference)` | Every animation and transition. |
 | `(prefers-reduced-motion: reduce)` | The global safety net and the reduced-motion branches. |
-| `(prefers-contrast: more)` | The ink backdrop is hidden, the bar gets a solid ink border, and sheets and the `Sheet` primitive get a solid border. |
+| `(prefers-contrast: more)` | The ink backdrop is hidden, the bar gets a solid ink border, and paper sheets get a solid border. |
 | `(forced-colors: active)` | Blocks use system colours, the backdrop is hidden, and borders use `CanvasText`. |
 | `@container (max-width: 24.3em)`, `(max-width: 21.2em)` (header), `(max-width: 17em)` (nav drawer) | A name that does not fit its container is hidden visually and stays readable to assistive technology. |
 
