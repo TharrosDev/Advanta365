@@ -1,59 +1,44 @@
-import Link from "next/link";
 import type { ReactNode } from "react";
+import { Menu } from "@/components/layout/menu";
+import { PRIMARY_LINKS } from "@/components/layout/nav-links";
+import { TransitionLink } from "@/components/motion/transition-link";
+import { Container } from "@/components/ui/container";
+import { LogoMark } from "@/components/ui/logo-mark";
 import type { Phase } from "@/lib/catalog/schema";
-import { NAV, SITE } from "@/lib/site";
-import { Container } from "./container";
-import { MobileMenu } from "./mobile-menu";
+import { cssVars } from "@/lib/cx";
+import { SITE } from "@/lib/site";
+import styles from "./header.module.css";
 
-const NAV_LINK = "rounded-sm py-2 text-sm font-medium text-ink underline-offset-8 hover:underline";
+/**
+ * Timings of the hand-over from the entry overlay on "/": the mark cross-fades in over the swap time
+ * (the overlay's own swap duration, 200ms), then the brand text follows.
+ */
+const ENTRY_TIMING = cssVars({ "--entry-swap": "200ms", "--entry-brand": "400ms" });
 
-function Logo() {
-  return (
-    <Link href="/" className="font-display text-ink text-2xl font-semibold tracking-tight">
-      Advanta<span className="text-accent">365</span>
-      <span className="sr-only"> — {SITE.tagline}</span>
-    </Link>
-  );
-}
-
+/**
+ * The site header: brand, Menu, cart. It is absolute at the top of the page (it scrolls away, there
+ * is no sticky bar) and has no background, so its colour simply follows the page theme.
+ *
+ * DOM order, visual order and tab order are the same at every width: brand, Menu, cart.
+ */
 export function Header({ phases, cart }: { phases: Phase[]; cart: ReactNode }) {
   return (
-    <header className="border-rule bg-surface border-b">
-      <Container className="flex min-h-16 items-center justify-between gap-4">
-        <Logo />
-        <nav aria-label="Main" className="hidden items-center gap-7 md:flex">
-          {NAV.map((item) => (
-            <Link key={item.href} href={item.href} className={NAV_LINK}>
-              {item.label}
-            </Link>
-          ))}
-        </nav>
-        <div className="flex items-center gap-2">
-          {cart}
-          <MobileMenu />
-        </div>
+    <header className={styles.root} style={ENTRY_TIMING}>
+      <Container className={styles.inner}>
+        <TransitionLink href="/" className={styles.brand}>
+          {/* The entry overlay docks its chrome mark onto this svg (hook: data-site-symbol). */}
+          <span className={styles.symbol} data-site-symbol="">
+            <LogoMark height="1.5em" />
+          </span>
+          <span className={styles.brandText}>{SITE.name}</span>
+        </TransitionLink>
+        <Menu
+          primary={PRIMARY_LINKS}
+          secondary={phases.map((phase) => ({ href: `/phases/${phase.slug}`, label: phase.name }))}
+          contact={{ email: SITE.contactEmail, caption: "For general questions" }}
+        />
+        <div className={styles.cart}>{cart}</div>
       </Container>
-
-      <div className="border-rule bg-bg border-t">
-        <Container>
-          <nav
-            aria-label="Rollout phases"
-            className="flex items-center gap-x-1 overflow-x-auto py-1 text-sm"
-          >
-            <span className="text-muted mr-2 hidden shrink-0 sm:inline">Browse by phase</span>
-            {phases.map((phase, index) => (
-              <Link
-                key={phase.slug}
-                href={`/phases/${phase.slug}`}
-                className="text-ink hover:bg-accent-soft flex min-h-10 shrink-0 items-center gap-2 rounded-md px-2 font-medium"
-              >
-                <span className="font-display text-accent tabular-nums">{index + 1}</span>
-                {phase.name}
-              </Link>
-            ))}
-          </nav>
-        </Container>
-      </div>
     </header>
   );
 }

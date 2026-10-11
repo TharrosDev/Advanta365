@@ -1,8 +1,13 @@
 import type { Metadata } from "next";
 import { BundleCard } from "@/components/catalog/bundle-card";
-import { Container } from "@/components/layout/container";
+import { PageTitle } from "@/components/layout/page-title";
+import { Reveal } from "@/components/motion/reveal";
+import { RevealGroup } from "@/components/motion/reveal-group";
+import { Container } from "@/components/ui/container";
+import { PageShell } from "@/components/ui/page-shell";
 import { bundleSavingsCents } from "@/lib/catalog/pricing";
 import { getBundleTemplates, getBundles } from "@/lib/catalog/repository";
+import styles from "./page.module.css";
 
 export const metadata: Metadata = {
   title: "Bundles",
@@ -21,19 +26,25 @@ export default async function BundlesPage() {
   );
 
   return (
-    <Container className="py-10 sm:py-14">
-      <h1 className="text-4xl font-semibold">Bundles</h1>
-      <p className="text-muted mt-3 max-w-2xl">
-        Curated sets for a whole phase or a whole rollout. Each bundle costs less than its templates
-        bought one at a time.
-      </p>
-      <ul className="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-        {cards.map(({ bundle, count, savings }) => (
-          <li key={bundle.slug}>
-            <BundleCard bundle={bundle} templateCount={count} savingsCents={savings} />
-          </li>
-        ))}
-      </ul>
-    </Container>
+    <PageShell>
+      <PageTitle
+        title="Bundles"
+        lead="Curated sets for a whole phase or a whole rollout. Each bundle costs less than its templates bought one at a time."
+      />
+      <Container className={styles.block}>
+        <RevealGroup as="ul" className={styles.grid}>
+          {cards.map(({ bundle, count, savings }, index) => (
+            <Reveal key={bundle.slug} as="li" effect="fade-up" index={index % 2}>
+              <BundleCard
+                bundle={bundle}
+                templateCount={count}
+                savingsCents={savings}
+                headingLevel="h2"
+              />
+            </Reveal>
+          ))}
+        </RevealGroup>
+      </Container>
+    </PageShell>
   );
 }

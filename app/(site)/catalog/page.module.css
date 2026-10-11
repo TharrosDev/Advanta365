@@ -1,0 +1,52 @@
+/* The page body under the title: filters on the left from 1024px, results on the right. */
+.layout {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-xl);
+  padding-bottom: var(--spacing-xl3);
+}
+
+.rail {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-sm);
+  min-width: 0;
+}
+
+.results {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-sm);
+  min-width: 0;
+}
+
+/* the hairline on top comes from the global `.ruled` class */
+.count {
+  padding-block: var(--spacing-xs);
+}
+
+@media (min-width: 768px) {
+  .layout {
+    padding-bottom: var(--spacing-xl6);
+  }
+}
+
+@media (min-width: 1024px) {
+  .layout {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 3fr);
+    column-gap: var(--spacing-xl);
+    align-items: start;
+  }
+
+  /* Sticky, and scrolls inside itself when the groups are taller than the screen. The small
+     padding keeps the focus rings of the first column inside the scroll box. */
+  .rail {
+    position: sticky;
+    top: var(--spacing-xl);
+    max-height: calc(var(--viewport-height) - var(--spacing-xl3));
+    margin-inline-start: calc(-1 * var(--spacing-xs3));
+    padding: var(--spacing-xs3) var(--spacing-xs2) var(--spacing-xs3) var(--spacing-xs3);
+    overflow-y: auto;
+  }
+}

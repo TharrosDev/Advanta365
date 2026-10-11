@@ -1,0 +1,42 @@
+.root {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-xl);
+}
+
+/* 1 / 2 / 3 columns; rows breathe more once the grid has more than one column */
+.grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--spacing-xl);
+}
+
+/* The empty state: a ruled block with a statement, one line of help and the way out. */
+.empty {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--spacing-md);
+  padding-block: var(--spacing-xl) var(--spacing-xl3);
+}
+
+.emptyBody {
+  max-width: var(--measure-body);
+}
+
+@media (min-width: 768px) {
+  .root {
+    gap: var(--spacing-xl3);
+  }
+
+  .grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    row-gap: var(--spacing-xl3);
+  }
+}
+
+@media (min-width: 1024px) {
+  .grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}

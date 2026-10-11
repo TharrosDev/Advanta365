@@ -1,0 +1,128 @@
+/* ---- Two ways to buy ---- */
+
+.ways.ways {
+  gap: var(--spacing-xl2);
+}
+
+.waysGrid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 0;
+}
+
+/* a ruled column: the hairline on top comes from the global .ruled class */
+.way {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--spacing-sm);
+  padding-block: var(--spacing-sm) var(--spacing-xl3);
+}
+
+.wayBody {
+  max-width: var(--measure-card-body);
+}
+
+/* ---- Bundle prices ---- */
+
+.pricesGroup {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-xl2);
+}
+
+.pricesBody {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--spacing-xl2);
+}
+
+.tableScroll {
+  width: 100%;
+  overflow-x: auto;
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: start;
+}
+
+.head {
+  padding: 0 0 var(--spacing-xs2);
+  border-bottom: 1px solid var(--color-foreground-100);
+  font-weight: inherit;
+  text-align: start;
+  white-space: nowrap;
+}
+
+.row {
+  border-bottom: 1px solid var(--color-foreground-20);
+}
+
+.name {
+  padding: var(--spacing-xs) 0;
+  font-weight: inherit;
+  text-align: start;
+}
+
+/* the gap before a numeric cell comes from .number below, so only the block and end padding are set */
+.row td {
+  padding-block: var(--spacing-xs);
+  padding-inline-end: 0;
+}
+
+/* the numeric columns: right-aligned, never wrapped, a fixed gap from the column before */
+.number {
+  padding-inline-start: var(--spacing-md);
+  text-align: end;
+  white-space: nowrap;
+}
+
+.link {
+  text-decoration: none;
+}
+
+.link:hover,
+.link:focus-visible {
+  text-decoration: underline;
+  text-underline-position: from-font;
+}
+
+/* ---- Questions ---- */
+
+.faq.faq {
+  gap: var(--spacing-xl3);
+}
+
+/* doubled: the global `ul[class]` reset (margin 0) would otherwise win over the centring margin */
+.faqList.faqList {
+  width: 100%;
+  max-width: var(--measure-prose);
+  margin-inline: auto;
+}
+
+/* ---- Closing row ---- */
+
+.cta {
+  padding-block: var(--spacing-xl3) var(--spacing-xl4);
+}
+
+@media (min-width: 768px) {
+  .waysGrid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--spacing-xl);
+  }
+
+  .cta {
+    padding-block: var(--spacing-xl4) var(--spacing-xl6);
+  }
+}
+
+@media (min-width: 1024px) {
+  .pricesBody {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    column-gap: var(--spacing-xl);
+    align-items: start;
+  }
+}

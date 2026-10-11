@@ -1,0 +1,114 @@
+.row {
+  position: relative;
+  display: grid;
+  grid-template-columns: 16px 1fr auto;
+  gap: var(--spacing-xs);
+  align-items: center;
+  min-height: var(--touch-target);
+}
+
+/* The real control: invisible, on top of the whole row, so every click and tap hits the input. */
+.input {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  opacity: 0;
+  cursor: pointer;
+}
+
+.box {
+  position: relative;
+  display: block;
+  width: 16px;
+  height: 16px;
+  border: 1px solid var(--color-foreground-40);
+}
+
+/* The fill: wiped in from the left when checked. Covers the border so the box reads as solid. */
+.box::before {
+  content: "";
+  position: absolute;
+  inset: -1px;
+  background: var(--color-foreground-100);
+  clip-path: inset(0 100% 0 0);
+  transition: clip-path var(--duration-slow) var(--easing-emphasized);
+}
+
+/* The check: two sides of a rotated box, in the surface colour so the passing fill uncovers it. */
+.box::after {
+  content: "";
+  position: absolute;
+  top: 1px;
+  left: 4.5px;
+  width: 5px;
+  height: 9px;
+  border: solid var(--color-background-100);
+  border-width: 0 2px 2px 0;
+  rotate: 45deg;
+  opacity: 0;
+  /* Unchecking: stay until the fill has wiped away. */
+  transition: opacity 0s linear var(--duration-slow);
+}
+
+.input:checked + .box {
+  border-color: var(--color-foreground-100);
+}
+
+.input:checked + .box::before {
+  clip-path: inset(0);
+}
+
+.input:checked + .box::after {
+  opacity: 1;
+  transition-delay: 0s;
+}
+
+.input:focus-visible + .box {
+  outline: 2px solid var(--color-foreground-100);
+  outline-offset: 2px;
+}
+
+.label {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.count {
+  text-align: end;
+}
+
+@media (hover: hover) {
+  .input:not(:disabled):hover + .box {
+    border-color: var(--color-foreground-100);
+  }
+
+  .input:not(:disabled):hover ~ .label {
+    text-decoration: underline;
+    text-underline-position: from-font;
+  }
+}
+
+.disabled .input {
+  cursor: default;
+}
+
+.disabled .label,
+.disabled .count {
+  color: var(--color-foreground-30);
+}
+
+@media (min-width: 1024px) {
+  .row {
+    min-height: 36px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .box::before,
+  .box::after {
+    transition: none;
+  }
+}

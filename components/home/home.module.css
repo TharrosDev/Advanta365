@@ -1,0 +1,328 @@
+/*
+ * Layout of the home page sections. Every class here is the `innerClassName` (or a wrapper class) of
+ * a section, so the selectors that override a primitive are doubled (`.hero.hero`): the primitive's
+ * own rule would otherwise win or lose depending on stylesheet order. Tokens only; no raw colours.
+ * Breakpoints: 768px and 1024px.
+ */
+
+/* ---------------------------------------------------------------- hero */
+
+/* Parent of the HeroLiquid layers: positioned, clipped sideways only (the ribbons bleed 25% below). */
+.hero.hero {
+  position: relative;
+  min-height: var(--viewport-height);
+  gap: var(--spacing-xl3);
+  padding-top: calc(var(--site-header-height) + var(--spacing-xl));
+  overflow-x: clip;
+}
+
+/*
+ * Above the ribbons: the layers before it are absolutely positioned, so this paints on top of them.
+ * The measures are the reference's (440 / 620 / 900px) plus 64px from 768px: our headline is longer
+ * and set in Instrument Sans, whose first line ("Change management templates") is about 935px at 64px,
+ * so 900px would break it into three lines at 1280px instead of two.
+ */
+.heroTitle {
+  position: relative;
+  max-width: var(--measure-body);
+}
+
+.heroCta {
+  position: relative;
+  align-self: flex-start;
+}
+
+/* ------------------------------------------------------------- phases */
+
+.phases.phases {
+  justify-content: center;
+  gap: var(--spacing-xl);
+}
+
+.phasesGrid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--spacing-xl);
+  width: 100%;
+  margin-top: var(--spacing-xl6);
+}
+
+.phasesList {
+  display: flex;
+  flex-direction: column;
+}
+
+/* --------------------------------------------------------------- bundles */
+
+.bundles.bundles {
+  justify-content: center;
+  gap: var(--spacing-xl7);
+}
+
+.bundlesIntro p {
+  max-width: var(--measure-body-sm);
+}
+
+.bundlesBlock {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-xl);
+  width: 100%;
+}
+
+.bundlesGrid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--spacing-xl);
+  width: 100%;
+}
+
+/* The "All bundles" / "All templates" link under a grid. */
+.sectionAction {
+  display: flex;
+  justify-content: flex-start;
+}
+
+/* -------------------------------------------------------------- featured */
+
+.featured.featured {
+  gap: var(--spacing-xl3);
+  padding-block: var(--spacing-xl3) var(--spacing-xl6);
+}
+
+.featuredBlock {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-xl3);
+  width: 100%;
+}
+
+.cardGrid {
+  display: grid;
+  grid-template-columns: 1fr;
+  column-gap: var(--spacing-xl);
+  row-gap: var(--spacing-xl);
+  width: 100%;
+}
+
+/* -------------------------------------------------------------- practice */
+
+/*
+ * Pauses its reveals until ThemeScroll marks #practice (the section the wrapper sits in) as in view,
+ * i.e. when the page has turned dark. The wrapper carries data-reveal-group so the no-script rule of
+ * the root layout releases it. Same specificity as the paused rule, declared later, so it wins.
+ */
+.practiceIntro {
+  --reveal-play: paused;
+
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+}
+
+[data-in-view] .practiceIntro {
+  --reveal-play: running;
+}
+
+/* Three rows: the label on top, the text block centred in the auto row, an empty balancing row. */
+.practiceGrid.practiceGrid {
+  display: grid;
+  flex: 1;
+  grid-template-rows: 1fr auto 1fr;
+  row-gap: var(--spacing-xl);
+}
+
+.practiceGrid.practiceGrid > :first-child {
+  align-self: start;
+}
+
+.practiceGrid.practiceGrid > :last-child {
+  gap: calc(var(--spacing-md) * 2);
+}
+
+.practiceActions {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--spacing-md) var(--spacing-xl);
+}
+
+/* --------------------------------------------------------------- values */
+
+.values.values {
+  justify-content: center;
+  gap: calc(var(--spacing-md) * 2);
+}
+
+.valuesGrid {
+  display: grid;
+  grid-template-columns: 1fr;
+  width: 100%;
+}
+
+/* Content sits on the bottom edge of the cell, so the hairlines land at different heights. */
+.valuesCell {
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  min-height: calc(var(--viewport-height) * 0.42);
+}
+
+.valuesCellContent,
+.valuesIconFrame {
+  display: flex;
+  flex-direction: column;
+}
+
+.valuesIcon {
+  align-self: flex-start;
+  height: var(--spacing-xl3);
+  width: auto;
+  margin-bottom: var(--spacing-sm);
+  color: var(--color-foreground-100);
+}
+
+/* ------------------------------------------------------------- built for */
+
+/* A band as tall as its content on phones; half a viewport from 768px. */
+.builtFor.builtFor {
+  min-height: 0;
+  justify-content: center;
+  align-items: center;
+  padding-block: var(--spacing-xl5);
+}
+
+.builtForBand {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--spacing-sm);
+}
+
+.builtForLabel {
+  white-space: nowrap;
+}
+
+.chips {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: var(--spacing-xs2);
+}
+
+/* ------------------------------------------------------------------ 768 */
+
+@media (min-width: 768px) {
+  .hero.hero {
+    gap: var(--spacing-xl2);
+  }
+
+  .heroTitle {
+    max-width: calc(var(--measure-hero) + var(--spacing-xl3));
+  }
+
+  .phases.phases {
+    justify-content: flex-start;
+  }
+
+  .phasesGrid {
+    margin-top: var(--spacing-xl);
+  }
+
+  .phasesList {
+    gap: var(--spacing-xl);
+  }
+
+  .bundles.bundles {
+    justify-content: space-between;
+    gap: var(--spacing-xl3);
+  }
+
+  .cardGrid {
+    grid-template-columns: repeat(2, 1fr);
+    row-gap: var(--spacing-xl3);
+  }
+
+  .practiceGrid.practiceGrid > :last-child {
+    gap: var(--spacing-xl);
+  }
+
+  .practiceActions {
+    flex-flow: row wrap;
+  }
+
+  .values.values {
+    gap: var(--spacing-xl);
+  }
+
+  .valuesGrid {
+    gap: var(--spacing-xl);
+  }
+
+  .valuesCell {
+    min-height: 0;
+  }
+
+  .valuesIcon {
+    margin-bottom: var(--spacing-md);
+  }
+
+  .builtFor.builtFor {
+    min-height: calc(var(--viewport-height) / 2);
+    padding-block: var(--spacing-xl3);
+  }
+
+  .builtForBand {
+    flex-flow: row wrap;
+    gap: var(--spacing-xl);
+  }
+}
+
+/* ----------------------------------------------------------------- 1024 */
+
+@media (min-width: 1024px) {
+  .heroTitle {
+    max-width: calc(var(--measure-hero-wide) + var(--spacing-xl3));
+  }
+
+  /*
+   * The intro stays pinned while the cards scroll past on the right. Capped to the left grid column:
+   * the title is wider than the reference's and would otherwise run into the list.
+   */
+  .phasesIntro {
+    position: sticky;
+    top: var(--spacing-xl3);
+    align-self: start;
+    max-width: calc((100% - var(--spacing-xl)) / 2);
+  }
+
+  .phasesGrid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .phasesList {
+    grid-column: 2;
+  }
+
+  .bundlesGrid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+
+  .cardGrid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+
+  .valuesGrid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+
+  .valuesCell {
+    min-height: calc(var(--viewport-height) / 2);
+  }
+
+  .valuesIcon {
+    height: var(--spacing-xl5);
+  }
+}

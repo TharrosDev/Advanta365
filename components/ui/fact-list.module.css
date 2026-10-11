@@ -1,0 +1,23 @@
+.root {
+  margin: 0;
+  border-top: 1px solid var(--color-foreground-100);
+}
+
+.row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 2fr);
+  gap: var(--spacing-sm);
+  align-items: baseline;
+  padding-block: var(--spacing-xs);
+  border-bottom: 1px solid var(--color-foreground-20);
+}
+
+.row > dd {
+  overflow-wrap: anywhere;
+}
+
+@media (min-width: 768px) {
+  .row {
+    gap: var(--spacing-xl);
+  }
+}

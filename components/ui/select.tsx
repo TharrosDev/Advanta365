@@ -1,16 +1,23 @@
 import type { SelectHTMLAttributes } from "react";
+import { ArrowIcon } from "@/components/ui/arrow-icon";
+import { cx } from "@/lib/cx";
+import styles from "./select.module.css";
 
+/**
+ * A native `<select>` in the hairline field style with the site arrow as its indicator. `className` lands
+ * on the wrapper; every other prop goes to the `<select>`.
+ */
 export function Select({
-  className = "",
+  className,
   children,
   ...rest
-}: SelectHTMLAttributes<HTMLSelectElement>) {
+}: SelectHTMLAttributes<HTMLSelectElement> & { className?: string }) {
   return (
-    <select
-      className={`border-ink/25 bg-surface text-ink min-h-11 rounded-md border px-3 text-sm ${className}`.trim()}
-      {...rest}
-    >
-      {children}
-    </select>
+    <span className={cx(styles.wrap, className)}>
+      <select {...rest} className={styles.select}>
+        {children}
+      </select>
+      <ArrowIcon direction="down" size={14} className={styles.arrow} />
+    </span>
   );
 }

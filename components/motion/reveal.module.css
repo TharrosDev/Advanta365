@@ -1,0 +1,109 @@
+/*
+ * Reveal system: pure CSS entrance animations.
+ *
+ * An element is hidden by the 0% keyframe (fill-mode both), never by display or visibility, so the
+ * server HTML already paints the hidden state. An ancestor pauses its reveals by setting the
+ * inherited custom property --reveal-play to paused and releases them with running (.group does
+ * that on data-in-view). Stagger is the integer --stagger written inline by the Reveal component.
+ *
+ * Tunable from an ancestor or from the element itself: --reveal-duration, --reveal-delay.
+ */
+
+.root {
+  --stagger: 0;
+  --reveal-step: var(--reveal-stagger);
+  animation-duration: var(--reveal-duration);
+  animation-timing-function: var(--easing-emphasized);
+  animation-delay: calc(var(--reveal-delay) + var(--stagger) * var(--reveal-step));
+  animation-fill-mode: both;
+  animation-play-state: var(--reveal-play, running);
+}
+
+.fine {
+  --reveal-step: var(--reveal-stagger-fine);
+}
+
+/* Text mask: the word climbs out of an invisible line. Inline text only. */
+.rise {
+  display: inline-block;
+  animation-name: reveal-rise;
+}
+
+.fade {
+  animation-name: reveal-fade;
+}
+
+.fadeUp {
+  animation-name: reveal-fade-up;
+}
+
+.wipe {
+  overflow: hidden;
+  animation-name: reveal-wipe;
+}
+
+@keyframes reveal-rise {
+  from {
+    clip-path: inset(0 0 100%);
+    translate: 0 1em;
+  }
+
+  to {
+    clip-path: inset(-0.5em);
+    translate: 0;
+  }
+}
+
+@keyframes reveal-fade {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes reveal-fade-up {
+  from {
+    opacity: 0;
+    translate: 0 1em;
+  }
+
+  to {
+    opacity: 1;
+    translate: 0;
+  }
+}
+
+@keyframes reveal-wipe {
+  from {
+    opacity: 0;
+    clip-path: inset(0 100% 0 0);
+  }
+
+  to {
+    opacity: 1;
+    clip-path: inset(0);
+  }
+}
+
+/* While the entry overlay is up every reveal holds its first frame, grouped or not. */
+:root[data-entry] .root {
+  animation-play-state: paused;
+}
+
+/* RevealGroup: descendants wait until the group has scrolled into view (one-shot). */
+.group {
+  --reveal-play: paused;
+}
+
+.group[data-in-view] {
+  --reveal-play: running;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .root {
+    animation: none;
+  }
+}

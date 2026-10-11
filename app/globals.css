@@ -1,58 +1,645 @@
-@import "tailwindcss";
+/*
+ * Advanta365 design tokens, themes, base rules and global utilities.
+ *
+ * This is the only stylesheet that may hold raw colour values, global-only selectors and @property
+ * registrations. Components style themselves in CSS Modules and read everything from the tokens below.
+ * There is no accent colour, no radius and no prefers-color-scheme rule: the dark theme exists only as
+ * [data-theme].
+ */
 
-/* Design tokens. Every color in the UI comes from here, so a dark theme can be
-   added later by redefining these values. */
-@theme {
-  --color-bg: #fbfaf7;
-  --color-surface: #ffffff;
-  --color-ink: #1b1f23;
-  --color-muted: #5a6068;
-  --color-rule: #e3dfd6;
-  --color-accent: #1f4b43;
-  --color-accent-hover: #17392f;
-  --color-accent-ink: #ffffff;
-  --color-accent-soft: #e8efec;
+/* ------------------------------------------------------------------------------------------------
+   1. Colour tokens as registered properties, so a theme change can cross-fade
+   ------------------------------------------------------------------------------------------------ */
+
+@property --color-background-5 {
+  syntax: "<color>";
+  inherits: true;
+  initial-value: #ffffff0d;
+}
+@property --color-background-10 {
+  syntax: "<color>";
+  inherits: true;
+  initial-value: #ffffff1a;
+}
+@property --color-background-20 {
+  syntax: "<color>";
+  inherits: true;
+  initial-value: #ffffff33;
+}
+@property --color-background-30 {
+  syntax: "<color>";
+  inherits: true;
+  initial-value: #ffffff4d;
+}
+@property --color-background-40 {
+  syntax: "<color>";
+  inherits: true;
+  initial-value: #ffffff66;
+}
+@property --color-background-50 {
+  syntax: "<color>";
+  inherits: true;
+  initial-value: #ffffff80;
+}
+@property --color-background-60 {
+  syntax: "<color>";
+  inherits: true;
+  initial-value: #ffffff99;
+}
+@property --color-background-80 {
+  syntax: "<color>";
+  inherits: true;
+  initial-value: #ffffffcc;
+}
+@property --color-background-100 {
+  syntax: "<color>";
+  inherits: true;
+  initial-value: #fff;
+}
+@property --color-foreground-5 {
+  syntax: "<color>";
+  inherits: true;
+  initial-value: #1818180d;
+}
+@property --color-foreground-10 {
+  syntax: "<color>";
+  inherits: true;
+  initial-value: #1818181a;
+}
+@property --color-foreground-20 {
+  syntax: "<color>";
+  inherits: true;
+  initial-value: #18181833;
+}
+@property --color-foreground-30 {
+  syntax: "<color>";
+  inherits: true;
+  initial-value: #1818184d;
+}
+@property --color-foreground-40 {
+  syntax: "<color>";
+  inherits: true;
+  initial-value: #18181866;
+}
+@property --color-foreground-50 {
+  syntax: "<color>";
+  inherits: true;
+  initial-value: #18181880;
+}
+@property --color-foreground-60 {
+  syntax: "<color>";
+  inherits: true;
+  initial-value: #18181899;
+}
+@property --color-foreground-80 {
+  syntax: "<color>";
+  inherits: true;
+  initial-value: #181818cc;
+}
+@property --color-foreground-100 {
+  syntax: "<color>";
+  inherits: true;
+  initial-value: #181818;
 }
 
-@theme inline {
-  --font-display: var(--font-source-serif), Georgia, "Times New Roman", serif;
-  --font-sans: var(--font-inter), system-ui, -apple-system, "Segoe UI", sans-serif;
+/* ------------------------------------------------------------------------------------------------
+   2. Tokens
+   ------------------------------------------------------------------------------------------------ */
+
+:root {
+  /* Base colours. White and black are theme-independent on purpose (difference blends, site frame). */
+  --base-color-white: #fff;
+  --base-color-black: #000;
+  --base-color-ink: #181818;
+
+  /* Semantic ramps, light theme. The step is the alpha in percent. */
+  --color-background-5: #ffffff0d;
+  --color-background-10: #ffffff1a;
+  --color-background-20: #ffffff33;
+  --color-background-30: #ffffff4d;
+  --color-background-40: #ffffff66;
+  --color-background-50: #ffffff80;
+  --color-background-60: #ffffff99;
+  --color-background-80: #ffffffcc;
+  --color-background-100: #fff;
+  --color-foreground-5: #1818180d;
+  --color-foreground-10: #1818181a;
+  --color-foreground-20: #18181833;
+  --color-foreground-30: #1818184d;
+  --color-foreground-40: #18181866;
+  --color-foreground-50: #18181880;
+  --color-foreground-60: #18181899;
+  --color-foreground-80: #181818cc;
+  --color-foreground-100: #181818;
+  color-scheme: light;
+
+  /* Spacing */
+  --spacing-xs3: 4px;
+  --spacing-xs2: 8px;
+  --spacing-xs: 12px;
+  --spacing-sm: 16px;
+  --spacing-md: 24px;
+  --spacing-xl: 32px;
+  --spacing-xl2: 40px;
+  --spacing-xl3: 64px;
+  --spacing-xl4: 80px;
+  --spacing-xl5: 96px;
+  --spacing-xl6: 128px;
+  --spacing-xl7: 160px;
+  --spacing-xl8: 192px;
+  --spacing-xl9: 256px;
+
+  /* Type scale */
+  --text-display-extra-large-size: 5rem;
+  --text-display-extra-large-line-height: 1;
+  --text-display-extra-large-letter-spacing: -0.03em;
+  --text-display-large-size: 4rem;
+  --text-display-large-line-height: 1;
+  --text-display-large-letter-spacing: -0.016em;
+  --text-display-medium-size: 3rem;
+  --text-display-medium-line-height: 1.05;
+  --text-display-medium-letter-spacing: -0.02em;
+  --text-display-small-size: 2.5rem;
+  --text-display-small-line-height: 1.05;
+  --text-display-small-letter-spacing: -0.02em;
+  --text-headline-large-size: 2rem;
+  --text-headline-large-line-height: 1.2;
+  --text-headline-large-letter-spacing: -0.03em;
+  --text-headline-medium-size: 1.75rem;
+  --text-headline-medium-line-height: 1.2;
+  --text-headline-medium-letter-spacing: -0.03em;
+  --text-headline-small-size: 1.5rem;
+  --text-headline-small-line-height: 1.25;
+  --text-headline-small-letter-spacing: -0.03em;
+  --text-title-large-size: 1.375rem;
+  --text-title-large-line-height: 1.3;
+  --text-title-large-letter-spacing: -0.02em;
+  --text-title-medium-size: 1rem;
+  --text-title-medium-line-height: 1.3;
+  --text-title-medium-letter-spacing: -0.03em;
+  --text-title-small-size: 0.875rem;
+  --text-title-small-line-height: 1.3;
+  --text-title-small-letter-spacing: -0.02em;
+  --text-body-large-size: 1rem;
+  --text-body-large-line-height: 1.3;
+  --text-body-large-letter-spacing: -0.03em;
+  --text-body-medium-size: 0.875rem;
+  --text-body-medium-line-height: 1.4;
+  --text-body-medium-letter-spacing: -0.02em;
+  --text-body-small-size: 0.75rem;
+  --text-body-small-line-height: 1.3;
+  --text-body-small-letter-spacing: -0.03em;
+  --text-label-large-size: 0.875rem;
+  --text-label-large-line-height: 1.3;
+  --text-label-large-letter-spacing: -0.02em;
+  --text-label-medium-size: 0.75rem;
+  --text-label-medium-line-height: 1.3;
+  --text-label-medium-letter-spacing: -0.03em;
+  --text-label-small-size: 0.6875rem;
+  --text-label-small-line-height: 1.3;
+  --text-label-small-letter-spacing: -0.02em;
+  --font-family-sans:
+    var(--font-instrument-sans), "Instrument Sans", ui-sans-serif, system-ui, -apple-system,
+    "Segoe UI", Helvetica, Arial, sans-serif;
+
+  /* Motion */
+  --duration-instant: 0s;
+  --duration-fast: 0.1s;
+  --duration-normal: 0.2s;
+  --duration-slow: 0.3s;
+  --duration-slower: 0.5s;
+  --duration-theme: 0.4s;
+  --easing-in: cubic-bezier(0.4, 0, 1, 1);
+  --easing-out: cubic-bezier(0, 0, 0.2, 1);
+  --easing-in-out: cubic-bezier(0.4, 0, 0.2, 1);
+  --easing-smooth: cubic-bezier(0.16, 1, 0.3, 1);
+  --easing-snappy: cubic-bezier(0.2, 0, 0, 1);
+  --easing-emphasized: cubic-bezier(0.3, 0, 0, 1);
+  --reveal-duration: 0.75s;
+  --reveal-delay: 0.25s;
+  --reveal-stagger: 0.1s;
+  --reveal-stagger-fine: 50ms;
+
+  /* Layout */
+  --container-prose: 736px;
+  --container-narrow: 1024px;
+  --container-wide: 1120px;
+  --container-content: 2000px;
+  --measure-hero: 620px;
+  --measure-hero-wide: 900px;
+  --measure-heading: 900px;
+  --measure-statement: 938px;
+  --measure-heading-centered: 760px;
+  --measure-body: 440px;
+  --measure-body-sm: 360px;
+  --measure-intro: 380px;
+  --measure-card-body: 366px;
+  --measure-card-body-sm: 232px;
+  --measure-prose: 640px;
+  --measure-menu: 502px;
+  /* Overwritten in px on <html> by ViewportLock. */
+  --viewport-height: 100svh;
+  /* 2 x 32px + one body-large line = 84.8px. */
+  --site-header-height: calc(
+    var(--spacing-xl) * 2 + var(--text-body-large-size) * var(--text-body-large-line-height)
+  );
+  --touch-target: 44px;
+
+  /* Z-index scale */
+  --z-swirl: 0;
+  --z-section: 1;
+  --z-site-frame: 4;
+  --z-page-fade: 5;
+  --z-header: 10;
+  --z-overlay: 20;
+  --z-skip: 30;
+  --z-entry: 100;
 }
 
-@layer base {
-  html {
-    scroll-behavior: smooth;
-  }
+/* ------------------------------------------------------------------------------------------------
+   3. Themes. Order matters: light root, dark / invert, light / invert-in-dark, invert-in-light.
+   ------------------------------------------------------------------------------------------------ */
 
-  body {
-    background: var(--color-bg);
-    color: var(--color-ink);
-    font-family: var(--font-sans);
-    line-height: 1.6;
-    -webkit-font-smoothing: antialiased;
-  }
+[data-theme="dark"],
+[data-theme="invert"] {
+  --color-background-5: #1818180d;
+  --color-background-10: #1818181a;
+  --color-background-20: #18181833;
+  --color-background-30: #1818184d;
+  --color-background-40: #18181866;
+  --color-background-50: #18181880;
+  --color-background-60: #18181899;
+  --color-background-80: #181818cc;
+  --color-background-100: #181818;
+  --color-foreground-5: #ffffff0d;
+  --color-foreground-10: #ffffff1a;
+  --color-foreground-20: #ffffff33;
+  --color-foreground-30: #ffffff4d;
+  --color-foreground-40: #ffffff66;
+  --color-foreground-50: #ffffff80;
+  --color-foreground-60: #ffffff99;
+  --color-foreground-80: #ffffffcc;
+  --color-foreground-100: #fff;
+  color-scheme: dark;
+}
 
-  h1,
-  h2,
-  h3 {
-    font-family: var(--font-display);
-    line-height: 1.15;
-    letter-spacing: -0.01em;
-    text-wrap: balance;
-  }
+[data-theme="light"],
+[data-theme="dark"] [data-theme="invert"] {
+  --color-background-5: #ffffff0d;
+  --color-background-10: #ffffff1a;
+  --color-background-20: #ffffff33;
+  --color-background-30: #ffffff4d;
+  --color-background-40: #ffffff66;
+  --color-background-50: #ffffff80;
+  --color-background-60: #ffffff99;
+  --color-background-80: #ffffffcc;
+  --color-background-100: #fff;
+  --color-foreground-5: #1818180d;
+  --color-foreground-10: #1818181a;
+  --color-foreground-20: #18181833;
+  --color-foreground-30: #1818184d;
+  --color-foreground-40: #18181866;
+  --color-foreground-50: #18181880;
+  --color-foreground-60: #18181899;
+  --color-foreground-80: #181818cc;
+  --color-foreground-100: #181818;
+  color-scheme: light;
+}
 
-  :focus-visible {
-    outline: 2px solid var(--color-accent);
-    outline-offset: 2px;
-    border-radius: 2px;
-  }
+[data-theme="light"] [data-theme="invert"] {
+  --color-background-5: #1818180d;
+  --color-background-10: #1818181a;
+  --color-background-20: #18181833;
+  --color-background-30: #1818184d;
+  --color-background-40: #18181866;
+  --color-background-50: #18181880;
+  --color-background-60: #18181899;
+  --color-background-80: #181818cc;
+  --color-background-100: #181818;
+  --color-foreground-5: #ffffff0d;
+  --color-foreground-10: #ffffff1a;
+  --color-foreground-20: #ffffff33;
+  --color-foreground-30: #ffffff4d;
+  --color-foreground-40: #ffffff66;
+  --color-foreground-50: #ffffff80;
+  --color-foreground-60: #ffffff99;
+  --color-foreground-80: #ffffffcc;
+  --color-foreground-100: #fff;
+  color-scheme: dark;
+}
 
-  @media (prefers-reduced-motion: reduce) {
-    html {
-      scroll-behavior: auto;
-    }
-    * {
-      transition-duration: 0.01ms !important;
-    }
+/*
+ * Static sheen fallback for SheenText. A custom property that references other custom properties is
+ * resolved on the element that declares it, so it is declared on every theme scope (not only on :root)
+ * to follow the colours of a nested dark or light section.
+ */
+:root,
+[data-theme] {
+  --gradient-sheen: linear-gradient(
+    100deg,
+    var(--color-foreground-100) 0%,
+    var(--color-foreground-100) 36%,
+    var(--color-foreground-40) 50%,
+    var(--color-foreground-100) 64%,
+    var(--color-foreground-100) 100%
+  );
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  :root,
+  [data-theme] {
+    transition-property:
+      --color-background-5, --color-background-10, --color-background-20, --color-background-30,
+      --color-background-40, --color-background-50, --color-background-60, --color-background-80,
+      --color-background-100, --color-foreground-5, --color-foreground-10, --color-foreground-20,
+      --color-foreground-30, --color-foreground-40, --color-foreground-50, --color-foreground-60,
+      --color-foreground-80, --color-foreground-100;
+    transition-duration: var(--duration-theme);
+    transition-timing-function: var(--easing-in-out);
   }
+}
+
+/* ------------------------------------------------------------------------------------------------
+   4. Base
+   ------------------------------------------------------------------------------------------------ */
+
+*,
+::before,
+::after {
+  box-sizing: border-box;
+}
+
+html {
+  scrollbar-gutter: stable;
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  background: var(--color-background-100);
+  color: var(--color-foreground-100);
+  font-family: var(--font-family-sans);
+  font-weight: 500;
+  font-size: 1rem;
+  line-height: 1.3;
+  letter-spacing: -0.03em;
+  -webkit-font-smoothing: antialiased;
+}
+
+a {
+  color: inherit;
+}
+
+ul[class],
+ol[class] {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+h1,
+h2,
+h3,
+h4,
+p,
+dl,
+dd,
+figure {
+  margin: 0;
+}
+
+h1,
+h2,
+h3,
+h4 {
+  font-weight: 500;
+}
+
+h1,
+h2,
+h3 {
+  text-wrap: balance;
+}
+
+button,
+input,
+select,
+textarea {
+  font: inherit;
+  letter-spacing: inherit;
+  color: inherit;
+}
+
+:focus-visible {
+  outline: 2px solid var(--color-foreground-100);
+  outline-offset: 2px;
+}
+
+/* The hidden attribute always wins over a component's own display value (canvas fallbacks rely on it). */
+[hidden]:where(:not([hidden="until-found"])) {
+  display: none !important;
+}
+
+/* Set by the entry overlay while the intro plays. */
+:root[data-entry-lock] body {
+  overflow: hidden;
+}
+
+/* ------------------------------------------------------------------------------------------------
+   5. Global utilities
+   ------------------------------------------------------------------------------------------------ */
+
+.ruled {
+  border-top: 1px solid var(--color-foreground-20);
+}
+
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border: 0;
+}
+
+.tabular {
+  font-variant-numeric: tabular-nums;
+}
+
+/* Type: what <Text variant> emits; equally valid directly in a className. */
+.t-display-xl {
+  margin: 0;
+  font-size: var(--text-display-extra-large-size);
+  line-height: var(--text-display-extra-large-line-height);
+  letter-spacing: var(--text-display-extra-large-letter-spacing);
+}
+
+.t-display-large {
+  margin: 0;
+  font-size: var(--text-display-large-size);
+  line-height: var(--text-display-large-line-height);
+  letter-spacing: var(--text-display-large-letter-spacing);
+}
+
+.t-display-medium {
+  margin: 0;
+  font-size: var(--text-display-medium-size);
+  line-height: var(--text-display-medium-line-height);
+  letter-spacing: var(--text-display-medium-letter-spacing);
+}
+
+.t-display-small {
+  margin: 0;
+  font-size: var(--text-display-small-size);
+  line-height: var(--text-display-small-line-height);
+  letter-spacing: var(--text-display-small-letter-spacing);
+}
+
+/* display-small size on phones, display-large from 768px; always the display-large metrics. */
+.t-display-fluid {
+  margin: 0;
+  font-size: var(--text-display-small-size);
+  line-height: var(--text-display-large-line-height);
+  letter-spacing: var(--text-display-large-letter-spacing);
+}
+
+@media (min-width: 768px) {
+  .t-display-fluid {
+    font-size: var(--text-display-large-size);
+  }
+}
+
+.t-headline-large {
+  margin: 0;
+  font-size: var(--text-headline-large-size);
+  line-height: var(--text-headline-large-line-height);
+  letter-spacing: var(--text-headline-large-letter-spacing);
+}
+
+.t-headline-medium {
+  margin: 0;
+  font-size: var(--text-headline-medium-size);
+  line-height: var(--text-headline-medium-line-height);
+  letter-spacing: var(--text-headline-medium-letter-spacing);
+}
+
+.t-headline-small {
+  margin: 0;
+  font-size: var(--text-headline-small-size);
+  line-height: var(--text-headline-small-line-height);
+  letter-spacing: var(--text-headline-small-letter-spacing);
+}
+
+.t-title-large {
+  margin: 0;
+  font-size: var(--text-title-large-size);
+  line-height: var(--text-title-large-line-height);
+  letter-spacing: var(--text-title-large-letter-spacing);
+}
+
+.t-title-medium {
+  margin: 0;
+  font-size: var(--text-title-medium-size);
+  line-height: var(--text-title-medium-line-height);
+  letter-spacing: var(--text-title-medium-letter-spacing);
+}
+
+.t-title-small {
+  margin: 0;
+  font-size: var(--text-title-small-size);
+  line-height: var(--text-title-small-line-height);
+  letter-spacing: var(--text-title-small-letter-spacing);
+}
+
+.t-body-large {
+  margin: 0;
+  font-size: var(--text-body-large-size);
+  line-height: var(--text-body-large-line-height);
+  letter-spacing: var(--text-body-large-letter-spacing);
+}
+
+.t-body-medium {
+  margin: 0;
+  font-size: var(--text-body-medium-size);
+  line-height: var(--text-body-medium-line-height);
+  letter-spacing: var(--text-body-medium-letter-spacing);
+}
+
+.t-body-small {
+  margin: 0;
+  font-size: var(--text-body-small-size);
+  line-height: var(--text-body-small-line-height);
+  letter-spacing: var(--text-body-small-letter-spacing);
+}
+
+.t-label-large {
+  margin: 0;
+  font-size: var(--text-label-large-size);
+  line-height: var(--text-label-large-line-height);
+  letter-spacing: var(--text-label-large-letter-spacing);
+}
+
+.t-label-medium {
+  margin: 0;
+  font-size: var(--text-label-medium-size);
+  line-height: var(--text-label-medium-line-height);
+  letter-spacing: var(--text-label-medium-letter-spacing);
+}
+
+.t-label-small {
+  margin: 0;
+  font-size: var(--text-label-small-size);
+  line-height: var(--text-label-small-line-height);
+  letter-spacing: var(--text-label-small-letter-spacing);
+}
+
+/* Weight */
+.w-regular {
+  font-weight: 400;
+}
+
+.w-medium {
+  font-weight: 500;
+}
+
+.w-semibold {
+  font-weight: 600;
+}
+
+.w-bold {
+  font-weight: 700;
+}
+
+/* Text colour. Copy that must be read uses c-fg-60 or stronger; c-fg-50 and below is decorative meta. */
+.c-fg-30 {
+  color: var(--color-foreground-30);
+}
+
+.c-fg-40 {
+  color: var(--color-foreground-40);
+}
+
+.c-fg-50 {
+  color: var(--color-foreground-50);
+}
+
+.c-fg-60 {
+  color: var(--color-foreground-60);
+}
+
+.c-fg-80 {
+  color: var(--color-foreground-80);
+}
+
+.c-fg-100 {
+  color: var(--color-foreground-100);
 }

@@ -1,0 +1,101 @@
+.loading {
+  padding-block: var(--spacing-xl);
+}
+
+/* Empty cart: the heading, one sentence and two ways out. The global `ruled` class is the top hairline. */
+.empty {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--spacing-md);
+  padding-block: var(--spacing-xl) var(--spacing-xl5);
+}
+
+.emptyBody {
+  max-width: var(--measure-body);
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: var(--spacing-xs2) var(--spacing-xl);
+}
+
+.layout {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-xl3);
+}
+
+.list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+/* kind label and title on the left, price and Remove on the title's baseline; the global `ruled`
+   class is the hairline above each row, the last row is also closed underneath */
+.row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto auto;
+  gap: var(--spacing-sm);
+  align-items: end;
+  align-items: last baseline;
+  padding-block: var(--spacing-sm);
+}
+
+.row:last-child {
+  border-bottom: 1px solid var(--color-foreground-20);
+}
+
+.item {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-xs3);
+  min-width: 0;
+}
+
+.title {
+  overflow-wrap: anywhere;
+  text-decoration: none;
+}
+
+.title:hover,
+.title:focus-visible {
+  text-decoration: underline;
+  text-underline-position: from-font;
+}
+
+.price {
+  white-space: nowrap;
+}
+
+.summary {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-md);
+  padding-top: var(--spacing-sm);
+  border-top: 1px solid var(--color-foreground-100);
+}
+
+.subtotal {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: var(--spacing-sm);
+}
+
+@media (min-width: 1024px) {
+  .layout {
+    display: grid;
+    grid-template-columns: minmax(0, 2fr) minmax(0, 1fr);
+    column-gap: var(--spacing-xl3);
+    align-items: start;
+  }
+
+  .summary {
+    position: sticky;
+    top: var(--spacing-xl);
+  }
+}

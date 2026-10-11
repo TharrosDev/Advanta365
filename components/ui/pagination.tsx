@@ -1,42 +1,67 @@
-import Link from "next/link";
+import { TransitionLink } from "@/components/motion/transition-link";
+import { ArrowIcon } from "@/components/ui/arrow-icon";
+import { cx } from "@/lib/cx";
+import styles from "./pagination.module.css";
 
-type PaginationProps = { page: number; pageCount: number; hrefFor: (page: number) => string };
-
-const ITEM = "inline-flex min-h-11 min-w-11 items-center justify-center rounded-md px-3 text-sm";
-
-export function Pagination({ page, pageCount, hrefFor }: PaginationProps) {
+/**
+ * Page navigation for a result list: Previous, every page number, Next. Renders nothing for a single
+ * page. The current page is text with `aria-current="page"`; every other entry is a link.
+ */
+export function Pagination({
+  page,
+  pageCount,
+  hrefFor,
+}: {
+  page: number;
+  pageCount: number;
+  hrefFor: (page: number) => string;
+}) {
   if (pageCount <= 1) return null;
   const pages = Array.from({ length: pageCount }, (_, i) => i + 1);
 
   return (
-    <nav aria-label="Pagination" className="flex flex-wrap items-center justify-center gap-1">
-      {page > 1 && (
-        <Link href={hrefFor(page - 1)} className={`${ITEM} text-accent hover:bg-accent-soft`}>
+    <nav aria-label="Pagination" className={cx(styles.root, "ruled")}>
+      {page > 1 ? (
+        <TransitionLink
+          href={hrefFor(page - 1)}
+          className={cx("t-body-large", styles.step, styles.previous)}
+        >
+          <ArrowIcon direction="left" />
           Previous
-        </Link>
-      )}
-      {pages.map((n) =>
-        n === page ? (
-          <span
-            key={n}
-            aria-current="page"
-            className={`${ITEM} bg-accent text-accent-ink font-medium`}
-          >
-            <span className="sr-only">Page </span>
-            {n}
-          </span>
-        ) : (
-          <Link key={n} href={hrefFor(n)} className={`${ITEM} text-ink hover:bg-accent-soft`}>
-            <span className="sr-only">Page </span>
-            {n}
-          </Link>
-        ),
-      )}
-      {page < pageCount && (
-        <Link href={hrefFor(page + 1)} className={`${ITEM} text-accent hover:bg-accent-soft`}>
+        </TransitionLink>
+      ) : null}
+      <ol className={styles.pages}>
+        {pages.map((n) => (
+          <li key={n}>
+            {n === page ? (
+              <span
+                aria-current="page"
+                className={cx("t-label-large", "tabular", styles.page, styles.current)}
+              >
+                <span className="visually-hidden">Page </span>
+                {n}
+              </span>
+            ) : (
+              <TransitionLink
+                href={hrefFor(n)}
+                className={cx("t-label-large", "tabular", styles.page)}
+              >
+                <span className="visually-hidden">Page </span>
+                {n}
+              </TransitionLink>
+            )}
+          </li>
+        ))}
+      </ol>
+      {page < pageCount ? (
+        <TransitionLink
+          href={hrefFor(page + 1)}
+          className={cx("t-body-large", styles.step, styles.next)}
+        >
           Next
-        </Link>
-      )}
+          <ArrowIcon direction="right" />
+        </TransitionLink>
+      ) : null}
     </nav>
   );
 }

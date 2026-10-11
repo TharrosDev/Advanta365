@@ -1,0 +1,44 @@
+/* Skip link: the first focusable element of every page, visible only while it has focus. */
+.skip {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+.skip:focus {
+  position: fixed;
+  top: var(--spacing-xs2);
+  left: var(--spacing-xs2);
+  z-index: var(--z-skip);
+  width: auto;
+  height: auto;
+  margin: 0;
+  padding: var(--spacing-xs2);
+  overflow: visible;
+  clip-path: none;
+  background: var(--color-foreground-100);
+  /* A ring in the page colour keeps the box readable where it overlaps the dark beta bar. */
+  box-shadow: 0 0 0 2px var(--color-background-100);
+  color: var(--color-background-100);
+}
+
+/*
+ * Everything that scrolls. It is the positioning parent of the absolute header, and it clips
+ * sideways overflow without becoming a scroll container (sticky layers inside keep working).
+ */
+.frame {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  min-height: 100svh;
+  overflow-x: clip;
+}
+
+.main {
+  flex: 1;
+}

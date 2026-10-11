@@ -1,0 +1,41 @@
+.root {
+  display: block;
+  width: 100%;
+  min-width: 0;
+  min-height: var(--touch-target);
+  padding: var(--spacing-xs) 0;
+  border: 0;
+  border-bottom: 1px solid var(--color-foreground-20);
+  border-radius: 0;
+  background: none;
+  color: var(--color-foreground-100);
+  font-size: 1rem;
+  appearance: none;
+}
+
+/* Often the only visible prompt of the field, so it uses the readable step of the ramp. */
+.root::placeholder {
+  color: var(--color-foreground-60);
+  opacity: 1;
+}
+
+.root:hover {
+  border-bottom-color: var(--color-foreground-40);
+}
+
+/* The rule itself is the focus indicator: it darkens and doubles to 2px. */
+.root:focus-visible {
+  outline: 0;
+  border-bottom-color: var(--color-foreground-100);
+  box-shadow: 0 1px 0 var(--color-foreground-100);
+}
+
+.root:disabled {
+  color: var(--color-foreground-30);
+  cursor: not-allowed;
+}
+
+/* Search fields keep their clear button but lose the platform's inset decoration. */
+.root[type="search"]::-webkit-search-decoration {
+  appearance: none;
+}

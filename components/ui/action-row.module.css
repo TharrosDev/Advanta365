@@ -1,0 +1,147 @@
+.root {
+  --row-pad: var(--spacing-xs2);
+
+  /* the block padding at which a one-line row is exactly one touch target tall */
+  --row-pad-touch: calc(
+    (var(--touch-target) - var(--text-body-large-size) * var(--text-body-large-line-height)) / 2
+  );
+
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: var(--spacing-sm);
+  width: 100%;
+  margin: 0;
+  padding-block: max(var(--row-pad), var(--row-pad-touch));
+  padding-inline: 0;
+  border: 0;
+  border-radius: 0;
+  background: none;
+  color: inherit;
+  font: inherit;
+  letter-spacing: inherit;
+  text-align: start;
+  text-decoration: none;
+}
+
+.top {
+  border-top: 1px solid var(--color-foreground-20);
+}
+
+.bottom {
+  border-bottom: 1px solid var(--color-foreground-20);
+}
+
+.padded {
+  padding-inline: var(--spacing-sm);
+}
+
+.lg {
+  --row-pad: var(--spacing-xs);
+}
+
+.interactive {
+  cursor: pointer;
+}
+
+.text {
+  display: flex;
+  flex: 1 1 auto;
+  flex-direction: column;
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.trailing {
+  flex-shrink: 0;
+  white-space: nowrap;
+}
+
+/* one body line tall, so the arrow sits on the first line of the label */
+.arrow {
+  display: flex;
+  flex-shrink: 0;
+  align-items: center;
+  height: calc(1em * 1.3);
+}
+
+.interactive:hover .label,
+.interactive:focus-visible .label {
+  text-decoration: underline;
+  text-underline-position: from-font;
+}
+
+/*
+ * fill: the row carries its own surface (isolated), bleeds past its column and inverts as a whole.
+ * Its borders stay in the box but turn transparent; the hairlines are drawn by pseudo-elements that
+ * do not bleed, and the sweep covers both of them.
+ */
+.fill {
+  --bleed: var(--spacing-sm);
+
+  position: relative;
+  isolation: isolate;
+  width: calc(100% + 2 * var(--bleed));
+  margin-inline: calc(-1 * var(--bleed));
+  padding-inline: var(--bleed);
+  border-color: transparent;
+  background: var(--color-background-100);
+}
+
+.fill.padded {
+  --bleed: 0px;
+
+  padding-block: var(--spacing-sm);
+  padding-inline: var(--spacing-sm);
+}
+
+.fill.top::before,
+.fill.bottom::after {
+  content: "";
+  position: absolute;
+  inset-inline: var(--bleed);
+  height: 1px;
+  background: var(--color-foreground-20);
+}
+
+.fill.top::before {
+  inset-block-start: -1px;
+}
+
+.fill.bottom::after {
+  inset-block-end: -1px;
+}
+
+/* the sweep replaces the underline */
+.fill.interactive:hover .label,
+.fill.interactive:focus-visible .label {
+  text-decoration: none;
+}
+
+/* above the neighbouring rows, so the sweep covers the hairline it shares with the next row and the
+   focus ring is not cut by it */
+.fill[data-sweeping],
+.fill:focus-visible {
+  z-index: 1;
+}
+
+.sweep {
+  --wipe-bar-height: 100%;
+  --wipe-bar-color: var(--base-color-white);
+
+  position: absolute;
+  inset: -1px 0;
+  z-index: 1;
+  mix-blend-mode: difference;
+  pointer-events: none;
+}
+
+@media (min-width: 768px) {
+  .root {
+    padding-block: var(--row-pad);
+  }
+
+  .fill.padded {
+    padding-block: var(--spacing-xs2);
+  }
+}

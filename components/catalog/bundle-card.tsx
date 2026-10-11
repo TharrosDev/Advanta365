@@ -1,33 +1,46 @@
-import Link from "next/link";
-import { Badge } from "@/components/ui/badge";
+import { TransitionLink } from "@/components/motion/transition-link";
+import { Chip } from "@/components/ui/chip";
 import type { Bundle } from "@/lib/catalog/schema";
+import { cx } from "@/lib/cx";
 import { formatPrice } from "@/lib/format";
+import styles from "./bundle-card.module.css";
 
-type BundleCardProps = { bundle: Bundle; templateCount: number; savingsCents: number };
+/**
+ * A bundle as a ruled text card: title (the card's one link, stretched over the whole card), the
+ * summary, and a footer row with the template count, the price and the saving.
+ *
+ * It is an `<article>`, one of only two kinds of article in the app (the other is `TemplateCard`),
+ * so it is never rendered on /catalog or on a phase page.
+ */
+export function BundleCard({
+  bundle,
+  templateCount,
+  savingsCents,
+  headingLevel = "h3",
+  className,
+}: {
+  bundle: Bundle;
+  templateCount: number;
+  savingsCents: number;
+  headingLevel?: "h2" | "h3";
+  className?: string;
+}) {
+  const Heading = headingLevel;
 
-export function BundleCard({ bundle, templateCount, savingsCents }: BundleCardProps) {
   return (
-    <article className="group border-rule bg-surface hover:border-accent relative flex h-full flex-col rounded-lg border p-6 transition-colors">
-      <div className="flex flex-wrap gap-1.5">
-        <Badge tone="accent">Bundle</Badge>
-        <Badge>{templateCount} templates</Badge>
-      </div>
-      <h3 className="mt-3 text-xl font-semibold break-words">
-        <Link
-          href={`/bundles/${bundle.slug}`}
-          className="underline-offset-4 group-hover:underline after:absolute after:inset-0"
-        >
+    <article className={cx(styles.card, "ruled", className)}>
+      <Heading className={cx("t-headline-large", styles.title)}>
+        <TransitionLink className={styles.link} href={`/bundles/${bundle.slug}`}>
           {bundle.title}
-        </Link>
-      </h3>
-      <p className="text-muted mt-2 grow text-sm">{bundle.summary}</p>
-      <div className="border-rule mt-5 flex items-baseline justify-between border-t pt-4">
-        {savingsCents > 0 ? (
-          <span className="text-accent text-sm font-medium">Save {formatPrice(savingsCents)}</span>
-        ) : (
-          <span />
-        )}
-        <span className="text-lg font-semibold tabular-nums">{formatPrice(bundle.priceCents)}</span>
+        </TransitionLink>
+      </Heading>
+      <p className={cx("t-body-large", "c-fg-60", styles.summary)}>{bundle.summary}</p>
+      <div className={styles.footer}>
+        <span className="t-body-large">
+          {`${templateCount} ${templateCount === 1 ? "template" : "templates"}`}
+        </span>
+        <span className="t-body-large tabular">{formatPrice(bundle.priceCents)}</span>
+        {savingsCents > 0 ? <Chip>{`Save ${formatPrice(savingsCents)}`}</Chip> : null}
       </div>
     </article>
   );

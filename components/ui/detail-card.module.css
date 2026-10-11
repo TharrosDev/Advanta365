@@ -1,0 +1,69 @@
+.root {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-sm);
+  width: 100%;
+  padding-block: var(--spacing-sm);
+}
+
+.number {
+  display: block;
+  font-variant-numeric: tabular-nums;
+}
+
+/* Title and note chip on one line; the chip drops under a long title. */
+.heading {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--spacing-xs2) var(--spacing-sm);
+}
+
+.title {
+  min-width: 0;
+  overflow-wrap: anywhere;
+  white-space: pre-line;
+}
+
+.link {
+  text-decoration: none;
+}
+
+/* Stretches the title link over the whole card: one link, one large target. */
+.link::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+}
+
+.linked:hover .link,
+.link:focus-visible {
+  text-decoration: underline;
+  text-underline-position: from-font;
+}
+
+.note {
+  flex: none;
+}
+
+.body {
+  max-width: var(--measure-card-body);
+}
+
+.footer {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: var(--spacing-xs2) var(--spacing-sm);
+}
+
+.center {
+  align-items: center;
+  text-align: center;
+}
+
+.center .heading,
+.center .footer {
+  justify-content: center;
+}

@@ -1,0 +1,9 @@
+.block {
+  padding-bottom: var(--spacing-xl3);
+}
+
+@media (min-width: 768px) {
+  .block {
+    padding-bottom: var(--spacing-xl6);
+  }
+}

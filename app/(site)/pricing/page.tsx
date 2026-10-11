@@ -1,11 +1,23 @@
 import type { Metadata } from "next";
-import Link from "next/link";
-import { Container } from "@/components/layout/container";
-import { Button } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
+import { FaqList } from "@/components/company/faq-list";
+import type { FaqItem } from "@/components/company/faq-list";
+import { PageTitle } from "@/components/layout/page-title";
+import { Reveal } from "@/components/motion/reveal";
+import { RevealGroup } from "@/components/motion/reveal-group";
+import { TransitionLink } from "@/components/motion/transition-link";
+import { ActionRow } from "@/components/ui/action-row";
+import { Container } from "@/components/ui/container";
+import { PageShell } from "@/components/ui/page-shell";
+import { SectionIntro } from "@/components/ui/section-intro";
+import { SectionLabel } from "@/components/ui/section-label";
+import { SectionShell } from "@/components/ui/section-shell";
+import { WipeButton } from "@/components/ui/wipe-button";
 import { bundleSavingsCents } from "@/lib/catalog/pricing";
 import { getBundleTemplates, getBundles, getTemplates } from "@/lib/catalog/repository";
+import { cx } from "@/lib/cx";
 import { formatPrice } from "@/lib/format";
+import { coarseIndexAfter, countWords } from "@/lib/motion/words";
+import styles from "./page.module.css";
 
 export const metadata: Metadata = {
   title: "Pricing",
@@ -13,7 +25,7 @@ export const metadata: Metadata = {
 };
 
 // Provisional beta copy: answers are placeholders until the commercial terms are set.
-const FAQ = [
+const FAQ: readonly FaqItem[] = [
   {
     question: "What file formats do I get?",
     answer:
@@ -41,9 +53,18 @@ const FAQ = [
   },
 ];
 
+const PRICES_TITLE = "Bundle prices";
+
+/** "$19 – $79": the cheapest and the dearest of a list of prices, computed from the data. */
+function priceRange(cents: readonly number[]): string {
+  if (cents.length === 0) return "—";
+  const low = Math.min(...cents);
+  const high = Math.max(...cents);
+  return low === high ? formatPrice(low) : `${formatPrice(low)} – ${formatPrice(high)}`;
+}
+
 export default async function PricingPage() {
   const [templates, bundles] = await Promise.all([getTemplates(), getBundles()]);
-  const prices = templates.map((t) => t.priceCents);
   const bundleRows = await Promise.all(
     bundles.map(async (bundle) => {
       const contents = await getBundleTemplates(bundle);
@@ -51,103 +72,156 @@ export default async function PricingPage() {
     }),
   );
 
+  const ways = [
+    {
+      number: "01",
+      title: "Single templates",
+      range: priceRange(templates.map((template) => template.priceCents)),
+      body: "Priced by depth: a one-page handout costs less than a full strategy document or a training deck.",
+      href: "/catalog",
+      action: "Browse the catalog",
+    },
+    {
+      number: "02",
+      title: "Bundles",
+      range: priceRange(bundles.map((bundle) => bundle.priceCents)),
+      body: "Curated sets for a phase or a full rollout, priced well below the same templates bought one at a time.",
+      href: "/bundles",
+      action: "See bundles",
+    },
+  ];
+
+  // The table fades up on the first coarse step after the title words (the label is index 0, the
+  // words start at 1).
+  const tableIndex = coarseIndexAfter(1 + countWords(PRICES_TITLE));
+
   return (
-    <Container className="py-10 sm:py-14">
-      <h1 className="text-4xl font-semibold">Pricing</h1>
-      <p className="text-muted mt-3 max-w-2xl">
-        Buy the one template you need today, or take a bundle that covers a whole phase. Every
-        purchase is a one-time payment for files you can edit.
-      </p>
+    <PageShell>
+      <PageTitle
+        title="Pricing"
+        lead="Buy the one template you need today, or take a bundle that covers a whole phase. Every purchase is a one-time payment for files you can edit."
+      />
 
-      <div className="mt-10 grid gap-4 md:grid-cols-2">
-        <Card as="section">
-          <h2 className="text-2xl font-semibold">Single templates</h2>
-          <p className="font-display mt-4 text-4xl font-semibold tabular-nums">
-            {formatPrice(Math.min(...prices))} – {formatPrice(Math.max(...prices))}
-          </p>
-          <p className="text-muted mt-3">
-            Priced by depth: a one-page handout costs less than a full strategy document or a
-            training deck.
-          </p>
-          <div className="mt-6">
-            <Button href="/catalog">Browse the catalog</Button>
-          </div>
-        </Card>
-        <Card as="section">
-          <h2 className="text-2xl font-semibold">Bundles</h2>
-          <p className="font-display mt-4 text-4xl font-semibold tabular-nums">
-            {formatPrice(Math.min(...bundles.map((b) => b.priceCents)))} –{" "}
-            {formatPrice(Math.max(...bundles.map((b) => b.priceCents)))}
-          </p>
-          <p className="text-muted mt-3">
-            Curated sets for a phase or a full rollout, priced well below the same templates bought
-            one at a time.
-          </p>
-          <div className="mt-6">
-            <Button href="/bundles" variant="secondary">
-              See bundles
-            </Button>
-          </div>
-        </Card>
-      </div>
-
-      <section className="mt-16">
-        <h2 className="text-2xl font-semibold">Bundle prices</h2>
-        <div className="border-rule bg-surface mt-6 overflow-x-auto rounded-lg border">
-          <table className="w-full min-w-[32rem] text-left text-sm">
-            <thead className="border-rule text-muted border-b">
-              <tr>
-                <th scope="col" className="px-5 py-3 font-medium">
-                  Bundle
-                </th>
-                <th scope="col" className="px-5 py-3 text-right font-medium">
-                  Templates
-                </th>
-                <th scope="col" className="px-5 py-3 text-right font-medium">
-                  Price
-                </th>
-                <th scope="col" className="px-5 py-3 text-right font-medium">
-                  You save
-                </th>
-              </tr>
-            </thead>
-            <tbody className="divide-rule divide-y">
-              {bundleRows.map(({ bundle, count, savings }) => (
-                <tr key={bundle.slug}>
-                  <th scope="row" className="px-5 py-3 font-medium">
-                    <Link
-                      href={`/bundles/${bundle.slug}`}
-                      className="text-accent underline underline-offset-4"
-                    >
-                      {bundle.title}
-                    </Link>
-                  </th>
-                  <td className="px-5 py-3 text-right tabular-nums">{count}</td>
-                  <td className="px-5 py-3 text-right font-semibold tabular-nums">
-                    {formatPrice(bundle.priceCents)}
-                  </td>
-                  <td className="px-5 py-3 text-right tabular-nums">{formatPrice(savings)}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      </section>
-
-      <section className="mt-16 max-w-3xl">
-        <h2 className="text-2xl font-semibold">Questions</h2>
-        <p className="text-muted mt-2 text-sm">
-          Beta note: these answers are provisional and will be confirmed before launch.
-        </p>
-        <dl className="divide-rule border-rule mt-6 divide-y border-y">
-          {FAQ.map((item) => (
-            <div key={item.question} className="py-5">
-              <dt className="font-semibold">{item.question}</dt>
-              <dd className="text-muted mt-2">{item.answer}</dd>
-            </div>
+      <SectionShell innerClassName={styles.ways}>
+        <RevealGroup>
+          <Reveal as="div" effect="fade" index={0}>
+            <SectionLabel>Two ways to buy</SectionLabel>
+          </Reveal>
+        </RevealGroup>
+        <RevealGroup as="ul" className={styles.waysGrid}>
+          {ways.map((way, index) => (
+            <Reveal
+              key={way.number}
+              as="li"
+              effect="fade-up"
+              index={index}
+              className={cx("ruled", styles.way)}
+            >
+              <span className="t-label-medium">{way.number}</span>
+              <h2 className="t-headline-large">{way.title}</h2>
+              <p className="t-display-medium tabular">{way.range}</p>
+              <p className={cx("t-body-large", "c-fg-60", styles.wayBody)}>{way.body}</p>
+              <WipeButton href={way.href}>{way.action}</WipeButton>
+            </Reveal>
           ))}
-        </dl>
-      </section>
-    </Container>
+        </RevealGroup>
+      </SectionShell>
+
+      <SectionShell>
+        <RevealGroup className={styles.pricesGroup}>
+          <Reveal as="div" effect="fade" index={0}>
+            <SectionLabel>{PRICES_TITLE}</SectionLabel>
+          </Reveal>
+          <div className={styles.pricesBody}>
+            <SectionIntro title={PRICES_TITLE} wordOffset={1} />
+            <Reveal as="div" effect="fade-up" index={tableIndex}>
+              {/* The table scrolls inside its own box on a narrow screen; the page never does. */}
+              <div
+                className={styles.tableScroll}
+                role="region"
+                aria-labelledby="bundle-prices-caption"
+                tabIndex={0}
+              >
+                <table className={styles.table}>
+                  <caption id="bundle-prices-caption" className="visually-hidden">
+                    {PRICES_TITLE}
+                  </caption>
+                  <thead>
+                    <tr>
+                      <th scope="col" className={cx("t-label-medium", "c-fg-50", styles.head)}>
+                        Bundle
+                      </th>
+                      <th
+                        scope="col"
+                        className={cx("t-label-medium", "c-fg-50", styles.head, styles.number)}
+                      >
+                        Templates
+                      </th>
+                      <th
+                        scope="col"
+                        className={cx("t-label-medium", "c-fg-50", styles.head, styles.number)}
+                      >
+                        Price
+                      </th>
+                      <th
+                        scope="col"
+                        className={cx("t-label-medium", "c-fg-50", styles.head, styles.number)}
+                      >
+                        You save
+                      </th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {bundleRows.map(({ bundle, count, savings }) => (
+                      <tr key={bundle.slug} className={styles.row}>
+                        <th scope="row" className={cx("t-body-large", styles.name)}>
+                          <TransitionLink href={`/bundles/${bundle.slug}`} className={styles.link}>
+                            {bundle.title}
+                          </TransitionLink>
+                        </th>
+                        <td className={cx("t-body-large", "tabular", styles.number)}>{count}</td>
+                        <td className={cx("t-body-large", "tabular", styles.number)}>
+                          {formatPrice(bundle.priceCents)}
+                        </td>
+                        <td className={cx("t-body-large", "tabular", styles.number)}>
+                          {formatPrice(savings)}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </Reveal>
+          </div>
+        </RevealGroup>
+      </SectionShell>
+
+      <SectionShell innerClassName={styles.faq}>
+        <RevealGroup>
+          <SectionIntro
+            center
+            label="Questions"
+            title="Questions"
+            body="Beta note: these answers are provisional and will be confirmed before launch."
+          />
+        </RevealGroup>
+        <FaqList items={FAQ} className={styles.faqList} />
+      </SectionShell>
+
+      <Container className={styles.cta}>
+        <RevealGroup>
+          <Reveal as="div" effect="fade-up" index={0}>
+            <ActionRow
+              fill
+              padded
+              rule="both"
+              href="/contact"
+              label="Contact us about purchasing"
+              arrow="right"
+            />
+          </Reveal>
+        </RevealGroup>
+      </Container>
+    </PageShell>
   );
 }

@@ -1,0 +1,16 @@
+.root {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  min-height: var(--spacing-xl2);
+  padding: var(--spacing-xs) var(--spacing-sm);
+}
+
+.divider {
+  border-bottom: 1px solid var(--color-foreground-30);
+}
+
+.text {
+  text-align: center;
+}

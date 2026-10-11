@@ -1,0 +1,82 @@
+.root {
+  --pad-y: var(--spacing-sm);
+  --pad-x: 0px;
+
+  position: relative;
+  display: inline-flex;
+  margin: 0;
+  padding-block: var(--pad-y);
+  padding-inline: var(--pad-x);
+  border: 0;
+  border-bottom: 1.5px solid var(--color-foreground-100);
+  border-radius: 0;
+  background: none;
+  color: inherit;
+  font: inherit;
+  letter-spacing: inherit;
+  text-align: start;
+  text-decoration: none;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: padding var(--duration-slow) var(--easing-emphasized);
+}
+
+/* the label slides in by 24px and the underline grows by 48px */
+.root:hover,
+.root:focus-visible {
+  --pad-x: var(--spacing-md);
+}
+
+.content {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-xs2);
+}
+
+/* reaches 1px into the underline so the block and the line read as one shape */
+.sweep {
+  --wipe-bar-height: 100%;
+  --wipe-bar-color: var(--color-foreground-100);
+
+  position: absolute;
+  inset: 0 0 -1px;
+  pointer-events: none;
+}
+
+/* The inverted copy of the content. It sits inside the clipped fill at the same place as the real
+   label and follows the same padding transition, so the label reads inverted where the block is. */
+.ghost {
+  position: absolute;
+  inset-block-start: 0;
+  inset-inline-start: 0;
+  padding-block-start: var(--pad-y);
+  padding-inline-start: var(--pad-x);
+  color: var(--color-background-100);
+  transition: padding var(--duration-slow) var(--easing-emphasized);
+}
+
+.ghost::before {
+  content: attr(data-label);
+  font-size: var(--text-body-large-size);
+  line-height: var(--text-body-large-line-height);
+  letter-spacing: var(--text-body-large-letter-spacing);
+}
+
+.root:disabled {
+  --pad-x: 0px;
+
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* hidden, not removed: a bar that is already there still finishes and leaves the list */
+.root:disabled .sweep {
+  visibility: hidden;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .root,
+  .ghost {
+    transition: none;
+  }
+}

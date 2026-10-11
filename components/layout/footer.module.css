@@ -1,0 +1,152 @@
+/*
+ * Footer. The colours come from its own light theme scope (data-theme="light" on the element), so
+ * it is white with ink text whatever the page above it is doing.
+ *
+ * The link sweeps blend against this background: nothing between a link and the root may form a
+ * stacking context of its own (no transforms, opacity, isolation or z-index on the wrappers).
+ */
+.root {
+  background: var(--color-background-100);
+  color: var(--color-foreground-100);
+}
+
+.inner {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-xl3);
+  padding-block: var(--spacing-xl3);
+}
+
+/* Two columns from 768px: the primary links, and the phases with the cart link under them. */
+.nav {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-xl3);
+}
+
+.column {
+  min-width: 0;
+}
+
+.primary {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-sm);
+}
+
+.aside {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: var(--spacing-xl3);
+}
+
+.secondary {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-xs);
+}
+
+/* Small print. It carries the non-affiliation notice, so it keeps a readable contrast. */
+.legal {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-xl3);
+  color: var(--color-foreground-60);
+}
+
+.legalRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spacing-xs2) var(--spacing-sm);
+  white-space: nowrap;
+}
+
+/*
+ * Wordmark: "Advanta [mark] 365" spread edge to edge. The words are trimmed to their cap height and
+ * baseline, so the paddings are measured from the letters and the mark stands on the baseline.
+ */
+.wordmark {
+  --wordmark-symbol-height: calc(var(--text-headline-large-size) * 0.75);
+
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  gap: var(--spacing-xs);
+  padding-top: var(--spacing-xl3);
+  padding-bottom: var(--spacing-xl2);
+}
+
+/* Doubled: overrides the size and tracking of the global display class on the same element. */
+.wordmarkWord.wordmarkWord {
+  font-size: var(--text-headline-large-size);
+  letter-spacing: var(--text-headline-large-letter-spacing);
+  white-space: nowrap;
+  text-box: trim-both cap alphabetic;
+}
+
+/* Lowered by the gap under the mark's feet (set inline from the mark's geometry). */
+.wordmarkSymbol {
+  flex: none;
+  translate: 0 calc(var(--wordmark-symbol-height) * var(--wordmark-symbol-drop, 0));
+}
+
+/*
+ * Without text-box trimming the word boxes hang below the baseline: align on the baseline instead
+ * (a flex-item svg's baseline is its bottom edge) and pull the line box in by hand.
+ */
+@supports not (text-box: trim-both cap alphabetic) {
+  .wordmark {
+    align-items: baseline;
+  }
+
+  .wordmarkWord.wordmarkWord {
+    margin-block: -0.14em -0.2em;
+    line-height: 1;
+  }
+}
+
+@media (min-width: 768px) {
+  .inner {
+    padding-block: var(--spacing-xl);
+  }
+
+  .nav {
+    flex-direction: row;
+    align-items: stretch;
+  }
+
+  .column {
+    flex: 1 0 0;
+  }
+
+  .primary {
+    gap: var(--spacing-xs2);
+  }
+
+  .aside {
+    gap: var(--spacing-xl);
+  }
+
+  .secondary {
+    gap: var(--spacing-xs2);
+  }
+
+  .legal {
+    gap: var(--spacing-xs);
+  }
+
+  .legalRow {
+    gap: var(--spacing-sm);
+  }
+
+  .wordmark {
+    --wordmark-symbol-height: calc(var(--text-display-large-size) * 0.65);
+
+    gap: var(--spacing-xl);
+  }
+
+  .wordmarkWord.wordmarkWord {
+    font-size: var(--text-display-large-size);
+  }
+}

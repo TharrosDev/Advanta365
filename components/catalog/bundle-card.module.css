@@ -1,0 +1,43 @@
+/* A ruled text card in the language of DetailCard (which is a div, never an article). The global
+   `ruled` class draws the hairline on top. */
+.card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-sm);
+  width: 100%;
+  padding-block: var(--spacing-sm);
+}
+
+.title {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.link {
+  text-decoration: none;
+}
+
+/* Stretches the title link over the whole card: one link, one large target. */
+.link::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+}
+
+.card:hover .link,
+.link:focus-visible {
+  text-decoration: underline;
+  text-underline-position: from-font;
+}
+
+.summary {
+  max-width: var(--measure-card-body);
+}
+
+.footer {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: var(--spacing-xs2) var(--spacing-sm);
+}

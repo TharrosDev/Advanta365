@@ -3,7 +3,9 @@
 import { useRouter } from "next/navigation";
 import { Select } from "@/components/ui/select";
 import type { CatalogCriteria, SortKey } from "@/lib/catalog/query";
+import { cx } from "@/lib/cx";
 import { serializeCatalogParams } from "@/lib/catalog/search-params";
+import styles from "./sort-select.module.css";
 
 const OPTIONS: { value: SortKey; label: string }[] = [
   { value: "featured", label: "Featured" },
@@ -16,9 +18,10 @@ export function SortSelect({ criteria }: { criteria: CatalogCriteria }) {
   const router = useRouter();
 
   return (
-    <label className="text-muted flex items-center gap-2 text-sm">
-      <span className="shrink-0">Sort by</span>
+    <label className={styles.row}>
+      <span className={cx("t-label-medium", "c-fg-50", styles.label)}>Sort by</span>
       <Select
+        className={styles.select}
         value={criteria.sort}
         onChange={(event) => {
           const sort = event.target.value as SortKey;

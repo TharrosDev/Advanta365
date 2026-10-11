@@ -1,0 +1,51 @@
+/* One section per step: the reference's capability-section header over a card grid. */
+.step.step {
+  gap: var(--spacing-xl3);
+}
+
+/* the hairline on top comes from the global `.ruled` class */
+.stepHeader {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--spacing-xl);
+  padding-top: var(--spacing-sm);
+}
+
+/* number and title span the row; only the summary keeps a reading measure */
+.stepTitle {
+  grid-column: 1 / -1;
+  max-width: var(--measure-heading);
+  overflow-wrap: anywhere;
+}
+
+.stepBody {
+  max-width: var(--measure-body);
+}
+
+/* 1 / 2 / 3 columns, like the catalog grid */
+.grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--spacing-xl);
+}
+
+.footerAction {
+  padding-block: var(--spacing-xl) var(--spacing-xl3);
+}
+
+@media (min-width: 768px) {
+  .grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    row-gap: var(--spacing-xl3);
+  }
+
+  .footerAction {
+    padding-block: var(--spacing-xl) var(--spacing-xl6);
+  }
+}
+
+@media (min-width: 1024px) {
+  .grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}

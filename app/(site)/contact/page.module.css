@@ -1,0 +1,23 @@
+/* The reference "contacts" block: a centred statement and one hairline row to write to. */
+.contacts.contacts {
+  gap: var(--spacing-xl3);
+  padding-block: var(--spacing-xl3) var(--spacing-xl6);
+}
+
+.intro {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-xl);
+}
+
+.statement {
+  max-width: var(--measure-heading-centered);
+  margin-inline: auto;
+  text-align: center;
+}
+
+.rows {
+  width: 100%;
+  max-width: var(--measure-prose);
+  margin-inline: auto;
+}

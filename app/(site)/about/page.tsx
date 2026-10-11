@@ -1,12 +1,35 @@
 import type { Metadata } from "next";
-import { Container } from "@/components/layout/container";
-import { Button } from "@/components/ui/button";
+import { MetallicSwirl } from "@/components/graphics/metallic-swirl/metallic-swirl";
+import { INNER_SWIRL_PARAMS } from "@/components/graphics/metallic-swirl/params";
+import { PageTitle } from "@/components/layout/page-title";
+import { Reveal, RevealWords } from "@/components/motion/reveal";
+import { RevealGroup } from "@/components/motion/reveal-group";
+import { ActionRow } from "@/components/ui/action-row";
+import { DetailCard } from "@/components/ui/detail-card";
+import { PageShell } from "@/components/ui/page-shell";
+import { SectionIntro } from "@/components/ui/section-intro";
+import { SectionLabel } from "@/components/ui/section-label";
+import { SectionShell } from "@/components/ui/section-shell";
+import { cx } from "@/lib/cx";
+import { coarseIndexAfter, countWords } from "@/lib/motion/words";
+import styles from "./page.module.css";
 
 export const metadata: Metadata = {
   title: "About",
   description:
     "Thirty years of change management and user adoption practice, packaged as templates.",
 };
+
+const BACKGROUND_STATEMENT =
+  "The technology is delivered on schedule. The hard part turns out to be the people side.";
+
+const BACKGROUND_COPY = [
+  "Most of that work has been with Microsoft 365, and SharePoint above all: intranets, migrations, collaboration and governance. The same pattern shows up every time. The technology is delivered on schedule, and the hard part turns out to be the people side: sponsorship, communication, training and reinforcement.",
+  "These templates exist so that the people side does not have to be invented from scratch on each project. They serve private companies and public bodies alike, from municipal departments to federal agencies.",
+];
+
+const PRINCIPLES_STATEMENT =
+  "Built from real rollouts. Grounded in a proven methodology. Made to be tailored.";
 
 const PRINCIPLES = [
   {
@@ -24,44 +47,79 @@ const PRINCIPLES = [
 ];
 
 export default function AboutPage() {
+  // The paragraphs fade in on the first coarse steps after the statement's last word (the label is
+  // index 0, the words start at 1).
+  const firstParagraph = coarseIndexAfter(1 + countWords(BACKGROUND_STATEMENT));
+
   return (
-    <Container className="py-10 sm:py-14">
-      <div className="max-w-3xl">
-        <h1 className="text-4xl font-semibold sm:text-5xl">
-          Thirty years of change practice, ready to use
-        </h1>
-        <p className="text-muted mt-6 text-lg">
-          Advanta365 is a library of the change management and user adoption materials built over a
-          30-year career helping organizations adopt new technology.
-        </p>
-        <p className="mt-6">
-          Most of that work has been with Microsoft 365, and SharePoint above all: intranets,
-          migrations, collaboration and governance. The same pattern shows up every time. The
-          technology is delivered on schedule, and the hard part turns out to be the people side:
-          sponsorship, communication, training and reinforcement.
-        </p>
-        <p className="mt-4">
-          These templates exist so that the people side does not have to be invented from scratch on
-          each project. They serve private companies and public bodies alike, from municipal
-          departments to federal agencies.
-        </p>
-      </div>
+    <PageShell>
+      <PageTitle
+        title="Thirty years of change practice, ready to use"
+        lead="Advanta365 is a library of the change management and user adoption materials built over a 30-year career helping organizations adopt new technology."
+      />
 
-      <dl className="border-rule mt-14 grid gap-8 border-t pt-10 md:grid-cols-3">
-        {PRINCIPLES.map((principle) => (
-          <div key={principle.title}>
-            <dt className="font-display text-xl font-semibold">{principle.title}</dt>
-            <dd className="text-muted mt-2">{principle.body}</dd>
+      <SectionShell>
+        <RevealGroup className={styles.background}>
+          <Reveal as="div" effect="fade" index={0}>
+            <SectionLabel>Background</SectionLabel>
+          </Reveal>
+          <div className={styles.columns}>
+            <h2 className={styles.statement}>
+              <RevealWords text={BACKGROUND_STATEMENT} offset={1} />
+            </h2>
+            <div className={styles.copy}>
+              {BACKGROUND_COPY.map((paragraph, index) => (
+                <Reveal
+                  key={paragraph}
+                  as="p"
+                  effect="fade"
+                  index={firstParagraph + index}
+                  className="t-body-large c-fg-80"
+                >
+                  {paragraph}
+                </Reveal>
+              ))}
+            </div>
           </div>
-        ))}
-      </dl>
+        </RevealGroup>
+      </SectionShell>
 
-      <div className="mt-14 flex flex-wrap gap-3">
-        <Button href="/catalog">Browse the catalog</Button>
-        <Button href="/contact" variant="secondary">
-          Get in touch
-        </Button>
-      </div>
-    </Container>
+      <SectionShell
+        theme="dark"
+        height="full"
+        backdrop={<MetallicSwirl params={INNER_SWIRL_PARAMS} className={styles.swirl} />}
+        innerClassName={styles.principles}
+      >
+        <RevealGroup className={styles.principlesIntro}>
+          <Reveal as="div" effect="fade" index={0}>
+            <SectionLabel>Principles</SectionLabel>
+          </Reveal>
+          <h2 className={cx("t-display-fluid", styles.principlesStatement)}>
+            <RevealWords text={PRINCIPLES_STATEMENT} offset={1} />
+          </h2>
+        </RevealGroup>
+        <RevealGroup as="ul" className={styles.principlesGrid}>
+          {PRINCIPLES.map((principle, index) => (
+            <Reveal key={principle.title} as="li" effect="fade-up" index={index}>
+              <DetailCard title={principle.title} body={principle.body} />
+            </Reveal>
+          ))}
+        </RevealGroup>
+      </SectionShell>
+
+      <SectionShell innerClassName={styles.closing}>
+        <RevealGroup>
+          <SectionIntro center label="Next" title="Find the template for the step you are on" />
+        </RevealGroup>
+        <RevealGroup as="ul" className={styles.next}>
+          <Reveal as="li" effect="fade-up" index={0}>
+            <ActionRow fill padded arrow="right" href="/catalog" label="Browse the catalog" />
+          </Reveal>
+          <Reveal as="li" effect="fade-up" index={1}>
+            <ActionRow fill padded arrow="right" rule="both" href="/contact" label="Get in touch" />
+          </Reveal>
+        </RevealGroup>
+      </SectionShell>
+    </PageShell>
   );
 }

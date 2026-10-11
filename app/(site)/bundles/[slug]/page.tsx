@@ -1,13 +1,19 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { AddToCart } from "@/components/cart/add-to-cart";
-import { TemplateCard } from "@/components/catalog/template-card";
 import { Breadcrumbs } from "@/components/layout/breadcrumbs";
-import { Container } from "@/components/layout/container";
-import { Badge } from "@/components/ui/badge";
+import { PageTitle } from "@/components/layout/page-title";
+import { PurchasePanel } from "@/components/product/purchase-panel";
+import { ActionRow } from "@/components/ui/action-row";
+import { Container } from "@/components/ui/container";
+import { PageShell } from "@/components/ui/page-shell";
+import { StatGrid } from "@/components/ui/stat-grid";
+import { DELIVERABLE_TYPE_LABELS, FORMAT_LABELS } from "@/content/taxonomy";
 import { bundleSavingsCents, bundleValueCents } from "@/lib/catalog/pricing";
 import { getBundle, getBundleTemplates, getBundles, getPhases } from "@/lib/catalog/repository";
+import { cx } from "@/lib/cx";
 import { formatPrice } from "@/lib/format";
+import styles from "./page.module.css";
 
 type BundlePageProps = { params: Promise<{ slug: string }> };
 
@@ -31,69 +37,65 @@ export default async function BundlePage({ params }: BundlePageProps) {
     .map((phase) => ({ phase, templates: templates.filter((t) => t.phase === phase.slug) }))
     .filter((group) => group.templates.length > 0);
 
+  const stats = [
+    { label: "Templates", value: String(templates.length) },
+    { label: "Total value", value: formatPrice(value) },
+    { label: "Bundle price", value: formatPrice(bundle.priceCents) },
+    ...(savings > 0 ? [{ label: "You save", value: formatPrice(savings) }] : []),
+  ];
+
   return (
-    <Container className="py-10 sm:py-14">
-      <Breadcrumbs
-        items={[
-          { href: "/", label: "Home" },
-          { href: "/bundles", label: "Bundles" },
-          { label: bundle.title },
-        ]}
+    <PageShell>
+      <PageTitle
+        title={bundle.title}
+        lead={bundle.summary}
+        eyebrow={
+          <Breadcrumbs
+            items={[
+              { href: "/", label: "Home" },
+              { href: "/bundles", label: "Bundles" },
+              { label: bundle.title },
+            ]}
+          />
+        }
       />
 
-      <div className="mt-8 grid gap-10 lg:grid-cols-[1fr_20rem]">
-        <div>
-          <div className="flex flex-wrap gap-1.5">
-            <Badge tone="accent">Bundle</Badge>
-            <Badge>{templates.length} templates</Badge>
-          </div>
-          <h1 className="mt-4 text-4xl font-semibold break-words sm:text-5xl">{bundle.title}</h1>
-          <p className="text-muted mt-4 text-xl">{bundle.summary}</p>
-          <p className="mt-6 max-w-2xl">{bundle.description}</p>
+      <Container className={styles.layout}>
+        <PurchasePanel
+          priceCents={bundle.priceCents}
+          note="One-time purchase, editable files"
+          className={styles.panel}
+        >
+          <AddToCart line={{ kind: "bundle", slug: bundle.slug }} label="Add bundle to cart" />
+        </PurchasePanel>
+
+        <div className={styles.details}>
+          <p className={cx("t-body-large", "c-fg-80", styles.description)}>{bundle.description}</p>
+
+          <StatGrid items={stats} />
+
+          {groups.map(({ phase, templates: inPhase }) => (
+            <section key={phase.slug} className={styles.section}>
+              <h2 className="t-headline-large">{`${phase.name} · ${inPhase.length}`}</h2>
+              <ul className={styles.rows}>
+                {inPhase.map((template, index) => (
+                  <li key={template.slug}>
+                    <ActionRow
+                      fill
+                      arrow="right"
+                      href={`/templates/${template.slug}`}
+                      label={template.title}
+                      caption={`${DELIVERABLE_TYPE_LABELS[template.deliverableType]} · ${FORMAT_LABELS[template.format]}`}
+                      trailing={formatPrice(template.priceCents)}
+                      rule={index === inPhase.length - 1 ? "both" : "top"}
+                    />
+                  </li>
+                ))}
+              </ul>
+            </section>
+          ))}
         </div>
-
-        <aside aria-label="Purchase" className="lg:sticky lg:top-6 lg:self-start">
-          <div className="border-rule bg-surface rounded-lg border p-6">
-            <p className="font-display text-4xl font-semibold tabular-nums">
-              {formatPrice(bundle.priceCents)}
-            </p>
-            <dl className="mt-4 space-y-2 text-sm">
-              <div className="flex justify-between gap-4">
-                <dt className="text-muted">Total value</dt>
-                <dd className="tabular-nums">{formatPrice(value)}</dd>
-              </div>
-              <div className="flex justify-between gap-4">
-                <dt className="text-muted">Bundle price</dt>
-                <dd className="tabular-nums">{formatPrice(bundle.priceCents)}</dd>
-              </div>
-              {savings > 0 && (
-                <div className="border-rule text-accent flex justify-between gap-4 border-t pt-2 font-semibold">
-                  <dt>You save</dt>
-                  <dd className="tabular-nums">{formatPrice(savings)}</dd>
-                </div>
-              )}
-            </dl>
-            <div className="mt-5">
-              <AddToCart line={{ kind: "bundle", slug: bundle.slug }} label="Add bundle to cart" />
-            </div>
-          </div>
-        </aside>
-      </div>
-
-      {groups.map(({ phase, templates: inPhase }) => (
-        <section key={phase.slug} className="border-rule mt-14 border-t pt-10">
-          <h2 className="text-2xl font-semibold">
-            {phase.name} <span className="text-muted">· {inPhase.length}</span>
-          </h2>
-          <ul className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-            {inPhase.map((template) => (
-              <li key={template.slug}>
-                <TemplateCard template={template} />
-              </li>
-            ))}
-          </ul>
-        </section>
-      ))}
-    </Container>
+      </Container>
+    </PageShell>
   );
 }

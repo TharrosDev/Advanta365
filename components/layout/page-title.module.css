@@ -1,0 +1,35 @@
+/* The hairline on top comes from the global `.ruled` class: it sits directly under the
+   (absolute) header and reads as the header rule. */
+.inner {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-md);
+  min-height: calc(var(--viewport-height) / 2 - var(--site-header-height));
+  padding-block: var(--spacing-xl) var(--spacing-xl4);
+}
+
+.eyebrow {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-xs2);
+}
+
+/* Long titles set in two balanced lines; a title may carry explicit line breaks. A single word
+   wider than a phone screen breaks inside itself instead of overflowing the page. */
+.title {
+  max-width: var(--measure-heading);
+  overflow-wrap: anywhere;
+  white-space: pre-line;
+}
+
+.body {
+  max-width: var(--measure-intro);
+}
+
+@media (min-width: 768px) {
+  .inner {
+    gap: var(--spacing-xl);
+    min-height: 0;
+    padding-block: var(--spacing-xl) var(--spacing-xl6);
+  }
+}
