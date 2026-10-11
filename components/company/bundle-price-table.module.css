@@ -1,13 +1,9 @@
 /*
- * Phone first, like the comparison table: every part is a block, each row is a short card with the
- * bundle's name as its heading and the figures as label and value pairs. From 40em the table parts
- * get their table display back. The head row stays in the page for assistive technology on a
- * phone, clipped out of sight.
+ * A ledger that is a table. Phone first, like the comparison table: every part is a block, each row
+ * is a short card with the bundle's name as its heading and the figures as label and value pairs,
+ * kept apart by hairlines. From 40em the table parts get their table display back. The head row
+ * stays in the page for assistive technology on a phone, clipped out of sight.
  */
-.sheet {
-  overflow: hidden;
-}
-
 .table,
 .body,
 .row,
@@ -18,6 +14,7 @@
 .table {
   width: 100%;
   border-collapse: collapse;
+  border-block-end: var(--hair) solid var(--line);
 }
 
 .head {
@@ -30,15 +27,16 @@
 }
 
 .row {
-  padding-block: var(--s-2);
+  padding-block: var(--s-3);
+  border-block-start: var(--hair) solid var(--line);
 }
 
-.row:nth-child(even) {
-  background: var(--stripe);
+.head .row {
+  border-block-start: 0;
 }
 
 .cell {
-  padding: var(--s-1) var(--s-2);
+  padding: var(--s-1) 0;
   text-align: start;
 }
 
@@ -104,16 +102,36 @@
   .row {
     display: table-row;
     padding-block: 0;
+    border-block-start: 0;
+  }
+
+  /* The rows are told apart by hairlines, the head by a firm line under it (the first row has no
+     hairline of its own: the line under the head is its top). */
+  .body .cell {
+    border-block-start: var(--hair) solid var(--line);
+  }
+
+  .body .row:first-child .cell {
+    border-block-start: 0;
   }
 
   .cell {
     display: table-cell;
-    padding: var(--s-2);
+    padding: var(--s-3) var(--s-2);
     vertical-align: baseline;
   }
 
+  .name {
+    padding-inline-start: 0;
+  }
+
+  .number:last-child {
+    padding-inline-end: 0;
+  }
+
   .headCell {
-    border-block-end: var(--edge) solid var(--line-ink);
+    padding-block: var(--s-2);
+    border-block-end: var(--hair) solid var(--line-firm);
   }
 
   /* The head row sets the widths: each figure gets what its heading needs, the name keeps the rest. */
@@ -144,10 +162,6 @@
 }
 
 @media (min-width: 68em) {
-  .cell {
-    padding-inline: var(--s-3);
-  }
-
   .wideFigure,
   .narrowFigure,
   .midFigure {
@@ -156,5 +170,13 @@
 
   .name a::after {
     content: none;
+  }
+}
+
+@media (forced-colors: active) {
+  .table,
+  .row,
+  .body .cell {
+    border-color: GrayText;
   }
 }

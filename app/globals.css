@@ -1,3 +1,5 @@
+@import "./motion.css";
+
 /* Working Copy tokens. Raw colour values live only here and in app/icon.svg. */
 :root {
   color-scheme: light;
@@ -37,8 +39,36 @@
 
   /* Overlays and depth */
   --scrim: rgb(11 13 18 / 0.5);
-  --lift: 0 14px 28px -14px rgb(11 13 18 / 0.28);
   --bar-shadow: 0 10px 21px -14px rgb(11 13 18 / 0.4);
+
+  /* Ink pigments, read by lib/ink/pigments.ts */
+  --pigment-paper: var(--paper);
+  --pigment-binder: var(--binder);
+  --pigment-black: #10131a;
+  --pigment-blue: var(--mark-deep); /* light grounds */
+  --pigment-blue-dark: var(--mark); /* dark grounds */
+  --pigment-pale: #c3cedf;
+
+  /* Paper: white at the light, a shade darker at its far corners, with a pre-rendered tooth */
+  --paper-shade: #f1f3f7;
+  --grain: url("/paper/grain.png");
+
+  /*
+   * Elevation. 0 a hairline ring, 1 a thumbnail or a tab, 2 an object at rest, 3 an object lifted
+   * or a panel, 4 the top of a stack, the drawer and dialogs. Below 68em depths 3 and 4 have two
+   * layers; from 68em four.
+   */
+  --depth-0: 0 0 0 1px rgb(11 13 18 / 0.06);
+  --depth-1:
+    0 0 0 1px rgb(11 13 18 / 0.05), 0 1px 2px rgb(11 13 18 / 0.06),
+    0 3px 6px -2px rgb(11 13 18 / 0.06);
+  --depth-2:
+    0 0 0 1px rgb(11 13 18 / 0.05), 0 2px 4px -1px rgb(11 13 18 / 0.06),
+    0 10px 20px -8px rgb(11 13 18 / 0.12), 0 28px 44px -24px rgb(11 13 18 / 0.14);
+  --depth-3: 0 0 0 1px rgb(11 13 18 / 0.05), 0 12px 24px -8px rgb(11 13 18 / 0.18);
+  --depth-4: 0 0 0 1px rgb(11 13 18 / 0.05), 0 20px 40px -12px rgb(11 13 18 / 0.24);
+  --depth-on-ink: 0 0 0 1px rgb(255 255 255 / 0.08), 0 20px 40px -12px rgb(0 0 0 / 0.6);
+  --lift: var(--depth-3); /* kept as an alias */
 
   /*
    * Semantic layer: what components read. Each [data-band] redefines it. The focus ring is ink on
@@ -60,6 +90,9 @@
   --face-display: var(--font-besley), Rockwell, "Roboto Slab", Georgia, serif;
   --face-text:
     var(--font-atkinson), "Segoe UI", system-ui, -apple-system, "Helvetica Neue", Arial, sans-serif;
+  --size-poster: clamp(7rem, 2.171rem + 19.81vw, 20rem); /* 112 to 320 */
+  --size-hero: clamp(2.5rem, 1.5714rem + 3.8095vw, 5rem); /* 40 to 80; 73.9 at 1280 */
+  --size-statement: clamp(2.125rem, 1.243rem + 3.619vw, 4.5rem); /* 34 to 72 */
   --size-figure: clamp(6rem, 3.809rem + 8.989vw, 11rem);
   --size-banner: clamp(2.125rem, 1.5225rem + 2.472vw, 3.5rem);
   --size-page: clamp(1.75rem, 1.4213rem + 1.348vw, 2.5rem);
@@ -90,6 +123,7 @@
   --col-gap: 0.875rem; /* 14 */
   --band-pad: var(--s-6); /* 56 */
   --bar-h: 3.5rem; /* 56 */
+  --strip-h: 0px; /* the beta strip sets it while it is shown */
   --rail-h: 2.625rem; /* 42 */
   --wrap-copy: 36rem;
   --wrap-lead: 40rem;
@@ -109,31 +143,32 @@
   --hair: 1px;
 
   /* Layers (dialogs use the top layer) */
+  --layer-over: 5;
   --layer-bar: 50;
   --layer-skip: 90;
   --layer-cover: 100;
 
-  /* Motion */
+  /* Motion: app/motion.css and the modules read these */
+  --time-press: 90ms;
   --time-swap: 120ms;
   --time-enter: 240ms;
   --time-exit: 160ms;
   --time-fill: 180ms;
   --time-fill-gap: 80ms;
   --time-blink: 1100ms;
+  --time-lift: 260ms;
+  --time-ink: 640ms;
+  --time-settle: 560ms;
+  --time-count: 1200ms;
+  --time-page-out: 140ms;
+  --time-page-in: 260ms;
+  --time-morph: 420ms;
+  --stagger: 70ms;
   --curve-settle: cubic-bezier(0.22, 0.61, 0.36, 1);
   --curve-leave: cubic-bezier(0.55, 0.06, 0.68, 0.19);
-
-  /*
-   * The cover of a first visit (components/intro). Its steps are counted in beats from first paint:
-   * the cover starts to lift at beat 24 and is gone nine beats later, 2.31s in all. A visitor who
-   * presses, types or scrolls has it off in `--time-intro-skip`. The hero sheet starts at beat 25.
-   */
-  --time-intro-beat: 70ms;
-  --time-intro-cover: 1680ms;
-  --time-intro-lift: 630ms;
-  --time-intro-skip: 200ms;
-  --time-intro-hold: 1750ms;
-  --curve-lift: cubic-bezier(0.68, 0, 0.16, 1);
+  --curve-ink: cubic-bezier(0.16, 0.84, 0.3, 1);
+  --curve-drop: cubic-bezier(0.3, 1.25, 0.5, 1);
+  --curve-pen: cubic-bezier(0.65, 0, 0.2, 1);
 }
 
 @media (min-width: 40em) {
@@ -149,6 +184,12 @@
     --page-pad: 2.625rem; /* 42 */
     --col-gap: 1.75rem; /* 28 */
     --bar-h: 4.375rem; /* 70 */
+    --depth-3:
+      0 0 0 1px rgb(11 13 18 / 0.05), 0 4px 8px -2px rgb(11 13 18 / 0.07),
+      0 20px 36px -12px rgb(11 13 18 / 0.16), 0 48px 72px -32px rgb(11 13 18 / 0.2);
+    --depth-4:
+      0 0 0 1px rgb(11 13 18 / 0.05), 0 8px 14px -4px rgb(11 13 18 / 0.08),
+      0 32px 56px -16px rgb(11 13 18 / 0.2), 0 84px 112px -42px rgb(11 13 18 / 0.26);
   }
 }
 
@@ -195,6 +236,8 @@
   --focus-ring: var(--ink);
 }
 
+/* The two black grounds, the footer and the ink band of a statement, share their values. */
+[data-band="ink"],
 [data-band="binder"] {
   --ground: var(--binder);
   --surface: var(--binder-rise);
@@ -207,33 +250,6 @@
   --line-firm: var(--on-binder-soft);
   --line-ink: var(--on-binder);
   --focus-ring: var(--mark);
-}
-
-/*
- * A first visit to the home page opens under the cover, and the inline script marks the root
- * element for as long as that first paint is in motion. The hero sheet waits for the cover: its
- * tally fills as the cover lifts and its caret blinks twice, not three times, so that everything
- * that moves by itself is still over within five seconds (1750 + 12 x 80 + 2 x 1100 = 4910ms).
- */
-:root[data-intro] {
-  --intro-hold: var(--time-intro-hold);
-  --intro-blinks: 2;
-}
-
-/*
- * A classic scrollbar is not part of the page, so the cover cannot lie over it. Until the page
- * comes into play it is drawn in ink, thumb and track, and the cover reaches the edge of the
- * window; then it is the browser's own again. An animation, not a rule, so it ends by itself.
- */
-@keyframes intro-scrollbar {
-  from,
-  to {
-    scrollbar-color: var(--ink) var(--ink);
-  }
-}
-
-:root[data-intro="play"] {
-  animation: intro-scrollbar var(--time-intro-hold) linear;
 }
 
 /* Base. No list reset here: each module resets its own lists. */
@@ -256,7 +272,7 @@ html:has(dialog[open]) {
 
 body {
   margin: 0;
-  background: var(--desk);
+  background: var(--paper);
   color: var(--ink);
   font-family: var(--face-text);
   font-size: var(--size-copy);
@@ -324,6 +340,30 @@ select {
  * length belong to the component. Besley speaks for the documents, Atkinson Hyperlegible Next for
  * the store.
  */
+.type-poster {
+  font-family: var(--face-display);
+  font-size: var(--size-poster);
+  line-height: 0.86;
+  font-weight: 800;
+  letter-spacing: 0;
+}
+
+.type-hero {
+  font-family: var(--face-display);
+  font-size: var(--size-hero);
+  line-height: 1.04;
+  font-weight: 600;
+  letter-spacing: 0;
+}
+
+.type-statement {
+  font-family: var(--face-display);
+  font-size: var(--size-statement);
+  line-height: 1.06;
+  font-weight: 600;
+  letter-spacing: 0;
+}
+
 .type-figure {
   font-family: var(--face-display);
   font-size: var(--size-figure);
@@ -434,6 +474,9 @@ select {
  * figures, also when `.tabular` is set on them or inside them. A module that sets
  * `--face-display` itself on a numeral adds this same declaration.
  */
+.type-poster,
+.type-hero,
+.type-statement,
 .type-figure,
 .type-banner,
 .type-page,

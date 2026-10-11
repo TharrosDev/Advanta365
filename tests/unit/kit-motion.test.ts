@@ -1,0 +1,177 @@
+import { readFileSync } from "node:fs";
+import { fileURLToPath } from "node:url";
+import { describe, expect, it } from "vitest";
+
+/**
+ * The standing rules of app/motion.css, read from the stylesheet as text:
+ *
+ * - every `@keyframes`, and every declaration that makes something animate or change over time,
+ *   sits inside `@media (prefers-reduced-motion: no-preference)`. Turning one off (`none`) is not
+ *   movement and may stand anywhere;
+ * - inside one rule `animation-timeline` and `animation-range` come after the `animation`
+ *   shorthand, which would otherwise set them back to their initial values;
+ * - nothing is hidden unless the root element says movement is on.
+ */
+
+const FILE = "app/motion.css";
+const SOURCE = readFileSync(fileURLToPath(new URL(`../../${FILE}`, import.meta.url)), "utf8");
+const NO_PREFERENCE = "@media (prefers-reduced-motion: no-preference)";
+
+type Declaration = { property: string; value: string };
+type Block = { prelude: string; parents: string[]; declarations: Declaration[] };
+
+/** Every block of a stylesheet, with the preludes of the blocks around it, outermost first. */
+function blocksOf(css: string): Block[] {
+  const text = css.replace(/\/\*[\s\S]*?\*\//g, "");
+  const blocks: Block[] = [];
+  const open: Block[] = [];
+  let buffer = "";
+
+  const flush = () => {
+    const declaration = buffer.trim();
+    buffer = "";
+    const colon = declaration.indexOf(":");
+    const block = open.at(-1);
+    if (!block || colon === -1) return;
+    block.declarations.push({
+      property: declaration.slice(0, colon).trim(),
+      value: declaration.slice(colon + 1).trim(),
+    });
+  };
+
+  for (const character of text) {
+    if (character === "{") {
+      const block: Block = {
+        prelude: buffer.trim().replace(/\s+/g, " "),
+        parents: open.map((parent) => parent.prelude),
+        declarations: [],
+      };
+      buffer = "";
+      blocks.push(block);
+      open.push(block);
+    } else if (character === "}") {
+      flush();
+      open.pop();
+    } else if (character === ";") {
+      flush();
+    } else {
+      buffer += character;
+    }
+  }
+  return blocks;
+}
+
+const isOff = (value: string) => value.replace("!important", "").trim() === "none";
+const movesOverTime = (property: string) => /^(animation|transition)(-|$)/.test(property);
+
+describe("the block reader", () => {
+  it("reads nested blocks, their parents and their declarations", () => {
+    const blocks = blocksOf(`
+      /* a { animation: x; } */
+      @media (a) { @media (b) { .c > ::before { animation: d 1s; animation-timeline: view(); } } }
+      .e { transition: none !important }
+    `);
+    expect(blocks.map((block) => block.prelude)).toEqual([
+      "@media (a)",
+      "@media (b)",
+      ".c > ::before",
+      ".e",
+    ]);
+    expect(blocks[2]?.parents).toEqual(["@media (a)", "@media (b)"]);
+    expect(blocks[2]?.declarations).toEqual([
+      { property: "animation", value: "d 1s" },
+      { property: "animation-timeline", value: "view()" },
+    ]);
+    expect(blocks[3]?.declarations).toEqual([{ property: "transition", value: "none !important" }]);
+  });
+});
+
+describe(FILE, () => {
+  const blocks = blocksOf(SOURCE);
+  const guarded = (block: Block) => block.parents.includes(NO_PREFERENCE);
+
+  it("is read as a stylesheet with its keyframes and its rules", () => {
+    const keyframes = blocks.filter((block) => block.prelude.startsWith("@keyframes "));
+    expect(keyframes.map((block) => block.prelude.slice("@keyframes ".length))).toEqual(
+      expect.arrayContaining([
+        "move-drift",
+        "move-ink-in",
+        "move-ink-in-plain",
+        "move-settle",
+        "move-shadow",
+        "move-grow",
+      ]),
+    );
+    expect(blocks.some((block) => block.prelude === NO_PREFERENCE)).toBe(true);
+  });
+
+  it("keeps every @keyframes inside the no-preference query", () => {
+    const outside = blocks
+      .filter((block) => block.prelude.startsWith("@keyframes ") && !guarded(block))
+      .map((block) => block.prelude);
+    expect(outside).toEqual([]);
+  });
+
+  it("keeps every animation and transition declaration inside the no-preference query", () => {
+    const outside: string[] = [];
+    for (const block of blocks) {
+      if (guarded(block)) continue;
+      for (const { property, value } of block.declarations) {
+        if (movesOverTime(property) && !isOff(value)) {
+          outside.push(`${block.prelude} { ${property}: ${value} }`);
+        }
+      }
+    }
+    expect(outside).toEqual([]);
+  });
+
+  it("never writes animation-timeline or animation-range before an animation shorthand", () => {
+    const wrong: string[] = [];
+    for (const block of blocks) {
+      const properties = block.declarations.map((declaration) => declaration.property);
+      const shorthand = properties.lastIndexOf("animation");
+      if (shorthand === -1) continue;
+      const early = properties.findIndex(
+        (property) => property === "animation-timeline" || property === "animation-range",
+      );
+      if (early !== -1 && early < shorthand) wrong.push(block.prelude);
+    }
+    expect(wrong).toEqual([]);
+  });
+
+  it("names a timeline only together with the range it runs over", () => {
+    const loose = blocks
+      .filter((block) => {
+        const properties = block.declarations.map((declaration) => declaration.property);
+        return properties.includes("animation-timeline") && !properties.includes("animation-range");
+      })
+      .map((block) => block.prelude);
+    expect(loose).toEqual([]);
+  });
+
+  it("hides nothing unless the root element says movement is on", () => {
+    const hidden: string[] = [];
+    for (const block of blocks) {
+      if (block.prelude.startsWith("@") || block.parents.some((p) => p.startsWith("@keyframes"))) {
+        continue;
+      }
+      const hides = block.declarations.some(
+        ({ property, value }) =>
+          (property === "opacity" && Number.parseFloat(value) === 0) ||
+          (property === "visibility" && value === "hidden"),
+      );
+      if (hides && !block.prelude.includes('html[data-motion="on"]')) hidden.push(block.prelude);
+    }
+    expect(hidden).toEqual([]);
+  });
+
+  it("repeats nothing and registers no custom property", () => {
+    // Spelled in two halves: the design gate reads this file too.
+    expect(SOURCE).not.toMatch(new RegExp(["infi", "nite"].join(""), "i"));
+    expect(SOURCE).not.toMatch(new RegExp(["@prop", "erty"].join("")));
+    const counts = blocks
+      .flatMap((block) => block.declarations)
+      .filter(({ property }) => property === "animation-iteration-count");
+    expect(counts).toEqual([]);
+  });
+});

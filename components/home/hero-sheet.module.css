@@ -1,44 +1,12 @@
 /*
- * The hero sheet. `--tabs` is the room the index tabs need on the right of the top sheet: the stack
- * is that much wider than the sheet, so the whole drawing stays inside its columns.
+ * The specimen's top sheet. The stack, its sheets beneath and the paper itself come from
+ * `PaperStack` and `PaperSheet`; this file only sets what is printed on the sheet.
  */
-.stack {
-  --tabs: calc(var(--s-1) * 5);
-  position: relative;
-  width: 100%;
-  color: var(--text);
-}
-
-/* Two sheets under the top one, the size of the top one and tilted off it. */
-.back {
-  position: absolute;
-  inset-block: 0;
-  left: 0;
-  width: calc(100% - var(--tabs));
-  border: var(--hair) solid var(--line);
-  border-radius: var(--round-3);
-  background: var(--surface);
-}
-
-.backLeft {
-  display: none;
-  transform: rotate(-2.5deg) translate(-7px, 14px);
-}
-
-.backRight {
-  transform: rotate(1.8deg) translate(7px, 7px);
-}
-
 .page {
-  position: relative;
   display: flex;
   flex-direction: column;
-  width: calc(100% - var(--tabs));
   padding: var(--s-3);
-  border: var(--hair) solid var(--line);
-  border-radius: var(--round-3);
-  background: var(--surface);
-  box-shadow: var(--lift);
+  color: var(--text);
 }
 
 /* Format at the left, the phase at the right. */
@@ -57,19 +25,14 @@
 }
 
 /* Besley's own figures: see the note on the display classes in globals.css. */
-.numeral,
-.tab {
+.numeral {
   font-family: var(--face-display);
-  font-size: 0.875rem;
+  font-size: var(--size-note);
   line-height: 1;
   font-weight: 700;
   font-feature-settings: "tnum" 0;
 }
 
-/*
- * Two lines from 40em. A phone's sheet is as tall as its content and much narrower, so the title
- * gets a third line there before it is cut ("Executive Sponsor" alone fills a line at 320px).
- */
 .title {
   display: -webkit-box;
   margin-block-start: var(--s-3);
@@ -89,21 +52,17 @@
   line-clamp: 3;
 }
 
-/* The template's own facts: 35px rows, every second one on the stripe. */
+/* The template's own facts: a small ledger, label at the left and value at the right. */
 .facts {
-  display: flex;
-  flex-direction: column;
   margin-block-start: var(--s-3);
 }
 
-.fact {
+.fact.fact {
+  --row-pad-block: var(--s-1);
   display: flex;
-  align-items: center;
+  align-items: baseline;
   justify-content: space-between;
   gap: var(--s-2);
-  height: calc(var(--s-1) * 5);
-  padding-inline: 10px;
-  border-radius: var(--round-1);
 }
 
 .factLabel {
@@ -113,6 +72,7 @@
 
 .factValue.factValue {
   min-width: 0;
+  margin: 0;
   overflow: hidden;
   font-weight: 700;
   text-align: right;
@@ -120,101 +80,10 @@
   white-space: nowrap;
 }
 
-/* A phone keeps Phase, Type and Format; the stripes follow the rows that are shown. */
-.wideOnly {
-  display: none;
-}
-
-.phoneStripe {
-  background: var(--stripe);
-}
-
 .blank {
   margin-block-start: var(--s-3);
 }
 
-/* Pinned to the foot of the sheet, never closer than 21px to the blank. */
 .foot {
-  margin-block-start: auto;
   padding-block-start: var(--s-3);
-}
-
-/* Index tabs on the right edge. They overlap the sheet's own border so each reads as part of it. */
-.tabs {
-  position: absolute;
-  top: var(--s-4);
-  left: 100%;
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  gap: var(--s-1);
-}
-
-.tab {
-  display: grid;
-  place-items: center;
-  width: calc(var(--s-1) * 4);
-  height: calc(var(--s-1) * 5);
-  border: var(--hair) solid var(--line);
-  border-left-width: 0;
-  border-radius: 0 var(--round-2) var(--round-2) 0;
-  background: var(--surface);
-  color: var(--text);
-}
-
-/* The specimen's phase: pulled out a little further, in the highlighter, with an ink border. */
-.tabCurrent {
-  width: calc(var(--s-1) * 5);
-  border: var(--edge) solid var(--ink);
-  background: var(--mark);
-  color: var(--on-mark);
-}
-
-@media (min-width: 40em) {
-  .stack {
-    --tabs: calc(var(--s-1) * 7);
-  }
-
-  .backLeft {
-    display: block;
-  }
-
-  .page {
-    min-height: calc(var(--s-1) * 77);
-    padding: var(--s-4);
-  }
-
-  .title {
-    -webkit-line-clamp: 2;
-    line-clamp: 2;
-  }
-
-  .wideOnly {
-    display: flex;
-  }
-
-  .phoneStripe {
-    background: transparent;
-  }
-
-  .wideStripe {
-    background: var(--stripe);
-  }
-
-  .tab {
-    width: calc(var(--s-1) * 5);
-    height: var(--s-5);
-  }
-
-  .tabCurrent {
-    width: var(--s-5);
-  }
-}
-
-@media (forced-colors: active) {
-  .tabCurrent {
-    border-color: CanvasText;
-    background: Highlight;
-    color: HighlightText;
-  }
 }

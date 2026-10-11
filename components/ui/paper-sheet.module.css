@@ -1,0 +1,119 @@
+.root {
+  /* Paper is a light surface on every band. */
+  --ground: var(--paper);
+  --surface: var(--paper);
+  --stripe: var(--desk);
+  --tile: var(--desk-deep);
+  --text: var(--ink);
+  --text-soft: var(--ink-soft);
+  --text-faint: var(--ink-faint);
+  --line: var(--rule);
+  --line-firm: var(--rule-firm);
+  --line-ink: var(--ink);
+  --focus-ring: var(--ink);
+
+  --sheet-rest: var(--depth-2);
+  --sheet-lifted: var(--depth-3);
+  --sheet-light: radial-gradient(
+    farthest-corner at var(--lx, 14%) var(--ly, 8%),
+    var(--paper),
+    var(--paper-shade)
+  );
+
+  position: relative;
+  display: block;
+  isolation: isolate;
+  border-radius: var(--round-1);
+  box-shadow: var(--sheet-rest);
+  color: var(--text);
+  rotate: var(--turn, 0deg);
+}
+
+/* The paper itself, under the content. `--sheet-clip` cuts the paper and leaves the shadow. */
+.root::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  border-radius: inherit;
+  background: var(--sheet-light);
+  clip-path: var(--sheet-clip, none);
+  pointer-events: none;
+}
+
+.md::before,
+.lg::before {
+  background:
+    var(--grain) 0 0 / 8rem 8rem,
+    var(--sheet-light);
+}
+
+/* The lifted shadow: drawn all the time, shown by its opacity (app/motion.css). */
+.root::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  border-radius: inherit;
+  box-shadow: var(--sheet-lifted);
+  opacity: 0;
+  pointer-events: none;
+}
+
+.portrait {
+  aspect-ratio: 5 / 7;
+}
+
+.landscape {
+  aspect-ratio: 4 / 3;
+}
+
+.slide {
+  aspect-ratio: 16 / 9;
+}
+
+.depth0 {
+  --sheet-rest: var(--depth-0);
+}
+
+.depth1 {
+  --sheet-rest: var(--depth-1);
+}
+
+.depth3 {
+  --sheet-rest: var(--depth-3);
+  --sheet-lifted: var(--depth-4);
+}
+
+.depth4 {
+  --sheet-rest: var(--depth-4);
+  --sheet-lifted: var(--depth-4);
+}
+
+/* More contrast: plain paper inside an ink line. */
+@media (prefers-contrast: more) {
+  .root {
+    border: var(--hair) solid var(--ink);
+    box-shadow: none;
+  }
+
+  .root::before {
+    background: var(--paper);
+  }
+
+  .root::after {
+    display: none;
+  }
+}
+
+@media (forced-colors: active) {
+  .root {
+    border: var(--hair) solid CanvasText;
+    box-shadow: none;
+  }
+
+  .root::before,
+  .root::after {
+    display: none;
+  }
+}

@@ -1,14 +1,11 @@
 /*
- * A row has no padding of its own: the question button and the answer carry the row's padding, so
- * the button fills the row and its whole width is the target. The doubled selector beats the
- * padding the banded row sets.
+ * A ledger of questions. A row has no padding of its own: the question button carries it, so the
+ * button fills the row and its whole width is the target. The doubled selector beats the padding
+ * the ledger row sets. Like a link in a ledger, the button stands 14px past both ends of its row,
+ * so the wash under the pointer has room around the text, and the row is 84px high from 40em.
  */
 .item.item {
   padding: 0;
-}
-
-.item.item[data-open="true"] {
-  background: var(--surface);
 }
 
 .heading {
@@ -20,15 +17,23 @@
   align-items: center;
   justify-content: space-between;
   gap: var(--s-2);
-  width: 100%;
+  width: calc(100% + 2 * var(--row-pad-inline));
   min-height: var(--control-lg);
-  padding: var(--row-pad-block) var(--row-pad-inline);
+  margin-inline: calc(-1 * var(--row-pad-inline));
+  padding: var(--s-2) var(--row-pad-inline);
   border: 0;
+  border-radius: var(--round-2);
   background: none;
   color: var(--text);
   text-align: start;
   cursor: pointer;
   transition: background-color var(--time-swap) linear;
+}
+
+@media (min-width: 40em) {
+  .trigger {
+    min-height: var(--s-7);
+  }
 }
 
 .question {
@@ -61,12 +66,10 @@
 .panel {
   display: grid;
   grid-template-rows: 0fr;
-  transition: grid-template-rows var(--time-exit) var(--curve-leave);
 }
 
 .item[data-open="true"] .panel {
   grid-template-rows: 1fr;
-  transition: grid-template-rows var(--time-enter) var(--curve-settle);
 }
 
 .panelInner {
@@ -75,7 +78,7 @@
 }
 
 .panelContent {
-  padding: 0 var(--row-pad-inline) var(--s-3);
+  padding: 0 0 var(--s-4);
 }
 
 .answer {
@@ -83,9 +86,12 @@
   color: var(--text-soft);
 }
 
-@media (prefers-reduced-motion: reduce) {
-  .panel,
+@media (prefers-reduced-motion: no-preference) {
+  .panel {
+    transition: grid-template-rows var(--time-exit) var(--curve-leave);
+  }
+
   .item[data-open="true"] .panel {
-    transition: none;
+    transition: grid-template-rows var(--time-enter) var(--curve-settle);
   }
 }

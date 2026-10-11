@@ -24,10 +24,11 @@ export async function generateMetadata({ params }: PhasePageProps): Promise<Meta
 }
 
 /**
- * One rollout phase. The title block carries the trail, the phase numeral with its place among the
- * phases, and links to the steps. Each step is then a band of its own, paper and desk in turn: the
- * step number and summary in the margin, the step name and its templates beside them. The page ends
- * with a link to the phase in the catalog.
+ * One rollout phase. The title block carries the trail and the links to the steps, over the ink,
+ * with the phase numeral, its place among the phases and a tally standing beside them. Each step is
+ * then a band of its own, desk and paper in turn: the step number and summary in the margin, the
+ * step name and its templates as index rows beside them. The page ends with a link to the phase in
+ * the catalog.
  */
 export default async function PhasePage({ params }: PhasePageProps) {
   const [phase, phases, templates] = await Promise.all([
@@ -44,15 +45,20 @@ export default async function PhasePage({ params }: PhasePageProps) {
     <>
       <TitleBlock
         form="document"
+        ink
         title={phase.name}
         lead={phase.summary}
         crumbs={<Breadcrumbs items={[{ href: "/", label: "Home" }, { label: phase.name }]} />}
-        meta={
+        aside={
           <div className={styles.place}>
-            <p className={cx("type-figure", styles.numeral)} aria-hidden="true">
+            <p
+              className={cx("type-poster", styles.numeral)}
+              aria-hidden="true"
+              data-ink-calm="display"
+            >
               {number}
             </p>
-            <div className={styles.count}>
+            <div className={styles.count} data-ink-calm="text">
               <p className="type-note">
                 Phase {number} of {phases.length}
               </p>
@@ -76,18 +82,23 @@ export default async function PhasePage({ params }: PhasePageProps) {
           <Band
             key={step.slug}
             id={step.slug}
-            surface={index % 2 === 0 ? "paper" : "desk"}
+            surface={index % 2 === 0 ? "desk" : "paper"}
             innerClassName={styles.step}
           >
             <p className={styles.stepNumber}>
               {number}.{index + 1}
             </p>
-            <h2 className={cx("type-section", styles.stepTitle)}>{step.name}</h2>
+            <h2 className={cx("type-page", styles.stepTitle)}>{step.name}</h2>
             <p className={cx("type-ui", styles.stepSummary)}>{step.summary}</p>
-            <ul className={styles.cards}>
-              {inStep.map((template) => (
+            <ul className={styles.rows}>
+              {inStep.map((template, position) => (
                 <li key={template.slug}>
-                  <TemplateCard template={template} />
+                  <TemplateCard
+                    template={template}
+                    phaseName={phase.name}
+                    phaseOrder={number}
+                    index={position + 1}
+                  />
                 </li>
               ))}
             </ul>
@@ -95,7 +106,7 @@ export default async function PhasePage({ params }: PhasePageProps) {
         );
       })}
 
-      <Band as="div" surface={phase.steps.length % 2 === 0 ? "paper" : "desk"} pad="tight">
+      <Band as="div" surface="paper" pad="tight">
         <Split>
           <Button variant="outline" arrow href={`/catalog?phase=${phase.slug}`}>
             {`View all ${phase.name} templates`}

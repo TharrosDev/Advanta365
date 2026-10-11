@@ -26,10 +26,10 @@ type CatalogPageProps = {
 };
 
 /**
- * The catalog. Under the title: a rail with the search, the sort order and the filters (grid
- * columns 1 to 3, staying under the bar from 68em) and the results beside it (columns 4 to 12),
- * with the margin rule between them. Below 68em the rail is a block above the results and the
- * filters open as a sheet.
+ * The catalog, an index of documents. Under the title: a rail with the search, the sort order and
+ * the filters (grid columns 1 to 3, staying under the bar from 68em) and the index beside it
+ * (columns 4 to 12): the count, then one row per template. Below 68em the rail is a block above
+ * the index and the filters open as a sheet.
  */
 export default async function CatalogPage({ searchParams }: CatalogPageProps) {
   const [params, phases, templates] = await Promise.all([
@@ -52,7 +52,7 @@ export default async function CatalogPage({ searchParams }: CatalogPageProps) {
         title="Catalog"
         lead="Organized by the seven phases of a rollout. The listings shown are sample content. Search by name or narrow by phase, deliverable type, app and audience."
       />
-      <Band as="div" surface="paper" pad="tight">
+      <Band as="div" surface="paper" pad="tight" className={styles.band}>
         <Split
           sticky
           marginClassName={styles.rail}

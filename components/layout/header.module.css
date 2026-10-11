@@ -1,3 +1,7 @@
+/*
+ * White, no border and no shadow of its own: app/motion.css draws the shadow on the bar's `::after`
+ * (`data-bar`), which needs the bar positioned and with a z-index of its own, as it is.
+ */
 .root {
   position: sticky;
   top: 0;
@@ -5,7 +9,6 @@
   height: var(--bar-h);
   background: var(--paper);
   color: var(--ink);
-  box-shadow: var(--bar-shadow);
   /* The bar is the container that the two micro-queries below measure. */
   container-type: inline-size;
 }

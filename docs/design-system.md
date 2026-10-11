@@ -1,9 +1,12 @@
-# Design system: Working Copy
+# Design system: Wet Ink
 
 Advanta365 sells working documents that are 90% written. The site is drawn as a working copy: white
 pages already written in black ink, with the few things left for the buyer marked in a light-blue
-highlighter. This document describes that look: the idea, the tokens, the primitives and the rules
-the code relies on. For how the parts connect, see `architecture.md`.
+highlighter. In this edition the ink is wet: black ink falls into clear water beside the headline and
+light blue blooms through it, the products are sheets of paper on a light table, and type is set
+large in Besley. This document describes that look: the idea, the tokens, the motion system, the
+ink, the primitives and the rules the code relies on. For how the parts connect, see
+`architecture.md`.
 
 The presentation layer is plain CSS Modules reading custom properties. Every visual value comes from
 a token in `app/globals.css`, so no component file carries a raw colour, a Tailwind class or a
@@ -11,16 +14,22 @@ one-off spacing value.
 
 ## Where things live
 
-- `app/globals.css`: the tokens, the four `[data-band]` surfaces, the base rules, the `.type-*`
+- `app/globals.css`: the tokens, the five `[data-band]` surfaces, the base rules, the `.type-*`
   classes, `.visually-hidden`, `.tabular`, the reduced-motion safety net and the forced-colours
-  rules. With `app/icon.svg` it is the only place that holds raw colour values.
+  rules. With `app/icon.svg` it is the only place that holds raw colour values. It starts with the
+  import of `app/motion.css`.
+- `app/motion.css`: the motion system (see "Motion"), the only stylesheet that names a scroll or
+  view timeline.
 - `app/layout.tsx`: the two fonts, loaded through `next/font/google` and exposed as `--font-besley`
-  and `--font-atkinson`, and the inline script of the cover, first thing in `<body>`.
+  and `--font-atkinson`, the inline boot script first thing in `<body>` and `MotionRoot` after the
+  children.
 - `components/ui/`: the primitives. Each has a `.module.css` beside it unless noted.
 - `components/layout/`: the shell (bar, phase rail, drawer, footer, beta strip) and the page-opening
   `TitleBlock`.
 - `components/intro/`: the cover a first visit to the home page opens under (see "The cover" under
-  Motion).
+  Ink). `components/ink/`: the backdrop, the layer and the pause button. `lib/ink/`: the engine, the
+  scenes, the zones and the stills manifest. `lib/boot/`: the boot script. `lib/scroll/`: the
+  observer and the pointer light. `public/ink/` holds the eleven stills, `public/paper/` the grain.
 - `lib/cx.ts`: `cx()` joins class names, `cssVars()` builds typed inline custom properties.
 - `lib/brand/mark.ts`: the logo mark, the single source for `LogoMark` and `app/icon.svg`.
 - `tests/unit/design-gate.test.ts`: fails when a retired name, value or technique comes back (see
@@ -39,11 +48,12 @@ are the reader's own.
 | ------ | ------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------- |
 | Ink    | Near-black for everything already done: text, line art, filled tally blocks, ticks, and the solid button            | Everywhere                                                                                                    |
 | Mark   | One light-blue highlighter for what the buyer owns or has chosen, always with ink text and an ink edge              | Current page or phase, a checked filter, the cart count, a saving, the blank, the tenth block, a hovered link |
-| Blank  | A highlighted empty field with a text caret                                                                         | Hero sheet, every template cover (foot), empty cart, 404, empty results                                       |
-| Tally  | A row of blocks. Nine inked and the tenth marked is the 90/10 claim; seven is "phase n of 7" or a bundle's coverage | Hero sheet, "The answer", closing, phase and template pages, bundle cards                                     |
-| Margin | A left column (columns 1 to 3) for labels, breadcrumbs and meta, with one vertical rule                             | Statement sections and every inner page                                                                       |
-| Tabs   | Numbered index tabs 1 to 7 for the phases; a folder tab on each bundle                                              | Phase rail, hero sheet, home phase list, bundle cards                                                         |
-| Sheets | White paper panels on a cool grey desk                                                                              | Cards, panels, tables, the facing sheets of problem and answer                                                |
+| Blank  | A highlighted empty field with a text caret                                                                         | The specimen, every template cover (foot), empty cart, 404, empty results                                       |
+| Tally  | A row of blocks. Nine inked and the tenth marked is the 90/10 claim; seven is "phase n of 7" or a bundle's coverage | The specimen, "The answer", closing, phase and template pages, bundle cards                                     |
+| Margin | A left column (columns 1 to 3) for labels, breadcrumbs and meta, with no rule beside it | Statement sections and the document pages |
+| Tabs   | Numbered index tabs 1 to 7 for the phases; a folder tab on each bundle                                              | Phase rail, home phase list, bundle cards                                                         |
+| Objects | Sheets of paper with tooth and layered shadow on a light desk: covers, stacks, folders, panels. Ledgers (rows between hairlines) where a list is read | Products, the purchase panel, tables, the specimen |
+| Ink | Real-time black and light-blue ink in water, behind a few headlines | The home hero, the ninety, the closing, the title blocks, the footer, the 404 |
 
 ### The rules of the Mark
 
@@ -81,8 +91,8 @@ with the mark.
 
 | Token              | Hex                   | Use                                                                                              |
 | ------------------ | --------------------- | ------------------------------------------------------------------------------------------------ |
-| `--paper`          | `#FFFFFF`             | Bar, sheets, cards, panels, tables, inputs, alternate bands                                      |
-| `--desk`           | `#F4F5F8`             | Page ground, first band of every page, even rows of banded lists                                 |
+| `--paper`          | `#FFFFFF`             | Page ground, bar, sheets, panels, tables, inputs, reading and ink bands                          |
+| `--desk`           | `#F4F5F8`             | The light table under objects: shelves of sheets and folders                                     |
 | `--desk-deep`      | `#E6E8EE`             | Cover tiles, the empty cart badge, disabled fills                                                |
 | `--rule`           | `#D2D5DE`             | Decorative borders and the margin rule. Never the only cue                                       |
 | `--rule-firm`      | `#70758A`             | Borders that identify a control (input, select, checkbox), empty tally blocks                    |
@@ -103,8 +113,9 @@ with the mark.
 | `--alert-wash`     | `#FBEAE5`             | Error message ground                                                                             |
 | `--scrim`          | `rgb(11 13 18 / 0.5)` | Dialog backdrop                                                                                  |
 
-Depth is two shadows and nothing else: `--lift` (hero sheet, dialogs) and `--bar-shadow` (the sticky
-bar), both cast in the ink colour.
+Depth is the `--depth-*` family and `--bar-shadow` (the sticky bar), all cast in the ink colour (see
+"Depth and paper objects"). `--lift` remains as an alias of `--depth-3`. The page itself is
+`--paper`; `--desk` is the light table under objects.
 
 ### Semantic layer
 
@@ -279,163 +290,203 @@ the sticky bar.
 
 ## Motion
 
-Four behaviours. Nothing fades or rises in on scroll, no text is split, no theme changes, nothing is
-tied to scroll position and there is no route transition. The page is complete at first paint and
-nothing waits for an animation: the one thing that can lie over a page, the cover of a first visit,
-lies over a finished one.
+One rule: the ink is the one thing that moves big. Everything else moves a little, by the same four
+verbs, and every verb has a reason. The page is complete at first paint: nothing waits for an
+animation, and what the visitor sees without JavaScript, under reduced motion or with the ink off is
+the same page.
 
-- **Shift**: a state change (hover, focus, press, current, open) on buttons, links, rows, cards,
-  tabs and the FAQ. Colour, border and underline change over `--time-swap`, linear. The arrow nudges
-  3px. A press is `translate: 0 1px`.
-- **Enter**: a panel arrives. The phone drawer comes in from the right, the filter sheet from the
-  bottom, with the scrim and the FAQ panel, over `--time-enter` with `--curve-settle`. The FAQ panel
-  closes over `--time-exit` with `--curve-leave`. Dialogs close instantly.
-- **Fill and blink**: once, on first paint, CSS only, on the hero sheet and nowhere else. Tally block
-  i (0 to 9) fills over `--time-fill` after a delay of `--time-enter` + i x `--time-fill-gap`. The
-  caret blinks over `--time-blink` with `steps(1, end)`, three times, then stays solid. The whole
-  sequence ends 4.5s after first paint, inside the 5s limit of WCAG 2.2.2. Under the cover it waits
-  for the cover and still ends inside that limit (see "The cover").
-- **Cover**: once per browser session, on the home page, when the home page is the first page the
-  session loads. An ink sheet lies over the page, is signed, and is lifted off. See "The cover".
+### The system
 
-Tokens:
+All of it lives in the global `app/motion.css` (the only stylesheet that may name a scroll or view
+timeline) and is asked for by hooks in the markup, never by a stylesheet of a page.
 
-| Token                | Value                                  |
-| -------------------- | -------------------------------------- |
-| `--time-swap`        | 120ms                                  |
-| `--time-enter`       | 240ms                                  |
-| `--time-exit`        | 160ms                                  |
-| `--time-fill`        | 180ms                                  |
-| `--time-fill-gap`    | 80ms                                   |
-| `--time-blink`       | 1100ms                                 |
-| `--time-intro-beat`  | 70ms: the unit the cover is timed in   |
-| `--time-intro-cover` | 1680ms (beat 24): the cover starts up  |
-| `--time-intro-lift`  | 630ms (9 beats): the lift              |
-| `--time-intro-skip`  | 200ms: the lift when it is skipped     |
-| `--time-intro-hold`  | 1750ms (beat 25): the hero sheet waits |
-| `--curve-settle`     | `cubic-bezier(0.22, 0.61, 0.36, 1)`    |
-| `--curve-leave`      | `cubic-bezier(0.55, 0.06, 0.68, 0.19)` |
-| `--curve-lift`       | `cubic-bezier(0.68, 0, 0.16, 1)`       |
+| Hook                                    | What it is                                                                                  |
+| --------------------------------------- | ------------------------------------------------------------------------------------------- |
+| `data-move="drift"`                     | An entrance: 12px up and in. Copy, leads, rows                                              |
+| `data-move="ink-in"`                    | An entrance: from blurred to sharp. Statement sentences only (`Sentences move`)             |
+| `data-move="settle"`                    | An entrance: down from 28px above onto the desk, with a shadow that arrives after it        |
+| `data-move="grow"`                      | An entrance: a hairline grows from the left. Ledger rules                                   |
+| `data-when="load"` with `--order`       | The entrance runs by the clock at page load, `--stagger` (70ms) apart                       |
+| `data-ninety`                           | The one band whose figure and tally follow the scroll                                       |
+| `data-bar`                              | The bar: its shadow is a pseudo-element whose opacity follows the scroll                    |
+| `data-paper`, `data-lit`                | A paper object, and its light under the pointer                                             |
 
-Keyframes, each defined in the module that uses it (`intro-scrollbar` animates the root element,
-so it is the one set of keyframes in `app/globals.css`):
+- **Entrances** follow the element's own passage through the viewport on a view timeline, linear,
+  filled both ways, so an element already in view at load is simply where it belongs. The far end of
+  each range is capped by a length so the last block of a short page on a tall window still
+  finishes. Without view timelines (Firefox) a small observer, `components/ui/motion-root.tsx`
+  with `lib/scroll/observe.ts`, marks each element `data-seen` as it arrives and the same
+  keyframes run by the clock. Load entrances (the hero, the title block's lead) never wait for
+  scroll.
+- **The ninety** (`#solution`): as the band goes through the window, the odometer's wheel rolls from
+  blank to 9 and the ten blocks of the tally ink in one after another; the tenth turns light blue
+  and the ink layer drops one light-blue drop from it. Without view timelines the band is marked
+  seen and the fill runs by the clock, and the tenth block's `animationend` is the cue for the drop.
+  Both the figure and the tally are drawn in their final state without JavaScript.
+- **Shift**: a state change (hover, focus, press, current, open) on buttons, links, rows and tabs
+  shifts colour, border or underline over `--time-swap`, linear. A press is `translate: 0 1px`.
+- **Enter**: a panel arrives. The phone drawer from the right (320ms, `--curve-settle`) with its links
+  drifting in 40ms apart, the filter sheet from the bottom, the scrim, the FAQ panel. Dialogs close
+  instantly.
+- **Change of page**: a client navigation runs a view transition. The old page fades out in
+  `--time-page-out`, the new one in over `--time-page-in`, and a template's sheet or a bundle's
+  folder travels from where it was clicked to where it stands on the next page
+  (`view-transition-name` `cover-<slug>` and `folder-<slug>`, `--time-morph`). A filter, sort or
+  search change under the same address starts no view transition. Where the browser has no
+  `document.startViewTransition` the page simply changes. `components/ui/page-shift.tsx` names the
+  first block of a page; if view transitions ever prove unstable, the fallback is one edit there
+  (return the children), plus dropping the `ViewTransition` wrapper in `template-cover.tsx` and
+  `folder.tsx`.
+- **Cart badge**: pops (`scale` 1, 1.3, 1; 320ms) when the count changes after the stored cart has
+  been read.
 
-| Keyframes         | Module                                                                                         | What it does                                                       |
-| ----------------- | ---------------------------------------------------------------------------------------------- | ------------------------------------------------------------------ |
-| `tally-fill`      | `components/ui/tally.module.css`                                                               | A block starts as an empty outline and fills                       |
-| `caret-blink`     | `components/ui/blank.module.css`                                                               | The caret is off for half of each cycle                            |
-| `drawer-in`       | `components/layout/nav-drawer.module.css`                                                      | The phone drawer slides in from the right                          |
-| `scrim-in`        | `nav-drawer.module.css` and `components/catalog/filter-panel.module.css` (one definition each) | The dimmed page fades in                                           |
-| `sheet-up`        | `components/catalog/filter-panel.module.css`                                                   | The filter sheet rises from the bottom edge                        |
-| `pen-stroke`      | `components/intro/intro-cover.module.css`                                                      | A stroke of the mark is written from its start                     |
-| `block-fill`      | `components/intro/intro-cover.module.css`                                                      | A block of the cover starts as an outline and fills                |
-| `block-land`      | `components/intro/intro-cover.module.css`                                                      | The tenth block starts a fifth larger and settles                  |
-| `name-in`         | `components/intro/intro-cover.module.css`                                                      | The name fades in, whole                                           |
-| `cover-lift`      | `components/intro/intro-cover.module.css`                                                      | The cover slides up by its own height and is hidden                |
-| `cover-skip`      | `components/intro/intro-cover.module.css`                                                      | The same frames under a second name, for a skipped lift            |
-| `intro-scrollbar` | `app/globals.css`                                                                              | The window's scrollbar is drawn in ink while the cover is fully up |
+### The three switches
 
-Every tally and caret, and every part of the cover, is drawn in its final state by default. The
-animation only delays that state (`animation-fill-mode: backwards`), so where animation does not run
-nothing is missing.
+`<html>` carries three attributes, set by the boot script before first paint (`data-motion`,
+`data-timeline`) and by `MotionRoot` after hydration (`data-io`). A hidden starting state always
+needs `data-motion="on"`, and on the observer path `data-io="armed"` as well, so a script that never
+runs hides nothing: without JavaScript every `[data-move]` is at opacity 1.
 
-Reduced motion: `tally.module.css` and `blank.module.css` set `animation: none` under
-`(prefers-reduced-motion: reduce)`, the dialogs drop their entrance, the cover is not played (the
-inline script does not switch it on, and its module keeps it `display: none` whatever the root
-element says), and `app/globals.css` carries a safety net (`animation-duration: 0.01ms !important`,
-`animation-iteration-count: 1 !important`, `transition-duration: 0.01ms !important`,
-`scroll-behavior: auto !important` on every element).
+### Rules every animation keeps
+
+- Only `opacity`, `filter`, `translate`, `rotate`, `scale`, `transform`, `clip-path` and
+  `background-color` animate. A custom property never does (there is no `@property`), and a shadow
+  never does: a shadow that comes or goes is a second shadow on a pseudo-element whose opacity moves.
+- Every `@keyframes`, `animation` and `transition` sits inside
+  `@media (prefers-reduced-motion: no-preference)`, with the final state outside it. Keyframes name
+  the starting state only; the end is whatever the element is, so hover states survive a finished
+  entrance. `tests/unit/kit-motion.test.ts` checks this against the stylesheet.
+- Nothing repeats (the word `infinite` is banned in any stylesheet), nothing is split below a
+  sentence, no heading translates and the page `h1` never animates at all.
+- `animation-timeline` and `animation-range` are written after any `animation` shorthand, which would
+  reset them.
+- Everything that starts by itself outside the ink ends within five seconds of first paint. The ink
+  runs longer, so it has a pause control (see "Ink").
+
+Under `prefers-reduced-motion: reduce` there is no cover, no ink engine, no entrance (every
+`[data-move]` is at opacity 1 with no filter), no view transition and `document.getAnimations()` is
+empty on every route. Under `prefers-contrast: more` and forced colours the ink and the grain are
+removed, objects get a 1px ring and the bar a hairline instead of its shadow.
+
+## Depth and paper objects
+
+Nothing is a bordered box in a grid. A thing is an **object** or a **ledger**.
+
+- **Objects**: a paper sheet, a stack, a folder, a panel. White paper (`--paper`) with tooth (a
+  128px grain, `public/paper/grain.png`, 2.4KB, four alphas, generated by `scripts/paper-grain.mjs`)
+  under its content, a 1px ring at 5% ink inside a layered shadow, and no border. The shadow depth
+  is a token: `--depth-0` (a ring), `--depth-1` (a resting sheet), `--depth-2`, `--depth-3` (the
+  purchase panel, a lifted sheet), `--depth-4` (the drawer and the filter sheet) and
+  `--depth-on-ink`. Inside a `PaperSheet` and a `Folder` front the semantic colours are reset to
+  light-surface values, so they are safe on the black band.
+- **Ledgers**: rows separated by hairlines, no outer box and no stripes (`BandedList`, also exported
+  as `Ledger`). Hairlines grow on a view timeline. A `RowLink` stands 14px past both ends of its row,
+  so a ledger must not sit in an `overflow: hidden` box.
+- **Grounds**: `desk` (`#F4F5F8`, the light table under objects), `paper` (white, reading and ink
+  stages), `wash` (at most one per page), `ink` (black: only `#solution` and the AI statement on
+  `/about`) and `binder` (the footer only). The body is `--paper`. A band with a backdrop is
+  `position: relative; isolation: isolate`.
+- **Light**: a lit sheet (`data-lit`) rises 3px and tilts under the pointer and under keyboard focus,
+  and its lifted shadow arrives with it. `lib/scroll/pointer.ts` (`trackLight`) writes where the light stands
+  on the sheet (`--lx`, `--ly`, in percent) and its tilt (`--tx`, `--ty`, at most 1.2 degrees); a lit
+  sheet answers hover on itself, or on the nearest `article` or `[data-lit-scope]`.
+- **The three product objects** (`components/catalog/`): `TemplateCover` is an HTML page on a
+  `PaperSheet`, printed with the template's own title and summary, in its format (a document is a
+  portrait page 5:7, a workbook 4:3, a deck 16:9), sized from its own width. `TemplateCard` is an
+  `<article>` with one stretched link, as a row (`layout="row"`: an index of 24 rows with a numeral
+  chip and a thumbnail) or a sheet (`layout="sheet"`: the home page's spread). `BundleCard` is a row
+  or a feature folder (`layout="feature"`).
+
+### Tokens added in this edition
+
+`--depth-0` to `--depth-4` and `--depth-on-ink`; `--paper-shade` and `--grain`; the six pigments the
+ink engine reads (`--pigment-paper`, `--pigment-binder`, `--pigment-black`, `--pigment-blue`,
+`--pigment-blue-dark`, `--pigment-pale`); `--time-lift`, `--time-ink`, `--time-settle`,
+`--time-count`, `--time-page-out`, `--time-page-in`, `--time-morph` and `--stagger`; `--curve-ink`,
+`--curve-drop` and `--curve-pen`; `--layer-over` and `--layer-cover`; `--strip-h` (0px, set by the
+beta strip while it shows). The type classes `.type-poster`, `.type-hero` and `.type-statement` join
+the others.
+
+## Ink
+
+The showpiece. Black ink falls into water beside the home headline and curls, a plume of light blue
+(the part that is yours) blooms through it, and the pointer stirs it. It is a real-time fluid
+simulation (`lib/ink/engine/`), drawn on one canvas that moves between stages as the page scrolls.
+How it is built is in `architecture.md`; this section is the design contract.
+
+**The look**: macro photography of ink dropped into a glass tank. A drop forms a rolled cap with a
+trailing stem and fine filaments; veils are translucent grey; cores are near-black with a soft
+self-shadow; light blue stays light. The white field stays exactly white, with no banding, grid or
+stair-steps, and nothing shines: the engine has no specular term, no environment map, no striping and
+no iridescence. Light blue is `--pigment-blue` (`#5FA8F5`) with a blue tint that keeps the darkest 1%
+of saturated blue at a relative luminance of at least 0.25 and a hue between 205 and 216.
+
+**Stages**: where ink may appear.
+
+| Where                                                                      | Scene    | Live ink                                     |
+| -------------------------------------------------------------------------- | -------- | -------------------------------------------- |
+| `/`, first visit of a session: the cover                                   | `intro`  | Yes                                          |
+| `/` hero                                                                   | `hero`   | Yes                                          |
+| `/` `#solution` (black)                                                    | `ninety` | Yes, from the tenth block                    |
+| `/` `#closing`                                                             | `bloom`  | Yes                                          |
+| Footer (black), every page                                                 | `wisps`  | Yes, except on calm routes (a still instead) |
+| `/about`, `/pricing`, `/contact`, `/sample`, `/bundles`, `/phases/[phase]` | `title`  | From 68em; nothing below                     |
+| 404, both not-found files                                                  | `spill`  | Yes                                          |
+
+Calm routes (`/catalog`, `/cart`, `/templates/*`, `/bundles/*`) never load the engine: buying pages
+carry no live ink at all. The footer shows the `wisps` still there.
+
+**Legibility** is a guarantee, not a likelihood. A page marks the copy the ink must keep clear of
+with `data-ink-calm`:
+
+| Kind      | Marks                                                      | Cap on a light ground | Cap on a dark ground |
+| --------- | ---------------------------------------------------------- | --------------------- | -------------------- |
+| `text`    | Copy, leads, notes and controls: ink is kept out           | 0.80                  | 0.06                 |
+| `display` | Headings of 32px and more: ink passes behind               | 0.30                  | 0.14                 |
+| `veil`    | The footer, edge to edge: wisps pass behind, capped        | 0.80                  | 0.06                 |
+
+A cap is a floor (light ground) or a ceiling (dark ground) on the relative luminance of the canvas
+under the zone, applied in the composite in linear light. Worst cases are all AA: ink on a 0.80 floor
+is 15.7:1, `--ink-faint` 5.1:1, display text in ink at 0.30 is 6.5:1; on the dark ground at 0.06
+`--on-binder` is 8.8:1. `data-ink-anchor="open" | "tenth"` names a rectangle a scene aims at (the
+open water beside the hero, the tenth block). `data-edges` on a backdrop lists the sides where the
+ink thins to exact ground before the canvas ends.
+
+**The pause control** (WCAG 2.2.2): while a stage is live, one button, `Pause ink`, stands at the foot
+of that stage (a 44px target holding a 32px round of paper with `--depth-1`, a two-bar glyph in
+`--text`, the usual 3px ring), before the stage's content in the tab order. It stops the loop at
+once and is renamed `Play ink`. The choice lasts the session: after a reload the page starts paused
+(stills, no engine) and offers `Play ink`. There is no button in `still` mode, on calm routes or
+during the cover. With no input the water comes to rest by itself after a scene's run window (30s on
+the hero) and moves again on a pointer move, a click (which leaves a light-blue drop) or a scroll.
+
+**Stills** stand in for the ink where it cannot run: without JavaScript, under reduced motion, when
+the visitor paused it, on calm routes, on a software renderer, without WebGL2, after a lost context
+or a failed chunk, and never under `prefers-contrast: more` or forced colours (no ink at all). A
+still is a settled frame of the same engine, captured on the real page (see `architecture.md`), so the
+caps are baked in. Each is scaled by the width of its backdrop and by nothing else, so the picture
+and the layout keep their proportions; the title still stands at its own size in its corner.
 
 ### The cover
 
-The site is a working document that is 90% written. On a first visit a black cover lies over the
-home page; the brand signs it; then the cover is lifted off and the white working copy is under it,
-as it was all along. `components/intro/` holds it:
-
-- `intro-cover.tsx` and `intro-cover.module.css`: `IntroCover`, the sheet and its whole timeline.
-  The home page renders it and no other page does. Hook: `data-intro-cover`.
-- `intro-script.ts`: the names (`INTRO_FLAG`, `INTRO_ATTRIBUTE` and the rest), the decision as a
-  pure function (`shouldPlayIntro({ path, seen, reducedMotion })`) and the inline script as a string
-  (`INTRO_SCRIPT`). No DOM, so the tests import it.
-- `intro-script-tag.tsx`: `IntroScript`, which prints that script into the page as the HTML of a
-  hidden wrapper. The root layout renders it first thing in `<body>`, on every page.
-
-The timeline, in beats of `--time-intro-beat` from first paint. It is 2.31s long.
-
-| Beats    | Milliseconds | What happens                                                                                                |
-| -------- | ------------ | ----------------------------------------------------------------------------------------------------------- |
-| 1 to 7   | 70 to 490    | A pen writes both legs of the "A" in one stroke, in `--on-ink`. The mark is 98px high (70px below 40em)     |
-| 7 to 9   | 490 to 630   | then the crossbar, as far as the right leg                                                                  |
-| 9 to 13  | 630 to 910   | and the tail of the crossbar (`MARK_TAIL_D`), in `--mark`                                                   |
-| 7 to 18  | 490 to 1260  | Under the mark, ten 14px blocks fill from the left, one beat apart, each over two beats: nine in `--on-ink` |
-| 16 to 20 | 1120 to 1400 | The tenth fills in `--mark`, lands a fifth larger and settles                                               |
-| 13 to 19 | 910 to 1330  | Under the tally the name fades in: one word, Besley 700 at `--size-section`, in `--on-ink`                  |
-| 20 to 24 | 1400 to 1680 | Nothing moves                                                                                               |
-| 24 to 33 | 1680 to 2310 | The sheet slides up off the top edge with `--curve-lift`, trailing a 14px edge of `--mark`                  |
-| 0 to 25  | 0 to 1750    | A classic scrollbar is drawn in ink (`scrollbar-color`), so the sheet reaches the edge of the window        |
-| from 25  | from 1750    | The hero sheet's tally fills as the sheet clears it; its caret then blinks twice, until 4910                |
-
-How it is switched on and off:
-
-- `IntroScript` runs before anything is painted. It reads the session flag `advanta365.intro.v1`
-  from `sessionStorage` and sets it, inside a try/catch, on whichever page the session starts. It
-  plays the cover only if the path is `/`, the flag was not yet set and the visitor has not asked
-  for reduced motion. That is `shouldPlayIntro()`; `tests/unit/intro.test.ts` runs the script and
-  the function side by side.
-- To play it, the script sets `data-intro="play"` on `<html>` (which carries
-  `suppressHydrationWarning` for that reason). The cover is `display: none` unless the attribute is
-  `play` or `skip`, so the server-rendered page has no cover and there is no flash either way.
-- The attribute then follows the cover: `skip` when the visitor asks for the page, `done` when the
-  cover's own animation has ended (it is `display: none` again from then on), and it is taken off
-  once every animation that was running at that moment has ended. While it is there, in any state,
-  `:root[data-intro]` in `app/globals.css` sets `--intro-hold` and `--intro-blinks`: the hero
-  sheet's tally and caret start at `--time-intro-hold` instead of `--time-enter`, and the caret
-  blinks twice instead of three times.
-
-Rules of behaviour:
-
-- Only the home page, only the first page load of a browser session, never under
-  `prefers-reduced-motion`, never without JavaScript and never when `sessionStorage` cannot be read.
-  A session that starts on an inner page has no cover later, and a change of page never plays it:
-  only a page load runs the script.
-- The page under it is real and complete. Nothing waits for the cover, nothing is hidden from
-  assistive technology (the cover itself is `aria-hidden` and holds nothing that takes focus), focus
-  is not trapped and scrolling is not locked.
-- It can be skipped. A pointer press, a key press, a turn of the wheel or a finger moving on the
-  screen sets `skip` and the sheet is off in `--time-intro-skip`. The press lands on the cover, not
-  on the page under it. Once the sheet has begun to lift by itself there is nothing left to skip.
-- Everything that starts by itself still ends within five seconds of first paint: the cover at
-  2.31s, the tally at 2.65s, the last blink at 4.91s. `tests/unit/intro.test.ts` works these out
-  from the tokens and fails if a change of timing breaks the limit.
-
-Fail-safes:
-
-- The timeline is CSS from end to end and the script only switches states. If the script stops
-  after setting `play`, the cover still lifts at beat 24 and its last frame holds (`forwards`): off
-  the screen, `display: none` (`visibility: hidden` where a browser does not animate `display`) and
-  `pointer-events: none`.
-- While it lifts, the cover already lets the pointer through.
-- If the cover's animation events never arrive (the page changed under it), a backstop sets `done`
-  4 seconds after the first frame (`INTRO_BACKSTOP_MS`).
-- A script that throws before its first `setAttribute` leaves a page without a cover.
-- A page that is not found is answered as an empty document, which React fills in in the browser.
-  The script is in it as inert HTML and does not run: there is no cover, nothing is logged, and
-  that load is not the one the session is counted from (see the 404 rules in `architecture.md`).
-- In forced-colours mode the sheet is `Canvas` with `CanvasText` strokes and blocks, and the tail,
-  the tenth block and the edge are `Highlight`.
-
-What the cover never does: split the name or set it around the mark; rotate, tilt or draw the mark in
-3D; move the mark into the bar; animate the headline, by word, by line or at all; use a canvas,
-WebGL, a worker or an animation library; last more than three seconds.
+A first visit is the first page load of a browser session, when that page is the home page. White, a
+pen strokes the mark (the legs, the crossbar, the tail in light blue), the name fades in, "Skip"
+sits at the foot. With ink ready in the first second, a black drop falls through the mark, a
+light-blue one chases it, the ink turns to mist and the page is there (about 2.8s after the
+take-over); without ink the cover fades at 1.65s. Any key, press, wheel or touch ends it within
+200ms and does not navigate. The page under it is complete and opaque from first paint (the h1 is
+painted, so Largest Contentful Paint is not held back). Its timings are local to
+`components/intro/intro-cover.module.css`; its states are the `data-intro` values on `<html>`
+(`play`, `ink`, `leave`). Never on any page but `/`, never twice in a session, never under reduced
+motion, without JavaScript, with storage blocked or in a tab that loads hidden.
 
 ## Global CSS
 
 `app/globals.css` holds these rules, in this order. Components do not repeat them.
 
-1. The token block: `:root`, the two breakpoint overrides, the four `[data-band]` scopes and
-   `:root[data-intro]`, which holds the hero sheet back while the cover of a first visit is up.
-   With it, `:root[data-intro="play"]` and the `intro-scrollbar` keyframes, which draw the window's
-   scrollbar in ink until the cover lifts.
+1. The import of `app/motion.css`, then the token block: `:root`, the two breakpoint overrides and
+   the `[data-band]` scopes (`desk`, `paper`, `wash`, `ink`, `binder`; `ink` shares the binder's
+   values). The cover's timings are not here: they are local to its own module.
 2. Base: `box-sizing: border-box` on everything; `html` with `scrollbar-gutter: stable`,
    `scroll-padding-top` and `-webkit-text-size-adjust`; `html:has(dialog[open])` with
    `overflow: hidden`; `body` (desk ground, ink text, Atkinson at the copy size, weight 400, line
@@ -448,7 +499,8 @@ WebGL, a worker or an animation library; last more than three seconds.
 5. `[hidden]` always wins over a component's own `display`, except `hidden="until-found"`, which
    must stay in the layout so find-in-page can open it.
 6. The twelve `.type-*` classes, `.visually-hidden` and `.tabular`.
-7. The reduced-motion safety net.
+7. The reduced-motion safety net (`app/motion.css` carries the rest: no entrance, no view
+   transition).
 8. Forced colours: tally blocks, the blank, `[aria-current]` and the focus ring get system colours
    (`CanvasText`, `Highlight`, `Canvas`), so every state stays visible when backgrounds are dropped.
    (The cover sets its own in its module.)
@@ -614,8 +666,49 @@ real props and one usage line.
   />
   ```
 
-### Tally, blank and small parts
+### Wet Ink primitives
 
+Added or changed in this edition (all in `components/ui/` unless noted). Where an entry above
+disagrees with one here, this one wins.
+
+- **`Band`** gained `surface="ink"` (the black band: `#solution` and the AI statement only, on the same
+  values as the binder), `backdrop` (a node rendered before the `Wrap`, usually an `InkBackdrop`;
+  it makes the band `position: relative; isolation: isolate`) and `pad="roomy"`.
+- **`Sheet`** has no border any more: a paper panel with `--depth-*` shadow. **`Split`**'s `rule`
+  defaults to false (the margin rule is gone). **`BandedList`**/**`BandedRow`** are a ledger with no
+  box and no stripes; rows have no inline padding and a `RowLink` inside stands 14px past both ends.
+  **`RowLink`** has a 6px radius. **`Sentences`** takes `move` (the sentences ink in). **`ShelfHead`**
+  takes `stack` (the action under the text).
+- **`Appear`** (`appear.tsx`): `Appear({ as = "div", move = "drift", when = "view", order, ...rest })`. An entrance on
+  its own wrapper: `data-move`, and with `when="load"` `data-when="load"` and `--order`. Never put
+  `data-move` on a `PaperSheet` itself.
+- **`MotionRoot`** (`motion-root.tsx`, client, no props): rendered by `app/layout.tsx` after the
+  children. Arms the observer path (`data-io="armed"`), marks `[data-watch]` elements `data-seen` as
+  they arrive and starts `trackLight()`.
+- **`PageShift`** (`page-shift.tsx`): renders no element; it names its single element child for the
+  view transition, so a page's first block (the title block, the hero's text) fades in under the next
+  page's. Give it exactly one element child.
+- **`PaperSheet`** (`paper-sheet.tsx`): `PaperSheet({ as = "div", ratio = "free", size = "md", depth = 2, lit = false, turn, ...rest })`. A paper object:
+  grain, ring, layered shadow, no padding of its own (add it with a class). Hooks: `data-paper`,
+  `data-lit`.
+- **`PaperStack`** (`PaperStack({ under = 2, ...rest })`): the sheets beneath a top sheet, drawn as edges; leave about 14px around it
+  from 40em for the sheets underneath. `data-paper-stack`.
+- **`Folder`** (`Folder({ tab, sheets = 3, slug, frontClassName, ...rest })`): a bundle as a folder: a tab, sheets peeking out and a front panel;
+  `slug` names it for the view transition (`folder-<slug>`). `data-folder`.
+- **`Odometer`** (`odometer.tsx`): `Odometer({ value, suffix, className })`. A two-digit figure whose
+  tens roll on a wheel (blank, then 1 to 9) inside a one-line window. At rest it reads the figure.
+  `data-odometer` with `data-value`, and `data-odometer-wheel` on the wheel.
+- **`CountUp`** (`count-up.tsx`): `CountUp({ value })`. A number that counts up when it is first seen
+  below the fold, with `requestAnimationFrame`, and reads its value without JavaScript.
+- **`Tally`** gained `animate` (fills when seen, `data-watch`), `size="lg"` and
+  `anchor={{ block, name }}`, which puts `data-ink-anchor` on one block (the tenth).
+- **`InkBackdrop`** and **`InkLayer`** (`components/ink/`): see `architecture.md`.
+- **`TemplateCover`** (`components/catalog/template-cover.tsx`): `TemplateCover({ size, lit, slug, title, summary, phaseOrder, ... })`.
+  A `PaperSheet` printed with the template's own title and summary, a ghost text block, the
+  deliverable glyph and one blank at the foot, in its format (`data-cover` with `data-format`: a
+  document 5:7, a workbook 4:3, a deck 16:9). It scales with its own width (`container-type:
+  inline-size` and `cqi` units). With `slug` it carries the view transition name `cover-<slug>`; the
+  template page's large cover draws its own two sheets beneath, so do not wrap it in a `PaperStack`.
 - **`Tally`** (`tally.tsx`): `Tally({ total, filled, marked, size = "md", numerals = false, animate = false, label })`;
   `filled`: a count or a list of 1-based positions; `marked`: a 1-based position; `size`: sm, md, lg.
   A row of equal blocks. Ink blocks use `--line-ink`; the marked block is `--mark` with an inset ink
@@ -807,44 +900,56 @@ highlighter is drawn behind.
 These are not primitives, but they carry rules the rest of the code relies on. Props are the real
 ones.
 
-- **`TitleBlock`** (`components/layout/title-block.tsx`): `TitleBlock({ title, lead, form = "index", crumbs, meta, children })`;
-  `form`: index, document, wide. Opens every inner page on the desk band and holds the page's only
-  `<h1 class="type-page">`, whose text is exactly `title`. `index`: the h1 in the margin, the lead
-  beside it. `document`: crumbs and meta in the margin, the h1 and lead in the content. `wide`: the h1
-  across columns 1 to 9, no margin rule. Below 68em all forms stack: crumbs, meta, h1, lead, children.
+- **`TitleBlock`** (`components/layout/title-block.tsx`): `TitleBlock({ title, lead, form = "index", crumbs, meta, ink, aside, children })`;
+  `form`: index, document, wide. Opens every inner page on paper and holds the page's only `<h1>`,
+  whose text is exactly `title` and which never animates: `.type-banner` for `index` and
+  `document`, `.type-statement` for `wide`. The lead is an `Appear when="load"`. `ink` puts the
+  `title` backdrop in the right 42% from 68em (live ink, or its still); the title, lead and children
+  are one `data-ink-calm="text"` box, so the ink thins only under the words. `aside` stands in
+  columns 9 to 12 from 68em and under the lead below (the phase numeral, a paper stack). It wraps
+  itself in `PageShift`, so a page must not wrap it again. Pass `ink` on `/about`, `/pricing`,
+  `/contact`, `/sample`, `/bundles` and `/phases/[phase]`, never on `/catalog`, `/cart`,
+  `/templates/*` or `/bundles/*`.
 - **`Breadcrumbs`** (`components/layout/breadcrumbs.tsx`): `Breadcrumbs({ items: Array<{ href?: string; label: string }> })`.
   `nav aria-label="Breadcrumb"` with an `ol`; the last item is the current page, set heavier. The "/"
   separators are hidden from assistive technology.
 - **`BetaStrip`** (`components/layout/beta-strip.tsx`): no props. "Beta preview — templates shown are
   samples." on `--mark-wash`, in the flow, scrolled away with the page. The layout renders it while the
   catalog holds sample content.
-- **`HeroSheet`** (`components/home/hero-sheet.tsx`): `HeroSheet({ specimen })`, where `HeroSpecimen` is
-  `{ title, summary, formatTag, facts, phaseOrder, phaseName, phaseCount }`. One catalog template drawn
-  as a working copy: two back sheets, a top sheet with the template's own title, summary and facts, a
-  blinking blank and a ten-block tally, and seven index tabs on its edge. `aria-hidden`, hook
-  `data-hero-sheet`. The one place where catalog text is repeated.
+- **`Specimen`** (`components/home/hero-sheet.tsx`): `Specimen({ specimen })`, where `SpecimenContent` is
+  `{ title, summary, formatTag, facts, phaseOrder, phaseName }`. One catalog template drawn as the
+  top sheet of a `PaperStack` in the margin of `#inside` (from 68em): its own title, summary and facts
+  as a ledger, a blank and a ten-block tally that fills when seen. `aria-hidden`, hook
+  `data-specimen`. The one place where catalog text is repeated.
 - **`IntroCover`** (`components/intro/intro-cover.tsx`): no props. The cover of a first visit: a fixed
-  ink sheet with the mark, ten blocks and the name, rendered by the home page before its sections.
-  `aria-hidden`, hook `data-intro-cover`, not displayed unless `data-intro` on `<html>` says so. Its
-  companion `IntroScript` (`intro-script-tag.tsx`, no props) is the inline script in the root layout.
-  See "The cover" under Motion.
-- **`ValueTile`** (`components/home/value-tiles.tsx`): `ValueTile({ name })`; `name`: tested, borrow,
-  adapt, sector. Four 96-unit line drawings on a `--tile` ground. Only "adapt" carries the mark (a
-  blank).
+  white sheet, full viewport, with an `InkBackdrop scene="intro"`, the mark written by three pen
+  strokes (`lib/brand/mark.ts`), the name in Besley 700 at 28px and a "Skip" hint. `aria-hidden`,
+  nothing focusable, hook `data-intro-cover`, not displayed unless `data-intro` on `<html>` says so.
+  Its companion `IntroScript` (`intro-script-tag.tsx`, no props) prints the boot script in the root
+  layout. See "The cover" under Ink.
+- **`LineDrawing`** (`components/home/value-tiles.tsx`): `LineDrawing({ name })`; `name`: tested, borrow,
+  adapt, sector, audiences, example, copilot. Line art on the page's own ground, 84px (70px below
+  40em), pulled left so the art stands on the text's edge. Only "adapt" carries the mark.
 - **`TemplateCover`** (`components/catalog/template-cover.tsx`): `TemplateCover({ type, format })`. The file as a
   3:2 tile: a drafting board, the silhouette of the format, a title bar, ghost text lines, the
   deliverable-type glyph and one blank at the foot. The blank is the only marked element on a cover;
   the format `Tag` sits at the top right.
-- **`TemplateCard`** (`components/catalog/template-card.tsx`): `TemplateCard({ template, phaseName, headingLevel = "h3" })`.
-  An `<article>`: cover, title (the card's one link, stretched over the card), meta line, price. A row
-  card below 40em. The focus ring is drawn on the card.
-- **`BundleCard`** (`components/catalog/bundle-card.tsx`): `BundleCard({ bundle, templateCount, savingsCents, coverage, headingLevel = "h3" })`.
-  An `<article>` drawn as a folder: a tab on its top-left edge carries the template count. With
-  `coverage` (`PhaseCoverage[]` from `lib/catalog/coverage.ts`) it shows a seven-block `Tally` labelled
-  `Phases: …`.
+- **`TemplateCard`** (`components/catalog/template-card.tsx`): `TemplateCard({ template, phaseName, phaseOrder, index, layout = "row", share = true, headingLevel = "h3" })`.
+  An `<article data-layout>` with one stretched link on the title. `row`: an index row (a numeral
+  chip, a thumbnail, title, meta, price and the format `Tag`), in a single-column list. `sheet`: the
+  cover's own sheet resting at a slight turn, for the home page's spread (a row again below 40em).
+  `share={false}` drops the view transition name where a template could appear twice on a page. The
+  focus ring is drawn on the article.
+- **`BundleCard`** (`components/catalog/bundle-card.tsx`): `BundleCard({ bundle, templateCount, savingsCents, coverage, layout = "row", headingLevel = "h3" })`.
+  An `<article>`: a ledger row, or with `layout="feature"` a `Folder` whose tab carries the template
+  count. With `coverage` it shows a seven-block `Tally` labelled `Phases: …`.
 - **`StatementSection`** (`components/company/statement-section.tsx`): `StatementSection({ id, label, statement, copy, surface = "desk", children })`;
-  `surface`: desk, paper, wash. A `Band` with a `Split`: the label in the margin; the statement as the
-  `<h2 class="type-page">`, one sentence per block; the paragraphs; then `children`.
+  `surface`: desk, paper, wash. A `Band` with a `Split`: the label in the margin; the statement as a
+  `.type-banner` `<h2>`, one sentence per block; the paragraphs, which drift in; then `children`.
+- **`AiStatement`**, **`ProofLedger`**, **`WaysToBuy`** and **`WorkedExample`** (`components/company/`):
+  the black AI band of `/about` (a `.type-statement` heading whose sentences ink in), the four proof
+  points as a two-column ledger, the pricing page's `PaperStack` of singles beside a `Folder` of
+  bundles, and the sample page's twelve-sheet stack with a printed first page.
 - **`ComparisonTable`** (`components/company/comparison-table.tsx`): `ComparisonTable({ id, caption, columns, rows, emphasized, note })`.
   A real table in a sheet. The `emphasized` column is the buyer's: highlighted head, wash cells. Below
   40em each row reflows to a block; the cells carry `data-label` and every part carries an explicit
@@ -902,10 +1007,13 @@ body` belongs in `globals.css`.
 | Keep one `h1` per page with the exact title as its text (`TitleBlock`)                 | Split a heading into words, animate it or give it an effect                                |
 | Set a two-sentence statement with `Sentences`                                          | Put a `<br>` or `white-space: pre-line` in a heading                                       |
 | Show the current item with `aria-current` and a fill, border and weight                | Rely on colour alone                                                                       |
-| Hide decoration with `aria-hidden`; give an informative tally a `label`                | Repeat catalog text in the DOM to draw a second copy (the hero sheet is the one exception) |
+| Hide decoration with `aria-hidden`; give an informative tally a `label`                | Repeat catalog text in the DOM to draw a second copy (the specimen is the one exception) |
 | Set `display` on `.sheet[open]`                                                        | Set `display` on a bare `dialog` class                                                     |
 | Define a `@keyframes` in the module that uses it                                       | Use a keyframes name defined in another file                                               |
 | Keep the cover to a first visit of the home page, over a page that is already complete | Hold content back for an animation, lock scrolling, trap focus or cover an inner page      |
+| Mark copy the ink must keep clear of with `data-ink-calm`, and give ink a pause button | Draw ink behind words without a calm zone, or run ink on a page where someone buys         |
+| Ask for an entrance with `data-move` (or `Appear`) and let `app/motion.css` run it     | Write a scroll or view timeline in a CSS module, or animate a shadow or a custom property  |
+| Make objects with `PaperSheet`, `PaperStack` and `Folder`, lists with ledgers          | Put a border around a product, stripe a list or draw a card grid                           |
 | Use `cssVars()` for inline custom properties                                           | Write `style={{ "--x": 1 }}`, which does not type check                                    |
 | Wrap every `localStorage` and `sessionStorage` access in try/catch                     | Assume storage exists                                                                      |
 | Use `<article>` only for template and bundle cards                                     | Add `<article>` anywhere else                                                              |
@@ -917,23 +1025,50 @@ body` belongs in `globals.css`.
 `tests/unit/design-gate.test.ts` runs with `pnpm test`. It reads every file under `app/`,
 `components/`, `lib/` and `tests/` as text and fails on:
 
-- retired vocabulary: the old typeface and base colour, the names and techniques of the earlier
-  presentation (its scripted effects, first-load sequence, blend modes, canvas and workers), the
-  old token families and utility classes, the old measures and breakpoints, negative letter-spacing
-  and the two wordings the site no longer uses;
-- a raw colour (a hex value or a colour function) in any file under `app/`, `components/` or `lib/`
-  other than `app/globals.css` and `app/icon.svg`;
-- `prefers-color-scheme` in a stylesheet;
-- a media query other than the two breakpoints and the three preference queries;
-- `@container` anywhere but `header.module.css` and `nav-drawer.module.css`;
-- an import of `next/link` outside `components/ui/transition-link.tsx`.
+- **retired vocabulary**, matched in any case and in comments too: `wipe` (so also the longer word
+  that contains it), `reveal`, `sheen`, `swirl`, `liquid`, `chrome` (so also `monochrome`),
+  `wordmark`, the name of the retired typeface, a phrase for the site this one was once modelled on; the earlier presentation's scripted effects, blend
+  modes, `new Worker`, `@property`, `data-entry`, `data-theme`, negative letter-spacing, token
+  families named `--duration-*`, `--easing-*`, `--spacing-*`, `--measure-*` and `--container-*`, the
+  old measures (502, 938, 620, 366, 232 as pixel values) and the two wordings the site no longer
+  uses. Say fluid, water, curl, eddy, bloom, clear, drain, ink-in and show instead;
+- **scoped techniques**, in files under `app/`, `components/` and `lib/` only (tests may stub what
+  they need), each allowed only where the edition needs it:
 
-A second pass over `README.md` and `docs/` looks for three strings from the retired design. It also
-asserts that `components/graphics`, `components/entry`, `components/motion`, `lib/motion` and `lib/gl`
-do not exist. The e2e specs `identity.spec.ts`, `header.spec.ts` and `reduced-motion.spec.ts` check
-the same design where it is computed: grounds, faces, landmarks, the four bands, no canvas, nothing
-in motion outside the hero sheet on any load but a first visit. `intro.spec.ts` checks the cover of
-that first visit.
+  | Pattern                           | Allowed under                                                                                                                           |
+  | --------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------- |
+  | `<canvas`, `getContext(`, `webgl` | `lib/ink/`, `components/ink/`, `lib/boot/`                                                                                              |
+  | `requestAnimationFrame`           | `lib/ink/`, `components/ink/`, `lib/scroll/`, `lib/boot/`, `components/intro/`, `components/ui/count-up.tsx`                            |
+  | a quoted `"scroll"` or `'scroll'` | `lib/ink/`, `components/ink/`, `lib/scroll/`                                                                                            |
+
+  The gate tests its own helper with synthetic files, so a hit outside the lists is reported and a
+  hit inside is not;
+- a **raw colour** (a hex value or a function named `rgb`, `hsl`, `lab`, `lch` or `color`) in any file
+  under `app/`, `components/` or `lib/` other than `app/globals.css` and `app/icon.svg`. The scan
+  also reads `app/motion.css` and shader files (`.glsl`, `.frag`, `.vert`); shader strings in
+  TypeScript hold numbers, never colours, and no function is named `rgb`, `hsl`, `lab`, `lch` or
+  `color`;
+- `infinite` in any stylesheet, comments included;
+- `package.json` dependencies other than exactly `next`, `react`, `react-dom` and `zod`: no
+  animation, 3D or scroll library;
+- `prefers-color-scheme` in a stylesheet;
+- a media query other than the two breakpoints, `(hover: hover)`, `(forced-colors: active)`,
+  `(prefers-reduced-motion: reduce)`, `(prefers-reduced-motion: no-preference)` and
+  `(prefers-contrast: more)`. Nest queries instead of joining them with `and`;
+- `@container` anywhere but `header.module.css` and `nav-drawer.module.css` (a container may give a size to `cqi`
+  units elsewhere, as the printed covers do, but no other file writes an `@container` rule);
+- an import of `next/link` outside `components/ui/transition-link.tsx`;
+- a second pass over `README.md` and `docs/` looks for three strings from the retired design, and
+  asserts that the retired folders do not exist.
+
+Beside it, `tests/unit/kit-motion.test.ts` checks `app/motion.css` (every keyframes, animation and
+transition inside the no-preference query, a timeline always written after its `animation`
+shorthand, nothing hidden without `html[data-motion="on"]`), and `tests/unit/kit-grain.test.ts` the
+paper grain. The browser specs check the same design where it is computed: `identity.spec.ts`
+(grounds, faces, landmarks, the five bands, one canvas at most and only in an ink slot, no blend
+mode, nothing that loops, the name never above 28px, the 3px ring, 44px targets, nothing moving five
+and a half seconds after load), `reduced-motion.spec.ts`, `ink-fallback.spec.ts`, `motion.spec.ts`,
+`intro.spec.ts` and, on a graphics card, `ink-live.spec.ts`.
 
 ## Accessibility floor
 
@@ -945,10 +1080,15 @@ that first visit.
   The sticky bar never covers a focused or targeted element (`scroll-padding-top`).
 - Both dialogs, the site menu and the filter sheet, are native `<dialog>` elements. Tables keep their
   semantics when they reflow. No page scrolls sideways at 320px.
-- Movement that starts by itself (the hero sheet's fill and blink and, on a first visit, the cover)
-  ends within five seconds of first paint and is off under reduced motion. The cover can be
-  dismissed with any key, press or scroll, hides nothing from assistive technology, and neither
-  traps focus nor locks scrolling. Forced-colours mode keeps every state visible.
-- No canvas, worker, image or scroll listener. Two variable font files. Client JavaScript is limited
-  to the cart, the catalog filters and sort, the phone drawer, the two navs that read the pathname,
-  the FAQ, the 404 address and the inline script of the cover.
+- Movement that starts by itself, outside the ink, ends within five seconds of first paint and is
+  off under reduced motion. The ink runs longer, so it has a pause control (WCAG 2.2.2): a button
+  named "Pause ink", renamed "Play ink", in the stage, early in the tab order, with the choice kept
+  for the session. The cover can be dismissed with any key, press, wheel or touch, hides nothing from
+  assistive technology, and neither traps focus nor locks scrolling. Every calm zone keeps the
+  contrast of the text over it (see "Ink"). `prefers-contrast: more` and forced colours remove ink
+  and grain and give objects a border, and every state stays visible.
+- One canvas at most, created by script, `aria-hidden` and inside an ink slot; no worker and no
+  scroll listener outside the ink layer and the scroll helpers. Two variable font files. Client
+  JavaScript is limited to the cart, the catalog filters and sort, the phone drawer, the navs that
+  read the pathname, the FAQ, the 404 address, the motion observer, the ink layer and the inline
+  boot script.

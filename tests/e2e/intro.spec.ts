@@ -1,89 +1,86 @@
 import { expect, test, type Page } from "@playwright/test";
-import { introSeen, NAVIGATION_TIMEOUT } from "./helpers";
+import { NAVIGATION_TIMEOUT } from "./helpers";
+import { introAt, introStates, recordIntro } from "./support/ink";
 
 // The cover of a first visit. The first page load of a browser session, if it is the home page,
-// opens under an ink sheet that is signed and then lifted off; the page under it is complete all
-// along. No other load has it: not a second one, not an inner page, not one with reduced motion.
-// Every test starts a session of its own, so here the first `goto` is a first visit.
+// opens under a white sheet on which the mark is signed; the page under it is complete all along.
+// No other load has it: not a second one, not an inner page, not one with reduced motion, blocked
+// storage or no JavaScript. Every test starts a session of its own, so here the first `goto` is a
+// first visit.
+//
+// The default projects render in software, so the ink does not join the cover here and it leaves
+// the way it does for a visitor without a graphics card: by itself, within 1.9 seconds. The cover
+// with ink is in ink-live.spec.ts. Every time below is read from the page's own clock, so a busy
+// machine moves the moment the test asks, not the moment it measures.
 
 declare global {
   interface Window {
-    /** Every value `data-intro` took on the root element during this page load, in order. */
-    introStates?: Array<string | null>;
     /** What the first press of this page load landed on. */
     introPress?: Promise<"cover" | "page">;
+    /** The page clock at the first input of this page load. */
+    introInput?: number;
+    /** The largest contentful paint of this page load, once the browser has reported one. */
+    introPaint?: number;
   }
 }
 
 const HEADLINE = "Don’t start your M365 rollout from a blank prompt.";
 
-// The three colours of the cover: the ink of the sheet, the white it is written in and the
-// highlighter.
-const INK = "rgb(11, 13, 18)";
-const ON_INK = "rgb(255, 255, 255)";
-const MARK = "rgb(134, 193, 255)";
-
 const root = (page: Page) => page.locator("html");
 const cover = (page: Page) => page.locator("[data-intro-cover]");
 const headline = (page: Page) => page.getByRole("heading", { level: 1 });
 
-/**
- * Keeps a list of the states the root element goes through, from before the first script of each
- * page load. A state that lasts a fifth of a second cannot be missed this way.
- */
-async function recordStates(page: Page) {
+/** The page clock at the first input of the load, kept from before the first script of the page. */
+async function noteInput(page: Page) {
   await page.addInitScript(() => {
-    const states: Array<string | null> = [];
-    window.introStates = states;
-    new MutationObserver((records) => {
-      for (const record of records) {
-        if (record.target === document.documentElement) {
-          states.push(document.documentElement.getAttribute("data-intro"));
-        }
-      }
-    }).observe(document, { attributes: true, attributeFilter: ["data-intro"], subtree: true });
+    for (const type of ["pointerdown", "keydown", "wheel"]) {
+      window.addEventListener(
+        type,
+        () => {
+          window.introInput ??= performance.now();
+        },
+        { capture: true, once: true, passive: true },
+      );
+    }
   });
 }
 
-const states = (page: Page) => page.evaluate(() => window.introStates ?? []);
+/** Keeps the largest contentful paint of the load, from before the first script of the page. */
+async function notePaint(page: Page) {
+  await page.addInitScript(() => {
+    new PerformanceObserver((list) => {
+      const entries = list.getEntries();
+      const last = entries[entries.length - 1];
+      if (last) window.introPaint = last.startTime;
+    }).observe({ type: "largest-contentful-paint", buffered: true });
+  });
+}
 
 /**
  * Opens the home page as a first visit and returns as soon as the cover is showing. The page is not
- * waited for: the cover is up from the first paint and gone 2.3 seconds later.
+ * waited for: the cover is up from the first paint.
  */
 async function firstVisit(page: Page) {
-  await recordStates(page);
+  await recordIntro(page);
   await page.goto("/", { waitUntil: "commit" });
   await expect(cover(page)).toBeVisible();
 }
 
-/**
- * The latest end, in seconds, of the animations of one element, from its computed delay and
- * duration. Each is a list ("1.12s" and "0.14s, 0.28s"), and a shorter list repeats.
- */
-function endOf(delay: string, duration: string): number {
-  const seconds = (list: string) =>
-    list
-      .split(",")
-      .map((part) => Number.parseFloat(part) * (part.trim().endsWith("ms") ? 0.001 : 1));
-  const delays = seconds(delay);
-  const durations = seconds(duration);
-  const ends = Array.from(
-    { length: Math.max(delays.length, durations.length) },
-    (_, index) => (delays[index % delays.length] ?? 0) + (durations[index % durations.length] ?? 0),
-  );
-  return Math.max(...ends);
-}
+/** The page clock when the attribute went, or null while it is still there. */
+const goneAt = (page: Page) =>
+  page.evaluate(() => {
+    const log = window.__introLog ?? [];
+    const last = log[log.length - 1];
+    return last && last[1] === null ? last[0] : null;
+  });
 
-/** The root element went from playing to skipped to gone. */
-async function expectSkipped(page: Page) {
-  await expect.poll(async () => (await states(page)).slice(0, 3)).toEqual(["play", "skip", "done"]);
-}
-
-test("a first visit opens under the cover, with the whole page beneath it, and the cover is gone within four seconds", async ({
-  page,
-}) => {
+test("a first visit opens under the cover, with the whole page beneath it", async ({ page }) => {
   await firstVisit(page);
+
+  // The attribute was there before the first paint: it is the first thing the log holds, and the
+  // cover is up.
+  await expect(root(page)).toHaveAttribute("data-intro", /./);
+  expect((await introStates(page))[0]).toBe("play");
 
   // The cover is decoration over a finished page: hidden from assistive technology, with nothing
   // in it to focus, and the page under it neither hidden nor locked.
@@ -91,6 +88,8 @@ test("a first visit opens under the cover, with the whole page beneath it, and t
   await expect(cover(page).locator("a, button, input, select, [tabindex]")).toHaveCount(0);
   await expect(cover(page).getByText("Advanta365", { exact: true })).toHaveCount(1);
   await expect(headline(page)).toHaveText(HEADLINE);
+  // Under the cover the headline is opaque and painted: it is not waiting to be shown.
+  await expect(headline(page)).toHaveCSS("opacity", "1");
   await expect(page.getByRole("banner")).toHaveCount(1);
   await expect(page.getByRole("contentinfo")).toHaveCount(1);
   const main = page.getByRole("main");
@@ -98,170 +97,49 @@ test("a first visit opens under the cover, with the whole page beneath it, and t
   await expect(main).not.toHaveAttribute("aria-hidden");
   await expect(root(page)).not.toHaveCSS("overflow-y", "hidden");
   await expect(page.locator("body")).not.toHaveCSS("overflow-y", "hidden");
-
-  // It leaves by itself, and what was under it can be seen and clicked.
-  await expect(cover(page)).toBeHidden({ timeout: 4_000 });
-  await expect(headline(page)).toBeVisible();
-  await headline(page).click();
-  await expect(cover(page)).toHaveCSS("display", "none");
-
-  // The root element said so all the way: playing, gone, and then nothing once the hero sheet's
-  // own fill and blink, which waited for the cover, have ended.
-  await expect(root(page)).not.toHaveAttribute("data-intro", { timeout: 6_000 });
-  await expect.poll(() => states(page)).toEqual(["play", "done", null]);
 });
 
-test("the timeline is CSS alone: switched on by hand, the cover leaves by itself, inside its budget", async ({
+test("the cover does not hold back the page: its largest paint is under a second", async ({
   page,
 }) => {
-  // A later load: the script decides not to play and sets up nothing. Setting the attribute is all
-  // it would have done to start the cover, so from here on there is no script behind it.
-  await introSeen(page);
-  await recordStates(page);
-  await page.goto("/");
-  await expect(cover(page)).toBeHidden();
-  await page.evaluate(() => document.documentElement.setAttribute("data-intro", "play"));
-  await expect(cover(page)).toBeVisible();
-
-  // An ink sheet written in white. The highlighter is its trailing edge and the tail of the mark,
-  // which is the first of the three strokes in the document.
-  await expect(cover(page)).toHaveCSS("background-color", INK);
-  await expect(cover(page)).toHaveCSS("color", ON_INK);
-  await expect(cover(page)).toHaveCSS("border-bottom-color", MARK);
-  const strokes = cover(page).locator("path");
-  await expect(strokes).toHaveCount(3);
-  await expect(strokes.nth(0)).toHaveCSS("stroke", MARK);
-  await expect(strokes.nth(1)).toHaveCSS("stroke", ON_INK);
-  await expect(strokes.nth(2)).toHaveCSS("stroke", ON_INK);
-
-  // The lift starts after every part of the signature has been written, ends within three
-  // seconds, and holds its last frame.
-  const lift = await cover(page).evaluate((element) => {
-    const style = getComputedStyle(element);
-    return {
-      delay: style.animationDelay,
-      duration: style.animationDuration,
-      fill: style.animationFillMode,
-      position: style.position,
-    };
-  });
-  expect(lift.position).toBe("fixed");
-  expect(lift.fill).toBe("forwards");
-  const liftStart = Number.parseFloat(lift.delay);
-  expect(liftStart).toBeGreaterThan(1);
-  expect(endOf(lift.delay, lift.duration)).toBeLessThanOrEqual(3);
-
-  const parts = await cover(page)
-    .locator("path, span")
-    .evaluateAll((elements) =>
-      elements.map((element) => {
-        const style = getComputedStyle(element);
-        return {
-          name: style.animationName,
-          delay: style.animationDelay,
-          duration: style.animationDuration,
-        };
-      }),
-    );
-  const moving = parts.filter((part) => part.name !== "none");
-  // Three strokes, ten blocks and the name.
-  expect(moving).toHaveLength(14);
-  for (const part of moving) expect(endOf(part.delay, part.duration)).toBeLessThan(liftStart);
-
-  // The hero sheet waits for the cover: its tally starts as the cover lifts, and its last blink
-  // still ends within five seconds.
-  const sheet = await page
-    .locator("[data-hero-sheet]")
-    .locator("[data-block], [data-caret]")
-    .evaluateAll((elements) =>
-      elements.map((element) => {
-        const style = getComputedStyle(element);
-        return {
-          delay: Number.parseFloat(style.animationDelay),
-          end:
-            Number.parseFloat(style.animationDelay) +
-            Number.parseFloat(style.animationDuration) * Number(style.animationIterationCount),
-        };
-      }),
-    );
-  expect(sheet).toHaveLength(11);
-  for (const step of sheet) {
-    expect(step.delay).toBeGreaterThanOrEqual(liftStart);
-    expect(step.end).toBeLessThanOrEqual(5);
-  }
-
-  // Left to itself the sheet goes: out of the layout, hidden and deaf to the pointer, although
-  // nothing has moved the state on.
-  await expect(cover(page)).toBeHidden({ timeout: 4_000 });
-  await expect(cover(page)).toHaveCSS("display", "none");
-  await expect(cover(page)).toHaveCSS("visibility", "hidden");
-  await expect(cover(page)).toHaveCSS("pointer-events", "none");
-  await headline(page).click();
-  await expect(root(page)).toHaveAttribute("data-intro", "play");
-  expect(await states(page)).toEqual(["play"]);
-});
-
-test("a second load in the same session has no cover", async ({ page }) => {
+  // The first request a server answers after a build is a cold one; the page is asked for once
+  // first, so that the number below is the page's and not the server's warming up.
+  await page.request.get("/");
+  await notePaint(page);
   await firstVisit(page);
 
-  await page.reload();
-  await expect(headline(page)).toBeVisible();
-  await expect(cover(page)).toBeHidden();
-  await expect(root(page)).not.toHaveAttribute("data-intro");
-  // The list starts again with each load: the root element was never marked on this one.
-  expect(await states(page)).toEqual([]);
+  // The browser reports the largest paint once it has one; the headline is painted under the
+  // cover, so it is the cover that has to wait for it, not the other way round.
+  await expect.poll(() => page.evaluate(() => window.introPaint ?? null)).not.toBeNull();
+  const paint = await page.evaluate(() => window.introPaint ?? Infinity);
+  expect(paint).toBeLessThan(1000);
 });
 
-test("an inner page has no cover, and neither has the home page in a session that started there", async ({
-  page,
-}) => {
-  await recordStates(page);
-  await page.goto("/pricing");
-  await expect(headline(page)).toHaveText("Pricing");
-  await expect(cover(page)).toHaveCount(0);
-  await expect(root(page)).not.toHaveAttribute("data-intro");
-  expect(await states(page)).toEqual([]);
-
-  // Home by the brand link: a change of page, not a load.
-  await page.getByRole("banner").getByRole("link", { name: "Advanta365", exact: true }).click();
-  await expect(page).toHaveURL(/\/$/, { timeout: NAVIGATION_TIMEOUT });
-  await expect(headline(page)).toHaveText(HEADLINE);
-  await expect(cover(page)).toHaveCount(1);
-  await expect(cover(page)).toBeHidden();
-  expect(await states(page)).toEqual([]);
-
-  // And loaded outright: still not the first load of the session.
-  await page.reload();
-  await expect(headline(page)).toHaveText(HEADLINE);
-  await expect(cover(page)).toBeHidden();
-  expect(await states(page)).toEqual([]);
-});
-
-test("with reduced motion there is no cover", async ({ page }) => {
-  await page.emulateMedia({ reducedMotion: "reduce" });
-  await recordStates(page);
-  await page.goto("/");
-
-  await expect(headline(page)).toBeVisible();
-  await expect(cover(page)).toBeHidden();
-  await expect(root(page)).not.toHaveAttribute("data-intro");
-  expect(await states(page)).toEqual([]);
-  await headline(page).click();
-});
-
-// The three tests below act on the cover while it is up. They do it straight after it shows, which
-// leaves them the 1.7 seconds before it starts to lift by itself.
-
-test("a key press lifts the cover at once", async ({ page }) => {
+test("without ink the cover leaves by itself within 1.9 seconds", async ({ page }) => {
   await firstVisit(page);
 
-  await page.keyboard.press("Shift");
-  await expect(cover(page)).toBeHidden({ timeout: 1_500 });
-  await expectSkipped(page);
+  await expect.poll(() => goneAt(page), { timeout: 8_000 }).not.toBeNull();
+  const start = await introAt(page, "play");
+  const end = await goneAt(page);
+  expect(start).not.toBeNull();
+  expect(end).not.toBeNull();
+  // The cover's own clock starts at the first paint, which a slow start of the page (the network,
+  // the first request of a run) moves later than the navigation.
+  const painted = await page.evaluate(
+    () => performance.getEntriesByName("first-paint")[0]?.startTime ?? 0,
+  );
+  expect(painted).toBeGreaterThan(0);
+  expect((end ?? Infinity) - painted).toBeLessThanOrEqual(1900);
+  // The cover is out of the way, and what was under it can be seen and clicked.
+  await expect(cover(page)).toBeHidden();
   await headline(page).click();
+  await expect(page).toHaveURL(/\/$/);
+  // Playing, then gone: nothing else in between.
+  expect(await introStates(page)).toEqual(["play", null]);
 });
 
-test("a press lifts it too, and lands on the cover, not on the page under it", async ({ page }) => {
+test("a click on the cover ends it within 400ms and does not navigate", async ({ page }) => {
+  await noteInput(page);
   await firstVisit(page);
 
   // The middle of the main button of the page, which lies under the cover.
@@ -285,21 +163,120 @@ test("a press lifts it too, and lands on the cover, not on the page under it", a
   });
   await page.mouse.click(box.x + box.width / 2, box.y + box.height / 2);
 
+  // The press lands on the cover, not on the page under it.
   expect(await page.evaluate(() => window.introPress)).toBe("cover");
-  await expect(cover(page)).toBeHidden({ timeout: 1_500 });
-  await expectSkipped(page);
+  await expect.poll(() => goneAt(page), { timeout: 4_000 }).not.toBeNull();
+  const pressed = await page.evaluate(() => window.introInput ?? null);
+  expect(pressed).not.toBeNull();
+  expect((await goneAt(page)) ?? Infinity).toBeLessThan((pressed ?? 0) + 400);
+
   // A press that began on the cover is not a click on the link under it.
   await expect(headline(page)).toHaveText(HEADLINE);
   await expect(page).toHaveURL(/\/$/);
+  await expect(cover(page)).toBeHidden();
+  expect(await introStates(page)).toContain("leave");
 });
 
-test("the wheel lifts it and scrolls the page: nothing is locked", async ({ page }) => {
+test("a key press ends it within 400ms", async ({ page }) => {
+  await noteInput(page);
+  await firstVisit(page);
+
+  await page.keyboard.press("Shift");
+  await expect.poll(() => goneAt(page), { timeout: 4_000 }).not.toBeNull();
+  const pressed = await page.evaluate(() => window.introInput ?? null);
+  expect(pressed).not.toBeNull();
+  expect((await goneAt(page)) ?? Infinity).toBeLessThan((pressed ?? 0) + 400);
+  expect(await introStates(page)).toEqual(["play", "leave", null]);
+  await headline(page).click();
+  await expect(page).toHaveURL(/\/$/);
+});
+
+test("the wheel ends it and scrolls the page: nothing is locked", async ({ page }) => {
   await firstVisit(page);
 
   // A phone has no wheel, but the page answers one all the same.
   await page.mouse.move(100, 100);
   await page.mouse.wheel(0, 400);
-  await expect(cover(page)).toBeHidden({ timeout: 1_500 });
-  await expectSkipped(page);
+  await expect.poll(() => goneAt(page), { timeout: 4_000 }).not.toBeNull();
   await expect.poll(() => page.evaluate(() => window.scrollY)).toBeGreaterThan(0);
+});
+
+test("a reload in the same session has no cover", async ({ page }) => {
+  await firstVisit(page);
+  await expect.poll(() => goneAt(page), { timeout: 8_000 }).not.toBeNull();
+
+  await page.reload();
+  await expect(headline(page)).toBeVisible();
+  await expect(cover(page)).toBeHidden();
+  await expect(root(page)).not.toHaveAttribute("data-intro");
+  // The list starts again with each load: the root element was never marked on this one.
+  expect(await introStates(page)).toEqual([]);
+});
+
+test("an inner page has no cover, and neither has the home page in a session that started there", async ({
+  page,
+}) => {
+  await recordIntro(page);
+  await page.goto("/pricing");
+  await expect(headline(page)).toHaveText("Pricing");
+  await expect(cover(page)).toHaveCount(0);
+  await expect(root(page)).not.toHaveAttribute("data-intro");
+  expect(await introStates(page)).toEqual([]);
+
+  // Home by the brand link: a change of page, not a load.
+  await page.getByRole("banner").getByRole("link", { name: "Advanta365", exact: true }).click();
+  await expect(page).toHaveURL(/\/$/, { timeout: NAVIGATION_TIMEOUT });
+  await expect(headline(page)).toHaveText(HEADLINE);
+  await expect(cover(page)).toHaveCount(1);
+  await expect(cover(page)).toBeHidden();
+  expect(await introStates(page)).toEqual([]);
+
+  // And loaded outright: still not the first load of the session.
+  await page.reload();
+  await expect(headline(page)).toHaveText(HEADLINE);
+  await expect(cover(page)).toBeHidden();
+  expect(await introStates(page)).toEqual([]);
+});
+
+test("with reduced motion there is no cover", async ({ page }) => {
+  await page.emulateMedia({ reducedMotion: "reduce" });
+  await recordIntro(page);
+  await page.goto("/");
+
+  await expect(headline(page)).toBeVisible();
+  await expect(cover(page)).toBeHidden();
+  await expect(root(page)).not.toHaveAttribute("data-intro");
+  expect(await introStates(page)).toEqual([]);
+  await headline(page).click();
+});
+
+test("with storage blocked there is no cover", async ({ page }) => {
+  // A browser that refuses storage cannot remember that the cover played, so it never plays it.
+  await page.addInitScript(() => {
+    const refuse = () => {
+      throw new DOMException("blocked", "SecurityError");
+    };
+    Object.defineProperty(window, "sessionStorage", { get: refuse, configurable: true });
+    Object.defineProperty(window, "localStorage", { get: refuse, configurable: true });
+  });
+  await recordIntro(page);
+  await page.goto("/");
+
+  await expect(headline(page)).toBeVisible();
+  await expect(cover(page)).toBeHidden();
+  await expect(root(page)).not.toHaveAttribute("data-intro");
+  expect(await introStates(page)).toEqual([]);
+  await headline(page).click();
+});
+
+test.describe("without JavaScript", () => {
+  test.use({ javaScriptEnabled: false });
+
+  test("there is no cover", async ({ page }) => {
+    await page.goto("/");
+    await expect(headline(page)).toHaveText(HEADLINE);
+    await expect(root(page)).not.toHaveAttribute("data-intro");
+    await expect(cover(page)).toBeHidden();
+    await headline(page).click();
+  });
 });

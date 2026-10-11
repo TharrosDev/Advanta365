@@ -11,10 +11,16 @@ type BlockState = "ink" | "mark" | "empty";
  * are; `marked` is the 1-based position of the one highlighted block (the part that is the buyer's).
  * Every other block is empty. `numerals` prints each position in its block (size `md`). The tally is
  * decoration unless `label` is given, which makes it an image with that name. `animate` fills the
- * blocks one after another, once, on first paint; without it, and under reduced motion, the tally
- * is simply drawn in its final state.
+ * blocks one after another, once, when the tally is seen (`data-watch`, which the observer of
+ * `MotionRoot` answers with `data-seen`); without it, without JavaScript and under reduced
+ * motion, the tally is simply drawn in its final state. Inside a `[data-ninety]` band the blocks
+ * follow the band's scroll instead (app/motion.css), so leave `animate` off there.
  *
- * Hooks: `data-tally` on the root, `data-block="ink" | "mark" | "empty"` on each block.
+ * `anchor` names one block for the ink layer: `{ block: 10, name: "tenth" }` puts
+ * `data-ink-anchor="tenth"` on the tenth block, the place a drop of ink falls from.
+ *
+ * Hooks: `data-tally` on the root, `data-block="ink" | "mark" | "empty"` on each block, whose
+ * position from 0 is the custom property `--i`.
  */
 export function Tally({
   total,
@@ -24,6 +30,7 @@ export function Tally({
   numerals = false,
   animate = false,
   label,
+  anchor,
   className,
 }: {
   total: number;
@@ -33,6 +40,7 @@ export function Tally({
   numerals?: boolean;
   animate?: boolean;
   label?: string;
+  anchor?: { block: number; name: string };
   className?: string;
 }) {
   const stateOf = (position: number): BlockState => {
@@ -47,6 +55,7 @@ export function Tally({
       <span
         key={index}
         data-block={state}
+        data-ink-anchor={anchor?.block === index + 1 ? anchor.name : undefined}
         className={cx(styles.block, styles[state])}
         style={cssVars({ "--i": index })}
       >
@@ -63,16 +72,18 @@ export function Tally({
     className,
   );
 
+  const watch = animate ? "" : undefined;
+
   if (label) {
     return (
-      <span data-tally="" role="img" aria-label={label} className={classes}>
+      <span data-tally="" data-watch={watch} role="img" aria-label={label} className={classes}>
         {blocks}
       </span>
     );
   }
 
   return (
-    <span data-tally="" aria-hidden="true" className={classes}>
+    <span data-tally="" data-watch={watch} aria-hidden="true" className={classes}>
       {blocks}
     </span>
   );

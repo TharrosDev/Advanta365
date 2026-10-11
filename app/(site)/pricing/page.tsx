@@ -2,13 +2,12 @@ import type { Metadata } from "next";
 import { BundlePriceTable } from "@/components/company/bundle-price-table";
 import { FaqList } from "@/components/company/faq-list";
 import type { FaqItem } from "@/components/company/faq-list";
+import { WaysToBuy } from "@/components/company/ways-to-buy";
+import type { Way } from "@/components/company/ways-to-buy";
 import { TitleBlock } from "@/components/layout/title-block";
 import { Band } from "@/components/ui/band";
 import { BandedList, BandedRow } from "@/components/ui/banded-list";
-import { Button } from "@/components/ui/button";
-import { Eyebrow } from "@/components/ui/eyebrow";
 import { RowLink } from "@/components/ui/row-link";
-import { Sheet } from "@/components/ui/sheet";
 import { Split } from "@/components/ui/split";
 import { bundleSavingsCents } from "@/lib/catalog/pricing";
 import { getBundleTemplates, getBundles, getTemplates } from "@/lib/catalog/repository";
@@ -77,31 +76,13 @@ function priceRange(cents: readonly number[]): string {
   return low === high ? formatPrice(low) : `${formatPrice(low)} – ${formatPrice(high)}`;
 }
 
-type Way = { title: string; range: string; body: string; href: string; action: string };
-
-/** What one way to buy holds: its name, the price range, a sentence on it and the way in. */
-function WayContent({ way }: { way: Way }) {
-  return (
-    <>
-      <h2 className="type-section">{way.title}</h2>
-      <p className={cx("type-amount", styles.range)}>{way.range}</p>
-      <p className={cx("type-copy", styles.body)}>{way.body}</p>
-      <div className={styles.action}>
-        <Button href={way.href} variant="outline" arrow>
-          {way.action}
-        </Button>
-      </div>
-    </>
-  );
-}
-
 /**
- * `/pricing`: the two ways to buy, the bundle prices as a table, the questions people ask, and a
+ * `/pricing`: the two ways to buy, the bundle prices as a ledger, the questions people ask, and a
  * link to talk about purchasing.
  *
- * Layout: the title block; bands that alternate paper and desk, each with its heading or label in
- * the margin. The singles are a sheet and the bundles a folder, the shape of a bundle card with an
- * empty tab, side by side from 40em.
+ * Layout: the title block with ink; a desk band where the singles lie on a stack of paper and the
+ * bundles in a folder; the bundle prices on paper; the questions on the desk as a ledger of 84px
+ * rows; and a closing paper band with the link to the contact page.
  */
 export default async function PricingPage() {
   const [templates, bundles] = await Promise.all([getTemplates(), getBundles()]);
@@ -137,35 +118,27 @@ export default async function PricingPage() {
     <>
       <TitleBlock
         form="index"
+        ink
         title="Pricing"
         lead="Buy the one piece you need today, or take a bundle that covers a whole phase. Every purchase is a one-time payment for files you can edit by hand or with AI, reused across every wave of your rollout."
       />
 
-      <Band surface="paper">
-        <Split margin={<Eyebrow>Two ways to buy</Eyebrow>}>
-          <ul className={styles.ways}>
-            <li className={styles.way}>
-              <Sheet className={styles.card}>
-                <WayContent way={singles} />
-              </Sheet>
-            </li>
-            <li className={cx(styles.way, styles.folderWay)}>
-              <div className={cx(styles.card, styles.folder)}>
-                <span className={styles.tab} aria-hidden="true" />
-                <WayContent way={sets} />
-              </div>
-            </li>
-          </ul>
-        </Split>
+      <Band surface="desk" pad="roomy">
+        <WaysToBuy
+          label="Two ways to buy"
+          singles={singles}
+          sets={sets}
+          setsTab={`${bundles.length} bundles`}
+        />
       </Band>
 
-      <Band surface="desk">
+      <Band surface="paper">
         <Split margin={<h2 className="type-section">{PRICES_TITLE}</h2>}>
           <BundlePriceTable caption={PRICES_TITLE} rows={bundleRows} />
         </Split>
       </Band>
 
-      <Band surface="paper">
+      <Band surface="desk">
         <Split
           margin={
             <>
@@ -180,7 +153,7 @@ export default async function PricingPage() {
         </Split>
       </Band>
 
-      <Band surface="desk" pad="tight">
+      <Band surface="paper" pad="tight">
         <Split>
           <BandedList>
             <BandedRow>

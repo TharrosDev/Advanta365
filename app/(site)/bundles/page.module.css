@@ -1,21 +1,9 @@
-/* The gap is the grid's gutter; each card keeps its own 28px above for the tab. */
-.grid {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr);
-  gap: var(--col-gap);
+/*
+ * The ledger: one column of folder rows in every width. The rows draw their own hairlines, and
+ * their wash stands 14px past both ends, so nothing here may clip.
+ */
+.rows {
   margin: 0;
   padding: 0;
   list-style: none;
-}
-
-@media (min-width: 40em) {
-  .grid {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-}
-
-@media (min-width: 68em) {
-  .grid {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-  }
 }

@@ -1,14 +1,22 @@
-.panel {
+/* The sheet has no padding of its own: 21px below 40em, 28px from there. */
+.panel.panel {
   display: flex;
   flex-direction: column;
+  padding: var(--s-3);
   color: var(--text);
+}
+
+@media (min-width: 40em) {
+  .panel {
+    padding: var(--s-4);
+  }
 }
 
 /*
  * From 68em the panel is three columns wide, and 226px at 68em itself. Its side padding then grows
  * from 21px to 28px over the first 56px of extra width instead of starting at 28px, so the one
  * control still has the room to keep "Add to cart" and "Add bundle to cart" on one line. The
- * doubled class outranks the padding of the sheet.
+ * doubled class outranks the padding above.
  */
 @media (min-width: 68em) {
   .panel.panel {

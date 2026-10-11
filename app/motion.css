@@ -1,0 +1,465 @@
+/*
+ * The motion system. Everything here hangs on hooks (attributes), so a page asks for movement in
+ * its markup and never in a stylesheet of its own:
+ *
+ *   [data-move="drift | ink-in | settle | grow"]  an entrance, on the wrapper that owns it
+ *   [data-when="load"]                             that entrance by the clock, at page load
+ *   [data-paper], [data-lit]                       a paper object and its light under the pointer
+ *   [data-bar]                                     the bar and its shadow
+ *   [data-ninety], [data-odometer-wheel]           the one band whose figure follows the scroll
+ *
+ * Three attributes on the root element, set by the boot script before first paint, are the only
+ * switches: `data-motion="on"` (movement is wanted), `data-timeline="on"` (view timelines exist)
+ * and `data-io="armed"` (the observer of components/ui/motion-root.tsx is running). A hidden
+ * starting state always needs the first, and on the observer path the third as well, so a script
+ * that never runs hides nothing.
+ *
+ * Every animation and transition sits inside the no-preference query, with the final state
+ * outside it. Keyframes name the starting state only: the end is whatever the element is. Nothing
+ * repeats, no custom property is animated and no shadow changes: a shadow that comes or goes is a
+ * second shadow on a pseudo-element whose opacity moves. `animation-timeline` and
+ * `animation-range` are written after the `animation` shorthand, which would reset them.
+ */
+
+/* The bar's shadow lies on a layer of its own. The bar is sticky, so it is the positioning box. */
+[data-bar]::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  box-shadow: var(--bar-shadow);
+  pointer-events: none;
+}
+
+/*
+ * The ninety. A block of the band's tally keeps a ring in its own fill, so a block that has not
+ * been inked yet is an outline of the same size and the fill only has to arrive inside it.
+ */
+[data-ninety] [data-block="ink"] {
+  box-shadow: inset 0 0 0 var(--edge) var(--line-ink);
+}
+
+[data-ninety] [data-block="mark"] {
+  box-shadow: inset 0 0 0 var(--edge) var(--mark);
+}
+
+/* A lit sheet rises under the pointer and under keyboard focus; its lifted shadow comes with it. */
+:is(article, [data-lit-scope]):has(:focus-visible) [data-lit] {
+  translate: 0 -6px;
+}
+
+:is(article, [data-lit-scope]):has(:focus-visible) [data-lit]::after {
+  opacity: 1;
+}
+
+@media (hover: hover) {
+  [data-lit]:hover,
+  :is(article, [data-lit-scope]):hover [data-lit] {
+    translate: 0 -6px;
+  }
+
+  [data-lit]:hover::after,
+  :is(article, [data-lit-scope]):hover [data-lit]::after {
+    opacity: 1;
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  /* Anchors glide; the router still jumps on a route change (`data-scroll-behavior` on the root). */
+  html {
+    scroll-behavior: smooth;
+  }
+
+  @keyframes move-drift {
+    from {
+      opacity: 0;
+      translate: 0 12px;
+    }
+  }
+
+  @keyframes move-ink-in {
+    from {
+      opacity: 0;
+      filter: blur(8px);
+    }
+  }
+
+  @keyframes move-ink-in-plain {
+    from {
+      opacity: 0;
+    }
+  }
+
+  @keyframes move-settle {
+    from {
+      opacity: 0;
+      translate: 0 -28px;
+      scale: 1.03;
+    }
+  }
+
+  @keyframes move-shadow {
+    from {
+      opacity: 1;
+    }
+  }
+
+  @keyframes move-grow {
+    from {
+      scale: 0 1;
+    }
+  }
+
+  @keyframes bar-shadow-in {
+    from {
+      opacity: 0;
+    }
+  }
+
+  @keyframes ninety-roll {
+    from {
+      translate: 0 0;
+    }
+  }
+
+  @keyframes ninety-fill {
+    from {
+      background-color: transparent;
+    }
+  }
+
+  @keyframes page-out {
+    to {
+      opacity: 0;
+    }
+  }
+
+  /*
+   * Entrances, where view timelines exist. Linear, filled both ways, tied to the element's own
+   * passage through the viewport: an element already in view at load is simply where it belongs.
+   * The far end of each range is also capped by a length, so the last block of a short page on a
+   * tall window still arrives before the page runs out of scroll. `--order` shifts the start.
+   */
+  html[data-motion="on"][data-timeline="on"] [data-move]:not([data-when="load"]) {
+    animation: move-drift linear both;
+    animation-timeline: view();
+    animation-range: entry calc(var(--order, 0) * 4%) cover min(22%, 14rem);
+  }
+
+  html[data-motion="on"][data-timeline="on"] [data-move="ink-in"]:not([data-when="load"]) {
+    animation-name: move-ink-in-plain;
+    animation-range: entry calc(10% + var(--order, 0) * 4%) cover min(30%, 18rem);
+  }
+
+  html[data-motion="on"][data-timeline="on"] [data-move="settle"]:not([data-when="load"]) {
+    view-timeline-name: --move-settle;
+    animation-name: move-settle;
+    animation-range: entry calc(var(--order, 0) * 4%) cover min(30%, 18rem);
+  }
+
+  /* The sheet lands: its lifted shadow fades over the same passage. */
+  html[data-motion="on"][data-timeline="on"]
+    [data-move="settle"]:not([data-when="load"])
+    [data-paper]::after {
+    animation: move-shadow linear both;
+    animation-timeline: --move-settle;
+    animation-range: entry calc(var(--order, 0) * 4%) cover min(30%, 18rem);
+  }
+
+  html[data-motion="on"][data-timeline="on"] [data-move="grow"]:not([data-when="load"]) {
+    animation-name: move-grow;
+    animation-range: entry calc(10% + var(--order, 0) * 4%) cover min(28%, 16rem);
+  }
+
+  /* The hairlines of a ledger are drawn as it scrolls in. */
+  html[data-motion="on"][data-timeline="on"] [data-ledger] {
+    view-timeline-name: --ledger;
+  }
+
+  html[data-motion="on"][data-timeline="on"] [data-ledger] > ::before {
+    animation: move-grow linear both;
+    animation-timeline: --ledger;
+    animation-range: entry 10% cover min(28%, 16rem);
+  }
+
+  [data-move="grow"],
+  [data-ledger] > ::before {
+    transform-origin: left center;
+  }
+
+  @media (min-width: 68em) {
+    html[data-motion="on"][data-timeline="on"] [data-move="ink-in"]:not([data-when="load"]) {
+      animation-name: move-ink-in;
+    }
+  }
+
+  /*
+   * Entrances without view timelines. The observer marks each element `data-seen` once; until
+   * then it waits in its starting state, and the mark is what carries the transition, so going
+   * into hiding is never animated.
+   */
+  html[data-motion="on"][data-io="armed"]:not([data-timeline="on"])
+    [data-move]:not([data-when="load"]):not([data-seen]) {
+    opacity: 0;
+    translate: 0 12px;
+  }
+
+  html[data-motion="on"][data-io="armed"]:not([data-timeline="on"])
+    [data-move="ink-in"]:not([data-when="load"]):not([data-seen]) {
+    translate: none;
+  }
+
+  html[data-motion="on"][data-io="armed"]:not([data-timeline="on"])
+    [data-move="settle"]:not([data-when="load"]):not([data-seen]) {
+    translate: 0 -28px;
+    scale: 1.03;
+  }
+
+  html[data-motion="on"][data-io="armed"]:not([data-timeline="on"])
+    [data-move="settle"]:not([data-when="load"]):not([data-seen])
+    [data-paper]::after {
+    opacity: 1;
+  }
+
+  html[data-motion="on"][data-io="armed"]:not([data-timeline="on"])
+    [data-move="grow"]:not([data-when="load"]):not([data-seen]) {
+    opacity: 1;
+    translate: none;
+    scale: 0 1;
+  }
+
+  @media (min-width: 68em) {
+    html[data-motion="on"][data-io="armed"]:not([data-timeline="on"])
+      [data-move="ink-in"]:not([data-when="load"]):not([data-seen]) {
+      filter: blur(8px);
+    }
+  }
+
+  html[data-io="armed"]:not([data-timeline="on"]) [data-move][data-seen] {
+    transition:
+      opacity 480ms var(--curve-settle),
+      translate 480ms var(--curve-settle);
+    transition-delay: calc(var(--order, 0) * var(--stagger));
+  }
+
+  html[data-io="armed"]:not([data-timeline="on"]) [data-move="ink-in"][data-seen] {
+    transition:
+      opacity var(--time-ink) var(--curve-ink),
+      filter var(--time-ink) var(--curve-ink);
+    transition-delay: calc(var(--order, 0) * var(--stagger));
+  }
+
+  html[data-io="armed"]:not([data-timeline="on"]) [data-move="settle"][data-seen] {
+    transition:
+      opacity var(--time-settle) var(--curve-settle),
+      translate var(--time-settle) var(--curve-drop),
+      scale var(--time-settle) var(--curve-drop);
+    transition-delay: calc(var(--order, 0) * var(--stagger));
+  }
+
+  html[data-io="armed"]:not([data-timeline="on"]) [data-move="grow"][data-seen] {
+    transition: scale 600ms var(--curve-settle);
+    transition-delay: calc(var(--order, 0) * var(--stagger));
+  }
+
+  /*
+   * Entrances by the clock, at page load. Under the cover of a first visit they are over at once:
+   * the page behind the cover is complete, and an animation that has ended does not start again
+   * when the root element loses `data-intro`.
+   */
+  html[data-motion="on"] [data-move][data-when="load"] {
+    animation: move-drift 480ms var(--curve-settle) both;
+    animation-delay: calc(var(--order, 0) * var(--stagger));
+  }
+
+  html[data-motion="on"] [data-move="ink-in"][data-when="load"] {
+    animation-name: move-ink-in-plain;
+    animation-duration: var(--time-ink);
+    animation-timing-function: var(--curve-ink);
+  }
+
+  html[data-motion="on"] [data-move="settle"][data-when="load"] {
+    animation-name: move-settle;
+    animation-duration: var(--time-settle);
+    animation-timing-function: var(--curve-drop);
+  }
+
+  html[data-motion="on"] [data-move="grow"][data-when="load"] {
+    animation-name: move-grow;
+    animation-duration: 600ms;
+  }
+
+  @media (min-width: 68em) {
+    html[data-motion="on"] [data-move="ink-in"][data-when="load"] {
+      animation-name: move-ink-in;
+    }
+  }
+
+  :root[data-intro][data-motion="on"] [data-move][data-when="load"] {
+    animation-duration: 1ms;
+    animation-delay: 0s;
+  }
+
+  /*
+   * Paper under the pointer. The sheet owns its lift (`translate`) and its tilt (`transform`);
+   * its resting `rotate` is static and its entrance belongs to the wrapper around it. In is
+   * quicker than out. lib/scroll/pointer.ts writes `--tx` and `--ty` on the sheet under the
+   * pointer, in degrees, and takes them away again when the pointer leaves.
+   */
+  [data-paper]::after {
+    transition: opacity 420ms var(--curve-settle);
+  }
+
+  [data-lit] {
+    transition:
+      translate 420ms var(--curve-settle),
+      transform 420ms var(--curve-settle);
+  }
+
+  :is(article, [data-lit-scope]):has(:focus-visible) [data-lit],
+  :is(article, [data-lit-scope]):has(:focus-visible) [data-lit]::after {
+    transition-duration: var(--time-lift);
+  }
+
+  @media (hover: hover) {
+    [data-lit]:hover,
+    :is(article, [data-lit-scope]):hover [data-lit] {
+      transform: perspective(900px) rotateX(var(--tx, 0deg)) rotateY(var(--ty, 0deg));
+      transition-duration: var(--time-lift);
+    }
+
+    [data-lit]:hover::after,
+    :is(article, [data-lit-scope]):hover [data-lit]::after {
+      transition-duration: var(--time-lift);
+    }
+  }
+
+  /* The bar's shadow arrives over the first 84px of the page. */
+  html[data-motion="on"][data-timeline="on"] [data-bar]::after {
+    animation: bar-shadow-in linear both;
+    animation-timeline: scroll(root block);
+    animation-range: 0 5.25rem;
+  }
+
+  /*
+   * The ninety. The band is the timeline: over its passage through the viewport the tens wheel
+   * rolls from blank to its figure between 20% and 44%, the blocks ink in one after another from
+   * 20%, each over 3% and 2.6% apart, and the marked block fills between 44% and 47%. The ink
+   * layer reads the same progress and drops its ink at 0.47.
+   */
+  html[data-motion="on"][data-timeline="on"] [data-ninety] {
+    view-timeline-name: --ninety;
+  }
+
+  html[data-motion="on"][data-timeline="on"] [data-ninety] [data-odometer-wheel] {
+    animation: ninety-roll linear both;
+    animation-timeline: --ninety;
+    animation-range: cover 20% cover 44%;
+  }
+
+  html[data-motion="on"][data-timeline="on"] [data-ninety] [data-block] {
+    animation: ninety-fill linear both;
+    animation-timeline: --ninety;
+    animation-range: cover calc(20% + var(--i, 0) * 2.6%) cover calc(23% + var(--i, 0) * 2.6%);
+  }
+
+  html[data-motion="on"][data-timeline="on"] [data-ninety] [data-block="mark"] {
+    animation-range: cover 44% cover 47%;
+  }
+
+  /*
+   * Without view timelines the observer marks the band when half of it is in view. The wheel then
+   * rolls once and the blocks fill in the same time; the last block's `animationend` is the cue
+   * for the ink.
+   */
+  html[data-motion="on"][data-io="armed"]:not([data-timeline="on"])
+    [data-ninety]:not([data-seen])
+    [data-odometer-wheel] {
+    translate: 0 0;
+  }
+
+  html[data-motion="on"][data-io="armed"]:not([data-timeline="on"])
+    [data-ninety]:not([data-seen])
+    [data-block] {
+    background-color: transparent;
+  }
+
+  html[data-io="armed"]:not([data-timeline="on"]) [data-ninety][data-seen] [data-odometer-wheel] {
+    transition: translate var(--time-count) var(--curve-settle);
+  }
+
+  html[data-io="armed"]:not([data-timeline="on"]) [data-ninety][data-seen] [data-block] {
+    animation: ninety-fill var(--time-fill) var(--curve-settle) backwards;
+    animation-delay: calc(var(--i, 0) * (var(--time-count) - var(--time-fill)) / 9);
+  }
+
+  /*
+   * Page changes (components/ui/page-shift.tsx and the shared covers and folders). The page
+   * itself swaps at once; only the first block of a page leaves and arrives, and a sheet or a
+   * folder that exists on both pages travels. Clicks reach the page all the while.
+   */
+  ::view-transition {
+    pointer-events: none;
+  }
+
+  ::view-transition-old(root) {
+    display: none;
+  }
+
+  ::view-transition-new(root) {
+    animation: none;
+  }
+
+  ::view-transition-old(.page-out) {
+    animation: page-out var(--time-page-out) linear both;
+  }
+
+  ::view-transition-new(.page-in) {
+    animation: move-ink-in-plain var(--time-page-in) var(--curve-ink) 80ms both;
+  }
+
+  ::view-transition-group(.sheet-morph) {
+    animation-duration: var(--time-morph);
+    animation-timing-function: var(--curve-settle);
+  }
+
+  @media (min-width: 40em) {
+    ::view-transition-new(.page-in) {
+      animation-name: move-ink-in;
+    }
+  }
+}
+
+/* Reduced motion: a page change is a plain swap, with nothing left of the page before. */
+@media (prefers-reduced-motion: reduce) {
+  ::view-transition-group(*),
+  ::view-transition-old(*),
+  ::view-transition-new(*) {
+    animation: none !important;
+  }
+
+  ::view-transition-old(*) {
+    display: none;
+  }
+}
+
+/* More contrast: no ink behind anything, and a line under the bar in place of its shadow. */
+@media (prefers-contrast: more) {
+  [data-ink-backdrop] {
+    display: none;
+  }
+
+  [data-bar] {
+    border-block-end: var(--hair) solid var(--ink);
+  }
+
+  [data-bar]::after {
+    display: none;
+  }
+}
+
+@media (forced-colors: active) {
+  [data-ink-backdrop] {
+    display: none;
+  }
+}

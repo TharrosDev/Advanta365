@@ -4,21 +4,22 @@
   gap: var(--s-5);
 }
 
-/* Row cards below 40em, two across from 40em, three from 68em; the gap is the grid's gutter. */
-.grid {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr);
-  gap: var(--col-gap);
+/*
+ * The index: one column of rows in every width. The rows draw their own hairlines, and their wash
+ * stands 14px past both ends, so nothing here may clip.
+ */
+.list {
   margin: 0;
   padding: 0;
   list-style: none;
 }
 
-/* No match: an empty field, then what happened and the way out. */
+/* No match: a blank sheet with an empty field, then what happened and the way out. */
 .empty {
   display: flex;
   flex-direction: column;
   align-items: flex-start;
+  padding: var(--s-4);
 }
 
 /* The field is as wide as a search box, not as wide as the sheet. */
@@ -41,13 +42,7 @@
 }
 
 @media (min-width: 40em) {
-  .grid {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-}
-
-@media (min-width: 68em) {
-  .grid {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
+  .empty {
+    padding: var(--s-6);
   }
 }

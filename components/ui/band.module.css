@@ -2,8 +2,18 @@
   padding-block: var(--pad);
 }
 
+/* A band with a backdrop holds it: the backdrop is placed against the band and stays inside it. */
+.staged {
+  position: relative;
+  isolation: isolate;
+}
+
 .regular {
   --pad: var(--band-pad);
+}
+
+.roomy {
+  --pad: var(--s-7);
 }
 
 .tight {
@@ -21,5 +31,9 @@
 @media (min-width: 40em) {
   .title {
     --pad: var(--s-5);
+  }
+
+  .roomy {
+    --pad: var(--s-8);
   }
 }

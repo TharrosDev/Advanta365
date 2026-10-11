@@ -1,7 +1,9 @@
-.row {
+/* A ledger row: the hairline above it is the ledger's, the room around the text is the row's. */
+.row.row {
   display: grid;
   grid-template-columns: minmax(0, 1fr);
   gap: var(--s-2);
+  padding-block: var(--s-3);
 }
 
 .name {
@@ -36,7 +38,7 @@
 }
 
 @media (min-width: 40em) {
-  .row {
+  .row.row {
     grid-template-columns: repeat(2, minmax(0, 1fr));
     column-gap: var(--s-3);
     align-items: start;
@@ -53,7 +55,7 @@
  * width instead of leaving "Change" alone on a line.
  */
 @media (min-width: 68em) {
-  .row {
+  .row.row {
     grid-template-columns: minmax(0, 7fr) minmax(0, 5fr) minmax(0, 6fr);
     align-items: baseline;
   }

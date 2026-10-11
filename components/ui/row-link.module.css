@@ -1,6 +1,7 @@
 /*
- * The link reaches the edges of its row: it takes back the row's padding with negative margins and
- * puts the same padding inside itself. Outside a `BandedRow` both fall back to zero.
+ * The link reaches the hairlines of its row and stands past both of its ends: it takes the row's
+ * two pads as negative margins and puts the same padding inside itself, so its wash has room
+ * around the text. Outside a `BandedRow` both fall back to zero.
  */
 .root {
   display: flex;
@@ -9,6 +10,7 @@
   min-height: var(--control-lg);
   margin: calc(-1 * var(--row-pad-block, 0px)) calc(-1 * var(--row-pad-inline, 0px));
   padding: var(--row-pad-block, 0px) var(--row-pad-inline, 0px);
+  border-radius: var(--round-2);
   color: var(--text);
   text-decoration: none;
   transition: background-color var(--time-swap) linear;

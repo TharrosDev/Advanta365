@@ -4,9 +4,9 @@ import { BundlesSection, type FeaturedBundle } from "@/components/home/bundles-s
 import { ClosingSection } from "@/components/home/closing-section";
 import { FeaturedSection } from "@/components/home/featured-section";
 import { Hero } from "@/components/home/hero";
-import type { HeroSpecimen } from "@/components/home/hero-sheet";
+import type { SpecimenContent } from "@/components/home/hero-sheet";
 import { InsideSection } from "@/components/home/inside-section";
-import { PitchSpread } from "@/components/home/pitch-spread";
+import { ProblemSection, SolutionSection } from "@/components/home/pitch-spread";
 import { PracticeSection } from "@/components/home/practice-section";
 import { ValuesSection } from "@/components/home/values-section";
 import { IntroCover } from "@/components/intro/intro-cover";
@@ -17,11 +17,11 @@ import { getBundleTemplates, getBundles, getPhases, getTemplates } from "@/lib/c
 import type { Phase, Template } from "@/lib/catalog/schema";
 
 /**
- * The hero sheet shows one real template: its title and summary, and the same labelled facts the
- * template page lists (Phase, Step, Type, Format, Length). Without a phase for the template there
- * is nothing to mark on the tabs, so there is no specimen.
+ * The specimen in the margin of `#inside` shows one real template: its title and summary, and the
+ * same labelled facts the template page lists (Phase, Step, Type, Format, Length). Without a phase
+ * for the template there is nothing to print in its corner, so there is no specimen.
  */
-function buildSpecimen(template: Template, phases: Phase[]): HeroSpecimen | undefined {
+function buildSpecimen(template: Template, phases: Phase[]): SpecimenContent | undefined {
   const phase = phases.find((candidate) => candidate.slug === template.phase);
   if (!phase) return undefined;
   const step = phase.steps.find((candidate) => candidate.slug === template.step);
@@ -46,15 +46,15 @@ function buildSpecimen(template: Template, phases: Phase[]): HeroSpecimen | unde
     ],
     phaseOrder: phase.order,
     phaseName: phase.name,
-    phaseCount: phases.length,
   };
 }
 
 /**
- * Home, top to bottom, product first: the hero (the headline and a sheet drawn from a real
- * template); the featured templates; what is inside the toolkit; the bundles; the problem and the
- * answer as two facing sheets; why it is different (the one wash band); why Advanta365; the
- * Microsoft 365 products; the closing sheet. Reordering the page is reordering the array below.
+ * Home, top to bottom: the hero (the headline beside the ink); the featured templates as a spread
+ * of sheets; what is inside the toolkit, with one real template as a specimen; the bundles; the
+ * problem; the answer (the one black band); why it is different (the one wash band); why
+ * Advanta365; the Microsoft 365 products; the closing statement. Reordering the page is reordering
+ * the array below. The cover of a first visit is rendered before all of it.
  */
 export default async function Home() {
   const [phases, templates, bundles] = await Promise.all([
@@ -62,7 +62,6 @@ export default async function Home() {
     getTemplates(),
     getBundles(),
   ]);
-  const phaseNames = new Map(phases.map((phase) => [phase.slug, phase.name]));
   const featuredTemplates = templates.filter((template) => template.featured).slice(0, 6);
   const specimenTemplate = featuredTemplates[0] ?? templates[0];
   const featuredBundles: FeaturedBundle[] = await Promise.all(
@@ -81,14 +80,16 @@ export default async function Home() {
   );
 
   const sections: ReactElement[] = [
-    <Hero
-      key="hero"
+    <Hero key="hero" />,
+    <FeaturedSection key="featured" templates={featuredTemplates} phases={phases} />,
+    <InsideSection
+      key="inside"
+      phases={phases}
       specimen={specimenTemplate ? buildSpecimen(specimenTemplate, phases) : undefined}
     />,
-    <FeaturedSection key="featured" templates={featuredTemplates} phaseNames={phaseNames} />,
-    <InsideSection key="inside" phases={phases} />,
     <BundlesSection key="bundles" items={featuredBundles} />,
-    <PitchSpread key="pitch" />,
+    <ProblemSection key="problem" />,
+    <SolutionSection key="solution" />,
     <PracticeSection key="practice" />,
     <ValuesSection key="values" />,
     <BuiltForRow key="built-for" />,

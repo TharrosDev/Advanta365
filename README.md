@@ -14,13 +14,22 @@ Original design spec (written before the rebuild; its visual design is supersede
 - Next.js 16 (App Router), React 19, TypeScript (strict), pnpm via corepack.
 - Styling: CSS Modules next to each component, reading design tokens defined as CSS custom
   properties in `app/globals.css`. No Tailwind.
-- Design: "Working Copy", one light theme: black ink on white, a single light-blue highlighter and
-  a near-black footer. See `docs/design-system.md`.
+- Design: "Wet Ink", one light theme: black ink on white paper, a single light-blue highlighter and
+  a near-black footer, with sheets of paper on a light table and real-time ink in water behind a few
+  headlines. See `docs/design-system.md`.
 - Type: Besley and Atkinson Hyperlegible Next (variable fonts) through `next/font/google`.
-- Graphics: HTML, CSS and inline SVG, drawn on the server. No canvas, WebGL, worker or animation
-  library.
-- Motion: CSS only. A first visit to the home page opens under a cover that is signed and lifted
-  off in 2.3 seconds; it is switched on by a small inline script, once per browser session.
+- Ink: a fluid simulation of our own on one WebGL2 canvas (`lib/ink/`, `components/ink/`), moved
+  between a few stages as the page scrolls. It runs on the home page, the page titles, the footer
+  and the 404, never on the catalog, a template, a bundle or the cart; a pause button stands in the
+  stage. Where it cannot run (no JavaScript, reduced motion, software rendering, raised contrast)
+  settled frames of the same engine, the stills in `public/ink/`, stand in. See
+  `docs/architecture.md`.
+- Motion: CSS (`app/motion.css`) for entrances that follow the scroll, the ninety, the change of
+  page (view transitions) and the pointer's light, asked for by attributes. A first visit to the
+  home page opens under a cover on which the mark is signed (1.65 seconds, 3.85 with ink), switched on
+  by a small inline boot script, once per browser session.
+- Graphics: HTML, CSS and inline SVG, and the one canvas. No animation, 3D or scroll library; the
+  dependencies are `next`, `react`, `react-dom` and `zod`.
 - Catalog records are validated with zod when the catalog loads.
 - Tests: Vitest (unit) and Playwright (browser).
 
@@ -39,37 +48,58 @@ Uses pnpm (`corepack enable` if `pnpm` is not on your PATH).
 | `pnpm build`     | Production build                                           |
 | `pnpm format`    | Prettier                                                   |
 
+And the scripts:
+
+| Command                                                | What it does                                                                             |
+| ------------------------------------------------------ | ---------------------------------------------------------------------------------------- |
+| `node scripts/ink-stills.mjs`                          | Captures the eleven stills into `public/ink/` (needs a build and a GPU)                  |
+| `node scripts/ink-stills.mjs --check`                  | Checks the stills keep their caps under every calm zone at seven widths                  |
+| `node scripts/ink-stills.mjs --blue`                   | Checks that the light blue stays light                                                   |
+| `node scripts/ink-stills.mjs --sheets`                 | Saves contact sheets of every scene into `.qa-shots/final/`                              |
+| `node scripts/check-budgets.mjs http://localhost:3100` | Checks the first-load scripts and the engine chunk against `tests/budgets/baseline.json` |
+| `node scripts/paper-grain.mjs`                         | Writes `public/paper/grain.png`                                                          |
+
 First run of the browser tests needs `pnpm exec playwright install chromium`. The browser tests
-reuse a server already running on port 3100 unless `CI` is set, so stop a stale server first.
+reuse a server already running on port 3100 unless `CI` is set, so stop a stale server first. There
+are four projects: `chromium`, `mobile`, `gpu` (the live ink, on a graphics card, after the others)
+and `firefox` (registered only where the installed Firefox starts). The ink and its specs need
+Chromium's GPU arguments (`--use-angle=d3d11 --ignore-gpu-blocklist --enable-gpu` on Windows); the
+config sets them for `gpu`.
 
 ## Layout
 
 ```
 app/
-  layout.tsx              Root html and body, the two fonts, the inline script of the cover
-  globals.css             Design tokens, the four [data-band] surfaces, base rules, the type classes
+  layout.tsx              Root html and body, the two fonts, the boot script, MotionRoot
+  globals.css             Design tokens, the five [data-band] surfaces, base rules, the type classes
+  motion.css              The motion system (entrances, the ninety, the change of page, the light)
   icon.svg                The site icon (with globals.css, the only file that holds raw colour)
   (site)/                 Public pages inside the site shell (skip link, beta strip, sticky bar,
-                          phase rail, main, footer)
+                          phase rail, main, footer, the ink layer)
     page.tsx              Home: the array of sections, in order
     catalog/ phases/[phase]/ templates/[slug]/ bundles/ bundles/[slug]/ cart/
     pricing/ about/ contact/
     sample/               /sample: the worked example, described (its file is not offered in this beta)
     [...rest]/            Calls notFound(), so unknown paths keep the site shell
+  (lab)/ink-lab/          The ink on a mock stage, in development only
   not-found.tsx           404 outside the site group
 components/
-  ui/                     Primitives: Band, Wrap, Split, Sheet, BandedList, RowLink, Button, Tally,
-                          Blank, Tag, Icon, TransitionLink, ...
+  ui/                     Primitives: Band, Wrap, Split, Sheet, BandedList (a ledger), RowLink, Button,
+                          Tally, Blank, Tag, Icon, TransitionLink, and the motion and paper ones:
+                          Appear, MotionRoot, PageShift, CountUp, Odometer, PaperSheet, PaperStack,
+                          Folder
   layout/                 Header, PrimaryNav, NavDrawer, PhaseRail, Footer, BetaStrip, TitleBlock,
                           Breadcrumbs
   not-found/              MissingPage (the 404 content) and AskedPath
-  intro/                  The cover of a first visit to the home page: the sheet, its inline script
-                          and the decision to play it
-  home/                   Home page sections, top to bottom: hero (with the hero sheet), #featured,
-                          #inside, #bundles, #problem and #solution, #practice, #values, the
-                          built-for row, #closing
+  ink/                    The ink layer: InkBackdrop, InkLayer, the controller, the lab
+  intro/                  The cover of a first visit to the home page, and the tag that prints the
+                          boot script
+  home/                   Home page sections, top to bottom: hero, #featured, #inside (with the
+                          specimen), #bundles, #problem and #solution (the ninety), #practice,
+                          #values, the built-for row, #closing
   catalog/ cart/ product/ Feature components
-  company/                About and Pricing pieces: statement section, comparison table, buyer list, FAQ
+  company/                About, Pricing, Contact and Sample pieces: statement section, AI statement,
+                          comparison table, buyer list, ways to buy, FAQ
 content/                  The sample catalog: seven phases, one template file per phase, bundles, taxonomy
 lib/
   site.ts                 Site name, parent company, tagline, and the toolkit counts (TOOLKIT)
@@ -77,9 +107,17 @@ lib/
   cart/                   Cart store (pure logic)
   brand/mark.ts           The logo mark (single source of truth)
   cx.ts                   cx() and cssVars()
+  ink/                    The ink: the engine (engine/), the seven scenes, stage choice, calm zones,
+                          pigments, the stills manifest, the test hook
+  boot/                   The boot script and the decisions it mirrors
+  scroll/                 The observer for entrances and the pointer's light
   compounds.ts            Finds the hyphenated compounds of a title (kept unbroken in card titles)
+public/ink/               The eleven stills (WebP, at most 90KB each), captured by scripts/ink-stills.mjs
+public/paper/             The paper grain
+scripts/                  ink-stills, check-budgets, paper-grain
 tests/unit                Vitest, including the design gate
-tests/e2e                 Playwright
+tests/e2e                 Playwright (specs, helpers.ts, support/)
+tests/budgets             The first-load baseline check-budgets compares with
 proxy.ts                  Redirects mixed-case URLs to lower-case
 docs/                     Design system, architecture
 ```
@@ -90,8 +128,12 @@ Rules the code relies on:
   `lib/catalog/repository.ts`. The one exception is `content/taxonomy.ts`.
 - Catalog search, filters, sort and page live in the URL, so every view is shareable and
   server-rendered.
-- Colours, spacing, type, and motion come from tokens in `app/globals.css`. Component CSS and TSX
-  contain no raw colour values: raw colour lives in `app/globals.css` and `app/icon.svg` only. Layout
+- Colours, spacing, type, and motion come from tokens in `app/globals.css`. Component CSS, TSX and
+  shaders contain no raw colour values: raw colour lives in `app/globals.css` and `app/icon.svg`
+  only (the engine reads its six pigments from `--pigment-*`).
+- At most one canvas, created by the ink layer, inside an ink slot; a page marks the copy ink must
+  keep clear of with `data-ink-calm`. Nothing animates a shadow or a custom property, nothing
+  repeats, and every animation sits in the no-preference query. Layout
   space is a step of the 7px scale (`--s-1` to `--s-9`), and the only layout breakpoints are `40em`
   and `68em`.
 - Internal links use `TransitionLink` (or a primitive built on it). Only
@@ -105,16 +147,28 @@ Rules the code relies on:
 - Prices are integer cents.
 
 `pnpm test` includes a design gate (`tests/unit/design-gate.test.ts`) that enforces the raw-colour,
-breakpoint and `next/link` rules above, and keeps the retired design's names and techniques out of
-the source.
+breakpoint, `next/link`, dependency, `infinite` and scoped-technique rules above (a canvas, WebGL,
+`requestAnimationFrame` and scroll listeners only where the ink and the motion live), and keeps the
+retired design's names and techniques out of the source.
+
+### What was and was not tested
+
+Tested: Chromium on desktop and as a Pixel 7, with and without view timelines, with the live ink on a
+graphics card (Intel Iris Xe, Direct3D) and on a software renderer, under reduced motion, raised
+contrast, without WebGL2 and without JavaScript. Not tested: Safari and WebKit (not installed, and
+nothing is downloaded), Firefox on this machine (its copy cannot start; the same code path is
+exercised in Chromium with `CSS.supports` stubbed) and real phones. Of the specification's two optional
+realism items for the ink, neither shipped.
 
 ## Documentation
 
-- [`docs/design-system.md`](docs/design-system.md): the Working Copy design: concept, colour and
-  the `data-band` surfaces, type, the 7px scale, motion, primitives, CSS Modules rules, the design
-  gate and the accessibility floor.
+- [`docs/design-system.md`](docs/design-system.md): the Wet Ink design: concept, colour and the
+  `data-band` surfaces, type, the 7px scale, the motion system, depth and paper objects, the ink
+  (stages, legibility, the pause control, stills, the cover), primitives, CSS Modules rules, the
+  design gate and the accessibility floor.
 - [`docs/architecture.md`](docs/architecture.md): server and client boundaries, routes, the site
-  shell (bar, phase rail, drawer, footer), test hooks, the test contract, fallbacks.
+  shell, the ink layer and the engine with its tiers, the boot script and the cover with their
+  fail-safes, motion, the stills script, budgets, test hooks, the test contract, fallbacks.
 
 ## Replacing the sample content
 
@@ -139,10 +193,10 @@ The one exception is "30+ years" inside three sentences quoted whole from the me
 toolkit, not the number of listings in the catalog, and no page may state or imply that the catalog
 lists that many.
 
-The home page is one array of sections in `app/(site)/page.tsx`, top to bottom: the hero (with the
-hero sheet), `#featured`, `#inside`, `#bundles`, `#problem` and `#solution`, `#practice`, `#values`,
+The home page is one array of sections in `app/(site)/page.tsx`, top to bottom: the hero, `#featured`, `#inside` (with the
+specimen), `#bundles`, `#problem` and `#solution`, `#practice`, `#values`,
 the built-for row and `#closing`. Reordering the page is reordering that array. Two parts follow the
-catalog on their own: the hero sheet shows the first featured template (the first template if none
+catalog on their own: the specimen sheet shows the first featured template (the first template if none
 is featured), and the phase coverage on each bundle card is worked out from the bundle's templates
 (`phaseCoverage()` in `lib/catalog/coverage.ts`).
 

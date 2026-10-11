@@ -1,0 +1,137 @@
+/*
+ * From the top: the tab (28px), then the back panel, on which the sheets stand a few pixels lower
+ * each, then the front panel 24px under the back panel's top edge. The folder is a column, so a
+ * front panel in a stretched cell reaches the foot.
+ */
+.root {
+  --tab-h: var(--s-4);
+  --peek: 1.5rem;
+
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  padding-block-start: calc(var(--tab-h) + var(--peek));
+  isolation: isolate;
+}
+
+.back {
+  position: absolute;
+  inset: var(--tab-h) 0 0;
+  z-index: -3;
+  border-radius: 0 var(--round-2) var(--round-2);
+  background: var(--mark-wash);
+  box-shadow: var(--depth-1);
+}
+
+/* The tab stands on the back panel; its shadow is cut where the two meet, so they read as one. */
+.tab {
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: -3;
+  display: flex;
+  align-items: center;
+  max-width: 100%;
+  height: calc(var(--tab-h) + 2px);
+  padding-inline: var(--s-2);
+  border-radius: var(--round-2) var(--round-2) 0 0;
+  background: var(--mark-wash);
+  box-shadow: var(--depth-1);
+  clip-path: inset(-1rem -1rem 2px -1rem);
+  color: var(--ink);
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+/* The showing sheets: the first stands highest and furthest back. */
+.sheet {
+  position: absolute;
+  top: calc(var(--tab-h) + 5px + var(--n, 0) * 5px);
+  right: calc(var(--s-2) - var(--n, 0) * 3px);
+  left: calc(var(--s-2) - var(--n, 0) * 3px);
+  z-index: -2;
+  height: var(--s-6);
+  border-radius: var(--round-1);
+  background: var(--paper);
+  box-shadow: var(--depth-1);
+}
+
+.front {
+  /* The wash is a light surface on every band. */
+  --ground: var(--mark-wash);
+  --surface: var(--paper);
+  --stripe: var(--paper);
+  --tile: var(--paper);
+  --text: var(--ink);
+  --text-soft: var(--ink-soft);
+  --text-faint: var(--ink-faint);
+  --line: var(--rule);
+  --line-firm: var(--rule-firm);
+  --line-ink: var(--ink);
+  --focus-ring: var(--ink);
+
+  position: relative;
+  flex: 1;
+  min-width: 0;
+  padding: var(--s-3);
+  border-radius: var(--round-2);
+  background: var(--mark-wash);
+  box-shadow: var(--depth-2);
+  color: var(--text);
+}
+
+@media (min-width: 40em) {
+  .front {
+    padding: var(--s-4);
+  }
+}
+
+/* Open a little: the sheets rise 14, 10 and 6px. Keyboard focus inside does the same. */
+.root:has(:focus-visible) .sheet,
+:is(article):has(:focus-visible) .sheet {
+  translate: 0 calc(-14px + var(--n, 0) * 4px);
+}
+
+@media (hover: hover) {
+  .root:hover .sheet,
+  :is(article):hover .sheet {
+    translate: 0 calc(-14px + var(--n, 0) * 4px);
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .sheet {
+    transition: translate var(--time-lift) var(--curve-settle) calc(var(--n, 0) * 40ms);
+  }
+}
+
+@media (prefers-contrast: more) {
+  .back,
+  .tab,
+  .sheet,
+  .front {
+    border: var(--hair) solid var(--ink);
+    box-shadow: none;
+  }
+
+  .tab {
+    border-block-end-width: 0;
+    clip-path: none;
+  }
+}
+
+@media (forced-colors: active) {
+  .back,
+  .tab,
+  .sheet,
+  .front {
+    border: var(--hair) solid CanvasText;
+    box-shadow: none;
+  }
+
+  .tab {
+    border-block-end-width: 0;
+    clip-path: none;
+  }
+}

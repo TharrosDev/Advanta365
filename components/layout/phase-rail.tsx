@@ -7,9 +7,9 @@ import { Wrap } from "@/components/ui/wrap";
 import styles from "./phase-rail.module.css";
 
 /**
- * The strip of seven numbered tabs under the bar, from 68em only. The rail is paper like the bar
- * and the tabs are the colour of the page, so they read as pieces of the page reaching up into the
- * header. They stand on the rail's bottom edge. The rail is not sticky: it scrolls away.
+ * The strip of seven numbered tabs under the bar, from 68em only. The rail is a strip of the desk
+ * and the tabs are sheets of paper on it, standing on its bottom edge. The rail is not sticky: it
+ * scrolls away.
  *
  * The tab of the phase being shown is current: `aria-current="page"` on the phase's own page,
  * `aria-current="true"` on the page of a template in that phase. A client component only because

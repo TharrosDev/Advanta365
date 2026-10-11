@@ -1,0 +1,54 @@
+{
+  "page": "/",
+  "gzipTotal": 143786,
+  "scripts": [
+    {
+      "path": "/_next/static/chunks/30xly2q8f1ab6.js",
+      "gzip": 7679
+    },
+    {
+      "path": "/_next/static/chunks/2eq2q9ns6w4r9.js",
+      "gzip": 71807
+    },
+    {
+      "path": "/_next/static/chunks/06ejhe-n3zt3a.js",
+      "gzip": 46166
+    },
+    {
+      "path": "/_next/static/chunks/turbopack-3-ry682tkyiqk.js",
+      "gzip": 3942
+    },
+    {
+      "path": "/_next/static/chunks/343jeio08tnzc.js",
+      "gzip": 3513
+    },
+    {
+      "path": "/_next/static/chunks/22t9ieza98qnm.js",
+      "gzip": 7490
+    },
+    {
+      "path": "/_next/static/chunks/1c98scat7hg4c.js",
+      "gzip": 432
+    },
+    {
+      "path": "/_next/static/chunks/0cz1d0mv5g_q7.js",
+      "gzip": 39520,
+      "counted": false,
+      "legacy": true
+    },
+    {
+      "path": "(inline)",
+      "gzip": 600
+    },
+    {
+      "path": "(inline)",
+      "gzip": 184
+    },
+    {
+      "path": "/_next/static/chunks/130s-x69sx8lu.js",
+      "gzip": 1973
+    }
+  ],
+  "shaderChunks": [],
+  "shaderGzipTotal": 0
+}

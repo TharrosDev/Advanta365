@@ -4,40 +4,14 @@
  * (`--col-gap` is 14, 21 and 28px at the three widths).
  */
 
-/* Card shelves: one column, two from 40em, three from 68em. A card fills its grid cell. */
-.cardGrid {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr);
-  gap: var(--col-gap);
-  margin: 0;
-  padding: 0;
-  list-style: none;
-}
-
-.cardItem {
-  display: grid;
-  min-width: 0;
-}
-
-@media (min-width: 40em) {
-  .cardGrid {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-}
-
-@media (min-width: 68em) {
-  .cardGrid {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-  }
-}
-
 /*
- * Hero. 56px above and 84px below (42 and 56 on a phone), set on the band itself; the grid is its
- * inner column. The text takes columns 1 to 7 and the sheet columns 8 to 12 from 68em; before that
- * the sheet sits under the text.
+ * Hero: the tank. Natural height below 68em: the text, then the open water as a block under it,
+ * 56px lower so the first drop forms clear of the buttons. From 68em the band is about as tall as
+ * the window (the bar, the rail and the beta strip taken off, at most 52rem), with 56px above and
+ * 84px below; the text is centred in columns 1 to 7 and the open water fills columns 8 to 12.
  */
 .hero.hero {
-  padding-block: var(--s-5) var(--s-6);
+  padding-block: var(--s-5) var(--s-4);
 }
 
 .heroGrid {
@@ -50,13 +24,30 @@
 }
 
 .heroTitle {
-  max-width: var(--wrap-head);
-  margin-block-end: var(--s-3);
+  max-width: 11.5em;
+  isolation: isolate;
+}
+
+/*
+ * The highlighter under the last two words. It is a box of its own, one line of the headline high
+ * and a little deeper for the descenders, so it never reaches into the line above; the two words
+ * stay together and, on a window too narrow for them, break inside the box. It lies beneath the
+ * rest of the headline, whose descenders stay whole where they touch it.
+ */
+.heroTitle [data-mark] {
+  position: relative;
+  z-index: -1;
+  display: inline-block;
+  margin-block: 0 -0.08em;
+  padding: 0 0.12em 0.08em;
+  border-radius: var(--round-1);
+  background: var(--mark);
+  color: var(--on-mark);
 }
 
 .heroLead {
-  max-width: var(--wrap-lead);
-  margin-block-end: var(--s-5);
+  max-width: 34rem;
+  margin-block-start: var(--s-4);
   color: var(--text-soft);
 }
 
@@ -65,49 +56,124 @@
   display: flex;
   flex-direction: column;
   gap: var(--s-2);
+  margin-block-start: var(--s-5);
 }
 
-.heroSheet {
-  min-width: 0;
-  margin-block-start: var(--s-5);
+.heroOpen {
+  height: min(44svh, 22rem);
+  margin-block-start: var(--s-6);
 }
 
 @media (min-width: 40em) {
   .hero.hero {
-    padding-block: var(--s-6) var(--s-7);
+    padding-block: var(--s-6) var(--s-5);
   }
 
   .heroActions {
     flex-flow: row wrap;
     align-items: flex-start;
   }
-
-  /* The sheet is 448px wide, and the tabs add 49px. */
-  .heroSheet {
-    max-width: calc(var(--s-1) * 71);
-    margin-block-start: var(--s-6);
-  }
 }
 
 @media (min-width: 68em) {
+  .hero.hero {
+    --hero-above: var(--s-6);
+    --hero-below: var(--s-7);
+    padding-block: var(--hero-above) var(--hero-below);
+  }
+
   .heroGrid {
     grid-template-columns: repeat(12, minmax(0, 1fr));
     column-gap: var(--col-gap);
-    align-items: start;
+    align-items: center;
+    min-height: calc(
+      min(100svh - var(--bar-h) - var(--rail-h) - var(--strip-h, 0px), 52rem) - var(--hero-above) -
+        var(--hero-below)
+    );
   }
 
   .heroText {
     grid-column: 1 / span 7;
   }
 
-  .heroSheet {
+  .heroOpen {
     grid-column: 8 / span 5;
-    max-width: none;
+    align-self: stretch;
+    height: auto;
     margin-block-start: 0;
   }
 }
 
-/* The margin: its sentence under the heading, kept to a reading width while it is stacked. */
+/*
+ * The spread. Index rows below 40em; two sheets across from 40em; from 68em two rows of the
+ * twelve-column grid, 5, 3 and 4 columns wide and then 4, 5 and 3. A cell is as tall as its row.
+ */
+.spread {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.spreadItem {
+  min-width: 0;
+}
+
+@media (min-width: 40em) {
+  .spread {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--s-6) var(--col-gap);
+  }
+}
+
+@media (min-width: 68em) {
+  .spread {
+    grid-template-columns: repeat(12, minmax(0, 1fr));
+    row-gap: var(--s-7);
+  }
+
+  .spreadItem:nth-child(6n + 1) {
+    grid-column: 1 / span 5;
+  }
+
+  .spreadItem:nth-child(6n + 2) {
+    grid-column: 6 / span 3;
+  }
+
+  .spreadItem:nth-child(6n + 3) {
+    grid-column: 9 / span 4;
+  }
+
+  .spreadItem:nth-child(6n + 4) {
+    grid-column: 1 / span 4;
+  }
+
+  .spreadItem:nth-child(6n + 5) {
+    grid-column: 5 / span 5;
+  }
+
+  .spreadItem:nth-child(6n) {
+    grid-column: 10 / span 3;
+  }
+}
+
+/*
+ * What's inside. Stacked below 68em. From 68em the margin takes columns 1 to 4 and stays under the
+ * bar while the content, in columns 6 to 12, scrolls past it.
+ */
+.inside {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--s-4);
+}
+
+.insideMargin,
+.insideContent {
+  min-width: 0;
+}
+
+/* The margin's sentence under the heading, kept to a reading width while it is stacked. */
 .insideBody.insideBody {
   max-width: var(--wrap-copy);
   margin-block-start: var(--s-2);
@@ -115,25 +181,87 @@
   font-weight: 400;
 }
 
+/* The specimen belongs to the wide layout only. */
+.insideSpecimen {
+  display: none;
+}
+
+@media (min-width: 68em) {
+  .inside {
+    grid-template-columns: repeat(12, minmax(0, 1fr));
+    gap: 0 var(--col-gap);
+  }
+
+  .insideMargin {
+    position: sticky;
+    top: calc(var(--bar-h) + var(--s-4));
+    grid-column: 1 / span 4;
+    align-self: start;
+  }
+
+  .insideContent {
+    grid-column: 6 / -1;
+  }
+
+  /* At most 20rem wide, with room on its left for the sheets that lie beneath it. */
+  .insideSpecimen {
+    display: block;
+    max-width: 20rem;
+    margin-block-start: var(--s-5);
+    margin-inline-start: var(--s-1);
+  }
+}
+
 /*
- * The manifest. A row is a title and its description, beside each other from 40em (5fr and 7fr) and
- * on one baseline. The worked-example row is the one link: the title is the anchor and its ::after
- * covers the row, so the whole row is the target and the title is still the link's name.
+ * The manifest: a ledger of rows at least 6rem tall. A row is its heading and its description,
+ * beside each other from 40em. The heading opens with a lead 6.5rem wide: a count as a figure
+ * (Besley 800 at 56px, on the baseline of the title) or a 56px drawing (centred on it). The
+ * worked-example row is the one link: the title is the anchor and its ::after covers the row, so
+ * the whole row is the target and the title is still the link's name.
  */
-.manifestRow {
+.manifestRow.manifestRow {
+  --row-pad-block: var(--s-3);
   position: relative;
   display: grid;
   grid-template-columns: minmax(0, 1fr);
-  gap: var(--s-1);
-  align-items: baseline;
+  gap: var(--s-2);
+  align-items: center;
+  min-height: 6rem;
+  isolation: isolate;
 }
 
-.manifestTitle,
-.manifestBody {
+.manifestTitle {
+  display: flex;
+  align-items: baseline;
+  gap: var(--s-2);
   min-width: 0;
 }
 
+.manifestTitleDrawn {
+  align-items: center;
+}
+
+.manifestLead {
+  display: flex;
+  flex: none;
+  width: 6.5rem;
+}
+
+/* Besley's own figures: see the note on the display classes in globals.css. */
+.manifestCount {
+  font-family: var(--face-display);
+  font-size: 3.5rem;
+  line-height: 1;
+  font-weight: 800;
+  font-feature-settings: "tnum" 0;
+}
+
+.manifestDrawing {
+  --drawing: 3.5rem;
+}
+
 .manifestBody {
+  min-width: 0;
   color: var(--text-soft);
 }
 
@@ -142,41 +270,47 @@
   text-decoration: underline transparent;
   text-decoration-thickness: var(--edge);
   text-underline-offset: 3px;
-  transition: text-decoration-color var(--time-swap) linear;
 }
 
 .manifestAnchor::after {
   content: "";
   position: absolute;
-  inset: 0;
+  inset: 0 calc(-1 * var(--row-pad-inline));
 }
 
-/* The ring goes on the whole row, inside it, clear of the list's rounded corners. */
+/* The wash of the link row: a layer behind its text that stands 14px past both of its ends. */
+.manifestLink::after {
+  content: "";
+  position: absolute;
+  inset: 0 calc(-1 * var(--row-pad-inline));
+  z-index: -1;
+  border-radius: var(--round-2);
+  background: var(--mark-wash);
+  opacity: 0;
+  pointer-events: none;
+}
+
+/* The ring goes around the whole row. */
 .manifestAnchor:focus-visible {
   outline: none;
 }
 
-.manifestLink:has(.manifestAnchor:focus-visible) {
+.manifestLink:has(.manifestAnchor:focus-visible)::after {
   outline: 3px solid var(--focus-ring);
-  outline-offset: calc(-1 * var(--s-1));
+  outline-offset: 3px;
+  opacity: 1;
 }
 
-/* The arrow sits at the end of the row, level with the first line of the title. */
+/* The arrow stands at the end of the row, centred on it. */
 .manifestArrow {
   position: absolute;
-  top: calc(var(--row-pad-block) + (var(--size-item) * 1.3 - 20px) / 2);
-  right: var(--row-pad-inline);
-  transition: translate var(--time-swap) linear;
+  top: calc(50% - 10px);
+  right: 0;
   pointer-events: none;
 }
 
-.manifestLink .manifestTitle,
 .manifestLink .manifestBody {
   padding-inline-end: calc(20px + var(--s-2));
-}
-
-.manifestLink.manifestLink:has(.manifestAnchor:focus-visible) {
-  background: var(--mark-wash);
 }
 
 .manifestLink:has(.manifestAnchor:focus-visible) .manifestAnchor {
@@ -188,19 +322,15 @@
 }
 
 @media (min-width: 40em) {
-  .manifestRow {
-    grid-template-columns: minmax(0, 5fr) minmax(0, 7fr);
+  .manifestRow.manifestRow {
+    grid-template-columns: minmax(0, 6fr) minmax(0, 6fr);
     column-gap: var(--col-gap);
-  }
-
-  .manifestLink .manifestTitle {
-    padding-inline-end: 0;
   }
 }
 
 @media (hover: hover) {
-  .manifestLink.manifestLink:hover {
-    background: var(--mark-wash);
+  .manifestLink:hover::after {
+    opacity: 1;
   }
 
   .manifestLink:hover .manifestAnchor {
@@ -212,9 +342,23 @@
   }
 }
 
-/* The phase index cards: 42px under the list, their caption 14px over them. */
+@media (prefers-reduced-motion: no-preference) {
+  .manifestAnchor {
+    transition: text-decoration-color var(--time-swap) linear;
+  }
+
+  .manifestLink::after {
+    transition: opacity var(--time-swap) linear;
+  }
+
+  .manifestArrow {
+    transition: translate var(--time-swap) linear;
+  }
+}
+
+/* The phase index cards: 56px under the ledger, their caption 14px over them. */
 .insidePhases {
-  margin-block-start: var(--s-5);
+  margin-block-start: var(--s-6);
 }
 
 .insidePhasesLabel.insidePhasesLabel {
@@ -223,110 +367,58 @@
 }
 
 /*
- * The facing sheets. Stacked 14px apart; from 68em the problem takes columns 1 to 4 and the answer
- * columns 5 to 12, 28px apart, and the grid makes them the same height.
+ * Bundles. The large folder over the ledger; from 68em the folder in columns 1 to 6 and the ledger
+ * in columns 7 to 12, top-aligned.
  */
-.spread {
+.bundles {
   display: grid;
   grid-template-columns: minmax(0, 1fr);
-  gap: var(--s-2);
+  gap: var(--s-5);
 }
 
-/* Each sheet measures itself, so its largest type can be capped by its own inner width (below). */
-.pitchSheet {
-  display: flex;
-  flex-direction: column;
+.bundleFeature {
   min-width: 0;
-  container-type: inline-size;
 }
 
-.pitchTitle {
-  max-width: var(--wrap-head);
-  margin-block-start: var(--s-2);
-}
-
-/*
- * Four columns make a narrow sheet just above 68em: at its full size the heading would leave "Most"
- * alone on a line. It is capped at 14% of the sheet's inner width, which keeps the first two words
- * together ("Most rollouts" is 6.9em wide). The cap only bites between 68em and about 1230px.
- */
-.problem .pitchTitle {
-  font-size: min(var(--size-page), 14cqi);
-}
-
-.pitchCopy {
-  max-width: var(--wrap-copy);
-  margin-block-start: var(--s-3);
-  color: var(--text-soft);
-}
-
-/*
- * "90%" and the rest of the sentence on one baseline, 21px apart: the last line of the sentence
- * stands on the figure's baseline. Stacked on a phone.
- */
-.lockup {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  gap: var(--s-1);
-  max-width: none;
-}
-
-/* "90%" is 2.44em wide: at 40% of the sheet's inner width it still fits a 320px screen. */
-.lockup .lockupFigure {
-  font-size: min(var(--size-figure), 40cqi);
-}
-
-.lockupText {
-  max-width: var(--wrap-head);
-}
-
-.answerTally {
-  margin-block: var(--s-4);
-}
-
-.answerCopy {
-  max-width: var(--wrap-lead);
-  color: var(--text-soft);
-}
-
-@media (min-width: 40em) {
-  .lockup {
-    flex-flow: row wrap;
-    align-items: baseline;
-    align-items: last baseline;
-    gap: 0 var(--s-3);
-  }
-
-  /* Beside the figure while it keeps six and a half ems; under it when the sheet is too narrow. */
-  .lockupText {
-    flex: 1 1 6.5em;
-  }
+.bundleRows {
+  min-width: 0;
+  margin: 0;
+  padding: 0;
+  list-style: none;
 }
 
 @media (min-width: 68em) {
-  .spread {
-    grid-template-columns: repeat(12, minmax(0, 1fr));
+  .bundles {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 0 var(--col-gap);
-  }
-
-  .problem {
-    grid-column: 1 / span 4;
-  }
-
-  .answer {
-    grid-column: 5 / span 8;
+    align-items: start;
   }
 }
 
-/* Why it is different. */
-.practiceTitle {
-  max-width: var(--wrap-head);
+/*
+ * A statement band (`#problem`, `#practice`): the label, the statement in columns 1 to 9, and
+ * what follows it in columns 7 to 12, 42px lower.
+ */
+.statement {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
 }
 
-.practiceBody {
+.statementLabel {
+  margin-block-end: var(--s-3);
+}
+
+.statementTitle {
+  min-width: 0;
+}
+
+.statementAside {
+  min-width: 0;
   max-width: var(--wrap-lead);
-  margin-block-start: var(--s-3);
+  margin-block-start: var(--s-5);
+}
+
+.statementCopy {
   color: var(--text-soft);
 }
 
@@ -334,7 +426,7 @@
   display: flex;
   flex-direction: column;
   gap: var(--s-2);
-  margin-block-start: var(--s-5);
+  margin-block-start: var(--s-4);
 }
 
 @media (min-width: 40em) {
@@ -344,7 +436,125 @@
   }
 }
 
-/* Why Advanta365: a label, a statement, then four values two by two from 40em. */
+@media (min-width: 68em) {
+  .statement {
+    grid-template-columns: repeat(12, minmax(0, 1fr));
+    column-gap: var(--col-gap);
+  }
+
+  .statementLabel {
+    grid-column: 1 / -1;
+  }
+
+  .statementTitle {
+    grid-column: 1 / span 9;
+  }
+
+  .statementAside {
+    grid-column: 7 / -1;
+    max-width: none;
+  }
+}
+
+/*
+ * The ninety. `--figure` is the size of "90%": the poster size, never more than 30% of the
+ * window's height and, from 68em, never so large that the figure (2.45em wide) leaves its six
+ * columns: the grid measures itself for that. Stacked in document order below 68em, the open water 14rem tall at the foot.
+ * From 68em the band is at least min(88svh, 46rem) tall: the label; the figure in columns 1 to 6
+ * with the rest of the sentence in columns 7 to 12 on its baseline; the tally across the grid; the
+ * paragraph in columns 1 to 6 beside the open water in columns 7 to 12.
+ */
+.ninety {
+  --figure: min(var(--size-poster), 30svh);
+  display: grid;
+  container-type: inline-size;
+  grid-template-columns: minmax(0, 1fr);
+}
+
+.ninetyFigure {
+  display: flex;
+  min-width: 0;
+  margin-block-start: var(--s-3);
+  font-size: var(--figure);
+  line-height: 1;
+}
+
+/* The calm rectangle is the figure itself, not the columns it stands in. */
+.ninetyNumber {
+  display: flex;
+  flex: none;
+}
+
+.ninetyFigure .ninetyNumber > * {
+  font-size: inherit;
+}
+
+.ninetyTitle {
+  max-width: var(--wrap-head);
+  margin-block-start: var(--s-2);
+}
+
+.ninetyCopy {
+  max-width: var(--wrap-lead);
+  margin-block-start: var(--s-3);
+  color: var(--text-soft);
+}
+
+.ninetyTally {
+  position: relative;
+  margin-block-start: var(--s-5);
+}
+
+.ninetyOpen {
+  height: 14rem;
+}
+
+@media (min-width: 68em) {
+  .ninety {
+    --figure: min(var(--size-poster), 30svh, 19.5cqi);
+    grid-template-columns: repeat(12, minmax(0, 1fr));
+    grid-template-rows: auto auto auto 1fr;
+    column-gap: var(--col-gap);
+    min-height: calc(min(88svh, 46rem) - 2 * var(--pad));
+  }
+
+  .ninetyLabel {
+    grid-area: 1 / 1 / auto / -1;
+  }
+
+  .ninetyFigure {
+    grid-area: 2 / 1 / auto / span 6;
+    align-self: end;
+  }
+
+  /*
+   * The sentence's last line on the figure's baseline. Both boxes end on one line; the figure's
+   * baseline is 0.0875em above the foot of its box and the sentence's 0.2em above its own.
+   */
+  .ninetyTitle {
+    grid-area: 2 / 7 / auto / -1;
+    align-self: end;
+    margin-block: 0 calc(var(--figure) * 0.0875 - var(--size-page) * 0.2);
+  }
+
+  .ninetyTally {
+    grid-area: 3 / 1 / auto / -1;
+    margin-block-start: var(--s-4);
+  }
+
+  .ninetyCopy {
+    grid-area: 4 / 1 / auto / span 6;
+    margin-block-start: var(--s-5);
+  }
+
+  .ninetyOpen {
+    grid-area: 4 / 7 / auto / -1;
+    height: auto;
+    min-height: 16rem;
+  }
+}
+
+/* Why Advanta365: a label, a statement, then four values, two by two from 40em. */
 .valuesTitle {
   max-width: var(--wrap-head);
   margin-block-start: var(--s-2);
@@ -353,20 +563,27 @@
 .valuesList {
   display: grid;
   grid-template-columns: minmax(0, 1fr);
-  gap: var(--s-4);
-  margin: var(--s-5) 0 0;
+  gap: var(--s-5);
+  margin: var(--s-6) 0 0;
   padding: 0;
   list-style: none;
 }
 
 .value {
-  display: flex;
-  align-items: flex-start;
-  gap: var(--s-3);
+  min-width: 0;
 }
 
+/* The art starts a sixth of the way into its square: pulled back so it stands on the left edge. */
+.valueDrawing {
+  --drawing: 4.375rem;
+  margin-inline-start: calc(var(--drawing) * -0.165);
+}
+
+/* A hairline under the drawing, then the title and its sentence. */
 .valueText {
-  min-width: 0;
+  margin-block-start: var(--s-3);
+  padding-block-start: var(--s-3);
+  border-block-start: var(--hair) solid var(--line);
 }
 
 .valueBody {
@@ -378,94 +595,102 @@
 @media (min-width: 40em) {
   .valuesList {
     grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: var(--s-5);
+    gap: var(--s-6) var(--s-5);
+  }
+
+  .valueDrawing {
+    --drawing: 5.25rem;
+  }
+}
+
+@media (min-width: 68em) {
+  .valuesList {
+    column-gap: var(--s-8);
+  }
+}
+
+@media (forced-colors: active) {
+  .valueText {
+    border-block-start-color: GrayText;
   }
 }
 
 /*
  * Built for Microsoft 365. The band has no padding above (the values band supplies it) and 84px
- * below. Beside the tags, from 68em, the label is centred on the first row of them: a plain tag is
- * 38px tall (one 22px line, 7px of padding on each side, 1px of border on each).
+ * below. The names run on as one wrapping line of large type; a name keeps its slash.
  */
 .builtFor.builtFor {
-  --tag-h: calc(var(--size-ui) * 1.375 + var(--s-2) + var(--edge));
   padding-block-end: var(--s-7);
 }
 
-.builtForLabel {
-  margin: 0;
-}
-
-.builtForTags {
-  display: flex;
-  flex-wrap: wrap;
-  gap: var(--s-1);
-  margin: 0;
+.builtForNames {
+  margin: var(--s-3) 0 0;
   padding: 0;
   list-style: none;
+  color: var(--text-soft);
+  font-family: var(--face-display);
+  font-size: var(--size-page);
+  line-height: 1.25;
+  font-weight: 600;
 }
 
-@media (min-width: 68em) {
-  .builtForLabel {
-    display: flex;
-    align-items: center;
-    min-height: var(--tag-h);
-  }
+.builtForName {
+  display: inline-block;
+  margin-inline-end: 0.4em;
+}
+
+.builtForSlash {
+  margin-inline-start: 0.4em;
+  color: var(--text-faint);
 }
 
 /*
- * Closing: the statement and the button in the sheet's grid, a tally 42px under them. On a phone
- * the sheet keeps 21px of padding instead of 28, so the first sentence (225px at 34px) stays on one
- * line down to 320px.
+ * Closing. The band is at least min(72svh, 40rem) tall: the statement in columns 1 to 9, the
+ * button 42px under it, and the thin tally across the grid at the foot.
  */
-.closingSheet.closingSheet {
-  padding: var(--s-3);
-}
-
-.closingGrid {
+.closing {
   display: grid;
   grid-template-columns: minmax(0, 1fr);
-  gap: var(--s-4);
+  grid-template-rows: auto auto 1fr;
+  justify-items: start;
+  min-height: calc(min(72svh, 40rem) - 2 * var(--pad));
 }
 
 .closingTitle {
-  max-width: var(--wrap-head);
+  min-width: 0;
 }
 
 /* Full width on a phone, its own width after. */
 .closingAction {
   display: flex;
   flex-direction: column;
-}
-
-.closingTally {
+  justify-self: stretch;
   margin-block-start: var(--s-5);
 }
 
-@media (min-width: 40em) {
-  .closingSheet.closingSheet {
-    padding: var(--s-5);
-  }
+.closingTally {
+  align-self: end;
+  margin-block-start: var(--s-6);
+}
 
+@media (min-width: 40em) {
   .closingAction {
     align-items: flex-start;
   }
 }
 
 @media (min-width: 68em) {
-  .closingGrid {
+  .closing {
     grid-template-columns: repeat(12, minmax(0, 1fr));
     column-gap: var(--col-gap);
   }
 
   .closingTitle {
-    grid-column: 1 / span 8;
+    grid-column: 1 / span 9;
   }
 
-  /* At the right edge of the sheet: the button stands over the marked block of the tally. */
-  .closingAction {
-    grid-column: 9 / span 4;
-    align-self: end;
-    align-items: flex-end;
+  .closingAction,
+  .closingTally {
+    grid-column: 1 / -1;
   }
 }
