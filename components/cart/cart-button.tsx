@@ -1,27 +1,34 @@
 "use client";
 
-import Link from "next/link";
-import { useCart } from "./use-cart";
+import { useCart } from "@/components/cart/use-cart";
+import { TransitionLink } from "@/components/motion/transition-link";
+import { cx } from "@/lib/cx";
+import styles from "./cart-button.module.css";
 
+/**
+ * The header's cart link: the word "Cart" and the number of lines in the cart.
+ *
+ * The count is part of the accessible name only once the stored cart is known. Server HTML and the
+ * hydration render both say "Cart", so "Cart, 0 items" can only ever appear after the store has been
+ * read (and, through CartSync, pruned). The visible count shows 0 until then, so nothing shifts.
+ */
 export function CartButton() {
   const { count, ready } = useCart();
   const shown = ready ? count : 0;
 
   return (
-    <Link
+    <TransitionLink
       href="/cart"
-      aria-label={`Cart, ${shown} ${shown === 1 ? "item" : "items"}`}
-      className="hover:bg-accent-soft flex min-h-11 items-center gap-2 rounded-md px-3 text-sm font-medium"
+      aria-label={ready ? `Cart, ${count} ${count === 1 ? "item" : "items"}` : "Cart"}
+      className={styles.root}
     >
-      Cart
+      <span className={styles.label}>Cart</span>
       <span
         aria-hidden="true"
-        className={`inline-flex min-w-6 justify-center rounded-full px-1.5 py-0.5 text-xs tabular-nums ${
-          shown > 0 ? "bg-accent text-accent-ink" : "bg-rule text-muted"
-        }`}
+        className={cx(styles.count, shown > 0 && styles.filled, "t-label-medium", "tabular")}
       >
         {shown}
       </span>
-    </Link>
+    </TransitionLink>
   );
 }

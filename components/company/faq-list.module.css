@@ -1,0 +1,125 @@
+/* A disclosure list: hairlines between the items, the open item is framed in full ink. */
+.list {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+}
+
+.item {
+  border-top: 1px solid var(--color-foreground-30);
+  transition: border-color var(--duration-slow) var(--easing-emphasized);
+}
+
+.item:last-child {
+  border-bottom: 1px solid var(--color-foreground-30);
+}
+
+/* the open item and the line under it (the top of the next item) are drawn in full ink */
+.item[data-open="true"],
+.item[data-open="true"] + .item {
+  border-top-color: var(--color-foreground-100);
+}
+
+.item[data-open="true"]:last-child {
+  border-bottom-color: var(--color-foreground-100);
+}
+
+.heading {
+  margin: 0;
+}
+
+.trigger {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--spacing-md);
+  width: 100%;
+  margin: 0;
+  padding: var(--spacing-md) 0;
+  border: 0;
+  border-radius: 0;
+  background: none;
+  color: inherit;
+  text-align: start;
+  cursor: pointer;
+  transition: color var(--duration-slow) var(--easing-emphasized);
+}
+
+/* while one item is open the others step back (24px type is large text: foreground-50 holds AA) */
+.dimmed {
+  color: var(--color-foreground-50);
+}
+
+.dimmed:focus-visible {
+  color: var(--color-foreground-100);
+}
+
+@media (hover: hover) {
+  .dimmed:hover {
+    color: var(--color-foreground-100);
+  }
+}
+
+.question {
+  min-width: 0;
+  max-width: var(--measure-menu);
+  overflow-wrap: anywhere;
+}
+
+/* one headline line tall, so the arrow sits beside the first line of the question */
+.arrow {
+  display: flex;
+  flex-shrink: 0;
+  align-items: center;
+  height: calc(1em * 1.2);
+  transition: rotate var(--duration-slow) var(--easing-emphasized);
+}
+
+/* the arrow glyph already points right (45deg); a quarter turn more points it down */
+.item[data-open="true"] .arrow {
+  rotate: 90deg;
+}
+
+/* the answer grows from a zero-height grid row */
+.panel {
+  display: grid;
+  grid-template-rows: 0fr;
+  transition: grid-template-rows var(--duration-slow) var(--easing-emphasized);
+}
+
+.item[data-open="true"] .panel {
+  grid-template-rows: 1fr;
+}
+
+.panelInner {
+  min-height: 0;
+  overflow: hidden;
+}
+
+.panelContent {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-xl);
+  padding-bottom: var(--spacing-xl);
+}
+
+.answer {
+  max-width: var(--measure-body);
+}
+
+@media (min-width: 768px) {
+  .trigger {
+    align-items: flex-start;
+    gap: var(--spacing-xl);
+    padding-block: var(--spacing-xl);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .item,
+  .trigger,
+  .arrow,
+  .panel {
+    transition: none;
+  }
+}

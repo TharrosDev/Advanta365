@@ -27,7 +27,10 @@ test.describe("phone menu", () => {
 
     await page.getByText("Menu", { exact: true }).click();
     await expect(menu).toBeVisible();
-    await page.getByRole("heading", { level: 1 }).click();
+    // The menu is a curtain with an invisible backdrop; a tap below the panel lands on the backdrop.
+    const viewport = page.viewportSize();
+    if (!viewport) throw new Error("no viewport");
+    await page.mouse.click(viewport.width / 2, viewport.height - 8);
     await expect(menu).toBeHidden();
   });
 });

@@ -1,10 +1,13 @@
 "use client";
 
-import Link from "next/link";
 import { useEffect, useMemo, useRef, useState } from "react";
-import { Button, buttonClass } from "@/components/ui/button";
+import { TransitionLink } from "@/components/motion/transition-link";
+import { Button } from "@/components/ui/button";
+import { WipeButton } from "@/components/ui/wipe-button";
 import { pruneLines, type CartLine } from "@/lib/cart/store";
+import { cx } from "@/lib/cx";
 import { formatPrice } from "@/lib/format";
+import styles from "./cart-contents.module.css";
 import { useCart } from "./use-cart";
 
 export type CartItem = CartLine & { title: string; priceCents: number; href: string };
@@ -39,23 +42,21 @@ export function CartContents({ items }: { items: CartItem[] }) {
   }, [removedAt, lineCount]);
 
   if (!cart.ready) {
-    return <p className="text-muted mt-10">Loading your cart…</p>;
+    return <p className={cx("t-body-large", "c-fg-60", styles.loading)}>Loading your cart…</p>;
   }
 
   if (lines.length === 0) {
     return (
-      <div className="border-ink/25 mt-10 rounded-lg border border-dashed px-6 py-16 text-center">
-        <h2 ref={emptyRef} tabIndex={-1} className="text-xl font-semibold">
+      <div className={cx("ruled", styles.empty)}>
+        <h2 ref={emptyRef} tabIndex={-1} className="t-headline-large">
           Your cart is empty.
         </h2>
-        <p className="text-muted mx-auto mt-2 max-w-sm text-sm">
+        <p className={cx("t-body-large", "c-fg-60", styles.emptyBody)}>
           Browse the catalog or start with a bundle for the phase you are in.
         </p>
-        <div className="mt-6 flex flex-wrap justify-center gap-3">
-          <Button href="/catalog">Browse the catalog</Button>
-          <Button href="/bundles" variant="secondary">
-            See bundles
-          </Button>
+        <div className={styles.actions}>
+          <WipeButton href="/catalog">Browse the catalog</WipeButton>
+          <WipeButton href="/bundles">See bundles</WipeButton>
         </div>
       </div>
     );
@@ -65,57 +66,47 @@ export function CartContents({ items }: { items: CartItem[] }) {
   const subtotal = rows.reduce((sum, row) => sum + row.priceCents, 0);
 
   return (
-    <div className="mt-10 grid gap-10 lg:grid-cols-[1fr_20rem]">
-      <ul ref={listRef} className="divide-rule border-rule divide-y border-y">
+    <div className={styles.layout}>
+      <ul ref={listRef} className={styles.list}>
         {rows.map((row, index) => (
-          <li
-            key={keyOf(row)}
-            className="flex flex-wrap items-center justify-between gap-x-6 gap-y-2 py-4"
-          >
-            <div className="min-w-0">
-              <p className="text-accent text-xs font-medium uppercase">
+          <li key={keyOf(row)} className={cx("ruled", styles.row)}>
+            <div className={styles.item}>
+              <p className="t-label-medium c-fg-50">
                 {row.kind === "bundle" ? "Bundle" : "Template"}
               </p>
-              <Link
-                href={row.href}
-                className="font-display text-lg font-semibold break-words underline-offset-4 hover:underline"
-              >
+              <TransitionLink href={row.href} className={cx("t-headline-small", styles.title)}>
                 {row.title}
-              </Link>
+              </TransitionLink>
             </div>
-            <div className="flex items-center gap-4">
-              <span className="font-semibold tabular-nums">{formatPrice(row.priceCents)}</span>
-              <button
-                type="button"
-                className={buttonClass("ghost", "md")}
-                aria-label={`Remove ${row.title}`}
-                onClick={() => {
-                  setRemovedAt(index);
-                  cart.remove({ kind: row.kind, slug: row.slug });
-                }}
-              >
-                Remove
-              </button>
-            </div>
+            <p className={cx("t-body-large", "tabular", styles.price)}>
+              {formatPrice(row.priceCents)}
+            </p>
+            <Button
+              variant="text"
+              size="md"
+              aria-label={`Remove ${row.title}`}
+              onClick={() => {
+                setRemovedAt(index);
+                cart.remove({ kind: row.kind, slug: row.slug });
+              }}
+            >
+              Remove
+            </Button>
           </li>
         ))}
       </ul>
 
-      <aside aria-label="Order summary" className="lg:self-start">
-        <div className="border-rule bg-surface rounded-lg border p-6">
-          <div className="flex items-baseline justify-between">
-            <span className="text-muted">Subtotal</span>
-            <span className="font-display text-3xl font-semibold tabular-nums">
-              {formatPrice(subtotal)}
-            </span>
-          </div>
-          <button type="button" disabled className={buttonClass("primary", "lg", "mt-5 w-full")}>
-            Checkout — coming soon
-          </button>
-          <p className="text-muted mt-3 text-sm">
-            Purchasing is not available in this beta. Your cart is saved in this browser.
-          </p>
+      <aside aria-label="Order summary" className={styles.summary}>
+        <div className={styles.subtotal}>
+          <p className={cx("t-body-large", "c-fg-60")}>Subtotal</p>
+          <p className="t-display-small tabular">{formatPrice(subtotal)}</p>
         </div>
+        <Button variant="slab" size="lg" fullWidth disabled>
+          Checkout — coming soon
+        </Button>
+        <p className={cx("t-body-medium", "c-fg-60")}>
+          Purchasing is not available in this beta. Your cart is saved in this browser.
+        </p>
       </aside>
     </div>
   );

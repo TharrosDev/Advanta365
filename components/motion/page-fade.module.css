@@ -1,0 +1,34 @@
+/*
+ * Route fade layer. It sits above the page content and the footer but below the header
+ * (--z-header), so the header stays put while the page fades to the background colour.
+ *
+ *   idle     hidden, no transition
+ *   covered  (cover + hold) opaque, blocks pointer events
+ *   reveal   neither class: opacity runs back to 0
+ */
+
+.root {
+  position: fixed;
+  inset: 0;
+  z-index: var(--z-page-fade);
+  background: var(--color-background-100);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity var(--duration-slow) var(--easing-in-out);
+}
+
+.covered {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.idle {
+  visibility: hidden;
+  transition: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .root {
+    transition: none;
+  }
+}

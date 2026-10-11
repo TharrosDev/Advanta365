@@ -1,0 +1,17 @@
+/* Fills whatever box the parent gives it. Transparent until the first frame is drawn. */
+.canvas {
+  display: block;
+  width: 100%;
+  height: 100%;
+  opacity: 0;
+  transition: opacity var(--duration-slower) var(--easing-out);
+}
+
+.canvas[data-ready="true"] {
+  opacity: 1;
+}
+
+/* `display: block` above would otherwise beat the browser's own rule for the hidden attribute. */
+.canvas[hidden] {
+  display: none;
+}

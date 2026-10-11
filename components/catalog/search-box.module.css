@@ -1,0 +1,13 @@
+.form {
+  display: flex;
+  align-items: stretch;
+  gap: var(--spacing-xs);
+}
+
+/* The field takes the row; the doubled selector beats the primitive's own width: 100%. */
+.input.input {
+  flex: 1 1 0;
+  width: auto;
+  min-width: 0;
+  text-overflow: ellipsis;
+}

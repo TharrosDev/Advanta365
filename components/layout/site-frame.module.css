@@ -1,0 +1,20 @@
+.root {
+  display: none;
+  pointer-events: none;
+}
+
+/* A literal white blended as a difference: the lines read on light and on dark sections alike. */
+@media screen and (min-width: 2000px) {
+  .root {
+    position: fixed;
+    inset-block: 0;
+    left: 50%;
+    z-index: var(--z-site-frame);
+    display: block;
+    width: var(--container-content);
+    border-inline: 1px solid var(--base-color-white);
+    opacity: 0.12;
+    mix-blend-mode: difference;
+    translate: -50%;
+  }
+}

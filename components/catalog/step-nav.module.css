@@ -1,0 +1,18 @@
+/* The hairline on top comes from the global `.ruled` class. */
+.root {
+  padding-block: var(--spacing-xs);
+  border-bottom: 1px solid var(--color-foreground-20);
+}
+
+.list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spacing-xs2) var(--spacing-xl);
+}
+
+/* every item is a full 44px touch target; the link sits centred in it */
+.item {
+  display: flex;
+  align-items: center;
+  min-height: var(--touch-target);
+}

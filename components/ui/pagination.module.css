@@ -1,0 +1,70 @@
+/* Phones: Previous and Next share the first row, the page numbers wrap underneath. */
+.root {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  grid-template-areas:
+    "previous next"
+    "pages pages";
+  align-items: center;
+  padding-block: var(--spacing-xs);
+  border-bottom: 1px solid var(--color-foreground-20);
+}
+
+.step {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-xs2);
+  min-height: var(--touch-target);
+  text-decoration: none;
+}
+
+.previous {
+  grid-area: previous;
+  justify-self: start;
+}
+
+.next {
+  grid-area: next;
+  justify-self: end;
+}
+
+.pages {
+  grid-area: pages;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.page {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: var(--touch-target);
+  min-height: var(--touch-target);
+  padding-inline: var(--spacing-xs2);
+  text-decoration: none;
+}
+
+.step:hover,
+.page:any-link:hover {
+  text-decoration: underline;
+  text-underline-position: from-font;
+}
+
+/* The current page: a 2px bar under the number. */
+.current::after {
+  content: "";
+  position: absolute;
+  inset-inline: var(--spacing-xs);
+  bottom: var(--spacing-xs2);
+  height: 2px;
+  background: var(--color-foreground-100);
+}
+
+@media (min-width: 768px) {
+  .root {
+    grid-template-columns: 1fr auto 1fr;
+    grid-template-areas: "previous pages next";
+  }
+}

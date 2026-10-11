@@ -1,0 +1,66 @@
+/* Absolute, not sticky: the header scrolls away with the page. No background of its own. */
+.root {
+  position: absolute;
+  top: 0;
+  inset-inline: 0;
+  z-index: var(--z-header);
+  min-height: var(--site-header-height);
+  color: var(--color-foreground-100);
+}
+
+/* Phones: brand | Menu | cart, the cart on the right edge. */
+.inner {
+  display: grid;
+  grid-template-columns: 1fr auto auto;
+  align-items: center;
+  column-gap: var(--spacing-md);
+  padding-block: var(--spacing-xl);
+}
+
+/* Holds whatever the caller passes as the cart control, on the right edge of the row. */
+.cart {
+  display: flex;
+  justify-self: end;
+}
+
+.brand {
+  display: inline-flex;
+  align-items: center;
+  justify-self: start;
+  gap: var(--spacing-xs);
+  min-width: 0;
+  color: inherit;
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+/* The wrapper only carries the dock hook; the svg itself is the flex item. */
+.symbol {
+  display: contents;
+}
+
+/*
+ * Hand-over from the entry overlay on "/": while the overlay owns the logo the header mark and the
+ * brand text are transparent; when it lets go the mark fades in first and the text follows.
+ */
+.symbol > svg {
+  flex: none;
+  transition: opacity var(--entry-swap) var(--easing-out);
+}
+
+.brandText {
+  transition: opacity var(--entry-brand) var(--easing-out) var(--entry-swap);
+}
+
+:root[data-entry-brand] .symbol > svg,
+:root[data-entry-brand] .brandText {
+  opacity: 0;
+}
+
+/* From 768px Menu sits in the middle of the page, between two equal columns. */
+@media (min-width: 768px) {
+  .inner {
+    grid-template-columns: 1fr auto 1fr;
+    column-gap: 0;
+  }
+}

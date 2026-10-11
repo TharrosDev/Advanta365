@@ -1,0 +1,119 @@
+.root {
+  position: relative;
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+  margin: 0;
+  border: 0;
+  border-radius: 0;
+  background: none;
+  color: inherit;
+  font: inherit;
+  text-align: center;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.md {
+  min-height: var(--touch-target);
+  padding: var(--spacing-xs) var(--spacing-sm);
+  font-size: var(--text-label-large-size);
+  line-height: var(--text-label-large-line-height);
+  letter-spacing: var(--text-label-large-letter-spacing);
+}
+
+.lg {
+  min-height: 54px;
+  padding: var(--spacing-sm) var(--spacing-md);
+  font-size: var(--text-body-large-size);
+  line-height: var(--text-body-large-line-height);
+  letter-spacing: var(--text-body-large-letter-spacing);
+}
+
+.fullWidth {
+  display: flex;
+  width: 100%;
+}
+
+.content {
+  position: relative;
+  z-index: 0;
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-xs2);
+}
+
+/* slab: a solid block in the foreground colour that inverts as a whole */
+.slab {
+  isolation: isolate;
+  overflow: hidden;
+  background: var(--color-foreground-100);
+  color: var(--color-background-100);
+}
+
+/* outline: a hairline box with the same sweep; the border takes 1px out of the padding */
+.outline {
+  isolation: isolate;
+  overflow: hidden;
+  border: 1px solid var(--color-foreground-100);
+}
+
+.outline.md {
+  padding: calc(var(--spacing-xs) - 1px) calc(var(--spacing-sm) - 1px);
+}
+
+.outline.lg {
+  padding: calc(var(--spacing-sm) - 1px) calc(var(--spacing-md) - 1px);
+}
+
+/* The sweep blends against the button's own surface. The outline box is transparent at rest and
+   takes the page colour only while a bar is on it. */
+.outline[data-sweeping] {
+  background: var(--color-background-100);
+}
+
+/* A white bar blended as a difference: an exact inversion on either theme. */
+.sweep {
+  --wipe-bar-height: 100%;
+  --wipe-bar-color: var(--base-color-white);
+
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  mix-blend-mode: difference;
+  pointer-events: none;
+}
+
+/* text: no box, an underlined label */
+.text {
+  padding-inline: 0;
+  color: var(--color-foreground-60);
+  text-decoration: underline;
+  text-underline-position: from-font;
+  transition: color var(--duration-fast) var(--easing-out);
+}
+
+.text:hover,
+.text:focus-visible {
+  color: var(--color-foreground-100);
+}
+
+.root:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.text:disabled {
+  color: var(--color-foreground-60);
+}
+
+/* hidden, not removed: a bar that is already there still finishes and leaves the list */
+.root:disabled .sweep {
+  visibility: hidden;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .text {
+    transition: none;
+  }
+}

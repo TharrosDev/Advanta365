@@ -1,0 +1,109 @@
+/* Panel first in the DOM (the keyboard reaches "Add to cart" before the long details), details
+   second. On phones they simply stack; from 1024px the panel moves to the right-hand column. */
+.layout {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-xl2);
+  padding-bottom: var(--spacing-xl3);
+}
+
+.details {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-xl3);
+  min-width: 0;
+}
+
+.description {
+  max-width: var(--measure-prose);
+}
+
+.section {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-md);
+}
+
+/* a hairline above every item (the global `ruled` class), one more under the last */
+.includes {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  border-bottom: 1px solid var(--color-foreground-20);
+}
+
+.includes > li {
+  padding-block: var(--spacing-xs);
+}
+
+.fits {
+  max-width: var(--measure-prose);
+}
+
+/* inline text link: underlined, a little heavier on hover */
+.link {
+  color: inherit;
+  text-decoration: underline;
+  text-underline-position: from-font;
+}
+
+.link:hover {
+  text-decoration-thickness: 2px;
+}
+
+.block {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-xl);
+  padding-bottom: var(--spacing-xl3);
+}
+
+.rows {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.cardGrid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--spacing-xl);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+@media (min-width: 768px) {
+  .layout:last-child,
+  .block:last-child {
+    padding-bottom: var(--spacing-xl6);
+  }
+
+  .cardGrid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    row-gap: var(--spacing-xl3);
+  }
+}
+
+@media (min-width: 1024px) {
+  .layout {
+    display: grid;
+    grid-template-columns: minmax(0, 2fr) minmax(0, 1fr);
+    column-gap: var(--spacing-xl3);
+    align-items: start;
+  }
+
+  .details {
+    grid-column: 1;
+    grid-row: 1;
+  }
+
+  .panel {
+    grid-column: 2;
+    grid-row: 1;
+  }
+
+  .cardGrid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}

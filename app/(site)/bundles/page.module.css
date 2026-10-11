@@ -1,0 +1,23 @@
+.block {
+  padding-bottom: var(--spacing-xl3);
+}
+
+/* One column on phones, two from 1024px; the global `ul[class]` reset removes the list styling. */
+.grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  column-gap: var(--spacing-xl);
+  row-gap: var(--spacing-xl3);
+}
+
+@media (min-width: 768px) {
+  .block {
+    padding-bottom: var(--spacing-xl6);
+  }
+}
+
+@media (min-width: 1024px) {
+  .grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}

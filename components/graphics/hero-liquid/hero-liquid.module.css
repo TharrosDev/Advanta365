@@ -1,0 +1,45 @@
+/*
+ * Hero liquid ribbons: a flat SVG fallback and the WebGL canvas that replaces it.
+ * Both are absolutely positioned inside the hero inner (position: relative; overflow-x: clip) and
+ * never take pointer events. Nothing here may use overflow: hidden: the lower 25% of the artwork
+ * has to bleed under the section that follows the hero.
+ */
+
+/*
+ * The art box is 1440 x 810, drawn 25% taller than the hero (1440 x 1012.5). height: 100% with
+ * aspect-ratio 5 / 4 and min-width: 100% gives a box of max(W, 1.25 H) x H, so on portrait screens
+ * the artwork is laid out on a square of side 1.25 H and centre-cropped, never squashed.
+ */
+.lines {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  translate: -50%;
+  height: 100%;
+  min-width: 100%;
+  aspect-ratio: 5 / 4;
+  overflow: visible;
+  clip-path: inset(0 0 -25%);
+  opacity: 0.2;
+  pointer-events: none;
+}
+
+.linesHidden {
+  visibility: hidden;
+}
+
+.liquid {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  width: 100%;
+  height: 125%;
+  opacity: 0;
+  transition: opacity 0.5s;
+  pointer-events: none;
+}
+
+.liquid[data-active="true"] {
+  opacity: 1;
+}

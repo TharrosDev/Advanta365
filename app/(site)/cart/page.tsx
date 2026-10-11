@@ -1,7 +1,10 @@
 import type { Metadata } from "next";
 import { CartContents, type CartItem } from "@/components/cart/cart-contents";
-import { Container } from "@/components/layout/container";
+import { PageTitle } from "@/components/layout/page-title";
+import { Container } from "@/components/ui/container";
+import { PageShell } from "@/components/ui/page-shell";
 import { getBundles, getTemplates } from "@/lib/catalog/repository";
+import styles from "./page.module.css";
 
 export const metadata: Metadata = { title: "Cart" };
 
@@ -26,9 +29,11 @@ export default async function CartPage() {
   ];
 
   return (
-    <Container className="py-10 sm:py-14">
-      <h1 className="text-4xl font-semibold">Your cart</h1>
-      <CartContents items={items} />
-    </Container>
+    <PageShell>
+      <PageTitle title="Your cart" />
+      <Container className={styles.block}>
+        <CartContents items={items} />
+      </Container>
+    </PageShell>
   );
 }

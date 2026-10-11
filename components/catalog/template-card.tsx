@@ -1,28 +1,45 @@
-import Link from "next/link";
-import { Badge } from "@/components/ui/badge";
-import { DELIVERABLE_TYPE_LABELS, FORMAT_LABELS } from "@/content/taxonomy";
+import { TransitionLink } from "@/components/motion/transition-link";
+import { DELIVERABLE_TYPE_LABELS } from "@/content/taxonomy";
 import type { Template } from "@/lib/catalog/schema";
+import { cx } from "@/lib/cx";
 import { formatPrice } from "@/lib/format";
+import styles from "./template-card.module.css";
+import { TemplateCover } from "./template-cover";
 
-export function TemplateCard({ template, phaseName }: { template: Template; phaseName?: string }) {
+/**
+ * A catalog card in the reference's insight-card style: a square generated cover, the title, a meta
+ * line (`Phase · Type`, the phase only where `phaseName` is given) and the price.
+ *
+ * The title is the card's ONE link. It contains only the title text and is stretched over the whole
+ * card, so the card has a single tab stop and the cover stays decorative (`aria-hidden`).
+ */
+export function TemplateCard({
+  template,
+  phaseName,
+  headingLevel = "h3",
+  className,
+}: {
+  template: Template;
+  phaseName?: string;
+  headingLevel?: "h2" | "h3";
+  className?: string;
+}) {
+  const Heading = headingLevel;
+  const typeLabel = DELIVERABLE_TYPE_LABELS[template.deliverableType];
+
   return (
-    <article className="group border-rule bg-surface hover:border-accent relative flex h-full flex-col rounded-lg border p-5 transition-colors">
-      <div className="flex flex-wrap gap-1.5">
-        {phaseName && <Badge tone="accent">{phaseName}</Badge>}
-        <Badge>{DELIVERABLE_TYPE_LABELS[template.deliverableType]}</Badge>
+    <article className={cx(styles.card, "ruled", className)}>
+      <div className={styles.cover} aria-hidden="true">
+        <TemplateCover type={template.deliverableType} format={template.format} />
       </div>
-      <h3 className="mt-3 text-lg font-semibold break-words">
-        <Link
-          href={`/templates/${template.slug}`}
-          className="underline-offset-4 group-hover:underline after:absolute after:inset-0"
-        >
+      <Heading className={cx("t-headline-small", styles.title)}>
+        <TransitionLink className={styles.link} href={`/templates/${template.slug}`}>
           {template.title}
-        </Link>
-      </h3>
-      <p className="text-muted mt-2 grow text-sm">{template.summary}</p>
-      <div className="border-rule mt-4 flex items-baseline justify-between border-t pt-3">
-        <span className="text-muted text-xs">{FORMAT_LABELS[template.format]}</span>
-        <span className="font-semibold tabular-nums">{formatPrice(template.priceCents)}</span>
+        </TransitionLink>
+      </Heading>
+      <div className={styles.meta}>
+        <p className="t-body-large">{phaseName ? `${phaseName} · ${typeLabel}` : typeLabel}</p>
+        <p className="t-body-large c-fg-60 tabular">{formatPrice(template.priceCents)}</p>
       </div>
     </article>
   );

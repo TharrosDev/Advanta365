@@ -1,14 +1,15 @@
 import type { Metadata } from "next";
-import { Inter, Source_Serif_4 } from "next/font/google";
+import { Instrument_Sans } from "next/font/google";
 import type { ReactNode } from "react";
+import { EntryScript } from "@/components/entry/entry-script";
 import { SITE } from "@/lib/site";
 import "./globals.css";
 
-const inter = Inter({ subsets: ["latin"], variable: "--font-inter", display: "swap" });
-const sourceSerif = Source_Serif_4({
+// Variable font (weight axis 400-700): no `weight` option, so every weight comes from one file.
+const instrumentSans = Instrument_Sans({
   subsets: ["latin"],
-  variable: "--font-source-serif",
   display: "swap",
+  variable: "--font-instrument-sans",
 });
 
 export const metadata: Metadata = {
@@ -16,10 +17,20 @@ export const metadata: Metadata = {
   description: SITE.description,
 };
 
+// Without JavaScript no RevealGroup can mark itself in view: release every paused reveal.
+const NOSCRIPT_REVEAL_CSS = "[data-reveal-group]{--reveal-play:running!important}";
+
 export default function RootLayout({ children }: { children: ReactNode }) {
   return (
-    <html lang="en" className={`${inter.variable} ${sourceSerif.variable}`}>
-      <body>{children}</body>
+    // The entry script and the theme controller write attributes on <html> before and after hydration.
+    <html lang="en" dir="ltr" className={instrumentSans.variable} suppressHydrationWarning>
+      <body>
+        <EntryScript />
+        <noscript>
+          <style>{NOSCRIPT_REVEAL_CSS}</style>
+        </noscript>
+        {children}
+      </body>
     </html>
   );
 }

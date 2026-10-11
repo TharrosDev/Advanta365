@@ -1,0 +1,47 @@
+/*
+ * Gather reveal: the direct children of the root start collapsed onto the container's centre line,
+ * transparent, then fade in and slide apart to their natural positions.
+ *
+ *   no attribute            idle: plain visible content (server HTML, reduced motion, no JS)
+ *   data-reveal="pending"   collapsed and transparent, waiting for the viewport
+ *   data-reveal="in"        items fade (1s, i * 0.1s), children slide apart (1s after 0.75s),
+ *                           words fade (1.2s after 0.75s + i * 0.1s)
+ *
+ * --reveal-shift is measured per direct child by the component (distance from the child's centre to
+ * the container's centre); --i is the item / word index.
+ */
+
+.root {
+  --gather-move: 1s;
+  --gather-move-delay: 0.75s;
+  --gather-item-fade: 1s;
+  --gather-item-stagger: 0.1s;
+  --gather-word-fade: 1.2s;
+  --gather-word-stagger: 0.1s;
+  position: relative;
+}
+
+.root[data-reveal] > * {
+  transform: translateX(calc(-1 * var(--reveal-shift, 0px)));
+}
+
+.root[data-reveal] [data-gather="item"],
+.root[data-reveal] [data-gather="word"] {
+  opacity: 0;
+}
+
+.root[data-reveal="in"] > * {
+  transform: none;
+  transition: transform var(--gather-move) var(--easing-emphasized) var(--gather-move-delay);
+}
+
+.root[data-reveal="in"] [data-gather="item"] {
+  opacity: 1;
+  transition: opacity var(--gather-item-fade) calc(var(--i, 0) * var(--gather-item-stagger));
+}
+
+.root[data-reveal="in"] [data-gather="word"] {
+  opacity: 1;
+  transition: opacity var(--gather-word-fade)
+    calc(var(--gather-move-delay) + var(--i, 0) * var(--gather-word-stagger));
+}

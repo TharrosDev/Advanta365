@@ -1,0 +1,9 @@
+.root {
+  display: flex;
+  flex-direction: column;
+  padding-top: var(--site-header-height);
+}
+
+.bleed {
+  padding-top: 0;
+}

@@ -1,12 +1,15 @@
 import type { Metadata } from "next";
-import Link from "next/link";
 import { notFound } from "next/navigation";
 import { AddToCart } from "@/components/cart/add-to-cart";
-import { BundleCard } from "@/components/catalog/bundle-card";
 import { TemplateCard } from "@/components/catalog/template-card";
 import { Breadcrumbs } from "@/components/layout/breadcrumbs";
-import { Container } from "@/components/layout/container";
-import { Badge } from "@/components/ui/badge";
+import { PageTitle } from "@/components/layout/page-title";
+import { TransitionLink } from "@/components/motion/transition-link";
+import { PurchasePanel } from "@/components/product/purchase-panel";
+import { ActionRow } from "@/components/ui/action-row";
+import { Container } from "@/components/ui/container";
+import { FactList } from "@/components/ui/fact-list";
+import { PageShell } from "@/components/ui/page-shell";
 import {
   APP_LABELS,
   AUDIENCE_LABELS,
@@ -22,7 +25,9 @@ import {
   getTemplate,
   getTemplates,
 } from "@/lib/catalog/repository";
+import { cx } from "@/lib/cx";
 import { formatPrice } from "@/lib/format";
+import styles from "./page.module.css";
 
 type TemplatePageProps = { params: Promise<{ slug: string }> };
 
@@ -45,7 +50,7 @@ export default async function TemplatePage({ params }: TemplatePageProps) {
     getBundlesContaining(template.slug),
   ]);
   const step = phase?.steps.find((s) => s.slug === template.step);
-  const bundleCards = await Promise.all(
+  const bundleRows = await Promise.all(
     bundles.map(async (bundle) => {
       const contents = await getBundleTemplates(bundle);
       return { bundle, count: contents.length, savings: bundleSavingsCents(bundle, contents) };
@@ -53,6 +58,31 @@ export default async function TemplatePage({ params }: TemplatePageProps) {
   );
 
   const facts = [
+    ...(phase
+      ? [
+          {
+            label: "Phase",
+            value: (
+              <TransitionLink href={`/phases/${phase.slug}`} className={styles.link}>
+                {phase.name}
+              </TransitionLink>
+            ),
+          },
+        ]
+      : []),
+    ...(phase && step
+      ? [
+          {
+            label: "Step",
+            value: (
+              <TransitionLink href={`/phases/${phase.slug}#${step.slug}`} className={styles.link}>
+                {step.name}
+              </TransitionLink>
+            ),
+          },
+        ]
+      : []),
+    { label: "Type", value: DELIVERABLE_TYPE_LABELS[template.deliverableType] },
     { label: "Format", value: FORMAT_LABELS[template.format] },
     ...(template.pageCount
       ? [
@@ -67,97 +97,96 @@ export default async function TemplatePage({ params }: TemplatePageProps) {
   ];
 
   return (
-    <Container className="py-10 sm:py-14">
-      <Breadcrumbs
-        items={[
-          { href: "/", label: "Home" },
-          ...(phase ? [{ href: `/phases/${phase.slug}`, label: phase.name }] : []),
-          { label: template.title },
-        ]}
+    <PageShell>
+      <PageTitle
+        title={template.title}
+        lead={template.summary}
+        eyebrow={
+          <Breadcrumbs
+            items={[
+              { href: "/", label: "Home" },
+              ...(phase ? [{ href: `/phases/${phase.slug}`, label: phase.name }] : []),
+              { label: template.title },
+            ]}
+          />
+        }
       />
 
-      <div className="mt-8 grid gap-10 lg:grid-cols-[1fr_20rem]">
-        <div>
-          <div className="flex flex-wrap gap-1.5">
-            {phase && <Badge tone="accent">{phase.name}</Badge>}
-            <Badge>{DELIVERABLE_TYPE_LABELS[template.deliverableType]}</Badge>
-          </div>
-          <h1 className="mt-4 text-4xl font-semibold break-words sm:text-5xl">{template.title}</h1>
-          <p className="text-muted mt-4 text-xl">{template.summary}</p>
-          <p className="mt-6 max-w-2xl">{template.description}</p>
+      <Container className={styles.layout}>
+        <PurchasePanel
+          priceCents={template.priceCents}
+          note="One-time purchase, editable file"
+          className={styles.panel}
+        >
+          <AddToCart line={{ kind: "template", slug: template.slug }} />
+        </PurchasePanel>
 
-          <h2 className="mt-10 text-2xl font-semibold">What’s included</h2>
-          <ul className="divide-rule border-rule mt-4 max-w-2xl divide-y border-y">
-            {template.includes.map((item) => (
-              <li key={item} className="py-3">
-                {item}
-              </li>
-            ))}
-          </ul>
+        <div className={styles.details}>
+          <p className={cx("t-body-large", "c-fg-80", styles.description)}>
+            {template.description}
+          </p>
+
+          <FactList items={facts} />
+
+          <section className={styles.section}>
+            <h2 className="t-headline-large">What’s included</h2>
+            <ul className={styles.includes}>
+              {template.includes.map((item) => (
+                <li key={item} className="ruled t-body-large">
+                  {item}
+                </li>
+              ))}
+            </ul>
+          </section>
 
           {phase && step && (
-            <>
-              <h2 className="mt-10 text-2xl font-semibold">Where it fits</h2>
-              <p className="mt-3 max-w-2xl">
+            <section className={styles.section}>
+              <h2 className="t-headline-large">Where it fits</h2>
+              <p className={cx("t-body-large", "c-fg-60", styles.fits)}>
                 Use this in the{" "}
-                <Link
-                  href={`/phases/${phase.slug}#${step.slug}`}
-                  className="text-accent font-medium underline underline-offset-4"
-                >
+                <TransitionLink href={`/phases/${phase.slug}#${step.slug}`} className={styles.link}>
                   {phase.name} phase, at the “{step.name}” step
-                </Link>
+                </TransitionLink>
                 . {step.summary}
               </p>
-            </>
+            </section>
           )}
         </div>
+      </Container>
 
-        <aside aria-label="Purchase" className="lg:sticky lg:top-6 lg:self-start">
-          <div className="border-rule bg-surface rounded-lg border p-6">
-            <p className="font-display text-4xl font-semibold tabular-nums">
-              {formatPrice(template.priceCents)}
-            </p>
-            <p className="text-muted mt-1 text-sm">One-time purchase, editable file</p>
-            <div className="mt-5">
-              <AddToCart line={{ kind: "template", slug: template.slug }} />
-            </div>
-            <dl className="border-rule mt-6 space-y-3 border-t pt-5 text-sm">
-              {facts.map((fact) => (
-                <div key={fact.label} className="flex justify-between gap-4">
-                  <dt className="text-muted shrink-0">{fact.label}</dt>
-                  <dd className="text-right">{fact.value}</dd>
-                </div>
-              ))}
-            </dl>
-          </div>
-        </aside>
-      </div>
-
-      {bundleCards.length > 0 && (
-        <section className="border-rule mt-16 border-t pt-10">
-          <h2 className="text-2xl font-semibold">Included in these bundles</h2>
-          <ul className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-            {bundleCards.map(({ bundle, count, savings }) => (
+      {bundleRows.length > 0 && (
+        <Container as="section" className={styles.block}>
+          <h2 className="t-headline-large">Included in these bundles</h2>
+          <ul className={styles.rows}>
+            {bundleRows.map(({ bundle, count, savings }, index) => (
               <li key={bundle.slug}>
-                <BundleCard bundle={bundle} templateCount={count} savingsCents={savings} />
+                <ActionRow
+                  fill
+                  arrow="right"
+                  href={`/bundles/${bundle.slug}`}
+                  label={bundle.title}
+                  caption={`${count} templates${savings > 0 ? ` · Save ${formatPrice(savings)}` : ""}`}
+                  trailing={formatPrice(bundle.priceCents)}
+                  rule={index === bundleRows.length - 1 ? "both" : "top"}
+                />
               </li>
             ))}
           </ul>
-        </section>
+        </Container>
       )}
 
       {related.length > 0 && (
-        <section className="border-rule mt-16 border-t pt-10">
-          <h2 className="text-2xl font-semibold">Related templates</h2>
-          <ul className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        <Container as="section" className={styles.block}>
+          <h2 className="t-headline-large">Related templates</h2>
+          <ul className={styles.cardGrid}>
             {related.map((item) => (
               <li key={item.slug}>
                 <TemplateCard template={item} phaseName={phase?.name} />
               </li>
             ))}
           </ul>
-        </section>
+        </Container>
       )}
-    </Container>
+    </PageShell>
   );
 }

@@ -1,0 +1,14 @@
+.panel {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-sm);
+  padding-top: var(--spacing-sm);
+  border-top: 1px solid var(--color-foreground-100);
+}
+
+@media (min-width: 1024px) {
+  .panel {
+    position: sticky;
+    top: var(--spacing-xl);
+  }
+}

@@ -1,0 +1,17 @@
+/* a 1px hairline at 20% under bars of 1.5px */
+.rule {
+  --wipe-bar-height: calc(var(--spacing-xs3) * 0.375);
+
+  position: relative;
+  height: 1px;
+}
+
+.base {
+  position: absolute;
+  inset-block: 0;
+  inset-inline: 0;
+  height: 1px;
+  margin-block: auto;
+  background: var(--color-foreground-100);
+  opacity: 0.2;
+}

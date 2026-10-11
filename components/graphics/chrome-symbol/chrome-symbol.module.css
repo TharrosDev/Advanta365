@@ -1,0 +1,44 @@
+/*
+ * The glyph svg is always in the DOM: it gives the component its layout box and is the static
+ * fallback. Until the first WebGL frame neither the glyph nor the canvas is visible.
+ */
+.root {
+  position: relative;
+  display: inline-block;
+}
+
+.glyph {
+  display: block;
+  visibility: hidden;
+}
+
+.root[data-failed] .glyph {
+  visibility: visible;
+}
+
+/* No WebGL session is created under reduced motion: the flat glyph is the symbol. */
+@media (prefers-reduced-motion: reduce) {
+  .glyph {
+    visibility: visible;
+  }
+}
+
+/* The canvas overhangs the glyph box on every side so the turning solid is never clipped. */
+.canvas {
+  position: absolute;
+  top: calc(var(--chrome-symbol-pad-y) * -100%);
+  left: calc(var(--chrome-symbol-pad-x) * -100%);
+  display: block;
+  width: calc((1 + 2 * var(--chrome-symbol-pad-x)) * 100%);
+  height: calc((1 + 2 * var(--chrome-symbol-pad-y)) * 100%);
+  visibility: hidden;
+  pointer-events: none;
+}
+
+.root[data-live] .glyph {
+  visibility: hidden;
+}
+
+.root[data-live] .canvas {
+  visibility: visible;
+}

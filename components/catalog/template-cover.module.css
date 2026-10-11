@@ -1,0 +1,36 @@
+.art {
+  position: absolute;
+  inset: 0;
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+/* hairlines of the board: 1 CSS px at any size */
+.board {
+  stroke: var(--color-foreground-10);
+  stroke-width: 1px;
+  vector-effect: non-scaling-stroke;
+}
+
+/* every glyph element is a 2px outline unless it is marked solid */
+.glyph * {
+  fill: none;
+  stroke: var(--color-foreground-100);
+  stroke-width: 2px;
+  stroke-linejoin: miter;
+  stroke-linecap: butt;
+  vector-effect: non-scaling-stroke;
+}
+
+.glyph .solid {
+  fill: var(--color-foreground-100);
+  stroke: none;
+}
+
+/* the cover is the positioned box (template-card.module.css) */
+.format {
+  position: absolute;
+  inset-block-end: var(--spacing-xs2);
+  inset-inline-start: var(--spacing-xs2);
+}

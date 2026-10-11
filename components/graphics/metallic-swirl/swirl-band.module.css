@@ -1,0 +1,37 @@
+.band {
+  position: relative;
+}
+
+/*
+ * One viewport tall and pinned to the top of the viewport while the band crosses it. The negative
+ * margin gives the height back, so the first section starts at the band's top edge and the sections
+ * scroll over the layer. Sticky needs every ancestor free of overflow: hidden / auto.
+ */
+.layer {
+  position: sticky;
+  top: 0;
+  z-index: var(--z-swirl);
+  height: var(--viewport-height);
+  margin-bottom: calc(var(--viewport-height) * -1);
+  pointer-events: none;
+}
+
+/* Sections ride above the backdrop and let it show through. */
+.band > section {
+  position: relative;
+  z-index: var(--z-section);
+  background: transparent;
+}
+
+/* Dissolves the swirl into the page background over the last 30% of a viewport. Painted under the
+   sections and never interactive: the buttons of the last section sit inside this zone. */
+.band::after {
+  content: "";
+  position: absolute;
+  bottom: 0;
+  inset-inline: 0;
+  z-index: var(--z-swirl);
+  height: calc(var(--viewport-height) * 0.3);
+  background: linear-gradient(to bottom, transparent, var(--color-background-100));
+  pointer-events: none;
+}

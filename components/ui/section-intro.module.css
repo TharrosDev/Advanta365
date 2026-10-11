@@ -1,0 +1,36 @@
+.root,
+.text {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-xl);
+  width: 100%;
+}
+
+.title {
+  max-width: var(--measure-heading);
+}
+
+.body {
+  max-width: var(--measure-body);
+}
+
+/* A full-width block: the caller lays out what it puts inside. */
+.actions {
+  width: 100%;
+}
+
+.center .text {
+  align-items: center;
+  gap: var(--spacing-md);
+  text-align: center;
+}
+
+.center .title {
+  max-width: var(--measure-heading-centered);
+}
+
+@media (min-width: 768px) {
+  .center .text {
+    gap: var(--spacing-xl);
+  }
+}

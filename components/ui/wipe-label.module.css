@@ -1,0 +1,108 @@
+.root {
+  position: relative;
+  display: inline-block;
+}
+
+.text {
+  display: inline-block;
+  visibility: hidden;
+  animation: wipe-text-reveal var(--overlay-duration, 500ms) both;
+}
+
+.box {
+  position: absolute;
+  inset: 0 calc(-1 * var(--spacing-xs3));
+  background: var(--color-foreground-100);
+  transform: scaleY(0);
+  transform-origin: top;
+  animation: wipe-box-in var(--overlay-duration, 500ms) var(--easing-in-out) both;
+}
+
+.hiding .text {
+  animation: wipe-text-conceal var(--overlay-duration, 500ms) both;
+}
+
+.hiding .box {
+  animation: wipe-box-out var(--overlay-duration, 500ms) var(--easing-in-out) both;
+}
+
+/* the text flips at the midpoint, while the block covers it completely */
+@keyframes wipe-text-reveal {
+  0%,
+  50% {
+    visibility: hidden;
+  }
+
+  51%,
+  100% {
+    visibility: visible;
+  }
+}
+
+@keyframes wipe-text-conceal {
+  0%,
+  50% {
+    visibility: visible;
+  }
+
+  51%,
+  100% {
+    visibility: hidden;
+  }
+}
+
+/* grows down from the top edge, then retracts toward the bottom edge */
+@keyframes wipe-box-in {
+  0% {
+    transform: scaleY(0);
+    transform-origin: top;
+  }
+
+  49.9% {
+    transform: scaleY(1);
+    transform-origin: top;
+  }
+
+  50.1% {
+    transform: scaleY(1);
+    transform-origin: bottom;
+  }
+
+  100% {
+    transform: scaleY(0);
+    transform-origin: bottom;
+  }
+}
+
+/* the mirror image: grows up from the bottom edge, then retracts toward the top edge */
+@keyframes wipe-box-out {
+  0% {
+    transform: scaleY(0);
+    transform-origin: bottom;
+  }
+
+  49.9% {
+    transform: scaleY(1);
+    transform-origin: bottom;
+  }
+
+  50.1% {
+    transform: scaleY(1);
+    transform-origin: top;
+  }
+
+  100% {
+    transform: scaleY(0);
+    transform-origin: top;
+  }
+}
+
+/* no block: the label is simply there, or gone */
+@media (prefers-reduced-motion: reduce) {
+  .text,
+  .box,
+  .hiding .text,
+  .hiding .box {
+    animation-duration: 1ms;
+  }
+}

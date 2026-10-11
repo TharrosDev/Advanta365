@@ -1,10 +1,11 @@
 import type { InputHTMLAttributes } from "react";
+import { cx } from "@/lib/cx";
+import styles from "./input.module.css";
 
-export function Input({ className = "", ...rest }: InputHTMLAttributes<HTMLInputElement>) {
-  return (
-    <input
-      className={`border-ink/25 bg-surface text-ink placeholder:text-muted min-h-11 w-full rounded-md border px-3 text-base ${className}`.trim()}
-      {...rest}
-    />
-  );
+/** A hairline text field: no box, one rule under the text that darkens on focus. */
+export function Input({
+  className,
+  ...rest
+}: InputHTMLAttributes<HTMLInputElement> & { className?: string }) {
+  return <input {...rest} className={cx(styles.root, className)} />;
 }

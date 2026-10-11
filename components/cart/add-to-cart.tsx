@@ -1,8 +1,7 @@
 "use client";
 
-import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
-import { buttonClass } from "@/components/ui/button";
+import { Button } from "@/components/ui/button";
 import type { CartLine } from "@/lib/cart/store";
 import { useCart } from "./use-cart";
 
@@ -18,25 +17,29 @@ export function AddToCart({ line, label = "Add to cart" }: { line: CartLine; lab
     if (justAdded && inCart) linkRef.current?.focus();
   }, [justAdded, inCart]);
 
+  // The two controls carry different keys so the swap is a clean remount: the slab's hover
+  // sweep does not carry over to the link that replaces it.
   return (
     <>
       {inCart ? (
-        <Link ref={linkRef} href="/cart" className={buttonClass("secondary", "lg", "w-full")}>
+        <Button key="in-cart" href="/cart" linkRef={linkRef} variant="outline" size="lg" fullWidth>
           In cart — view cart
-        </Link>
+        </Button>
       ) : (
-        <button
-          type="button"
-          className={buttonClass("primary", "lg", "w-full")}
+        <Button
+          key="add"
+          variant="slab"
+          size="lg"
+          fullWidth
           onClick={() => {
             setJustAdded(true);
             cart.add(line);
           }}
         >
           {label}
-        </button>
+        </Button>
       )}
-      <span role="status" className="sr-only">
+      <span role="status" className="visually-hidden">
         {justAdded && inCart ? "Added to cart." : ""}
       </span>
     </>

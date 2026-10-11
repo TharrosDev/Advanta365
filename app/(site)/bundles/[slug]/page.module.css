@@ -1,0 +1,56 @@
+/* Same two-column rule as the template page: the panel is first in the DOM, so a keyboard user reaches
+   "Add bundle to cart" before the long list, and it moves to the right-hand column from 1024px. */
+.layout {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-xl2);
+  padding-bottom: var(--spacing-xl3);
+}
+
+.details {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-xl3);
+  min-width: 0;
+}
+
+.description {
+  max-width: var(--measure-prose);
+}
+
+.section {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-md);
+}
+
+.rows {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+@media (min-width: 768px) {
+  .layout {
+    padding-bottom: var(--spacing-xl6);
+  }
+}
+
+@media (min-width: 1024px) {
+  .layout {
+    display: grid;
+    grid-template-columns: minmax(0, 2fr) minmax(0, 1fr);
+    column-gap: var(--spacing-xl3);
+    align-items: start;
+  }
+
+  .details {
+    grid-column: 1;
+    grid-row: 1;
+  }
+
+  .panel {
+    grid-column: 2;
+    grid-row: 1;
+  }
+}

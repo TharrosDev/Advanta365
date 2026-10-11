@@ -1,10 +1,19 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
+import { StepNav } from "@/components/catalog/step-nav";
 import { TemplateCard } from "@/components/catalog/template-card";
 import { Breadcrumbs } from "@/components/layout/breadcrumbs";
-import { Container } from "@/components/layout/container";
-import { Button } from "@/components/ui/button";
+import { PageTitle } from "@/components/layout/page-title";
+import { Reveal, RevealWords } from "@/components/motion/reveal";
+import { RevealGroup } from "@/components/motion/reveal-group";
+import { Container } from "@/components/ui/container";
+import { PageShell } from "@/components/ui/page-shell";
+import { SectionShell } from "@/components/ui/section-shell";
+import { WipeButton } from "@/components/ui/wipe-button";
 import { getPhase, getPhases, getTemplates } from "@/lib/catalog/repository";
+import { cx } from "@/lib/cx";
+import { coarseIndexAfter, countWords } from "@/lib/motion/words";
+import styles from "./page.module.css";
 
 type PhasePageProps = { params: Promise<{ phase: string }> };
 
@@ -29,61 +38,58 @@ export default async function PhasePage({ params }: PhasePageProps) {
   const inPhase = templates.filter((t) => t.phase === phase.slug);
 
   return (
-    <Container className="py-10 sm:py-14">
-      <Breadcrumbs items={[{ href: "/", label: "Home" }, { label: phase.name }]} />
-
-      <header className="mt-8 max-w-3xl">
-        <p className="text-accent text-sm font-medium">
-          Phase {number} of {phases.length}
-        </p>
-        <h1 className="mt-2 text-4xl font-semibold sm:text-5xl">{phase.name}</h1>
-        <p className="text-muted mt-4 text-lg">{phase.summary}</p>
-      </header>
-
-      <nav aria-label="Steps in this phase" className="mt-8 flex flex-wrap gap-2">
-        {phase.steps.map((step, index) => (
-          <a
-            key={step.slug}
-            href={`#${step.slug}`}
-            className="border-rule bg-surface hover:border-accent inline-flex min-h-11 items-center gap-2 rounded-full border px-4 text-sm font-medium"
-          >
-            <span className="text-accent tabular-nums">
-              {number}.{index + 1}
-            </span>
-            {step.name}
-          </a>
-        ))}
-      </nav>
+    <PageShell>
+      <PageTitle
+        title={phase.name}
+        lead={phase.summary}
+        eyebrow={
+          <>
+            <Breadcrumbs items={[{ href: "/", label: "Home" }, { label: phase.name }]} />
+            <p className="t-label-medium c-fg-50">
+              Phase {number} of {phases.length}
+            </p>
+          </>
+        }
+      />
+      <Container>
+        <StepNav steps={phase.steps} />
+      </Container>
 
       {phase.steps.map((step, index) => {
         const inStep = inPhase.filter((t) => t.step === step.slug);
         return (
-          <section
-            key={step.slug}
-            id={step.slug}
-            className="border-rule mt-14 scroll-mt-6 border-t pt-10"
-          >
-            <p className="font-display text-accent text-xl tabular-nums">
-              {number}.{index + 1}
-            </p>
-            <h2 className="mt-1 text-2xl font-semibold sm:text-3xl">{step.name}</h2>
-            <p className="text-muted mt-2 max-w-2xl">{step.summary}</p>
-            <ul className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          <SectionShell key={step.slug} id={step.slug} innerClassName={styles.step}>
+            <RevealGroup className={cx("ruled", styles.stepHeader)}>
+              <Reveal as="p" effect="fade" index={0} className="t-headline-large">
+                {number}.{index + 1}
+              </Reveal>
+              <h2 className={cx("t-display-fluid", styles.stepTitle)}>
+                <RevealWords text={step.name} offset={1} />
+              </h2>
+              <p className={cx("t-body-large", "c-fg-60", styles.stepBody)}>
+                <Reveal effect="fade" index={coarseIndexAfter(1 + countWords(step.name))}>
+                  {step.summary}
+                </Reveal>
+              </p>
+            </RevealGroup>
+            <ul className={styles.grid}>
               {inStep.map((template) => (
                 <li key={template.slug}>
                   <TemplateCard template={template} />
                 </li>
               ))}
             </ul>
-          </section>
+          </SectionShell>
         );
       })}
 
-      <div className="border-rule mt-14 border-t pt-10">
-        <Button href={`/catalog?phase=${phase.slug}`} variant="secondary">
-          View all {phase.name} templates
-        </Button>
-      </div>
-    </Container>
+      <Container>
+        <div className={cx("ruled", styles.footerAction)}>
+          <WipeButton href={`/catalog?phase=${phase.slug}`} arrow="right">
+            {`View all ${phase.name} templates`}
+          </WipeButton>
+        </div>
+      </Container>
+    </PageShell>
   );
 }

@@ -1,7 +1,10 @@
-import { Button } from "@/components/ui/button";
+import { Reveal } from "@/components/motion/reveal";
 import { Pagination } from "@/components/ui/pagination";
+import { WipeButton } from "@/components/ui/wipe-button";
 import type { CatalogCriteria, CatalogResult } from "@/lib/catalog/query";
 import { serializeCatalogParams } from "@/lib/catalog/search-params";
+import { cx } from "@/lib/cx";
+import styles from "./result-list.module.css";
 import { TemplateCard } from "./template-card";
 
 type ResultListProps = {
@@ -10,21 +13,20 @@ type ResultListProps = {
   phases: { slug: string; name: string }[];
 };
 
+/** Only the first row of the grid animates; the rest is static so 24 cards never play at once. */
+const REVEALED_CARDS = 3;
+
 export function ResultList({ result, criteria, phases }: ResultListProps) {
   const phaseNames = new Map(phases.map((phase) => [phase.slug, phase.name]));
 
   if (result.total === 0) {
     return (
-      <div className="border-ink/25 rounded-lg border border-dashed px-6 py-16 text-center">
-        <h2 className="text-xl font-semibold">No templates match these filters.</h2>
-        <p className="text-muted mx-auto mt-2 max-w-sm text-sm">
+      <div className={cx("ruled", styles.empty)}>
+        <h2 className="t-headline-large">No templates match these filters.</h2>
+        <p className={cx("t-body-large", "c-fg-60", styles.emptyBody)}>
           Try a different search term or remove a filter.
         </p>
-        <div className="mt-6">
-          <Button href="/catalog" variant="secondary">
-            Clear filters
-          </Button>
-        </div>
+        <WipeButton href="/catalog">Clear filters</WipeButton>
       </div>
     );
   }
@@ -35,17 +37,22 @@ export function ResultList({ result, criteria, phases }: ResultListProps) {
   };
 
   return (
-    <div>
-      <ul className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
-        {result.items.map((template) => (
-          <li key={template.slug}>
+    <div className={styles.root}>
+      <ul className={styles.grid}>
+        {result.items.map((template, index) => {
+          const card = (
             <TemplateCard template={template} phaseName={phaseNames.get(template.phase)} />
-          </li>
-        ))}
+          );
+          return index < REVEALED_CARDS ? (
+            <Reveal key={template.slug} as="li" effect="wipe" index={index + 1}>
+              {card}
+            </Reveal>
+          ) : (
+            <li key={template.slug}>{card}</li>
+          );
+        })}
       </ul>
-      <div className="mt-10">
-        <Pagination page={result.page} pageCount={result.pageCount} hrefFor={hrefFor} />
-      </div>
+      <Pagination page={result.page} pageCount={result.pageCount} hrefFor={hrefFor} />
     </div>
   );
 }

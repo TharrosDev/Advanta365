@@ -1,9 +1,8 @@
 "use client";
 
-import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useOptimistic, useRef, useTransition } from "react";
-import { buttonClass } from "@/components/ui/button";
+import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import {
   APPS,
@@ -17,6 +16,8 @@ import {
 } from "@/content/taxonomy";
 import type { CatalogCriteria, CatalogResult, FacetKey } from "@/lib/catalog/query";
 import { serializeCatalogParams } from "@/lib/catalog/search-params";
+import { cx } from "@/lib/cx";
+import styles from "./filter-panel.module.css";
 
 type Option = { value: string; label: string };
 type Group = { key: FacetKey; title: string; options: Option[] };
@@ -68,11 +69,11 @@ export function FilterPanel({ criteria: committed, facets, phases }: FilterPanel
   }
 
   const fields = (
-    <div className={`space-y-6 ${isPending ? "opacity-60" : ""}`} aria-busy={isPending}>
+    <div className={cx(styles.fields, isPending && styles.pending)} aria-busy={isPending}>
       {groups.map((group) => (
-        <fieldset key={group.key}>
-          <legend className="text-sm font-semibold">{group.title}</legend>
-          <div className="mt-2">
+        <fieldset key={group.key} className={styles.group}>
+          <legend className={cx("t-label-large", styles.legend)}>{group.title}</legend>
+          <div className={styles.options}>
             {group.options.map((option) => {
               const checked = (criteria[group.key] as string[]).includes(option.value);
               const count = facets[group.key][option.value] ?? 0;
@@ -91,57 +92,45 @@ export function FilterPanel({ criteria: committed, facets, phases }: FilterPanel
         </fieldset>
       ))}
       {selectedCount > 0 && (
-        <Link
+        <Button
+          variant="text"
           href={criteria.q ? `/catalog?q=${encodeURIComponent(criteria.q)}` : "/catalog"}
-          className="text-accent inline-flex min-h-11 items-center text-sm font-medium underline underline-offset-4"
+          className={styles.clear}
         >
           Clear all filters
-        </Link>
+        </Button>
       )}
     </div>
   );
 
   return (
     <>
-      <aside aria-label="Filters" className="hidden lg:block">
-        <h2 className="sr-only">Filters</h2>
+      <aside aria-label="Filters" className={styles.desktop}>
+        <h2 className="visually-hidden">Filters</h2>
         {fields}
       </aside>
 
-      <div className="lg:hidden">
-        <button
-          type="button"
-          className={buttonClass("secondary", "md", "w-full")}
+      <div className={styles.mobile}>
+        <Button
+          variant="outline"
+          size="md"
+          fullWidth
           onClick={() => dialogRef.current?.showModal()}
         >
-          Filters{selectedCount > 0 ? ` (${selectedCount})` : ""}
-        </button>
-        <dialog
-          ref={dialogRef}
-          aria-label="Filters"
-          className="bg-surface text-ink backdrop:bg-ink/40 m-0 ml-auto h-dvh max-h-none w-[min(22rem,100vw)] max-w-none p-0"
-        >
-          <div className="flex h-full flex-col">
-            <div className="border-rule flex items-center justify-between border-b px-5 py-3">
-              <h2 className="text-lg font-semibold">Filters</h2>
-              <button
-                type="button"
-                className={buttonClass("ghost", "md")}
-                onClick={() => dialogRef.current?.close()}
-              >
-                Close
-              </button>
-            </div>
-            <div className="grow overflow-y-auto px-5 py-5">{fields}</div>
-            <div className="border-rule border-t p-4">
-              <button
-                type="button"
-                className={buttonClass("primary", "md", "w-full")}
-                onClick={() => dialogRef.current?.close()}
-              >
-                Show results
-              </button>
-            </div>
+          {`Filters${selectedCount > 0 ? ` (${selectedCount})` : ""}`}
+        </Button>
+        <dialog ref={dialogRef} aria-label="Filters" className={styles.sheet}>
+          <div className={cx(styles.band, styles.bar)}>
+            <h2 className="t-headline-small">Filters</h2>
+            <Button variant="text" onClick={() => dialogRef.current?.close()}>
+              Close
+            </Button>
+          </div>
+          <div className={cx(styles.band, styles.body)}>{fields}</div>
+          <div className={cx(styles.band, styles.footer)}>
+            <Button variant="slab" size="lg" fullWidth onClick={() => dialogRef.current?.close()}>
+              Show results
+            </Button>
           </div>
         </dialog>
       </div>
