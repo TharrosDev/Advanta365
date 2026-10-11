@@ -22,8 +22,8 @@ const TURNS = [-0.6, 0.4, -0.3, 0.5, -0.4, 0.3] as const;
  * format tag, the price and an arrow, on a hairline; one above the first row too, when the rows are
  * list items. Without `phaseName` (a list that is all one phase) the row names the type alone, with
  * no numeral, and its column for it is narrower; `phaseOrder` still prints on the cover's tab.
- * Narrower than 68em the row drops the summary, and below 40em the price and the tag share its
- * last line. A row never animates in.
+ * Narrower than 68em the phase and the tag go under the summary, and below 40em the price and the
+ * tag share the row's last line. A row never animates in.
  *
  * `layout="sheet"` is the template as an object, from 40em: its cover printed with its own title
  * and first line, lit, standing at the foot of a sheet area in its format's proportions and turned

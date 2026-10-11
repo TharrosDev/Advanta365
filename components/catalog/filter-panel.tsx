@@ -1,7 +1,7 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useOptimistic, useRef, useTransition } from "react";
+import { useOptimistic, useRef, useTransition, type ReactNode } from "react";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import {
@@ -33,6 +33,8 @@ type FilterPanelProps = {
   criteria: CatalogCriteria;
   facets: CatalogResult["facets"];
   phases: { slug: string; name: string }[];
+  /** Shown at the top of the sheet below 40em, where the rail leaves the sort order out. */
+  sort?: ReactNode;
 };
 
 /**
@@ -41,9 +43,10 @@ type FilterPanelProps = {
  *
  * From 68em the groups stand in the rail as an `aside`. Below that they sit behind a "Filters"
  * button, in a native dialog that comes up from the bottom edge as a sheet: a bar with the title and
- * Close, the groups in a scrolling body, and "Show results" at the foot.
+ * Close, the groups in a scrolling body, and "Show results" at the foot. Below 40em the body opens
+ * with `sort`, so a phone keeps one control above the results instead of two.
  */
-export function FilterPanel({ criteria: committed, facets, phases }: FilterPanelProps) {
+export function FilterPanel({ criteria: committed, facets, phases, sort }: FilterPanelProps) {
   const router = useRouter();
   const dialogRef = useRef<HTMLDialogElement>(null);
   const [isPending, startTransition] = useTransition();
@@ -134,7 +137,10 @@ export function FilterPanel({ criteria: committed, facets, phases }: FilterPanel
               Close
             </Button>
           </div>
-          <div className={styles.body}>{fields}</div>
+          <div className={styles.body}>
+            {sort ? <div className={styles.sort}>{sort}</div> : null}
+            {fields}
+          </div>
           <div className={styles.foot}>
             <Button variant="mark" size="lg" fullWidth onClick={() => dialogRef.current?.close()}>
               Show results

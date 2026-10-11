@@ -490,7 +490,7 @@ All primitives live in `components/ui/`. Props are shown with their defaults in 
 | `KeepCompounds` | `text` | `<KeepCompounds text="Go/No-Go Decision Checklist" />` |
 | `Tag` | `variant` (format, saving, plain; format), `className`, children | `<Tag variant="saving">Save $36</Tag>` |
 | `FactList` | `items` ({ label, value }[]), `className` | `<FactList items={[{ label: "Type", value: "Plan" }]} />` |
-| `Icon` | `name` (arrow, chevron, plus, minus, close, tick, bars), `size` (20), `flip` (false), `className` | `<Icon name="arrow" size={32} />` |
+| `Icon` | `name` (arrow, chevron, plus, minus, close, tick, bars, search), `size` (20), `flip` (false), `className` | `<Icon name="arrow" size={32} />` |
 | `LogoMark` | `height` ("1.5em"), `className`, `title`, `tone` (one, two; one) | `<LogoMark tone="two" height="2rem" />` |
 | `BrandLockup` | `variant` (tile, bare; tile), `size` (sm, md; md), `className`, `nameClassName` | `<BrandLockup variant="bare" size="sm" />` |
 
@@ -676,7 +676,7 @@ The logo is three strokes on a 32 by 24 grid: two legs meeting at a peak, and a 
 
 ### 11.4 Icon set
 
-`Icon` draws seven glyphs on a 20-unit grid with a 1.75 stroke, round caps and joins, and `currentColor`. The names are `arrow`, `chevron`, `plus`, `minus`, `close`, `tick` and `bars`. Icons are decorative (`aria-hidden`); pair them with a visible or visually hidden label.
+`Icon` draws eight glyphs on a 20-unit grid with a 1.75 stroke, round caps and joins, and `currentColor`. The names are `arrow`, `chevron`, `plus`, `minus`, `close`, `tick`, `bars` and `search` (the magnifier on the catalog search's submit button). Icons are decorative (`aria-hidden`); pair them with a visible or visually hidden label.
 
 ## 12. Do and do not
 

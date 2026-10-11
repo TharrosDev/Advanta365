@@ -1011,11 +1011,18 @@ default, then `page` only when it is above 1. Keys appear in that fixed order, a
 ### 10.3 Controls
 
 - `SearchBox` is a plain `GET` form to `/catalog`. Hidden inputs keep the facets and the sort, and drop the
-  page.
+  page. Its submit button sits inside the far end of the field: a 44px square with the `search` icon and the
+  visually hidden name "Search". Enter submits too, with or without script.
 - `SortSelect` and `FilterPanel` are client components. A change calls `router.replace` with the new query and
   resets the page to 1. `FilterPanel` updates its checkboxes optimistically (`useOptimistic` in a transition).
 - `FilterPanel` disables a checkbox whose count is 0 unless it is already checked. Below 68em the panel is a
-  native dialog opened from a "Filters" button, with a "Show results" button that closes it.
+  native dialog opened from a "Filters" button, with a "Show results" button that closes it. Its `sort` prop
+  is drawn at the top of the dialog's body below 40em only.
+- Phone layout of the rail (below 40em): a navigation "Start from a phase" with the seven phases as large
+  `PhaseTabs` in one row that scrolls sideways (the card is lit, `aria-current="true"`, under the same rule as
+  the phase rail), then the search and the "Filters" button on one row. The catalog page renders `SortSelect`
+  twice: once in the rail, hidden below 40em, and once as `FilterPanel`'s `sort`, hidden from 40em. Only one is
+  ever displayed. From 40em the rail is unchanged: the search on its own row, the sort and Filters under it.
 - "Clear all filters" links to `/catalog?q=<q>` when a search term exists, or to `/catalog` otherwise. It keeps
   only the search term, so the sort also resets (`clearFiltersHref`).
 - `ActiveFilters` (client) lists every selected facet value above the result count as a chip, a list labelled
@@ -1033,8 +1040,8 @@ default, then `page` only when it is above 1. Keys appear in that fixed order, a
   search inside a Suspense boundary whose fallback is the rail drawn from the pathname alone.
 - `Pagination` renders links to `/catalog` with the same criteria and the new page. It renders nothing when
   there is one page.
-- Rows (`TemplateCard layout="row"`) carry no position number. From 68em the summary shows under the title,
-  clamped to two lines. On a phase page the rows get no `phaseName`, so they name the deliverable type alone,
+- Rows (`TemplateCard layout="row"`) carry no position number. At every width the summary shows under the
+  title, clamped to two lines. On a phase page the rows get no `phaseName`, so they name the deliverable type alone,
   with no phase numeral beside it, and the type column is narrower (10rem in place of 13rem).
 
 ## 11. Test hooks and test contract

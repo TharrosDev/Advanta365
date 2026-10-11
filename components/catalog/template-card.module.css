@@ -1,6 +1,7 @@
 /*
  * One article, two drawings. Below 40em both layouts are the same row: the thumbnail, then the
- * title, the phase and type, and a last line with the price and the format tag. The article has
+ * title (with the summary in a row), the phase and type, and a last line with the price and the
+ * format tag. The article has
  * no border and no ground of its own: a row lies on a hairline, a sheet is an object with a
  * caption.
  */
@@ -89,9 +90,12 @@
   z-index: 1;
 }
 
-/* At most two lines, the second ending in an ellipsis when the summary runs longer. */
+/*
+ * At every width, under the title: at most two lines, the second ending in an ellipsis when the
+ * summary runs longer. The box display and the clamp only work as a pair.
+ */
 .summary {
-  display: none;
+  display: -webkit-box;
   overflow: hidden;
   color: var(--text-soft);
   -webkit-line-clamp: 2;
@@ -99,7 +103,7 @@
   -webkit-box-orient: vertical;
 }
 
-/* On a phone the two facts are placed one by one: the phase under the title, the tag by the price. */
+/* On a phone the two facts are placed one by one: the phase under the summary, the tag by the price. */
 .facts {
   display: contents;
 }
@@ -236,7 +240,7 @@
   }
 }
 
-/* 40em to 68em: thumbnail, text with the phase and the tag under it, price. */
+/* 40em to 68em: thumbnail, title and summary with the phase and the tag under them, price. */
 @media (min-width: 40em) {
   .row {
     grid-template-columns: 5rem minmax(0, 1fr) auto;
@@ -288,10 +292,6 @@
 
   .row .arrow {
     display: block;
-  }
-
-  .row .summary {
-    display: -webkit-box;
   }
 
   .row .facts {
