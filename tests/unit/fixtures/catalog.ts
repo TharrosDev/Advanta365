@@ -2,23 +2,21 @@ import type { Template } from "@/lib/catalog/schema";
 
 export const rawPhases = [
   {
-    slug: "manage",
-    name: "Manage",
-    prosciPhase: "Manage Change",
-    summary: "Run the change.",
+    slug: "prepare",
+    name: "Prepare",
+    summary: "Get people ready.",
     order: 2,
     steps: [
       { slug: "train", name: "Train", summary: "Train people.", order: 2 },
-      { slug: "plan", name: "Plan", summary: "Plan the work.", order: 1 },
+      { slug: "recruit", name: "Recruit", summary: "Recruit champions.", order: 1 },
     ],
   },
   {
-    slug: "prepare",
-    name: "Prepare",
-    prosciPhase: "Prepare Approach",
-    summary: "Get ready.",
+    slug: "make-the-case",
+    name: "Make the case",
+    summary: "Explain why.",
     order: 1,
-    steps: [{ slug: "define", name: "Define", summary: "Define success.", order: 1 }],
+    steps: [{ slug: "sponsor", name: "Sponsor", summary: "Secure a sponsor.", order: 1 }],
   },
 ];
 
@@ -28,8 +26,8 @@ export function rawTemplate(overrides: Record<string, unknown> = {}) {
     title: "Sponsor Kickoff Deck",
     summary: "A deck for the kickoff.",
     description: "Slides an executive sponsor presents at project kickoff.",
-    phase: "prepare",
-    step: "define",
+    phase: "make-the-case",
+    step: "sponsor",
     deliverableType: "sponsor",
     apps: ["sharepoint"],
     audiences: ["sponsor"],
@@ -65,7 +63,7 @@ export function rawCatalog() {
       rawTemplate({
         slug: "training-plan",
         title: "Training Plan",
-        phase: "manage",
+        phase: "prepare",
         step: "train",
         deliverableType: "training",
         format: "docx",

@@ -55,6 +55,13 @@
   color: var(--color-foreground-60);
 }
 
+/* The ownership line and the trademark notice: two short paragraphs read as one block. */
+.notice {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-xs3);
+}
+
 .legalRow {
   display: flex;
   flex-wrap: wrap;

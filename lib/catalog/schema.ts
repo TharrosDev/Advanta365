@@ -15,7 +15,6 @@ export const StepSchema = z.object({
 export const PhaseSchema = z.object({
   slug,
   name: text,
-  prosciPhase: text,
   summary: text,
   order: z.number().int(),
   steps: z.array(StepSchema).min(1),

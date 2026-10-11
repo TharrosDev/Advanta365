@@ -31,7 +31,7 @@ can tune see `graphics-tuning.md`.
 
 | Route                | File                                   | Notes                                                |
 | -------------------- | -------------------------------------- | ---------------------------------------------------- |
-| `/`                  | `app/(site)/page.tsx`                  | Home: hero, swirl band, values, built-for band       |
+| `/`                  | `app/(site)/page.tsx`                  | Home: hero, two statements, swirl band, dark run     |
 | `/catalog`           | `app/(site)/catalog/page.tsx`          | Search, sort and filters in the URL                  |
 | `/phases/[phase]`    | `app/(site)/phases/[phase]/page.tsx`   | Static per phase. Calls `notFound()`                 |
 | `/templates/[slug]`  | `app/(site)/templates/[slug]/page.tsx` | Static per template. Calls `notFound()`              |
@@ -39,9 +39,15 @@ can tune see `graphics-tuning.md`.
 | `/bundles/[slug]`    | `app/(site)/bundles/[slug]/page.tsx`   | Static per bundle. Calls `notFound()`                |
 | `/cart`              | `app/(site)/cart/page.tsx`             | Checkout is a disabled "coming soon" control         |
 | `/pricing`           | `app/(site)/pricing/page.tsx`          |                                                      |
-| `/about`             | `app/(site)/about/page.tsx`            |                                                      |
+| `/about`             | `app/(site)/about/page.tsx`            | `#compare` is linked from the home page              |
+| `/sample`            | `app/(site)/sample/page.tsx`           | Describes the worked example; offers no file         |
 | `/contact`           | `app/(site)/contact/page.tsx`          |                                                      |
 | any other path       | `app/(site)/[...rest]/page.tsx`        | Calls `notFound()`, so the site shell stays          |
+
+The home page's sections, top to bottom (`components/home/`): the hero, `#problem`, `#solution`, then
+`#inside`, `#bundles`, `#featured` and `#practice` inside the swirl band (its four stops, in that
+order), then `#values`, the built-for band (no id) and `#closing`. The page is light down to
+`#practice`, where `ThemeScroll` turns it dark; the three sections after it are dark on their own.
 
 404 rules:
 
@@ -155,8 +161,8 @@ are:
 - **`menu`**, owned by the open menu. It requests dark on open and releases the request when a close
   starts, or on unmount.
 
-Scoped themes do not touch `<html>`: the footer is light, the beta bar and the about page's principles
-band are dark, and the entry overlay is light.
+Scoped themes do not touch `<html>`: the footer is light; the beta bar, the home page's `#values`,
+built-for band and `#closing`, and the about page's dark band are dark; the entry overlay is light.
 
 ## Page-ready and motion contract
 
@@ -224,9 +230,11 @@ Tests and the cross-unit code locate elements by these attributes. Keep them sta
 
 ## Test contract
 
-- **Unit** (Vitest, `tests/unit/**/*.test.ts`): the logo geometry, word splitting, page-ready gate,
-  hero geometry, swirl keyframe interpolation, intro timeline and entry script, plus the catalog, cart,
-  query, format and pricing tests. `entry-script.test.ts` guards the inline script's source text.
+- **Unit** (Vitest, `tests/unit/**/*.test.ts`): the logo geometry, word splitting, compound splitting,
+  page-ready gate, hero geometry, swirl keyframe interpolation, intro timeline and entry script, plus the
+  catalog, cart, query, format and pricing tests. `entry-script.test.ts` guards the inline script's
+  source text. `content.test.ts` checks the sample catalog: the seven phases in order, and that no
+  phase, step, template or bundle text names a methodology or a client.
 - **Browser** (Playwright, `tests/e2e/`): the existing browse, cart, cart keyboard, catalog, menu and
   404 specs, plus the rebuild's specs for the intro, the desktop menu, the page theme, console errors on
   the main routes, the WebGL fallbacks and reduced motion.

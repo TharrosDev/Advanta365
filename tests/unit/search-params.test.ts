@@ -2,7 +2,7 @@ import { describe, expect, test } from "vitest";
 import { DEFAULT_CRITERIA, type CatalogCriteria } from "@/lib/catalog/query";
 import { parseCatalogParams, serializeCatalogParams } from "@/lib/catalog/search-params";
 
-const PHASES = ["prepare", "manage", "sustain"];
+const PHASES = ["prepare", "execute", "sustain"];
 const parse = (sp: Record<string, string | string[] | undefined>) => parseCatalogParams(sp, PHASES);
 
 describe("parseCatalogParams", () => {
@@ -11,10 +11,10 @@ describe("parseCatalogParams", () => {
   });
 
   test("reads comma-separated facet values", () => {
-    const criteria = parse({ type: "training,plan", app: "teams", phase: "manage" });
+    const criteria = parse({ type: "training,plan", app: "teams", phase: "execute" });
     expect(criteria.type).toEqual(["training", "plan"]);
     expect(criteria.app).toEqual(["teams"]);
-    expect(criteria.phase).toEqual(["manage"]);
+    expect(criteria.phase).toEqual(["execute"]);
   });
 
   test("drops unknown values", () => {

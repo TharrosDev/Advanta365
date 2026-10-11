@@ -1,11 +1,11 @@
 import type { ReactNode } from "react";
 
 /*
- * The three glyphs of the "Why Advanta365" cells. Original artwork: solid silhouettes in
- * `currentColor`, drawn on a 96-unit grid (no stroke thinner than 6 units, so they hold their weight at
- * 64px). Cut-outs use `fill-rule="evenodd"`.
+ * The four glyphs of the "Why Advanta365" cells. Original artwork: solid silhouettes in
+ * `currentColor`, drawn on a 96-unit grid from straight edges only (no stroke thinner than 6 units, so
+ * they hold their weight at 64px). Cut-outs use `fill-rule="evenodd"`.
  *
- * All three share the 96 x 96 box, so one CSS height gives them the same scale. Each glyph is moved by
+ * All four share the 96 x 96 box, so one CSS height gives them the same scale. Each glyph is moved by
  * the empty margin of its own artwork (`inset` to the left, `drop` down), so its left and bottom edges
  * sit exactly on the edges of the box and therefore on the text column and the spacing below it, the
  * way the reference's tightly cropped icons do.
@@ -37,18 +37,23 @@ function Glyph({
   );
 }
 
-/** "SharePoint-first": a rhombus with two chevron bands under it, three stacked sites. */
-export function LayersIcon({ className }: GlyphProps) {
+/** "Field-tested, not theoretical": a six-sided seal with a check cut out of it, passed in the field. */
+export function ProvenIcon({ className }: GlyphProps) {
   return (
-    <Glyph inset={8} drop={7} className={className}>
-      <path d="M48 8L88 30L48 52L8 30Z" />
-      <path d="M8 37L48 59L88 37V48.5L48 70.5L8 48.5Z" />
-      <path d="M8 55.5L48 77.5L88 55.5V67L48 89L8 67Z" />
+    <Glyph inset={12} drop={6} className={className}>
+      <path
+        fillRule="evenodd"
+        d={[
+          "M48 6L84 27V69L48 90L12 69V27Z",
+          // the check: two arms at 45 degrees, 10 units thick
+          "M27 52L41 66L69 38L62 31L41 52L34 45Z",
+        ].join("")}
+      />
     </Glyph>
   );
 }
 
-/** "Every step": three rising steps with a pennant on the top one, the way to handover. */
+/** "Experience you can borrow": three rising steps with a pennant on the top one, ground already covered. */
 export function StepsIcon({ className }: GlyphProps) {
   return (
     <Glyph inset={8} drop={6} className={className}>
@@ -60,7 +65,18 @@ export function StepsIcon({ className }: GlyphProps) {
   );
 }
 
-/** "Private and public": an office tower with a window grid next to a civic hall. */
+/** "Yours to adapt": a pencil at 45 degrees, its cap set apart, over the line it is writing. */
+export function PencilIcon({ className }: GlyphProps) {
+  return (
+    <Glyph inset={8} drop={6} className={className}>
+      <path d="M8 88L16 64L60 20L76 36L32 80Z" />
+      <path d="M64 16L72 8L88 24L80 32Z" />
+      <path d="M44 82H88V90H44Z" />
+    </Glyph>
+  );
+}
+
+/** "Built for any sector": an office tower with a window grid next to a civic hall. */
 export function BuildingsIcon({ className }: GlyphProps) {
   return (
     <Glyph inset={6} drop={6} className={className}>

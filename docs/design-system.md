@@ -79,6 +79,13 @@ The eighteen colour tokens are registered with `@property`, so a theme change cr
   `app/layout.tsx`. `--font-family-sans` is the stack that uses it.
 - Body weight is 500. Headings are 500 by default. No serif anywhere.
 - Headings `h1` to `h3` use `text-wrap: balance`.
+- A heading of two sentences breaks between them. The title string carries the line break and a class
+  with `white-space: pre-line` shows it (`.sentenceLines` on the home page; `.heroTitle` and About's
+  `.compareTitle` only from 1024px, where each sentence fits on one line).
+  `StatementSection` goes one step further and sets each line of its statement as a block, so every
+  sentence is balanced by itself.
+- A hyphenated compound in a card title ("End-User", "ready-to-use") is never broken across two
+  lines: `DetailCard`, `TemplateCard` and `BundleCard` render their title through `KeepCompounds`.
 
 Scale (`--text-{variant}-size`, `-line-height`, `-letter-spacing`):
 
@@ -102,7 +109,10 @@ Scale (`--text-{variant}-size`, `-line-height`, `-letter-spacing`):
 | label-small            | 0.6875rem | 1.3         | -0.02em        |
 
 `display-fluid` is the one responsive variant: display-small size below 768px, display-large size from
-768px, always with display-large metrics.
+768px, always with display-large metrics. A title whose line just misses a phone's column may cap that
+size at a share of the viewport, `min(var(--text-display-small-size), 10vw)`, with the token as the
+cap (`.practiceTitle` on the home page and `.differentStatement` on About; `.valuesTitle` on the home
+page uses 9.5vw for a longer line).
 
 Classes (global, usable in any `className`): `.t-{variant}`, `.t-display-fluid`, `.w-regular`,
 `.w-medium`, `.w-semibold`, `.w-bold`, `.c-fg-30`, `.c-fg-40`, `.c-fg-50`, `.c-fg-60`, `.c-fg-80`,
@@ -209,7 +219,7 @@ Most primitives accept `className` and merge it last. Examples use the real prop
   `bleed` only on the home page, so the hero runs under the header.
 
   ```tsx
-  <PageShell><PageTitle title="Catalog" lead="Every template, by phase." /></PageShell>
+  <PageShell><PageTitle title="Catalog" lead="Organized by the seven phases of a rollout." /></PageShell>
   ```
 
 - **`SectionShell`** (`section-shell.tsx`): an isolated `<section>` with an optional theme, a
@@ -228,7 +238,8 @@ Most primitives accept `className` and merge it last. Examples use the real prop
   ```
 
 - **`SectionIntro`** (`section-intro.tsx`): label, title (word-revealed), body and actions, with the
-  reveal indices worked out (see Reveal conventions).
+  reveal indices worked out (see Reveal conventions). With `center` the body is balanced, so it never
+  ends on a short line under a full one.
 
   ```tsx
   <SectionIntro label="Bundles" title="Bundles" body="Curated sets for a whole phase." />
@@ -246,7 +257,15 @@ Most primitives accept `className` and merge it last. Examples use the real prop
   and its hit area covers the whole card.
 
   ```tsx
-  <DetailCard title="Prepare" href="/phases/prepare" body={summary} />
+  <DetailCard title="A complete worked example" href="/sample" body={body} />
+  ```
+
+- **`KeepCompounds`** (`keep-compounds.tsx`): title text with each hyphenated compound in an inline
+  block, so a line never breaks after the hyphen. The text itself is unchanged. The split is
+  `splitCompounds()` in `lib/compounds.ts`.
+
+  ```tsx
+  <h3><KeepCompounds text="SharePoint End-User Training Deck" /></h3>
   ```
 
 - **`Chip`** (`chip.tsx`): a small square tag, never interactive. `solid` is the inverted note,
@@ -376,7 +395,7 @@ the text exists once in the DOM and the accessible name is the visible label.
   directly in the heading, so `textContent` stays the plain sentence.
 
   ```tsx
-  <h1><RevealWords text="Change management templates for Microsoft 365 rollouts" /></h1>
+  <h1><RevealWords text="Don’t start your M365 rollout from a blank prompt." /></h1>
   ```
 
 - **`RevealGroup`** (`reveal-group.tsx`): a pause scope. Its reveals hold their first frame until the
@@ -440,7 +459,7 @@ the text exists once in the DOM and the accessible name is the visible label.
 | Keep one `h1` per page with the exact title as its text                   | Repeat visible text in the DOM to draw a second copy (use `attr()` instead)           |
 | Pass a string to `WipeButton`, `WipeLabel`, `SectionLabel` and `SheenText` | Mix JSX text and an expression in those props (use one template literal)              |
 | Use `cssVars()` for inline custom properties                              | Write `style={{ "--x": 1 }}`, which does not type check                              |
-| Put `RevealWords` directly inside its heading                             | Wrap a word in a span that is not a `Reveal`                                         |
+| Put `RevealWords` directly inside its heading (or a sentence block of it) | Wrap a word in a span that is not a `Reveal`                                         |
 | Use `setThemeRequest()` to change the page theme                          | Write `document.documentElement.dataset.theme` yourself                              |
 | Set `display` on `.sheet[open]`                                           | Set `display` on a bare `dialog` class                                               |
 | Wrap every `localStorage` access in try/catch                             | Assume storage exists                                                                |

@@ -129,7 +129,7 @@ describe("createKeyframeSampler", () => {
     const pair = createKeyframeSampler([frame({ zoom: 2.11 }), frame({ zoom: 0.25 })]);
     expect(pair(0.5).zoom).toBeCloseTo(geometricMean, 12);
 
-    // The same segment inside the home set (#phases -> #bundles): both ends are local extrema.
+    // The same segment inside the home set (#inside -> #bundles): both ends are local extrema.
     expect(keyframeAt(1).zoom).toBe(2.11);
     expect(keyframeAt(2).zoom).toBe(0.25);
     const home = createKeyframeSampler(HOME_SWIRL_KEYFRAMES);

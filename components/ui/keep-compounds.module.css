@@ -1,0 +1,11 @@
+/*
+ * An inline block is not broken while it fits on a line; once it is wider than its column
+ * (`max-width`) it wraps inside like any text, so it can never push the page sideways. An underline
+ * is not drawn through an inline block, so the block takes over the decoration of its parent: the
+ * hover underline of a card title runs on under the compound.
+ */
+.compound {
+  display: inline-block;
+  max-width: 100%;
+  text-decoration: inherit;
+}

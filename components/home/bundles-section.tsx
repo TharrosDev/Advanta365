@@ -23,7 +23,7 @@ export function BundlesSection({ items }: { items: FeaturedBundle[] }) {
         <SectionIntro
           label="Bundles"
           title="Bundles"
-          body="Curated sets for a whole phase or a whole rollout, priced below the templates bought one at a time."
+          body="Curated sets for a whole phase or a whole rollout, priced below the same pieces bought one at a time."
         />
       </RevealGroup>
       <RevealGroup className={styles.bundlesBlock}>

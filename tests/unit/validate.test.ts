@@ -11,8 +11,8 @@ function withTemplate(overrides: Record<string, unknown>) {
 describe("validateCatalog", () => {
   test("returns phases and their steps sorted by order", () => {
     const catalog = validateCatalog(rawCatalog());
-    expect(catalog.phases.map((p) => p.slug)).toEqual(["prepare", "manage"]);
-    expect(catalog.phases[1]?.steps.map((s) => s.slug)).toEqual(["plan", "train"]);
+    expect(catalog.phases.map((p) => p.slug)).toEqual(["make-the-case", "prepare"]);
+    expect(catalog.phases[1]?.steps.map((s) => s.slug)).toEqual(["recruit", "train"]);
     expect(catalog.templates).toHaveLength(2);
     expect(catalog.bundles).toHaveLength(1);
   });
@@ -41,7 +41,7 @@ describe("validateCatalog", () => {
   });
 
   test("rejects a step that belongs to a different phase", () => {
-    expect(() => validateCatalog(withTemplate({ phase: "prepare", step: "train" }))).toThrow(
+    expect(() => validateCatalog(withTemplate({ phase: "make-the-case", step: "train" }))).toThrow(
       CatalogError,
     );
   });

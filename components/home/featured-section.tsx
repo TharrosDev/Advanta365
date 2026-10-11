@@ -8,11 +8,12 @@ import type { Template } from "@/lib/catalog/schema";
 import styles from "./home.module.css";
 
 /**
- * `#featured`: six featured templates in a 1 / 2 / 3 column grid, then a link to the whole catalog.
- * The section has no fixed height, so it is only as tall as its content.
+ * `#featured`: six featured templates in a 1 / 2 / 3 column grid, then a link to the catalog. The
+ * link names the sample catalog: the toolkit counts sit two sections up, and the catalog does not
+ * list that many. The section has no fixed height, so it is only as tall as its content.
  *
  * Reveal order: label 0 and title words 1..2 in one group; cards fade up on `index % 3` (a row at a
- * time ripples left to right; the group plays once) and the "All templates" link follows at 3.
+ * time ripples left to right; the group plays once) and the catalog link follows at 3.
  */
 export function FeaturedSection({
   templates,
@@ -38,7 +39,7 @@ export function FeaturedSection({
         ) : null}
         <Reveal as="div" effect="fade-up" index={3} className={styles.sectionAction}>
           <WipeButton href="/catalog" arrow="right">
-            All templates
+            Browse the sample catalog
           </WipeButton>
         </Reveal>
       </RevealGroup>

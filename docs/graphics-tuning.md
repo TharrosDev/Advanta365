@@ -82,13 +82,13 @@ Folder: `components/graphics/metallic-swirl/`.
 | Index | Keyframe | Position                     | Character                                                   |
 | ----- | -------- | ---------------------------- | ----------------------------------------------------------- |
 | 0     | `K0`     | Band top                     | Curls anchored near the top-left corner, frozen              |
-| 1     | `K1`     | `#phases` centre             | The same curls with the centre at mid-height                 |
+| 1     | `K1`     | `#inside` centre             | The same curls with the centre at mid-height                 |
 | 2     | `K2`     | `#bundles` centre            | The breath: zoomed in, brightness 0.14, a hole at the centre |
 | 3     | `KF`     | `#featured` centre           | The extra stop, between `K2` and `K3` (see below)            |
 | 4     | `K3`     | `#practice` centre           | Five-beam polar burst in white. The only stop that animates  |
 | 5     | `K4`     | Band bottom                  | The same burst with its centre on the top edge, frozen       |
 
-The section ids are listed in `app/(site)/page.tsx`: `stops={["phases", "bundles", "featured", "practice"]}`.
+The section ids are listed in `app/(site)/page.tsx`: `stops={["inside", "bundles", "featured", "practice"]}`.
 
 - `BAND_BASE`: values shared by every keyframe (transparent canvas, stripes, only the highlight strips
   survive, top and bottom fades of 0.5).
@@ -137,7 +137,7 @@ keyframe 0.
 
 ### Inner-page backdrop: `params.ts`
 
-`INNER_SWIRL_PARAMS` is the set used by the principles band on the About page: two slow, wide beams
+`INNER_SWIRL_PARAMS` is the set used by the dark band on the About page: two slow, wide beams
 sweeping in from beyond the top-right corner, drawn as thin pale-blue lines on a transparent canvas.
 
 To add one to any section, put a `MetallicSwirl` in the section's `backdrop` and let its CSS module
@@ -149,7 +149,7 @@ fill the backdrop:
   theme="dark"
   height="full"
   backdrop={<MetallicSwirl params={INNER_SWIRL_PARAMS} className={styles.swirl} />}
-  innerClassName={styles.principles}
+  innerClassName={styles.different}
 >
   {children}
 </SectionShell>

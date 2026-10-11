@@ -9,9 +9,9 @@ import styles from "./home.module.css";
 const PRODUCTS = APPS.filter((app) => app !== "m365-general").map((app) => APP_LABELS[app]);
 
 /**
- * A short dark band between Values and the footer: a one-line label and the product names as plain
- * outlined chips (text only, not links). The label and the chip list start stacked on the centre line
- * and slide apart when the band scrolls into view (GatherReveal).
+ * A short dark band between Values and the closing section: a one-line label and the product names
+ * as plain outlined chips (text only, not links). The label and the chip list start stacked on the
+ * centre line and slide apart when the band scrolls into view (GatherReveal).
  */
 export function BuiltForBand() {
   return (

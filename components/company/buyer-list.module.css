@@ -1,0 +1,61 @@
+/* a ruled list: a hairline above every row and one under the last */
+.list {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+}
+
+.row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--spacing-sm);
+  padding-block: var(--spacing-md);
+  border-top: 1px solid var(--color-foreground-20);
+}
+
+.row:last-child {
+  border-bottom: 1px solid var(--color-foreground-20);
+}
+
+.detail {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--spacing-sm);
+}
+
+/* caption over value, like a FactList row turned on its side */
+.cares {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-xs3);
+}
+
+/* the value: no single word left on its last line */
+.cares dd {
+  text-wrap: pretty;
+}
+
+.line {
+  text-wrap: balance;
+}
+
+@media (min-width: 768px) {
+  /* the columns and the gap of FactList, so a fact list under the rows lines up with them */
+  .row {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 2fr);
+    gap: var(--spacing-xl);
+    padding-block: var(--spacing-xl);
+  }
+
+  .detail {
+    gap: var(--spacing-md);
+  }
+}
+
+@media (min-width: 1024px) {
+  .detail {
+    grid-template-columns: minmax(0, 2fr) minmax(0, 3fr);
+    gap: var(--spacing-xl);
+    align-items: start;
+  }
+}

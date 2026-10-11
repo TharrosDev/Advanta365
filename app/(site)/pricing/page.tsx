@@ -21,10 +21,13 @@ import styles from "./page.module.css";
 
 export const metadata: Metadata = {
   title: "Pricing",
-  description: "Buy a single template or a bundle for a whole phase or rollout.",
+  description:
+    "Buy a single piece or a bundle for a whole phase or rollout: one licence, reused across every wave.",
 };
 
-// Provisional beta copy: answers are placeholders until the commercial terms are set.
+// Provisional beta copy. The answers on adapting the content, AI tools, SharePoint and language state
+// what the toolkit is today; the commercial ones (licence terms, updates, purchase orders) describe
+// the intent and stay placeholders until the terms are set.
 const FAQ: readonly FaqItem[] = [
   {
     question: "What file formats do I get?",
@@ -34,12 +37,26 @@ const FAQ: readonly FaqItem[] = [
   {
     question: "Can my whole organization use what I buy?",
     answer:
-      "The intent is one purchase per organization, for internal use on your own projects. Final licence terms will be published before launch.",
+      "The intent is one licence per organization, reused across every wave of your rollout. Final licence terms will be published before launch.",
   },
   {
-    question: "Can I change the templates?",
+    question: "Can I change the content?",
     answer:
-      "Yes. They are meant to be tailored: add your branding, change the wording and remove what does not apply.",
+      "Yes. It is meant to be adapted: edit it by hand or feed it to your AI tools, add your branding and remove what does not apply. You keep the copies you adapt.",
+  },
+  {
+    question: "Does it work with AI tools?",
+    answer:
+      "Yes. The content is built to be fed into AI tools: give them the material and let them tailor it to your organization, your tone and your timeline.",
+  },
+  {
+    question: "Is it only for SharePoint?",
+    answer:
+      "It is SharePoint-first out of the box. The change management core (structured planning, resistance management, sponsor coaching, Go/No-Go decisions and sustainment) applies to almost any technology rollout.",
+  },
+  {
+    question: "Are the job aids available in French?",
+    answer: "No. Today the job aids are English only.",
   },
   {
     question: "Do I get updates?",
@@ -85,7 +102,7 @@ export default async function PricingPage() {
       number: "02",
       title: "Bundles",
       range: priceRange(bundles.map((bundle) => bundle.priceCents)),
-      body: "Curated sets for a phase or a full rollout, priced well below the same templates bought one at a time.",
+      body: "Curated sets for a phase or a full rollout, priced well below the same pieces bought one at a time.",
       href: "/bundles",
       action: "See bundles",
     },
@@ -99,7 +116,7 @@ export default async function PricingPage() {
     <PageShell>
       <PageTitle
         title="Pricing"
-        lead="Buy the one template you need today, or take a bundle that covers a whole phase. Every purchase is a one-time payment for files you can edit."
+        lead="Buy the one piece you need today, or take a bundle that covers a whole phase. Every purchase is a one-time payment for files you can edit by hand or with AI, reused across every wave of your rollout."
       />
 
       <SectionShell innerClassName={styles.ways}>

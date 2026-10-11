@@ -1,8 +1,9 @@
 # Advanta365
 
-Beta storefront for change management and user adoption templates for Microsoft 365 and
-SharePoint rollouts. The catalog is **sample content**; checkout, accounts and file delivery are
-not built yet.
+Beta storefront for Advanta365, an EchoFive product: the change management and user adoption
+toolkit for Microsoft 365 and SharePoint Online rollouts. The toolkit is playbooks, templates, field
+guides and training, not templates alone. The catalog is still **sample content** (placeholder
+listings); checkout, accounts and file delivery are not built yet.
 
 Original design spec (written before the rebuild):
 `docs/superpowers/specs/2026-10-10-beta-storefront-design.md`
@@ -46,6 +47,7 @@ app/
     page.tsx              Home
     catalog/ phases/[phase]/ templates/[slug]/ bundles/ bundles/[slug]/ cart/
     pricing/ about/ contact/
+    sample/               /sample: the worked example, described (its file is not offered in this beta)
     [...rest]/            Calls notFound(), so unknown paths keep the site shell
   not-found.tsx           404 outside the site group
 components/
@@ -54,16 +56,20 @@ components/
   graphics/               hero-liquid, metallic-swirl, chrome-symbol, sheen-text (WebGL2, loaded after hydration)
   entry/                  First-load overlay and its inline script
   layout/                 Header, Menu, Footer, BetaBar, PageTitle, not-found content
-  home/                   Home page sections
-  catalog/ cart/ product/ company/   Feature components
-content/                  The catalog: phases, templates, bundles, taxonomy
+  home/                   Home page sections, top to bottom: hero, #problem, #solution, #inside,
+                          #bundles, #featured, #practice, #values, the built-for band, #closing
+  catalog/ cart/ product/ Feature components
+  company/                About and Pricing pieces: statement section, comparison table, buyer list, FAQ
+content/                  The sample catalog: seven phases, one template file per phase, bundles, taxonomy
 lib/
+  site.ts                 Site name, parent company, tagline, and the toolkit counts (TOOLKIT)
   catalog/                Schemas, validation, repository, query, URL state, pricing
   cart/                   Cart store (pure logic)
   motion/                 Page-ready gate, reduced motion, theme requests, durations, word splitting
   gl/                     Shared WebGL2 program helpers
   brand/mark.ts           The logo mark (single source of truth)
   cx.ts                   cx() and cssVars()
+  compounds.ts            Finds the hyphenated compounds of a title (kept unbroken in card titles)
 tests/unit                Vitest
 tests/e2e                 Playwright
 proxy.ts                  Redirects mixed-case URLs to lower-case
@@ -100,13 +106,30 @@ Rules the code relies on:
 
 ## Replacing the sample content
 
-1. Edit `content/phases.ts` to change phase and step names.
-2. Replace the entries in `content/templates/` and `content/bundles.ts`. Real entries set
-   `isSample: false` (do not use the `sample()` helper).
+The catalog is organized by seven phases, in rollout order: Make the case (`make-the-case`), Plan
+(`plan`), Design (`design`), Prepare (`prepare`), Communicate (`communicate`), Execute (`execute`)
+and Sustain (`sustain`). Each phase has two steps.
+
+1. Edit `content/phases.ts` to change phase and step names. Two places name the phases in plain
+   text and do not follow that file: the catalog page writes the count out ("seven") and the
+   playbooks card on the home page (`components/home/inside-section.tsx`) lists the phase names.
+2. Replace the entries in `content/templates/` and `content/bundles.ts`. There is one template file
+   per phase (`make-the-case.ts`, `plan.ts`, and so on); `content/templates/index.ts` joins them in
+   phase order. Real entries set `isSample: false` (do not use the `sample()` helper).
 3. Run `pnpm test`. The build fails with the record and field named if an entry is invalid, a slug
    is duplicated, or a bundle points at a missing template.
 
-The beta banner disappears once no record has `isSample: true`. Some tests in
+The toolkit counts shown on the site (playbooks, templates, field guides, job aids, training
+audiences, years of experience) live in `TOOLKIT` in `lib/site.ts`; pages read them from there.
+The one exception is "30+ years" inside three sentences quoted whole from the messaging document
+(`components/home/hero.tsx` and `components/home/values-section.tsx`). The counts describe the full
+toolkit, not the number of listings in the catalog, and no page may state or imply that the catalog
+lists that many.
+
+The beta banner disappears once no record has `isSample: true`. The other places that call the
+catalog a sample are plain text and need editing by hand: the catalog lead and its metadata
+(`app/(site)/catalog/page.tsx`), the "Browse the sample catalog" links on the home page and on
+`/sample`, the footer line, and the note in `components/product/purchase-panel.tsx`. Some tests in
 `tests/unit/content.test.ts` and `tests/e2e` assert on the sample catalog and will need updating
 with the real one.
 
@@ -120,5 +143,46 @@ with the real one.
 | Accounts and downloads | A new route group; `Template` gains file references                                                                       |
 | Analytics, SEO extras  | `app/layout.tsx` and page metadata                                                                                        |
 
-Before public launch: confirm the licensing position for describing the templates as aligned with
-Prosci methodology, and replace the provisional copy on the Pricing and About pages.
+## Before public launch
+
+The first five items come from the owner's pitch and messaging document (2026-10-10), in his
+words; the second is given without the names it lists. Under each is where the site stands today.
+The last two are about the site itself. None of this is legal advice.
+
+- [ ] **Prosci wording.** Prosci and ADKAR are Prosci's trademarks. "Built by a Prosci-certified
+      practitioner" describes the owner, which is fine if the certification is current.
+      "Prosci-aligned" or "Prosci-approved content" suggests an endorsement Prosci hasn't given.
+      Keep Prosci on the person, not the product, and check Prosci's trademark-use guidance at
+      prosci.com.
+  - On the site: Prosci appears only as "built by a Prosci-certified practitioner", "Prosci
+    certification" and the footer's non-affiliation and trademark notice. ADKAR appears in no
+    visible copy; the `adkar` field on a template is data and is not rendered.
+- [ ] **Old product branding.** Client references (department names and terms, client platform
+      names) were removed from the source material. The earlier product name is now Advanta365
+      throughout, and the content for the other earlier product and for the provisioning tool has
+      been removed. One government platform name stays only in labelled government examples.
+  - On the site: none of these names appears. This README does not spell them out either; the
+    list is the `banned` pattern in `tests/unit/content.test.ts`, which checks every phase, step,
+    template and bundle text. Run the same search over the real files before they are offered.
+- [ ] **Ownership of the source material.** Confirm which files were rebuilt from the owner's own
+      know-how and which began as client deliverables under contract. Only the first group is
+      clearly his to sell.
+  - On the site: nothing to change until this is settled. It decides which real entries may
+    replace the sample catalog.
+- [ ] **"30+ years" and "used with real clients."** Both are true. Keep the wording general
+      ("refined across client rollouts") rather than suggesting named clients endorse it.
+  - On the site: the experience is always written "30+ years", and no client, department or
+    platform is named. Public-sector copy says "proven in Canadian public-sector environments" and
+    does not claim a bilingual or French product (the job aids are English only today).
+- [ ] **Counts on the site.** 59 / 130 / 4 / 58 (playbooks, templates, field guides, job aids)
+      match the folder as of the date of that document. If the catalog sells pieces separately,
+      show the counts per bundle instead.
+  - On the site: the counts are read from `TOOLKIT` in `lib/site.ts`. Recount the folder before
+    launch and change them there.
+- [ ] **The worked example's file.** `/sample` describes the Meridian Group worked example and
+      says its file cannot be downloaded in this beta. It needs the real file. The sample catalog
+      also lists the worked example with a placeholder price and puts it in two bundles; decide
+      whether it is a free sample, a product, or both.
+- [ ] **Pricing answers.** The answers on `/pricing` are provisional and say so on the page.
+      Licence terms, updates and purchase orders describe the intent only. Replace them, and the
+      placeholder prices of the sample catalog, once the commercial terms are set.

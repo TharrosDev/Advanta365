@@ -18,7 +18,7 @@ test("the home page shows its content at once, without the intro", async ({ page
 
   const heading = page.getByRole("heading", { level: 1 });
   await expect(heading).toBeVisible();
-  await expect(heading).toHaveText("Change management templates for Microsoft 365 rollouts");
+  await expect(heading).toHaveText("Don’t start your M365 rollout from a blank prompt.");
   // The words are not animated: the rise reveal is switched off, so they are simply there.
   await expect(heading.locator("span").first()).toHaveCSS("animation-name", "none");
 

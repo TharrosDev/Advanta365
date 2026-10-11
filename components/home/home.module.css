@@ -1,55 +1,169 @@
 /*
- * Layout of the home page sections. Every class here is the `innerClassName` (or a wrapper class) of
- * a section, so the selectors that override a primitive are doubled (`.hero.hero`): the primitive's
- * own rule would otherwise win or lose depending on stylesheet order. Tokens only; no raw colours.
- * Breakpoints: 768px and 1024px.
+ * Layout of the home page sections, in page order: hero, problem and solution, the four sections of
+ * the swirl band (inside, bundles, featured, practice), values, built for, closing.
+ *
+ * Every class here is the `innerClassName` (or a wrapper class) of a section, so the selectors that
+ * override a primitive are doubled (`.hero.hero`): the primitive's own rule would otherwise win or
+ * lose depending on stylesheet order. Tokens only; no raw colours. Breakpoints: 768px and 1024px.
  */
 
 /* ---------------------------------------------------------------- hero */
 
-/* Parent of the HeroLiquid layers: positioned, clipped sideways only (the ribbons bleed 25% below). */
+/*
+ * Parent of the HeroLiquid layers: positioned, clipped sideways only (the ribbons bleed 25% below).
+ *
+ * Two equal rows with the copy in the first. The trunk of the ribbons starts at 52.7% of the hero's
+ * height, so copy that ends on the half-way line never sits on it. While the copy fits in half a
+ * viewport the hero is one viewport tall; when it does not (phones, short windows) both rows take the
+ * height of the copy and the hero grows past the viewport instead of pushing copy onto the ribbons.
+ */
 .hero.hero {
   position: relative;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  grid-template-rows: 1fr 1fr;
   min-height: var(--viewport-height);
-  gap: var(--spacing-xl3);
-  padding-top: calc(var(--site-header-height) + var(--spacing-xl));
+  padding-block: 0;
   overflow-x: clip;
 }
 
 /*
- * Above the ribbons: the layers before it are absolutely positioned, so this paints on top of them.
- * The measures are the reference's (440 / 620 / 900px) plus 64px from 768px: our headline is longer
- * and set in Instrument Sans, whose first line ("Change management templates") is about 935px at 64px,
- * so 900px would break it into three lines at 1280px instead of two.
+ * The copy column. Above the ribbons: the layers before it are absolutely positioned, so this paints
+ * on top of them. The top padding clears the header, which the hero runs under; the bottom padding
+ * is the room kept between the buttons and the half-way line.
+ */
+.heroCopy {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--spacing-md);
+  padding-block: calc(var(--site-header-height) + var(--spacing-xl)) var(--spacing-md);
+}
+
+/*
+ * The measures are the reference's: 440 / 620 / 900px. Up to 1023px the headline is balanced over
+ * three lines. From 1024px the sentence breaks before "from" (the line break in the string, shown by
+ * `pre-line`), which gives two lines as soon as the first one fits: it is about 820px wide at 64px.
+ * The 68vw cap keeps it from fitting below a 1200px viewport, where the ribbon that climbs out
+ * through the top right would pass under the end of that line; there the headline stays on three.
  */
 .heroTitle {
-  position: relative;
   max-width: var(--measure-body);
 }
 
-.heroCta {
-  position: relative;
-  align-self: flex-start;
+/*
+ * Full ink rather than the 60% of other body copy: this paragraph is the pitch, and it keeps its
+ * contrast if a ribbon ever passes behind it. The narrower measure on a phone holds the line ends
+ * back from the ribbon that crosses the right edge there.
+ */
+.heroLead {
+  max-width: var(--measure-body-sm);
+  text-wrap: pretty;
 }
 
-/* ------------------------------------------------------------- phases */
+/* Stacked on a phone, side by side from 768px. */
+.heroActions {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--spacing-xs2);
+}
 
-.phases.phases {
+/* ---------------------------------------------------- problem, solution */
+
+/*
+ * Two plain statement sections of natural height. The block padding is what gives them room; it is a
+ * custom property because the fade of `.pitchUnderHero` is exactly as tall as the top padding.
+ */
+.pitchSection {
+  --pitch-pad: var(--spacing-xl3);
+}
+
+/*
+ * The section after the hero. The lowest ribbon runs 25% past the hero's bottom edge and this
+ * section's surface would cut it off in a straight line, so the surface starts transparent and is
+ * solid at the end of the top padding: the ribbon dissolves before it reaches the label strip.
+ */
+.pitchUnderHero.pitchUnderHero {
+  background: linear-gradient(to bottom, transparent, var(--color-background-100) var(--pitch-pad));
+}
+
+.pitch.pitch {
+  padding-block: var(--pitch-pad);
+}
+
+/* the label strip, then the statement and its copy */
+.pitchIntro {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-xl2);
+}
+
+.pitchColumns {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--spacing-xl);
+  align-items: start;
+}
+
+/* headline-large on a phone, display-medium from 768px (the sizes come from the type tokens) */
+.pitchStatement {
+  max-width: var(--measure-statement);
+  font-size: var(--text-headline-large-size);
+  line-height: var(--text-headline-large-line-height);
+  letter-spacing: var(--text-headline-large-letter-spacing);
+}
+
+.pitchCopy {
+  max-width: var(--measure-prose);
+  text-wrap: pretty;
+}
+
+/* --------------------------------------------------------------- inside */
+
+.inside.inside {
   justify-content: center;
   gap: var(--spacing-xl);
 }
 
-.phasesGrid {
+.insideGrid {
   display: grid;
-  grid-template-columns: 1fr;
+  grid-template-columns: minmax(0, 1fr);
   gap: var(--spacing-xl);
   width: 100%;
-  margin-top: var(--spacing-xl6);
+  margin-top: var(--spacing-xl);
 }
 
-.phasesList {
+/* The cards and, under them, the phase links. */
+.insideColumn,
+.insideList {
   display: flex;
   flex-direction: column;
+}
+
+/*
+ * The phase links: a caption over a wrapping row, built like the catalog's step navigation. The
+ * hairline on top comes from the global `.ruled` class, so the block reads as one more row.
+ */
+.insidePhases {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-xs3);
+  padding-block: var(--spacing-sm);
+}
+
+.insidePhaseList {
+  display: flex;
+  flex-wrap: wrap;
+  column-gap: var(--spacing-xl);
+}
+
+/* every item is a full 44px touch target; the link sits centred in it */
+.insidePhaseItem {
+  display: flex;
+  align-items: center;
+  min-height: var(--touch-target);
 }
 
 /* --------------------------------------------------------------- bundles */
@@ -77,7 +191,7 @@
   width: 100%;
 }
 
-/* The "All bundles" / "All templates" link under a grid. */
+/* The "All bundles" / "Browse the sample catalog" link under a grid. */
 .sectionAction {
   display: flex;
   justify-content: flex-start;
@@ -140,33 +254,38 @@
   gap: calc(var(--spacing-md) * 2);
 }
 
-.practiceActions {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: var(--spacing-md) var(--spacing-xl);
+/*
+ * The title sets as two lines ("Proven experience / at a template price."), each 8.5em wide. At the
+ * 40px of the other section titles they miss a 360px phone and "Proven" ends up alone on a first
+ * line, so below 768px the size follows the viewport just far enough to keep the two lines down to
+ * 320px. The type token is the cap, reached at 400px. Doubled: it overrides `t-display-fluid`.
+ */
+.practiceTitle.practiceTitle {
+  font-size: min(var(--text-display-small-size), 10vw);
 }
 
 /* --------------------------------------------------------------- values */
 
 .values.values {
   justify-content: center;
-  gap: calc(var(--spacing-md) * 2);
+  gap: var(--spacing-xl3);
 }
 
+/*
+ * The same fit as `.practiceTitle`, for a longer line: the first sentence of the title
+ * ("Field-tested change.") is 9.3em wide, misses a 390px phone by a few pixels at 40px and leaves
+ * "change." alone on a line. The cap is reached at about 420px.
+ */
+.valuesTitle.valuesTitle {
+  font-size: min(var(--text-display-small-size), 9.5vw);
+}
+
+/* One column on a phone, two by two from 768px. Cells start on the same line, so do their hairlines. */
 .valuesGrid {
   display: grid;
-  grid-template-columns: 1fr;
+  grid-template-columns: minmax(0, 1fr);
+  row-gap: var(--spacing-xl3);
   width: 100%;
-}
-
-/* Content sits on the bottom edge of the cell, so the hairlines land at different heights. */
-.valuesCell {
-  display: flex;
-  flex-direction: column;
-  justify-content: flex-end;
-  min-height: calc(var(--viewport-height) * 0.42);
 }
 
 .valuesCellContent,
@@ -212,26 +331,80 @@
   gap: var(--spacing-xs2);
 }
 
+/* -------------------------------------------------------------- closing */
+
+/* Half a viewport with the statement and its button in the middle. */
+.closing.closing {
+  justify-content: center;
+  padding-block: var(--spacing-xl5);
+}
+
+/* ---------------------------------------------------------------- shared */
+
+/*
+ * A display title made of two sentences breaks between them: the title string carries the line break
+ * and this class shows it. `pretty` instead of the headings' `balance`: where a sentence still has to
+ * wrap (phones), balancing stops at the forced break and would leave the last word alone on a line.
+ */
+.sentenceLines {
+  white-space: pre-line;
+  text-wrap: pretty;
+}
+
+/* Card copy (`bodyClassName` of a DetailCard): no single word left on the last line. */
+.cardBody {
+  text-wrap: pretty;
+}
+
+/* The centred buttons under a centred statement (practice, closing). */
+.centredActions {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--spacing-md) var(--spacing-xl);
+}
+
 /* ------------------------------------------------------------------ 768 */
 
 @media (min-width: 768px) {
-  .hero.hero {
-    gap: var(--spacing-xl2);
+  .heroCopy {
+    gap: var(--spacing-xl);
   }
 
   .heroTitle {
-    max-width: calc(var(--measure-hero) + var(--spacing-xl3));
+    max-width: var(--measure-hero);
   }
 
-  .phases.phases {
+  .heroLead {
+    max-width: var(--measure-body);
+  }
+
+  .heroActions {
+    flex-direction: row;
+    gap: var(--spacing-xl);
+  }
+
+  .pitchSection {
+    --pitch-pad: var(--spacing-xl5);
+  }
+
+  .pitchIntro {
+    gap: var(--spacing-xl3);
+  }
+
+  .pitchStatement {
+    font-size: var(--text-display-medium-size);
+    line-height: var(--text-display-medium-line-height);
+    letter-spacing: var(--text-display-medium-letter-spacing);
+  }
+
+  .inside.inside {
     justify-content: flex-start;
   }
 
-  .phasesGrid {
-    margin-top: var(--spacing-xl);
-  }
-
-  .phasesList {
+  .insideColumn,
+  .insideList {
     gap: var(--spacing-xl);
   }
 
@@ -249,20 +422,14 @@
     gap: var(--spacing-xl);
   }
 
-  .practiceActions {
-    flex-flow: row wrap;
-  }
-
-  .values.values {
-    gap: var(--spacing-xl);
+  .practiceTitle.practiceTitle,
+  .valuesTitle.valuesTitle {
+    font-size: var(--text-display-large-size);
   }
 
   .valuesGrid {
-    gap: var(--spacing-xl);
-  }
-
-  .valuesCell {
-    min-height: 0;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    column-gap: var(--spacing-xl);
   }
 
   .valuesIcon {
@@ -278,31 +445,40 @@
     flex-flow: row wrap;
     gap: var(--spacing-xl);
   }
+
+  .centredActions {
+    flex-flow: row wrap;
+  }
 }
 
 /* ----------------------------------------------------------------- 1024 */
 
 @media (min-width: 1024px) {
   .heroTitle {
-    max-width: calc(var(--measure-hero-wide) + var(--spacing-xl3));
+    max-width: min(var(--measure-hero-wide), 68vw);
+    white-space: pre-line;
+  }
+
+  .pitchColumns {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
   /*
-   * The intro stays pinned while the cards scroll past on the right. Capped to the left grid column:
-   * the title is wider than the reference's and would otherwise run into the list.
+   * The intro stays pinned while the cards scroll past on the right. Capped to the left grid column,
+   * so the body copy never runs into the list.
    */
-  .phasesIntro {
+  .insideIntro {
     position: sticky;
     top: var(--spacing-xl3);
     align-self: start;
     max-width: calc((100% - var(--spacing-xl)) / 2);
   }
 
-  .phasesGrid {
-    grid-template-columns: repeat(2, 1fr);
+  .insideGrid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
-  .phasesList {
+  .insideColumn {
     grid-column: 2;
   }
 
@@ -315,11 +491,7 @@
   }
 
   .valuesGrid {
-    grid-template-columns: repeat(3, 1fr);
-  }
-
-  .valuesCell {
-    min-height: calc(var(--viewport-height) / 2);
+    row-gap: var(--spacing-xl5);
   }
 
   .valuesIcon {

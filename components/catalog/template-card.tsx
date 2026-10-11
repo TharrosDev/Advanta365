@@ -1,4 +1,5 @@
 import { TransitionLink } from "@/components/motion/transition-link";
+import { KeepCompounds } from "@/components/ui/keep-compounds";
 import { DELIVERABLE_TYPE_LABELS } from "@/content/taxonomy";
 import type { Template } from "@/lib/catalog/schema";
 import { cx } from "@/lib/cx";
@@ -11,7 +12,8 @@ import { TemplateCover } from "./template-cover";
  * line (`Phase · Type`, the phase only where `phaseName` is given) and the price.
  *
  * The title is the card's ONE link. It contains only the title text and is stretched over the whole
- * card, so the card has a single tab stop and the cover stays decorative (`aria-hidden`).
+ * card, so the card has a single tab stop and the cover stays decorative (`aria-hidden`). A
+ * hyphenated compound in the title ("End-User") is never broken across two lines.
  */
 export function TemplateCard({
   template,
@@ -34,7 +36,7 @@ export function TemplateCard({
       </div>
       <Heading className={cx("t-headline-small", styles.title)}>
         <TransitionLink className={styles.link} href={`/templates/${template.slug}`}>
-          {template.title}
+          <KeepCompounds text={template.title} />
         </TransitionLink>
       </Heading>
       <div className={styles.meta}>

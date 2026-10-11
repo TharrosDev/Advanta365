@@ -13,6 +13,14 @@ export const INTRO_TIMEOUT = 12_000;
  */
 export const INTRO_TEST_TIMEOUT = 60_000;
 
+/**
+ * How long a client-side navigation may take to show its URL. The click fades the page out first
+ * (300ms) and the route is then fetched from a server that, in the first seconds of a run, is also
+ * answering every other worker's first request. A quiet machine needs well under a second; the
+ * headroom is for a CPU-starved run, like the intro timeouts above.
+ */
+export const NAVIGATION_TIMEOUT = 15_000;
+
 /** The three attributes the inline entry script and the overlay put on <html> during the intro. */
 export const ENTRY_ATTRIBUTES = ["data-entry", "data-entry-brand", "data-entry-lock"] as const;
 

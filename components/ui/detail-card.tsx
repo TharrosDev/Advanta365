@@ -1,6 +1,7 @@
 import type { ReactNode } from "react";
 import { TransitionLink } from "@/components/motion/transition-link";
 import { Chip } from "@/components/ui/chip";
+import { KeepCompounds } from "@/components/ui/keep-compounds";
 import { cx } from "@/lib/cx";
 import styles from "./detail-card.module.css";
 
@@ -9,6 +10,7 @@ import styles from "./detail-card.module.css";
  *
  * With `href` the title is the card's single link. The anchor holds only the title text (so that is its
  * accessible name) and is stretched over the whole card by a pseudo-element. Always a `<div>`.
+ * A hyphenated compound in the title is never broken across two lines (`KeepCompounds`).
  */
 export function DetailCard({
   title,
@@ -39,10 +41,10 @@ export function DetailCard({
     <Title className={cx(styles.title, titleClassName)}>
       {href !== undefined ? (
         <TransitionLink className={styles.link} href={href}>
-          {title}
+          <KeepCompounds text={title} />
         </TransitionLink>
       ) : (
-        title
+        <KeepCompounds text={title} />
       )}
     </Title>
   );
