@@ -85,7 +85,7 @@ Client components (files with `"use client"`, and the cart store module they sha
 | Shell | `components/layout/primary-nav.tsx`, `phase-rail.tsx`, `nav-drawer.tsx` | Read `usePathname`; the drawer owns a native dialog |
 | Company | `components/company/faq-list.tsx` | Open and closed state |
 | Not found | `components/not-found/asked-path.tsx`, `late-boot.tsx` | Read `window.location`; add the boot script when needed |
-| UI | `components/ui/motion-root.tsx`, `count-up.tsx` | Observers and the counter animation |
+| UI | `components/ui/motion-root.tsx` | Observers |
 | Ink | `components/ink/ink-layer.tsx` | Singleton controller and the pause control |
 
 The ink controller itself (`components/ink/ink-controller.ts`) is plain TypeScript created by `InkLayer`.
@@ -274,7 +274,10 @@ hidden below 68em. It scrolls with the page. Its tabs use `aria-current="page"` 
 - two status lines: "Sample catalog (beta)" and "Checkout is not available yet";
 - the copyright line and the trademark notice.
 
-The footer has `InkBackdrop` with scene `wisps` and edges `top`, and a veil with `data-ink-calm="veil"`.
+The footer has `InkBackdrop` with scene `wisps` and no edges, confined by `.wisps` in `footer.module.css` to a
+strip `--foot` (112px) tall at the foot, under the legal line, with a mask that fades it in over its top half.
+The strip is the bottom padding of the veil, which carries `data-ink-calm="veil"`, so no wisp stands under the
+words, live or still.
 
 ### 4.5 Beta strip
 
@@ -366,8 +369,6 @@ Primitives are the building blocks for pages. Each one has a CSS module unless n
 | `Eyebrow` | Uppercase label with an optional square marker |
 | `Tag` | `format`, `saving` or `plain` labels |
 | `Tally` | A row of blocks for counts. `animate` fills the blocks on scroll |
-| `Odometer` | A rolling numeral used for the 90% figure |
-| `CountUp` | Counts from 0 to a value on first view |
 | `Blank` | A blinking or steady caret bar |
 | `Note` | A short paragraph on the wash ground |
 | `Input`, `Select`, `Checkbox` | Form controls |
@@ -797,7 +798,6 @@ animated property sits inside `@media (prefers-reduced-motion: no-preference)`. 
 | `data-bar` | `Header` | Shadow under the bar |
 | `data-ledger` | `BandedList` | Rule that grows on scroll |
 | `data-block` | `Tally` | Blocks: ink, mark or empty |
-| `data-odometer-wheel` | `Odometer` | Rolling digits |
 | `data-ink-backdrop`, `data-ink-slot` | `InkBackdrop` | Ink region, hidden under contrast or forced colours |
 | `data-lit-scope` | Read by `lib/scroll/pointer.ts` and `app/motion.css` | Scopes the pointer light to an ancestor |
 
@@ -824,8 +824,8 @@ Observer path (`html[data-motion="on"][data-io="armed"]`, without the timeline):
 hidden state until they carry `data-seen`, then transition. Drift takes 480 ms on
 `--curve-settle`. Settle takes `--time-settle` (560 ms), with `--curve-settle` for opacity and `--curve-drop` for movement and scale; ink-in
 takes `--time-ink` (640 ms) on `--curve-ink`; grow takes 600 ms. The stagger for every move is
-`order * --stagger` (70 ms). The ninety band fills its wheel over `--time-count` (1200 ms), and its blocks fill over
-`--time-fill` (180 ms) with delays spread across the count.
+`order * --stagger` (70 ms). Without view timelines the ninety band's blocks fill over
+`--time-fill` (180 ms) with delays spread across `--time-count` (1200 ms).
 
 `MotionRoot` (`components/ui/motion-root.tsx`, client) runs before paint on each pathname change. It exits
 unless `data-motion` is `on`. It starts `watchSeen` on `[data-watch]` (plus `[data-move]` and `[data-ninety]` when
@@ -847,13 +847,11 @@ With `lit`, the sheet gets `data-lit`. `lib/scroll/pointer.ts` (`trackLight`) ru
 `--tx` and `--ty` (tilt, up to 1.2 degrees) on the sheet under the pointer, with one `requestAnimationFrame`
 per frame. On hover the sheet moves up 6 px (`translate: 0 -6px`) and tilts from `--tx` and `--ty`. On keyboard focus within the sheet it moves up 6 px without the tilt. The lift takes `--time-lift` (260 ms).
 
-### 8.4 Counters, odometer and tally
+### 8.4 Figures and tally
 
-- `CountUp` renders the final number on the server. When motion is on, and the element has not already
-  arrived, it counts from 0 to the value over `--time-count` (1200 ms) with a cubic ease-out once 40% of the
-  element is visible. The span's width is set from the digit count with `--digits` so the layout does not shift.
-- `Odometer` renders the figure as two digit wheels. The wheel moves to the tens digit with
-  `translate: 0 calc(var(--tens) * -1em)`. It is decorative and `aria-hidden`.
+- Figures never count or roll. The `#inside` counts and the 90% of the ninety band are printed as plain text
+  with their final value, so a reader scrolling past never sees a wrong number. The 90% is `aria-hidden`; the
+  heading beside it carries the figure in visually hidden words.
 - `Tally` renders blocks. With `animate`, blocks start empty and fill from the left with `tally-fill`, delayed
   by `--time-enter` plus `--i` times `--time-fill-gap`. The blocks are held empty only while `data-io` is
   `armed`.
@@ -877,7 +875,7 @@ pointer events and the root snapshot is hidden on exit.
 Reduced motion is handled at three levels:
 
 1. The boot script returns early, so `data-motion`, `data-timeline` and `data-intro` are never set. Motion
-   hooks in CSS do nothing, `MotionRoot` exits, and `CountUp` does not count.
+   hooks in CSS do nothing and `MotionRoot` exits.
 2. Every animation and transition rule sits inside `(prefers-reduced-motion: no-preference)`. View
    transition groups under `reduce` have `animation: none !important`, and outgoing views are `display: none`.
 3. `app/globals.css` has a global safety net under reduce: animation and transition durations are set to
@@ -903,7 +901,7 @@ Timing and curve tokens (`app/globals.css`):
 | `--time-lift` | 260ms | Sheet lift and hover |
 | `--time-ink` | 640ms | Ink-in entrances |
 | `--time-settle` | 560ms | Settle entrances |
-| `--time-count` | 1200ms | Counters and ninety wheel |
+| `--time-count` | 1200ms | The spread of the ninety's block fill without view timelines |
 | `--time-page-out`, `--time-page-in` | 140ms, 260ms | Page transitions |
 | `--time-morph` | 420ms | Shared element morph |
 | `--stagger` | 70ms | Entrance stagger |
@@ -1097,7 +1095,7 @@ The controller also exposes a layer handle with `ink()`, `canvas()`, `scene()`, 
 | `data-ink-calm`, `data-ink-anchor` | Page elements | Calm regions and anchors |
 | `data-scene`, `data-edges` | Backdrop | Scene and edges |
 | `data-intro-cover` | Cover | The cover element |
-| `data-seen`, `data-tally`, `data-block`, `data-odometer`, `data-odometer-wheel` | Motion elements | Entrance and counter state |
+| `data-seen`, `data-tally`, `data-block` | Motion elements | Entrance and tally state |
 | `data-band` | Band | Ground: desk, paper, wash, ink or binder |
 | `data-paper`, `data-lit` | Sheets | Paper and pointer light |
 | `data-bar`, `data-phase-rail`, `data-nav-drawer` | Shell | Bar, rail and drawer |
@@ -1119,7 +1117,7 @@ The design gate (`tests/unit/design-gate.test.ts`) scans every file under `app/`
 - `package.json` dependencies are exactly `next`, `react`, `react-dom` and `zod`.
 - Canvas and WebGL calls are allowed only in `lib/ink/`, `components/ink/` and `lib/boot/`.
 - `requestAnimationFrame` calls are allowed only in `lib/ink/`, `components/ink/`, `lib/scroll/`,
-  `lib/boot/`, `components/intro/` and `components/ui/count-up.tsx`. The scroll string literal is allowed
+  `lib/boot/` and `components/intro/`. The scroll string literal is allowed
   only in `lib/ink/`, `components/ink/` and `lib/scroll/`.
 
 ### 11.5 Unit tests (Vitest)

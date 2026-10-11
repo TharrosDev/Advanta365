@@ -485,8 +485,11 @@
   flex: none;
 }
 
+/* One em high with its glyphs on one line of that height: the sentence beside it is set to that. */
 .ninetyFigure .ninetyNumber > * {
   font-size: inherit;
+  line-height: 1;
+  white-space: nowrap;
 }
 
 .ninetyTitle {

@@ -139,7 +139,7 @@ proxy.ts              Redirects mixed-case paths to lower case
   by attributes on `<html>` and on elements (see Motion and ink).
 - **Canvas, WebGL, animation frames and scroll listeners have fixed homes.** A canvas or WebGL call belongs
   in `lib/ink/`, `components/ink/` or `lib/boot/`. `requestAnimationFrame` and scroll listeners belong in
-  those three, or in `lib/scroll/`, `components/intro/` and `components/ui/count-up.tsx`.
+  those three, or in `lib/scroll/` and `components/intro/`.
 - **Internal links use `TransitionLink`**, or a primitive built on it. Only
   `components/ui/transition-link.tsx` imports `next/link`.
 - **Each page has one `h1`**, its title. The shell provides one `banner` (the header), one `main` and one
@@ -238,8 +238,7 @@ Display and lead sizes are `clamp()` tokens between a phone value and a desktop 
 - Layout: `Band`, `Wrap`, `Split`, `Sheet`, `ShelfHead`, `FactList`, `BandedList` and `BandedRow` (the
   ledger), and `Note`.
 - Links and actions: `Button`, `TransitionLink`, `TextLink`, `RowLink`, `Pagination` and `PhaseTabs`.
-- Paper and objects: `PaperSheet`, `PaperStack`, `Folder`, `Tag`, `Blank`, `Tally`, `Odometer` and
-  `CountUp`.
+- Paper and objects: `PaperSheet`, `PaperStack`, `Folder`, `Tag`, `Blank` and `Tally`.
 - Text and marks: `Eyebrow`, `Sentences`, `KeepCompounds`, `LogoMark`, `BrandLockup` and `Icon`.
 - Form controls: `Input`, `Select` and `Checkbox`.
 - Motion: `Appear`, `MotionRoot` and `PageShift`.
@@ -259,7 +258,7 @@ Display and lead sizes are `clamp()` tokens between a phone value and a desktop 
 | `data-paper`, `data-lit`                          | `PaperSheet` (the `lit` prop)                          | The sheet's shadow, its lift and its tilt toward the pointer             |
 | `data-bar`                                        | `Header`                                               | The shadow under the sticky bar                                          |
 | `data-ledger`                                     | `BandedList`                                           | The rule of a ledger draws in                                            |
-| `data-ninety`                                     | The solution band (`components/home/pitch-spread.tsx`) | The odometer rolls and the ten blocks fill                               |
+| `data-ninety`                                     | The solution band (`components/home/pitch-spread.tsx`) | The ten blocks fill; the 90% figure never moves                          |
 | `data-watch`                                      | `Tally` with `animate`                                 | The blocks fill when the tally is seen                                   |
 | `data-ink-calm` (`text`, `display`, `veil`)       | Page copy                                              | Copy the ink keeps clear of                                              |
 | `data-ink-anchor` (`open`, `tenth`)               | Ink backdrops and the tally                            | Where the open water is, and the block that fires the ninety             |

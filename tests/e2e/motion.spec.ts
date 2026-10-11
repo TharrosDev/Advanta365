@@ -113,7 +113,7 @@ test("an entrance below the fold is transparent until it is scrolled in, without
 // ---------------------------------------------------------------------------------------------
 // The ninety
 // ---------------------------------------------------------------------------------------------
-/** How many blocks of the tally are filled and which place the odometer's wheel stands at. */
+/** How many blocks of the tally are filled, and what the figure reads. */
 const ninety = (page: Page) =>
   page.evaluate(() => {
     const band = document.querySelector("#solution");
@@ -121,13 +121,8 @@ const ninety = (page: Page) =>
     const filled = blocks.filter(
       (block) => getComputedStyle(block).backgroundColor !== "rgba(0, 0, 0, 0)",
     ).length;
-    const wheel = band?.querySelector("[data-odometer-wheel]");
-    const glyph = wheel?.firstElementChild?.getBoundingClientRect().height || 1;
-    const shift = Number.parseFloat(
-      wheel ? (getComputedStyle(wheel).translate.split(" ")[1] ?? "0") : "0",
-    );
-    // (A wheel at rest has a shift of zero, which negated is -0: "|| 0" says it plainly.)
-    return { filled, total: blocks.length, place: Math.round((-shift / glyph) * 100) / 100 || 0 };
+    const figure = band?.querySelector(".type-poster")?.textContent?.trim() ?? null;
+    return { filled, total: blocks.length, figure };
   });
 
 /** Scrolls so that a share of the band has gone through the window: 0 as it enters, 1 as it leaves. */
@@ -143,49 +138,75 @@ const scrollBand = (page: Page, share: number) =>
     });
   }, share);
 
-test("scrolling the ninety through the window fills its tally and rolls its figure, with view timelines", async ({
+test("scrolling the ninety through the window fills its tally under a figure that never moves, with view timelines", async ({
   page,
   browserName,
 }) => {
   test.skip(browserName !== "chromium", "view timelines are the Chromium path");
   await page.goto("/");
 
-  // Before the band is on screen nothing is filled and the wheel stands at the blank.
-  expect(await ninety(page)).toEqual({ filled: 0, total: 10, place: 0 });
+  // Before the band is on screen nothing is filled, and the figure already reads its value.
+  expect(await ninety(page)).toEqual({ filled: 0, total: 10, figure: "90%" });
 
-  // Through the window in steps: the fill never goes back while the page goes forward, and it ends
-  // with all ten blocks (nine of ink, the marked one) and the figure at nine.
-  let last = { filled: 0, place: 0 };
+  // Through the window in steps: the fill never goes back while the page goes forward, it ends
+  // with all ten blocks (nine of ink, the marked one), and the figure reads 90% at every step.
+  let last = 0;
   for (const share of [0.15, 0.3, 0.45, 0.6, 0.75]) {
     await scrollBand(page, share);
     await expect.poll(() => page.evaluate(() => window.scrollY)).toBeGreaterThan(0);
     const now = await ninety(page);
-    expect(now.filled).toBeGreaterThanOrEqual(last.filled);
-    expect(now.place).toBeGreaterThanOrEqual(last.place);
-    last = now;
+    expect(now.filled).toBeGreaterThanOrEqual(last);
+    expect(now.figure).toBe("90%");
+    last = now.filled;
   }
-  await expect.poll(() => ninety(page)).toEqual({ filled: 10, total: 10, place: 9 });
+  await expect.poll(() => ninety(page)).toEqual({ filled: 10, total: 10, figure: "90%" });
 
   // And it runs back as the band goes out of the window the way it came.
   await scrollBand(page, 0);
-  await expect.poll(() => ninety(page)).toEqual({ filled: 0, total: 10, place: 0 });
+  await expect.poll(() => ninety(page)).toEqual({ filled: 0, total: 10, figure: "90%" });
 });
 
-test("scrolling the ninety into the window fills its tally and rolls its figure, without them", async ({
+test("scrolling the ninety into the window fills its tally under a figure that never moves, without them", async ({
   page,
 }) => {
   await withoutTimelines(page);
   await page.goto("/");
   await expect(page.locator("html")).not.toHaveAttribute("data-timeline");
 
-  expect(await ninety(page)).toEqual({ filled: 0, total: 10, place: 0 });
+  expect(await ninety(page)).toEqual({ filled: 0, total: 10, figure: "90%" });
 
-  // Once the band is seen it fills by the clock, one block after another, and the wheel rolls.
+  // Once the band is seen it fills by the clock, one block after another.
   await scrollBand(page, 0.5);
   await expect(page.locator("#solution")).toHaveAttribute("data-seen", /.*/);
+  expect((await ninety(page)).figure).toBe("90%");
   await expect
     .poll(() => ninety(page), { timeout: 8_000 })
-    .toEqual({ filled: 10, total: 10, place: 9 });
+    .toEqual({ filled: 10, total: 10, figure: "90%" });
+});
+
+/** What the three counts of `#inside` read: their text, each time it is asked. */
+const insideCounts = (page: Page) =>
+  page
+    .locator("#inside h3")
+    .evaluateAll((headings) =>
+      headings.slice(0, 3).map((heading) => heading.textContent?.trim() ?? ""),
+    );
+
+test("the counts of what is inside read their own values all the way in", async ({ page }) => {
+  await page.goto("/");
+  const final = await insideCounts(page);
+  expect(final).toEqual([
+    expect.stringMatching(/^\d+ playbooks$/),
+    expect.stringMatching(/^\d+ ready-to-use templates$/),
+    expect.stringMatching(/^\d+ field guides$/),
+  ]);
+
+  // Down to the ledger in small steps: at no step does a count read anything but its value.
+  const top = await page.locator("#inside").evaluate((band) => band.getBoundingClientRect().top);
+  for (let y = 0; y <= top + 400; y += 200) {
+    await page.evaluate((at) => window.scrollTo({ top: at, behavior: "instant" }), y);
+    expect(await insideCounts(page)).toEqual(final);
+  }
 });
 
 // ---------------------------------------------------------------------------------------------

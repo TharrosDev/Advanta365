@@ -365,7 +365,7 @@ Level 3 and level 4 at 68em are the four-layer forms defined in the same file. S
 | `--time-lift` | 260ms | Lifting a sheet on hover or focus. |
 | `--time-ink` | 640ms | An element arriving with ink-in. |
 | `--time-settle` | 560ms | An element settling in. |
-| `--time-count` | 1200ms | A counter or the ninety-percent wheel. |
+| `--time-count` | 1200ms | The spread of the ninety's block fill where view timelines are missing. |
 | `--time-page-out` | 140ms | The outgoing page. |
 | `--time-page-in` | 260ms | The incoming page. |
 | `--time-morph` | 420ms | A shared sheet or cover morph. |
@@ -409,7 +409,6 @@ Entrance kinds:
 | `data-paper`, `data-lit` | `PaperSheet` | A sheet with its shade and its pointer lift. |
 | `data-bar` | The site header | The sticky bar's shadow and forced-contrast border. |
 | `data-ninety` | The solution section | The scroll-linked ninety-percent sequence. |
-| `data-odometer-wheel` | `Odometer` | The digit wheel. |
 | `data-block` | `Tally` | Each block: `ink`, `mark` or `empty`. |
 | `data-ledger` | `BandedList` | The grow rules on each row. |
 | `data-ink-backdrop`, `data-ink-slot` | `InkBackdrop` | The ink layer's container and canvas slot. |
@@ -447,22 +446,21 @@ The home page opens with a cover: a full-viewport paper plane (`--layer-cover`) 
 - A backstop ends it after 4500ms regardless of events.
 - When the ink layer is ready on the cover, ink runs inside the cover (section 10.6). The cover's own timeline then ends it.
 
-### 8.9 Counters and tallies
+### 8.9 Figures and tallies
 
-- `CountUp` counts from 0 to its value over `--time-count` with a cubic ease-out, once 40% of it is in view. Before that it shows the final text, so the layout does not move.
+- A figure is printed as it is and never counts or rolls up to its value: while it moves it reads a wrong one. The `#inside` counts and the ninety's 90% are plain text.
 - `Tally animate` fills its blocks one after another: each block starts after `--time-enter` plus its index times `--time-fill-gap`, and takes `--time-fill` to fill.
-- `Odometer` renders the final figure. Inside a `[data-ninety]` band the digit wheel rolls from blank to its figure over `--time-count` as the band is scrolled through; elsewhere the `Odometer` shows its figure without movement.
 
 ### 8.10 Reduced motion
 
 - With reduced motion, the boot script stops at its first check. It sets no motion or cover attributes and writes `data-ink="still"`.
 - The `no-preference` rules never apply. A global safety net (in `globals.css`) forces every remaining animation and transition to 0.01ms with one iteration.
-- Counters show their final text. Tallies are fully filled. The odometer shows its final figure.
+- Tallies are fully filled. Figures read as they always do.
 - The ink layer shows the still image for its scene.
 
 ## 9. Primitives
 
-All primitives live in `components/ui/`. Props are shown with their defaults in parentheses. Every primitive also accepts the attributes of its root element where it is a wrapper, and `className` where it is styled. Server components are the default; only `CountUp` and `MotionRoot` are client components.
+All primitives live in `components/ui/`. Props are shown with their defaults in parentheses. Every primitive also accepts the attributes of its root element where it is a wrapper, and `className` where it is styled. Server components are the default; only `MotionRoot` is a client component.
 
 ### 9.1 Layout and surfaces
 
@@ -524,8 +522,6 @@ Button sizes: `sm` is 44px below 68em and 40px from 68em; `md` is 48px; `lg` is 
 | Primitive | Props | Usage |
 | --- | --- | --- |
 | `Tally` | `total`, `filled` (number, or 1-based list), `marked` (1-based), `size` (sm, md, lg; md), `numerals` (false), `animate` (false), `label`, `anchor` ({ block, name }), `className` | `<Tally total={10} filled={9} marked={10} size="lg" anchor={{ block: 10, name: "tenth" }} />` |
-| `Odometer` | `value` (0 to 99), `suffix`, `className` | `<Odometer value={90} suffix="%" className="type-poster" />` |
-| `CountUp` | `value`, `className` (client) | `<CountUp value={59} className={styles.count} />` |
 
 `Tally` without `label` is decorative and hidden from assistive technology. With `label` it becomes an image with that label. Do not set `animate` on a tally inside a ninety sequence.
 
@@ -623,6 +619,8 @@ When the simulation is not running, each backdrop shows a WebP still. Each backd
 | `spill-tall` | `/nope` | 320 x 700, 2x | spill |
 
 The manifest is `lib/ink/stills.json`. The stills live in `public/ink/`.
+
+A still is scaled with the width of its backdrop, with two exceptions. Below 68em the `hero` and `ninety` frames take the height of their band, centred, so their ink lands in the open water under the words instead of past the foot of a band shorter than the frame; the margins either side are the frame's own ground. The footer's `wisps` backdrop is a strip 112px tall under the legal line (`--foot` in `footer.module.css`), anchored at the bottom and faded in over its top half, so the footer's words never stand over ink.
 
 ### 10.8 Using the backdrop
 
@@ -740,7 +738,7 @@ Scripts also query `(pointer: coarse)` and `(prefers-reduced-data: reduce)`. Sty
 - Site pages have one `header` (the banner), one `main` with `id="main"`, and one `footer` (the contentinfo landmark).
 - Navigation is labelled: `Primary` for the header, `Phases` for the rail, `Footer` for the footer, `Breadcrumb` on section pages, `Pagination` on catalog pages, and `Menu` for the site drawer.
 - The current page is marked with `aria-current="page"`, and the current section with `aria-current="true"`.
-- Decorative elements are hidden from assistive technology: the ink backdrop, the odometer, unlabelled tallies, numerals on phase tabs, and the specimen sheet.
+- Decorative elements are hidden from assistive technology: the ink backdrop, the 90% figure (its heading says it in words), unlabelled tallies, numerals on phase tabs, and the specimen sheet.
 - Each `Tally` or count with a meaning carries a `label`.
 
 ### 13.6 Motion and ink

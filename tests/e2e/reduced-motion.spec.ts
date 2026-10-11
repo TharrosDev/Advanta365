@@ -54,7 +54,7 @@ for (const path of ROUTES) {
   });
 }
 
-test("the home page shows the hero's still, the odometer at 90 and a full tally", async ({
+test("the home page shows the hero's still, the figure at 90% and a full tally", async ({
   page,
 }) => {
   await page.goto("/");
@@ -75,18 +75,8 @@ test("the home page shows the hero's still, the odometer at 90 and a full tally"
   await expect(cover).toHaveCount(1);
   await expect(cover).toHaveCSS("display", "none");
 
-  // The odometer reads 90: its figure, and the wheel standing at the ninth place.
-  const odometer = page.locator("#solution [data-odometer]");
-  await expect(odometer).toHaveAttribute("data-value", "90");
-  const wheel = await odometer.evaluate((element) => {
-    const wheel = element.querySelector("[data-odometer-wheel]");
-    if (!wheel) return null;
-    const glyph = wheel.firstElementChild?.getBoundingClientRect().height ?? 0;
-    const shift = getComputedStyle(wheel).translate.split(" ")[1] ?? "0px";
-    return { glyph, shift: Number.parseFloat(shift) };
-  });
-  expect(wheel).not.toBeNull();
-  expect(Math.round(-(wheel?.shift ?? 0) / (wheel?.glyph || 1))).toBe(9);
+  // The figure reads 90%.
+  await expect(page.locator("#solution .type-poster")).toHaveText("90%");
 
   // The tally stands full: nine inked blocks and the marked one.
   const fills = await page

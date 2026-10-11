@@ -473,7 +473,7 @@ The signature object: a miniature first page of a template, printed on a paper s
 
 ### Ink Backdrop
 
-The showpiece. One canvas serves the whole page, and the backdrop most in view holds it; every other backdrop shows a still image of its scene. Seven scenes exist: drops beside the home headline, a drop onto the tenth block of the 90% tally when the scroll reaches it, blue ink rising from the foot of the closing band, pale wisps in the footer, a strip beside wide page titles, a spill on the 404, and the drop under the first-load cover. Text over ink marks itself as a calm zone and the ink is thinned and capped around it. A 44px pause button with a 32px round sits at the foot of the stage. The ink gives way to its stills under reduced motion, raised contrast, forced colours, data saving, without WebGL2, and on a device that cannot keep up.
+The showpiece. One canvas serves the whole page, and the backdrop most in view holds it; every other backdrop shows a still image of its scene. Seven scenes exist: drops beside the home headline, a drop onto the tenth block of the 90% tally when the scroll reaches it, blue ink rising from the foot of the closing band, pale wisps in the footer, a strip beside wide page titles, a spill on the 404, and the drop under the first-load cover. Text over ink marks itself as a calm zone and the ink is thinned and capped around it. The footer's wisps keep to a 112px strip under the legal line, fading in from its top, so no wisp stands under a link or the notice. Below 68em the home hero and 90% stills take the height of their band, so their ink lands in the open water under the buttons and under the tally instead of past the foot. A 44px pause button with a 32px round sits at the foot of the stage. The ink gives way to its stills under reduced motion, raised contrast, forced colours, data saving, without WebGL2, and on a device that cannot keep up.
 
 ### Entrances and Page Changes
 
@@ -492,6 +492,7 @@ Content arrives in one of four ways: a drift (12px up, fading in), ink-in (fadin
 - **Do** keep every target at least 44px tall below 68em, and show the 3px focus ring 3px off the element.
 - **Do** place ink on the ground of a band, mark every text block over it as a calm zone, and name a still for it.
 - **Do** keep every animation inside the no-preference motion query, with the finished state as the default.
+- **Do** print a figure as it is. A number never counts or rolls up to its value: while it moves it reads a wrong one.
 - **Do** give an object an ink line where its shadow is removed, at raised contrast and in forced colours.
 
 ### Don't:

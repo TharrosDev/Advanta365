@@ -124,14 +124,7 @@ const SCOPED: ScopedRule[] = [
   { ...literal("webgl", "i"), allowed: INK_HOMES },
   {
     ...literal("requestAnimationFrame"),
-    allowed: [
-      "lib/ink/",
-      "components/ink/",
-      "lib/scroll/",
-      "lib/boot/",
-      "components/intro/",
-      "components/ui/count-up.tsx",
-    ],
+    allowed: ["lib/ink/", "components/ink/", "lib/scroll/", "lib/boot/", "components/intro/"],
   },
   {
     name: `"scroll" or 'scroll'`,
@@ -217,7 +210,6 @@ describe("design gate: scoped techniques", () => {
       "lib/ink/engine/gl.ts": "canvas.getContext('webgl2'); requestAnimationFrame(tick);",
       "components/ink/ink-layer.tsx": "<canvas />; addEventListener('scroll', f);",
       "lib/scroll/observe.ts": 'addEventListener("scroll", f); requestAnimationFrame(f);',
-      "components/ui/count-up.tsx": "requestAnimationFrame(step);",
       "components/intro/intro-cover.tsx": "requestAnimationFrame(step);",
       "components/ui/odometer.tsx": "requestAnimationFrame(step);",
       "tests/unit/anything.test.ts": "canvas.getContext('webgl2');",

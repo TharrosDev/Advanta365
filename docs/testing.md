@@ -113,7 +113,7 @@ Some techniques are allowed in named places only. A folder entry ends in `/`; a 
 | Technique | Allowed in |
 |---|---|
 | `<canvas`, `getContext(`, `webgl` (any case) | `lib/ink/`, `components/ink/`, `lib/boot/` |
-| `requestAnimationFrame` | `lib/ink/`, `components/ink/`, `lib/scroll/`, `lib/boot/`, `components/intro/`, `components/ui/count-up.tsx` |
+| `requestAnimationFrame` | `lib/ink/`, `components/ink/`, `lib/scroll/`, `lib/boot/`, `components/intro/` |
 | The string `"scroll"` or `'scroll'` | `lib/ink/`, `components/ink/`, `lib/scroll/` |
 
 Adding a folder to one of these lists is a design decision: change the list in `design-gate.test.ts` in the same change, with a reason.
@@ -169,9 +169,9 @@ A spec that is not named by the Firefox pattern runs in `chromium` and `mobile`.
 | `ink-fallback.spec.ts` | chromium, mobile, firefox | Without WebGL2, with more contrast, and without JavaScript: still images only, no canvas, no pause control, a clean console. The software-renderer case runs in Chromium only. |
 | `ink-live.spec.ts` | gpu | Live ink on a GPU: the first frame; frame cost; calm caps; the stop when idle; pause and resume; resize; one canvas across scenes; context loss and restore; the not-found scene; the handover from the cover. Skips when the page is not live. |
 | `menu.spec.ts` | mobile (in chromium every test skips) | The phone drawer: the dialog, its links and phases, Escape, a click on the scrim, the Close button, and navigation or back navigation closing it. |
-| `motion.spec.ts` | chromium, mobile, firefox | Entrances hidden until scrolled into view, with timelines and without (Chromium stubs `CSS.supports`); the fill and counter of the ninety band; view transitions and the shared cover name. |
+| `motion.spec.ts` | chromium, mobile, firefox | Entrances hidden until scrolled into view, with timelines and without (Chromium stubs `CSS.supports`); the fill of the ninety band under a 90% figure that reads its value at every step, and the `#inside` counts that never count up; view transitions and the shared cover name. |
 | `not-found.spec.ts` | chromium, mobile | Missing paths return 404 with the page heading and the phase navigation; mixed-case paths redirect to lower case. |
-| `reduced-motion.spec.ts` | chromium, mobile, firefox | With the reduced-motion preference on twelve routes: still ink, no motion attributes, no canvas, no running animations, no cover; the still images load; the odometer and tally show their final state. |
+| `reduced-motion.spec.ts` | chromium, mobile, firefox | With the reduced-motion preference on twelve routes: still ink, no motion attributes, no canvas, no running animations, no cover; the still images load; the 90% figure and the tally show their final state. |
 
 ### Helpers and support
 

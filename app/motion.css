@@ -6,7 +6,7 @@
  *   [data-when="load"]                             that entrance by the clock, at page load
  *   [data-paper], [data-lit]                       a paper object and its light under the pointer
  *   [data-bar]                                     the bar and its shadow
- *   [data-ninety], [data-odometer-wheel]           the one band whose figure follows the scroll
+ *   [data-ninety]                                  the one band whose tally follows the scroll
  *
  * Three attributes on the root element, set by the boot script before first paint, are the only
  * switches: `data-motion="on"` (movement is wanted), `data-timeline="on"` (view timelines exist)
@@ -113,12 +113,6 @@
   @keyframes bar-shadow-in {
     from {
       opacity: 0;
-    }
-  }
-
-  @keyframes ninety-roll {
-    from {
-      translate: 0 0;
     }
   }
 
@@ -346,19 +340,13 @@
   }
 
   /*
-   * The ninety. The band is the timeline: over its passage through the viewport the tens wheel
-   * rolls from blank to its figure between 20% and 44%, the blocks ink in one after another from
-   * 20%, each over 3% and 2.6% apart, and the marked block fills between 44% and 47%. The ink
-   * layer reads the same progress and drops its ink at 0.47.
+   * The ninety. The band is the timeline: over its passage through the viewport the blocks ink in
+   * one after another from 20%, each over 3% and 2.6% apart, and the marked block fills between
+   * 44% and 47%. The ink layer reads the same progress and drops its ink at 0.47. The figure
+   * itself never moves: it reads 90% from the start.
    */
   html[data-motion="on"][data-timeline="on"] [data-ninety] {
     view-timeline-name: --ninety;
-  }
-
-  html[data-motion="on"][data-timeline="on"] [data-ninety] [data-odometer-wheel] {
-    animation: ninety-roll linear both;
-    animation-timeline: --ninety;
-    animation-range: cover 20% cover 44%;
   }
 
   html[data-motion="on"][data-timeline="on"] [data-ninety] [data-block] {
@@ -372,24 +360,14 @@
   }
 
   /*
-   * Without view timelines the observer marks the band when half of it is in view. The wheel then
-   * rolls once and the blocks fill in the same time; the last block's `animationend` is the cue
-   * for the ink.
+   * Without view timelines the observer marks the band when half of it is in view. The blocks then
+   * fill one after another over `--time-count`; the last block's `animationend` is the cue for the
+   * ink.
    */
-  html[data-motion="on"][data-io="armed"]:not([data-timeline="on"])
-    [data-ninety]:not([data-seen])
-    [data-odometer-wheel] {
-    translate: 0 0;
-  }
-
   html[data-motion="on"][data-io="armed"]:not([data-timeline="on"])
     [data-ninety]:not([data-seen])
     [data-block] {
     background-color: transparent;
-  }
-
-  html[data-io="armed"]:not([data-timeline="on"]) [data-ninety][data-seen] [data-odometer-wheel] {
-    transition: translate var(--time-count) var(--curve-settle);
   }
 
   html[data-io="armed"]:not([data-timeline="on"]) [data-ninety][data-seen] [data-block] {
