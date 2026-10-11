@@ -4,8 +4,8 @@ import { templates as rawTemplates } from "@/content/templates";
 import type { Bundle, Phase, Template } from "./schema";
 import { validateCatalog } from "./validate";
 
-// The only module that reads content/. Functions are async so a database or CMS
-// can replace the file source later without changing any caller.
+// The only module that reads content/. Functions are async, so the file source can be
+// swapped without changing any caller.
 const catalog = validateCatalog({
   phases: rawPhases,
   templates: rawTemplates,

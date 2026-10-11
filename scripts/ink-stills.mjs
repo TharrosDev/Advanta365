@@ -468,7 +468,7 @@ async function check(browser) {
 // ---------------------------------------------------------------------------------------------
 /**
  * The darkest 1% of the saturated blue of the canvas, from the page: blue is the largest channel,
- * blue minus red is over 70 and saturation is over 0.55 (the prototype's own test). Returns the
+ * blue minus red is over 70 and saturation is over 0.55. Returns the
  * luminance and the hue at the edge of that darkest 1%, the lightest pixel in it.
  */
 function measureBlue() {

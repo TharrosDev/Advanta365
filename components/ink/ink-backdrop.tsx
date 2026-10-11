@@ -48,7 +48,7 @@ export function InkBackdrop({ scene, still, edges, className }: InkBackdropProps
                 is the one that belongs there. */}
             {still.tall && <source media="(min-width: 68em)" srcSet={stillPath(still.wide)} />}
             {/* A static, pre-sized frame of the engine: it must reach the browser as it was
-                captured, not re-encoded or resized, or its calm zones no longer hold their caps.
+                captured, not re-encoded or resized, or its calm zones would stop holding their caps.
                 (The lint rule about raw images does not fire inside a picture element.) */}
             <img
               src={stillPath(still.tall ?? still.wide)}

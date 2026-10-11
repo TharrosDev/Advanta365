@@ -11,8 +11,9 @@ import styles from "./header.module.css";
 /**
  * The bar: a sticky sheet of white paper at the top of every page, set off by a soft shadow and no
  * line under it. `data-bar` is the hook of app/motion.css, which draws that shadow on a layer of its
- * own (so the bar must not use its own `::after`) and lets it arrive over the first screen of scroll. Left to right, which is also the DOM and tab order: the brand, the primary links (from 68em),
- * the cart, and the Menu button of the drawer (below 68em).
+ * own (so the bar must not use its own `::after`) and lets it arrive over the first 84px of scroll.
+ * Left to right, which is also the DOM and tab order: the brand, the primary links (from 68em), the
+ * cart, and the Menu button of the drawer (below 68em).
  *
  * On the narrowest screens the word "Menu" and then the brand name are hidden visually; the
  * accessible names "Menu" and "Advanta365" stay.

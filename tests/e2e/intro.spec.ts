@@ -77,7 +77,7 @@ const goneAt = (page: Page) =>
 test("a first visit opens under the cover, with the whole page beneath it", async ({ page }) => {
   await firstVisit(page);
 
-  // The attribute was there before the first paint: it is the first thing the log holds, and the
+  // The attribute is there before the first paint: it is the first thing the log holds, and the
   // cover is up.
   await expect(root(page)).toHaveAttribute("data-intro", /./);
   expect((await introStates(page))[0]).toBe("play");
@@ -130,7 +130,7 @@ test("without ink the cover leaves by itself within 1.9 seconds", async ({ page 
   );
   expect(painted).toBeGreaterThan(0);
   expect((end ?? Infinity) - painted).toBeLessThanOrEqual(1900);
-  // The cover is out of the way, and what was under it can be seen and clicked.
+  // The cover is out of the way, and what is under it can be seen and clicked.
   await expect(cover(page)).toBeHidden();
   await headline(page).click();
   await expect(page).toHaveURL(/\/$/);
@@ -209,7 +209,7 @@ test("a reload in the same session has no cover", async ({ page }) => {
   await expect(headline(page)).toBeVisible();
   await expect(cover(page)).toBeHidden();
   await expect(root(page)).not.toHaveAttribute("data-intro");
-  // The list starts again with each load: the root element was never marked on this one.
+  // The list starts again with each load: the root element is not marked on this one.
   expect(await introStates(page)).toEqual([]);
 });
 

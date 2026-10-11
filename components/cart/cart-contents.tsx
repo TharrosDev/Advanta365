@@ -42,8 +42,8 @@ export function CartContents({ items }: { items: CartItem[] }) {
   const emptyRef = useRef<HTMLHeadingElement>(null);
   const [removedAt, setRemovedAt] = useState<number | null>(null);
 
-  // Removing a line unmounts the button that had focus; move focus to the
-  // line that took its place, or to the empty-cart heading.
+  // Removing a line unmounts the button that holds focus; move focus to the
+  // line that takes its place, or to the empty-cart heading.
   useEffect(() => {
     if (removedAt === null) return;
     const buttons = listRef.current?.querySelectorAll<HTMLButtonElement>("button");

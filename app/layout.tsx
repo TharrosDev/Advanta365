@@ -27,8 +27,8 @@ export const metadata: Metadata = {
 
 // `IntroScript` comes first in the body, so it runs before anything is painted. It writes the
 // switches of the motion system and of the ink on `<html>` (`data-motion`, `data-timeline`,
-// `data-ink`, and `data-intro` for a first visit to the home page), attributes React did not
-// render: hence `suppressHydrationWarning` there. `MotionRoot` is the script half of the motion
+// `data-ink`, and `data-intro` for a first visit to the home page), attributes that React does
+// not render: hence `suppressHydrationWarning` there. `MotionRoot` is the script half of the motion
 // system. `data-scroll-behavior="smooth"` tells the router that anchors glide (app/motion.css), so
 // it still jumps when the route changes.
 export default function RootLayout({ children }: { children: ReactNode }) {

@@ -58,8 +58,8 @@
 }
 
 /*
- * While it fades the cover no longer takes the pointer, and its last frame, which is held, takes
- * it out of sight for good. The same frames under three names: a change of name starts a new
+ * While it fades the cover does not take the pointer, and its last frame, which is held, keeps it
+ * out of sight for good. The same frames under three names: a change of name starts a new
  * animation, where a change of duration would only retime the one that is running.
  */
 @keyframes cover-leave {

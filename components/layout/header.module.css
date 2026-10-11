@@ -1,6 +1,6 @@
 /*
  * White, no border and no shadow of its own: app/motion.css draws the shadow on the bar's `::after`
- * (`data-bar`), which needs the bar positioned and with a z-index of its own, as it is.
+ * (`data-bar`), which needs the bar to be positioned with a z-index of its own.
  */
 .root {
   position: sticky;

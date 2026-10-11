@@ -19,7 +19,7 @@ function getServerPath() {
 }
 
 /**
- * The address that was asked for, printed small above the title of the 404 page. It is empty until
+ * The requested address, printed small above the title of the 404 page. It is empty until
  * hydrated and keeps the height of one line meanwhile, so nothing below it moves.
  */
 export function AskedPath() {

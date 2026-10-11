@@ -8,7 +8,7 @@ import { introSeen, NAVIGATION_TIMEOUT } from "./helpers";
 const PRIMARY = ["Catalog", "Bundles", "Pricing", "About", "Contact"];
 const PHASES = ["Make the case", "Plan", "Design", "Prepare", "Communicate", "Execute", "Sustain"];
 
-// A caption the menu used to carry under the contact address. Written in two parts so that this
+// A caption the menu must not show under the contact address. Written in two parts so that this
 // file does not contain the sentence it checks for.
 const RETIRED_CAPTION = ["For general", "questions"].join(" ");
 

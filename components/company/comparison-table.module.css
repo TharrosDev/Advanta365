@@ -101,7 +101,7 @@
 }
 
 @media (min-width: 40em) {
-  /* The raised sheet stands out of the paper, so the paper no longer clips. */
+  /* The raised sheet stands out of the paper, so the paper does not clip it. */
   .sheet {
     overflow: visible;
   }

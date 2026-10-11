@@ -17,14 +17,14 @@ export function AddToCart({ line, label = "Add to cart" }: { line: CartLine; lab
   const [justAdded, setJustAdded] = useState(false);
   const inCart = cart.ready && cart.has(line);
 
-  // The button is replaced by a link once the item is in the cart; keep
-  // keyboard focus on the control that took its place.
+  // The button turns into a link once the item is in the cart; keep
+  // keyboard focus on the control that takes its place.
   useEffect(() => {
     if (justAdded && inCart) linkRef.current?.focus();
   }, [justAdded, inCart]);
 
   // The two controls carry different keys so the swap is a clean remount: the button's hover
-  // state does not carry over to the link that replaces it.
+  // state does not carry over to the link that takes its place.
   return (
     <>
       {inCart ? (
