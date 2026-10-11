@@ -1,7 +1,7 @@
 /*
  * The skip link is a mark button parked above the top edge. Keyboard focus brings it down into the
- * corner, over the bar. It is only ever seen focused, so it keeps the highlighter fill there
- * instead of turning over to ink as a focused button does.
+ * corner, over the bar. It is only ever seen focused, so it keeps the solid ink fill and the white
+ * label there instead of turning to the highlighter as a focused button does.
  */
 .skip.skip {
   position: fixed;
@@ -12,8 +12,8 @@
 }
 
 .skip.skip:focus-visible {
-  background: var(--mark);
-  color: var(--ink);
+  background: var(--ink);
+  color: var(--on-ink);
   translate: 0 0;
 }
 

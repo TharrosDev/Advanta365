@@ -9,6 +9,7 @@ import { InsideSection } from "@/components/home/inside-section";
 import { PitchSpread } from "@/components/home/pitch-spread";
 import { PracticeSection } from "@/components/home/practice-section";
 import { ValuesSection } from "@/components/home/values-section";
+import { IntroCover } from "@/components/intro/intro-cover";
 import { DELIVERABLE_TYPE_LABELS, FORMAT_LABELS } from "@/content/taxonomy";
 import { phaseCoverage } from "@/lib/catalog/coverage";
 import { bundleSavingsCents } from "@/lib/catalog/pricing";
@@ -94,5 +95,10 @@ export default async function Home() {
     <ClosingSection key="closing" />,
   ];
 
-  return <>{sections}</>;
+  return (
+    <>
+      <IntroCover />
+      {sections}
+    </>
+  );
 }

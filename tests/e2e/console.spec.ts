@@ -2,6 +2,9 @@ import { expect, test } from "@playwright/test";
 
 // A page that logs an error is a page with a bug, even when it looks fine: hydration mismatches,
 // failed chunks, 404s for assets and uncaught exceptions all land here.
+//
+// Every test is the first load of its session, so the home page is checked the way a first visit
+// gets it: under the cover, with the inline script at work and its attribute on the root element.
 
 const ROUTES = [
   "/",

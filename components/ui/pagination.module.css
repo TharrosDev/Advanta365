@@ -52,14 +52,14 @@
 }
 
 .page:focus-visible {
-  background: var(--tile);
+  background: var(--mark-wash);
 }
 
-/* The page you are on: the mark, the ink border and the heavier numeral. */
+/* The page you are on: the highlighter, the ink border and the heavier ink numeral. */
 .current {
   border-color: var(--ink);
   background: var(--mark);
-  color: var(--ink);
+  color: var(--on-mark);
   font-weight: 700;
 }
 
@@ -83,6 +83,6 @@
   }
 
   a.page:hover {
-    background: var(--tile);
+    background: var(--mark-wash);
   }
 }

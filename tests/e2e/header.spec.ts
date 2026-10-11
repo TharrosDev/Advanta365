@@ -1,4 +1,5 @@
 import { expect, test, type Page } from "@playwright/test";
+import { introSeen } from "./helpers";
 
 // From 68em the bar shows its navigation inline and the phase rail stands under it. This file
 // covers both on the desktop project (1280x800); menu.spec.ts covers the drawer on a phone.
@@ -12,8 +13,10 @@ const primary = (page: Page) => banner(page).getByRole("navigation", { name: "Pr
 const rail = (page: Page) => page.getByRole("navigation", { name: "Phases", exact: true });
 
 test.describe("desktop bar", () => {
-  test.beforeEach(({ isMobile }) => {
+  test.beforeEach(async ({ page, isMobile }) => {
     test.skip(isMobile, "the inline navigation and the rail only show from 68em");
+    // The bar is the subject here, not the cover a first visit to the home page opens under.
+    await introSeen(page);
   });
 
   test("shows the five primary links inline and no Menu button", async ({ page }) => {

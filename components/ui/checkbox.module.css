@@ -34,7 +34,7 @@
 
 /* Drawn as heavy as the box; hidden until the box is checked. */
 .tick {
-  color: var(--ink);
+  color: var(--on-mark);
   stroke-width: 2.4;
   visibility: hidden;
 }
@@ -50,7 +50,7 @@
   color: var(--text-faint);
 }
 
-/* Checked: the mark, and with it the ink border and the ink tick. */
+/* Checked: the highlighter, and with it the ink border and the ink tick. */
 .input:checked + .box {
   border-color: var(--ink);
   background: var(--mark);
@@ -87,6 +87,11 @@
 @media (hover: hover) {
   .row:hover .input:not(:checked, :disabled) + .box {
     border-color: var(--text-soft);
+  }
+
+  /* A checked box under the pointer: the highlighter one step deeper. */
+  .row:hover .input:checked:not(:disabled) + .box {
+    background: var(--mark-deep);
   }
 }
 

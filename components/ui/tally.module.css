@@ -19,11 +19,11 @@
   color: var(--ground);
 }
 
-/* Yours: the highlighter, always with its ink ring. */
+/* Yours: the highlighter, always with its ink ring. A numeral on it is ink. */
 .mark {
   background: var(--mark);
   box-shadow: inset 0 0 0 var(--edge) var(--ink);
-  color: var(--ink);
+  color: var(--on-mark);
 }
 
 /* Not yet: an outline only. */
@@ -60,7 +60,8 @@
 /*
  * The fill runs once on first paint. Every block is drawn in its final state by default and the
  * animation only holds the empty look until the block's turn (`backwards`), so nothing is missing
- * where animations do not run.
+ * where animations do not run. Under the cover of a first visit the fill waits for the cover:
+ * `--intro-hold`, set on the root element in globals.css, takes the place of the opening delay.
  */
 @keyframes tally-fill {
   from {
@@ -71,7 +72,7 @@
 
 .animate .block {
   animation: tally-fill var(--time-fill) var(--curve-settle) backwards;
-  animation-delay: calc(var(--time-enter) + var(--i) * var(--time-fill-gap));
+  animation-delay: calc(var(--intro-hold, var(--time-enter)) + var(--i) * var(--time-fill-gap));
 }
 
 @media (prefers-reduced-motion: reduce) {

@@ -50,19 +50,29 @@
   translate: 3px 0;
 }
 
-/* Mark: the highlighter with ink text and an ink border. It turns over to ink with mark text. */
-.mark {
+/*
+ * Mark: the buyer's main move. Ink with white text at rest; under the pointer or keyboard focus
+ * the highlighter comes up inside the ink border and the text turns to ink. The border never
+ * changes, so neither does the width. Ink is the same solid button under its own name, for the
+ * main action on the wash band.
+ */
+.mark,
+.ink {
   border-color: var(--ink);
-  background: var(--mark);
-  color: var(--ink);
-}
-
-.mark:focus-visible {
   background: var(--ink);
-  color: var(--mark);
+  color: var(--on-ink);
 }
 
-/* Outline: the text colour of the surface as a border; the hover fill is the surface's tile. */
+.mark:focus-visible,
+.ink:focus-visible {
+  background: var(--mark);
+  color: var(--on-mark);
+}
+
+/*
+ * Outline: the text colour of the surface as a border. The hover fill is the wash, which is light
+ * on every band, so the label reads in ink while it is on.
+ */
 .outline {
   border-color: var(--line-ink);
   background: transparent;
@@ -70,22 +80,16 @@
 }
 
 .outline:focus-visible {
-  background: var(--tile);
+  background: var(--mark-wash);
+  color: var(--ink);
 }
 
-/* Ink: the solid button for the wash band. */
-.ink {
-  border-color: var(--ink);
-  background: var(--ink);
-  color: var(--paper);
+/* On the wash band that fill would vanish into the ground, so it is the paper there. */
+[data-band="wash"] .outline:focus-visible {
+  background: var(--surface);
 }
 
-.ink:focus-visible {
-  border-color: var(--binder-rise);
-  background: var(--binder-rise);
-}
-
-/* Text: no box, an underline, and a 44px hit height. */
+/* Text: no box, an ink underline, and a 44px hit height. */
 .text {
   min-height: var(--tap);
   padding: 0;
@@ -98,8 +102,27 @@
   text-underline-offset: 3px;
 }
 
+/*
+ * The words of a text button. Under the pointer or focus the highlighter is drawn behind them and
+ * a little past their ends, as on a text link, and the underline thickens.
+ */
+.words {
+  border-radius: var(--round-1);
+  box-decoration-break: clone;
+  -webkit-box-decoration-break: clone;
+  transition:
+    background-color var(--time-swap) linear,
+    box-shadow var(--time-swap) linear;
+}
+
 .text:focus-visible {
   text-decoration-thickness: var(--edge);
+}
+
+.text:focus-visible .words {
+  background: var(--mark);
+  box-shadow: 0 0 0 var(--edge) var(--mark);
+  color: var(--on-mark);
 }
 
 @media (hover: hover) {
@@ -107,23 +130,37 @@
     translate: 3px 0;
   }
 
-  .mark:hover {
-    background: var(--ink);
-    color: var(--mark);
+  .mark:hover,
+  .ink:hover {
+    background: var(--mark);
+    color: var(--on-mark);
   }
 
   .outline:hover {
-    background: var(--tile);
+    background: var(--mark-wash);
+    color: var(--ink);
   }
 
-  .ink:hover {
-    border-color: var(--binder-rise);
-    background: var(--binder-rise);
+  [data-band="wash"] .outline:hover {
+    background: var(--surface);
   }
 
   .text:hover {
     text-decoration-thickness: var(--edge);
   }
+
+  .text:hover .words {
+    background: var(--mark);
+    box-shadow: 0 0 0 var(--edge) var(--mark);
+    color: var(--on-mark);
+  }
+}
+
+/* Pressed: the highlighter one step deeper. After the hover rules, so it holds while held down. */
+.mark:active,
+.ink:active {
+  background: var(--mark-deep);
+  color: var(--on-mark);
 }
 
 /* Disabled comes last so it wins over every variant and its hover. Nothing moves. */

@@ -27,6 +27,9 @@
   text-decoration-line: none;
   text-decoration-thickness: var(--hair);
   text-underline-offset: 3px;
+  transition:
+    background-color var(--time-swap) linear,
+    box-shadow var(--time-swap) linear;
 }
 
 /* The link keeps its line height; its target is a full 44px tall. */
@@ -37,7 +40,11 @@
   inset-inline: 0;
 }
 
+/* As on a text link: an ink underline, and the highlighter behind the words. */
 .link:focus-visible {
+  background: var(--mark);
+  box-shadow: 0 0 0 var(--edge) var(--mark);
+  color: var(--on-mark);
   text-decoration-line: underline;
 }
 
@@ -48,6 +55,9 @@
 
 @media (hover: hover) {
   .link:hover {
+    background: var(--mark);
+    box-shadow: 0 0 0 var(--edge) var(--mark);
+    color: var(--on-mark);
     text-decoration-line: underline;
   }
 }

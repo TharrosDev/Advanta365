@@ -1,5 +1,5 @@
 import { expect, test, type Page } from "@playwright/test";
-import { NAVIGATION_TIMEOUT } from "./helpers";
+import { introSeen, NAVIGATION_TIMEOUT } from "./helpers";
 
 // Below 68em the bar has a "Menu" button that opens the site menu: a native modal dialog on the
 // right edge of the screen. This file covers it on the phone project; header.spec.ts covers the
@@ -29,8 +29,10 @@ async function openDrawer(page: Page) {
 }
 
 test.describe("phone menu", () => {
-  test.beforeEach(({ isMobile }) => {
+  test.beforeEach(async ({ page, isMobile }) => {
     test.skip(!isMobile, "the Menu button only shows below 68em");
+    // The menu is the subject here, not the cover a first visit to the home page opens under.
+    await introSeen(page);
   });
 
   test("the Menu button opens the site menu with the five links and the seven phases", async ({

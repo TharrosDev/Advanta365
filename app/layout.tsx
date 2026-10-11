@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Atkinson_Hyperlegible_Next, Besley } from "next/font/google";
 import type { ReactNode } from "react";
+import { IntroScript } from "@/components/intro/intro-script-tag";
 import { cx } from "@/lib/cx";
 import { SITE } from "@/lib/site";
 import "./globals.css";
@@ -23,10 +24,21 @@ export const metadata: Metadata = {
   openGraph: { type: "website", siteName: SITE.name },
 };
 
+// `IntroScript` comes first in the body, so it runs before anything is painted. It writes
+// `data-intro` on `<html>` for a first visit to the home page, an attribute React did not render:
+// hence `suppressHydrationWarning` there.
 export default function RootLayout({ children }: { children: ReactNode }) {
   return (
-    <html lang="en" dir="ltr" className={cx(besley.variable, atkinson.variable)}>
-      <body>{children}</body>
+    <html
+      lang="en"
+      dir="ltr"
+      className={cx(besley.variable, atkinson.variable)}
+      suppressHydrationWarning
+    >
+      <body>
+        <IntroScript />
+        {children}
+      </body>
     </html>
   );
 }

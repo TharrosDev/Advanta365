@@ -1,8 +1,16 @@
 import { expect, test, type Page } from "@playwright/test";
+import { introSeen } from "./helpers";
 
 // The look of the site, checked where it is computed: grounds and inks, the two typefaces, the
 // landmarks every page shares, and the things the design does without (a second theme, anything
 // drawn by script, blending, movement that starts by itself outside the hero sheet).
+//
+// The one other thing that moves by itself is the cover a first visit to the home page opens
+// under. It has a spec of its own, intro.spec.ts; here every load is a later one of its session.
+
+test.beforeEach(async ({ page }) => {
+  await introSeen(page);
+});
 
 const ROUTES = [
   "/",
@@ -18,11 +26,14 @@ const ROUTES = [
   "/cart",
 ];
 
-const DESK = "rgb(240, 243, 234)";
-const INK = "rgb(18, 48, 34)";
-const MARK = "rgb(244, 234, 82)";
-const WASH = "rgb(249, 247, 192)";
-const BINDER = "rgb(20, 56, 42)";
+// White, black and light blue: the desk, the ink and the text on it, the highlighter and its wash,
+// and the binder.
+const DESK = "rgb(244, 245, 248)";
+const INK = "rgb(11, 13, 18)";
+const ON_INK = "rgb(255, 255, 255)";
+const MARK = "rgb(134, 193, 255)";
+const WASH = "rgb(234, 244, 255)";
+const BINDER = "rgb(13, 15, 21)";
 
 // Attributes the root element never carries. The names are put together here, so that this file
 // does not contain them.
@@ -90,10 +101,16 @@ for (const path of ROUTES) {
     await expect(page.getByRole("banner")).toHaveCSS("border-bottom-width", "0px");
     await expect(page.getByRole("contentinfo")).toHaveCSS("background-color", BINDER);
 
-    // One theme, set by nothing on the root element.
+    // One theme, set by nothing on the root element. The state of the cover is the one thing
+    // written there, and only on a first visit: this load is not one, so there is no cover (only
+    // the home page renders one, and there it is not displayed).
     for (const attribute of ROOT_ATTRIBUTES) {
       await expect(page.locator("html")).not.toHaveAttribute(attribute);
     }
+    await expect(page.locator("html")).not.toHaveAttribute("data-intro");
+    const cover = page.locator("[data-intro-cover]");
+    await expect(cover).toHaveCount(path === "/" ? 1 : 0);
+    if (path === "/") await expect(cover).toHaveCSS("display", "none");
 
     // Every surface is one of the four bands, and the binder is the footer alone.
     const bands = await page
@@ -106,6 +123,33 @@ for (const path of ROUTES) {
     expect(bands.filter((band) => band.endsWith(":binder"))).toEqual(["footer:binder"]);
     expect(bands.filter((band) => band.endsWith(":wash")).length).toBeLessThanOrEqual(1);
 
+    // Light blue and black are only ever read one way round: the highlighter is never the colour
+    // of text, and whatever is written on it is ink.
+    const misread = await page.evaluate(
+      ([mark, ink]) => {
+        const ground = (element: Element): string => {
+          for (let node: Element | null = element; node; node = node.parentElement) {
+            const fill = getComputedStyle(node).backgroundColor;
+            if (fill !== "rgba(0, 0, 0, 0)") return fill;
+          }
+          return "";
+        };
+        return [...document.querySelectorAll("body *")]
+          .filter((element) =>
+            [...element.childNodes].some(
+              (node) => node.nodeType === Node.TEXT_NODE && node.textContent?.trim(),
+            ),
+          )
+          .filter((element) => {
+            const colour = getComputedStyle(element).color;
+            return colour === mark || (ground(element) === mark && colour !== ink);
+          })
+          .map((element) => `${element.localName}: ${element.textContent?.trim().slice(0, 40)}`);
+      },
+      [MARK, INK] as const,
+    );
+    expect(misread).toEqual([]);
+
     // Graphics are HTML, CSS and inline SVG, and nothing is blended.
     await expect(page.locator("canvas")).toHaveCount(0);
     const blended = await page.evaluate(
@@ -116,7 +160,8 @@ for (const path of ROUTES) {
     );
     expect(blended).toBe(0);
 
-    // Nothing starts moving by itself, except the tally and the caret of the hero sheet.
+    // Nothing starts moving by itself, except the tally and the caret of the hero sheet (and, on
+    // a first visit, the cover: intro.spec.ts).
     const strays = await page.evaluate(
       () =>
         document.getAnimations().filter((animation) => {
@@ -196,7 +241,8 @@ test.describe("home", () => {
 
     // Each block fills once and the caret blinks three times. Read from the styles (a delay, then
     // the duration as many times as it repeats), the last of them ends within five seconds of the
-    // first paint, however busy the machine that runs this is.
+    // first paint, however busy the machine that runs this is. (On a first visit they wait for the
+    // cover and still end inside the five seconds: intro.spec.ts.)
     const sequence = await sheet.locator("[data-block], [data-caret]").evaluateAll((elements) =>
       elements.map((element) => {
         const style = getComputedStyle(element);
@@ -241,14 +287,36 @@ test.describe("home", () => {
     expect(blocks).toEqual([...Array<string>(9).fill("ink"), "mark"]);
   });
 
-  test("the main button is the highlighter with ink text and a 2px ink border", async ({
+  test("the main button is solid ink with white text, and the highlighter under the pointer and the keyboard", async ({
     page,
+    isMobile,
   }) => {
     await page.goto("/");
 
     const button = page
       .getByRole("main")
       .getByRole("link", { name: "Browse the catalog", exact: true });
+    await expect(button).toHaveCSS("background-color", INK);
+    await expect(button).toHaveCSS("color", ON_INK);
+    await expect(button).toHaveCSS("border-top-width", "2px");
+    await expect(button).toHaveCSS("border-top-color", INK);
+
+    // Under the pointer it turns to the highlighter with ink text, inside the same ink border,
+    // and back when the pointer leaves. (A phone has no pointer that hovers.)
+    if (!isMobile) {
+      await button.hover();
+      await expect(button).toHaveCSS("background-color", MARK);
+      await expect(button).toHaveCSS("color", INK);
+      await expect(button).toHaveCSS("border-top-color", INK);
+      await page.mouse.move(0, 0);
+      await expect(button).toHaveCSS("background-color", INK);
+      await expect(button).toHaveCSS("color", ON_INK);
+    }
+
+    // Under keyboard focus (a key press first, so that focus moved by script counts as such) it
+    // does the same.
+    await page.keyboard.press("Tab");
+    await button.focus();
     await expect(button).toHaveCSS("background-color", MARK);
     await expect(button).toHaveCSS("color", INK);
     await expect(button).toHaveCSS("border-top-width", "2px");

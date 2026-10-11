@@ -6,7 +6,9 @@ import { describe, expect, it } from "vitest";
 import { LogoMark } from "@/components/ui/logo-mark";
 import {
   MARK_ASPECT,
+  MARK_BAR_D,
   MARK_BODY_D,
+  MARK_LEGS_D,
   MARK_PATH_D,
   MARK_SEGMENTS,
   MARK_STROKE_WIDTH,
@@ -75,6 +77,17 @@ describe("the mark in two inks", () => {
     expect(MARK_BODY_D).toBe(`${MARK_PATH_D.slice(0, MARK_PATH_D.lastIndexOf("H"))}H${n(cut)}`);
   });
 
+  it("splits the body into the two strokes a pen makes: the legs, then the crossbar", () => {
+    expect(MARK_LEGS_D).toBe("M4 20.5L12.5 3.5L21 20.5");
+    expect(MARK_BAR_D).toBe("M8.5 13.5H17.5");
+    expect(`${MARK_LEGS_D}${MARK_BAR_D}`).toBe(MARK_BODY_D);
+    // One stroke each: a path that moves the pen once.
+    expect(MARK_LEGS_D.match(/M/g)).toHaveLength(1);
+    expect(MARK_BAR_D.match(/M/g)).toHaveLength(1);
+    // The crossbar stops where the tail takes over.
+    expect(MARK_TAIL_D.startsWith(`M${MARK_BAR_D.split("H")[1]} `)).toBe(true);
+  });
+
   it("makes the tail the overshoot, from the cut to the end of the crossbar", () => {
     expect(MARK_TAIL_D).toBe("M17.5 13.5H28.5");
     expect(MARK_TAIL_D).toBe(`M${n(cut)} ${n(bar.a[1])}H${n(bar.b[0])}`);
@@ -121,17 +134,25 @@ describe("the mark as drawn", () => {
     expect(html).toContain('aria-hidden="true"');
   });
 
-  it("the site icon repeats the same path in ink on a highlighter tile", () => {
+  it("the site icon repeats the two paths on an ink tile: a white body, a highlighter tail", () => {
     const icon = readFileSync(
       fileURLToPath(new URL("../../app/icon.svg", import.meta.url)),
       "utf8",
     );
     expect(icon).toContain('viewBox="0 0 32 32"');
     expect(icon).toContain('rx="7"');
-    expect(icon).toContain('fill="#F4EA52"');
-    expect(icon).toContain('stroke="#123022"');
+    expect(icon).toContain('fill="#0B0D12"');
     expect(icon).toContain('transform="translate(3.5 6.6) scale(0.78)"');
-    expect(icon).toContain(`d="${MARK_PATH_D}"`);
     expect(icon).toContain(`stroke-width="${MARK_STROKE_WIDTH}"`);
+    expect(icon).toContain('stroke-linecap="round"');
+    expect(icon).toContain('stroke-linejoin="round"');
+    expect(icon.match(/<path/g)).toHaveLength(2);
+    expect(icon).not.toContain(`d="${MARK_PATH_D}"`);
+
+    // As in `LogoMark`, the tail is drawn first and the body over it.
+    const tail = icon.indexOf(`<path d="${MARK_TAIL_D}" stroke="#86C1FF"/>`);
+    const body = icon.indexOf(`<path d="${MARK_BODY_D}" stroke="#FFFFFF"/>`);
+    expect(tail).toBeGreaterThan(-1);
+    expect(body).toBeGreaterThan(tail);
   });
 });

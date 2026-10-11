@@ -167,7 +167,7 @@
   width: calc(var(--s-1) * 5);
   border: var(--edge) solid var(--ink);
   background: var(--mark);
-  color: var(--ink);
+  color: var(--on-mark);
 }
 
 @media (min-width: 40em) {

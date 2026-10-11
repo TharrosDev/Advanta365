@@ -19,18 +19,19 @@
 }
 
 .link:focus-visible {
-  background: var(--desk);
+  background: var(--mark-wash);
 }
 
 /* Current: the highlighter, an ink edge and a heavier weight. Never the fill alone. */
 .link[aria-current] {
   background: var(--mark);
   box-shadow: inset 0 0 0 var(--edge) var(--ink);
+  color: var(--on-mark);
   font-weight: 700;
 }
 
 @media (hover: hover) {
   .link:hover:not([aria-current]) {
-    background: var(--desk);
+    background: var(--mark-wash);
   }
 }

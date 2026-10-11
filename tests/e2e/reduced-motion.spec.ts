@@ -1,7 +1,9 @@
 import { expect, test } from "@playwright/test";
 
-// With prefers-reduced-motion nothing on the site moves by itself: the hero sheet is drawn in its
-// final state, and navigation and the filters work as they always do.
+// With prefers-reduced-motion nothing on the site moves by itself: a first visit opens on the page
+// and not under the cover, the hero sheet is drawn in its final state, and navigation and the
+// filters work as they always do. Every test here is the first load of its session, the one load
+// that would have the cover.
 
 test.beforeEach(async ({ page }) => {
   await page.emulateMedia({ reducedMotion: "reduce" });
@@ -14,8 +16,15 @@ test("the home page is drawn in its final state, with nothing in motion", async 
   await expect(heading).toBeVisible();
   await expect(heading).toHaveText("Don’t start your M365 rollout from a blank prompt.");
 
-  // The fill of the tallies and the blink of the caret are the only things that start by
-  // themselves, and both are switched off.
+  // Three things start by themselves when motion is allowed: the cover of a first visit, the fill
+  // of the tally and the blink of the caret. All three are switched off. The cover is in the page
+  // and not displayed, the root element was never marked for it, and nothing at all is animating.
+  const cover = page.locator("[data-intro-cover]");
+  await expect(cover).toHaveCount(1);
+  await expect(cover).toHaveCSS("display", "none");
+  await expect(page.locator("html")).not.toHaveAttribute("data-intro");
+  await expect.poll(() => page.evaluate(() => document.getAnimations().length)).toBe(0);
+
   const blocks = page.locator("[data-tally] [data-block]");
   expect(await blocks.count()).toBeGreaterThan(0);
   for (const block of await blocks.all()) {

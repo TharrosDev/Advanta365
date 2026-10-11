@@ -14,11 +14,13 @@ Original design spec (written before the rebuild; its visual design is supersede
 - Next.js 16 (App Router), React 19, TypeScript (strict), pnpm via corepack.
 - Styling: CSS Modules next to each component, reading design tokens defined as CSS custom
   properties in `app/globals.css`. No Tailwind.
-- Design: "Working Copy", one light theme in ink and a single highlighter yellow, with a dark
-  footer. See `docs/design-system.md`.
+- Design: "Working Copy", one light theme: black ink on white, a single light-blue highlighter and
+  a near-black footer. See `docs/design-system.md`.
 - Type: Besley and Atkinson Hyperlegible Next (variable fonts) through `next/font/google`.
 - Graphics: HTML, CSS and inline SVG, drawn on the server. No canvas, WebGL, worker or animation
   library.
+- Motion: CSS only. A first visit to the home page opens under a cover that is signed and lifted
+  off in 2.3 seconds; it is switched on by a small inline script, once per browser session.
 - Catalog records are validated with zod when the catalog loads.
 - Tests: Vitest (unit) and Playwright (browser).
 
@@ -44,7 +46,7 @@ reuse a server already running on port 3100 unless `CI` is set, so stop a stale 
 
 ```
 app/
-  layout.tsx              Root html and body, the two fonts
+  layout.tsx              Root html and body, the two fonts, the inline script of the cover
   globals.css             Design tokens, the four [data-band] surfaces, base rules, the type classes
   icon.svg                The site icon (with globals.css, the only file that holds raw colour)
   (site)/                 Public pages inside the site shell (skip link, beta strip, sticky bar,
@@ -61,6 +63,8 @@ components/
   layout/                 Header, PrimaryNav, NavDrawer, PhaseRail, Footer, BetaStrip, TitleBlock,
                           Breadcrumbs
   not-found/              MissingPage (the 404 content) and AskedPath
+  intro/                  The cover of a first visit to the home page: the sheet, its inline script
+                          and the decision to play it
   home/                   Home page sections, top to bottom: hero (with the hero sheet), #featured,
                           #inside, #bundles, #problem and #solution, #practice, #values, the
                           built-for row, #closing

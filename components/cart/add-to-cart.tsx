@@ -7,7 +7,7 @@ import type { CartLine } from "@/lib/cart/store";
 import { useCart } from "./use-cart";
 
 /**
- * The buy control of a purchase panel. It is the highlighted button until the item is in the cart;
+ * The buy control of a purchase panel. It is the solid ink button until the item is in the cart;
  * after that it is an outline link to the cart, with a tick before its label. A status region next
  * to it announces the change.
  */

@@ -103,7 +103,7 @@
 /* The ring is drawn inside the row: the rows reach into the panel's padding as it is. */
 .row:focus-visible {
   outline-offset: -3px;
-  background: var(--desk);
+  background: var(--mark-wash);
 }
 
 .primary.primary {
@@ -115,6 +115,7 @@
 .primary.primary[aria-current] {
   background: var(--mark);
   box-shadow: inset 0 0 0 var(--edge) var(--ink);
+  color: var(--on-mark);
   font-weight: 700;
 }
 
@@ -151,7 +152,7 @@
   transition: background-color var(--time-swap) linear;
 }
 
-/* The row's hover fill is the tile's own colour, so the tile steps to paper to stay drawn. */
+/* On the wash of a hovered row the grey tile would go flat, so it steps to paper to stay drawn. */
 .phase:focus-visible .numeral {
   background: var(--paper);
 }
@@ -164,6 +165,7 @@
 .phase[aria-current] .numeral {
   border-color: var(--ink);
   background: var(--mark);
+  color: var(--on-mark);
 }
 
 .contact {
@@ -189,7 +191,7 @@
 
 @media (hover: hover) {
   .row:hover:not(.primary[aria-current]) {
-    background: var(--desk);
+    background: var(--mark-wash);
   }
 
   .phase:hover:not([aria-current]) .numeral {

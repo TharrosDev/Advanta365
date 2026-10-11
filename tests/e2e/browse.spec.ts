@@ -1,9 +1,14 @@
 import { expect, test } from "@playwright/test";
-import { NAVIGATION_TIMEOUT } from "./helpers";
+import { introSeen, NAVIGATION_TIMEOUT } from "./helpers";
 
 // The two specs that start on "/" navigate by links at the start of the run, when every worker is
 // loading its first page. They get a navigation budget, so a busy machine fails them on the page and
-// not on the clock.
+// not on the clock. They are about the links, so they start on the page and not under the cover of
+// a first visit.
+
+test.beforeEach(async ({ page }) => {
+  await introSeen(page);
+});
 
 test("home leads to a phase and on to a template", async ({ page }) => {
   await page.goto("/");

@@ -83,9 +83,13 @@
   text-decoration: none;
 }
 
-/* The underline of a hovered or focused link is drawn under the name only, not under a numeral. */
+/*
+ * The underline of a hovered or focused link is drawn under the name only, not under a numeral. It
+ * is the highlighter, which can be a line here because the binder is dark.
+ */
 .name {
   text-decoration-line: none;
+  text-decoration-color: var(--mark);
   text-decoration-thickness: var(--edge);
   text-underline-offset: 3px;
 }

@@ -66,9 +66,11 @@
   background: var(--mark-wash);
 }
 
+/* The phase being shown: the highlighter inside an ink edge, with its name set heavier. */
 .rail .tab[aria-current] {
   border-color: var(--ink);
   background: var(--mark);
+  color: var(--on-mark);
 }
 
 .rail .tab[aria-current] .name {
@@ -101,14 +103,16 @@
   font-size: 1.25rem;
 }
 
+/* The wash is light on every band, so the card reads in ink while it is on. */
 .large .tab:focus-visible {
   --text: var(--ink);
   border-color: var(--ink);
   background: var(--mark-wash);
 }
 
+/* The ring inside the border makes the ink edge of the current card 2px. */
 .large .tab[aria-current] {
-  --text: var(--ink);
+  --text: var(--on-mark);
   border-color: var(--ink);
   background: var(--mark);
   box-shadow: inset 0 0 0 var(--hair) var(--ink);

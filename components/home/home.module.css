@@ -462,7 +462,7 @@
     grid-column: 1 / span 8;
   }
 
-  /* At the right edge of the sheet: the marked button stands over the marked block of the tally. */
+  /* At the right edge of the sheet: the button stands over the marked block of the tally. */
   .closingAction {
     grid-column: 9 / span 4;
     align-self: end;

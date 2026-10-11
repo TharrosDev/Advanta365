@@ -9,16 +9,20 @@
   color: var(--text);
 }
 
-/* The square highlighter tile with the mark in ink, centred, at 60% of the tile's height. */
+/*
+ * The square ink tile with the mark centred in it, at 60% of the tile's height: the "A" in white
+ * and its tail in the highlighter.
+ */
 .square {
+  --logo-tail: var(--mark);
   display: grid;
   flex: none;
   place-items: center;
   width: var(--lockup-mark);
   height: var(--lockup-mark);
   border-radius: 7px;
-  background: var(--mark);
-  color: var(--ink);
+  background: var(--ink);
+  color: var(--on-ink);
 }
 
 .glyph {
@@ -44,7 +48,7 @@
   --lockup-name: 1.1875rem;
 }
 
-/* The second ink is the highlighter only where it can be seen: on the binder. */
+/* Drawn bare, the second ink is the highlighter only where it can be seen: on the binder. */
 [data-band="binder"] .bare {
   --logo-tail: var(--mark);
 }
@@ -62,6 +66,7 @@
     border: var(--hair) solid CanvasText;
   }
 
+  .square,
   [data-band="binder"] .bare {
     --logo-tail: currentColor;
   }

@@ -4,10 +4,10 @@ import { cx } from "@/lib/cx";
 import styles from "./text-link.module.css";
 
 /**
- * A link inside running text or a list: the text colour of its surface with a thin underline that
- * thickens on hover and keyboard focus. The colour does not change. A root-relative `href` is an
- * internal link; anything else (`mailto:`, a full address) is a plain anchor, and `external` opens a
- * new tab.
+ * A link inside running text or a list: the text colour of its surface with a thin underline. On
+ * hover and keyboard focus the underline thickens and the highlighter is drawn behind the words;
+ * on the binder the underline takes the highlighter instead. A root-relative `href` is an internal
+ * link; anything else (`mailto:`, a full address) is a plain anchor, and `external` opens a new tab.
  */
 export function TextLink({
   href,

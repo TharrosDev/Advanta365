@@ -23,11 +23,13 @@ type ButtonProps = {
  * root-relative `href` is an internal link), otherwise a `<button type="button">` that takes every
  * native attribute.
  *
- * `mark` is the highlighter: the buyer's main move on a page. `outline` is every secondary action.
- * `ink` is the main action where the surface is already the wash. `text` is an underlined label
- * with no box (Remove, Clear all filters). Sizes are heights: 40 (44 below 68em), 48 and 56. The
- * children sit in a row 7px apart, so an icon can be passed before the label. Hover and keyboard
- * focus look the same, and the width never changes between states.
+ * `mark` is the buyer's main move on a page: solid ink, which turns to the highlighter under the
+ * pointer. `outline` is every secondary action. `ink` is the same solid button, named for the main
+ * action where the surface is already the wash. `text` is an underlined label with no box (Remove,
+ * Clear all filters); its words sit in a span of their own, so the highlighter can be drawn behind
+ * them. Sizes are heights: 40 (44 below 68em), 48 and 56. The children sit in a row 7px apart, so
+ * an icon can be passed before the label. Hover and keyboard focus look the same, and the width
+ * never changes between states.
  */
 export function Button({
   variant = "mark",
@@ -52,7 +54,7 @@ export function Button({
 
   const content = (
     <>
-      {children}
+      {variant === "text" ? <span className={styles.words}>{children}</span> : children}
       {arrow ? <Icon name="arrow" className={styles.arrow} /> : null}
     </>
   );

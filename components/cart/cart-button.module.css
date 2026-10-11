@@ -21,10 +21,10 @@
 .count.filled {
   background: var(--mark);
   box-shadow: inset 0 0 0 var(--hair) var(--ink);
-  color: var(--ink);
+  color: var(--on-mark);
 }
 
-/* The control's own hover fill is the tile, so an empty badge steps to the surface to stay drawn. */
+/* On the wash of the hovered control an empty badge would go flat, so it steps to the surface. */
 .root:focus-visible .count:not(.filled) {
   background: var(--surface);
 }
