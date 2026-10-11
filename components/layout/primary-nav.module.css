@@ -18,7 +18,8 @@
   transition: background-color var(--time-swap) linear;
 }
 
-.link:focus-visible {
+.link:focus-visible,
+.link:active:not([aria-current]) {
   background: var(--mark-wash);
 }
 

@@ -14,10 +14,13 @@
 
 /*
  * One line: a small sheet or folder, then what it is and its title, the price and Remove. Below
- * 40em the price and Remove share a second line under the title.
+ * 40em the price and Remove share a second line under the title. A line is never shorter than a
+ * sheet (36px across, so 50.4px tall) and its two pads, so a bundle's line, whose folder is lower,
+ * is as tall as a template's.
  */
 .row {
   display: grid;
+  min-height: calc(3.15rem + 2 * var(--row-pad-block));
   grid-template-columns: 3rem minmax(0, 1fr) auto;
   grid-template-areas:
     "glyph item  item"

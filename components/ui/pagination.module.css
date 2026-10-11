@@ -51,7 +51,8 @@
   transition: background-color var(--time-swap) linear;
 }
 
-.page:focus-visible {
+.page:focus-visible,
+a.page:active {
   background: var(--mark-wash);
 }
 

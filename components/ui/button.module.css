@@ -163,6 +163,26 @@
   color: var(--on-mark);
 }
 
+/* The other two answer a press with their hover, which a finger never gets to see. */
+.outline:active {
+  background: var(--mark-wash);
+  color: var(--ink);
+}
+
+[data-band="wash"] .outline:active {
+  background: var(--surface);
+}
+
+.text:active {
+  text-decoration-thickness: var(--edge);
+}
+
+.text:active .words {
+  background: var(--mark);
+  box-shadow: 0 0 0 var(--edge) var(--mark);
+  color: var(--on-mark);
+}
+
 /* Disabled comes last so it wins over every variant and its hover. Nothing moves. */
 .root:disabled {
   border-color: var(--line);
