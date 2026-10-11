@@ -51,6 +51,13 @@
   background: var(--mark-wash);
 }
 
+/* A press shows the same wash, so a finger gets the answer a pointer gets from hovering. */
+.trigger:active {
+  --text: var(--ink);
+  --focus-ring: var(--ink);
+  background: var(--mark-wash);
+}
+
 @media (hover: hover) {
   .trigger:hover {
     --text: var(--ink);

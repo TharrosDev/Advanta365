@@ -62,7 +62,8 @@
   white-space: nowrap;
 }
 
-.rail .tab:focus-visible {
+.rail .tab:focus-visible,
+.rail .tab:active:not([aria-current]) {
   background: var(--mark-wash);
 }
 
@@ -104,7 +105,8 @@
 }
 
 /* The wash is light on every band, so the card reads in ink while it is on. */
-.large .tab:focus-visible {
+.large .tab:focus-visible,
+.large .tab:active:not([aria-current]) {
   --text: var(--ink);
   border-color: var(--ink);
   background: var(--mark-wash);
@@ -122,20 +124,49 @@
   font-weight: 700;
 }
 
+/* Two across: an odd last card closes the block at full width instead of leaving a hole. */
+.large .item:last-child:nth-child(odd) {
+  grid-column: 1 / -1;
+}
+
 @media (min-width: 40em) {
   .large {
     grid-template-columns: repeat(4, minmax(0, 1fr));
   }
+
+  .large .item:last-child:nth-child(odd) {
+    grid-column: auto;
+  }
 }
 
-/* One row. Each card starts from the width of its name and takes an equal share of what is left. */
+/*
+ * One row where the seven names fit, which they do from 42rem of list: each card starts from the
+ * width of its name and takes an equal share of what is left. The names never break, and the
+ * padding gives up a quarter so the row fits the content column of a full page.
+ *
+ * A narrower list (the same column on a window just past 68em) keeps four across, as from 40em.
+ * The switch is in the cards' own limits: `(100% - 42rem) * 999` is far below zero on a list
+ * narrower than 42rem and far above it on a wider one, so each clamp lands on one of its ends.
+ */
 @media (min-width: 68em) {
   .large {
+    --quarter: calc((100% - 3 * var(--s-1)) / 4 - 0.5px);
     display: flex;
+    flex-wrap: wrap;
   }
 
   .large .item {
     flex: 1 1 auto;
+    min-width: clamp(0px, (42rem - 100%) * 999, var(--quarter));
+    max-width: clamp(var(--quarter), (100% - 42rem) * 999, 100%);
+  }
+
+  .large .tab {
+    padding-inline: calc(var(--s-1) * 1.5);
+  }
+
+  .large .name {
+    white-space: nowrap;
   }
 }
 

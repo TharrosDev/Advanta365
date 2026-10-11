@@ -170,7 +170,10 @@
   border-radius: var(--round-1);
 }
 
+/* Under the keyboard the wash fills the focus ring exactly, in place of standing past its sides. */
 .card:has(.link:focus-visible)::before {
+  inset: -3px;
+  border-radius: var(--round-1);
   opacity: 1;
 }
 
@@ -192,7 +195,17 @@
   opacity: 1;
 }
 
+/* A press on a row shows its wash too, so a finger gets what a pointer gets from hovering. */
+.card:active::before {
+  opacity: 1;
+}
+
+.card:active .link {
+  text-decoration-color: currentColor;
+}
+
 /* While the wash is on, the row reads the ink colours, whatever its band says. */
+.row:active,
 .row:has(.link:focus-visible) {
   --text: var(--ink);
   --text-soft: var(--ink-soft);

@@ -97,6 +97,16 @@
   margin-block-start: var(--s-2);
 }
 
+/*
+ * A wide title is set in the statement size, which grows faster than the banner: from 40em its
+ * lead stands 21px under it, so the gap keeps its proportion to the line above.
+ */
+@media (min-width: 40em) {
+  .title:global(.type-statement) + .lead {
+    margin-block-start: var(--s-3);
+  }
+}
+
 .extra {
   width: 100%;
 }

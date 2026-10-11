@@ -94,6 +94,20 @@
   translate: 3px 0;
 }
 
+/* A press shows the same wash, so a finger gets the answer a pointer gets from hovering. */
+.root:active {
+  --text: var(--ink);
+  --text-soft: var(--ink-soft);
+  --text-faint: var(--ink-faint);
+  --line-ink: var(--ink);
+  --focus-ring: var(--ink);
+  background: var(--mark-wash);
+}
+
+.root:active .label {
+  text-decoration-color: currentColor;
+}
+
 @media (hover: hover) {
   .root:hover {
     --text: var(--ink);

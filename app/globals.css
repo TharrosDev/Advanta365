@@ -261,6 +261,8 @@
 
 html {
   scrollbar-gutter: stable;
+  /* Inherited: the page, the drawer, the filter sheet and the filter rail all draw it this way. */
+  scrollbar-color: var(--rule-firm) var(--desk);
   /* Anchors and focused elements stop clear of the sticky bar. */
   scroll-padding-top: calc(var(--bar-h) + var(--s-3));
   -webkit-text-size-adjust: 100%;

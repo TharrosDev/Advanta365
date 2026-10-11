@@ -114,6 +114,11 @@
   background: var(--mark-wash);
 }
 
+/* The drawer is used by touch: a press shows the wash a pointer would get from hovering. */
+.row:active:not(.primary[aria-current]) {
+  background: var(--mark-wash);
+}
+
 .primary.primary {
   min-height: calc(var(--s-1) * 7);
   font-size: 1.125rem;
@@ -161,7 +166,8 @@
 }
 
 /* On the wash of a hovered row the grey tile would go flat, so it steps to paper to stay drawn. */
-.phase:focus-visible .numeral {
+.phase:focus-visible .numeral,
+.phase:active:not([aria-current]) .numeral {
   background: var(--paper);
 }
 

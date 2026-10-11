@@ -171,7 +171,11 @@
     animation-range: entry calc(10% + var(--order, 0) * 4%) cover min(28%, 16rem);
   }
 
-  /* The hairlines of a ledger are drawn as it scrolls in. */
+  /*
+   * The hairlines of a ledger are drawn as it scrolls in. Their far end is capped lower than the
+   * other entrances: a ledger is tall, and one that starts in the lower third of the first screen
+   * would otherwise rest with its rules stopping short of the values they carry.
+   */
   html[data-motion="on"][data-timeline="on"] [data-ledger] {
     view-timeline-name: --ledger;
   }
@@ -179,7 +183,7 @@
   html[data-motion="on"][data-timeline="on"] [data-ledger] > ::before {
     animation: move-grow linear both;
     animation-timeline: --ledger;
-    animation-range: entry 10% cover min(28%, 16rem);
+    animation-range: entry 10% cover min(28%, 10rem);
   }
 
   [data-move="grow"],

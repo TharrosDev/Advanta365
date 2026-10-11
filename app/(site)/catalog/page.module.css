@@ -44,7 +44,9 @@
 /*
  * From 68em the rail is a column in the margin, its groups 28px apart. It stays under the bar and
  * scrolls inside itself when the filters are taller than the window. The 7px of padding, taken back
- * by the margin, is the room a focus ring needs inside a box that clips.
+ * by the margin, is the room a focus ring needs inside a box that clips. Its foot is 28px of
+ * padding that fades out (the mask is alpha only), so a row the box cuts off thins away in place of
+ * ending on a hard edge, and the last row clears the fade once the column is scrolled to its end.
  */
 @media (min-width: 68em) {
   .rail {
@@ -52,9 +54,10 @@
     align-items: stretch;
     gap: var(--s-4);
     max-height: calc(100dvh - var(--bar-h) - var(--s-5));
-    margin: calc(-1 * var(--s-1));
-    padding: var(--s-1);
+    margin: calc(-1 * var(--s-1)) calc(-1 * var(--s-1)) calc(-1 * var(--s-4));
+    padding: var(--s-1) var(--s-1) var(--s-4);
     overflow-y: auto;
+    mask-image: linear-gradient(to bottom, black calc(100% - var(--s-4)), transparent);
     scrollbar-color: var(--line-firm) transparent;
     scrollbar-width: thin;
   }
