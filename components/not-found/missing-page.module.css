@@ -1,0 +1,101 @@
+.root {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--s-5) var(--col-gap);
+}
+
+/* The empty sheet: lifted off the desk like the top sheet of a pile. */
+.sheet {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  box-shadow: var(--lift);
+}
+
+/* The three digits on one line; the middle one is the part that is missing, so it is marked. */
+.figure {
+  display: flex;
+  align-items: center;
+  gap: var(--s-1);
+  color: var(--ink);
+}
+
+.marked {
+  padding-inline: var(--s-2);
+  border: var(--edge) solid var(--ink);
+  border-radius: var(--round-3);
+  background: var(--mark);
+}
+
+.blank {
+  margin-block-start: var(--s-4);
+}
+
+.tally {
+  margin-block-start: var(--s-5);
+}
+
+.text {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  min-width: 0;
+}
+
+/* One line high from the start, so the title does not move when the address arrives. */
+.path {
+  min-height: 1lh;
+  max-width: 100%;
+  color: var(--text-faint);
+  overflow-wrap: anywhere;
+}
+
+.title {
+  margin-block-start: var(--s-1);
+}
+
+.body {
+  max-width: var(--wrap-copy);
+  margin-block-start: var(--s-2);
+  color: var(--text-soft);
+}
+
+.home {
+  margin-block-start: var(--s-4);
+}
+
+.next {
+  display: flex;
+  flex-direction: column;
+  align-self: stretch;
+  gap: var(--s-2);
+  margin-block-start: var(--s-6);
+}
+
+@media (min-width: 68em) {
+  .root {
+    grid-template-columns: repeat(12, minmax(0, 1fr));
+    align-items: start;
+  }
+
+  .sheet {
+    grid-column: 1 / span 6;
+    min-height: calc(var(--s-9) * 2.5);
+  }
+
+  /* The tally stands on the bottom edge of the sheet. */
+  .tally {
+    margin-block-start: auto;
+  }
+
+  .text {
+    grid-column: 8 / -1;
+  }
+}
+
+@media (forced-colors: active) {
+  .marked {
+    border-color: CanvasText;
+    background: Canvas;
+  }
+}

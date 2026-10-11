@@ -1,50 +1,48 @@
+/* The chevron takes its colour from here: an icon must inherit it for forced colours to apply. */
 .wrap {
   position: relative;
-  display: inline-flex;
-  align-items: center;
-  max-width: 100%;
+  display: block;
+  color: var(--text);
 }
 
+/* The right padding keeps the value clear of the chevron: 14px, the 20px icon, then air. */
 .select {
+  display: block;
   width: 100%;
-  min-height: var(--touch-target);
-  padding: var(--spacing-xs) var(--spacing-md) var(--spacing-xs) 0;
-  border: 0;
-  border-bottom: 1px solid var(--color-foreground-20);
-  border-radius: 0;
-  background: none;
-  color: var(--color-foreground-100);
-  font-size: 1rem;
+  height: var(--control);
+  padding: 0 var(--s-5) 0 var(--s-2);
+  border: var(--edge) solid var(--line-firm);
+  border-radius: var(--round-2);
+  background: var(--surface);
+  color: var(--text);
+  font-weight: 400;
   text-overflow: ellipsis;
-  cursor: pointer;
   appearance: none;
-}
-
-.select:hover {
-  border-bottom-color: var(--color-foreground-40);
+  cursor: pointer;
+  transition: border-color var(--time-swap) linear;
 }
 
 .select:focus-visible {
-  outline: 0;
-  border-bottom-color: var(--color-foreground-100);
-  box-shadow: 0 1px 0 var(--color-foreground-100);
+  border-color: var(--line-ink);
 }
 
 .select:disabled {
-  color: var(--color-foreground-30);
+  border-color: var(--line);
+  background: var(--tile);
+  color: var(--text-faint);
   cursor: not-allowed;
 }
 
-/* The option list is drawn by the platform: give it the surface of the current theme. */
-.select > option {
-  background: var(--color-background-100);
-  color: var(--color-foreground-100);
-}
-
-.arrow {
+.chevron {
   position: absolute;
   top: 50%;
-  right: var(--spacing-xs3);
+  right: var(--s-2);
   translate: 0 -50%;
   pointer-events: none;
+}
+
+@media (hover: hover) {
+  .select:hover:not(:focus-visible, :disabled) {
+    border-color: var(--text-soft);
+  }
 }

@@ -1,11 +1,11 @@
 import type { SelectHTMLAttributes } from "react";
-import { ArrowIcon } from "@/components/ui/arrow-icon";
+import { Icon } from "@/components/ui/icon";
 import { cx } from "@/lib/cx";
 import styles from "./select.module.css";
 
 /**
- * A native `<select>` in the hairline field style with the site arrow as its indicator. `className` lands
- * on the wrapper; every other prop goes to the `<select>`.
+ * A native `<select>` drawn as the site's field, with the chevron icon as its indicator.
+ * `className` lands on the wrapper; every other prop goes to the `<select>`.
  */
 export function Select({
   className,
@@ -14,10 +14,10 @@ export function Select({
 }: SelectHTMLAttributes<HTMLSelectElement> & { className?: string }) {
   return (
     <span className={cx(styles.wrap, className)}>
-      <select {...rest} className={styles.select}>
+      <select {...rest} className={cx("type-ui", styles.select)}>
         {children}
       </select>
-      <ArrowIcon direction="down" size={14} className={styles.arrow} />
+      <Icon name="chevron" className={styles.chevron} />
     </span>
   );
 }

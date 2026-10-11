@@ -1,0 +1,112 @@
+/*
+ * The link reaches the edges of its row: it takes back the row's padding with negative margins and
+ * puts the same padding inside itself. Outside a `BandedRow` both fall back to zero.
+ */
+.root {
+  display: flex;
+  align-items: center;
+  gap: var(--s-2);
+  min-height: var(--control-lg);
+  margin: calc(-1 * var(--row-pad-block, 0px)) calc(-1 * var(--row-pad-inline, 0px));
+  padding: var(--row-pad-block, 0px) var(--row-pad-inline, 0px);
+  color: var(--text);
+  text-decoration: none;
+  transition: background-color var(--time-swap) linear;
+}
+
+/* The lead and the text share the baseline of the label's first line. */
+.lead {
+  flex: none;
+  align-self: baseline;
+}
+
+.body {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  align-items: flex-start;
+  align-self: baseline;
+  gap: var(--s-1);
+  min-width: 0;
+}
+
+.text {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.label {
+  text-decoration: underline transparent;
+  text-decoration-thickness: var(--edge);
+  text-underline-offset: 3px;
+  overflow-wrap: break-word;
+  transition: text-decoration-color var(--time-swap) linear;
+}
+
+.caption {
+  color: var(--text-faint);
+}
+
+.trailing {
+  flex: none;
+}
+
+.arrow {
+  transition: translate var(--time-swap) linear;
+}
+
+/* From 40em the trailing value moves from under the caption to the right of the text. */
+@media (min-width: 40em) {
+  .body {
+    flex-direction: row;
+    align-items: center;
+    gap: var(--s-2);
+  }
+
+  .text {
+    flex: 1;
+  }
+}
+
+/*
+ * Hover and keyboard focus look the same. The wash is a light surface on every band, so while it
+ * is on, the row and everything in it read the ink colours, whatever the band says.
+ */
+.root:focus-visible {
+  --text: var(--ink);
+  --text-soft: var(--ink-soft);
+  --text-faint: var(--ink-faint);
+  --line-ink: var(--ink);
+  --focus-ring: var(--ink);
+  background: var(--mark-wash);
+  /* The ring sits inside the row, clear of the rounded corners of the list that clips it. */
+  outline-offset: calc(-1 * var(--s-1));
+}
+
+.root:focus-visible .label {
+  text-decoration-color: currentColor;
+}
+
+.root:focus-visible .arrow {
+  translate: 3px 0;
+}
+
+@media (hover: hover) {
+  .root:hover {
+    --text: var(--ink);
+    --text-soft: var(--ink-soft);
+    --text-faint: var(--ink-faint);
+    --line-ink: var(--ink);
+    --focus-ring: var(--ink);
+    background: var(--mark-wash);
+  }
+
+  .root:hover .label {
+    text-decoration-color: currentColor;
+  }
+
+  .root:hover .arrow {
+    translate: 3px 0;
+  }
+}

@@ -1,56 +1,80 @@
-/* Same two-column rule as the template page: the panel is first in the DOM, so a keyboard user reaches
-   "Add bundle to cart" before the long list, and it moves to the right-hand column from 1024px. */
-.layout {
-  display: flex;
-  flex-direction: column;
-  gap: var(--spacing-xl2);
-  padding-bottom: var(--spacing-xl3);
+/* In the margin of the title block: the seven phases, the ones this bundle reaches inked. */
+.coverage.coverage {
+  max-width: calc(var(--s-1) * 41);
+}
+
+/*
+ * The content column holds two zones. The panel comes first in the document and the details second;
+ * from 68em the details take the first six of the nine columns and the panel the last three.
+ */
+.zones {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--s-5) var(--col-gap);
 }
 
 .details {
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-xl3);
+  gap: var(--s-5);
   min-width: 0;
 }
 
 .description {
-  max-width: var(--measure-prose);
+  max-width: var(--wrap-copy);
+  color: var(--text);
 }
 
-.section {
+/* One phase of the bundle: its numeral tile and heading, then its templates as rows. */
+.group {
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-md);
+  gap: var(--s-3);
 }
 
-.rows {
-  margin: 0;
-  padding: 0;
-  list-style: none;
+.groupHead {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--s-2);
 }
 
-@media (min-width: 768px) {
-  .layout {
-    padding-bottom: var(--spacing-xl6);
-  }
+/* A 28px tile, centred on the first line of the heading. Besley's own figures. */
+.tile {
+  display: grid;
+  flex: none;
+  place-items: center;
+  width: var(--s-4);
+  height: var(--s-4);
+  margin-block-start: calc((var(--size-section) * 1.24 - var(--s-4)) / 2);
+  border-radius: var(--round-1);
+  background: var(--tile);
+  color: var(--text);
+  font-family: var(--face-display);
+  font-size: var(--size-note);
+  line-height: 1;
+  font-weight: 700;
+  font-feature-settings: "tnum" 0;
 }
 
-@media (min-width: 1024px) {
-  .layout {
-    display: grid;
-    grid-template-columns: minmax(0, 2fr) minmax(0, 1fr);
-    column-gap: var(--spacing-xl3);
-    align-items: start;
+@media (min-width: 68em) {
+  .zones {
+    grid-template-columns: repeat(9, minmax(0, 1fr));
   }
 
   .details {
-    grid-column: 1;
-    grid-row: 1;
+    grid-area: 1 / 1 / 2 / span 6;
   }
 
   .panel {
-    grid-column: 2;
-    grid-row: 1;
+    position: sticky;
+    top: calc(var(--bar-h) + var(--s-3));
+    grid-area: 1 / 7 / 2 / -1;
+    align-self: start;
+  }
+}
+
+@media (forced-colors: active) {
+  .tile {
+    border: var(--hair) solid CanvasText;
   }
 }

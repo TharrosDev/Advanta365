@@ -1,101 +1,173 @@
 .loading {
-  padding-block: var(--spacing-xl);
+  color: var(--text-soft);
 }
 
-/* Empty cart: the heading, one sentence and two ways out. The global `ruled` class is the top hairline. */
+/*
+ * The component stands in the content column of its page (grid columns 4 to 12), so from 68em its
+ * own nine columns are those of the page: the lines take the first six, the summary the last three.
+ */
+.layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--s-4) var(--col-gap);
+}
+
+/* One line: what it is and its title, then the price, then Remove. */
+.row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 0 var(--s-3);
+}
+
+.item {
+  grid-column: 1 / -1;
+  min-width: 0;
+}
+
+.kind {
+  color: var(--text-faint);
+}
+
+/*
+ * A block of its own, so its lines balance ("Executive Sponsor / Kickoff Deck", not a lone "Deck").
+ * Below 68em its pointer area reaches 14px above and below the text, to the edges of the row, so
+ * the target is at least 44px tall; the pseudo-element is invisible and moves nothing.
+ */
+.title {
+  position: relative;
+  display: block;
+  width: fit-content;
+  max-width: 100%;
+  overflow-wrap: break-word;
+  text-wrap: balance;
+}
+
+.title::after {
+  content: "";
+  position: absolute;
+  inset: calc(-1 * var(--s-2)) 0;
+}
+
+/* A compound kept whole is an inline block; it draws the same underline as the rest of the title. */
+.title span {
+  text-decoration-thickness: inherit;
+}
+
+.price {
+  color: var(--text);
+}
+
+.remove {
+  justify-self: end;
+}
+
+/* The summary: the amount, the one (disabled) way to pay, and why it is disabled. */
+.summary {
+  display: flex;
+  flex-direction: column;
+  align-self: start;
+}
+
+.subtotalLabel {
+  color: var(--text-soft);
+}
+
+.subtotal {
+  margin-block-start: var(--s-1);
+}
+
+/*
+ * The summary is three columns wide, so the button gives up half of its side padding to keep the
+ * label on one line; a label that still has to wrap is split evenly.
+ */
+.checkout.checkout {
+  margin-block: var(--s-3) var(--s-2);
+  padding-inline: var(--s-2);
+  text-wrap: balance;
+}
+
+.summaryNote {
+  color: var(--text-soft);
+}
+
+/* Empty: the blank field first, the tally of nothing last. */
 .empty {
   display: flex;
   flex-direction: column;
   align-items: flex-start;
-  gap: var(--spacing-md);
-  padding-block: var(--spacing-xl) var(--spacing-xl5);
+}
+
+/* The field is as wide as a search box, not as wide as the sheet (as in an empty catalog result). */
+.blank.blank {
+  max-width: calc(var(--s-9) * 2);
+}
+
+.emptyTitle {
+  margin-block-start: var(--s-4);
+  border-radius: var(--round-1);
 }
 
 .emptyBody {
-  max-width: var(--measure-body);
+  max-width: var(--wrap-copy);
+  margin-block-start: var(--s-1);
+  color: var(--text-soft);
 }
 
 .actions {
   display: flex;
-  flex-wrap: wrap;
-  align-items: baseline;
-  gap: var(--spacing-xs2) var(--spacing-xl);
-}
-
-.layout {
-  display: flex;
   flex-direction: column;
-  gap: var(--spacing-xl3);
+  align-self: stretch;
+  gap: var(--s-2);
+  margin-block-start: var(--s-4);
 }
 
-.list {
-  margin: 0;
-  padding: 0;
-  list-style: none;
+.emptyTally {
+  margin-block-start: var(--s-5);
 }
 
-/* kind label and title on the left, price and Remove on the title's baseline; the global `ruled`
-   class is the hairline above each row, the last row is also closed underneath */
-.row {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) auto auto;
-  gap: var(--spacing-sm);
-  align-items: end;
-  align-items: last baseline;
-  padding-block: var(--spacing-sm);
+@media (min-width: 40em) {
+  .row {
+    grid-template-columns: minmax(0, 1fr) auto auto;
+  }
+
+  .item {
+    grid-column: auto;
+  }
+
+  .price {
+    min-width: var(--s-7);
+    text-align: end;
+  }
+
+  .actions {
+    flex-direction: row;
+    flex-wrap: wrap;
+    align-self: auto;
+  }
 }
 
-.row:last-child {
-  border-bottom: 1px solid var(--color-foreground-20);
-}
+@media (min-width: 68em) {
+  .title::after {
+    content: none;
+  }
 
-.item {
-  display: flex;
-  flex-direction: column;
-  gap: var(--spacing-xs3);
-  min-width: 0;
-}
-
-.title {
-  overflow-wrap: anywhere;
-  text-decoration: none;
-}
-
-.title:hover,
-.title:focus-visible {
-  text-decoration: underline;
-  text-underline-position: from-font;
-}
-
-.price {
-  white-space: nowrap;
-}
-
-.summary {
-  display: flex;
-  flex-direction: column;
-  gap: var(--spacing-md);
-  padding-top: var(--spacing-sm);
-  border-top: 1px solid var(--color-foreground-100);
-}
-
-.subtotal {
-  display: flex;
-  justify-content: space-between;
-  align-items: baseline;
-  gap: var(--spacing-sm);
-}
-
-@media (min-width: 1024px) {
   .layout {
-    display: grid;
-    grid-template-columns: minmax(0, 2fr) minmax(0, 1fr);
-    column-gap: var(--spacing-xl3);
-    align-items: start;
+    grid-template-columns: repeat(9, minmax(0, 1fr));
+  }
+
+  .list,
+  .empty {
+    grid-column: 1 / span 6;
+  }
+
+  .list {
+    align-self: start;
   }
 
   .summary {
     position: sticky;
-    top: var(--spacing-xl);
+    top: calc(var(--bar-h) + var(--s-3));
+    grid-column: 7 / -1;
   }
 }

@@ -1,159 +1,228 @@
-/*
- * Footer. The colours come from its own light theme scope (data-theme="light" on the element), so
- * it is white with ink text whatever the page above it is doing.
- *
- * The link sweeps blend against this background: nothing between a link and the root may form a
- * stacking context of its own (no transforms, opacity, isolation or z-index on the wrappers).
- */
+/* `--row` is the height of one link row: a full touch target, then 35px from 68em. */
 .root {
-  background: var(--color-background-100);
-  color: var(--color-foreground-100);
+  --row: var(--tap);
+  padding-block: var(--s-6) var(--s-4);
 }
 
-.inner {
-  display: flex;
-  flex-direction: column;
-  gap: var(--spacing-xl3);
-  padding-block: var(--spacing-xl3);
+/*
+ * Phone: the brand, the two navigations side by side, the status lines, the legal text. The phase
+ * names are longer than the site links, so their column takes three parts of five.
+ */
+.grid {
+  display: grid;
+  grid-template-columns: minmax(0, 2fr) minmax(0, 3fr);
+  grid-template-areas:
+    "brand brand"
+    "site phases"
+    "status status"
+    "legal legal";
+  gap: var(--s-5) var(--col-gap);
 }
 
-/* Two columns from 768px: the primary links, and the phases with the cart link under them. */
-.nav {
-  display: flex;
-  flex-direction: column;
-  gap: var(--spacing-xl3);
+.brand {
+  grid-area: brand;
 }
 
-.column {
-  min-width: 0;
+.site {
+  grid-area: site;
 }
 
-.primary {
-  display: flex;
-  flex-direction: column;
-  gap: var(--spacing-sm);
+.phases {
+  grid-area: phases;
 }
 
-.aside {
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-  gap: var(--spacing-xl3);
+.status {
+  grid-area: status;
 }
 
-.secondary {
-  display: flex;
-  flex-direction: column;
-  gap: var(--spacing-xs);
-}
-
-/* Small print. It carries the non-affiliation notice, so it keeps a readable contrast. */
 .legal {
-  display: flex;
-  flex-direction: column;
-  gap: var(--spacing-xl3);
-  color: var(--color-foreground-60);
+  display: grid;
+  grid-area: legal;
+  gap: var(--s-2);
 }
 
-/* The ownership line and the trademark notice: two short paragraphs read as one block. */
-.notice {
-  display: flex;
-  flex-direction: column;
-  gap: var(--spacing-xs3);
+.contact {
+  margin-block-start: var(--s-3);
 }
 
-.legalRow {
+.list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.row {
   display: flex;
-  flex-wrap: wrap;
-  gap: var(--spacing-xs2) var(--spacing-sm);
-  white-space: nowrap;
+  align-items: center;
+  min-height: var(--row);
 }
 
 /*
- * Wordmark: "Advanta [mark] 365" spread edge to edge. The words are trimmed to their cap height and
- * baseline, so the paddings are measured from the letters and the mark stands on the baseline.
+ * A link is as tall as its text, so the focus ring hugs the words; the pseudo-element stretches its
+ * target to the full row.
  */
-.wordmark {
-  --wordmark-symbol-height: calc(var(--text-headline-large-size) * 0.75);
-
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-end;
-  gap: var(--spacing-xs);
-  padding-top: var(--spacing-xl3);
-  padding-bottom: var(--spacing-xl2);
+.link,
+.email {
+  position: relative;
 }
 
-/* Doubled: overrides the size and tracking of the global display class on the same element. */
-.wordmarkWord.wordmarkWord {
-  font-size: var(--text-headline-large-size);
-  letter-spacing: var(--text-headline-large-letter-spacing);
-  white-space: nowrap;
-  text-box: trim-both cap alphabetic;
+.link::after,
+.email::after {
+  content: "";
+  position: absolute;
+  inset-block: calc((1lh - var(--row)) / 2);
+  inset-inline: 0;
 }
 
-/* Lowered by the gap under the mark's feet (set inline from the mark's geometry). */
-.wordmarkSymbol {
+.link {
+  display: inline-flex;
+  align-items: baseline;
+  gap: var(--s-1);
+  border-radius: var(--round-1);
+  color: var(--text);
+  text-decoration: none;
+}
+
+/* The underline of a hovered or focused link is drawn under the name only, not under a numeral. */
+.name {
+  text-decoration-line: none;
+  text-decoration-thickness: var(--edge);
+  text-underline-offset: 3px;
+}
+
+.link:focus-visible .name {
+  text-decoration-line: underline;
+}
+
+/*
+ * The address is a block of its own line height, so the stretch above is measured from the line and
+ * not from the glyphs: a full 44px below 68em.
+ */
+.email {
+  display: inline-block;
+  overflow-wrap: anywhere;
+}
+
+/* The label of the phase list stands in for a first row, so the two lists keep one rhythm. */
+.label.label {
+  align-items: center;
+  min-height: var(--row);
+  color: var(--text-soft);
+}
+
+/* A fixed column for the numeral, so the seven names share a left edge. Besley's own figures. */
+.numeral {
   flex: none;
-  translate: 0 calc(var(--wordmark-symbol-height) * var(--wordmark-symbol-drop, 0));
+  width: var(--s-2);
+  color: var(--text-soft);
+  font-family: var(--face-display);
+  font-size: 0.9375rem;
+  line-height: 1;
+  font-weight: 700;
+  font-feature-settings: "tnum" 0;
 }
 
-/*
- * Without text-box trimming the word boxes hang below the baseline: align on the baseline instead
- * (a flex-item svg's baseline is its bottom edge) and pull the line box in by hand.
- */
-@supports not (text-box: trim-both cap alphabetic) {
-  .wordmark {
-    align-items: baseline;
-  }
-
-  .wordmarkWord.wordmarkWord {
-    margin-block: -0.14em -0.2em;
-    line-height: 1;
-  }
+.status {
+  display: grid;
+  gap: var(--s-1);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  color: var(--text-soft);
+  text-wrap: balance;
 }
 
-@media (min-width: 768px) {
-  .inner {
-    padding-block: var(--spacing-xl);
+.copyright,
+.notice {
+  color: var(--text-soft);
+}
+
+.notice {
+  max-width: 70ch;
+}
+
+/* Tablet: two columns. The status lines move up beside the brand. */
+@media (min-width: 40em) {
+  .root {
+    padding-block: var(--s-7) var(--s-5);
   }
 
-  .nav {
-    flex-direction: row;
-    align-items: stretch;
+  .grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    grid-template-areas:
+      "brand status"
+      "site phases"
+      "copyright notice";
+    row-gap: var(--s-6);
   }
 
-  .column {
-    flex: 1 0 0;
-  }
-
-  .primary {
-    gap: var(--spacing-xs2);
-  }
-
-  .aside {
-    gap: var(--spacing-xl);
-  }
-
-  .secondary {
-    gap: var(--spacing-xs2);
+  /* The first status line is centred on the lockup beside it. */
+  .status {
+    align-content: start;
+    padding-block-start: calc((var(--s-4) - 1lh) / 2);
   }
 
   .legal {
-    gap: var(--spacing-xs);
+    display: contents;
   }
 
-  .legalRow {
-    gap: var(--spacing-sm);
+  .copyright {
+    grid-area: copyright;
   }
 
-  .wordmark {
-    --wordmark-symbol-height: calc(var(--text-display-large-size) * 0.65);
+  .notice {
+    grid-area: notice;
+  }
+}
 
-    gap: var(--spacing-xl);
+/* Desktop: the twelve-column grid, four parts in one row and the legal text under them. */
+@media (min-width: 68em) {
+  .root {
+    --row: calc(var(--s-1) * 5);
   }
 
-  .wordmarkWord.wordmarkWord {
-    font-size: var(--text-display-large-size);
+  .grid {
+    grid-template-columns: repeat(12, minmax(0, 1fr));
+    grid-template-areas: none;
+  }
+
+  /* Each first line is centred in the first 35px row: the lockup, a link, the label, a status. */
+  .brand {
+    grid-area: 1 / 1 / auto / span 4;
+    padding-block-start: calc((var(--row) - var(--s-4)) / 2);
+  }
+
+  .site {
+    grid-area: 1 / 5 / auto / span 3;
+  }
+
+  .phases {
+    grid-area: 1 / 8 / auto / span 3;
+  }
+
+  .status {
+    grid-area: 1 / 11 / auto / span 2;
+    padding-block-start: calc((var(--row) - 1lh) / 2);
+  }
+
+  .copyright {
+    grid-area: 2 / 1 / auto / span 4;
+  }
+
+  .notice {
+    grid-area: 2 / 5 / auto / -1;
+  }
+}
+
+@media (hover: hover) {
+  .link:hover .name {
+    text-decoration-line: underline;
+  }
+}
+
+/* The binder's ground is dropped in forced colours: a system edge marks where the footer starts. */
+@media (forced-colors: active) {
+  .root {
+    border-block-start: var(--hair) solid CanvasText;
   }
 }

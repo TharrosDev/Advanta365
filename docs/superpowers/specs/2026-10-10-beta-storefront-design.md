@@ -1,3 +1,5 @@
+> Its visual design is superseded by [`docs/design-system.md`](../../design-system.md).
+
 # Advanta365 Beta Storefront — Design
 
 Date: 2026-10-10

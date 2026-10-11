@@ -14,14 +14,17 @@ const OPTIONS: { value: SortKey; label: string }[] = [
   { value: "price-desc", label: "Price high to low" },
 ];
 
+/**
+ * The sort order of the catalog: a small label over a native select. A change goes straight to the
+ * URL and returns to the first page.
+ */
 export function SortSelect({ criteria }: { criteria: CatalogCriteria }) {
   const router = useRouter();
 
   return (
     <label className={styles.row}>
-      <span className={cx("t-label-medium", "c-fg-50", styles.label)}>Sort by</span>
+      <span className={cx("type-eyebrow", styles.label)}>Sort by</span>
       <Select
-        className={styles.select}
         value={criteria.sort}
         onChange={(event) => {
           const sort = event.target.value as SortKey;

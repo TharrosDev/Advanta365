@@ -1,88 +1,88 @@
-import { PRIMARY_LINKS } from "@/components/layout/nav-links";
-import { Container } from "@/components/ui/container";
-import { LogoMark } from "@/components/ui/logo-mark";
-import { WipeLink } from "@/components/ui/wipe-link";
-import { MARK_SEGMENTS, MARK_STROKE_WIDTH, MARK_VIEWBOX } from "@/lib/brand/mark";
-import type { Phase } from "@/lib/catalog/schema";
-import { cssVars, cx } from "@/lib/cx";
+import { useId } from "react";
+import { PRIMARY_LINKS, type NavLink, type PhaseLink } from "@/components/layout/nav-links";
+import { BrandLockup } from "@/components/ui/brand-lockup";
+import { Eyebrow } from "@/components/ui/eyebrow";
+import { TextLink } from "@/components/ui/text-link";
+import { TransitionLink } from "@/components/ui/transition-link";
+import { Wrap } from "@/components/ui/wrap";
+import { cx } from "@/lib/cx";
 import { SITE } from "@/lib/site";
 import styles from "./footer.module.css";
 
-/**
- * The mark's feet stop a little short of the bottom edge of its box (the round stroke ends need the
- * room). This is that gap as a share of the box height; the wordmark lowers the mark by it so the "A"
- * stands on the same baseline as the two words.
- */
-const MARK_FOOT =
-  Math.max(...MARK_SEGMENTS.flatMap((segment) => [segment.a[1], segment.b[1]])) +
-  MARK_STROKE_WIDTH / 2;
-const MARK_FOOT_GAP = Number(((MARK_VIEWBOX.height - MARK_FOOT) / MARK_VIEWBOX.height).toFixed(4));
+/** The footer lists the primary destinations and, after them, the cart. */
+const FOOTER_LINKS: readonly NavLink[] = [...PRIMARY_LINKS, { href: "/cart", label: "Cart" }];
 
 /**
- * The site footer. Always light (its own theme scope), so every page ends on a white sheet even when
- * the page above it is dark. Holds the one "Rollout phases" navigation of the site, the legal notice
- * (whose product this is, then the non-affiliation and trademark lines) and the full-width wordmark.
- * Nothing in it animates on scroll.
+ * The site footer: the binder, the only dark surface of the site.
+ *
+ * From 68em it is the twelve-column grid: the brand and the contact address (columns 1 to 4), the
+ * "Footer" navigation (5 to 7), the site's one "Rollout phases" navigation under its visible label
+ * (8 to 10) and the two status lines (11 to 12); under them the copyright sentence (1 to 4) and
+ * the non-affiliation notice (5 to 12). The first line of every column sits on the same row.
+ * From 40em it is two columns; below, the two navigations stay side by side and everything else
+ * is stacked. There are no rules between the parts.
  */
-export function Footer({ phases }: { phases: Phase[] }) {
+export function Footer({ phases }: { phases: readonly PhaseLink[] }) {
+  const phasesLabelId = useId();
+
   return (
-    <footer className={styles.root} data-theme="light">
-      <Container className={styles.inner}>
-        <div className={styles.nav}>
-          <nav aria-label="Footer" className={styles.column}>
-            <ul className={styles.primary}>
-              {PRIMARY_LINKS.map((link) => (
-                <li key={link.href} className="t-headline-large">
-                  <WipeLink href={link.href}>{link.label}</WipeLink>
-                </li>
-              ))}
-            </ul>
-          </nav>
-          <div className={cx(styles.column, styles.aside)}>
-            <nav aria-label="Rollout phases">
-              <ul className={styles.secondary}>
-                {phases.map((phase) => (
-                  <li key={phase.slug} className="t-body-large">
-                    <WipeLink href={`/phases/${phase.slug}`}>{phase.name}</WipeLink>
-                  </li>
-                ))}
-              </ul>
-            </nav>
-            <p className="t-body-large">
-              <WipeLink href="/cart">Cart</WipeLink>
-            </p>
-          </div>
+    <footer className={styles.root} data-band="binder">
+      <Wrap className={styles.grid}>
+        <div className={styles.brand}>
+          <BrandLockup variant="bare" />
+          <p className={cx("type-ui", styles.contact)}>
+            <TextLink href={`mailto:${SITE.contactEmail}`} className={styles.email}>
+              {SITE.contactEmail}
+            </TextLink>
+          </p>
         </div>
-        <div className={styles.legal}>
-          <div className={styles.notice}>
-            <p className="t-label-medium">
-              © {new Date().getFullYear()} {SITE.name}. {SITE.name} is a product of {SITE.parent}.
-            </p>
-            <p className="t-label-medium">
-              {SITE.name} and {SITE.parent} are independent and are not affiliated with or endorsed
-              by Prosci Inc. or Microsoft Corporation. Prosci is a registered trademark of Prosci
-              Inc. Microsoft 365, SharePoint and Copilot are trademarks of the Microsoft group of
-              companies.
-            </p>
-          </div>
-          <ul className={styles.legalRow}>
-            <li className="t-label-medium">Sample catalog (beta)</li>
-            <li className="t-label-medium">Checkout is not available yet</li>
-            <li className="t-label-medium">
-              <WipeLink href={`mailto:${SITE.contactEmail}`}>{SITE.contactEmail}</WipeLink>
-            </li>
+        <nav aria-label="Footer" className={styles.site}>
+          <ul className={styles.list}>
+            {FOOTER_LINKS.map((link) => (
+              <li key={link.href} className={styles.row}>
+                <TransitionLink href={link.href} className={cx("type-ui", styles.link)}>
+                  <span className={styles.name}>{link.label}</span>
+                </TransitionLink>
+              </li>
+            ))}
           </ul>
+        </nav>
+        <nav aria-labelledby={phasesLabelId} className={styles.phases}>
+          <Eyebrow id={phasesLabelId} marker={false} className={styles.label}>
+            Rollout phases
+          </Eyebrow>
+          <ul className={styles.list}>
+            {phases.map((phase, index) => (
+              <li key={phase.slug} className={styles.row}>
+                <TransitionLink
+                  href={`/phases/${phase.slug}`}
+                  className={cx("type-ui", styles.link)}
+                >
+                  <span className={styles.numeral} aria-hidden="true">
+                    {index + 1}
+                  </span>
+                  <span className={styles.name}>{phase.name}</span>
+                </TransitionLink>
+              </li>
+            ))}
+          </ul>
+        </nav>
+        <ul className={cx("type-note", styles.status)}>
+          <li>Sample catalog (beta)</li>
+          <li>Checkout is not available yet</li>
+        </ul>
+        <div className={styles.legal}>
+          <p className={cx("type-note", styles.copyright)}>
+            © {new Date().getFullYear()} {SITE.name}. {SITE.name} is a product of {SITE.parent}.
+          </p>
+          <p className={cx("type-note", styles.notice)}>
+            {SITE.name} and {SITE.parent} are independent and are not affiliated with or endorsed by
+            Prosci Inc. or Microsoft Corporation. Prosci is a registered trademark of Prosci Inc.
+            Microsoft 365, SharePoint and Copilot are trademarks of the Microsoft group of
+            companies.
+          </p>
         </div>
-      </Container>
-      <Container
-        className={styles.wordmark}
-        style={cssVars({ "--wordmark-symbol-drop": MARK_FOOT_GAP })}
-        aria-hidden="true"
-      >
-        <span className={cx("t-display-fluid", styles.wordmarkWord)}>Advanta</span>
-        <LogoMark className={styles.wordmarkSymbol} height="var(--wordmark-symbol-height)" />
-        <span className={cx("t-display-fluid", styles.wordmarkWord)}>365</span>
-      </Container>
+      </Wrap>
     </footer>
   );
 }

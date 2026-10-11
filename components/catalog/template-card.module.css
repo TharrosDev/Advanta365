@@ -1,60 +1,145 @@
+/*
+ * Below 40em the card is a row: the cover in a fixed first column, the text and the price beside it.
+ * From 40em it is a column with the price pinned to the foot, so prices line up along a row of cards.
+ */
 .card {
   position: relative;
+  display: grid;
+  grid-template-columns: calc(var(--s-1) * 15) minmax(0, 1fr);
+  grid-template-rows: auto 1fr;
+  gap: var(--s-1) var(--s-2);
+  height: 100%;
+  padding: var(--s-2);
+  border: var(--hair) solid var(--line);
+  border-radius: var(--round-3);
+  background: var(--surface);
+  color: var(--text);
+  transition: border-color var(--time-swap) linear;
+}
+
+/*
+ * In the row the cover is too small to carry its format tag. The cover stops being the tag's
+ * positioning box, so the tag is placed against the card instead: bottom right, level with the price.
+ */
+.cover.cover {
+  position: static;
+  grid-row: 1 / -1;
+  align-self: start;
+}
+
+.format.format {
+  top: auto;
+  right: var(--s-2);
+  bottom: var(--s-2);
+}
+
+/*
+ * In the row the text column gives up 7px of the card's padding on its right: the longest single
+ * word of a title ("Communications") is then whole on the narrowest phones, which a break in the
+ * middle of a word would otherwise cut in two. The lines are ragged on the right, so the 7px only
+ * show where a word really needs them.
+ */
+.text {
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-sm);
+  gap: var(--s-1);
   min-width: 0;
-  padding-top: var(--spacing-sm);
+  margin-inline-end: calc(-1 * var(--s-1));
 }
 
-/* Opaque on purpose: five percent of the ink over the page colour. A translucent tile would let the
-   moving swirl behind the home grid show through the board and the glyph. */
-.cover {
-  position: relative;
-  aspect-ratio: 1;
-  width: 100%;
-  overflow: hidden;
-  background: color-mix(in srgb, var(--color-foreground-100) 5%, var(--color-background-100));
-}
-
+/* A word wider than the column is hyphenated where the browser can, and broken only as a last resort. */
 .title {
-  overflow-wrap: anywhere;
+  overflow-wrap: break-word;
+  hyphens: auto;
 }
 
-/* the whole card is the hit area; the anchor itself holds only the title text */
+/* The one link: its underline is there from the start and only takes colour on hover and focus. */
 .link {
   color: inherit;
-  text-decoration: none;
+  text-decoration: underline transparent;
+  text-decoration-thickness: var(--edge);
+  text-underline-offset: 3px;
+  transition: text-decoration-color var(--time-swap) linear;
 }
 
+/* A compound kept whole is an inline block; it draws the same underline as the rest of the title. */
+.link span {
+  text-decoration-thickness: inherit;
+}
+
+/* Stretched over the card, so a click anywhere on it follows the link. */
 .link::after {
   content: "";
   position: absolute;
   inset: 0;
 }
 
-.card:hover .link,
-.link:focus-visible {
-  text-decoration: underline;
-  text-underline-position: from-font;
-}
-
-/* Keyboard focus: the title underlines and the cover tile is ringed inside its own box. The
-   anchor's own ring would be small, and a ring outside the card would be clipped on the left by the
-   wipe reveal around the first row of a grid. Browsers without :has keep the anchor's ring. */
-@supports selector(:has(*)) {
-  .link:focus-visible {
-    outline: none;
-  }
-
-  .card:has(.link:focus-visible) .cover {
-    outline: 2px solid var(--color-foreground-100);
-    outline-offset: -2px;
-  }
-}
-
 .meta {
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
+  color: var(--text-soft);
+}
+
+.price {
+  align-self: end;
+  font-weight: 700;
+}
+
+/* Keyboard focus is shown on the card, not on the words of the title. */
+.link:focus-visible {
+  outline: none;
+}
+
+.card:has(.link:focus-visible) {
+  border-color: var(--line-ink);
+  outline: 3px solid var(--focus-ring);
+  outline-offset: 3px;
+}
+
+.card:has(.link:focus-visible) .link {
+  text-decoration-color: currentColor;
+}
+
+@media (min-width: 40em) {
+  .card {
+    display: flex;
+    flex-direction: column;
+    gap: var(--s-2);
+    padding: var(--s-2) var(--s-2) var(--s-3);
+  }
+
+  /* The cover takes the card's width again: left at the start it would keep an SVG's default size. */
+  .cover.cover {
+    position: relative;
+    align-self: stretch;
+  }
+
+  .format.format {
+    top: var(--s-1);
+    right: var(--s-1);
+    bottom: auto;
+  }
+
+  .text {
+    flex: 1;
+    margin-inline-end: 0;
+  }
+
+  .price {
+    align-self: auto;
+  }
+}
+
+@media (hover: hover) {
+  .card:hover {
+    border-color: var(--line-ink);
+  }
+
+  .card:hover .link {
+    text-decoration-color: currentColor;
+  }
+}
+
+@media (forced-colors: active) {
+  .card:has(.link:focus-visible) {
+    outline-color: Highlight;
+  }
 }

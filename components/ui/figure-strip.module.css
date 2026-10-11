@@ -1,0 +1,54 @@
+/*
+ * The cells share one row where the strip is 600px wide or more and stand two by two where it is
+ * narrower: the least width of a cell is 24% of the strip in the first case and 49% in the second,
+ * and the browser fits as many as that allows. The strip measures itself, so it also holds in a
+ * narrow column of a wide page.
+ */
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(clamp(24%, (37.5rem - 100%) * 999, 49%), 1fr));
+  margin: 0;
+}
+
+.cell {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-1);
+  min-width: 0;
+  padding: var(--s-3);
+}
+
+.label {
+  color: var(--text-faint);
+}
+
+/* Besley's own figures: see the note on the display classes in globals.css. */
+.value {
+  font-family: var(--face-display);
+  font-size: 1.625rem;
+  line-height: 1.2;
+  font-weight: 700;
+  font-feature-settings: "tnum" 0;
+  color: var(--text);
+}
+
+/*
+ * The highlighter overhangs the figure by 7px on each side, so the figure itself stays in line
+ * with its label. The ink ring is what carries the mark where the fill alone would not.
+ */
+.marked {
+  display: inline-block;
+  margin-inline: calc(-1 * var(--s-1));
+  padding-inline: var(--s-1);
+  border-radius: var(--round-1);
+  background: var(--mark);
+  box-shadow: inset 0 0 0 var(--hair) var(--ink);
+  color: var(--ink);
+}
+
+@media (forced-colors: active) {
+  .marked {
+    outline: var(--hair) solid CanvasText;
+    outline-offset: calc(-1 * var(--hair));
+  }
+}

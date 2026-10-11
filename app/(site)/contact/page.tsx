@@ -1,11 +1,9 @@
 import type { Metadata } from "next";
-import { PageTitle } from "@/components/layout/page-title";
-import { Reveal, RevealWords } from "@/components/motion/reveal";
-import { RevealGroup } from "@/components/motion/reveal-group";
-import { ActionRow } from "@/components/ui/action-row";
-import { PageShell } from "@/components/ui/page-shell";
-import { SectionLabel } from "@/components/ui/section-label";
-import { SectionShell } from "@/components/ui/section-shell";
+import { TitleBlock } from "@/components/layout/title-block";
+import { Band } from "@/components/ui/band";
+import { Icon } from "@/components/ui/icon";
+import { Sheet } from "@/components/ui/sheet";
+import { Split } from "@/components/ui/split";
 import { cx } from "@/lib/cx";
 import { SITE } from "@/lib/site";
 import styles from "./page.module.css";
@@ -19,33 +17,41 @@ export const metadata: Metadata = {
   description: LEAD,
 };
 
-export default function ContactPage() {
-  return (
-    <PageShell>
-      <PageTitle title="Contact" lead={LEAD} />
+/** An address may break after its "@" instead of running out of a narrow sheet. */
+function addressParts(address: string): [string, string] {
+  const at = address.indexOf("@");
+  return at === -1 ? [address, ""] : [address.slice(0, at + 1), address.slice(at + 1)];
+}
 
-      <SectionShell innerClassName={styles.contacts}>
-        <RevealGroup className={styles.intro}>
-          <Reveal as="div" effect="fade" index={0}>
-            <SectionLabel>Contact</SectionLabel>
-          </Reveal>
-          <h2 className={cx("t-display-fluid", styles.statement)}>
-            <RevealWords text="Send an email and you will get a reply from a person." offset={1} />
+/**
+ * `/contact`: one statement and the one address, in an ink-edged sheet under it. The address is a
+ * single `mailto:` link that fills the sheet: underlined, set in the section size, with the arrow
+ * after it. On hover and keyboard focus the sheet takes the wash and the ring stands outside it.
+ */
+export default function ContactPage() {
+  const [local, domain] = addressParts(SITE.contactEmail);
+
+  return (
+    <>
+      <TitleBlock form="index" title="Contact" lead={LEAD} />
+
+      <Band surface="paper">
+        <Split>
+          <h2 className={cx("type-page", styles.statement)}>
+            Send an email and you will get a reply from a person.
           </h2>
-        </RevealGroup>
-        <RevealGroup className={styles.rows}>
-          <Reveal as="div" effect="fade-up" index={0}>
-            <ActionRow
-              fill
-              size="lg"
-              rule="both"
-              href={`mailto:${SITE.contactEmail}`}
-              label={SITE.contactEmail}
-              caption="For general questions"
-            />
-          </Reveal>
-        </RevealGroup>
-      </SectionShell>
-    </PageShell>
+          <Sheet edge="ink" pad="none" className={styles.sheet}>
+            <a href={`mailto:${SITE.contactEmail}`} className={cx("type-section", styles.link)}>
+              <span className={styles.address}>
+                {local}
+                <wbr />
+                {domain}
+              </span>
+              <Icon name="arrow" size={24} className={styles.arrow} />
+            </a>
+          </Sheet>
+        </Split>
+      </Band>
+    </>
   );
 }

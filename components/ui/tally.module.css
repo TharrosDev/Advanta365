@@ -1,0 +1,110 @@
+.root {
+  display: flex;
+  gap: var(--s-1);
+  width: 100%;
+}
+
+.block {
+  display: grid;
+  flex: 1;
+  place-items: center;
+  min-width: 0;
+  height: var(--s-4);
+  border-radius: var(--round-1);
+}
+
+/* Done: ink. The numeral inside reads in the colour of the band behind the tally. */
+.ink {
+  background: var(--line-ink);
+  color: var(--ground);
+}
+
+/* Yours: the highlighter, always with its ink ring. */
+.mark {
+  background: var(--mark);
+  box-shadow: inset 0 0 0 var(--edge) var(--ink);
+  color: var(--ink);
+}
+
+/* Not yet: an outline only. */
+.empty {
+  box-shadow: inset 0 0 0 var(--edge) var(--line-firm);
+  color: var(--text-faint);
+}
+
+.sm .block {
+  height: var(--s-2);
+}
+
+/* Besley's own figures: see the note on the display classes in globals.css. */
+.numerals .block {
+  font-family: var(--face-display);
+  font-size: var(--size-note);
+  line-height: 1;
+  font-weight: 700;
+  font-feature-settings: "tnum" 0;
+}
+
+/*
+ * Large. Below 40em it keeps the height and the corners of the regular size: ten blocks across a
+ * phone are narrower than they are tall, and a larger radius would round them into pills. From 40em
+ * the blocks are 49px tall and take the larger radius.
+ */
+@media (min-width: 40em) {
+  .lg .block {
+    height: calc(var(--s-1) * 7);
+    border-radius: var(--round-2);
+  }
+}
+
+/*
+ * The fill runs once on first paint. Every block is drawn in its final state by default and the
+ * animation only holds the empty look until the block's turn (`backwards`), so nothing is missing
+ * where animations do not run.
+ */
+@keyframes tally-fill {
+  from {
+    background-color: transparent;
+    box-shadow: inset 0 0 0 2px var(--line-firm);
+  }
+}
+
+.animate .block {
+  animation: tally-fill var(--time-fill) var(--curve-settle) backwards;
+  animation-delay: calc(var(--time-enter) + var(--i) * var(--time-fill-gap));
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate .block {
+    animation: none;
+  }
+}
+
+/*
+ * Forced colours remove author fills and shadows. These rules repeat the global ones for
+ * `[data-block]` at this module's own weight, so the block fills above cannot win over them. The
+ * blocks opt out of the automatic adjustment, which would put a backplate behind each numeral, and
+ * use system colours only.
+ */
+@media (forced-colors: active) {
+  .block {
+    box-shadow: none;
+    forced-color-adjust: none;
+  }
+
+  .ink {
+    background: CanvasText;
+    color: Canvas;
+  }
+
+  .mark {
+    background: Highlight;
+    color: HighlightText;
+  }
+
+  .empty {
+    border: var(--hair) solid CanvasText;
+    background: Canvas;
+    color: CanvasText;
+  }
+}

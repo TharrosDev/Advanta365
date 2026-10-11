@@ -1,0 +1,17 @@
+.root {
+  border-radius: var(--round-1);
+  color: var(--text);
+  text-decoration: underline;
+  text-decoration-thickness: var(--hair);
+  text-underline-offset: 3px;
+}
+
+.root:focus-visible {
+  text-decoration-thickness: var(--edge);
+}
+
+@media (hover: hover) {
+  .root:hover {
+    text-decoration-thickness: var(--edge);
+  }
+}

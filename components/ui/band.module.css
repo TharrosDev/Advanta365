@@ -1,0 +1,25 @@
+.root {
+  padding-block: var(--pad);
+}
+
+.regular {
+  --pad: var(--band-pad);
+}
+
+.tight {
+  --pad: var(--s-5);
+}
+
+.title {
+  --pad: var(--s-4);
+}
+
+.none {
+  --pad: 0px;
+}
+
+@media (min-width: 40em) {
+  .title {
+    --pad: var(--s-5);
+  }
+}

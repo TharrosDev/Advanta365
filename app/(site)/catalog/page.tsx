@@ -3,9 +3,9 @@ import { FilterPanel } from "@/components/catalog/filter-panel";
 import { ResultList } from "@/components/catalog/result-list";
 import { SearchBox } from "@/components/catalog/search-box";
 import { SortSelect } from "@/components/catalog/sort-select";
-import { PageTitle } from "@/components/layout/page-title";
-import { Container } from "@/components/ui/container";
-import { PageShell } from "@/components/ui/page-shell";
+import { TitleBlock } from "@/components/layout/title-block";
+import { Band } from "@/components/ui/band";
+import { Split } from "@/components/ui/split";
 import { queryTemplates } from "@/lib/catalog/query";
 import { getPhases, getTemplates } from "@/lib/catalog/repository";
 import { parseCatalogParams } from "@/lib/catalog/search-params";
@@ -25,6 +25,12 @@ type CatalogPageProps = {
   searchParams: Promise<Record<string, string | string[] | undefined>>;
 };
 
+/**
+ * The catalog. Under the title: a rail with the search, the sort order and the filters (grid
+ * columns 1 to 3, staying under the bar from 68em) and the results beside it (columns 4 to 12),
+ * with the margin rule between them. Below 68em the rail is a block above the results and the
+ * filters open as a sheet.
+ */
 export default async function CatalogPage({ searchParams }: CatalogPageProps) {
   const [params, phases, templates] = await Promise.all([
     searchParams,
@@ -41,34 +47,42 @@ export default async function CatalogPage({ searchParams }: CatalogPageProps) {
   const phaseOptions = phases.map(({ slug, name }) => ({ slug, name }));
 
   return (
-    <PageShell>
-      <PageTitle
+    <>
+      <TitleBlock
         title="Catalog"
         lead="Organized by the seven phases of a rollout. The listings shown are sample content. Search by name or narrow by phase, deliverable type, app and audience."
       />
-      <Container className={styles.layout}>
-        <div className={styles.rail}>
-          <SearchBox criteria={criteria} />
-          <SortSelect criteria={criteria} />
-          <FilterPanel criteria={criteria} facets={result.facets} phases={phaseOptions} />
-        </div>
-        <section aria-labelledby="results-heading" className={styles.results}>
-          <p
-            id="results-heading"
-            role="status"
-            className={cx("t-label-large", "c-fg-60", "ruled", styles.count)}
-          >
-            {result.total} {result.total === 1 ? "template" : "templates"}
-            {criteria.q && (
-              <>
-                {" "}
-                for <span className="c-fg-100">“{criteria.q}”</span>
-              </>
-            )}
-          </p>
-          <ResultList result={result} criteria={criteria} phases={phaseOptions} />
-        </section>
-      </Container>
-    </PageShell>
+      <Band as="div" surface="paper" pad="tight">
+        <Split
+          sticky
+          marginClassName={styles.rail}
+          margin={
+            <>
+              <div className={styles.search}>
+                <SearchBox criteria={criteria} />
+              </div>
+              <SortSelect criteria={criteria} />
+              <div className={styles.filters}>
+                <FilterPanel criteria={criteria} facets={result.facets} phases={phaseOptions} />
+              </div>
+            </>
+          }
+        >
+          <section aria-labelledby="results-heading">
+            <p id="results-heading" role="status" className={cx("type-ui", styles.count)}>
+              <span className={cx("tabular", styles.strong)}>{result.total}</span>{" "}
+              {result.total === 1 ? "template" : "templates"}
+              {criteria.q && (
+                <>
+                  {" "}
+                  for <span className={styles.strong}>“{criteria.q}”</span>
+                </>
+              )}
+            </p>
+            <ResultList result={result} criteria={criteria} phases={phaseOptions} />
+          </section>
+        </Split>
+      </Band>
+    </>
   );
 }

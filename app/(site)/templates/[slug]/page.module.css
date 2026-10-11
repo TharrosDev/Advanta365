@@ -1,109 +1,141 @@
-/* Panel first in the DOM (the keyboard reaches "Add to cart" before the long details), details
-   second. On phones they simply stack; from 1024px the panel moves to the right-hand column. */
-.layout {
-  display: flex;
-  flex-direction: column;
-  gap: var(--spacing-xl2);
-  padding-bottom: var(--spacing-xl3);
+/*
+ * The three zones of the page: cover, purchase panel, details, in that order in the document.
+ * Below 40em they are stacked. From 40em the cover and the panel stand side by side above the
+ * details. From 68em it is the margin layout: the cover in columns 1 to 3, the details in columns
+ * 4 to 9 and the panel in columns 10 to 12, with the margin rule in the gutter after the cover.
+ */
+.zones {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--s-3) var(--col-gap);
+}
+
+/* Held to 280px while it is not in the margin. */
+.cover {
+  max-width: calc(var(--s-1) * 40);
 }
 
 .details {
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-xl3);
+  gap: var(--s-5);
   min-width: 0;
+  margin-block-start: var(--s-3);
 }
 
 .description {
-  max-width: var(--measure-prose);
+  max-width: var(--wrap-copy);
+  color: var(--text);
+}
+
+/*
+ * The Phase and Step values are links in a row of text. Below 68em their pointer area reaches 14px
+ * above and below the words, to the edges of the row, so each target is at least 44px tall; the
+ * pseudo-element is invisible and moves nothing.
+ */
+.reach {
+  position: relative;
+}
+
+.reach::after {
+  content: "";
+  position: absolute;
+  inset: calc(-1 * var(--s-2)) 0;
 }
 
 .section {
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-md);
+  gap: var(--s-3);
 }
 
-/* a hairline above every item (the global `ruled` class), one more under the last */
-.includes {
-  margin: 0;
-  padding: 0;
-  list-style: none;
-  border-bottom: 1px solid var(--color-foreground-20);
-}
-
-.includes > li {
-  padding-block: var(--spacing-xs);
+/* Seven blocks, 147px across at most. */
+.tally.tally {
+  max-width: calc(var(--s-1) * 21);
 }
 
 .fits {
-  max-width: var(--measure-prose);
+  max-width: var(--wrap-copy);
+  color: var(--text-soft);
 }
 
-/* inline text link: underlined, a little heavier on hover */
-.link {
-  color: inherit;
-  text-decoration: underline;
-  text-underline-position: from-font;
-}
-
-.link:hover {
-  text-decoration-thickness: 2px;
-}
-
-.block {
+/* The last band: two blocks, each with its heading in the margin. */
+.more {
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-xl);
-  padding-bottom: var(--spacing-xl3);
+  gap: var(--s-6);
 }
 
-.rows {
-  margin: 0;
-  padding: 0;
-  list-style: none;
-}
-
-.cardGrid {
+.cards {
   display: grid;
   grid-template-columns: minmax(0, 1fr);
-  gap: var(--spacing-xl);
+  gap: var(--col-gap);
   margin: 0;
   padding: 0;
   list-style: none;
 }
 
-@media (min-width: 768px) {
-  .layout:last-child,
-  .block:last-child {
-    padding-bottom: var(--spacing-xl6);
-  }
-
-  .cardGrid {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    row-gap: var(--spacing-xl3);
-  }
-}
-
-@media (min-width: 1024px) {
-  .layout {
-    display: grid;
-    grid-template-columns: minmax(0, 2fr) minmax(0, 1fr);
-    column-gap: var(--spacing-xl3);
+@media (min-width: 40em) {
+  .zones {
+    grid-template-columns: calc(var(--s-1) * 40) minmax(0, 1fr);
     align-items: start;
   }
 
   .details {
-    grid-column: 1;
-    grid-row: 1;
+    grid-column: 1 / -1;
+  }
+
+  .cards {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (min-width: 68em) {
+  .reach::after {
+    content: none;
+  }
+
+  .zones {
+    grid-template-columns: repeat(12, minmax(0, 1fr));
+    gap: 0 var(--col-gap);
+  }
+
+  .cover {
+    grid-area: 1 / 1 / 2 / span 3;
+    max-width: none;
+  }
+
+  .details {
+    grid-area: 1 / 4 / 2 / span 6;
+    margin-block-start: 0;
   }
 
   .panel {
-    grid-column: 2;
-    grid-row: 1;
+    position: sticky;
+    top: calc(var(--bar-h) + var(--s-3));
+    grid-area: 1 / 10 / 2 / -1;
   }
 
-  .cardGrid {
+  /* The margin rule: in the middle of the gutter before column 4, through the band's padding. */
+  .zones::before {
+    content: "";
+    grid-area: 1 / 4 / 2 / 5;
+    justify-self: start;
+    align-self: stretch;
+    width: var(--hair);
+    margin-block: calc(-1 * var(--pad, 0px));
+    margin-inline-start: calc(var(--col-gap) / -2);
+    background: var(--line);
+    pointer-events: none;
+  }
+
+  .cards {
     grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+@media (forced-colors: active) {
+  .zones::before {
+    background: GrayText;
   }
 }

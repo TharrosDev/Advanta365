@@ -1,0 +1,10 @@
+/*
+ * `--page-max` is the width of the grid itself (twelve columns and eleven gaps), so it limits the
+ * content box and the page padding sits outside it.
+ */
+.root {
+  box-sizing: content-box;
+  max-width: var(--page-max);
+  margin-inline: auto;
+  padding-inline: var(--page-pad);
+}

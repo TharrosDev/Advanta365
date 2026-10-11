@@ -1,0 +1,160 @@
+/*
+ * Phone first, like the comparison table: every part is a block, each row is a short card with the
+ * bundle's name as its heading and the figures as label and value pairs. From 40em the table parts
+ * get their table display back. The head row stays in the page for assistive technology on a
+ * phone, clipped out of sight.
+ */
+.sheet {
+  overflow: hidden;
+}
+
+.table,
+.body,
+.row,
+.cell {
+  display: block;
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.head {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+.row {
+  padding-block: var(--s-2);
+}
+
+.row:nth-child(even) {
+  background: var(--stripe);
+}
+
+.cell {
+  padding: var(--s-1) var(--s-2);
+  text-align: start;
+}
+
+.name {
+  color: var(--text);
+  text-wrap: pretty;
+}
+
+/*
+ * Below 68em the link's target grows to the 44px minimum without moving anything: a transparent
+ * layer stands half the missing height above and below the line. The ring still hugs the name.
+ */
+.name a {
+  position: relative;
+}
+
+.name a::after {
+  content: "";
+  position: absolute;
+  inset-block: calc((1lh - var(--tap)) / 2);
+  inset-inline: 0;
+}
+
+.headCell {
+  color: var(--text-soft);
+}
+
+/* A figure and its name on one line: the name from `data-label`, the figure at the right. */
+.value {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--s-2);
+}
+
+.value::before {
+  content: attr(data-label);
+  color: var(--text-faint);
+  font-size: var(--size-note);
+  line-height: 1.43;
+}
+
+@media (min-width: 40em) {
+  .table {
+    display: table;
+    table-layout: fixed;
+  }
+
+  .head {
+    position: static;
+    display: table-header-group;
+    width: auto;
+    height: auto;
+    overflow: visible;
+    clip-path: none;
+    white-space: normal;
+  }
+
+  .body {
+    display: table-row-group;
+  }
+
+  .row {
+    display: table-row;
+    padding-block: 0;
+  }
+
+  .cell {
+    display: table-cell;
+    padding: var(--s-2);
+    vertical-align: baseline;
+  }
+
+  .headCell {
+    border-block-end: var(--edge) solid var(--line-ink);
+  }
+
+  /* The head row sets the widths: each figure gets what its heading needs, the name keeps the rest. */
+  .number {
+    text-align: end;
+    white-space: nowrap;
+  }
+
+  .wideFigure {
+    width: 21%;
+  }
+
+  .narrowFigure {
+    width: 15%;
+  }
+
+  .midFigure {
+    width: 19%;
+  }
+
+  .value {
+    display: table-cell;
+  }
+
+  .value::before {
+    content: none;
+  }
+}
+
+@media (min-width: 68em) {
+  .cell {
+    padding-inline: var(--s-3);
+  }
+
+  .wideFigure,
+  .narrowFigure,
+  .midFigure {
+    width: 18%;
+  }
+
+  .name a::after {
+    content: none;
+  }
+}

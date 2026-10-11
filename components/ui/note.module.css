@@ -1,0 +1,24 @@
+/*
+ * The wash hugs a short sentence and stops at the lead's line length. It is light on every band,
+ * so the text is always the ink.
+ */
+.root {
+  width: fit-content;
+  max-width: var(--wrap-lead);
+  padding: var(--s-2) var(--s-3);
+  border-radius: var(--round-2);
+  background: var(--mark-wash);
+  color: var(--ink);
+  font-weight: 400;
+}
+
+@media (forced-colors: active) {
+  .root {
+    border: var(--hair) solid CanvasText;
+  }
+}
+
+/* On the wash band the note would vanish into the ground, so it takes the paper instead. */
+[data-band="wash"] .root {
+  background: var(--surface);
+}

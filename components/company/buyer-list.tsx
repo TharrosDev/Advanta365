@@ -1,17 +1,14 @@
-import { Reveal } from "@/components/motion/reveal";
-import { RevealGroup } from "@/components/motion/reveal-group";
+import { BandedList, BandedRow } from "@/components/ui/banded-list";
 import { cx } from "@/lib/cx";
 import styles from "./buyer-list.module.css";
 
 export type Buyer = { name: string; caresAbout: string; line: string };
 
 /**
- * The buyers as a ruled list: who they are (the row's `<h3>`), what they care about and the one line
- * for them, which the list sets in quotation marks. Stacked on a phone. From 768px the name sits
- * beside the details, one third to two thirds with the gap of a `FactList`, so a fact list under the
- * rows lines up with them. From 1024px the two details sit side by side.
- *
- * Its own reveal group: the rows fade up in turn.
+ * The buyers as a banded list: who they are (the row's `<h3>`), what they care about, and the one
+ * line for them, set in quotation marks. Stacked on a phone; from 40em the name runs across the top
+ * with the two details under it, side by side; from 68em all three parts share one row and one
+ * first baseline.
  */
 export function BuyerList({
   buyers,
@@ -24,19 +21,17 @@ export function BuyerList({
   className?: string;
 }) {
   return (
-    <RevealGroup as="ul" className={cx(styles.list, className)}>
-      {buyers.map((buyer, index) => (
-        <Reveal key={buyer.name} as="li" effect="fade-up" index={index} className={styles.row}>
-          <h3 className="t-headline-small">{buyer.name}</h3>
-          <div className={styles.detail}>
-            <dl className={styles.cares}>
-              <dt className="t-label-medium c-fg-60">{caresLabel}</dt>
-              <dd className="t-body-large c-fg-80">{buyer.caresAbout}</dd>
-            </dl>
-            <p className={cx("t-title-large", styles.line)}>{`“${buyer.line}”`}</p>
-          </div>
-        </Reveal>
+    <BandedList className={className}>
+      {buyers.map((buyer) => (
+        <BandedRow key={buyer.name} className={styles.row}>
+          <h3 className={cx("type-item", styles.name)}>{buyer.name}</h3>
+          <dl className={styles.cares}>
+            <dt className={cx("type-eyebrow", styles.label)}>{caresLabel}</dt>
+            <dd className={cx("type-copy", styles.value)}>{buyer.caresAbout}</dd>
+          </dl>
+          <p className={styles.line}>{`“${buyer.line}”`}</p>
+        </BandedRow>
       ))}
-    </RevealGroup>
+    </BandedList>
   );
 }

@@ -1,128 +1,91 @@
-/* ---- Two ways to buy ---- */
-
-.ways.ways {
-  gap: var(--spacing-xl2);
-}
-
-.waysGrid {
+/*
+ * The two ways to buy. Stacked on a phone, side by side from 40em with the same height. The bundles
+ * are a folder whose tab stands 28px above the body; the list reserves that height so the sheet
+ * beside it starts at the same line as the folder's body.
+ */
+.ways {
   display: grid;
   grid-template-columns: minmax(0, 1fr);
-  gap: 0;
+  gap: var(--s-4);
+  margin: 0;
+  padding: 0;
+  list-style: none;
 }
 
-/* a ruled column: the hairline on top comes from the global .ruled class */
 .way {
   display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  gap: var(--spacing-sm);
-  padding-block: var(--spacing-sm) var(--spacing-xl3);
 }
 
-.wayBody {
-  max-width: var(--measure-card-body);
-}
-
-/* ---- Bundle prices ---- */
-
-.pricesGroup {
+.card {
   display: flex;
+  flex: 1;
   flex-direction: column;
-  gap: var(--spacing-xl2);
+  min-width: 0;
 }
 
-.pricesBody {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr);
-  gap: var(--spacing-xl2);
+/* One padding for the sheet and the folder: 21 until the desktop, where there is room for 28. */
+.card.card {
+  padding: var(--s-3);
 }
 
-.tableScroll {
-  width: 100%;
-  overflow-x: auto;
+.range {
+  margin-block-start: var(--s-2);
+  color: var(--text);
 }
 
-.table {
-  width: 100%;
-  border-collapse: collapse;
-  text-align: start;
+.body {
+  margin-block-start: var(--s-2);
+  color: var(--text-soft);
 }
 
-.head {
-  padding: 0 0 var(--spacing-xs2);
-  border-bottom: 1px solid var(--color-foreground-100);
-  font-weight: inherit;
-  text-align: start;
-  white-space: nowrap;
+/* The button stays at least 28px under the sentence and sits on the card's bottom edge. */
+.action {
+  margin-block-start: auto;
+  padding-block-start: var(--s-4);
 }
 
-.row {
-  border-bottom: 1px solid var(--color-foreground-20);
+.folderWay {
+  margin-block-start: var(--s-4);
 }
 
-.name {
-  padding: var(--spacing-xs) 0;
-  font-weight: inherit;
-  text-align: start;
+.folder {
+  position: relative;
+  border: var(--hair) solid var(--line);
+  border-radius: 0 var(--round-3) var(--round-3) var(--round-3);
+  background: var(--surface);
 }
 
-/* the gap before a numeric cell comes from .number below, so only the block and end padding are set */
-.row td {
-  padding-block: var(--spacing-xs);
-  padding-inline-end: 0;
+/* An empty tab: it takes the same border as the folder, open at the bottom. */
+.tab {
+  position: absolute;
+  bottom: 100%;
+  left: calc(-1 * var(--hair));
+  height: var(--s-4);
+  padding: 0 var(--s-2);
+  border: var(--hair) solid var(--line);
+  border-bottom: 0;
+  border-radius: var(--round-2) var(--round-2) 0 0;
+  background: var(--surface);
 }
 
-/* the numeric columns: right-aligned, never wrapped, a fixed gap from the column before */
-.number {
-  padding-inline-start: var(--spacing-md);
-  text-align: end;
-  white-space: nowrap;
+.beta {
+  margin-block-start: var(--s-2);
+  color: var(--text-soft);
 }
 
-.link {
-  text-decoration: none;
-}
-
-.link:hover,
-.link:focus-visible {
-  text-decoration: underline;
-  text-underline-position: from-font;
-}
-
-/* ---- Questions ---- */
-
-.faq.faq {
-  gap: var(--spacing-xl3);
-}
-
-/* doubled: the global `ul[class]` reset (margin 0) would otherwise win over the centring margin */
-.faqList.faqList {
-  width: 100%;
-  max-width: var(--measure-prose);
-  margin-inline: auto;
-}
-
-/* ---- Closing row ---- */
-
-.cta {
-  padding-block: var(--spacing-xl3) var(--spacing-xl4);
-}
-
-@media (min-width: 768px) {
-  .waysGrid {
+@media (min-width: 40em) {
+  .ways {
     grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: var(--spacing-xl);
+    padding-block-start: var(--s-4);
   }
 
-  .cta {
-    padding-block: var(--spacing-xl4) var(--spacing-xl6);
+  .folderWay {
+    margin-block-start: 0;
   }
 }
 
-@media (min-width: 1024px) {
-  .pricesBody {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    column-gap: var(--spacing-xl);
-    align-items: start;
+@media (min-width: 68em) {
+  .card.card {
+    padding: var(--s-4);
   }
 }

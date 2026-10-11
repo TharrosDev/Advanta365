@@ -1,52 +1,69 @@
-/* The page body under the title: filters on the left from 1024px, results on the right. */
-.layout {
-  display: flex;
-  flex-direction: column;
-  gap: var(--spacing-xl);
-  padding-bottom: var(--spacing-xl3);
-}
-
+/*
+ * The rail: search, sort and filters. Below 40em they are stacked, 21px apart. From 40em the search
+ * keeps the first row and the sort order and the Filters button share the second, one at each end.
+ */
 .rail {
-  display: flex;
-  flex-direction: column;
-  gap: var(--spacing-sm);
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--s-3);
+}
+
+.search,
+.filters {
   min-width: 0;
 }
 
-.results {
-  display: flex;
-  flex-direction: column;
-  gap: var(--spacing-sm);
-  min-width: 0;
-}
-
-/* the hairline on top comes from the global `.ruled` class */
+/* The one live region of the page: how many templates match, and for which search. */
 .count {
-  padding-block: var(--spacing-xs);
+  margin-block-end: var(--s-3);
+  color: var(--text-soft);
+  overflow-wrap: anywhere;
 }
 
-@media (min-width: 768px) {
-  .layout {
-    padding-bottom: var(--spacing-xl6);
-  }
+.strong {
+  color: var(--text);
+  font-weight: 700;
 }
 
-@media (min-width: 1024px) {
-  .layout {
-    display: grid;
-    grid-template-columns: minmax(0, 1fr) minmax(0, 3fr);
-    column-gap: var(--spacing-xl);
-    align-items: start;
-  }
-
-  /* Sticky, and scrolls inside itself when the groups are taller than the screen. The small
-     padding keeps the focus rings of the first column inside the scroll box. */
+@media (min-width: 40em) {
   .rail {
-    position: sticky;
-    top: var(--spacing-xl);
-    max-height: calc(var(--viewport-height) - var(--spacing-xl3));
-    margin-inline-start: calc(-1 * var(--spacing-xs3));
-    padding: var(--spacing-xs3) var(--spacing-xs2) var(--spacing-xs3) var(--spacing-xs3);
+    grid-template-columns: calc(var(--s-9) + var(--s-6)) minmax(0, 1fr);
+    align-items: end;
+    gap: var(--s-3) var(--col-gap);
+  }
+
+  .search {
+    grid-column: 1 / -1;
+  }
+
+  .filters {
+    justify-self: end;
+  }
+}
+
+/*
+ * From 68em the rail is a column in the margin, its groups 28px apart. It stays under the bar and
+ * scrolls inside itself when the filters are taller than the window. The 7px of padding, taken back
+ * by the margin, is the room a focus ring needs inside a box that clips.
+ */
+@media (min-width: 68em) {
+  .rail {
+    grid-template-columns: minmax(0, 1fr);
+    align-items: stretch;
+    gap: var(--s-4);
+    max-height: calc(100dvh - var(--bar-h) - var(--s-5));
+    margin: calc(-1 * var(--s-1));
+    padding: var(--s-1);
     overflow-y: auto;
+    scrollbar-color: var(--line-firm) transparent;
+    scrollbar-width: thin;
+  }
+
+  .search {
+    grid-column: auto;
+  }
+
+  .filters {
+    justify-self: stretch;
   }
 }

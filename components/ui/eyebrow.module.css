@@ -1,0 +1,27 @@
+/* No margin is set here, so a caller can space the label with a class of its own. */
+.root {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--s-1);
+  color: var(--text);
+}
+
+.inline {
+  display: inline-flex;
+}
+
+/* The square stays beside the first line when the label wraps: it is centred in one line box. */
+.marker::before {
+  content: "";
+  flex: none;
+  width: var(--s-1);
+  height: var(--s-1);
+  margin-block-start: calc((1lh - var(--s-1)) / 2);
+  background: var(--line-ink);
+}
+
+@media (forced-colors: active) {
+  .marker::before {
+    background: CanvasText;
+  }
+}

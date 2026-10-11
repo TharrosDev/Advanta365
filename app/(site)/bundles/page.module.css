@@ -1,23 +1,21 @@
-.block {
-  padding-bottom: var(--spacing-xl3);
-}
-
-/* One column on phones, two from 1024px; the global `ul[class]` reset removes the list styling. */
+/* The gap is the grid's gutter; each card keeps its own 28px above for the tab. */
 .grid {
   display: grid;
   grid-template-columns: minmax(0, 1fr);
-  column-gap: var(--spacing-xl);
-  row-gap: var(--spacing-xl3);
+  gap: var(--col-gap);
+  margin: 0;
+  padding: 0;
+  list-style: none;
 }
 
-@media (min-width: 768px) {
-  .block {
-    padding-bottom: var(--spacing-xl6);
+@media (min-width: 40em) {
+  .grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
 
-@media (min-width: 1024px) {
+@media (min-width: 68em) {
   .grid {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
+    grid-template-columns: repeat(3, minmax(0, 1fr));
   }
 }

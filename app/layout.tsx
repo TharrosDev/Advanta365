@@ -1,15 +1,18 @@
 import type { Metadata } from "next";
-import { Instrument_Sans } from "next/font/google";
+import { Atkinson_Hyperlegible_Next, Besley } from "next/font/google";
 import type { ReactNode } from "react";
-import { EntryScript } from "@/components/entry/entry-script";
+import { cx } from "@/lib/cx";
 import { SITE } from "@/lib/site";
 import "./globals.css";
 
-// Variable font (weight axis 400-700): no `weight` option, so every weight comes from one file.
-const instrumentSans = Instrument_Sans({
+// Two variable fonts, roman only: no `weight` option, so every weight of a family comes from one
+// file. Besley (400-900) is the voice of the documents, Atkinson Hyperlegible Next (200-800) the
+// voice of the store. `app/globals.css` reads the two variables through its face tokens.
+const besley = Besley({ subsets: ["latin"], display: "swap", variable: "--font-besley" });
+const atkinson = Atkinson_Hyperlegible_Next({
   subsets: ["latin"],
   display: "swap",
-  variable: "--font-instrument-sans",
+  variable: "--font-atkinson",
 });
 
 // The Open Graph block carries no title or description of its own: Next fills both from the page's
@@ -20,20 +23,10 @@ export const metadata: Metadata = {
   openGraph: { type: "website", siteName: SITE.name },
 };
 
-// Without JavaScript no RevealGroup can mark itself in view: release every paused reveal.
-const NOSCRIPT_REVEAL_CSS = "[data-reveal-group]{--reveal-play:running!important}";
-
 export default function RootLayout({ children }: { children: ReactNode }) {
   return (
-    // The entry script and the theme controller write attributes on <html> before and after hydration.
-    <html lang="en" dir="ltr" className={instrumentSans.variable} suppressHydrationWarning>
-      <body>
-        <EntryScript />
-        <noscript>
-          <style>{NOSCRIPT_REVEAL_CSS}</style>
-        </noscript>
-        {children}
-      </body>
+    <html lang="en" dir="ltr" className={cx(besley.variable, atkinson.variable)}>
+      <body>{children}</body>
     </html>
   );
 }

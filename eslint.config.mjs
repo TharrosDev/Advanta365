@@ -8,6 +8,8 @@ const config = [
       "node_modules/**",
       "playwright-report/**",
       "test-results/**",
+      // Scratch space for captures and one-off scripts; gitignored, never part of the site.
+      ".qa-shots/**",
       "next-env.d.ts",
     ],
   },

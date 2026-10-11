@@ -31,6 +31,14 @@ type FilterPanelProps = {
   phases: { slug: string; name: string }[];
 };
 
+/**
+ * The catalog filters: five groups of check rows with their counts, and a link that clears them.
+ * Every change goes to the URL at once; the box ticks before the server answers.
+ *
+ * From 68em the groups stand in the rail as an `aside`. Below that they sit behind a "Filters"
+ * button, in a native dialog that comes up from the bottom edge as a sheet: a bar with the title and
+ * Close, the groups in a scrolling body, and "Show results" at the foot.
+ */
 export function FilterPanel({ criteria: committed, facets, phases }: FilterPanelProps) {
   const router = useRouter();
   const dialogRef = useRef<HTMLDialogElement>(null);
@@ -69,10 +77,10 @@ export function FilterPanel({ criteria: committed, facets, phases }: FilterPanel
   }
 
   const fields = (
-    <div className={cx(styles.fields, isPending && styles.pending)} aria-busy={isPending}>
+    <div className={styles.fields} aria-busy={isPending}>
       {groups.map((group) => (
         <fieldset key={group.key} className={styles.group}>
-          <legend className={cx("t-label-large", styles.legend)}>{group.title}</legend>
+          <legend className={cx("type-eyebrow", styles.legend)}>{group.title}</legend>
           <div className={styles.options}>
             {group.options.map((option) => {
               const checked = (criteria[group.key] as string[]).includes(option.value);
@@ -120,15 +128,15 @@ export function FilterPanel({ criteria: committed, facets, phases }: FilterPanel
           {`Filters${selectedCount > 0 ? ` (${selectedCount})` : ""}`}
         </Button>
         <dialog ref={dialogRef} aria-label="Filters" className={styles.sheet}>
-          <div className={cx(styles.band, styles.bar)}>
-            <h2 className="t-headline-small">Filters</h2>
-            <Button variant="text" onClick={() => dialogRef.current?.close()}>
+          <div className={styles.bar}>
+            <h2 className="type-section">Filters</h2>
+            <Button variant="outline" size="sm" onClick={() => dialogRef.current?.close()}>
               Close
             </Button>
           </div>
-          <div className={cx(styles.band, styles.body)}>{fields}</div>
-          <div className={cx(styles.band, styles.footer)}>
-            <Button variant="slab" size="lg" fullWidth onClick={() => dialogRef.current?.close()}>
+          <div className={styles.body}>{fields}</div>
+          <div className={styles.foot}>
+            <Button variant="mark" size="lg" fullWidth onClick={() => dialogRef.current?.close()}>
               Show results
             </Button>
           </div>

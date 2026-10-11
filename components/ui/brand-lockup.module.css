@@ -1,0 +1,68 @@
+/* `--lockup-mark` is the height of the tile or of the bare mark; `--lockup-name` the name's size. */
+.root {
+  --lockup-mark: var(--s-4);
+  --lockup-name: 1.1875rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  height: var(--lockup-mark);
+  color: var(--text);
+}
+
+/* The square highlighter tile with the mark in ink, centred, at 60% of the tile's height. */
+.square {
+  display: grid;
+  flex: none;
+  place-items: center;
+  width: var(--lockup-mark);
+  height: var(--lockup-mark);
+  border-radius: 7px;
+  background: var(--mark);
+  color: var(--ink);
+}
+
+.glyph {
+  flex: none;
+}
+
+.name {
+  font-family: var(--face-display);
+  font-size: var(--lockup-name);
+  line-height: 1;
+  font-weight: 700;
+  font-feature-settings: "tnum" 0;
+  letter-spacing: 0;
+  white-space: nowrap;
+}
+
+.bare {
+  --lockup-name: 1.375rem;
+}
+
+.bare.sm {
+  --lockup-mark: var(--s-3);
+  --lockup-name: 1.1875rem;
+}
+
+/* The second ink is the highlighter only where it can be seen: on the binder. */
+[data-band="binder"] .bare {
+  --logo-tail: var(--mark);
+}
+
+@media (min-width: 68em) {
+  .tile.md {
+    --lockup-mark: calc(var(--s-1) * 5);
+    --lockup-name: 1.3125rem;
+  }
+}
+
+/* System colours only: the tile keeps an edge, and the tail is drawn in the ink of the body. */
+@media (forced-colors: active) {
+  .square {
+    border: var(--hair) solid CanvasText;
+  }
+
+  [data-band="binder"] .bare {
+    --logo-tail: currentColor;
+  }
+}

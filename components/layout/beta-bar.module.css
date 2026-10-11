@@ -1,9 +1,0 @@
-/* Colours come from the bar's own dark theme scope: ink background, white text. */
-.root {
-  position: relative;
-  z-index: var(--z-header);
-  padding: var(--spacing-xs2) var(--spacing-sm);
-  background: var(--color-background-100);
-  color: var(--color-foreground-100);
-  text-align: center;
-}

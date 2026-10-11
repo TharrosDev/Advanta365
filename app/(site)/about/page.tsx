@@ -3,21 +3,15 @@ import { BuyerList } from "@/components/company/buyer-list";
 import type { Buyer } from "@/components/company/buyer-list";
 import { ComparisonTable } from "@/components/company/comparison-table";
 import type { ComparisonRow } from "@/components/company/comparison-table";
+import { NextSteps } from "@/components/company/next-steps";
 import { StatementSection } from "@/components/company/statement-section";
-import { MetallicSwirl } from "@/components/graphics/metallic-swirl/metallic-swirl";
-import { INNER_SWIRL_PARAMS } from "@/components/graphics/metallic-swirl/params";
-import { PageTitle } from "@/components/layout/page-title";
-import { Reveal, RevealWords } from "@/components/motion/reveal";
-import { RevealGroup } from "@/components/motion/reveal-group";
-import { ActionRow } from "@/components/ui/action-row";
-import { DetailCard } from "@/components/ui/detail-card";
+import { TitleBlock } from "@/components/layout/title-block";
+import { Band } from "@/components/ui/band";
+import { CheckList } from "@/components/ui/check-list";
+import { Eyebrow } from "@/components/ui/eyebrow";
 import { FactList } from "@/components/ui/fact-list";
-import { PageShell } from "@/components/ui/page-shell";
-import { SectionIntro } from "@/components/ui/section-intro";
-import { SectionLabel } from "@/components/ui/section-label";
-import { SectionShell } from "@/components/ui/section-shell";
+import { Sentences } from "@/components/ui/sentences";
 import { cx } from "@/lib/cx";
-import { coarseIndexAfter, countWords } from "@/lib/motion/words";
 import { SITE, TOOLKIT } from "@/lib/site";
 import styles from "./page.module.css";
 
@@ -32,8 +26,7 @@ export const metadata: Metadata = {
 const LEAD = `Advanta365, an EchoFive product, sells field-tested change management and user adoption content for Microsoft 365 and SharePoint Online. It’s built from ${TOOLKIT.experience} of client delivery and gets an organization 90% of the way there before AI or a practitioner takes it the rest of the way.`;
 
 // The statement is the opening of the mission; the first paragraph is the mission in full, word for
-// word. The whole sentence is too long for the statement size: it runs to thirteen lines at 360px and
-// at 1024px and ends on a single word.
+// word. The whole sentence is too long to set as a statement.
 const MISSION_STATEMENT =
   "Help every organization moving to Microsoft 365 get real adoption, not just a launch.";
 
@@ -42,8 +35,8 @@ const MISSION_COPY = [
   "“Launched” versus “used” is the gap every sponsor and CIO has felt. The goal is users who want the change, not users who were told to comply.",
 ];
 
-// A line break between the two sentences of a statement: StatementSection sets each one as its own
-// block (here and in AI_STATEMENT).
+// A line break between the two sentences of a statement: it is set one sentence per block (here and
+// in AI_STATEMENT and COMPARE_TITLE).
 const WHY_STATEMENT =
   "Organizations keep paying to reinvent the same change management work for every M365 rollout.\nAdvanta365 exists so they can stop.";
 
@@ -62,24 +55,27 @@ const DIFFERENT_STATEMENT = "Proven experience at a template price.";
 
 const PROOF_POINTS = [
   {
+    key: "experience",
     title: "Experience, not guesswork",
     body: `${TOOLKIT.experience} of client delivery and Prosci certification sit behind every template.`,
   },
   {
+    key: "complete",
     title: "Complete, not a sampler",
     body: "It covers the whole rollout lifecycle, from making the case through sustainment, plus training for end users, Site Owners and IM Reps.",
   },
   {
+    key: "shown",
     title: "Shown, not just told",
     body: "A fully worked sample CM strategy (the fictional Meridian Group, about 10,000 employees) shows how the pieces fit together.",
   },
   {
+    key: "current",
     title: "Current",
     body: "It includes Copilot readiness, a Copilot rollout playbook and a Copilot change impact assessment, not just 2019-era SharePoint.",
   },
 ];
 
-// The line break sits between the two sentences; `.compareTitle` shows it from 1024px.
 const COMPARE_TITLE = "Three real alternatives.\nEach one misses something.";
 
 const COMPARE_COLUMNS = ["Build it yourself with AI", "Hire a CM consultant", SITE.name];
@@ -164,128 +160,80 @@ const NEXT = [
   { href: "/contact", label: "Get in touch" },
 ];
 
+/**
+ * `/about`: the mission, why the product exists, what AI does and does not do, what sets it apart,
+ * the three alternatives side by side, who it is for, and where to go next.
+ *
+ * Layout: the title block, then bands that alternate paper and desk (the one wash band holds the
+ * four proof points). Each statement section has its label in the margin; the comparison table runs
+ * across the whole grid under its own heading. `#compare` is linked from the home page.
+ */
 export default function AboutPage() {
-  // The table fades up on the first coarse step after the title's last word (the label is index 0,
-  // the words start at 1).
-  const compareTable = coarseIndexAfter(1 + countWords(COMPARE_TITLE));
-
   return (
-    <PageShell>
-      <PageTitle title={MISSION_SHORT} lead={LEAD} />
+    <>
+      <TitleBlock form="wide" title={MISSION_SHORT} lead={LEAD} />
 
-      <StatementSection label="Mission" statement={MISSION_STATEMENT} copy={MISSION_COPY} />
+      <StatementSection
+        surface="paper"
+        label="Mission"
+        statement={MISSION_STATEMENT}
+        copy={MISSION_COPY}
+      />
 
-      <StatementSection label="Why it exists" statement={WHY_STATEMENT} copy={WHY_COPY} />
+      <StatementSection
+        surface="desk"
+        label="Why it exists"
+        statement={WHY_STATEMENT}
+        copy={WHY_COPY}
+      />
 
-      <StatementSection label="AI, stated plainly" statement={AI_STATEMENT} copy={AI_COPY} />
+      <StatementSection
+        surface="paper"
+        label="AI, stated plainly"
+        statement={AI_STATEMENT}
+        copy={AI_COPY}
+      />
 
-      {/* The dark band: label and statement on top, the four proof points on its bottom edge. The
-          cards are a group of their own and fade up left to right (index 0 to 3). Their titles are
-          one size under the card's default, so two words still share a line in a quarter column. */}
-      <SectionShell
-        theme="dark"
-        height="full"
-        backdrop={<MetallicSwirl params={INNER_SWIRL_PARAMS} className={styles.swirl} />}
-        innerClassName={styles.different}
-      >
-        <RevealGroup className={styles.differentIntro}>
-          <Reveal as="div" effect="fade" index={0}>
-            <SectionLabel>Why it’s different</SectionLabel>
-          </Reveal>
-          <h2 className={cx("t-display-fluid", styles.differentStatement)}>
-            <RevealWords text={DIFFERENT_STATEMENT} offset={1} />
-          </h2>
-        </RevealGroup>
-        <RevealGroup as="ul" className={styles.proofGrid}>
-          {PROOF_POINTS.map((point, index) => (
-            <Reveal key={point.title} as="li" effect="fade-up" index={index}>
-              <DetailCard
-                title={point.title}
-                titleClassName="t-headline-medium"
-                body={point.body}
-              />
-            </Reveal>
-          ))}
-        </RevealGroup>
-      </SectionShell>
-
-      {/* #compare is linked from the home page. One group: label 0, title words from 1, then the
-          table with its note. */}
-      <SectionShell id="compare">
-        <RevealGroup className={styles.compare}>
-          <SectionIntro
-            label="Your alternatives"
-            title={COMPARE_TITLE}
-            titleClassName={cx("t-display-fluid", styles.compareTitle)}
-          />
-          <Reveal as="div" effect="fade-up" index={compareTable}>
-            <ComparisonTable
-              id="compare-table"
-              caption={`${SITE.name} compared with the alternatives`}
-              columns={COMPARE_COLUMNS}
-              rows={COMPARE_ROWS}
-              emphasized={COMPARE_COLUMNS.indexOf(SITE.name)}
-              note="Cost figures are our estimates, not market data."
-            />
-          </Reveal>
-        </RevealGroup>
-      </SectionShell>
-
-      {/* Under the statement: the buyers (their own group) with the public-sector line, then the
-          note on what the toolkit covers beyond SharePoint, as a fact row lined up with the list. */}
-      <StatementSection label="Who it’s for" statement={WHO_STATEMENT}>
-        <div className={styles.buyers}>
-          <BuyerList buyers={BUYERS} caresLabel="What they care about" />
-          <RevealGroup>
-            <Reveal as="p" effect="fade" index={0} className="t-body-large c-fg-60">
-              Proven in Canadian public-sector environments.
-            </Reveal>
-          </RevealGroup>
-        </div>
-        <RevealGroup>
-          <Reveal as="div" effect="fade-up" index={0}>
-            <FactList
-              items={[
-                {
-                  label: "Beyond SharePoint",
-                  value: <span className={styles.noteText}>{BEYOND_SHAREPOINT}</span>,
-                },
-              ]}
-            />
-          </Reveal>
-        </RevealGroup>
+      <StatementSection surface="wash" label="Why it’s different" statement={DIFFERENT_STATEMENT}>
+        <CheckList columns={2} items={PROOF_POINTS} />
       </StatementSection>
 
-      {/* The rows fade up in turn; the line that names the parent company follows them. */}
-      <SectionShell innerClassName={styles.closing}>
-        <RevealGroup>
-          <SectionIntro center label="Next" title="Find the piece for the phase you are on" />
-        </RevealGroup>
-        <RevealGroup className={styles.next}>
-          <ul className={styles.nextRows}>
-            {NEXT.map((row, index) => (
-              <Reveal key={row.href} as="li" effect="fade-up" index={index}>
-                <ActionRow
-                  fill
-                  padded
-                  arrow="right"
-                  rule={index === NEXT.length - 1 ? "both" : "top"}
-                  href={row.href}
-                  label={row.label}
-                />
-              </Reveal>
-            ))}
-          </ul>
-          <Reveal
-            as="p"
-            effect="fade"
-            index={NEXT.length}
-            className={cx("t-label-medium", "c-fg-60", styles.parent)}
-          >
-            {`${SITE.name} is a product of ${SITE.parent}.`}
-          </Reveal>
-        </RevealGroup>
-      </SectionShell>
-    </PageShell>
+      <Band id="compare" surface="desk">
+        <Eyebrow>Your alternatives</Eyebrow>
+        <h2 className={cx("type-page", styles.compareTitle)}>
+          <Sentences text={COMPARE_TITLE} />
+        </h2>
+        <ComparisonTable
+          id="compare-table"
+          className={styles.compareTable}
+          caption={`${SITE.name} compared with the alternatives`}
+          columns={COMPARE_COLUMNS}
+          rows={COMPARE_ROWS}
+          emphasized={COMPARE_COLUMNS.indexOf(SITE.name)}
+          note="Cost figures are our estimates, not market data."
+        />
+      </Band>
+
+      {/* Under the statement: the buyers with the public-sector line, then the note on what the
+          toolkit covers beyond SharePoint, as a fact row lined up with the list. */}
+      <StatementSection surface="paper" label="Who it’s for" statement={WHO_STATEMENT}>
+        <div className={styles.buyers}>
+          <BuyerList buyers={BUYERS} caresLabel="What they care about" />
+          <p className={cx("type-copy", styles.proven)}>
+            Proven in Canadian <span className={styles.compound}>public-sector</span> environments.
+          </p>
+        </div>
+        <FactList
+          className={styles.beyond}
+          items={[{ label: "Beyond SharePoint", value: BEYOND_SHAREPOINT }]}
+        />
+      </StatementSection>
+
+      <NextSteps surface="desk" title="Find the piece for the phase you are on" links={NEXT}>
+        <p className={cx("type-note", styles.parent)}>
+          {`${SITE.name} is a product of ${SITE.parent}.`}
+        </p>
+      </NextSteps>
+    </>
   );
 }

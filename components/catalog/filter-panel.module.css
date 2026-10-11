@@ -1,119 +1,108 @@
-/* Exactly one set of fields is visible at any width: the rail from 1024px, the sheet below it. */
-.desktop {
-  display: none;
-}
-
-.mobile {
-  display: block;
-}
-
+/* The groups, 28px apart, with the clearing link after the last one. */
 .fields {
   display: flex;
   flex-direction: column;
-  transition: opacity var(--duration-normal) var(--easing-out);
+  gap: var(--s-4);
 }
 
-/* a transition is pending: the boxes already show the new state, the results follow */
-.pending {
-  opacity: 0.6;
-}
-
-/* No border: the hairline is an inset shadow, so the legend never cuts a notch into it. */
 .group {
   min-width: 0;
   margin: 0;
-  padding: 0 0 var(--spacing-xs);
+  padding: 0;
   border: 0;
-  box-shadow: inset 0 1px 0 var(--color-foreground-30);
 }
 
-/* A floated legend is laid out as an ordinary block inside the fieldset. A rendered legend would
-   straddle the top edge of the box instead and cross the hairline. */
 .legend {
-  float: left;
-  width: 100%;
-  padding: var(--spacing-xs) 0 var(--spacing-xs3);
+  margin-block-end: var(--s-1);
+  padding: 0;
+  color: var(--text);
 }
 
 .options {
-  clear: both;
+  display: flex;
+  flex-direction: column;
 }
 
 .clear {
   align-self: flex-start;
-  margin-top: var(--spacing-xs2);
 }
 
-/* ------------------------------------------------------------------------------------------------
-   The phone sheet: the reference's one modal model, a curtain that drops from the top edge.
-   Closing is instant (native close()), so nothing ever waits for an exit animation.
-   ------------------------------------------------------------------------------------------------ */
+/* Below 68em the rail shows the button; the groups are in the sheet it opens. */
+.desktop {
+  display: none;
+}
 
+/*
+ * The bottom sheet. A native dialog, so it is modal, traps focus and closes on Escape by itself.
+ * It keeps the default `display: none` until it is open.
+ */
 .sheet {
+  position: fixed;
+  inset: auto 0 0 0;
   width: 100%;
   max-width: none;
-  max-height: 100dvh;
-  margin: 0 auto auto;
+  max-height: 85dvh;
+  margin: 0;
   padding: 0;
   border: 0;
-  border-top: 1px solid var(--color-foreground-100);
-  background: var(--color-background-100);
-  color: var(--color-foreground-100);
-  overflow: hidden;
+  border-top: var(--edge) solid var(--ink);
+  border-radius: var(--round-3) var(--round-3) 0 0;
+  background: var(--paper);
+  color: var(--ink);
 }
 
-/* display only while open: a closed dialog stays display:none */
-.sheet[open] {
-  display: flex;
-  flex-direction: column;
-  animation: sheet-in var(--duration-slower) var(--easing-emphasized) backwards;
-}
-
-.sheet::backdrop {
-  background: var(--color-background-80);
-  backdrop-filter: blur(1em);
-}
-
-@keyframes sheet-in {
+@keyframes sheet-up {
   from {
-    translate: 0 -100%;
+    translate: 0 100%;
   }
 }
 
-/* header, fields and footer share one gutter that also centres them on a tablet */
-.band {
-  padding-inline: max(var(--spacing-sm), calc((100% - var(--container-prose)) / 2));
+@keyframes scrim-in {
+  from {
+    opacity: 0;
+  }
+}
+
+.sheet[open] {
+  display: flex;
+  flex-direction: column;
+  animation: sheet-up var(--time-enter) var(--curve-settle);
+}
+
+.sheet::backdrop {
+  background: var(--scrim);
+  animation: scrim-in var(--time-exit) linear;
+}
+
+.bar,
+.foot {
+  flex: none;
+  padding: var(--s-2) var(--page-pad);
 }
 
 .bar {
   display: flex;
-  flex: none;
   align-items: center;
   justify-content: space-between;
-  gap: var(--spacing-sm);
-  padding-block: var(--spacing-xs);
-  border-bottom: 1px solid var(--color-foreground-20);
+  gap: var(--s-2);
+  border-block-end: var(--hair) solid var(--line);
 }
 
-/* the only part that scrolls; the header's rule already closes it off at the top */
+/* The only part that scrolls; its padding keeps the focus ring of a check row inside the box. */
 .body {
   flex: 1;
   min-height: 0;
+  padding: var(--s-3) var(--page-pad) var(--s-4);
   overflow-y: auto;
-  padding-block: 0 var(--spacing-sm);
+  overscroll-behavior: contain;
 }
 
-.body .group:first-of-type {
-  box-shadow: none;
+.foot {
+  padding-block-end: max(var(--s-2), env(safe-area-inset-bottom));
+  border-block-start: var(--hair) solid var(--line);
 }
 
-.footer {
-  flex: none;
-  padding-block: var(--spacing-sm);
-  border-top: 1px solid var(--color-foreground-20);
-}
-
-@media (min-width: 1024px) {
+@media (min-width: 68em) {
   .desktop {
     display: block;
   }
@@ -124,11 +113,14 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .sheet[open] {
+  .sheet[open],
+  .sheet::backdrop {
     animation: none;
   }
+}
 
-  .fields {
-    transition: none;
+@media (forced-colors: active) {
+  .sheet {
+    border: var(--edge) solid CanvasText;
   }
 }

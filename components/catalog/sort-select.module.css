@@ -1,16 +1,10 @@
 .row {
-  display: grid;
-  grid-template-columns: auto minmax(0, 1fr);
-  align-items: center;
-  column-gap: var(--spacing-sm);
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-1);
+  min-width: 0;
 }
 
 .label {
-  white-space: nowrap;
-}
-
-/* The wrapper fills the row; the doubled selector beats the primitive's inline-flex. */
-.select.select {
-  display: flex;
-  min-width: 0;
+  color: var(--text);
 }

@@ -1,14 +1,52 @@
 .panel {
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-sm);
-  padding-top: var(--spacing-sm);
-  border-top: 1px solid var(--color-foreground-100);
+  color: var(--text);
 }
 
-@media (min-width: 1024px) {
-  .panel {
-    position: sticky;
-    top: var(--spacing-xl);
+/*
+ * From 68em the panel is three columns wide, and 226px at 68em itself. Its side padding then grows
+ * from 21px to 28px over the first 56px of extra width instead of starting at 28px, so the one
+ * control still has the room to keep "Add to cart" and "Add bundle to cart" on one line. The
+ * doubled class outranks the padding of the sheet.
+ */
+@media (min-width: 68em) {
+  .panel.panel {
+    padding: clamp(var(--s-3), calc(var(--s-3) + (100vw - 68em) / 8), var(--s-4));
   }
+}
+
+.note {
+  margin-block-start: var(--s-1);
+  color: var(--text-soft);
+}
+
+.action {
+  margin-block: var(--s-3) var(--s-2);
+}
+
+/*
+ * The panel is three columns wide, so its one control gives up half of its side padding to keep the
+ * label on one line; a label that still has to wrap is split evenly.
+ */
+.action :is(a, button) {
+  padding-inline: var(--s-2);
+  text-wrap: balance;
+}
+
+/*
+ * A label written as one run of text (the "In cart" link): its icon sits on the text, 7px before
+ * the words, and the part marked as a unit is never broken.
+ */
+.action span > svg {
+  margin-inline-end: var(--s-1);
+  vertical-align: -0.25em;
+}
+
+.action span > span {
+  white-space: nowrap;
+}
+
+.beta {
+  color: var(--text-faint);
 }

@@ -1,0 +1,23 @@
+.root {
+  background: var(--mark-wash);
+  color: var(--ink);
+}
+
+/* 35px tall with one line; the padding keeps a wrapped notice off the edges. */
+.inner {
+  display: flex;
+  align-items: center;
+  min-height: calc(var(--s-1) * 5);
+  padding-block: var(--s-1);
+}
+
+/* Doubled: the type class on the same element sets a weight too. */
+.text.text {
+  font-weight: 600;
+}
+
+@media (forced-colors: active) {
+  .root {
+    border-block-end: var(--hair) solid CanvasText;
+  }
+}
