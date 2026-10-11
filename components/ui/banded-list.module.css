@@ -1,32 +1,36 @@
 .list {
   margin: 0;
   padding: 0;
-  border: var(--hair) solid var(--line);
-  border-radius: var(--round-3);
-  background: var(--surface);
+  border-block-end: var(--hair) solid var(--line);
   list-style: none;
-  overflow: hidden;
 }
 
+/*
+ * The hairline above a row is a layer of its own (app/motion.css draws it from the left). The row
+ * has no inline padding: `--row-pad-inline` is how far a `RowLink` inside stands past its ends.
+ */
 .row {
   --row-pad-block: var(--s-2);
   --row-pad-inline: var(--s-2);
-  padding: var(--row-pad-block) var(--row-pad-inline);
+  position: relative;
+  padding: var(--row-pad-block) 0;
 }
 
-.row:nth-child(even) {
-  background: var(--stripe);
+.row::before {
+  content: "";
+  position: absolute;
+  inset: 0 0 auto;
+  height: var(--hair);
+  background: var(--line);
+  pointer-events: none;
 }
 
-@media (min-width: 40em) {
-  .row {
-    --row-pad-inline: var(--s-3);
-  }
-}
-
-/* Without the two tones, a hairline keeps the rows apart. */
 @media (forced-colors: active) {
-  .row + .row {
-    border-block-start: var(--hair) solid GrayText;
+  .list {
+    border-block-end-color: GrayText;
+  }
+
+  .row::before {
+    background: GrayText;
   }
 }

@@ -28,8 +28,9 @@
   flex: none;
 }
 
+/* Side by side from 40em, unless the head is stacked. */
 @media (min-width: 40em) {
-  .root {
+  .row {
     flex-direction: row;
     align-items: flex-end;
     justify-content: space-between;

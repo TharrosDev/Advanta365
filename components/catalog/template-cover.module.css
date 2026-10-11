@@ -1,145 +1,362 @@
-/* The tile: a 3:2 piece of the desk that the file lies on. */
-.tile {
-  position: relative;
-  aspect-ratio: 3 / 2;
-  border-radius: var(--round-2);
-  background: var(--tile);
+/*
+ * The cover is a `PaperSheet` in the proportions of its format. Everything printed on it is sized
+ * in `--u`, a share of the sheet's own width, so the page reads the same as a 60px thumbnail and
+ * as the large sheet of a product page. One unit is 1% of a portrait sheet's width; the wider
+ * formats count in smaller units, so their pages are about as many units tall.
+ */
+.stack {
+  display: block;
+  width: 100%;
+}
+
+.sheet {
+  width: 100%;
+}
+
+/* A thumbnail has a width of its own, by format, and never outgrows its cell. */
+.sm {
+  flex: none;
+  max-width: 100%;
+}
+
+.sm.portrait {
+  width: 3.75rem;
+}
+
+.sm.landscape {
+  width: 5.25rem;
+}
+
+.sm.slide {
+  width: 6rem;
+}
+
+/* A PDF: the paper's top-right corner is cut, and the flap lies folded over it. */
+.folded {
+  --sheet-clip: polygon(0 0, 86% 0, 100% 10%, 100% 100%, 0 100%);
+}
+
+/* The face is the box every unit is measured from. */
+.face {
+  position: absolute;
+  inset: 0;
+  container-type: inline-size;
+  border-radius: inherit;
   overflow: hidden;
 }
 
-.art {
-  display: block;
-  width: 100%;
-  height: 100%;
+.page {
+  --u: 1cqi;
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  padding: calc(var(--u) * 21) calc(var(--u) * 9) calc(var(--u) * 9);
 }
 
-/* Every stroke keeps its width in pixels, whatever size the tile is drawn at. */
-.board,
-.sheet,
-.outline,
-.fold,
-.ruling,
-.backing,
-.blank,
-.glyph * {
-  vector-effect: non-scaling-stroke;
+.landscape .page {
+  --u: 0.75cqi;
 }
 
-.board {
-  stroke: var(--line);
-  stroke-width: 1px;
+.slide .page {
+  --u: 0.6cqi;
 }
 
-/* The file: paper with an ink outline. */
-.sheet {
-  fill: var(--paper);
-  stroke: var(--ink);
-  stroke-width: 2px;
-  stroke-linejoin: round;
-}
-
-.ground {
-  fill: var(--paper);
-}
-
-.outline,
-.fold {
-  stroke: var(--ink);
-  stroke-width: 2px;
-  stroke-linejoin: round;
-}
-
+/* The title of the template, as its first page prints it. At most four lines. */
 .title {
-  fill: var(--ink);
+  display: -webkit-box;
+  flex: none;
+  padding-block-end: 0.12em;
+  padding-inline-end: calc(var(--u) * 13);
+  overflow: hidden;
+  font-family: var(--face-display);
+  font-size: calc(var(--u) * 7.5);
+  line-height: 1.12;
+  font-weight: 600;
+  overflow-wrap: break-word;
+  hyphens: auto;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 4;
+  line-clamp: 4;
 }
 
-.line {
-  fill: var(--rule);
+/* The first line of the summary; the ghost lines stand for the rest. */
+.summary {
+  display: block;
+  flex: none;
+  margin-block-start: calc(var(--u) * 4);
+  padding-inline-end: calc(var(--u) * 13);
+  overflow: hidden;
+  color: var(--ink-soft);
+  font-size: calc(var(--u) * 4.6);
+  line-height: 1.4;
+  white-space: nowrap;
 }
 
-/* A workbook: the header row and the ruling of its cells. */
-.head {
-  fill: var(--desk);
+.lines {
+  display: flex;
+  flex: none;
+  flex-direction: column;
+  gap: calc(var(--u) * 3.2);
+  margin-block-start: calc(var(--u) * 5);
 }
 
-.ruling {
-  stroke: var(--rule);
-  stroke-width: 1px;
+.lines i {
+  display: block;
+  height: max(1px, calc(var(--u) * 1.5));
+  border-radius: 1px;
+  background: var(--rule);
 }
 
-/* The chart of a workbook stands on its own piece of paper, over the cells. */
-.backing {
-  fill: var(--paper);
-  stroke: var(--rule);
-  stroke-width: 1px;
+.lines i:nth-child(2) {
+  width: 92%;
 }
 
-/* The line drawing of the deliverable type. */
+.lines i:nth-child(3) {
+  width: 96%;
+}
+
+.lines i:nth-child(4) {
+  width: 58%;
+}
+
+/* A workbook's lines are rows of three cells. */
+.ruled .lines i {
+  background: linear-gradient(
+    90deg,
+    var(--rule) 0 30%,
+    transparent 30% 35%,
+    var(--rule) 35% 65%,
+    transparent 65% 70%,
+    var(--rule) 70%
+  );
+}
+
+/* The foot of the page: the blank, and the line drawing of the deliverable type beside it. */
+.foot {
+  display: flex;
+  align-items: flex-end;
+  gap: calc(var(--u) * 7);
+  margin-block-start: auto;
+}
+
+/* The blank: the only highlighted part of a cover, with its ink edge. */
+.blank {
+  display: block;
+  flex: 1;
+  height: calc(var(--u) * 11);
+  border-radius: max(1px, calc(var(--u) * 1.5));
+  background: var(--mark);
+  box-shadow: inset 0 0 0 max(1px, calc(var(--u) * 0.7)) var(--ink);
+}
+
 .glyph {
+  display: block;
+  flex: none;
+  width: calc(var(--u) * 26);
+  height: calc(var(--u) * 26);
   stroke: var(--ink);
-  stroke-width: 2px;
+  stroke-width: 1.5px;
   stroke-linecap: round;
   stroke-linejoin: round;
+}
+
+.glyph * {
+  vector-effect: non-scaling-stroke;
 }
 
 .solid {
   fill: var(--ink);
 }
 
-/* The blank: the only highlighted part of a cover. */
-.blank {
-  fill: var(--mark);
-  stroke: var(--ink);
-  stroke-width: 2px;
-  stroke-linejoin: round;
+/*
+ * The wide formats: the text keeps to the left and the drawing stands at the right, clear of the
+ * index tab. Their titles are shorter by a line or two.
+ */
+.landscape .title,
+.landscape .summary,
+.landscape .lines,
+.slide .title,
+.slide .summary,
+.slide .lines {
+  width: 58%;
+  padding-inline-end: 0;
 }
 
+.landscape .title,
+.slide .title {
+  width: 66%;
+  font-size: calc(var(--u) * 7.8);
+}
+
+.landscape .title {
+  -webkit-line-clamp: 3;
+  line-clamp: 3;
+}
+
+.slide .title {
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+}
+
+.landscape .blank,
+.slide .blank {
+  flex: none;
+  width: 46%;
+}
+
+.landscape .glyph,
+.slide .glyph {
+  position: absolute;
+  right: calc(var(--u) * 20);
+  bottom: calc(var(--u) * 12);
+  width: calc(var(--u) * 40);
+  height: calc(var(--u) * 40);
+}
+
+/* Without a title, and on every thumbnail: three lines in the middle of the page, the blank below. */
+.plain .page {
+  padding-block-start: calc(var(--u) * 38);
+}
+
+.plain .lines {
+  gap: calc(var(--u) * 5);
+  margin-block-start: 0;
+  padding-inline-end: calc(var(--u) * 18);
+}
+
+.plain .lines i {
+  height: max(1px, calc(var(--u) * 2.5));
+}
+
+.plain .blank {
+  height: calc(var(--u) * 16);
+}
+
+.plain.landscape .page,
+.plain.slide .page {
+  padding-block-start: calc(var(--u) * 34);
+}
+
+.plain.landscape .lines,
+.plain.slide .lines {
+  width: 58%;
+  padding-inline-end: 0;
+}
+
+/* The flap of a folded corner: the lower-left half of the square the cut took away. */
+.flap {
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 14%;
+  aspect-ratio: 1;
+  background: linear-gradient(225deg, var(--paper-shade) 50%, var(--desk-deep));
+  clip-path: polygon(0 0, 0 100%, 100% 100%);
+}
+
+/* The index tab: the phase numeral, in white on ink, at the right edge. */
+.numeral {
+  --u: 1cqi;
+  position: absolute;
+  top: 26%;
+  right: 0;
+  display: grid;
+  place-items: center;
+  width: calc(var(--u) * 11);
+  height: calc(var(--u) * 14);
+  border-radius: max(1px, calc(var(--u) * 1.5)) 0 0 max(1px, calc(var(--u) * 1.5));
+  background: var(--ink);
+  color: var(--on-ink);
+  font-family: var(--face-display);
+  font-size: calc(var(--u) * 7);
+  line-height: 1;
+  font-weight: 700;
+  font-feature-settings: "tnum" 0;
+}
+
+.landscape .numeral {
+  --u: 0.75cqi;
+}
+
+.slide .numeral {
+  --u: 0.6cqi;
+}
+
+.plain .numeral {
+  top: 34%;
+  width: calc(var(--u) * 20);
+  height: calc(var(--u) * 24);
+  font-size: calc(var(--u) * 14);
+}
+
+.plain.landscape .numeral,
+.plain.slide .numeral {
+  top: 30%;
+}
+
+/* The format tag, top right; left of the fold on a PDF. */
 .format {
   position: absolute;
   top: var(--s-1);
   right: var(--s-1);
 }
 
-/* In forced colours the board goes and the outlines carry the drawing, in system colours. */
+.folded .format {
+  right: calc(14% + var(--s-1));
+}
+
+/* On a thumbnail the tag is printed with the page, at the page's scale. */
+.sm .format {
+  top: 5cqi;
+  right: 5cqi;
+  padding: 1cqi 3cqi;
+  font-size: max(0.4375rem, 11cqi);
+  letter-spacing: 0;
+}
+
+.sm.folded .format {
+  right: auto;
+  left: 5cqi;
+}
+
+.sm.landscape .format,
+.sm.slide .format {
+  top: 4cqi;
+  right: 4cqi;
+  padding: 0.5cqi 2cqi;
+  font-size: max(0.4375rem, 7.5cqi);
+}
+
+/* In forced colours fills go: the outlines carry the page, in system colours. */
 @media (forced-colors: active) {
-  .tile {
-    border: var(--hair) solid CanvasText;
+  .lines i,
+  .ruled .lines i {
+    background: GrayText;
   }
 
-  .board {
-    display: none;
-  }
-
-  .ruling,
-  .backing {
-    stroke: GrayText;
-  }
-
-  .sheet,
-  .outline,
-  .fold,
-  .glyph,
   .blank {
+    background: Highlight;
+    box-shadow: none;
+    border: var(--hair) solid CanvasText;
+    forced-color-adjust: none;
+  }
+
+  .numeral {
+    background: CanvasText;
+    color: Canvas;
+    forced-color-adjust: none;
+  }
+
+  .glyph {
     stroke: CanvasText;
   }
 
-  .sheet,
-  .ground,
-  .head,
-  .backing {
-    fill: Canvas;
-  }
-
-  .title,
   .solid {
     fill: CanvasText;
   }
 
-  .line {
-    fill: GrayText;
-  }
-
-  .blank {
-    fill: Highlight;
+  .flap {
+    display: none;
   }
 }

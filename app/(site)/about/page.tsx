@@ -1,13 +1,15 @@
 import type { Metadata } from "next";
+import { AiStatement } from "@/components/company/ai-statement";
 import { BuyerList } from "@/components/company/buyer-list";
 import type { Buyer } from "@/components/company/buyer-list";
 import { ComparisonTable } from "@/components/company/comparison-table";
 import type { ComparisonRow } from "@/components/company/comparison-table";
 import { NextSteps } from "@/components/company/next-steps";
+import { ProofLedger } from "@/components/company/proof-ledger";
 import { StatementSection } from "@/components/company/statement-section";
 import { TitleBlock } from "@/components/layout/title-block";
+import { Appear } from "@/components/ui/appear";
 import { Band } from "@/components/ui/band";
-import { CheckList } from "@/components/ui/check-list";
 import { Eyebrow } from "@/components/ui/eyebrow";
 import { FactList } from "@/components/ui/fact-list";
 import { Sentences } from "@/components/ui/sentences";
@@ -164,44 +166,43 @@ const NEXT = [
  * `/about`: the mission, why the product exists, what AI does and does not do, what sets it apart,
  * the three alternatives side by side, who it is for, and where to go next.
  *
- * Layout: the title block, then bands that alternate paper and desk (the one wash band holds the
- * four proof points). Each statement section has its label in the margin; the comparison table runs
- * across the whole grid under its own heading. `#compare` is linked from the home page.
+ * Layout: the title block with ink, then bands that alternate desk and paper: the mission, why it
+ * exists, the one black band (AI, stated plainly, static), the wash band with the four proof points
+ * as a ledger, the comparison on a sheet of paper with the buyer's column raised, the buyers as a
+ * ledger, and a closing paper band. Each statement section has its label in the margin; the
+ * comparison runs across the whole grid under its own statement. `#compare` is linked from the
+ * home page.
  */
 export default function AboutPage() {
   return (
     <>
-      <TitleBlock form="wide" title={MISSION_SHORT} lead={LEAD} />
+      <TitleBlock form="wide" ink title={MISSION_SHORT} lead={LEAD} />
 
       <StatementSection
-        surface="paper"
+        surface="desk"
         label="Mission"
         statement={MISSION_STATEMENT}
         copy={MISSION_COPY}
       />
 
       <StatementSection
-        surface="desk"
+        surface="paper"
         label="Why it exists"
         statement={WHY_STATEMENT}
         copy={WHY_COPY}
       />
 
-      <StatementSection
-        surface="paper"
-        label="AI, stated plainly"
-        statement={AI_STATEMENT}
-        copy={AI_COPY}
-      />
+      {/* The one black band of the company pages: static, no ink moves behind it. */}
+      <AiStatement label="AI, stated plainly" statement={AI_STATEMENT} copy={AI_COPY} />
 
       <StatementSection surface="wash" label="Why it’s different" statement={DIFFERENT_STATEMENT}>
-        <CheckList columns={2} items={PROOF_POINTS} />
+        <ProofLedger items={PROOF_POINTS} />
       </StatementSection>
 
       <Band id="compare" surface="desk">
         <Eyebrow>Your alternatives</Eyebrow>
-        <h2 className={cx("type-page", styles.compareTitle)}>
-          <Sentences text={COMPARE_TITLE} />
+        <h2 className={cx("type-statement", styles.compareTitle)}>
+          <Sentences text={COMPARE_TITLE} move />
         </h2>
         <ComparisonTable
           id="compare-table"
@@ -219,9 +220,9 @@ export default function AboutPage() {
       <StatementSection surface="paper" label="Who it’s for" statement={WHO_STATEMENT}>
         <div className={styles.buyers}>
           <BuyerList buyers={BUYERS} caresLabel="What they care about" />
-          <p className={cx("type-copy", styles.proven)}>
+          <Appear as="p" className={cx("type-copy", styles.proven)}>
             Proven in Canadian <span className={styles.compound}>public-sector</span> environments.
-          </p>
+          </Appear>
         </div>
         <FactList
           className={styles.beyond}
@@ -229,7 +230,7 @@ export default function AboutPage() {
         />
       </StatementSection>
 
-      <NextSteps surface="desk" title="Find the piece for the phase you are on" links={NEXT}>
+      <NextSteps title="Find the piece for the phase you are on" links={NEXT}>
         <p className={cx("type-note", styles.parent)}>
           {`${SITE.name} is a product of ${SITE.parent}.`}
         </p>

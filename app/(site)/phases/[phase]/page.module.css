@@ -1,24 +1,22 @@
-/* In the margin of the title block: the phase numeral, then its place among the phases. */
+/* In the aside of the title block: the phase numeral, then its place among the phases. */
 .place {
   display: flex;
-  align-items: flex-end;
-  gap: var(--s-3);
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--s-2);
 }
 
-/* The figure face, held to 119px so it stays a margin note beside the title. */
+/* The poster face, held to 240px. */
 .numeral {
-  font-size: min(var(--size-figure), calc(var(--s-1) * 17));
+  font-size: min(var(--size-poster), 15rem);
   color: var(--text);
 }
 
-/* Takes what the numeral leaves of the margin, so the tally never reaches the margin rule. */
 .count {
   display: flex;
-  flex: 1;
   flex-direction: column;
   gap: var(--s-1);
   min-width: 0;
-  padding-block-end: var(--s-1);
   color: var(--text);
 }
 
@@ -28,10 +26,10 @@
 }
 
 /*
- * One step. Below 68em: the number beside the step name, the summary under them, then the cards.
+ * One step. Below 68em: the number beside the step name, the summary under them, then the rows.
  * From 68em it is the margin layout of the page: number and summary in columns 1 to 3, name and
- * cards in columns 4 to 12, with the margin rule in the gutter between them. The parts are placed
- * by grid line, so in the document the name comes straight after the number and before the summary.
+ * rows in columns 4 to 12. The parts are placed by grid line, so in the document the name comes
+ * straight after the number and before the summary.
  */
 .step {
   display: grid;
@@ -61,20 +59,12 @@
   font-weight: 400;
 }
 
-.cards {
-  display: grid;
+/* The index rows of the step: one column, each row on its own hairline. */
+.rows {
   grid-column: 1 / -1;
-  grid-template-columns: minmax(0, 1fr);
-  gap: var(--col-gap);
   margin: var(--s-3) 0 0;
   padding: 0;
   list-style: none;
-}
-
-@media (min-width: 40em) {
-  .cards {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
 }
 
 @media (min-width: 68em) {
@@ -98,29 +88,9 @@
     grid-area: 1 / 4 / 2 / -1;
   }
 
-  .cards {
+  .rows {
     grid-area: 2 / 4 / 3 / -1;
-    grid-template-columns: repeat(3, minmax(0, 1fr));
     align-self: start;
-    margin-block-start: var(--s-5);
-  }
-
-  /* The margin rule: in the middle of the gutter before column 4, through the band's padding. */
-  .step::before {
-    content: "";
-    grid-area: 1 / 4 / 3 / 5;
-    justify-self: start;
-    align-self: stretch;
-    width: var(--hair);
-    margin-block: calc(-1 * var(--pad, 0px));
-    margin-inline-start: calc(var(--col-gap) / -2);
-    background: var(--line);
-    pointer-events: none;
-  }
-}
-
-@media (forced-colors: active) {
-  .step::before {
-    background: GrayText;
+    margin-block-start: var(--s-4);
   }
 }

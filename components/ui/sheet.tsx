@@ -10,9 +10,10 @@ type SheetProps = {
 } & HTMLAttributes<HTMLElement>;
 
 /**
- * A sheet of paper on the desk: the panel behind cards, tables, summaries and callouts. `edge` is
- * its border (a hairline rule, or 2px of ink for the panel a page is about); `pad` is its padding,
- * one step smaller below 40em. Every other prop, `ref` included, goes to the element.
+ * The plain panel of the interface: tables, summaries, callouts, dialogs. It has no border.
+ * `edge="rule"` is a hairline ring, `edge="ink"` the shadow of an object at rest, for the panel a
+ * page is about; `pad` is its padding, one step smaller below 40em. A document, a product or a
+ * receipt is a `PaperSheet` instead. Every other prop, `ref` included, goes to the element.
  */
 export function Sheet({
   as: Tag = "div",

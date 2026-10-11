@@ -30,25 +30,17 @@
  * Three blinks, then solid. The caret is drawn by default; the animation only takes it away for
  * half of each cycle. It starts one beat after a ten-block tally beside it has filled
  * (240ms + 12 x 80ms = 1200ms) and the last cycle ends 4.5s after first paint.
- *
- * Under the cover of a first visit it waits for the cover as the tally does (`--intro-hold` takes
- * the place of the opening delay) and blinks twice (`--intro-blinks`), which ends it 4.91s after
- * first paint. Both are set on the root element in globals.css.
  */
-@keyframes caret-blink {
-  50% {
-    opacity: 0;
+@media (prefers-reduced-motion: no-preference) {
+  @keyframes caret-blink {
+    50% {
+      opacity: 0;
+    }
   }
-}
 
-.blink {
-  animation: caret-blink var(--time-blink) steps(1, end) var(--intro-blinks, 3);
-  animation-delay: calc(var(--intro-hold, var(--time-enter)) + 12 * var(--time-fill-gap));
-}
-
-@media (prefers-reduced-motion: reduce) {
   .blink {
-    animation: none;
+    animation: caret-blink var(--time-blink) steps(1, end) 3;
+    animation-delay: calc(var(--time-enter) + 12 * var(--time-fill-gap));
   }
 }
 

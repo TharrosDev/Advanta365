@@ -5,7 +5,7 @@ import { BandedList, BandedRow } from "@/components/ui/banded-list";
 import { Blank } from "@/components/ui/blank";
 import { Button } from "@/components/ui/button";
 import { KeepCompounds } from "@/components/ui/keep-compounds";
-import { Sheet } from "@/components/ui/sheet";
+import { PaperSheet } from "@/components/ui/paper-sheet";
 import { Tally } from "@/components/ui/tally";
 import { TextLink } from "@/components/ui/text-link";
 import { pruneLines, type CartLine } from "@/lib/cart/store";
@@ -19,10 +19,10 @@ export type CartItem = CartLine & { title: string; priceCents: number; href: str
 const keyOf = (line: CartLine) => `${line.kind}:${line.slug}`;
 
 /**
- * The cart page below its title. With lines in it: the lines as a banded list (kind, title, price,
- * Remove) and, beside them from 68em, the order summary on a sheet that stays in view. Empty: one
- * sheet with a blank field, the message and two ways on. Until the saved cart has been read it is a
- * single sentence.
+ * The cart page below its title. With lines in it: the lines as a ledger (a small sheet or folder,
+ * kind, title, price, Remove) and, beside them from 68em, the order summary on a receipt, a paper
+ * sheet with a torn top edge that stays in view. Empty: one blank sheet with a field, the message
+ * and two ways on. Until the saved cart has been read it is a single sentence.
  */
 export function CartContents({ items }: { items: CartItem[] }) {
   const cart = useCart();
@@ -58,7 +58,7 @@ export function CartContents({ items }: { items: CartItem[] }) {
   if (lines.length === 0) {
     return (
       <div className={styles.layout}>
-        <Sheet pad="roomy" className={styles.empty}>
+        <PaperSheet size="md" className={styles.empty}>
           <Blank size="lg" caret="steady" className={styles.blank} />
           <h2 ref={emptyRef} tabIndex={-1} className={cx("type-section", styles.emptyTitle)}>
             Your cart is empty.
@@ -75,7 +75,7 @@ export function CartContents({ items }: { items: CartItem[] }) {
             </Button>
           </div>
           <Tally total={10} filled={0} size="sm" className={styles.emptyTally} />
-        </Sheet>
+        </PaperSheet>
       </div>
     );
   }
@@ -88,6 +88,17 @@ export function CartContents({ items }: { items: CartItem[] }) {
       <BandedList ref={listRef} className={styles.list}>
         {rows.map((row, index) => (
           <BandedRow key={keyOf(row)} className={styles.row}>
+            {row.kind === "bundle" ? (
+              <span aria-hidden="true" className={styles.folder} />
+            ) : (
+              <PaperSheet
+                ratio="portrait"
+                size="sm"
+                depth={2}
+                aria-hidden="true"
+                className={styles.glyph}
+              />
+            )}
             <div className={styles.item}>
               <p className={cx("type-note", styles.kind)}>
                 {row.kind === "bundle" ? "Bundle" : "Template"}
@@ -113,7 +124,13 @@ export function CartContents({ items }: { items: CartItem[] }) {
         ))}
       </BandedList>
 
-      <Sheet as="aside" edge="ink" aria-label="Order summary" className={styles.summary}>
+      <PaperSheet
+        as="aside"
+        size="md"
+        depth={3}
+        aria-label="Order summary"
+        className={styles.summary}
+      >
         <p className={cx("type-note", styles.subtotalLabel)}>Subtotal</p>
         <p className={cx("type-amount", "tabular", styles.subtotal)}>{formatPrice(subtotal)}</p>
         <Button variant="mark" size="lg" fullWidth disabled className={styles.checkout}>
@@ -122,7 +139,7 @@ export function CartContents({ items }: { items: CartItem[] }) {
         <p className={cx("type-note", styles.summaryNote)}>
           Purchasing is not available in this beta. Your cart is saved in this browser.
         </p>
-      </Sheet>
+      </PaperSheet>
     </div>
   );
 }

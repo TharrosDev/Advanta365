@@ -1,14 +1,15 @@
+/* A panel has no border: a hairline ring, or the shadow of an object at rest, is its edge. */
 .root {
   border-radius: var(--round-3);
   background: var(--surface);
 }
 
 .rule {
-  border: var(--hair) solid var(--line);
+  box-shadow: var(--depth-0);
 }
 
 .ink {
-  border: var(--edge) solid var(--line-ink);
+  box-shadow: var(--depth-2);
 }
 
 .none {
@@ -34,5 +35,19 @@
 
   .roomy {
     padding: var(--s-5);
+  }
+}
+
+@media (prefers-contrast: more) {
+  .root {
+    border: var(--hair) solid var(--line-ink);
+    box-shadow: none;
+  }
+}
+
+@media (forced-colors: active) {
+  .root {
+    border: var(--hair) solid CanvasText;
+    box-shadow: none;
   }
 }

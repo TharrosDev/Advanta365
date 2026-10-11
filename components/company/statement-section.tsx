@@ -1,4 +1,5 @@
 import type { ReactNode } from "react";
+import { Appear } from "@/components/ui/appear";
 import { Band } from "@/components/ui/band";
 import { Eyebrow } from "@/components/ui/eyebrow";
 import { Sentences } from "@/components/ui/sentences";
@@ -8,8 +9,9 @@ import styles from "./statement-section.module.css";
 
 /**
  * A band that makes one statement. The label sits in the margin; beside it are the statement (the
- * band's `<h2>`, one sentence per line block), the copy as paragraphs and then `children`, which
- * bring their own layout. Below 68em the label stacks above the statement. `surface` picks the band.
+ * band's `<h2>`, in `.type-banner`, one sentence per line block), the copy as paragraphs that drift
+ * in, and then `children`, which bring their own layout. There is no rule in the margin. Below 68em
+ * the label stacks above the statement. `surface` picks the band.
  */
 export function StatementSection({
   id,
@@ -29,15 +31,15 @@ export function StatementSection({
   return (
     <Band id={id} surface={surface}>
       <Split margin={<Eyebrow>{label}</Eyebrow>} marginClassName={styles.margin}>
-        <h2 className={cx("type-page", styles.statement)}>
+        <h2 className={cx("type-banner", styles.statement)}>
           <Sentences text={statement} />
         </h2>
         {copy.length > 0 ? (
           <div className={styles.copy}>
             {copy.map((paragraph) => (
-              <p key={paragraph} className={cx("type-copy", styles.paragraph)}>
+              <Appear as="p" key={paragraph} className={cx("type-copy", styles.paragraph)}>
                 {paragraph}
-              </p>
+              </Appear>
             ))}
           </div>
         ) : null}

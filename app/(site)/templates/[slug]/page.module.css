@@ -1,18 +1,19 @@
 /*
  * The three zones of the page: cover, purchase panel, details, in that order in the document.
  * Below 40em they are stacked. From 40em the cover and the panel stand side by side above the
- * details. From 68em it is the margin layout: the cover in columns 1 to 3, the details in columns
- * 4 to 9 and the panel in columns 10 to 12, with the margin rule in the gutter after the cover.
+ * details. From 68em it is the page grid: the cover in columns 1 to 4, the details in columns 5 to
+ * 9 and the panel in columns 10 to 12, the cover and the panel staying under the bar.
  */
 .zones {
   display: grid;
   grid-template-columns: minmax(0, 1fr);
-  gap: var(--s-3) var(--col-gap);
+  gap: var(--s-4) var(--col-gap);
 }
 
-/* Held to 280px while it is not in the margin. */
+/* Held to 280px while it is not in the margin; 14px around it leave room for the sheets beneath. */
 .cover {
-  max-width: calc(var(--s-1) * 40);
+  max-width: calc(var(--s-1) * 40 + var(--s-4));
+  padding: 0 var(--s-2) var(--s-2) 0;
 }
 
 .details {
@@ -49,6 +50,25 @@
   gap: var(--s-3);
 }
 
+/* One thing the purchase includes: its tick, then the words, on the ledger's hairline. */
+.included {
+  display: grid;
+  grid-template-columns: var(--s-3) minmax(0, 1fr);
+  gap: var(--s-2);
+  align-items: start;
+}
+
+.tick {
+  display: grid;
+  place-items: center;
+  width: var(--s-3);
+  height: var(--s-3);
+  margin-block-start: calc((1lh - var(--s-3)) / 2);
+  border-radius: var(--round-1);
+  background: var(--mark);
+  color: var(--on-mark);
+}
+
 /* Seven blocks, 147px across at most. */
 .tally.tally {
   max-width: calc(var(--s-1) * 21);
@@ -66,10 +86,10 @@
   gap: var(--s-6);
 }
 
+/* Related templates: rows below 40em, three sheets from there. */
 .cards {
   display: grid;
   grid-template-columns: minmax(0, 1fr);
-  gap: var(--col-gap);
   margin: 0;
   padding: 0;
   list-style: none;
@@ -77,7 +97,7 @@
 
 @media (min-width: 40em) {
   .zones {
-    grid-template-columns: calc(var(--s-1) * 40) minmax(0, 1fr);
+    grid-template-columns: calc(var(--s-1) * 40 + var(--s-4)) minmax(0, 1fr);
     align-items: start;
   }
 
@@ -86,7 +106,8 @@
   }
 
   .cards {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: var(--s-5) var(--col-gap);
   }
 }
 
@@ -101,41 +122,20 @@
   }
 
   .cover {
-    grid-area: 1 / 1 / 2 / span 3;
+    position: sticky;
+    top: calc(var(--bar-h) + var(--s-3));
+    grid-area: 1 / 1 / 2 / span 4;
     max-width: none;
   }
 
   .details {
-    grid-area: 1 / 4 / 2 / span 6;
+    grid-area: 1 / 5 / 2 / span 5;
     margin-block-start: 0;
   }
 
-  .panel {
+  .zones .panel.panel {
     position: sticky;
     top: calc(var(--bar-h) + var(--s-3));
     grid-area: 1 / 10 / 2 / -1;
-  }
-
-  /* The margin rule: in the middle of the gutter before column 4, through the band's padding. */
-  .zones::before {
-    content: "";
-    grid-area: 1 / 4 / 2 / 5;
-    justify-self: start;
-    align-self: stretch;
-    width: var(--hair);
-    margin-block: calc(-1 * var(--pad, 0px));
-    margin-inline-start: calc(var(--col-gap) / -2);
-    background: var(--line);
-    pointer-events: none;
-  }
-
-  .cards {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-  }
-}
-
-@media (forced-colors: active) {
-  .zones::before {
-    background: GrayText;
   }
 }

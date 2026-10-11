@@ -1,33 +1,33 @@
 import { Band } from "@/components/ui/band";
-import { Split } from "@/components/ui/split";
-import { Tag } from "@/components/ui/tag";
+import { Eyebrow } from "@/components/ui/eyebrow";
 import { APPS, APP_LABELS } from "@/content/taxonomy";
-import { cx } from "@/lib/cx";
 import styles from "./home.module.css";
 
 /** The Microsoft 365 products the templates cover, without the catch-all "general" entry. */
 const PRODUCTS = APPS.filter((app) => app !== "m365-general").map((app) => APP_LABELS[app]);
 
 /**
- * One row at the foot of the paper area: a label in the margin and the product names as plain tags,
- * 7px apart, wrapping. Static text, not links. The band has no padding above it (the values band
- * above supplies the space) and 84px below, and its margin carries no rule.
+ * The last line of the paper area: a label and, under it, the product names set large in one
+ * wrapping line, a slash between them. Static text, not links; the slashes are not read out, and a
+ * name never parts from the slash that follows it. The band has no padding above (the values band
+ * supplies the space).
  */
 export function BuiltForRow() {
   return (
     <Band surface="paper" pad="none" className={styles.builtFor}>
-      <Split
-        rule={false}
-        margin={<p className={cx("type-item", styles.builtForLabel)}>Built for Microsoft 365</p>}
-      >
-        <ul className={styles.builtForTags}>
-          {PRODUCTS.map((label) => (
-            <li key={label}>
-              <Tag variant="plain">{label}</Tag>
-            </li>
-          ))}
-        </ul>
-      </Split>
+      <Eyebrow>Built for Microsoft 365</Eyebrow>
+      <ul className={styles.builtForNames}>
+        {PRODUCTS.map((label, index) => (
+          <li key={label} className={styles.builtForName}>
+            {label}
+            {index < PRODUCTS.length - 1 ? (
+              <span aria-hidden="true" className={styles.builtForSlash}>
+                /
+              </span>
+            ) : null}
+          </li>
+        ))}
+      </ul>
     </Band>
   );
 }

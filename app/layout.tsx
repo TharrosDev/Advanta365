@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Atkinson_Hyperlegible_Next, Besley } from "next/font/google";
 import type { ReactNode } from "react";
 import { IntroScript } from "@/components/intro/intro-script-tag";
+import { MotionRoot } from "@/components/ui/motion-root";
 import { cx } from "@/lib/cx";
 import { SITE } from "@/lib/site";
 import "./globals.css";
@@ -24,20 +25,25 @@ export const metadata: Metadata = {
   openGraph: { type: "website", siteName: SITE.name },
 };
 
-// `IntroScript` comes first in the body, so it runs before anything is painted. It writes
-// `data-intro` on `<html>` for a first visit to the home page, an attribute React did not render:
-// hence `suppressHydrationWarning` there.
+// `IntroScript` comes first in the body, so it runs before anything is painted. It writes the
+// switches of the motion system and of the ink on `<html>` (`data-motion`, `data-timeline`,
+// `data-ink`, and `data-intro` for a first visit to the home page), attributes React did not
+// render: hence `suppressHydrationWarning` there. `MotionRoot` is the script half of the motion
+// system. `data-scroll-behavior="smooth"` tells the router that anchors glide (app/motion.css), so
+// it still jumps when the route changes.
 export default function RootLayout({ children }: { children: ReactNode }) {
   return (
     <html
       lang="en"
       dir="ltr"
       className={cx(besley.variable, atkinson.variable)}
+      data-scroll-behavior="smooth"
       suppressHydrationWarning
     >
       <body>
         <IntroScript />
         {children}
+        <MotionRoot />
       </body>
     </html>
   );

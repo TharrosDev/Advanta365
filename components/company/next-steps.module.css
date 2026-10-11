@@ -1,4 +1,13 @@
-/* Side by side, the label centres on the first line of the heading beside it. */
+/*
+ * The band has no padding of its own: the hairline is the top edge of the split, which sits inside
+ * the page column, and the band's padding is the split's.
+ */
+.split {
+  padding-block: var(--band-pad);
+  border-block-start: var(--hair) solid var(--line);
+}
+
+/* Side by side, the label stands level with the first line of the heading beside it. */
 @media (min-width: 68em) {
   .margin {
     padding-block-start: var(--s-1);

@@ -1,17 +1,25 @@
 import { Band } from "@/components/ui/band";
 import { BandedList, BandedRow } from "@/components/ui/banded-list";
+import { CountUp } from "@/components/ui/count-up";
 import { Eyebrow } from "@/components/ui/eyebrow";
 import { Icon } from "@/components/ui/icon";
 import { KeepCompounds } from "@/components/ui/keep-compounds";
 import { PhaseTabs } from "@/components/ui/phase-tabs";
-import { Split } from "@/components/ui/split";
 import { TransitionLink } from "@/components/ui/transition-link";
 import type { Phase } from "@/lib/catalog/schema";
 import { cx } from "@/lib/cx";
 import { TOOLKIT } from "@/lib/site";
+import { Specimen, type SpecimenContent } from "./hero-sheet";
 import styles from "./home.module.css";
+import { LineDrawing, type LineDrawingName } from "./value-tiles";
 
-type Item = { title: string; body: string; href?: string };
+/**
+ * A part of the toolkit. A row opens either with its count, set as a figure, or with a drawing.
+ * The heading reads the count and the title together ("59 playbooks").
+ */
+type Item = { title: string; body: string; href?: string } & (
+  { count: number; drawing?: undefined } | { count?: undefined; drawing: LineDrawingName }
+);
 
 /**
  * What the full toolkit holds, with the counts read from `TOOLKIT`. This is not a count of the
@@ -19,27 +27,33 @@ type Item = { title: string; body: string; href?: string };
  */
 const ITEMS: readonly Item[] = [
   {
-    title: `${TOOLKIT.playbooks} playbooks`,
+    count: TOOLKIT.playbooks,
+    title: "playbooks",
     body: "Covering every phase: make the case, plan, design, prepare, communicate, execute, sustain.",
   },
   {
-    title: `${TOOLKIT.templates} ready-to-use templates`,
+    count: TOOLKIT.templates,
+    title: "ready-to-use templates",
     body: "Emails, plans, checklists, worksheets, workshop kits.",
   },
   {
-    title: `${TOOLKIT.fieldGuides} field guides`,
+    count: TOOLKIT.fieldGuides,
+    title: "field guides",
     body: "For change practitioners and IM partners.",
   },
   {
+    drawing: "audiences",
     title: `Training for ${TOOLKIT.trainingAudiences} audiences`,
     body: `End users, Site Owners and IM Representatives, with facilitator guides, learning guides and ${TOOLKIT.jobAids} job aids.`,
   },
   {
+    drawing: "example",
     title: "A complete worked example",
     body: "A full CM strategy for a 10,000-person organization.",
     href: "/sample",
   },
   {
+    drawing: "copilot",
     title: "Copilot-ready",
     body: "Readiness, rollout and impact-assessment guides for Microsoft 365 Copilot.",
   },
@@ -52,38 +66,59 @@ const ITEMS: readonly Item[] = [
 const PHASES_LABEL = "Browse the sample catalog by phase";
 
 /**
- * `#inside`: the margin split on the desk. The heading and its sentence stay in the margin (sticky
- * under the bar from 68em); the six parts of the toolkit are a banded list in the content column,
- * each row a title with its description beside it; neither breaks inside a hyphenated word
+ * `#inside`: on paper. The margin (columns 1 to 4, sticky under the bar from 68em) holds the
+ * heading, its sentence and, from 68em, the specimen: one real template as the top sheet of a
+ * stack. The content (columns 6 to 12) is the manifest, a ledger of six tall rows: the first three
+ * open with their count as a large figure that counts up when it is seen, the last three with a
+ * line drawing; neither a title nor a description breaks inside a hyphenated word
  * ("10,000-person"). The worked example is the one row that is a link, to `/sample`: its title is
- * the anchor and is stretched over the row. Under the list, the seven phases as large index tabs; a
- * tab's accessible name is exactly the phase name.
+ * the anchor and is stretched over the row. Under the ledger, the seven phases as large index tabs;
+ * a tab's accessible name is exactly the phase name.
  */
-export function InsideSection({ phases }: { phases: readonly Phase[] }) {
+export function InsideSection({
+  phases,
+  specimen,
+}: {
+  phases: readonly Phase[];
+  specimen?: SpecimenContent;
+}) {
   return (
-    <Band id="inside" surface="desk">
-      <Split
-        sticky
-        margin={
-          <>
-            <h2 className="type-section">What’s inside</h2>
-            <p className={cx("type-ui", styles.insideBody)}>
-              The change management and user adoption toolkit behind real SharePoint Online
-              rollouts, ready to adapt by hand or with AI.
-            </p>
-          </>
-        }
-      >
+    <Band id="inside" surface="paper" innerClassName={styles.inside}>
+      <div className={styles.insideMargin}>
+        <h2 className="type-page">What’s inside</h2>
+        <p className={cx("type-ui", styles.insideBody)}>
+          The change management and user adoption toolkit behind real SharePoint Online rollouts,
+          ready to adapt by hand or with AI.
+        </p>
+        {specimen ? <Specimen specimen={specimen} className={styles.insideSpecimen} /> : null}
+      </div>
+      <div className={styles.insideContent}>
         <BandedList>
-          {ITEMS.map(({ title, body, href }) => (
+          {ITEMS.map(({ title, body, href, count, drawing }) => (
             <BandedRow key={title} className={cx(styles.manifestRow, href && styles.manifestLink)}>
-              <h3 className={cx("type-item", styles.manifestTitle)}>
+              <h3
+                className={cx(
+                  "type-item",
+                  styles.manifestTitle,
+                  drawing && styles.manifestTitleDrawn,
+                )}
+              >
+                <span className={styles.manifestLead}>
+                  {drawing ? (
+                    <LineDrawing name={drawing} className={styles.manifestDrawing} />
+                  ) : (
+                    <CountUp value={count} className={styles.manifestCount} />
+                  )}
+                </span>
+                {drawing ? null : " "}
                 {href ? (
                   <TransitionLink href={href} className={styles.manifestAnchor}>
                     <KeepCompounds text={title} />
                   </TransitionLink>
                 ) : (
-                  <KeepCompounds text={title} />
+                  <span>
+                    <KeepCompounds text={title} />
+                  </span>
                 )}
               </h3>
               <p className={cx("type-copy", styles.manifestBody)}>
@@ -100,7 +135,7 @@ export function InsideSection({ phases }: { phases: readonly Phase[] }) {
           </div>
           <PhaseTabs phases={phases} size="large" />
         </nav>
-      </Split>
+      </div>
     </Band>
   );
 }

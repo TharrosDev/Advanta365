@@ -1,0 +1,26 @@
+[
+  { "name": "hero-wide", "route": "/", "viewport": [1440, 900], "ratio": 1, "scene": "hero" },
+  { "name": "hero-tall", "route": "/", "viewport": [320, 700], "ratio": 2, "scene": "hero" },
+  { "name": "ninety-wide", "route": "/", "viewport": [1440, 900], "ratio": 1, "scene": "ninety" },
+  { "name": "ninety-tall", "route": "/", "viewport": [320, 700], "ratio": 2, "scene": "ninety" },
+  { "name": "bloom-wide", "route": "/", "viewport": [1920, 900], "ratio": 1, "scene": "bloom" },
+  { "name": "bloom-tall", "route": "/", "viewport": [390, 844], "ratio": 2, "scene": "bloom" },
+  {
+    "name": "wisps-wide",
+    "route": "/about",
+    "viewport": [1920, 900],
+    "ratio": 1,
+    "scene": "wisps"
+  },
+  { "name": "wisps-tall", "route": "/about", "viewport": [390, 844], "ratio": 2, "scene": "wisps" },
+  {
+    "name": "title",
+    "route": "/about",
+    "viewport": [1088, 900],
+    "ratio": 1,
+    "scene": "title",
+    "borrow": [{ "route": "/phases/prepare", "kind": "display" }]
+  },
+  { "name": "spill-wide", "route": "/nope", "viewport": [1440, 900], "ratio": 1, "scene": "spill" },
+  { "name": "spill-tall", "route": "/nope", "viewport": [320, 700], "ratio": 2, "scene": "spill" }
+]

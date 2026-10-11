@@ -8,8 +8,8 @@ import { TitleBlock } from "@/components/layout/title-block";
 import { PurchasePanel } from "@/components/product/purchase-panel";
 import { Band } from "@/components/ui/band";
 import { BandedList, BandedRow } from "@/components/ui/banded-list";
-import { CheckList } from "@/components/ui/check-list";
 import { FactList } from "@/components/ui/fact-list";
+import { Icon } from "@/components/ui/icon";
 import { KeepCompounds } from "@/components/ui/keep-compounds";
 import { RowLink } from "@/components/ui/row-link";
 import { Split } from "@/components/ui/split";
@@ -47,11 +47,16 @@ export async function generateMetadata({ params }: TemplatePageProps): Promise<M
 }
 
 /**
- * One template. Under the title block the page has three zones from 68em: the cover in the margin,
- * the details in the middle and the purchase panel at the right, where it stays in view. The panel
- * comes before the details in the document, so below 68em the order is cover, panel, details (the
- * cover and the panel side by side from 40em). A last band lists the bundles that hold the template
- * and three related templates, each under a heading in the margin.
+ * One template, on the light table. Under the title block the page has three zones from 68em: the
+ * cover, large and lit, on its stack in columns 1 to 4; the details in columns 5 to 9 (the facts
+ * and what is included as ledgers); and the purchase panel, a sheet, in columns 10 to 12. The cover
+ * and the panel stay in view. The panel comes before the details in the document, so below 68em
+ * the order is cover, panel, details (the cover and the panel side by side from 40em). A last band,
+ * on paper, lists the bundles that hold the template as ledger rows and shows three related
+ * templates as sheets, each under a heading in the margin.
+ *
+ * The cover shares its place with the same template's row on the page before, so on a page change
+ * the sheet travels; it is the only cover on the page that carries its name.
  */
 export default async function TemplatePage({ params }: TemplatePageProps) {
   const template = await getTemplate((await params).slug);
@@ -128,12 +133,19 @@ export default async function TemplatePage({ params }: TemplatePageProps) {
         }
       />
 
-      <Band as="div" surface="paper" pad="tight" innerClassName={styles.zones}>
-        <TemplateCover
-          type={template.deliverableType}
-          format={template.format}
-          className={styles.cover}
-        />
+      <Band as="div" surface="desk" innerClassName={styles.zones}>
+        <div className={styles.cover}>
+          <TemplateCover
+            type={template.deliverableType}
+            format={template.format}
+            size="lg"
+            lit
+            slug={template.slug}
+            title={template.title}
+            summary={template.summary}
+            phaseOrder={phase ? phaseNumber : undefined}
+          />
+        </div>
 
         <PurchasePanel
           priceCents={template.priceCents}
@@ -150,7 +162,16 @@ export default async function TemplatePage({ params }: TemplatePageProps) {
 
           <section className={styles.section}>
             <h2 className="type-section">What’s included</h2>
-            <CheckList items={template.includes.map((item) => ({ key: item, body: item }))} />
+            <BandedList>
+              {template.includes.map((item) => (
+                <BandedRow key={item} className={styles.included}>
+                  <span className={styles.tick} aria-hidden="true">
+                    <Icon name="tick" size={17} />
+                  </span>
+                  <span className="type-copy">{item}</span>
+                </BandedRow>
+              ))}
+            </BandedList>
           </section>
 
           {phase && step && (
@@ -176,7 +197,7 @@ export default async function TemplatePage({ params }: TemplatePageProps) {
       </Band>
 
       {bundleRows.length > 0 || related.length > 0 ? (
-        <Band as="div" surface="desk" innerClassName={styles.more}>
+        <Band as="div" surface="paper" innerClassName={styles.more}>
           {bundleRows.length > 0 && (
             <Split margin={<h2 className="type-section">Included in these bundles</h2>}>
               <BandedList>
@@ -197,9 +218,15 @@ export default async function TemplatePage({ params }: TemplatePageProps) {
           {related.length > 0 && (
             <Split margin={<h2 className="type-section">Related templates</h2>}>
               <ul className={styles.cards}>
-                {related.map((item) => (
+                {related.map((item, position) => (
                   <li key={item.slug}>
-                    <TemplateCard template={item} phaseName={phase?.name} />
+                    <TemplateCard
+                      template={item}
+                      phaseName={phase?.name}
+                      phaseOrder={phase ? phaseNumber : undefined}
+                      layout="sheet"
+                      index={position + 1}
+                    />
                   </li>
                 ))}
               </ul>

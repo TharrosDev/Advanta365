@@ -1,12 +1,14 @@
 import { expect, test, type Page } from "@playwright/test";
 import { introSeen } from "./helpers";
+import { pageClock } from "./support/ink";
 
 // The look of the site, checked where it is computed: grounds and inks, the two typefaces, the
-// landmarks every page shares, and the things the design does without (a second theme, anything
-// drawn by script, blending, movement that starts by itself outside the hero sheet).
+// landmarks every page shares, and the things the design does without (a second theme, a second
+// canvas, blending, a loop, movement that goes on by itself).
 //
-// The one other thing that moves by itself is the cover a first visit to the home page opens
-// under. It has a spec of its own, intro.spec.ts; here every load is a later one of its session.
+// The cover of a first visit to the home page has a spec of its own, intro.spec.ts; here every load
+// is a later one of its session. The live ink has one too (ink-live.spec.ts, on a graphics card);
+// the default projects render in software, where the stills stand in for it.
 
 test.beforeEach(async ({ page }) => {
   await introSeen(page);
@@ -26,14 +28,19 @@ const ROUTES = [
   "/cart",
 ];
 
-// White, black and light blue: the desk, the ink and the text on it, the highlighter and its wash,
-// and the binder.
-const DESK = "rgb(244, 245, 248)";
+// The 404 pages are built in the browser; their server HTML is checked all the same.
+const MISSING = ["/nope", "/templates/nope", "/phases/nope"];
+
+// White, black and light blue: the page, the ink and the text on it, the highlighter and its wash,
+// the binder.
+const PAPER = "rgb(255, 255, 255)";
 const INK = "rgb(11, 13, 18)";
 const ON_INK = "rgb(255, 255, 255)";
 const MARK = "rgb(134, 193, 255)";
 const WASH = "rgb(234, 244, 255)";
 const BINDER = "rgb(13, 15, 21)";
+
+const BANDS = ["desk", "paper", "wash", "ink", "binder"];
 
 // Attributes the root element never carries. The names are put together here, so that this file
 // does not contain them.
@@ -76,14 +83,14 @@ for (const path of ROUTES) {
       1,
     );
 
-    // The desk and the ink.
+    // The page is white paper and the text on it is ink.
     const body = await computed(page, "body", [
       "background-color",
       "color",
       "font-family",
       "letter-spacing",
     ]);
-    expect(body["background-color"]).toBe(DESK);
+    expect(body["background-color"]).toBe(PAPER);
     expect(body.color).toBe(INK);
 
     // Atkinson Hyperlegible Next speaks for the store, Besley for the documents.
@@ -112,16 +119,20 @@ for (const path of ROUTES) {
     await expect(cover).toHaveCount(path === "/" ? 1 : 0);
     if (path === "/") await expect(cover).toHaveCSS("display", "none");
 
-    // Every surface is one of the four bands, and the binder is the footer alone.
+    // Every ground is one of the five bands. The binder is the footer alone, black is on the home
+    // page and the page about us only, and a page has one wash at most.
     const bands = await page
       .locator("[data-band]")
       .evaluateAll((elements) =>
         elements.map((element) => `${element.localName}:${element.getAttribute("data-band")}`),
       );
     expect(bands.length).toBeGreaterThan(1);
-    for (const band of bands) expect(band).toMatch(/:(desk|paper|wash|binder)$/);
+    for (const band of bands) expect(band).toMatch(new RegExp(`:(${BANDS.join("|")})$`));
     expect(bands.filter((band) => band.endsWith(":binder"))).toEqual(["footer:binder"]);
     expect(bands.filter((band) => band.endsWith(":wash")).length).toBeLessThanOrEqual(1);
+    const black = bands.filter((band) => band.endsWith(":ink")).length;
+    expect(black).toBeLessThanOrEqual(1);
+    if (black) expect(["/", "/about"]).toContain(path);
 
     // Light blue and black are only ever read one way round: the highlighter is never the colour
     // of text, and whatever is written on it is ink.
@@ -150,8 +161,16 @@ for (const path of ROUTES) {
     );
     expect(misread).toEqual([]);
 
-    // Graphics are HTML, CSS and inline SVG, and nothing is blended.
-    await expect(page.locator("canvas")).toHaveCount(0);
+    // At most one canvas, inside an ink slot and hidden from assistive technology (the software
+    // renderer of this project has none), and nothing is blended.
+    const canvases = await page.locator("canvas").evaluateAll((elements) =>
+      elements.map((element) => ({
+        inSlot: !!element.closest("[data-ink-slot]"),
+        hidden: element.getAttribute("aria-hidden") === "true",
+      })),
+    );
+    expect(canvases.length).toBeLessThanOrEqual(1);
+    for (const canvas of canvases) expect(canvas).toEqual({ inSlot: true, hidden: true });
     const blended = await page.evaluate(
       () =>
         [...document.querySelectorAll("*")].filter(
@@ -160,34 +179,120 @@ for (const path of ROUTES) {
     );
     expect(blended).toBe(0);
 
-    // Nothing starts moving by itself, except the tally and the caret of the hero sheet (and, on
-    // a first visit, the cover: intro.spec.ts).
-    const strays = await page.evaluate(
+    // Nothing loops.
+    const loops = await page.evaluate(
       () =>
         document.getAnimations().filter((animation) => {
-          const target =
-            animation.effect instanceof KeyframeEffect ? animation.effect.target : null;
-          return !target?.closest("[data-hero-sheet]");
+          const iterations = animation.effect?.getComputedTiming().iterations;
+          return iterations === Infinity;
         }).length,
     );
-    expect(strays).toBe(0);
+    expect(loops).toBe(0);
+
+    // The name is never set larger than 28px, wherever it stands on its own.
+    const largestName = await page.evaluate(() => {
+      const sizes = [...document.querySelectorAll("body *")]
+        .filter((element) => element.childElementCount === 0)
+        .filter((element) => element.textContent?.trim() === "Advanta365")
+        .map((element) => Number.parseFloat(getComputedStyle(element).fontSize));
+      return sizes.length ? Math.max(...sizes) : 0;
+    });
+    expect(largestName).toBeGreaterThan(0);
+    expect(largestName).toBeLessThanOrEqual(28);
+
+    // No product is a box with a border on all four sides: objects are paper, rows are ledgers.
+    const boxed = await page.getByRole("article").evaluateAll(
+      (cards) =>
+        cards.filter((card) => {
+          const style = getComputedStyle(card);
+          return ["Top", "Right", "Bottom", "Left"].every(
+            (side) =>
+              Number.parseFloat(style.getPropertyValue(`border-${side.toLowerCase()}-width`)) > 0 &&
+              style.getPropertyValue(`border-${side.toLowerCase()}-style`) !== "none",
+          );
+        }).length,
+    );
+    expect(boxed).toBe(0);
+  });
+}
+
+for (const path of [...ROUTES, ...MISSING]) {
+  test(`${path} is sent without a canvas`, async ({ request }) => {
+    const response = await request.get(path);
+    const html = await response.text();
+    expect(html.length).toBeGreaterThan(1000);
+    expect(html).not.toContain("<canvas");
+  });
+}
+
+test("band grounds read the same wherever the page is scrolled to", async ({ page }) => {
+  // The home page has the most bands: desk, paper, wash, black and the binder.
+  await page.goto("/");
+  const readGrounds = () =>
+    page
+      .locator("[data-band]")
+      .evaluateAll((elements) =>
+        elements.map((element) => getComputedStyle(element).backgroundColor),
+      );
+
+  const first = await readGrounds();
+  expect(new Set(first).size).toBeGreaterThanOrEqual(4);
+  for (const share of [0.25, 0.5, 0.75, 1]) {
+    await page.evaluate((at) => {
+      const room = document.documentElement.scrollHeight - window.innerHeight;
+      window.scrollTo({ top: room * at, behavior: "instant" });
+    }, share);
+    await expect.poll(() => page.evaluate(() => window.scrollY)).toBeGreaterThan(0);
+    expect(await readGrounds()).toEqual(first);
+  }
+});
+
+for (const path of ["/", "/about", "/catalog"]) {
+  test(`${path} is at rest five and a half seconds after it loads`, async ({ page }) => {
+    await page.goto(path);
+    // The clock is the page's own, from the start of the navigation, and nothing is touched.
+    await expect.poll(() => pageClock(page), { timeout: 15_000 }).toBeGreaterThan(5500);
+    const moving = await page.evaluate(() =>
+      document
+        .getAnimations()
+        .filter((animation) => animation.timeline === document.timeline)
+        .filter((animation) => animation.playState === "running")
+        .map((animation) => {
+          const target =
+            animation.effect instanceof KeyframeEffect ? animation.effect.target : null;
+          return `${target?.localName}.${target?.getAttribute("class") ?? ""}`;
+        }),
+    );
+    expect(moving).toEqual([]);
   });
 }
 
 test.describe("home", () => {
-  test("sets the headline in Besley at 56px on a desktop and 34px on a phone", async ({ page }) => {
+  test("sets the headline in Besley at 73.9px on a desktop and 40px on a phone", async ({
+    page,
+  }) => {
     await page.setViewportSize({ width: 1280, height: 800 });
     await page.goto("/");
-    const wide = await computed(page, "h1", ["font-size", "font-weight"]);
-    expect(Number.parseFloat(wide["font-size"])).toBeCloseTo(56, 0);
+    const wide = await computed(page, "h1", ["font-size", "font-weight", "font-family"]);
+    expect(Math.abs(Number.parseFloat(wide["font-size"]) - 73.9)).toBeLessThanOrEqual(0.5);
     expect(wide["font-weight"]).toBe("600");
+    expect(wide["font-family"]).toMatch(/^"?Besley"?/);
 
     await page.setViewportSize({ width: 390, height: 844 });
     const narrow = await computed(page, "h1", ["font-size"]);
-    expect(Number.parseFloat(narrow["font-size"])).toBeCloseTo(34, 0);
+    expect(Math.abs(Number.parseFloat(narrow["font-size"]) - 40)).toBeLessThanOrEqual(0.5);
   });
 
-  test("runs product first: hero, shelves, the pitch, then the closing sheet", async ({ page }) => {
+  test("puts its last words on the highlighter, in ink", async ({ page }) => {
+    await page.goto("/");
+    const mark = page.locator("h1 [data-mark]");
+    await expect(mark).toHaveCount(1);
+    await expect(mark).toHaveText("blank prompt.");
+    await expect(mark).toHaveCSS("background-color", MARK);
+    await expect(mark).toHaveCSS("color", INK);
+  });
+
+  test("runs product first: hero, shelves, the pitch, then the closing", async ({ page }) => {
     await page.goto("/");
 
     const ids = await page
@@ -206,7 +311,8 @@ test.describe("home", () => {
     ];
     expect(ids.filter((id) => sections.includes(id))).toEqual(sections);
 
-    // The hero comes before the first shelf, and the product row sits between the last two.
+    // The hero comes before the first shelf, and the line about Microsoft 365 sits between the
+    // last two sections.
     const order = await page.getByRole("main").evaluate((main) => {
       const follows = (first: Element | null, second: Element | null) =>
         !!first &&
@@ -227,49 +333,12 @@ test.describe("home", () => {
     await expect(page.locator("#practice")).toHaveCSS("background-color", WASH);
   });
 
-  test("the hero sheet is decoration, and its fill and blink are over within five seconds", async ({
-    page,
-  }) => {
+  test("the hero holds no tally and no caret", async ({ page }) => {
     await page.goto("/");
-
-    const sheet = page.locator("[data-hero-sheet]");
-    await expect(sheet).toHaveCount(1);
-    await expect(sheet).toHaveAttribute("aria-hidden", "true");
-    await expect(sheet.locator("h1, h2, h3, h4, a, button")).toHaveCount(0);
-    await expect(sheet.locator("[data-tally] [data-block]")).toHaveCount(10);
-    await expect(sheet.locator("[data-blank] [data-caret]")).toHaveCount(1);
-
-    // Each block fills once and the caret blinks three times. Read from the styles (a delay, then
-    // the duration as many times as it repeats), the last of them ends within five seconds of the
-    // first paint, however busy the machine that runs this is. (On a first visit they wait for the
-    // cover and still end inside the five seconds: intro.spec.ts.)
-    const sequence = await sheet.locator("[data-block], [data-caret]").evaluateAll((elements) =>
-      elements.map((element) => {
-        const style = getComputedStyle(element);
-        const seconds = (value: string) =>
-          Number.parseFloat(value) * (value.endsWith("ms") ? 0.001 : 1);
-        return {
-          name: style.animationName,
-          end:
-            seconds(style.animationDelay) +
-            seconds(style.animationDuration) * Number(style.animationIterationCount),
-        };
-      }),
-    );
-    expect(sequence).toHaveLength(11);
-    for (const step of sequence) {
-      expect(step.name).not.toBe("none");
-      expect(step.end).toBeGreaterThan(0);
-      expect(step.end).toBeLessThanOrEqual(5);
-    }
-
-    // Brought to their end, every block and the caret are in their drawn state.
-    await page.evaluate(() => {
-      for (const animation of document.getAnimations()) animation.finish();
-    });
-    await expect(sheet.locator('[data-block="mark"]')).toHaveCSS("background-color", MARK);
-    await expect(sheet.locator('[data-block="ink"]').first()).toHaveCSS("background-color", INK);
-    await expect(sheet.locator("[data-caret]")).toHaveCSS("opacity", "1");
+    const hero = page.locator("[data-band]").filter({ has: page.locator("h1") });
+    await expect(hero).toHaveCount(1);
+    await expect(hero.locator("[data-tally]")).toHaveCount(0);
+    await expect(hero.locator("[data-caret]")).toHaveCount(0);
   });
 
   test("states the answer as a figure, a sentence and a tally of nine and one", async ({
@@ -278,10 +347,29 @@ test.describe("home", () => {
     await page.goto("/");
 
     const answer = page.locator("#solution");
+    await expect(answer).toHaveAttribute("data-band", "ink");
     await expect(answer.getByRole("heading", { level: 2 })).toHaveText(
       "90% done before you open your AI tool.",
     );
     const blocks = await answer
+      .locator("[data-tally] [data-block]")
+      .evaluateAll((elements) => elements.map((element) => element.getAttribute("data-block")));
+    expect(blocks).toEqual([...Array<string>(9).fill("ink"), "mark"]);
+  });
+
+  test("the specimen is decoration, a sheet with a tally of nine and one", async ({
+    page,
+    isMobile,
+  }) => {
+    // From 68em the specimen stands in the margin of the shelf; below it is not shown.
+    test.skip(isMobile, "the specimen only shows from 68em");
+    await page.goto("/");
+
+    const sheet = page.locator("[data-specimen]");
+    await expect(sheet).toHaveCount(1);
+    await expect(sheet).toHaveAttribute("aria-hidden", "true");
+    await expect(sheet.locator("h1, h2, h3, h4, a, button")).toHaveCount(0);
+    const blocks = await sheet
       .locator("[data-tally] [data-block]")
       .evaluateAll((elements) => elements.map((element) => element.getAttribute("data-block")));
     expect(blocks).toEqual([...Array<string>(9).fill("ink"), "mark"]);
@@ -346,6 +434,42 @@ test.describe("home", () => {
   });
 });
 
+test("every link and button shows the 3px focus ring under the keyboard", async ({ page }) => {
+  test.slow();
+  for (const path of ["/", "/catalog", "/pricing"]) {
+    await page.goto(path);
+    await page.keyboard.press("Tab");
+    const missing = await page.evaluate(() => {
+      const found: string[] = [];
+      const targets = document.querySelectorAll(
+        "header a[href], header button, main a[href], main button, footer a[href]",
+      );
+      for (const element of targets) {
+        if (!(element instanceof HTMLElement)) continue;
+        const box = element.getBoundingClientRect();
+        if (!box.width || !box.height || getComputedStyle(element).visibility === "hidden")
+          continue;
+        element.focus();
+        // A card or a row is one link: the ring may stand on the row around its words (on the
+        // element or on a layer of it that the link lights), not on the words themselves.
+        const ring = (node: Element | null) => {
+          if (!node) return false;
+          return [undefined, "::before", "::after"].some((part) => {
+            const look = getComputedStyle(node, part);
+            return look.outlineStyle === "solid" && look.outlineWidth === "3px";
+          });
+        };
+        const row = element.closest("article, li");
+        if (!ring(element) && !ring(row) && !ring(row?.firstElementChild ?? null)) {
+          found.push(`${element.localName}: ${(element.textContent ?? "").trim().slice(0, 30)}`);
+        }
+      }
+      return found;
+    });
+    expect(missing, path).toEqual([]);
+  }
+});
+
 test("the footer names the brand once, as plain text no larger than 28px", async ({ page }) => {
   await page.goto("/pricing");
 
@@ -370,22 +494,49 @@ test("the footer names the brand once, as plain text no larger than 28px", async
   expect(names).toBe(1);
 });
 
-test("the catalog draws every template as a file on a 3:2 cover", async ({ page }) => {
+test("the menu control stands at the right of the bar", async ({ page, isMobile }) => {
+  await page.goto("/catalog");
+  const bar = page.getByRole("banner");
+  const control = isMobile
+    ? bar.getByRole("button", { name: "Menu", exact: true })
+    : bar.getByRole("link", { name: /^Cart/ });
+  const box = await control.boundingBox();
+  const width = page.viewportSize()?.width ?? 0;
+  expect(box).not.toBeNull();
+  // The control that opens the site stands in the right half of the bar, never in the middle.
+  expect((box?.x ?? 0) + (box?.width ?? 0) / 2).toBeGreaterThan(width / 2);
+});
+
+test("the catalog draws every template as a row with a printed page, in its own format", async ({
+  page,
+}) => {
   await page.goto("/catalog");
 
   const cards = page.getByRole("article");
   await expect(cards).toHaveCount(24);
   await expect(page.getByRole("status")).toHaveCount(1);
+  for (const card of await cards.all()) {
+    await expect(card.getByRole("link")).toHaveCount(1);
+    await expect(card.locator("[data-cover]")).toHaveCount(1);
+  }
 
-  const covers = cards.locator('svg[viewBox="0 0 300 200"]');
-  await expect(covers).toHaveCount(24);
-  const ratios = await covers.evaluateAll((drawings) =>
-    drawings.map((drawing) => {
-      const box = drawing.getBoundingClientRect();
-      return box.width / box.height;
+  // Each page is as wide over high as its format says: a document is a portrait page, a workbook
+  // a landscape one, a deck a slide.
+  const ratios = { docx: 5 / 7, xlsx: 4 / 3, pptx: 16 / 9 } as const;
+  const measured = await cards.locator("[data-cover]").evaluateAll((covers) =>
+    covers.map((cover) => {
+      const box = cover.getBoundingClientRect();
+      return { format: cover.getAttribute("data-format"), ratio: box.width / box.height };
     }),
   );
-  for (const ratio of ratios) expect(ratio).toBeCloseTo(1.5, 1);
+  const formats = new Set<string>();
+  for (const { format, ratio } of measured) {
+    expect(format).not.toBeNull();
+    formats.add(format ?? "");
+    expect(Object.keys(ratios)).toContain(format);
+    expect(ratio).toBeCloseTo(ratios[format as keyof typeof ratios], 1);
+  }
+  expect(formats.size).toBeGreaterThan(1);
 });
 
 test("wording the site does not use is not on the pages that carried it", async ({ page }) => {
@@ -400,7 +551,7 @@ test("wording the site does not use is not on the pages that carried it", async 
   await expect(page.getByRole("navigation", { name: "Next", exact: true })).toBeVisible();
 });
 
-test("at 320px no page runs past the screen and the bar's controls are 44px tall", async ({
+test("at 320px no page runs past the screen, and the bar's controls and every button are 44px", async ({
   page,
 }) => {
   // Eleven page loads in one test.
@@ -439,5 +590,33 @@ test("at 320px no page runs past the screen and the bar's controls are 44px tall
       const box = await control.boundingBox();
       expect(box?.height, path).toBeGreaterThanOrEqual(44);
     }
+
+    // Every button, and every link that is not a phrase in a sentence, is a 44px target. The
+    // footer's links are rows of that height whose words are smaller.
+    const rows = await page
+      .locator("footer nav li")
+      .evaluateAll((items) => items.map((item) => item.getBoundingClientRect().height));
+    for (const height of rows) expect(height, path).toBeGreaterThanOrEqual(44 - 0.5);
+    const small = await page.evaluate(() => {
+      const found: string[] = [];
+      for (const element of document.querySelectorAll("main button, main a[href]")) {
+        const style = getComputedStyle(element);
+        const box = element.getBoundingClientRect();
+        if (!box.width || !box.height || style.visibility === "hidden") continue;
+        const inSentence = style.display === "inline" && element.closest("p, li, dd, span, small");
+        if (inSentence) continue;
+        // A link may keep the line height of its words and be a full target through a layer.
+        const layer = getComputedStyle(element, "::after");
+        const reach = layer.position === "absolute" ? Number.parseFloat(layer.height) : 0;
+        const height = Math.max(box.height, Number.isNaN(reach) ? 0 : reach);
+        if (height < 44 - 0.5) {
+          found.push(
+            `${element.localName}: ${(element.textContent ?? "").trim().slice(0, 30)} ${Math.round(height)}px`,
+          );
+        }
+      }
+      return found.slice(0, 8);
+    });
+    expect(small, path).toEqual([]);
   }
 });

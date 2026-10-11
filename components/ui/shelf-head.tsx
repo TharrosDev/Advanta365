@@ -6,7 +6,8 @@ import styles from "./shelf-head.module.css";
 /**
  * The header row of a full-width section (a shelf of cards): an optional `Eyebrow`, the title, an
  * optional lead under it, and an optional `action` at the right, level with the last line of the
- * text. Below 40em the action goes under the text. The row keeps 42px under it.
+ * text. Below 40em the action goes under the text; with `stack` it stands under the text at every
+ * width, at the left. The row keeps 42px under it.
  */
 export function ShelfHead({
   eyebrow,
@@ -15,6 +16,7 @@ export function ShelfHead({
   titleId,
   body,
   action,
+  stack = false,
   className,
 }: {
   eyebrow?: ReactNode;
@@ -23,10 +25,11 @@ export function ShelfHead({
   titleId?: string;
   body?: ReactNode;
   action?: ReactNode;
+  stack?: boolean;
   className?: string;
 }) {
   return (
-    <div className={cx(styles.root, className)}>
+    <div className={cx(styles.root, !stack && styles.row, className)}>
       <div className={styles.text}>
         {eyebrow ? <Eyebrow className={styles.eyebrow}>{eyebrow}</Eyebrow> : null}
         <Title id={titleId} className={cx("type-page", styles.title)}>

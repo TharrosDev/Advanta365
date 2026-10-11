@@ -3,13 +3,17 @@
 }
 
 @media (min-width: 68em) {
-  /* Raised one step, so the focus ring of a tab is drawn over the page that starts under it. */
+  /*
+   * The rail is a strip of the desk under the bar; its tabs are sheets of paper standing on its
+   * bottom edge. Raised one step, so the focus ring of a tab is drawn over the page that starts
+   * under it.
+   */
   .root {
     position: relative;
     z-index: 1;
     display: block;
     height: var(--rail-h);
-    background: var(--paper);
+    background: var(--desk);
   }
 
   /* The tabs are shorter than the rail and stand on its bottom edge. */
@@ -19,8 +23,26 @@
     height: 100%;
   }
 
+  /*
+   * A tab paints its resting ground from `--desk`. Inside the list that name means paper, which
+   * makes the tabs white against the strip; hover and focus (the wash) and the current tab (the
+   * highlighter inside its ink edge) are the tab's own rules.
+   */
   .tabs {
+    --desk: var(--paper);
+
     flex: 1 1 auto;
     min-width: 0;
+  }
+
+  .tabs a {
+    box-shadow: var(--depth-1);
+  }
+}
+
+/* At raised contrast the soft shadow gives way to a 1px ink edge. */
+@media (prefers-contrast: more) {
+  .tabs a {
+    box-shadow: 0 0 0 var(--hair) var(--ink);
   }
 }

@@ -1,6 +1,12 @@
 /* `--row` is the height of one link row: a full touch target, then 35px from 68em. */
 .root {
   --row: var(--tap);
+  /* The positioning box of the wisps. No z-index and no isolation: it is not a layer. */
+  position: relative;
+}
+
+/* The veil for the wisps is the whole footer, edge to edge; the grid stands inside its padding. */
+.veil {
   padding-block: var(--s-6) var(--s-4);
 }
 
@@ -147,7 +153,7 @@
 
 /* Tablet: two columns. The status lines move up beside the brand. */
 @media (min-width: 40em) {
-  .root {
+  .veil {
     padding-block: var(--s-7) var(--s-5);
   }
 

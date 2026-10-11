@@ -1,0 +1,37 @@
+.root {
+  position: relative;
+  isolation: isolate;
+}
+
+/* Below 40em the sheets beneath only turn, and by six tenths of their angle (at most 1.2deg). */
+.under {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  border-radius: var(--round-1);
+  background: var(--paper);
+  box-shadow: var(--depth-1);
+  rotate: calc(var(--rot, 0deg) * 0.6);
+  pointer-events: none;
+}
+
+@media (min-width: 40em) {
+  .under {
+    translate: var(--dx, 0) var(--dy, 0);
+    rotate: var(--rot, 0deg);
+  }
+}
+
+@media (prefers-contrast: more) {
+  .under {
+    border: var(--hair) solid var(--ink);
+    box-shadow: none;
+  }
+}
+
+@media (forced-colors: active) {
+  .under {
+    border: var(--hair) solid CanvasText;
+    box-shadow: none;
+  }
+}

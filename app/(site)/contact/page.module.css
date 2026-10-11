@@ -3,72 +3,76 @@
   color: var(--text);
 }
 
-/* The sheet hugs its link, 42px under the statement. */
-.sheet {
-  width: fit-content;
-  max-width: 100%;
-  margin-block-start: var(--s-5);
+/* The address stands 56px under the statement. */
+.row {
+  margin-block-start: var(--s-6);
 }
 
 /*
- * The link is the sheet's whole inside, so the whole sheet is the target. Its padding is 14px on a
- * phone, so that the address and the arrow fit on one line at 320px, and 28px from 40em.
+ * The one big link. The words are the target, with the arrow after them; the highlighter is drawn
+ * behind the address alone, a little past its ends and on each line when it breaks after the "@".
  */
 .link {
-  display: flex;
+  display: inline-flex;
   align-items: center;
-  gap: var(--s-1);
-  padding: var(--s-2);
-  border-radius: calc(var(--round-3) - var(--edge));
+  gap: var(--s-3);
+  max-width: 100%;
+  border-radius: var(--round-2);
   color: var(--text);
   text-decoration: none;
-  transition: background-color var(--time-swap) linear;
 }
 
-/* The underline is on the address alone; it thickens with the arrow's nudge. */
 .address {
   min-width: 0;
+  margin-inline: calc(-0.1em);
+  padding-inline: 0.1em;
+  border-radius: var(--round-2);
   text-decoration: underline;
-  text-decoration-thickness: var(--hair);
-  text-underline-offset: 3px;
-  overflow-wrap: break-word;
+  text-decoration-thickness: var(--edge);
+  text-underline-offset: 0.12em;
+  overflow-wrap: anywhere;
+  box-decoration-break: clone;
+  -webkit-box-decoration-break: clone;
 }
 
 .arrow {
-  transition: translate var(--time-swap) linear;
+  flex: none;
 }
 
-/* Hover and keyboard focus look the same; the ring stands clear of the sheet's own edge. */
-.link:focus-visible {
-  outline-offset: calc(var(--edge) + 3px);
-  background: var(--mark-wash);
-}
-
+/* Hover and keyboard focus look the same: the highlighter behind the address, ink on it. */
 .link:focus-visible .address {
-  text-decoration-thickness: var(--edge);
+  background-color: var(--mark);
+  color: var(--on-mark);
 }
 
 .link:focus-visible .arrow {
-  translate: 3px 0;
-}
-
-@media (min-width: 40em) {
-  .link {
-    gap: var(--s-2);
-    padding: var(--s-4);
-  }
+  translate: 6px 0;
 }
 
 @media (hover: hover) {
-  .link:hover {
-    background: var(--mark-wash);
-  }
-
   .link:hover .address {
-    text-decoration-thickness: var(--edge);
+    background-color: var(--mark);
+    color: var(--on-mark);
   }
 
   .link:hover .arrow {
-    translate: 3px 0;
+    translate: 6px 0;
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .address {
+    transition: background-color var(--time-swap) linear;
+  }
+
+  .arrow {
+    transition: translate var(--time-swap) var(--curve-settle);
+  }
+}
+
+@media (forced-colors: active) {
+  .link:focus-visible .address {
+    background-color: Highlight;
+    color: HighlightText;
   }
 }

@@ -14,14 +14,18 @@ export type FeaturedBundle = {
 };
 
 /**
- * `#bundles`: a second shelf on paper. The header has no eyebrow, because it would only repeat the
- * title, and carries the link to every bundle. The featured bundles stand below it as folders, each
- * with the phases its templates reach: three across from 68em, two from 40em, one below.
+ * `#bundles`: on the desk. The head stands at the left, with the link to every bundle under its
+ * lead. From 68em the first featured bundle is a large folder in columns 1 to 6 and the others
+ * are the rows of a ledger in columns 7 to 12; narrower, the folder stands over the ledger. Each
+ * bundle shows the phases its templates reach.
  */
 export function BundlesSection({ items }: { items: FeaturedBundle[] }) {
+  const [first, ...others] = items;
+
   return (
-    <Band id="bundles" surface="paper">
+    <Band id="bundles" surface="desk">
       <ShelfHead
+        stack
         title="Bundles"
         body="Curated sets for a whole phase or a whole rollout, priced below the same pieces bought one at a time."
         action={
@@ -30,20 +34,35 @@ export function BundlesSection({ items }: { items: FeaturedBundle[] }) {
           </Button>
         }
       />
-      {items.length > 0 ? (
-        <ul className={styles.cardGrid}>
-          {items.map(({ bundle, count, savings, coverage }) => (
-            <li key={bundle.slug} className={styles.cardItem}>
-              <BundleCard
-                bundle={bundle}
-                templateCount={count}
-                savingsCents={savings}
-                coverage={coverage}
-                headingLevel="h3"
-              />
-            </li>
-          ))}
-        </ul>
+      {first ? (
+        <div className={styles.bundles}>
+          <div className={styles.bundleFeature}>
+            <BundleCard
+              bundle={first.bundle}
+              templateCount={first.count}
+              savingsCents={first.savings}
+              coverage={first.coverage}
+              headingLevel="h3"
+              layout="feature"
+            />
+          </div>
+          {others.length > 0 ? (
+            <ul className={styles.bundleRows}>
+              {others.map(({ bundle, count, savings, coverage }) => (
+                <li key={bundle.slug}>
+                  <BundleCard
+                    bundle={bundle}
+                    templateCount={count}
+                    savingsCents={savings}
+                    coverage={coverage}
+                    headingLevel="h3"
+                    layout="row"
+                  />
+                </li>
+              ))}
+            </ul>
+          ) : null}
+        </div>
       ) : null}
     </Band>
   );

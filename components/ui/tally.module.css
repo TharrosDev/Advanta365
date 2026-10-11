@@ -58,26 +58,30 @@
 }
 
 /*
- * The fill runs once on first paint. Every block is drawn in its final state by default and the
- * animation only holds the empty look until the block's turn (`backwards`), so nothing is missing
- * where animations do not run. Under the cover of a first visit the fill waits for the cover:
- * `--intro-hold`, set on the root element in globals.css, takes the place of the opening delay.
+ * The fill runs once, when the tally is seen. A block that is to be inked keeps a ring in its own
+ * colour, so before its turn it is an outline of the same size and only its fill has to arrive: no
+ * shadow changes. The blocks wait empty only where the observer is armed (`data-io` on the root
+ * element), so nothing is missing where the script does not run, and the animation holds the empty
+ * look until each block's turn (`backwards`).
  */
-@keyframes tally-fill {
-  from {
-    background-color: transparent;
-    box-shadow: inset 0 0 0 2px var(--line-firm);
+.animate .ink {
+  box-shadow: inset 0 0 0 var(--edge) var(--line-ink);
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  @keyframes tally-fill {
+    from {
+      background-color: transparent;
+    }
   }
-}
 
-.animate .block {
-  animation: tally-fill var(--time-fill) var(--curve-settle) backwards;
-  animation-delay: calc(var(--intro-hold, var(--time-enter)) + var(--i) * var(--time-fill-gap));
-}
+  :global(html[data-motion="on"][data-io="armed"]) .animate:not([data-seen]) .block {
+    background-color: transparent;
+  }
 
-@media (prefers-reduced-motion: reduce) {
-  .animate .block {
-    animation: none;
+  .animate[data-seen] .block {
+    animation: tally-fill var(--time-fill) var(--curve-settle) backwards;
+    animation-delay: calc(var(--time-enter) + var(--i) * var(--time-fill-gap));
   }
 }
 

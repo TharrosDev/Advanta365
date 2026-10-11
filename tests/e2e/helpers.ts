@@ -1,5 +1,5 @@
 import type { Page } from "@playwright/test";
-import { INTRO_FLAG, INTRO_SEEN } from "../../components/intro/intro-script";
+import { INTRO_FLAG, INTRO_SEEN } from "../../lib/boot/state";
 
 /**
  * How long a client-side navigation may take to show its URL. The route is fetched from a server

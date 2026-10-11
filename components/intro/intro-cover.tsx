@@ -1,3 +1,4 @@
+import { InkBackdrop } from "@/components/ink/ink-backdrop";
 import {
   MARK_BAR_D,
   MARK_LEGS_D,
@@ -5,25 +6,27 @@ import {
   MARK_TAIL_D,
   MARK_VIEWBOX,
 } from "@/lib/brand/mark";
-import { cssVars, cx } from "@/lib/cx";
+import { cx } from "@/lib/cx";
 import { SITE } from "@/lib/site";
 import styles from "./intro-cover.module.css";
 
-/** Ten blocks: nine written, the tenth yours. */
-const BLOCKS = 10;
-
 /**
- * The cover of a first visit, rendered by the home page alone. An ink sheet lies over the whole
- * window; on it the mark is written stroke by stroke (the "A" in white, then the tail of its
- * crossbar in the highlighter), a row of ten blocks fills from the left (nine in white, the tenth
- * in the highlighter) and the name fades in as one word. Then the sheet is lifted off the top edge
- * and the page, which was complete under it all along, is there.
+ * The cover of a first visit, rendered by the home page alone: the signing. On white paper the mark
+ * is written in three pen strokes where it stands (both legs of the "A", its crossbar, then the
+ * tail of the crossbar in the highlighter) and the name fades in under it. Then the cover fades and
+ * the page, which was complete and painted under it all along, is there.
+ *
+ * Where the engine is ready in time the ink joins: the layer puts the canvas in the cover's own
+ * backdrop and switches the state to `ink`; a black drop falls through the signature, a light-blue
+ * one chases it, the ink turns to mist and the cover clears with it. Both ways out are CSS
+ * animations started by the state alone, so the cover leaves even if every script stops.
  *
  * It is decoration over a finished page: `aria-hidden`, nothing in it can take focus, and it locks
- * neither focus nor scrolling. It is not displayed at all unless the inline script has set
- * `data-intro` on the root element, and its whole timeline is CSS (see the module).
+ * neither focus nor scrolling. It takes the pointer while it is opaque, so the press that ends it
+ * never lands on a link under it. "Skip" is a hint, not a control: any input ends the cover. It is
+ * not displayed at all unless the boot script has set `data-intro` on the root element.
  *
- * The mark is drawn here, not by `LogoMark`, because a pen needs the two strokes of the "A" as
+ * The mark is drawn here, not by `LogoMark`, because a pen needs the strokes of the "A" as
  * separate paths; `pathLength` makes each one unit long, whatever its real length.
  * Hook: `data-intro-cover`.
  */
@@ -37,6 +40,7 @@ export function IntroCover() {
 
   return (
     <div data-intro-cover="" aria-hidden="true" className={styles.cover}>
+      <InkBackdrop scene="intro" />
       <div className={styles.signature}>
         <svg
           className={styles.logo}
@@ -49,17 +53,9 @@ export function IntroCover() {
           <path className={cx(styles.pen, styles.legs)} d={MARK_LEGS_D} {...stroke} />
           <path className={cx(styles.pen, styles.bar)} d={MARK_BAR_D} {...stroke} />
         </svg>
-        <span className={styles.tally}>
-          {Array.from({ length: BLOCKS }, (_, index) => (
-            <span
-              key={index}
-              className={cx(styles.block, index === BLOCKS - 1 && styles.yours)}
-              style={cssVars({ "--i": index })}
-            />
-          ))}
-        </span>
         <span className={styles.name}>{SITE.name}</span>
       </div>
+      <span className={cx("type-note", styles.hint)}>Skip</span>
     </div>
   );
 }

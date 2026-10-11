@@ -1,0 +1,106 @@
+/*
+ * One column on a phone, two from 40em, and from 68em the page's twelve columns: the label in 1 to
+ * 3, the list in 4 to 12 as a subgrid, so the stack takes columns 4 to 7 and the folder 8 to 12.
+ */
+.root {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--s-4);
+}
+
+.margin {
+  min-width: 0;
+}
+
+.ways {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--s-5) var(--col-gap);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.way {
+  display: flex;
+  min-width: 0;
+  padding-block-end: var(--s-2);
+}
+
+.stack {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+}
+
+.sheet {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  padding: var(--s-3);
+}
+
+.folder {
+  flex: 1;
+}
+
+.front {
+  display: flex;
+  flex-direction: column;
+}
+
+.range {
+  margin-block-start: var(--s-2);
+  color: var(--text);
+}
+
+.body {
+  margin-block-start: var(--s-2);
+  color: var(--text-soft);
+}
+
+/* The button stays at least 28px under the sentence and sits on the card's bottom edge. */
+.action {
+  margin-block-start: auto;
+  padding-block-start: var(--s-4);
+}
+
+@media (min-width: 40em) {
+  .ways {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  /* The sheet starts level with the folder's front panel: the tab and the sheets peeking above it. */
+  .stackWay {
+    padding-block-start: calc(var(--s-4) + 1.5rem);
+  }
+
+  .sheet {
+    padding: var(--s-4);
+  }
+}
+
+@media (min-width: 68em) {
+  .root {
+    grid-template-columns: repeat(12, minmax(0, 1fr));
+    column-gap: var(--col-gap);
+    row-gap: 0;
+  }
+
+  .margin {
+    grid-column: 1 / span 3;
+  }
+
+  .ways {
+    grid-template-columns: subgrid;
+    grid-column: 4 / -1;
+  }
+
+  .stackWay {
+    grid-column: 1 / span 4;
+  }
+
+  .folderWay {
+    grid-column: 5 / -1;
+  }
+}

@@ -1,12 +1,13 @@
 /* The comparison: label, statement and table stand one under the other across the grid. */
 .compareTitle {
-  max-width: var(--wrap-head);
-  margin-block-start: var(--s-2);
+  margin-block-start: var(--s-3);
   color: var(--text);
 }
 
+/* The raised column stands 14px above the sheet, so the sheet starts 14px lower than it looks. */
 .compareTable {
-  margin-block-start: var(--s-5);
+  margin-block-start: calc(var(--s-6) + var(--s-2));
+  padding-block-end: var(--s-2);
 }
 
 /* The buyers and the line about the public sector are one block; the fact row is the next. */

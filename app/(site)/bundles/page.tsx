@@ -17,8 +17,8 @@ export const metadata: Metadata = {
 };
 
 /**
- * Every bundle as a folder card, featured ones first: three across from 68em, two from 40em, one
- * below. Each card shows which of the rollout phases its templates reach.
+ * Every bundle as a row of a ledger, featured ones first: its folder at the left, then the title,
+ * the summary and which of the rollout phases its templates reach, and the price with the saving.
  */
 export default async function BundlesPage() {
   const [bundles, phases] = await Promise.all([getBundles(), getPhases()]);
@@ -38,9 +38,9 @@ export default async function BundlesPage() {
 
   return (
     <>
-      <TitleBlock title="Bundles" lead={LEAD} />
-      <Band as="div" surface="paper">
-        <ul className={styles.grid}>
+      <TitleBlock title="Bundles" lead={LEAD} ink />
+      <Band as="div" surface="paper" pad="roomy">
+        <ul className={styles.rows}>
           {cards.map(({ bundle, count, savings, coverage }) => (
             <li key={bundle.slug}>
               <BundleCard

@@ -1,56 +1,88 @@
 /*
- * The cover of a first visit: one ink sheet over the whole window, lifted off the top edge.
+ * The cover of a first visit: white paper over the whole window, the mark signed on it, then gone.
  *
- * It is not displayed until the inline script sets `data-intro` on the root element, so there is no
- * cover without JavaScript, on a later load or on an inner page. Every part is drawn in its final
- * state by default and each animation only holds an earlier state until its turn (`backwards`).
- * The timeline is CSS from end to end: once it is switched on it runs out by itself and leaves the
- * sheet off the screen, out of the layout and deaf to the pointer, whatever becomes of the script.
+ * It is not displayed until the boot script sets `data-intro` on the root element, so there is no
+ * cover without JavaScript, under reduced motion, on a later load or on an inner page. Every part
+ * is drawn in its final state by default and each animation only holds an earlier state until its
+ * turn (`backwards`). Once a state is set its timeline runs out by itself and leaves the cover out
+ * of sight and deaf to the pointer, whatever becomes of the scripts.
  *
- * Times are beats of `--time-intro-beat` (70ms), counted from first paint:
+ * Milliseconds from first paint, in every state (the selectors do not name one, so a change of
+ * state never restarts a stroke):
  *
- *   1 to 7    the pen writes both legs of the "A"
- *   7 to 9    then the crossbar, up to the right leg
- *   9 to 13   and its tail, in the highlighter
- *   7 to 18   block i (0 to 9) fills over two beats from beat 7 + i
- *   16 to 20  the tenth, filling in the highlighter, lands and settles
- *   13 to 19  the name fades in
- *   20 to 24  nothing moves
- *   24 to 33  the sheet lifts (`--time-intro-cover`, `--time-intro-lift`)
+ *   120 to 480   the pen writes both legs of the "A"
+ *   420 to 600   then the crossbar, up to the right leg
+ *   560 to 800   and its tail, in the highlighter
+ *   500 to 900   the name fades in; the hint from 600
+ *
+ * Then one of three ways out, each started by its state:
+ *
+ *   play    1200 to 1650   the cover fades
+ *   ink     from T (the layer sets it when the engine is ready, 1050 at the latest):
+ *           T + 250 to T + 550 the signature fades behind the falling drop,
+ *           T + 2000 to T + 2800 the cover fades with the last of the mist
+ *   leave   the visitor pressed, typed, scrolled or touched: gone in 200
  */
 .cover {
+  --pen-legs: 360ms;
+  --pen-legs-at: 120ms;
+  --pen-bar: 180ms;
+  --pen-bar-at: 420ms;
+  --pen-tail: 240ms;
+  --pen-tail-at: 560ms;
+  --name-in: 400ms;
+  --name-at: 500ms;
+  --hint-in: 300ms;
+  --hint-at: 600ms;
+  --leave: 450ms;
+  --leave-at: 1200ms;
+  --ink-sign: 300ms;
+  --ink-sign-at: 250ms;
+  --ink-leave: 800ms;
+  --ink-leave-at: 2000ms;
+  --skip: 200ms;
+  --pen: var(--curve-pen, var(--curve-settle));
+
   position: fixed;
-  inset: 0 0 calc(var(--s-2) * -1);
+  inset: 0;
   z-index: var(--layer-cover);
   display: none;
   place-items: center;
   padding: var(--page-pad);
-  border-block-end: var(--s-2) solid var(--mark);
-  background: var(--ink);
-  color: var(--on-ink);
+  background: var(--paper);
+  color: var(--ink);
+}
+
+:root[data-intro] .cover {
+  display: grid;
 }
 
 /*
- * The sheet is one edge taller than the window: its bottom border, a strip of the highlighter,
- * hangs below the screen until the sheet lifts and then trails it. Inside the border the sheet is
- * exactly the window, so what is centred on it is centred on the screen.
- *
- * Lifted by its own height, it is clear of the top edge. While it moves it no longer takes the
- * pointer, and its last frame, which is held, takes it out of the layout (`visibility` does the
- * same job in a browser that does not animate `display`). The same frames under two names: a
- * change of name starts a new animation, where a change of duration would only retime the one that
- * is running.
+ * While it fades the cover no longer takes the pointer, and its last frame, which is held, takes
+ * it out of sight for good. The same frames under three names: a change of name starts a new
+ * animation, where a change of duration would only retime the one that is running.
  */
-@keyframes cover-lift {
+@keyframes cover-leave {
   from {
     pointer-events: none;
   }
 
   to {
-    display: none;
     visibility: hidden;
+    opacity: 0;
     pointer-events: none;
-    translate: 0 -100%;
+  }
+}
+
+@keyframes cover-ink {
+  from {
+    pointer-events: none;
+  }
+
+  to {
+    visibility: hidden;
+    opacity: 0;
+    pointer-events: none;
   }
 }
 
@@ -60,39 +92,57 @@
   }
 
   to {
-    display: none;
     visibility: hidden;
+    opacity: 0;
     pointer-events: none;
-    translate: 0 -100%;
   }
 }
 
-:root[data-intro="play"] .cover,
-:root[data-intro="skip"] .cover {
-  display: grid;
-}
-
 :root[data-intro="play"] .cover {
-  animation: cover-lift var(--time-intro-lift) var(--curve-lift) var(--time-intro-cover) forwards;
+  animation: cover-leave var(--leave) var(--curve-leave) var(--leave-at) forwards;
 }
 
-/* The visitor pressed, typed or scrolled: off at once. */
-:root[data-intro="skip"] .cover {
-  animation: cover-skip var(--time-intro-skip) var(--curve-leave) forwards;
+:root[data-intro="ink"] .cover {
+  animation: cover-ink var(--ink-leave) ease-in-out var(--ink-leave-at) forwards;
 }
 
-/* The mark, the tally and the name, stacked and centred as one signature. */
+:root[data-intro="leave"] .cover {
+  animation: cover-skip var(--skip) var(--curve-leave) forwards;
+}
+
+/* The ink arrives at once here: the cover is its own entrance. */
+.cover [data-ink-slot] {
+  transition: none;
+}
+
+/* The mark and the name, stacked and centred as one signature. */
 .signature {
   display: grid;
   justify-items: center;
 }
 
-/* 70px high on a phone, 98px from 40em; the width follows the 4:3 view box. */
+@keyframes sign-out {
+  to {
+    opacity: 0;
+  }
+}
+
+:root[data-intro="ink"] .signature {
+  animation: sign-out var(--ink-sign) linear var(--ink-sign-at) forwards;
+}
+
+/* 84px high on a phone, 112px from 40em; the width follows the 4:3 view box. */
 .logo {
   display: block;
   width: auto;
-  height: calc(var(--s-1) * 10);
+  height: var(--s-7);
   aspect-ratio: 4 / 3;
+}
+
+@media (min-width: 40em) {
+  .logo {
+    height: var(--s-8);
+  }
 }
 
 /*
@@ -105,6 +155,10 @@
   stroke-dasharray: 1;
 }
 
+.tail {
+  stroke: var(--mark);
+}
+
 @keyframes pen-stroke {
   from {
     visibility: hidden;
@@ -112,114 +166,47 @@
   }
 }
 
-.legs {
-  animation: pen-stroke calc(var(--time-intro-beat) * 6) var(--curve-settle) var(--time-intro-beat)
-    backwards;
+:root[data-intro] .legs {
+  animation: pen-stroke var(--pen-legs) var(--pen) var(--pen-legs-at) backwards;
 }
 
-.bar {
-  animation: pen-stroke calc(var(--time-intro-beat) * 2) linear calc(var(--time-intro-beat) * 7)
-    backwards;
+:root[data-intro] .bar {
+  animation: pen-stroke var(--pen-bar) linear var(--pen-bar-at) backwards;
 }
 
-.tail {
-  stroke: var(--mark);
-  animation: pen-stroke calc(var(--time-intro-beat) * 4) var(--curve-settle)
-    calc(var(--time-intro-beat) * 9) backwards;
+:root[data-intro] .tail {
+  animation: pen-stroke var(--pen-tail) var(--pen) var(--pen-tail-at) backwards;
 }
 
-/* Ten 14px blocks, 7px apart: the site's tally, written in white on the ink. */
-.tally {
-  display: flex;
-  gap: var(--s-1);
-  margin-block-start: var(--s-5);
-}
-
-.block {
-  width: var(--s-2);
-  height: var(--s-2);
-  border-radius: var(--round-1);
-  background: var(--on-ink);
-  animation: block-fill calc(var(--time-intro-beat) * 2) var(--curve-settle) backwards;
-  animation-delay: calc(var(--time-intro-beat) * (7 + var(--i)));
-}
-
-/* Not yet: an outline only, as an empty block of a tally is. */
-@keyframes block-fill {
-  from {
-    background-color: transparent;
-    box-shadow: inset 0 0 0 var(--edge) var(--rule-firm);
-  }
-}
-
-/*
- * The tenth is yours: it fills in the highlighter and lands a fifth larger, then settles. The
- * landing has no `backwards`, so until its turn the block waits at its own size.
- */
-@keyframes block-land {
-  from {
-    scale: 1.2;
-  }
-}
-
-.yours {
-  background: var(--mark);
-  animation-name: block-fill, block-land;
-  animation-duration: calc(var(--time-intro-beat) * 2), calc(var(--time-intro-beat) * 4);
-  animation-fill-mode: backwards, none;
-}
-
-/* One unbroken word in Besley, with the font's own figures (see the display classes in globals.css). */
+/* The name, as one word, 21px under the mark. Never larger than this anywhere. */
 .name {
   margin-block-start: var(--s-3);
   font-family: var(--face-display);
-  font-size: var(--size-section);
-  line-height: 1.24;
+  font-size: var(--s-4);
+  line-height: 1;
   font-weight: 700;
-  font-feature-settings: "tnum" 0;
   letter-spacing: 0;
-  white-space: nowrap;
-  animation: name-in calc(var(--time-intro-beat) * 6) linear calc(var(--time-intro-beat) * 13)
-    backwards;
 }
 
-@keyframes name-in {
+@keyframes fade-in {
   from {
     opacity: 0;
   }
 }
 
-@media (min-width: 40em) {
-  .logo {
-    height: calc(var(--s-1) * 14);
-  }
+:root[data-intro] .name {
+  animation: fade-in var(--name-in) linear var(--name-at) backwards;
 }
 
-/* No cover for a visitor who asked for less motion, whatever the root element says. */
-@media (prefers-reduced-motion: reduce) {
-  :root[data-intro] .cover {
-    display: none;
-  }
+/* A hint at the foot of the window: decoration, since any input ends the cover. */
+.cover > .hint {
+  position: absolute;
+  inset-block-end: var(--s-4);
+  inset-inline: 0;
+  color: var(--ink-faint);
+  text-align: center;
 }
 
-/* System colours only: the sheet on the canvas, its edge, the tail and the tenth block highlighted. */
-@media (forced-colors: active) {
-  .cover {
-    border-color: Highlight;
-    background: Canvas;
-    color: CanvasText;
-  }
-
-  .tail {
-    stroke: Highlight;
-  }
-
-  .block {
-    forced-color-adjust: none;
-    background: CanvasText;
-  }
-
-  .yours {
-    background: Highlight;
-  }
+:root[data-intro] .hint {
+  animation: fade-in var(--hint-in) linear var(--hint-at) backwards;
 }

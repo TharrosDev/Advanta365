@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { NextSteps } from "@/components/company/next-steps";
 import { StatementSection } from "@/components/company/statement-section";
+import { WorkedExample } from "@/components/company/worked-example";
 import { TitleBlock } from "@/components/layout/title-block";
 import { Band } from "@/components/ui/band";
 import { BandedList, BandedRow } from "@/components/ui/banded-list";
@@ -40,9 +41,10 @@ const NEXT = [
  * `/sample`: what the worked example is, without the file itself (it cannot be downloaded in this
  * beta, and a note under the lead says so).
  *
- * Layout: the title block with the beta note; a statement section on paper; the catalog phases on
- * the desk as a banded list, each row the one link to its phase page, with a seven-block tally
- * that marks where the phase falls; two links to the next places.
+ * Layout: the title block with ink and the example as a thick document in its aside; a statement
+ * section on the desk; the catalog phases on paper as a ledger, each row the one link to its phase
+ * page, with a seven-block tally that marks where the phase falls; a closing paper band with two
+ * links to the next places.
  */
 export default async function SamplePage() {
   const phases = await getPhases();
@@ -51,20 +53,22 @@ export default async function SamplePage() {
     <>
       <TitleBlock
         form="wide"
+        ink
         title="A complete worked example"
         lead="A full change management strategy for the fictional Meridian Group, an organization of about 10,000 employees, shows how the pieces of the toolkit fit together."
+        aside={<WorkedExample name="Meridian Group" />}
       >
         <Note>Beta note: the sample file is not available to download yet.</Note>
       </TitleBlock>
 
       <StatementSection
-        surface="paper"
+        surface="desk"
         label="Shown, not just told"
         statement={STATEMENT}
         copy={COPY}
       />
 
-      <Band surface="desk">
+      <Band surface="paper">
         <Split
           margin={
             // The nav carries the name; the visible label only repeats it.
@@ -100,7 +104,7 @@ export default async function SamplePage() {
         </Split>
       </Band>
 
-      <NextSteps surface="paper" title="Find the template for the step you are on" links={NEXT} />
+      <NextSteps title="Find the template for the step you are on" links={NEXT} />
     </>
   );
 }

@@ -29,6 +29,19 @@
   background: var(--surface);
 }
 
+/* The pop of a change in the count: one grow to 1.3 and back, 320ms. */
+@keyframes pop {
+  50% {
+    scale: 1.3;
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .pop {
+    animation: pop 320ms var(--curve-settle);
+  }
+}
+
 @media (min-width: 40em) {
   .root.root {
     padding-inline: var(--s-2);

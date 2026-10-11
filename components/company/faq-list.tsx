@@ -9,11 +9,11 @@ import styles from "./faq-list.module.css";
 export type FaqItem = { question: string; answer: string };
 
 /**
- * A banded list of questions that open in place. Any number of items can be open at once: the open
+ * A ledger of questions that open in place. Any number of items can be open at once: the open
  * ones are kept as a list of indices and a click toggles one of them. A closed answer is `inert`, so
  * it is out of the tab order and the accessibility tree while it is collapsed. The plus at the end
  * of a question turns into a minus when it is open, and the answer opens by growing its row from
- * zero height; an open row takes the surface tone whatever its position in the list.
+ * zero height; a row says it is open with `data-open`.
  */
 export function FaqList({ items, className }: { items: readonly FaqItem[]; className?: string }) {
   const baseId = useId();

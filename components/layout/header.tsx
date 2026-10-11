@@ -9,8 +9,9 @@ import { SITE } from "@/lib/site";
 import styles from "./header.module.css";
 
 /**
- * The bar: a sticky sheet of paper at the top of every page, with a soft shadow and no line under
- * it. Left to right, which is also the DOM and tab order: the brand, the primary links (from 68em),
+ * The bar: a sticky sheet of white paper at the top of every page, set off by a soft shadow and no
+ * line under it. `data-bar` is the hook of app/motion.css, which draws that shadow on a layer of its
+ * own (so the bar must not use its own `::after`) and lets it arrive over the first screen of scroll. Left to right, which is also the DOM and tab order: the brand, the primary links (from 68em),
  * the cart, and the Menu button of the drawer (below 68em).
  *
  * On the narrowest screens the word "Menu" and then the brand name are hidden visually; the
@@ -26,7 +27,7 @@ export function Header({
   cart: ReactNode;
 }) {
   return (
-    <header className={styles.root}>
+    <header data-bar="" className={styles.root}>
       <Wrap className={styles.inner}>
         <TransitionLink href="/" className={styles.brand}>
           <BrandLockup nameClassName={styles.brandName} />

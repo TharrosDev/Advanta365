@@ -1,0 +1,119 @@
+/*
+ * The bottom layer of a stage: a still of the scene and the slot the one canvas moves into.
+ * Order inside a stage, bottom to top: its ground, this, its content. Nothing is drawn above text.
+ */
+.backdrop {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  overflow: clip;
+  pointer-events: none;
+}
+
+/*
+ * Whatever follows the backdrop in its stage stands above it. The selector weighs nothing, so a
+ * sibling that is sticky or absolute by its own rule keeps that.
+ */
+:where(.backdrop) ~ :where(*) {
+  position: relative;
+  z-index: 1;
+}
+
+/* Where the layer puts its pause button: the foot of the stage, at the page gutter. */
+.backdrop + .control {
+  position: absolute;
+  inset-block-end: var(--s-3);
+  inset-inline-end: var(--page-pad);
+  z-index: 2;
+}
+
+/*
+ * The still is not displayed, and so never fetched, for a visitor whose ink is live. It is the
+ * picture without JavaScript, under reduced motion, when the visitor paused the ink, on a calm
+ * route and after a failure (its backdrop is at `rest`).
+ */
+.still {
+  display: none;
+}
+
+:root:not([data-ink="live"]) .still,
+:root[data-ink-route="calm"] .still,
+.backdrop[data-ink-state="rest"] .still {
+  display: block;
+}
+
+/*
+ * A still is scaled by the width of its backdrop and by nothing else, so the picture and the page
+ * keep their proportions to each other from one window to the next: the ink stays where the layout
+ * left room for it. What the frame does not reach is the ground of the band, which the frame's own
+ * edges are exact to; what lies past the band is clipped. Scenes that start at the top of their
+ * band are anchored there, scenes that rise from its foot are anchored at the bottom.
+ */
+.still img {
+  position: absolute;
+  inset-block-start: 0;
+  inset-inline: 0;
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+.backdrop[data-scene="bloom"] .still img,
+.backdrop[data-scene="wisps"] .still img {
+  inset-block: auto 0;
+}
+
+/*
+ * The title stage is a strip beside the words whose height is the words' own, so a frame scaled
+ * with the width would drift against the numeral or the heading it keeps clear of. It stands at
+ * its own size in the corner the ink falls from.
+ */
+.backdrop[data-scene="title"] .still img {
+  inset-inline: auto 0;
+  width: auto;
+  max-width: none;
+}
+
+/* The slot is clear until the canvas in it is running a scene. */
+.slot {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+}
+
+.backdrop[data-ink-state="live"] .slot {
+  opacity: 1;
+}
+
+.slot canvas {
+  position: absolute;
+  inset: 0;
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .slot {
+    transition: opacity 200ms linear;
+  }
+
+  .backdrop[data-ink-state="live"] .slot {
+    transition-duration: 400ms;
+  }
+}
+
+/* Ink behind words is the first thing to go when a visitor asks for more contrast. */
+@media (prefers-contrast: more) {
+  .backdrop,
+  .backdrop + .control {
+    display: none;
+  }
+}
+
+@media (forced-colors: active) {
+  .backdrop,
+  .backdrop + .control {
+    display: none;
+  }
+}

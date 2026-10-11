@@ -16,7 +16,7 @@ import { Eyebrow } from "@/components/ui/eyebrow";
 import { Icon } from "@/components/ui/icon";
 import { TextLink } from "@/components/ui/text-link";
 import { TransitionLink } from "@/components/ui/transition-link";
-import { cx } from "@/lib/cx";
+import { cssVars, cx } from "@/lib/cx";
 import styles from "./nav-drawer.module.css";
 
 /** From this width the bar shows its links inline and the drawer has no button. */
@@ -30,6 +30,7 @@ const INLINE_NAV = "(min-width: 68em)";
  * phases under a visible label, and the contact address at the foot. The dialog itself keeps focus
  * inside, closes on Escape and hands focus back to the button.
  *
+ * It enters in 320ms and its links drift in one after another, 40ms apart (the CSS module owns both).
  * It closes on Close, Escape, a click on the dimmed page, any link inside it and any change of
  * page. Closing is instant. `open` only mirrors the dialog for `aria-expanded`; the dialog's own
  * `close` event is what clears it, so every way of closing is covered by one handler.
@@ -54,11 +55,13 @@ export function NavDrawer({
   const phasesLabelId = useId();
   const dialogRef = useRef<HTMLDialogElement>(null);
   const [open, setOpen] = useState(false);
+  const openedOn = useRef(pathname);
   const phase = currentPhase(pathname, templatePhases);
 
   const show = () => {
     const dialog = dialogRef.current;
     if (!dialog || dialog.open) return;
+    openedOn.current = pathname;
     dialog.showModal();
     setOpen(true);
   };
@@ -71,8 +74,10 @@ export function NavDrawer({
   };
 
   // A change of page that did not start from a link in the panel (the Back button) closes it too.
+  // This effect can run a moment after the new page is on screen (a page change is a view
+  // transition), so a menu that was opened on the new page already is left alone.
   useEffect(() => {
-    dialogRef.current?.close();
+    if (openedOn.current !== pathname) dialogRef.current?.close();
   }, [pathname]);
 
   // A window that grows to the inline navigation loses the button, so the panel goes with it.
@@ -119,8 +124,8 @@ export function NavDrawer({
           </div>
           <nav aria-label="Menu" className={styles.nav}>
             <ul className={styles.list}>
-              {PRIMARY_LINKS.map((link) => (
-                <li key={link.href}>
+              {PRIMARY_LINKS.map((link, index) => (
+                <li key={link.href} className={styles.item} style={cssVars({ "--order": index })}>
                   <TransitionLink
                     href={link.href}
                     className={cx("type-ui", styles.row, styles.primary)}
@@ -138,7 +143,11 @@ export function NavDrawer({
               </Eyebrow>
               <ul aria-labelledby={phasesLabelId} className={styles.list}>
                 {phases.map((item, index) => (
-                  <li key={item.slug}>
+                  <li
+                    key={item.slug}
+                    className={styles.item}
+                    style={cssVars({ "--order": PRIMARY_LINKS.length + index })}
+                  >
                     <TransitionLink
                       href={`/phases/${item.slug}`}
                       className={cx("type-ui", styles.row, styles.phase)}
@@ -155,7 +164,10 @@ export function NavDrawer({
               </ul>
             </div>
           </nav>
-          <p className={cx("type-ui", styles.contact)}>
+          <p
+            className={cx("type-ui", styles.contact, styles.item)}
+            style={cssVars({ "--order": PRIMARY_LINKS.length + phases.length })}
+          >
             <TextLink href={`mailto:${email}`} className={styles.email} onClick={close}>
               {email}
             </TextLink>

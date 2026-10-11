@@ -4,15 +4,15 @@ import styles from "./split.module.css";
 
 /**
  * The margin layout. From 68em it is the twelve-column grid with `margin` in columns 1 to 3 (labels,
- * breadcrumbs, meta) and the children in columns 4 to 12. `rule` draws the margin rule in the
- * middle of the gutter between them; it runs through the block padding of the `Band` around it.
- * `sticky` keeps the margin under the bar while the content scrolls. Below 68em the margin sits
- * above the content and there is no rule.
+ * breadcrumbs, meta) and the children in columns 4 to 12. `sticky` keeps the margin under the bar
+ * while the content scrolls. `rule` draws a hairline in the middle of the gutter between the two,
+ * through the block padding of the `Band` around it; it is off unless asked for. Below 68em the
+ * margin sits above the content and there is no rule.
  */
 export function Split({
   margin,
   sticky = false,
-  rule = true,
+  rule = false,
   className,
   marginClassName,
   contentClassName,

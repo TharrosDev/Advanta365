@@ -1,16 +1,62 @@
 /*
- * One column of the title block. The gaps are set between neighbours, so a part that is left out
- * leaves no hole: trail and meta 21px above what follows, the lead 14px under the title, and
- * `children` 28px under whatever comes before them.
+ * The title block: white paper, 56px above the title and 42px below (84 and 56 from 40em). Doubled,
+ * because the band sets its own block padding with one class.
+ */
+.block.block {
+  padding-block: var(--s-6) var(--s-5);
+}
+
+@media (min-width: 40em) {
+  .block.block {
+    padding-block: var(--s-7) var(--s-6);
+  }
+}
+
+/*
+ * One column below 68em: the words, then the aside. From 68em the twelve-column grid, with the
+ * words in the first columns and the aside in columns 9 to 12.
+ */
+.grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  row-gap: var(--s-4);
+}
+
+/* The words are one box, so the ink can keep clear of exactly that and nothing wider. */
+.words {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  min-width: 0;
+}
+
+.index,
+.document {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--s-3);
+}
+
+/* Stacked, the lead of an index page is as close to the title as on the other forms. */
+.index.index {
+  row-gap: var(--s-2);
+}
+
+.words > *,
+.column > * {
+  max-width: 100%;
+}
+
+/*
+ * One column of the words. The gaps are set between neighbours, so a part that is left out leaves
+ * no hole: trail and meta 21px above what follows, the lead 14px under the title, and `children`
+ * 28px under whatever comes before them.
  */
 .column {
   display: flex;
   flex-direction: column;
   align-items: flex-start;
-}
-
-.column > * {
-  max-width: 100%;
+  min-width: 0;
 }
 
 .title {
@@ -65,26 +111,96 @@
   width: 100%;
 }
 
-/* Stacked, the lead of an index page is as close to the title as on the other forms. */
-.index.index {
-  row-gap: var(--s-2);
-}
-
 /* An index page with nothing beside its title has no second block to stack. */
 .vacant {
   display: none;
 }
 
-/* Wide: one column below 68em, the twelve-column grid from there. */
-.wide {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
+.aside {
+  min-width: 0;
+}
+
+/*
+ * The picture of the title stage, live ink or its still, sits in the right 42% from 68em. Below
+ * that the words span too much of the block for ink beside them, and a frame captured for the wide
+ * layout would run under them.
+ */
+.ink.ink {
+  display: none;
+  inset: 0 0 0 58%;
 }
 
 @media (min-width: 68em) {
+  .ink.ink {
+    display: block;
+  }
+
+  .inked {
+    min-height: 20rem;
+  }
+
+  .grid {
+    grid-template-columns: repeat(12, minmax(0, 1fr));
+    column-gap: var(--col-gap);
+    row-gap: 0;
+  }
+
   .vacant {
     display: flex;
+  }
+
+  /* The words take the first columns of the page grid and lay their own parts on its lines. */
+  .words {
+    align-self: start;
+  }
+
+  .s8 {
+    grid-column: 1 / span 8;
+  }
+
+  .s9 {
+    grid-column: 1 / span 9;
+  }
+
+  .s12 {
+    grid-column: 1 / -1;
+  }
+
+  .index,
+  .document,
+  .wide {
+    display: grid;
+    grid-template-columns: subgrid;
+    gap: 0 var(--col-gap);
+    justify-items: start;
+  }
+
+  .index.index {
+    row-gap: 0;
+  }
+
+  .margin {
+    grid-column: 1 / span 3;
+  }
+
+  /* Placed by line, so the content keeps its columns when there is no margin. */
+  .content {
+    grid-column: 4 / -1;
+  }
+
+  .wide > * {
+    grid-column: 1 / span 8;
+  }
+
+  .wide > .title {
+    grid-column: 1 / -1;
+    max-width: none;
+  }
+
+  .aside {
+    grid-column: 9 / -1;
+    grid-row: 1;
+    align-self: start;
   }
 
   /*
@@ -102,8 +218,8 @@
     flex: none;
     width: 0;
     font-family: var(--face-display);
-    font-size: var(--size-page);
-    line-height: 1.16;
+    font-size: var(--size-banner);
+    line-height: 1.12;
     font-weight: 600;
   }
 
@@ -111,20 +227,17 @@
     flex: 1 1 0;
     min-width: 0;
   }
+}
 
-  .wide {
-    display: grid;
-    grid-template-columns: repeat(12, minmax(0, 1fr));
-    column-gap: var(--col-gap);
-    justify-items: start;
+/* No ink behind the words at raised contrast or in forced colours. */
+@media (prefers-contrast: more) {
+  .ink.ink {
+    display: none;
   }
+}
 
-  .wide > * {
-    grid-column: 1 / span 8;
-  }
-
-  .wide > .title {
-    grid-column: 1 / span 9;
-    max-width: none;
+@media (forced-colors: active) {
+  .ink.ink {
+    display: none;
   }
 }
