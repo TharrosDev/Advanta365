@@ -911,6 +911,11 @@ The cart is a list of lines in the browser. A line is one template or one bundle
 - `addLine`, `removeLine`, `hasLine` operate on the kind and slug. `addLine` returns the same array when the
   line is already present.
 - `pruneLines(lines, { templates, bundles })` drops lines whose slug is not in the matching set.
+- `BundleContents` maps a bundle slug to the template slugs it holds. `bundleHolding(lines, templateSlug,
+  contents)` returns the first bundle line (in cart order) that holds the template; the template need not be
+  in the cart. `coveredLines(lines, contents)` maps each template line a bundle in the cart holds to that
+  bundle. `cartSubtotalCents(lines, priceOf, contents)` sums the line prices, leaving out covered template
+  lines and counting an unknown price as 0.
 
 `components/cart/use-cart.ts` holds the external store. The lines are cached in memory after the first
 read. Writes update memory first, then `localStorage` inside a try block, so a blocked storage still leaves
@@ -927,17 +932,20 @@ writes a whole list.
 |---|---|
 | `CartSync` | Mounted in the site layout with every template and bundle slug. Replaces the saved lines with the pruned list only when the length changes. Renders nothing |
 | `CartButton` | A link to `/cart` with the text "Cart" and a count badge. Shows `0` until ready. The accessible name is "Cart" until ready, then "Cart, N item(s)". The badge remounts on each change so its pop animation restarts |
-| `AddToCart` | Before the line is in the cart: a full-width mark button with the label (for example "Add to cart" or "Add bundle to cart"). After adding: a link labelled "In cart — view cart", with focus moved to it, and a polite status message "Added to cart." |
-| `CartContents` | Until ready: "Loading your cart…". Lines are pruned against the catalog items it receives. Empty: a sheet with the message and buttons to the catalog and to bundles. Non-empty: a ruled list, each row with a glyph, a kind label ("Template" or "Bundle"), a link to the item, its price and a Remove button |
+| `AddToCart` | Before the line is in the cart: a full-width mark button with the label (for example "Add to cart" or "Add bundle to cart"). After adding: a link labelled "In cart — view cart", with focus moved to it, and a polite status message "Added to cart." A template page passes `bundles` (the bundles holding the template); while one of them is in the cart the control is a note "Included in <bundle>, which is in your cart." and an outline "View cart" link instead |
+| `CartContents` | Until ready: "Loading your cart…". Lines are pruned against the catalog items it receives. Empty: a sheet with the message and buttons to the catalog and to bundles. Non-empty: a ruled list, each row with a glyph, a kind label ("Template" or "Bundle"), a link to the item, its price and a Remove button. A template a bundle in the cart holds also shows "Included in <bundle>" (a link to the bundle) and its price struck through, read as "<price>, not charged"; it keeps its Remove button |
 | Summary | A sheet labelled "Order summary" with the subtotal, a disabled "Checkout — coming soon" button and the note "Purchasing is not available in this beta. Your cart is saved in this browser." |
 
-Subtotal is the plain sum of line prices. Each line is priced on its own.
+Subtotal is the sum of line prices, leaving out templates that a bundle in the same cart holds
+(`cartSubtotalCents`). When any are left out, the summary says "Leaves out N template(s) already in a bundle."
+under the amount. Two bundles that overlap are both charged.
 
 Focus after removing a line moves to the Remove button at the same index, or to the empty-state heading
 when the last line goes.
 
 `app/(site)/cart/page.tsx` is static. It builds one item for each of the 72 catalog entries (67 templates and
-5 bundles) with `title`, `priceCents` and `href`, and passes them to `CartContents`. The client needs these
+5 bundles) with `title`, `priceCents` and `href` (and `templateSlugs` for a bundle), and passes them to
+`CartContents`. The client needs these
 values to show saved lines and to prune stale ones.
 
 ## 10. Catalog URL state
@@ -986,8 +994,20 @@ default, then `page` only when it is above 1. Keys appear in that fixed order, a
 - `FilterPanel` disables a checkbox whose count is 0 unless it is already checked. Below 68em the panel is a
   native dialog opened from a "Filters" button, with a "Show results" button that closes it.
 - "Clear all filters" links to `/catalog?q=<q>` when a search term exists, or to `/catalog` otherwise. It keeps
-  only the search term, so the sort also resets.
-- The empty-state "Clear filters" link goes to `/catalog`.
+  only the search term, so the sort also resets (`clearFiltersHref`).
+- `ActiveFilters` (client) lists every selected facet value above the result count as a chip, a list labelled
+  "Active filters". Each chip is a link to the catalog without that value, on page 1 (`activeFilters` in
+  `lib/catalog/search-params.ts`), named "Remove <facet> filter: <value>". "Clear all" ends the row and goes
+  where "Clear all filters" goes. With script, a plain click calls `router.replace` without scrolling; focus
+  then moves to the chip now at the removed one's position (or the one before), or to the result count
+  (`#results-heading`, `tabIndex=-1`) once no chip is left. Nothing renders without filters.
+- Empty result: with only a search term, the heading is `No templates match “<q>”.`, the link is "Clear search"
+  (the same criteria without `q`), and a navigation labelled "Browse by phase" shows the phases as large
+  `PhaseTabs`. With filters it stays "No templates match these filters." with "Clear filters" (or "Clear
+  search and filters" when a term is also set), linking to `/catalog`.
+- The phase rail marks a phase (`aria-current="true"`) on `/catalog` while the `phase` parameter names exactly
+  one known phase (`singleCatalogPhase` and `currentPhase` in `components/layout/nav-links.ts`). It reads the
+  search inside a Suspense boundary whose fallback is the rail drawn from the pathname alone.
 - `Pagination` renders links to `/catalog` with the same criteria and the new page. It renders nothing when
   there is one page.
 
@@ -1072,10 +1092,11 @@ Each file below is in `tests/unit/`:
 
 | File | Covers |
 |---|---|
-| `cart-store.test.ts` | Parsing, adding, removing and pruning cart lines |
+| `cart-store.test.ts` | Parsing, adding, removing and pruning cart lines; bundle overlap and the subtotal |
+| `nav-links.test.ts` | The phase a page belongs to, including the catalog filtered on one phase |
 | `content.test.ts` | The real catalog: phases, counts, prices, sample flags, copy rules, search, bundles, related templates |
 | `query.test.ts` | Filters, search, sort, facet counts, pagination |
-| `search-params.test.ts` | URL parsing and serialisation |
+| `search-params.test.ts` | URL parsing and serialisation; active-filter chips and their links |
 | `validate.test.ts` | Validation errors and sorting |
 | `coverage.test.ts`, `pricing.test.ts`, `format.test.ts` | Helpers |
 | `compounds.test.ts` | Compound splitting for `KeepCompounds` |
@@ -1105,8 +1126,8 @@ Specs:
 | Spec | Projects | Covers |
 |---|---|---|
 | `browse.spec.ts` | chromium, mobile, firefox | Navigating from the home page to a phase and a template; the sample page; no horizontal overflow on 11 routes |
-| `cart.spec.ts`, `cart-keyboard.spec.ts` | chromium, mobile | Adding, removing, subtotal, reload, corrupt storage, pruning, blocked storage, focus after changes |
-| `catalog.spec.ts` | chromium, mobile | Counts, pages, filters, URL restore, search, empty state, malformed parameters, the phone filter dialog |
+| `cart.spec.ts`, `cart-keyboard.spec.ts` | chromium, mobile | Adding, removing, subtotal and bundle overlap, reload, corrupt storage, pruning, blocked storage, focus after changes |
+| `catalog.spec.ts` | chromium, mobile | Counts, pages, filters, chips, URL restore, search, empty states, malformed parameters, the phone filter dialog |
 | `console.spec.ts` | chromium, mobile, firefox | No console errors or page errors on 11 routes |
 | `header.spec.ts` | chromium | Desktop navigation, `aria-current`, the rail, the sticky bar |
 | `menu.spec.ts` | mobile | The drawer: links, Escape, Close, scrim click, navigation and Back closing it |

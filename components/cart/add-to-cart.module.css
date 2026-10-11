@@ -1,0 +1,6 @@
+/* A template already held by a bundle in the cart: the note, then the way to the cart, 14px under it. */
+.held {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-2);
+}

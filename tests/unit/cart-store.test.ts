@@ -2,10 +2,14 @@ import { describe, expect, test } from "vitest";
 import {
   CART_STORAGE_KEY,
   addLine,
+  bundleHolding,
+  cartSubtotalCents,
+  coveredLines,
   hasLine,
   parseCart,
   pruneLines,
   removeLine,
+  type BundleContents,
   type CartLine,
 } from "@/lib/cart/store";
 
@@ -76,4 +80,68 @@ describe("removeLine and hasLine", () => {
 test("pruneLines drops lines whose item no longer exists", () => {
   const known = { templates: new Set(["kickoff-deck"]), bundles: new Set<string>() };
   expect(pruneLines([deck, kit, { kind: "template", slug: "gone" }], known)).toEqual([deck]);
+});
+
+describe("bundle overlap", () => {
+  const roadmap: CartLine = { kind: "template", slug: "roadmap" };
+  const playbook: CartLine = { kind: "template", slug: "playbook" };
+  const full: CartLine = { kind: "bundle", slug: "full-kit" };
+  const contents: BundleContents = {
+    "starter-kit": ["kickoff-deck", "roadmap"],
+    "full-kit": ["kickoff-deck", "roadmap", "playbook"],
+  };
+  const prices: Record<string, number> = {
+    "template:kickoff-deck": 5900,
+    "template:roadmap": 4400,
+    "template:playbook": 3900,
+    "bundle:starter-kit": 9900,
+    "bundle:full-kit": 79900,
+  };
+  const priceOf = (line: CartLine) => prices[`${line.kind}:${line.slug}`];
+
+  test("bundleHolding finds the first bundle in cart order that holds the template", () => {
+    expect(bundleHolding([full, kit], "kickoff-deck", contents)).toBe("full-kit");
+    expect(bundleHolding([kit, full], "kickoff-deck", contents)).toBe("starter-kit");
+    expect(bundleHolding([kit, full], "playbook", contents)).toBe("full-kit");
+  });
+
+  test("bundleHolding ignores templates, bundles that do not hold it and unknown bundles", () => {
+    expect(bundleHolding([deck], "kickoff-deck", contents)).toBeUndefined();
+    expect(bundleHolding([kit], "playbook", contents)).toBeUndefined();
+    expect(
+      bundleHolding([{ kind: "bundle", slug: "gone" }], "kickoff-deck", contents),
+    ).toBeUndefined();
+    expect(
+      bundleHolding([{ kind: "bundle", slug: "toString" }], "kickoff-deck", contents),
+    ).toBeUndefined();
+  });
+
+  test("coveredLines maps each held template line to its bundle", () => {
+    const covered = coveredLines([deck, playbook, kit], contents);
+    expect([...covered]).toEqual([["kickoff-deck", "starter-kit"]]);
+  });
+
+  test("coveredLines is empty without bundles", () => {
+    expect(coveredLines([deck, roadmap], contents).size).toBe(0);
+  });
+
+  test("the subtotal is the plain sum when nothing overlaps", () => {
+    expect(cartSubtotalCents([deck, playbook], priceOf, contents)).toBe(5900 + 3900);
+    expect(cartSubtotalCents([playbook, kit], priceOf, contents)).toBe(3900 + 9900);
+  });
+
+  test("the subtotal leaves out templates a bundle in the cart holds", () => {
+    expect(cartSubtotalCents([full, deck, playbook], priceOf, contents)).toBe(79900);
+    expect(cartSubtotalCents([deck, roadmap, playbook, kit], priceOf, contents)).toBe(3900 + 9900);
+  });
+
+  test("two overlapping bundles are both charged", () => {
+    expect(cartSubtotalCents([kit, full], priceOf, contents)).toBe(9900 + 79900);
+  });
+
+  test("a line with no known price counts as nothing", () => {
+    expect(cartSubtotalCents([deck, { kind: "template", slug: "gone" }], priceOf, contents)).toBe(
+      5900,
+    );
+  });
 });

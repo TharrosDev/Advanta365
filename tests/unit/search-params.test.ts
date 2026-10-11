@@ -1,6 +1,12 @@
 import { describe, expect, test } from "vitest";
 import { DEFAULT_CRITERIA, type CatalogCriteria } from "@/lib/catalog/query";
-import { parseCatalogParams, serializeCatalogParams } from "@/lib/catalog/search-params";
+import {
+  activeFilters,
+  catalogHref,
+  clearFiltersHref,
+  parseCatalogParams,
+  serializeCatalogParams,
+} from "@/lib/catalog/search-params";
 
 const PHASES = ["prepare", "execute", "sustain"];
 const parse = (sp: Record<string, string | string[] | undefined>) => parseCatalogParams(sp, PHASES);
@@ -85,5 +91,86 @@ describe("serializeCatalogParams", () => {
     };
     const params = new URLSearchParams(serializeCatalogParams(criteria));
     expect(parse(Object.fromEntries(params))).toEqual(criteria);
+  });
+});
+
+describe("catalogHref and clearFiltersHref", () => {
+  test("the defaults are the bare catalog", () => {
+    expect(catalogHref(DEFAULT_CRITERIA)).toBe("/catalog");
+    expect(clearFiltersHref(DEFAULT_CRITERIA)).toBe("/catalog");
+  });
+
+  test("clearing the filters keeps only the search term", () => {
+    const criteria: CatalogCriteria = {
+      ...DEFAULT_CRITERIA,
+      q: "kickoff",
+      type: ["training"],
+      sort: "title",
+      page: 2,
+    };
+    expect(catalogHref(criteria)).toBe("/catalog?q=kickoff&type=training&sort=title&page=2");
+    expect(clearFiltersHref(criteria)).toBe("/catalog?q=kickoff");
+    expect(clearFiltersHref({ ...criteria, q: "" })).toBe("/catalog");
+  });
+});
+
+describe("activeFilters", () => {
+  const phases = [
+    { slug: "prepare", name: "Prepare" },
+    { slug: "execute", name: "Execute" },
+  ];
+
+  test("no filters gives no chips, whatever the search", () => {
+    expect(activeFilters({ ...DEFAULT_CRITERIA, q: "deck" }, phases)).toEqual([]);
+  });
+
+  test("lists each value facet by facet with its names", () => {
+    const criteria: CatalogCriteria = {
+      ...DEFAULT_CRITERIA,
+      format: ["docx"],
+      phase: ["execute", "prepare"],
+      audience: ["im-rep"],
+    };
+    expect(
+      activeFilters(criteria, phases).map(({ key, value, facet, label }) => [
+        key,
+        value,
+        facet,
+        label,
+      ]),
+    ).toEqual([
+      ["phase", "execute", "Phase", "Execute"],
+      ["phase", "prepare", "Phase", "Prepare"],
+      ["audience", "im-rep", "Audience", "IM Representatives"],
+      ["format", "docx", "File format", "Word"],
+    ]);
+  });
+
+  test("each chip removes its own value, keeps the rest and returns to the first page", () => {
+    const criteria: CatalogCriteria = {
+      ...DEFAULT_CRITERIA,
+      q: "plan",
+      phase: ["prepare", "execute"],
+      type: ["training"],
+      sort: "price-asc",
+      page: 3,
+    };
+    const hrefs = activeFilters(criteria, phases).map((filter) => filter.removeHref);
+    expect(hrefs).toEqual([
+      "/catalog?q=plan&phase=execute&type=training&sort=price-asc",
+      "/catalog?q=plan&phase=prepare&type=training&sort=price-asc",
+      "/catalog?q=plan&phase=prepare%2Cexecute&sort=price-asc",
+    ]);
+  });
+
+  test("removing the last filter leaves the bare catalog", () => {
+    const [only] = activeFilters({ ...DEFAULT_CRITERIA, app: ["teams"] }, phases);
+    expect(only?.label).toBe("Teams");
+    expect(only?.removeHref).toBe("/catalog");
+  });
+
+  test("a phase the list does not name shows its slug", () => {
+    const [only] = activeFilters({ ...DEFAULT_CRITERIA, phase: ["sustain"] }, phases);
+    expect(only?.label).toBe("sustain");
   });
 });

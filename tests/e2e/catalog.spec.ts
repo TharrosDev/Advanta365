@@ -46,13 +46,40 @@ test("search keeps the active filters", async ({ page }) => {
   await expect(cards(page).first()).toContainText("Executive Sponsor Kickoff Deck");
 });
 
-test("no matches shows an empty state that can be cleared", async ({ page }) => {
+test("a search with no match names the search and offers the phases", async ({ page }) => {
   await page.goto("/catalog?q=zzzzqqq");
-  await expect(page.getByText("No templates match these filters.")).toBeVisible();
+  await expect(page.getByText("No templates match “zzzzqqq”.")).toBeVisible();
+  const pivot = page.getByRole("navigation", { name: "Browse by phase" });
+  await expect(pivot.getByRole("link")).toHaveCount(7);
+  await expect(pivot.getByRole("link", { name: "Prepare", exact: true })).toHaveAttribute(
+    "href",
+    "/phases/prepare",
+  );
 
-  await page.getByRole("link", { name: "Clear filters" }).click();
+  await page.getByRole("link", { name: "Clear search" }).click();
   await expect(page).toHaveURL(/\/catalog$/);
   await expect(cards(page)).toHaveCount(24);
+});
+
+test("filters with no match keep the filters wording", async ({ page }) => {
+  await page.goto("/catalog?q=zzzzqqq&type=training");
+  await expect(page.getByText("No templates match these filters.")).toBeVisible();
+  await page.getByRole("link", { name: "Clear search and filters" }).click();
+  await expect(page).toHaveURL(/\/catalog$/);
+});
+
+test("active filters show as chips that remove one value each", async ({ page }) => {
+  await page.goto("/catalog?phase=prepare&format=docx");
+  const chips = page.getByRole("list", { name: "Active filters" });
+  await expect(chips.getByRole("link", { name: /^Remove/ })).toHaveCount(2);
+
+  await chips.getByRole("link", { name: "Remove File format filter: Word" }).click();
+  await expect(page).toHaveURL(/\/catalog\?phase=prepare$/);
+  await expect(chips.getByRole("link", { name: /^Remove/ })).toHaveCount(1);
+
+  await chips.getByRole("link", { name: "Clear all", exact: true }).click();
+  await expect(page).toHaveURL(/\/catalog$/);
+  await expect(page.getByRole("list", { name: "Active filters" })).toHaveCount(0);
 });
 
 test("malformed parameters never break the page", async ({ page }) => {
@@ -66,7 +93,7 @@ test("malformed parameters never break the page", async ({ page }) => {
 
   const odd = await page.goto(`/catalog?q=${encodeURIComponent("(a*\\ <b>")}`);
   expect(odd?.status()).toBe(200);
-  await expect(page.getByText("No templates match these filters.")).toBeVisible();
+  await expect(page.getByText("No templates match “(a*\\ <b>”.")).toBeVisible();
 });
 
 test("the filter dialog opens and closes on a phone", async ({ page, isMobile }) => {

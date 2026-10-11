@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { ActiveFilters } from "@/components/catalog/active-filters";
 import { FilterPanel } from "@/components/catalog/filter-panel";
 import { ResultList } from "@/components/catalog/result-list";
 import { SearchBox } from "@/components/catalog/search-box";
@@ -28,8 +29,8 @@ type CatalogPageProps = {
 /**
  * The catalog, an index of documents. Under the title: a rail with the search, the sort order and
  * the filters (grid columns 1 to 3, staying under the bar from 68em) and the index beside it
- * (columns 4 to 12): the count, then one row per template. Below 68em the rail is a block above
- * the index and the filters open as a sheet.
+ * (columns 4 to 12): the chips of the filters that are on, the count, then one row per template.
+ * Below 68em the rail is a block above the index and the filters open as a sheet.
  */
 export default async function CatalogPage({ searchParams }: CatalogPageProps) {
   const [params, phases, templates] = await Promise.all([
@@ -69,7 +70,18 @@ export default async function CatalogPage({ searchParams }: CatalogPageProps) {
           }
         >
           <section aria-labelledby="results-heading">
-            <p id="results-heading" role="status" className={cx("type-ui", styles.count)}>
+            <ActiveFilters
+              criteria={criteria}
+              phases={phaseOptions}
+              fallbackFocusId="results-heading"
+            />
+            {/* Focusable from script only: it takes focus when the last filter chip goes. */}
+            <p
+              id="results-heading"
+              role="status"
+              tabIndex={-1}
+              className={cx("type-ui", styles.count)}
+            >
               <span className={cx("tabular", styles.strong)}>{result.total}</span>{" "}
               {result.total === 1 ? "template" : "templates"}
               {criteria.q && (

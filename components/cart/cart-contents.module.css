@@ -101,6 +101,31 @@
   color: var(--text);
 }
 
+/*
+ * A template a bundle in the cart already holds: an ink tick and the bundle's name under the title,
+ * and its own price struck through in faint ink, since the subtotal leaves it out.
+ */
+.included {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--s-1);
+  margin-block-start: var(--s-1);
+  color: var(--text-soft);
+}
+
+.includedTick {
+  margin-block-start: 1px;
+  color: var(--text);
+}
+
+.waived {
+  color: var(--text-faint);
+}
+
+.waived s {
+  text-decoration-thickness: var(--hair);
+}
+
 .remove {
   grid-area: remove;
   justify-self: end;
@@ -172,6 +197,11 @@
 
 .summaryNote {
   color: var(--text-soft);
+}
+
+/* Why the subtotal is less than the prices in the ledger: it sits right under the amount. */
+.coveredNote {
+  margin-block-start: var(--s-1);
 }
 
 /* Empty: the blank field first, the tally of nothing last. */

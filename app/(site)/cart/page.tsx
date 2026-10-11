@@ -13,7 +13,8 @@ export const metadata: Metadata = { title: "Cart" };
  */
 export default async function CartPage() {
   const [templates, bundles] = await Promise.all([getTemplates(), getBundles()]);
-  // The cart lives in the browser, so the page sends the titles and prices it may need.
+  // The cart lives in the browser, so the page sends the titles and prices it may need, and what
+  // each bundle holds so a template already in a bundle in the cart is not charged twice.
   const items: CartItem[] = [
     ...templates.map((t) => ({
       kind: "template" as const,
@@ -28,6 +29,7 @@ export default async function CartPage() {
       title: b.title,
       priceCents: b.priceCents,
       href: `/bundles/${b.slug}`,
+      templateSlugs: b.templateSlugs,
     })),
   ];
 

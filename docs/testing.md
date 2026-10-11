@@ -11,7 +11,7 @@ This page covers the checks that run against the repository: the commands, the u
 | Boot, cover and motion | `boot-script`, `boot-cover`, `intro`, `kit-motion` | `intro`, `motion`, `reduced-motion` | |
 | Ink | `ink-scenes`, `ink-stage`, `ink-zones`, `stills-files` | `ink-live`, `ink-fallback` | `ink-stills` |
 | Look of the source | `design-gate` | `identity` | |
-| Shell and navigation | | `header`, `menu`, `console` | |
+| Shell and navigation | `nav-links` | `header`, `menu`, `console` | |
 | Script weight | | | `check-budgets` |
 | Runner | `smoke` | | |
 
@@ -57,12 +57,13 @@ Shared catalog fixtures live in `tests/unit/fixtures/catalog.ts`: `rawPhases`, `
 | `content.test.ts` | The sample catalog as read through `lib/catalog/repository`: seven phases in fixed order with two steps each; minimum template counts per phase and per step; every deliverable type, app, audience and format is used; prices in the expected range; named pieces exist; the featured selection; copy with no banned term, straight quotes or exclamation marks; search by title; five bundles, each priced below its contents; bundle summaries that match their counts; related-template and bundle lookups. |
 | `validate.test.ts` | `validateCatalog` sorts phases and steps by order. It rejects a non-positive price, a duplicate template slug, an unknown phase, a step that belongs to another phase, a bundle that names a missing template, an unknown deliverable type and a slug that is not kebab case. A bundle and a template may share a slug. |
 | `query.test.ts` | `queryTemplates` over synthetic templates: page size; facets combine with OR inside a facet and AND across facets; search by terms, case, quotes, literal regex characters and a length limit; the default `featured` sort and the other sorts; page clamping; facet counts that ignore their own selection; the input is not mutated. |
-| `search-params.test.ts` | `parseCatalogParams` and `serializeCatalogParams`: comma lists; unknown values dropped; an invalid page becomes 1; an unknown sort becomes `featured`; the query is trimmed and capped at 200 characters; fixed key order; defaults omitted; round trip. |
+| `search-params.test.ts` | `parseCatalogParams` and `serializeCatalogParams`: comma lists; unknown values dropped; an invalid page becomes 1; an unknown sort becomes `featured`; the query is trimmed and capped at 200 characters; fixed key order; defaults omitted; round trip. `catalogHref`, `clearFiltersHref` (keeps only the search term) and `activeFilters` (each selected value facet by facet with its names, and a link without it on page 1). |
 | `coverage.test.ts` | `phaseCoverage`: one entry per phase in order; a phase is covered once a template belongs to it; templates in unknown phases are ignored. |
 | `pricing.test.ts` | `bundleValueCents` sums the contents; `bundleSavingsCents` is the difference, floored at zero. |
 | `format.test.ts` | `formatPrice`: whole dollars drop the cents; other amounts keep them; thousands are separated. |
 | `compounds.test.ts` | `splitCompounds`: hyphenated compounds become compound parts, a lone hyphen does not, and joining the parts gives back the title. |
-| `cart-store.test.ts` | The storage key; `parseCart` on malformed input, de-duplication and removal of extra fields; `addLine`, `removeLine`, `hasLine`; `pruneLines` against the known slugs. |
+| `cart-store.test.ts` | The storage key; `parseCart` on malformed input, de-duplication and removal of extra fields; `addLine`, `removeLine`, `hasLine`; `pruneLines` against the known slugs; `bundleHolding`, `coveredLines` and `cartSubtotalCents` (a template a bundle in the cart holds is not charged; overlapping bundles are both charged). |
+| `nav-links.test.ts` | `currentPhase`: a phase page, a template's phase, and the catalog while it is filtered on exactly one known phase (`singleCatalogPhase`), on the catalog only. |
 
 ### Brand and static assets
 
@@ -157,9 +158,9 @@ A spec that is not named by the Firefox pattern runs in `chromium` and `mobile`.
 | Spec | Projects | Guards |
 |---|---|---|
 | `browse.spec.ts` | chromium, mobile, firefox | Home to a phase to a template; the hero's link to the worked example; no horizontal overflow on eleven routes. |
-| `cart.spec.ts` | chromium, mobile | Adding and removing lines; the subtotal; the disabled checkout control; persistence across a reload; corrupted saved data; removal of unknown slugs; a cart that still works when storage is blocked. |
+| `cart.spec.ts` | chromium, mobile | Adding and removing lines; the subtotal, and a template already in a bundle in the cart left out of it (and the template page's note); the disabled checkout control; persistence across a reload; corrupted saved data; removal of unknown slugs; a cart that still works when storage is blocked. |
 | `cart-keyboard.spec.ts` | chromium, mobile | Focus after adding, removing and emptying the cart; the status message; a stale saved cart is cleared. |
-| `catalog.spec.ts` | chromium, mobile | The result count and paging; facet filters; restoring filters from the URL; search that keeps the filters; the empty state and its clear link; malformed parameters; an out-of-range page; the filter dialog on a phone. |
+| `catalog.spec.ts` | chromium, mobile | The result count and paging; facet filters; restoring filters from the URL; search that keeps the filters; the active-filter chips and Clear all; the empty states (search only, with the phases, and with filters) and their clear links; malformed parameters; an out-of-range page; the filter dialog on a phone. |
 | `console.spec.ts` | chromium, mobile, firefox | Eleven routes load with no console error and no page error. |
 | `header.spec.ts` | chromium only (skips the mobile project) | The banner; the primary navigation and its current-page marks; the phase rail; the sticky bar; the rail leaving the viewport on scroll. |
 | `identity.spec.ts` | chromium, mobile | Design checks in the browser: landmarks; one `h1` per page; root colours and fonts; band values; the ink hooks on the page; the order and ids of the home sections; focus rings; catalog card ratios; no overflow and minimum touch targets at 320 px. |

@@ -15,7 +15,11 @@ import {
   FORMAT_LABELS,
 } from "@/content/taxonomy";
 import type { CatalogCriteria, CatalogResult, FacetKey } from "@/lib/catalog/query";
-import { serializeCatalogParams } from "@/lib/catalog/search-params";
+import {
+  FACET_TITLES,
+  clearFiltersHref,
+  serializeCatalogParams,
+} from "@/lib/catalog/search-params";
 import { cx } from "@/lib/cx";
 import styles from "./filter-panel.module.css";
 
@@ -49,17 +53,17 @@ export function FilterPanel({ criteria: committed, facets, phases }: FilterPanel
   const groups: Group[] = [
     {
       key: "phase",
-      title: "Phase",
+      title: FACET_TITLES.phase,
       options: phases.map((p) => ({ value: p.slug, label: p.name })),
     },
     {
       key: "type",
-      title: "Deliverable type",
+      title: FACET_TITLES.type,
       options: options(DELIVERABLE_TYPES, DELIVERABLE_TYPE_LABELS),
     },
-    { key: "app", title: "Microsoft 365 app", options: options(APPS, APP_LABELS) },
-    { key: "audience", title: "Audience", options: options(AUDIENCES, AUDIENCE_LABELS) },
-    { key: "format", title: "File format", options: options(FORMATS, FORMAT_LABELS) },
+    { key: "app", title: FACET_TITLES.app, options: options(APPS, APP_LABELS) },
+    { key: "audience", title: FACET_TITLES.audience, options: options(AUDIENCES, AUDIENCE_LABELS) },
+    { key: "format", title: FACET_TITLES.format, options: options(FORMATS, FORMAT_LABELS) },
   ];
 
   const selectedCount = groups.reduce((sum, group) => sum + criteria[group.key].length, 0);
@@ -100,11 +104,7 @@ export function FilterPanel({ criteria: committed, facets, phases }: FilterPanel
         </fieldset>
       ))}
       {selectedCount > 0 && (
-        <Button
-          variant="text"
-          href={criteria.q ? `/catalog?q=${encodeURIComponent(criteria.q)}` : "/catalog"}
-          className={styles.clear}
-        >
+        <Button variant="text" href={clearFiltersHref(criteria)} className={styles.clear}>
           Clear all filters
         </Button>
       )}

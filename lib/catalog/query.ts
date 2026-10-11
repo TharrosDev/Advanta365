@@ -35,7 +35,8 @@ export type CatalogResult = {
   facets: Record<FacetKey, Record<string, number>>;
 };
 
-const FACET_KEYS: FacetKey[] = ["phase", "type", "app", "audience", "format"];
+/** The facets in the order the filters list them. */
+export const FACET_KEYS: readonly FacetKey[] = ["phase", "type", "app", "audience", "format"];
 
 /** The values a template carries for each facet. */
 const FACET_VALUES: Record<FacetKey, (t: Template) => readonly string[]> = {

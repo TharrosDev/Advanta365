@@ -152,7 +152,10 @@ export default async function TemplatePage({ params }: TemplatePageProps) {
           note="One-time purchase, editable file"
           className={styles.panel}
         >
-          <AddToCart line={{ kind: "template", slug: template.slug }} />
+          <AddToCart
+            line={{ kind: "template", slug: template.slug }}
+            bundles={bundles.map(({ slug, title }) => ({ slug, title }))}
+          />
         </PurchasePanel>
 
         <div className={styles.details}>
