@@ -30,7 +30,7 @@ for (const path of ROUTES) {
     await page.goto(path);
     await expect(page.getByRole("heading", { level: 1 })).toBeVisible();
 
-    // The root element was never marked for motion, the cover or live ink. (A page the server
+    // The root element is never marked for motion, the cover or live ink. (A page the server
     // answered with a 404 is built in the browser, and its boot script runs a moment after the
     // load event.)
     await expect(page.locator("html")).toHaveAttribute("data-ink", "still");

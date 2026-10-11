@@ -14,7 +14,7 @@ import styles from "./intro-cover.module.css";
  * The cover of a first visit, rendered by the home page alone: the signing. On white paper the mark
  * is written in three pen strokes where it stands (both legs of the "A", its crossbar, then the
  * tail of the crossbar in the highlighter) and the name fades in under it. Then the cover fades and
- * the page, which was complete and painted under it all along, is there.
+ * the page, already complete and painted underneath, is there.
  *
  * Where the engine is ready in time the ink joins: the layer puts the canvas in the cover's own
  * backdrop and switches the state to `ink`; a black drop falls through the signature, a light-blue

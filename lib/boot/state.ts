@@ -104,7 +104,7 @@ export type InkVisit = {
 
 /**
  * How the ink starts on a page load: `still` under reduced motion, raised contrast or a data
- * saver, and on a device that was found unable; `paused` when the visitor paused it earlier in the
+ * saver, and on a device that cannot run it; `paused` when the visitor paused it earlier in the
  * session; `live` when the session already settled on a tier, or when the device proves able now.
  */
 export function inkMode({ reducedMotion, contrast, saveData, stored, capable }: InkVisit): InkMode {

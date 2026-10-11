@@ -491,9 +491,9 @@ export const SCENES: Record<SceneName, (ctx: SceneContext) => Scene> = {
    * The 404: a bottle knocked over above the page, leaning left. Heavy black drops, one after
    * another, that roll, finger and hang as one arc; then a slow drip while the page stays open.
    *
-   * On a tall stage the drops are a little smaller and start a little lower than the specification's
-   * figures (0.062 and `open.y + 0.03`): at those the first three merged under the calm zone, which
-   * cut the body flat, and the body read as a head in profile at 2s.
+   * On a tall stage the drops are a little smaller and start a little lower than 0.062 and
+   * `open.y + 0.03` would give: at those sizes the first three merge under the calm zone and cut
+   * the body flat, so it reads as a head in profile at 2s.
    */
   spill: (ctx) => {
     const open = ctx.anchors.open;

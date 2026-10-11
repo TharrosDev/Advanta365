@@ -5,7 +5,7 @@ import { describe, expect, it } from "vitest";
 
 /**
  * The design gate. The site's look is its own: this file fails the build when a name, value or
- * technique that the design retired comes back into the source, or when one of the standing rules
+ * technique that the design rules out comes back into the source, or when one of the standing rules
  * of the design system is broken. It reads files as text, so a match in a comment counts too.
  *
  * It is the one file allowed to contain the strings it looks for, and leaves itself out of the scan.
@@ -60,12 +60,12 @@ const SOURCE = ["app", "components", "lib", "tests"]
   .flatMap(filesUnder)
   .filter((file) => file !== SELF);
 
-// What the design retired. The words are matched whatever their case; the rest as written.
+// What the design rules out. The words are matched whatever their case; the rest as written.
 const RETIRED: Rule[] = [
   // The typeface and the base colour.
   literal("#181818", "i"),
   literal("Instrument", "i"),
-  // Effects and graphics. Drawing surfaces and shader contexts are not retired: a few folders may
+  // Effects and graphics. Drawing surfaces and shader contexts are not ruled out: a few folders may
   // hold them, and the scoped rules further down keep them there.
   literal("wipe", "i"),
   literal("reveal", "i"),

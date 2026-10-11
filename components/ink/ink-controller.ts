@@ -31,7 +31,7 @@ import {
  *
  * The engine is a chunk of its own, fetched only when a backdrop comes near the viewport of a
  * visitor whose ink is live. Nothing here runs under reduced motion, on a calm route or on a device
- * the boot script found unable: there the stills of the backdrops stand in.
+ * the boot script finds unable to run it: there the stills of the backdrops stand in.
  */
 
 type EngineModule = typeof import("@/lib/ink/engine");

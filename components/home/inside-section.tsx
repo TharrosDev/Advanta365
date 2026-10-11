@@ -23,7 +23,7 @@ type Item = { title: string; body: string; href?: string } & (
 
 /**
  * What the full toolkit holds, with the counts read from `TOOLKIT`. This is not a count of the
- * catalog, which lists sample content for now.
+ * catalog, which lists sample content.
  */
 const ITEMS: readonly Item[] = [
   {

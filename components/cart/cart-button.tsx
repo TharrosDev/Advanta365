@@ -21,8 +21,8 @@ export function CartButton() {
   const { count, ready } = useCart();
   const shown = ready ? count : 0;
 
-  // The number of changes seen since the stored cart was read; each one remounts the badge, which
-  // starts its pop again. Adjusted while rendering, so no effect is needed.
+  // The number of changes seen since the stored cart has been read; each one remounts the badge,
+  // which starts its pop again. Adjusted while rendering, so no effect is needed.
   const [seen, setSeen] = useState<{ count: number; pops: number } | null>(null);
   if (ready && seen === null) setSeen({ count, pops: 0 });
   else if (ready && seen !== null && seen.count !== count) {

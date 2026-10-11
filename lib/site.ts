@@ -1,6 +1,6 @@
 /**
- * What the full toolkit holds. The counts match the source folder as of 2026-10-11 and are the only
- * place they are written: every page reads them from here.
+ * What the full toolkit holds. The counts match the source folder and are the only place they are
+ * written: every page reads them from here.
  */
 export const TOOLKIT = {
   playbooks: 59,

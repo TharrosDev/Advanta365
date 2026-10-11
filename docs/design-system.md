@@ -1,1094 +1,773 @@
-# Design system: Wet Ink
+# Design system
 
-Advanta365 sells working documents that are 90% written. The site is drawn as a working copy: white
-pages already written in black ink, with the few things left for the buyer marked in a light-blue
-highlighter. In this edition the ink is wet: black ink falls into clear water beside the headline and
-light blue blooms through it, the products are sheets of paper on a light table, and type is set
-large in Besley. This document describes that look: the idea, the tokens, the motion system, the
-ink, the primitives and the rules the code relies on. For how the parts connect, see
-`architecture.md`.
+This document describes the visual system of the Advanta365 site: the concept, the colour and type tokens, the bands and grid, depth, motion, every UI primitive, the ink layer, and the accessibility floor. The source of truth is the code. The token values below are copied from `app/globals.css`, and the primitives are the files in `components/ui/`.
 
-The presentation layer is plain CSS Modules reading custom properties. Every visual value comes from
-a token in `app/globals.css`, so no component file carries a raw colour, a Tailwind class or a
-one-off spacing value.
+## 1. Concept
 
-## Where things live
+Advanta365 sells change management and user adoption templates for Microsoft 365 rollouts. Each template arrives mostly written, so the buyer's work is the last part. The site is drawn as a working copy: white sheets on a cool grey desk, set in near-black type, with a light-blue highlighter that marks the parts that belong to the buyer. The ink layer is the only moving material on the page. It behaves like wet ink on water, sits under the text, and never competes with it.
 
-- `app/globals.css`: the tokens, the five `[data-band]` surfaces, the base rules, the `.type-*`
-  classes, `.visually-hidden`, `.tabular`, the reduced-motion safety net and the forced-colours
-  rules. With `app/icon.svg` it is the only place that holds raw colour values. It starts with the
-  import of `app/motion.css`.
-- `app/motion.css`: the motion system (see "Motion"), the only stylesheet that names a scroll or
-  view timeline.
-- `app/layout.tsx`: the two fonts, loaded through `next/font/google` and exposed as `--font-besley`
-  and `--font-atkinson`, the inline boot script first thing in `<body>` and `MotionRoot` after the
-  children.
-- `components/ui/`: the primitives. Each has a `.module.css` beside it unless noted.
-- `components/layout/`: the shell (bar, phase rail, drawer, footer, beta strip) and the page-opening
-  `TitleBlock`.
-- `components/intro/`: the cover a first visit to the home page opens under (see "The cover" under
-  Ink). `components/ink/`: the backdrop, the layer and the pause button. `lib/ink/`: the engine, the
-  scenes, the zones and the stills manifest. `lib/boot/`: the boot script. `lib/scroll/`: the
-  observer and the pointer light. `public/ink/` holds the eleven stills, `public/paper/` the grain.
-- `lib/cx.ts`: `cx()` joins class names, `cssVars()` builds typed inline custom properties.
-- `lib/brand/mark.ts`: the logo mark, the single source for `LogoMark` and `app/icon.svg`.
-- `tests/unit/design-gate.test.ts`: fails when a retired name, value or technique comes back (see
-  "The design gate").
+Six principles guide every decision:
 
-## Concept
+1. **Paper first.** Content sits on sheets. A sheet is a white plane with a grain, a hairline ring, and a soft shadow.
+2. **The mark is the buyer's.** The highlight marks what the buyer fills in or owns. It always carries ink: a border, a ring, a tick, or the text itself. The pale blue fill alone is never a signal.
+3. **Hard edges on surfaces.** Bands and sheets change ground without a transition. Movement is limited to content arriving and to sheets responding to the pointer.
+4. **Type carries the hierarchy.** Two families and one size scale do all the structural work. Colour and depth add emphasis only after type has done its job.
+5. **Motion explains or pays off.** Motion announces a state change, reveals a sequence, or rewards a completed step. Every animation and movement is inside the `prefers-reduced-motion: no-preference` query, or starts only from a state the boot script sets when motion is allowed.
+6. **Ink stays under the text.** The ink layer is calmed around every text block, and its brightness is capped against the ground behind the copy.
 
-**Black ink is what is done. The light-blue highlighter marks what is yours. Black is the action.**
+## 2. Where the system lives
 
-The identity is three colours: white, black and light blue. White is the paper. Black writes
-everything that is finished and is the solid button that moves the buyer on. Light blue is used the
-way a highlighter is used on a printed page: in small strokes, over black text, on the parts that
-are the reader's own.
+| Path | What it holds |
+| --- | --- |
+| `app/globals.css` | Every colour, type, space, depth, shape, layer and motion token; the band definitions; base element rules; the type classes; the reduced-motion safety net; the forced-colours rules. |
+| `app/motion.css` | Entrances, view transitions, paper and lift behaviour, the sticky bar's shadow, and the ninety-percent scroll sequence. Imported first by `globals.css`. |
+| `app/layout.tsx` | Font loading (Besley and Atkinson Hyperlegible Next as CSS variables), root attributes, the boot script, and `MotionRoot`. |
+| `app/icon.svg` | The site icon: the logo mark on an ink tile. |
+| `lib/brand/mark.ts` | The logo geometry, the single source for the mark path data. |
+| `components/ui/` | The UI primitives described in section 9. |
+| `components/ink/`, `lib/ink/` | The ink layer: the backdrop component, the controller, the engine, scenes, zones and stills. |
+| `lib/boot/` | The inline boot script and the pure functions it mirrors. |
+| `lib/scroll/` | The scroll-seen observer and the pointer light tracker. |
+| `tests/unit/design-gate.test.ts` | The standing rules: raw colour placement, allowed media queries, the allowed `@container` files, and the allowed `next/link` importer. |
 
-| Device | What it is                                                                                                          | Where                                                                                                         |
-| ------ | ------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------- |
-| Ink    | Near-black for everything already done: text, line art, filled tally blocks, ticks, and the solid button            | Everywhere                                                                                                    |
-| Mark   | One light-blue highlighter for what the buyer owns or has chosen, always with ink text and an ink edge              | Current page or phase, a checked filter, the cart count, a saving, the blank, the tenth block, a hovered link |
-| Blank  | A highlighted empty field with a text caret                                                                         | The specimen, every template cover (foot), empty cart, 404, empty results                                       |
-| Tally  | A row of blocks. Nine inked and the tenth marked is the 90/10 claim; seven is "phase n of 7" or a bundle's coverage | The specimen, "The answer", closing, phase and template pages, bundle cards                                     |
-| Margin | A left column (columns 1 to 3) for labels, breadcrumbs and meta, with no rule beside it | Statement sections and the document pages |
-| Tabs   | Numbered index tabs 1 to 7 for the phases; a folder tab on each bundle                                              | Phase rail, home phase list, bundle cards                                                         |
-| Objects | Sheets of paper with tooth and layered shadow on a light desk: covers, stacks, folders, panels. Ledgers (rows between hairlines) where a list is read | Products, the purchase panel, tables, the specimen |
-| Ink | Real-time black and light-blue ink in water, behind a few headlines | The home hero, the ninety, the closing, the title blocks, the footer, the 404 |
+Every value a component uses should come from a token. A colour written as a hex value, `rgb()`, `oklch()` or `color-mix()` anywhere in `app`, `components` or `lib` fails the design gate, except in `app/globals.css` and `app/icon.svg`.
 
-### The rules of the Mark
+## 3. Colour
 
-1. It means "yours": the place you are, a choice you made, a state that is about you, the part
-   left for you to fill in. It is a small signal. It is never decoration, never a section
-   background and never a large solid surface.
-2. On a light surface it is too pale to stand alone (1.89 against paper), so it is never text,
-   never a thin line and never the only cue. Every marked element also carries ink: a 2px ink
-   border or inset ring, ink text, an ink tick or a heavier weight.
-3. Text on the mark is ink, always. It never carries white text. (`--on-mark` is `--ink`.)
-4. The primary action is not the mark: it is solid ink with white text. The mark is where that
-   button goes under the pointer or keyboard focus, inside its ink border. A marked fill that is
-   itself pressed or hovered goes one step deeper, to `--mark-deep`.
-5. `--mark-wash`, the diluted mark, may fill one band per page. It is also the hover fill of rows,
-   outline controls, navigation links and page numbers, and the ground of notes and the beta strip.
-6. On the binder the mark is strong enough (10.11) to be a line: the tail of the logo, the focus
-   ring and the underline of a hovered link. Nothing else there is marked. On ink it is as strong
-   (10.26): the tail of the logo on its tile and, on the cover of a first visit, that tail, the
-   tenth block and the edge that trails the sheet.
+### 3.1 Raw tokens
 
-Every page shows the mark in several places: the beta strip and the tail of the logo at the top,
-the square before each section label, the current item of the navigation, and whatever the page
-itself marks (a tally, a blank, a saving, a checked filter).
+Defined on `:root` in `app/globals.css`.
 
-There is one theme. There is no dark mode, no theme attribute and no scroll trigger. The only dark
-surface of a page is the footer. The cover of a first visit is a sheet of ink over the page, for a
-little over two seconds, and is no part of it.
+| Token | Value | Role |
+| --- | --- | --- |
+| `--desk` | `#f4f5f8` | The cool grey desk behind sheets. |
+| `--paper` | `#ffffff` | The sheet. The body background. |
+| `--desk-deep` | `#e6e8ee` | A tile or well sitting on the desk. |
+| `--rule` | `#d2d5de` | Hairline dividers and decorative lines. |
+| `--rule-firm` | `#70758a` | Control borders and boundaries that must be seen. |
+| `--ink` | `#0b0d12` | Primary text and the ink fill. |
+| `--ink-soft` | `#3a3f4c` | Secondary text. |
+| `--ink-faint` | `#596072` | Tertiary text, captions, counts. |
+| `--mark` | `#86c1ff` | The highlighter. Fills marked blocks and the logo tail. |
+| `--mark-deep` | `#5fa8f5` | A marked fill under the pointer or focus. |
+| `--mark-wash` | `#eaf4ff` | The mark diluted to a ground for the wash band and hover rows. |
+| `--on-mark` | `var(--ink)` | Text on a mark fill. |
+| `--on-ink` | `#ffffff` | Text on an ink fill. |
+| `--binder` | `#0d0f15` | The binder: the footer and the ink surface. |
+| `--binder-rise` | `#1c202b` | A raised surface on the binder. |
+| `--on-binder` | `#f4f5f8` | Text on the binder. |
+| `--on-binder-soft` | `#b4b9c7` | Secondary text on the binder. |
+| `--rule-on-binder` | `#343947` | Hairlines on the binder. |
+| `--alert` | `#a32b1d` | Errors only. |
+| `--alert-wash` | `#fbeae5` | The ground behind an error. |
+| `--scrim` | `rgb(11 13 18 / 0.5)` | The backdrop behind the menu drawer and dialogs. |
+| `--bar-shadow` | `0 10px 21px -14px rgb(11 13 18 / 0.4)` | The shadow under the sticky bar once it is scrolled. |
+| `--paper-shade` | `#f1f3f7` | The far corners of a sheet. |
+| `--grain` | `url("/paper/grain.png")` | A pre-rendered 128-pixel paper tooth, used by medium and large sheets. |
 
-## Colour
+### 3.2 Semantic layer
 
-### Palette
+Components never read the raw tokens. They read the semantic layer, which every band redefines.
 
-Solid values; there are no alpha ramps. Every neutral leans a little toward blue, so the greys sit
-with the mark.
+| Semantic token | Meaning | Default (desk band) |
+| --- | --- | --- |
+| `--ground` | The background of the band. | `--desk` |
+| `--surface` | The background of a sheet or panel inside the band. | `--paper` |
+| `--stripe` | A striped or alternating row ground. | `--desk` |
+| `--tile` | A small well such as a count badge or numeral tile. | `--desk-deep` |
+| `--text` | Primary text. | `--ink` |
+| `--text-soft` | Secondary text. | `--ink-soft` |
+| `--text-faint` | Tertiary text. | `--ink-faint` |
+| `--line` | Hairline dividers. | `--rule` |
+| `--line-firm` | Control borders. | `--rule-firm` |
+| `--line-ink` | Ink borders and rings. | `--ink` |
+| `--focus-ring` | The focus outline colour. | `--ink` |
 
-| Token              | Hex                   | Use                                                                                              |
-| ------------------ | --------------------- | ------------------------------------------------------------------------------------------------ |
-| `--paper`          | `#FFFFFF`             | Page ground, bar, sheets, panels, tables, inputs, reading and ink bands                          |
-| `--desk`           | `#F4F5F8`             | The light table under objects: shelves of sheets and folders                                     |
-| `--desk-deep`      | `#E6E8EE`             | Cover tiles, the empty cart badge, disabled fills                                                |
-| `--rule`           | `#D2D5DE`             | Decorative borders and the margin rule. Never the only cue                                       |
-| `--rule-firm`      | `#70758A`             | Borders that identify a control (input, select, checkbox), empty tally blocks                    |
-| `--ink`            | `#0B0D12`             | Text, line art, strong borders, inked blocks, the solid button, the logo tile, the cover         |
-| `--ink-soft`       | `#3A3F4C`             | Leads, descriptions                                                                              |
-| `--ink-faint`      | `#596072`             | Meta, counts, captions                                                                           |
-| `--mark`           | `#86C1FF`             | The highlighter                                                                                  |
-| `--mark-deep`      | `#5FA8F5`             | A marked fill that is pressed or under the pointer (a pressed button, a checked box)             |
-| `--mark-wash`      | `#EAF4FF`             | Beta strip, the one wash band, hover fills, notes, the Advanta365 column of the comparison table |
-| `--on-mark`        | `var(--ink)`          | Text and ticks on the mark: always ink                                                           |
-| `--on-ink`         | `#FFFFFF`             | Text on an ink fill (the solid button, the logo tile, the cover)                                 |
-| `--binder`         | `#0D0F15`             | Footer ground (the only dark surface)                                                            |
-| `--binder-rise`    | `#1C202B`             | Raised areas on the binder                                                                       |
-| `--on-binder`      | `#F4F5F8`             | Text on the binder                                                                               |
-| `--on-binder-soft` | `#B4B9C7`             | Secondary text on the binder                                                                     |
-| `--rule-on-binder` | `#343947`             | Decorative lines on the binder                                                                   |
-| `--alert`          | `#A32B1D`             | Error text and borders only (reserved; no error UI exists yet)                                   |
-| `--alert-wash`     | `#FBEAE5`             | Error message ground                                                                             |
-| `--scrim`          | `rgb(11 13 18 / 0.5)` | Dialog backdrop                                                                                  |
+### 3.3 Contrast
 
-Depth is the `--depth-*` family and `--bar-shadow` (the sticky bar), all cast in the ink colour (see
-"Depth and paper objects"). `--lift` remains as an alias of `--depth-3`. The page itself is
-`--paper`; `--desk` is the light table under objects.
+Measured as WCAG 2.x contrast ratios from the token values.
 
-### Semantic layer
+| Pair | Ratio | Use |
+| --- | --- | --- |
+| Ink on paper | 19.43 : 1 | Body and headings on sheets. |
+| Ink on desk | 17.83 : 1 | Body text on the desk band. |
+| Ink on wash | 17.48 : 1 | Body text on the wash band. |
+| Ink on desk-deep | 15.86 : 1 | Text in a tile. |
+| Ink-soft on paper | 10.52 : 1 | Secondary text. |
+| Ink-soft on wash | 9.46 : 1 | Secondary text on the wash band. |
+| Ink-faint on paper | 6.29 : 1 | Captions and counts. |
+| Ink-faint on desk | 5.77 : 1 | Captions on the desk band. |
+| Ink-faint on wash | 5.65 : 1 | Captions on the wash band. |
+| Ink-faint on desk-deep | 5.13 : 1 | Counts inside a tile. |
+| Ink on mark | 10.26 : 1 | Text on a marked fill. |
+| Ink on mark-deep | 7.78 : 1 | Text on a pressed marked fill. |
+| On-binder on binder | 17.57 : 1 | Body text in the footer. |
+| On-binder-soft on binder | 9.76 : 1 | Secondary text in the footer. |
+| On-binder-soft on binder-rise | 8.29 : 1 | Secondary text on a raised binder surface. |
+| Mark on binder | 10.11 : 1 | The focus ring on the binder. |
+| Alert on paper | 7.19 : 1 | Error text. |
+| Alert on alert-wash | 6.16 : 1 | Error text on its ground. |
+| Line-firm on paper | 4.56 : 1 | Control borders, above the 3 : 1 non-text floor. |
+| Line-firm on desk | 4.19 : 1 | Control borders on the desk band. |
+| Mark on paper | 1.89 : 1 | Never used alone. The highlight always carries ink. |
+| Rule on paper | 1.47 : 1 | Decorative hairlines only. |
 
-Components never read the palette directly. They read the semantic layer, which a surface redefines:
-`--ground`, `--surface`, `--stripe`, `--tile`, `--text`, `--text-soft`, `--text-faint`, `--line`,
-`--line-firm`, `--line-ink` and `--focus-ring`. `:root` carries the `desk` values.
+### 3.4 Rules for the mark
 
-A section declares its surface with `data-band` (the `Band` primitive sets it). `[data-band]` paints
-`--ground` and sets `--text`, so everything inside inherits the right colours. Edges between bands
-are hard: no transition, no gradient, no registered properties.
+- The mark fill is never the only signal. Pair it with ink: a 2px ink ring (`box-shadow: inset 0 0 0 var(--edge) var(--ink)`), an ink border, a tick, or ink text.
+- Text on a mark fill is `--on-mark` (ink). Text on an ink fill is `--on-ink` (white).
+- The mark is the colour of the highlighter behind words (`::selection`, `[data-mark]` headline spans, the link highlight on focus). It is a background, never a text colour on paper.
+- The logo tail is the mark colour. Under forced colours it uses `currentColor`.
 
-| `data-band` | ground    | surface     | stripe      | tile        | text / soft / faint                         | line / firm / ink                           | focus ring |
-| ----------- | --------- | ----------- | ----------- | ----------- | ------------------------------------------- | ------------------------------------------- | ---------- |
-| `desk`      | desk      | paper       | desk        | desk-deep   | ink / ink-soft / ink-faint                  | rule / rule-firm / ink                      | ink        |
-| `paper`     | paper     | paper       | desk        | desk-deep   | same                                        | same                                        | ink        |
-| `wash`      | mark-wash | paper       | desk        | desk-deep   | same                                        | same                                        | ink        |
-| `binder`    | binder    | binder-rise | binder-rise | binder-rise | on-binder / on-binder-soft / on-binder-soft | rule-on-binder / on-binder-soft / on-binder | mark       |
+### 3.5 Binder and ink surfaces
 
-`desk` is the default. `binder` is used by the footer alone; `wash` by at most one band per page.
+`[data-band="ink"]` and `[data-band="binder"]` share one definition: ground `--binder`, surface and tile `--binder-rise`, text `--on-binder`, lines `--rule-on-binder`, focus ring `--mark`. The footer uses `binder` directly. The ink band is the surface of the home solution section and of the AI statement on the about page.
 
-### Contrast
+### 3.6 Pigments
 
-WCAG 2.1 ratios, computed for these values.
+The ink engine reads six pigment tokens from the root with `getComputedStyle`.
 
-| Foreground on background                                               | Ratio                             | Level        |
-| ---------------------------------------------------------------------- | --------------------------------- | ------------ |
-| ink on paper / desk / desk-deep / mark-wash                            | 19.43 / 17.83 / 15.86 / 17.48     | AAA          |
-| ink on mark / mark-deep (every marked element; a pressed button)       | 10.26 / 7.78                      | AAA          |
-| ink-soft on paper / desk / desk-deep / mark-wash / mark                | 10.52 / 9.65 / 8.59 / 9.46 / 5.56 | AA or better |
-| ink-faint on paper / desk / desk-deep / mark-wash                      | 6.29 / 5.77 / 5.13 / 5.65         | AA           |
-| on-ink on ink (the solid button, the logo tile, the cover)             | 19.43                             | AAA          |
-| on-binder on binder / binder-rise                                      | 17.57 / 14.92                     | AAA          |
-| on-binder-soft on binder / binder-rise                                 | 9.76 / 8.29                       | AAA          |
-| mark on binder (logo tail, focus ring, hover underline)                | 10.11                             | passes 3:1   |
-| mark on ink (the tail on the logo tile; on the cover, tail and edge)   | 10.26                             | passes 3:1   |
-| rule-firm on ink (the outline of a block of the cover, not yet filled) | 4.26                              | passes 3:1   |
-| alert on paper / alert-wash / desk                                     | 7.19 / 6.16 / 6.60                | AA           |
-| rule-firm on paper / desk / desk-deep / mark-wash (control borders)    | 4.56 / 4.19 / 3.73 / 4.10         | passes 3:1   |
-| ink focus ring on any light surface, the mark included                 | 10.26 or more                     | passes 3:1   |
+| Token | Value | Used for |
+| --- | --- | --- |
+| `--pigment-paper` | `var(--paper)` | The light ground the ink is composited onto. |
+| `--pigment-binder` | `var(--binder)` | The dark ground. |
+| `--pigment-black` | `#10131a` | The black ink. |
+| `--pigment-blue` | `var(--mark-deep)` | The blue ink on light grounds. |
+| `--pigment-blue-dark` | `var(--mark)` | The blue ink on dark grounds. |
+| `--pigment-pale` | `#c3cedf` | The pale ink on dark grounds. |
 
-Not for text or meaning: `--rule` (1.47 on paper), `--rule-on-binder` (1.66), and `--mark` against
-paper (1.89), desk (1.74) or the wash (1.70). That is why rule 2 of the Mark exists, and why the
-focus ring on a light surface is ink. `--ink-faint` is never set on the mark (3.32); text on
-`--mark` is `--ink` only. The wash and the desk are equally light (1.02 between them), so a wash
-fill on a desk surface is a change of hue: a hovered row also underlines its label and moves its
-arrow.
+The engine keeps numeric fallbacks in `lib/ink/pigments.ts`. They equal the values above and change with them.
 
-### What colour never does
+## 4. Bands
 
-No file-format or app colours, no multi-colour motif, no second accent beside the light blue. No
-gradients, glows, blurs or transparency effects. No white text on the mark, no blue text, and no
-large solid blue surface: the pale wash band is the only blue ground. On a light surface the mark
-is never a line. On the binder the mark is the logo tail, the focus ring and the underline of a
-hovered link, and nothing else. On the cover it is the tail, the tenth block and the trailing edge.
+A band is a full-width stripe that paints its own ground and sets the text colour for everything inside it. `components/ui/band.tsx` renders the band and sets `data-band`. The base rule `[data-band] { background: var(--ground); color: var(--text); }` does the painting.
 
-## Type
+| `data-band` | Ground | Surface | Lines | Focus ring |
+| --- | --- | --- | --- | --- |
+| `desk` | `--desk` | `--paper` | `--rule` | `--ink` |
+| `paper` | `--paper` | `--paper` | `--rule` | `--ink` |
+| `wash` | `--mark-wash` | `--paper` | `--rule` | `--ink` |
+| `ink` | `--binder` | `--binder-rise` | `--rule-on-binder` | `--mark` |
+| `binder` | `--binder` | `--binder-rise` | `--rule-on-binder` | `--mark` |
 
-Two variable families, roman only, Latin subset, `display: "swap"`, loaded in `app/layout.tsx`:
+Alternate bands between `desk` and `paper` down a page. Use `wash` once per page as a single tinted moment. Use `ink` for a single statement, and `binder` only for the footer.
 
-```ts
-const besley = Besley({ subsets: ["latin"], display: "swap", variable: "--font-besley" });
-const atkinson = Atkinson_Hyperlegible_Next({
-  subsets: ["latin"],
-  display: "swap",
-  variable: "--font-atkinson",
-});
-// <html lang="en" dir="ltr" className={cx(besley.variable, atkinson.variable)}>
+### 4.1 Band props
+
+`Band` takes:
+
+- `as`: `section` (default), `div`, `header`, `footer` or `aside`.
+- `surface`: `desk` (default), `paper`, `wash`, `ink` or `binder`.
+- `pad`: `regular` (default), `none`, `title`, `tight` or `roomy`.
+- `backdrop`: an optional ink backdrop, rendered before the content.
+- `innerClassName`, `className`, `ref`, and any other element attributes.
+
+Vertical padding by `pad`:
+
+| `pad` | Below 40em | From 40em |
+| --- | --- | --- |
+| `none` | 0 | 0 |
+| `title` | 28px | 42px |
+| `tight` | 42px | 42px |
+| `regular` | 56px (`--band-pad`) | 84px (`--band-pad`) |
+| `roomy` | 84px | 112px |
+
+Content sits inside `Wrap`, which caps the width at the page maximum.
+
+## 5. Type
+
+### 5.1 Families
+
+- **Display:** Besley, through `--face-display` (`var(--font-besley)`, then Rockwell, Roboto Slab, Georgia, serif). Used for headlines, the logo name, numerals, prices and the poster.
+- **Text:** Atkinson Hyperlegible Next, through `--face-text` (`var(--font-atkinson)`, then the system UI stack). Used for everything else: copy, labels, buttons, tags and eyebrows.
+
+Both are loaded in `app/layout.tsx` with `display: "swap"` and exposed as CSS variables.
+
+### 5.2 Size scale
+
+Display sizes are fluid. The minimum and maximum below are the rendered sizes.
+
+| Token | Min | Max | Used by |
+| --- | --- | --- | --- |
+| `--size-poster` | 112px | 320px | The 404 numeral and the solution figure. |
+| `--size-hero` | 40px | 80px | The home headline. |
+| `--size-statement` | 34px | 72px | Wide title blocks and statements. |
+| `--size-figure` | 96px | 176px | Large figures. |
+| `--size-banner` | 34px | 56px | Standard page titles and section statements. |
+| `--size-page` | 28px | 40px | Page headings in shelves. |
+| `--size-section` | 22px | 26px | Section headings and large row labels. |
+| `--size-item` | 18px | 20px | Row titles. |
+| `--size-amount` | 30px | 40px | Prices. |
+| `--size-lead` | 18px | 20px | Lead paragraphs. |
+| `--size-copy` | 16px | 17px | Body copy (also the body size). |
+| `--size-ui` | 16px | 16px | Buttons, labels, inputs. |
+| `--size-note` | 14px | 14px | Notes, captions, breadcrumbs. |
+| `--size-eyebrow` | 13px | 13px | Eyebrows (uppercase). |
+| `--size-tag` | 12px | 12px | Tags (uppercase). |
+
+### 5.3 Type classes
+
+Apply a class; do not set the family or size by hand.
+
+| Class | Family | Weight | Line height | Tracking | Role |
+| --- | --- | --- | --- | --- | --- |
+| `.type-poster` | Display | 800 | 0.86 | 0 | The largest numeral or word. |
+| `.type-hero` | Display | 600 | 1.04 | 0 | The home headline. |
+| `.type-statement` | Display | 600 | 1.06 | 0 | Statements and wide titles. |
+| `.type-figure` | Display | 800 | 0.9 | 0 | Large figures. |
+| `.type-banner` | Display | 600 | 1.12 | 0 | Page titles and section statements. |
+| `.type-page` | Display | 600 | 1.16 | 0 | Shelf headings. |
+| `.type-section` | Display | 600 | 1.24 | 0 | Section headings. |
+| `.type-item` | Display | 600 | 1.3 | 0 | Row titles. |
+| `.type-amount` | Display | 700 | 1.1 | 0 | Prices and totals. |
+| `.type-lead` | Text | 400 | 1.5 | 0 | Lead paragraphs. |
+| `.type-copy` | Text | 400 | 1.58 | 0 | Body copy. |
+| `.type-ui` | Text | 600 | 1.375 | 0 | Controls and labels. |
+| `.type-note` | Text | 400 | 1.43 | 0 | Notes and captions. |
+| `.type-eyebrow` | Text | 700 | 1.385 | 0.08em | Uppercase eyebrow. |
+| `.type-tag` | Text | 700 | 1.333 | 0.06em | Uppercase tag. |
+
+Display classes keep the font's own figures: they set `font-feature-settings: "tnum" 0`, because Besley's tabular zero is drawn thin above weight 600. Use `.tabular` (tabular and lining numerals) on text figures, such as prices and counts in Text-family classes.
+
+Writing rules:
+
+- One `h1` per page. Use `.type-banner` or `.type-hero` for it.
+- Measure body copy with `--wrap-copy` (36rem) and lead copy with `--wrap-lead` (40rem). Headings take `--wrap-head` (22em).
+- Headings use `text-wrap: balance`; paragraphs use `text-wrap: pretty`.
+- Copy uses typographic apostrophes and quotation marks. The content tests reject straight quotes and exclamation marks in copy.
+- The eyebrow and tag classes are always uppercase through CSS. The text in the DOM stays in sentence case.
+
+## 6. Space, grid and layout
+
+### 6.1 Spacing
+
+The space scale runs on a 7px module.
+
+| Token | Value | Typical use |
+| --- | --- | --- |
+| `--s-1` | 7px | Icon gaps, tight stacks. |
+| `--s-2` | 14px | Row padding, small gaps. |
+| `--s-3` | 21px | Sheet padding (small), block gaps. |
+| `--s-4` | 28px | Sheet padding (large), group gaps. |
+| `--s-5` | 42px | Control minimum, space under a shelf heading. |
+| `--s-6` | 56px | Band padding (small screens). |
+| `--s-7` | 84px | Band padding (from 40em). |
+| `--s-8` | 112px | Roomy band padding. |
+| `--s-9` | 168px | The label column of a fact list. |
+
+### 6.2 Page and columns
+
+| Token | Below 40em | 40em and up | 68em and up |
+| --- | --- | --- | --- |
+| `--page-max` | 1232px (77rem) | same | same |
+| `--page-pad` | 21px | 28px | 42px |
+| `--col-gap` | 14px | 21px | 28px |
+| `--band-pad` | 56px | 84px | 84px |
+| `--bar-h` | 56px | 56px | 70px |
+
+`--page-max` is twelve 77px columns with eleven 28px gaps. From 68em, the `Split` primitive lays content on a twelve-column grid: the margin takes columns 1 to 3 and the content takes columns 4 to 12.
+
+Other layout tokens:
+
+| Token | Value | Use |
+| --- | --- | --- |
+| `--rail-h` | 42px | The phase rail below the bar, from 68em. |
+| `--strip-h` | 0px by default | The beta strip sets it to 35px, and to 36px from 68em, while it is shown. |
+| `--wrap-copy` | 36rem | Body measure. |
+| `--wrap-lead` | 40rem | Lead measure. |
+| `--wrap-head` | 22em | Heading measure. |
+| `scroll-padding-top` | `--bar-h` plus `--s-3` | Anchors and focused elements stop clear of the sticky bar. |
+
+### 6.3 Breakpoints
+
+Two viewport breakpoints exist: `40em` and `68em`. Below 40em is the phone layout. From 68em the site shows the inline navigation, the phase rail, the twelve-column grid, and the four-layer depth. The header and the nav drawer also use container queries at 24.3em and 21.2em (header) and 17em (drawer). The other media queries in use are listed in section 13.4.
+
+### 6.4 Controls
+
+| Token | Height | Use |
+| --- | --- | --- |
+| `--tap` | 44px | Minimum target below 68em. |
+| `--control-sm` | 40px | The small control in the desktop bar only. |
+| `--control` | 48px | The default button, input and select. |
+| `--control-lg` | 56px | The large button. |
+
+### 6.5 Shape and layers
+
+| Token | Value | Use |
+| --- | --- | --- |
+| `--round-1` | 3px | Tags, counts, small tiles. |
+| `--round-2` | 6px | Pagination and small panels. |
+| `--round-3` | 10px | Sheets and large panels. |
+| `--edge` | 2px | Ink rings and inset borders. |
+| `--hair` | 1px | Hairlines and forced-colour borders. |
+
+| Layer token | Value | Stack order |
+| --- | --- | --- |
+| `--layer-over` | 5 | Overlays on content. |
+| `--layer-bar` | 50 | The sticky bar. |
+| `--layer-skip` | 90 | The skip link. |
+| `--layer-cover` | 100 | The first-load cover. |
+
+Dialogs sit in the browser's top layer, above every value in this table.
+
+## 7. Depth
+
+Depth is a shadow scale. Level 0 is a hairline ring, and higher levels lift objects further from the desk. Levels 3 and 4 gain two extra layers from 68em.
+
+| Token | Level | Use |
+| --- | --- | --- |
+| `--depth-0` | Hairline ring | A sheet sitting flat on the desk. |
+| `--depth-1` | Thumbnail or tab | Phase tabs and small covers. |
+| `--depth-2` | At rest | Sheets at rest. The default for `PaperSheet`. |
+| `--depth-3` | Lifted or panel | The purchase panel and lifted sheets. `--lift` is an alias of this level. |
+| `--depth-4` | Top of a stack | The menu drawer and dialogs. |
+| `--depth-on-ink` | On a black ground | A sheet on the binder: a white hairline and a deep shadow. |
+
+Values, as written in `globals.css`:
+
+```css
+--depth-0: 0 0 0 1px rgb(11 13 18 / 0.06);
+--depth-1: 0 0 0 1px rgb(11 13 18 / 0.05), 0 1px 2px rgb(11 13 18 / 0.06), 0 3px 6px -2px rgb(11 13 18 / 0.06);
+--depth-2: 0 0 0 1px rgb(11 13 18 / 0.05), 0 2px 4px -1px rgb(11 13 18 / 0.06), 0 10px 20px -8px rgb(11 13 18 / 0.12), 0 28px 44px -24px rgb(11 13 18 / 0.14);
+--depth-3: 0 0 0 1px rgb(11 13 18 / 0.05), 0 12px 24px -8px rgb(11 13 18 / 0.18);   /* 68em: 4 layers */
+--depth-4: 0 0 0 1px rgb(11 13 18 / 0.05), 0 20px 40px -12px rgb(11 13 18 / 0.24);  /* 68em: 4 layers */
 ```
 
-- Besley (a Clarendon slab) is the voice of the documents: titles, statements, figures, amounts and
-  the brand name. `--face-display` is its stack.
-- Atkinson Hyperlegible Next is the voice of the store: copy, navigation, controls and labels.
-  `--face-text` is its stack.
-- Weights in use: Besley 400 (quoted lines), 600 (headings), 700 (amounts, brand name, numerals), 800
-  (figures); Atkinson 400 (copy), 600 (controls), 700 (labels, emphasis). `font-synthesis: none`.
-
-### Scale
-
-Global classes in `app/globals.css`. Each sets family, size, line height, weight and tracking, so a
-component picks a class and adds only colour and line length. The size tokens are `--size-figure`
-and so on, one per class.
-
-| Class           | Face, weight              | At 390px | At 1280px and up | Line height | Tracking | Used for                                                       |
-| --------------- | ------------------------- | -------- | ---------------- | ----------- | -------- | -------------------------------------------------------------- |
-| `.type-figure`  | Besley 800                | 96       | 176              | 0.9         | 0        | "90%", "404"                                                   |
-| `.type-banner`  | Besley 600                | 34/38    | 56/62            | 1.12        | 0        | Home h1, "Why it's different" and closing statements           |
-| `.type-page`    | Besley 600                | 28/32    | 40/46            | 1.16        | 0        | Inner h1, section statements, shelf titles                     |
-| `.type-section` | Besley 600                | 22/27    | 26/32            | 1.24        | 0        | Side-head h2, step titles, panel titles                        |
-| `.type-item`    | Besley 600                | 18/23    | 20/26            | 1.3         | 0        | Card titles, row labels, FAQ questions                         |
-| `.type-amount`  | Besley 700                | 30/33    | 40/44            | 1.1         | 0        | Prices in panels, subtotal, price ranges                       |
-| `.type-lead`    | Atkinson 400              | 18/27    | 20/30            | 1.5         | 0        | Leads                                                          |
-| `.type-copy`    | Atkinson 400              | 16/25    | 17/27            | 1.58        | 0        | Paragraphs, table cells                                        |
-| `.type-ui`      | Atkinson 600 (inputs 400) | 16/22    | 16/22            | 1.375       | 0        | Navigation, buttons, inputs, filter options, card prices (700) |
-| `.type-note`    | Atkinson 400              | 14/20    | 14/20            | 1.43        | 0        | Meta, captions, breadcrumbs, legal                             |
-| `.type-eyebrow` | Atkinson 700, uppercase   | 13/18    | 13/18            | 1.385       | 0.08em   | Section labels, legends, table heads, fact labels              |
-| `.type-tag`     | Atkinson 700, uppercase   | 12/16    | 12/16            | 1.333       | 0.06em   | File-format tags only                                          |
-
-The larger sizes are fluid (`clamp()` between the two widths). Floor: no sentence-case text below
-14px. The two smaller sizes are uppercase, bold and tracked; the uppercase is CSS `text-transform`,
-so the DOM text is unchanged.
-
-`.tabular` (`font-variant-numeric: tabular-nums lining-nums`) goes on prices, counts and table
-numerals. Besley's own figures are already lining, and its tabular zero exists at one weight only,
-so the display classes (`.type-figure` to `.type-amount`) keep the font's own figures
-(`font-feature-settings: "tnum" 0`) even where `.tabular` is set. A module that sets `--face-display`
-on a numeral itself adds the same declaration.
-
-### Behaviour
-
-- Sentence case everywhere except `.type-eyebrow` and `.type-tag`. No negative tracking anywhere.
-- `text-wrap: balance` on `h1` to `h3`; `text-wrap: pretty` on paragraphs.
-- Line length: paragraphs `max-width: var(--wrap-copy)` (36rem), leads `var(--wrap-lead)` (40rem),
-  headings `var(--wrap-head)` (22em).
-- Headings never animate, are never split into words and carry no effect. The cover of a first
-  visit lies over the headline and leaves it alone.
-- A statement of two sentences (a `\n` in the string) is set one sentence per block with
-  `Sentences`: each sentence is a `display: block` span and a space joins them, so the heading text
-  stays the plain statement and every sentence is balanced by itself.
-- A hyphenated compound ("End-User", "ready-to-use") is never broken across two lines in a page
-  title, a card or row title, or the short copy of the home page (the hero lead, the manifest rows,
-  the values): the text goes through `KeepCompounds`.
-
-## Space, grid, shape, layers
-
-The module is 7px, one per rollout phase. The margins, padding and gaps of a layout are steps of the
-scale; a few small parts (a tag's 2px padding, the 10px side padding that makes a bar control a 44px
-square) are the only exceptions.
-
-| Token   | Value          |     | Token   | Value         |
-| ------- | -------------- | --- | ------- | ------------- |
-| `--s-1` | 0.4375rem (7)  |     | `--s-6` | 3.5rem (56)   |
-| `--s-2` | 0.875rem (14)  |     | `--s-7` | 5.25rem (84)  |
-| `--s-3` | 1.3125rem (21) |     | `--s-8` | 7rem (112)    |
-| `--s-4` | 1.75rem (28)   |     | `--s-9` | 10.5rem (168) |
-| `--s-5` | 2.625rem (42)  |     |         |               |
-
-### Grid
-
-The only two layout breakpoints are `(min-width: 40em)` and `(min-width: 68em)`, mobile first.
-
-| Token                                | Phone (under 40em) | Tablet (40em to 68em) | Desktop (68em and up) |
-| ------------------------------------ | ------------------ | --------------------- | --------------------- |
-| Columns                              | 4                  | 8                     | 12                    |
-| `--col-gap`                          | 14px               | 21px                  | 28px                  |
-| `--page-pad`                         | 21px               | 28px                  | 42px                  |
-| `--band-pad` (section block padding) | 56px               | 84px                  | 84px                  |
-| `--bar-h`                            | 56px               | 56px                  | 70px                  |
-
-Other tokens:
-
-- Page: `--page-max` 77rem (1232px: twelve 77px columns and eleven 28px gaps), `--rail-h` 2.625rem
-  (42), `--wrap-copy` 36rem, `--wrap-lead` 40rem, `--wrap-head` 22em.
-- Controls: `--control-sm` 2.5rem (40, the desktop bar only), `--control` 3rem (48), `--control-lg`
-  3.5rem (56), `--tap` 2.75rem (44, the minimum target below 68em).
-- Shape: `--round-1` 3px (tags, blocks, checkboxes), `--round-2` 6px (controls, tiles, tabs),
-  `--round-3` 10px (sheets, cards); `--edge` 2px (ink and control borders), `--hair` 1px (decorative
-  borders).
-- Layers: `--layer-bar` 50, `--layer-skip` 90, `--layer-cover` 100 (the cover of a first visit, over
-  everything for as long as it is up). Dialogs use the top layer.
-
-Other queries that are allowed: `(hover: hover)`, `(prefers-reduced-motion: reduce)` and
-`(forced-colors: active)`. The bar and the drawer also use `@container` queries, because a row there
-has to fit the width of its own box and not the window (see the bar in `architecture.md`). The two
-facing sheets of the home page are size containers as well, with no `@container` rule: their largest
-type is capped in `cqi`, so "90%" and the problem heading fit a narrow sheet. Test viewports: 320,
-360, 412, 640, 1088, 1280 and 1440.
-
-Rhythm: heading to content 42, paragraph to paragraph 21, card grid gap 28 (21 on a tablet, 14 on a
-phone). No section has a viewport-based height. `html` carries
-`scroll-padding-top: calc(var(--bar-h) + var(--s-3))`, so anchors and focused elements stop clear of
-the sticky bar.
-
-## Motion
-
-One rule: the ink is the one thing that moves big. Everything else moves a little, by the same four
-verbs, and every verb has a reason. The page is complete at first paint: nothing waits for an
-animation, and what the visitor sees without JavaScript, under reduced motion or with the ink off is
-the same page.
-
-### The system
-
-All of it lives in the global `app/motion.css` (the only stylesheet that may name a scroll or view
-timeline) and is asked for by hooks in the markup, never by a stylesheet of a page.
-
-| Hook                                    | What it is                                                                                  |
-| --------------------------------------- | ------------------------------------------------------------------------------------------- |
-| `data-move="drift"`                     | An entrance: 12px up and in. Copy, leads, rows                                              |
-| `data-move="ink-in"`                    | An entrance: from blurred to sharp. Statement sentences only (`Sentences move`)             |
-| `data-move="settle"`                    | An entrance: down from 28px above onto the desk, with a shadow that arrives after it        |
-| `data-move="grow"`                      | An entrance: a hairline grows from the left. Ledger rules                                   |
-| `data-when="load"` with `--order`       | The entrance runs by the clock at page load, `--stagger` (70ms) apart                       |
-| `data-ninety`                           | The one band whose figure and tally follow the scroll                                       |
-| `data-bar`                              | The bar: its shadow is a pseudo-element whose opacity follows the scroll                    |
-| `data-paper`, `data-lit`                | A paper object, and its light under the pointer                                             |
-
-- **Entrances** follow the element's own passage through the viewport on a view timeline, linear,
-  filled both ways, so an element already in view at load is simply where it belongs. The far end of
-  each range is capped by a length so the last block of a short page on a tall window still
-  finishes. Without view timelines (Firefox) a small observer, `components/ui/motion-root.tsx`
-  with `lib/scroll/observe.ts`, marks each element `data-seen` as it arrives and the same
-  keyframes run by the clock. Load entrances (the hero, the title block's lead) never wait for
-  scroll.
-- **The ninety** (`#solution`): as the band goes through the window, the odometer's wheel rolls from
-  blank to 9 and the ten blocks of the tally ink in one after another; the tenth turns light blue
-  and the ink layer drops one light-blue drop from it. Without view timelines the band is marked
-  seen and the fill runs by the clock, and the tenth block's `animationend` is the cue for the drop.
-  Both the figure and the tally are drawn in their final state without JavaScript.
-- **Shift**: a state change (hover, focus, press, current, open) on buttons, links, rows and tabs
-  shifts colour, border or underline over `--time-swap`, linear. A press is `translate: 0 1px`.
-- **Enter**: a panel arrives. The phone drawer from the right (320ms, `--curve-settle`) with its links
-  drifting in 40ms apart, the filter sheet from the bottom, the scrim, the FAQ panel. Dialogs close
-  instantly.
-- **Change of page**: a client navigation runs a view transition. The old page fades out in
-  `--time-page-out`, the new one in over `--time-page-in`, and a template's sheet or a bundle's
-  folder travels from where it was clicked to where it stands on the next page
-  (`view-transition-name` `cover-<slug>` and `folder-<slug>`, `--time-morph`). A filter, sort or
-  search change under the same address starts no view transition. Where the browser has no
-  `document.startViewTransition` the page simply changes. `components/ui/page-shift.tsx` names the
-  first block of a page; if view transitions ever prove unstable, the fallback is one edit there
-  (return the children), plus dropping the `ViewTransition` wrapper in `template-cover.tsx` and
-  `folder.tsx`.
-- **Cart badge**: pops (`scale` 1, 1.3, 1; 320ms) when the count changes after the stored cart has
-  been read.
-
-### The three switches
-
-`<html>` carries three attributes, set by the boot script before first paint (`data-motion`,
-`data-timeline`) and by `MotionRoot` after hydration (`data-io`). A hidden starting state always
-needs `data-motion="on"`, and on the observer path `data-io="armed"` as well, so a script that never
-runs hides nothing: without JavaScript every `[data-move]` is at opacity 1.
-
-### Rules every animation keeps
-
-- Only `opacity`, `filter`, `translate`, `rotate`, `scale`, `transform`, `clip-path` and
-  `background-color` animate. A custom property never does (there is no `@property`), and a shadow
-  never does: a shadow that comes or goes is a second shadow on a pseudo-element whose opacity moves.
-- Every `@keyframes`, `animation` and `transition` sits inside
-  `@media (prefers-reduced-motion: no-preference)`, with the final state outside it. Keyframes name
-  the starting state only; the end is whatever the element is, so hover states survive a finished
-  entrance. `tests/unit/kit-motion.test.ts` checks this against the stylesheet.
-- Nothing repeats (the word `infinite` is banned in any stylesheet), nothing is split below a
-  sentence, no heading translates and the page `h1` never animates at all.
-- `animation-timeline` and `animation-range` are written after any `animation` shorthand, which would
-  reset them.
-- Everything that starts by itself outside the ink ends within five seconds of first paint. The ink
-  runs longer, so it has a pause control (see "Ink").
-
-Under `prefers-reduced-motion: reduce` there is no cover, no ink engine, no entrance (every
-`[data-move]` is at opacity 1 with no filter), no view transition and `document.getAnimations()` is
-empty on every route. Under `prefers-contrast: more` and forced colours the ink and the grain are
-removed, objects get a 1px ring and the bar a hairline instead of its shadow.
-
-## Depth and paper objects
-
-Nothing is a bordered box in a grid. A thing is an **object** or a **ledger**.
-
-- **Objects**: a paper sheet, a stack, a folder, a panel. White paper (`--paper`) with tooth (a
-  128px grain, `public/paper/grain.png`, 2.4KB, four alphas, generated by `scripts/paper-grain.mjs`)
-  under its content, a 1px ring at 5% ink inside a layered shadow, and no border. The shadow depth
-  is a token: `--depth-0` (a ring), `--depth-1` (a resting sheet), `--depth-2`, `--depth-3` (the
-  purchase panel, a lifted sheet), `--depth-4` (the drawer and the filter sheet) and
-  `--depth-on-ink`. Inside a `PaperSheet` and a `Folder` front the semantic colours are reset to
-  light-surface values, so they are safe on the black band.
-- **Ledgers**: rows separated by hairlines, no outer box and no stripes (`BandedList`, also exported
-  as `Ledger`). Hairlines grow on a view timeline. A `RowLink` stands 14px past both ends of its row,
-  so a ledger must not sit in an `overflow: hidden` box.
-- **Grounds**: `desk` (`#F4F5F8`, the light table under objects), `paper` (white, reading and ink
-  stages), `wash` (at most one per page), `ink` (black: only `#solution` and the AI statement on
-  `/about`) and `binder` (the footer only). The body is `--paper`. A band with a backdrop is
-  `position: relative; isolation: isolate`.
-- **Light**: a lit sheet (`data-lit`) rises 3px and tilts under the pointer and under keyboard focus,
-  and its lifted shadow arrives with it. `lib/scroll/pointer.ts` (`trackLight`) writes where the light stands
-  on the sheet (`--lx`, `--ly`, in percent) and its tilt (`--tx`, `--ty`, at most 1.2 degrees); a lit
-  sheet answers hover on itself, or on the nearest `article` or `[data-lit-scope]`.
-- **The three product objects** (`components/catalog/`): `TemplateCover` is an HTML page on a
-  `PaperSheet`, printed with the template's own title and summary, in its format (a document is a
-  portrait page 5:7, a workbook 4:3, a deck 16:9), sized from its own width. `TemplateCard` is an
-  `<article>` with one stretched link, as a row (`layout="row"`: an index of 24 rows with a numeral
-  chip and a thumbnail) or a sheet (`layout="sheet"`: the home page's spread). `BundleCard` is a row
-  or a feature folder (`layout="feature"`).
-
-### Tokens added in this edition
-
-`--depth-0` to `--depth-4` and `--depth-on-ink`; `--paper-shade` and `--grain`; the six pigments the
-ink engine reads (`--pigment-paper`, `--pigment-binder`, `--pigment-black`, `--pigment-blue`,
-`--pigment-blue-dark`, `--pigment-pale`); `--time-lift`, `--time-ink`, `--time-settle`,
-`--time-count`, `--time-page-out`, `--time-page-in`, `--time-morph` and `--stagger`; `--curve-ink`,
-`--curve-drop` and `--curve-pen`; `--layer-over` and `--layer-cover`; `--strip-h` (0px, set by the
-beta strip while it shows). The type classes `.type-poster`, `.type-hero` and `.type-statement` join
-the others.
-
-## Ink
-
-The showpiece. Black ink falls into water beside the home headline and curls, a plume of light blue
-(the part that is yours) blooms through it, and the pointer stirs it. It is a real-time fluid
-simulation (`lib/ink/engine/`), drawn on one canvas that moves between stages as the page scrolls.
-How it is built is in `architecture.md`; this section is the design contract.
-
-**The look**: macro photography of ink dropped into a glass tank. A drop forms a rolled cap with a
-trailing stem and fine filaments; veils are translucent grey; cores are near-black with a soft
-self-shadow; light blue stays light. The white field stays exactly white, with no banding, grid or
-stair-steps, and nothing shines: the engine has no specular term, no environment map, no striping and
-no iridescence. Light blue is `--pigment-blue` (`#5FA8F5`) with a blue tint that keeps the darkest 1%
-of saturated blue at a relative luminance of at least 0.25 and a hue between 205 and 216.
-
-**Stages**: where ink may appear.
-
-| Where                                                                      | Scene    | Live ink                                     |
-| -------------------------------------------------------------------------- | -------- | -------------------------------------------- |
-| `/`, first visit of a session: the cover                                   | `intro`  | Yes                                          |
-| `/` hero                                                                   | `hero`   | Yes                                          |
-| `/` `#solution` (black)                                                    | `ninety` | Yes, from the tenth block                    |
-| `/` `#closing`                                                             | `bloom`  | Yes                                          |
-| Footer (black), every page                                                 | `wisps`  | Yes, except on calm routes (a still instead) |
-| `/about`, `/pricing`, `/contact`, `/sample`, `/bundles`, `/phases/[phase]` | `title`  | From 68em; nothing below                     |
-| 404, both not-found files                                                  | `spill`  | Yes                                          |
-
-Calm routes (`/catalog`, `/cart`, `/templates/*`, `/bundles/*`) never load the engine: buying pages
-carry no live ink at all. The footer shows the `wisps` still there.
-
-**Legibility** is a guarantee, not a likelihood. A page marks the copy the ink must keep clear of
-with `data-ink-calm`:
-
-| Kind      | Marks                                                      | Cap on a light ground | Cap on a dark ground |
-| --------- | ---------------------------------------------------------- | --------------------- | -------------------- |
-| `text`    | Copy, leads, notes and controls: ink is kept out           | 0.80                  | 0.06                 |
-| `display` | Headings of 32px and more: ink passes behind               | 0.30                  | 0.14                 |
-| `veil`    | The footer, edge to edge: wisps pass behind, capped        | 0.80                  | 0.06                 |
-
-A cap is a floor (light ground) or a ceiling (dark ground) on the relative luminance of the canvas
-under the zone, applied in the composite in linear light. Worst cases are all AA: ink on a 0.80 floor
-is 15.7:1, `--ink-faint` 5.1:1, display text in ink at 0.30 is 6.5:1; on the dark ground at 0.06
-`--on-binder` is 8.8:1. `data-ink-anchor="open" | "tenth"` names a rectangle a scene aims at (the
-open water beside the hero, the tenth block). `data-edges` on a backdrop lists the sides where the
-ink thins to exact ground before the canvas ends.
-
-**The pause control** (WCAG 2.2.2): while a stage is live, one button, `Pause ink`, stands at the foot
-of that stage (a 44px target holding a 32px round of paper with `--depth-1`, a two-bar glyph in
-`--text`, the usual 3px ring), before the stage's content in the tab order. It stops the loop at
-once and is renamed `Play ink`. The choice lasts the session: after a reload the page starts paused
-(stills, no engine) and offers `Play ink`. There is no button in `still` mode, on calm routes or
-during the cover. With no input the water comes to rest by itself after a scene's run window (30s on
-the hero) and moves again on a pointer move, a click (which leaves a light-blue drop) or a scroll.
-
-**Stills** stand in for the ink where it cannot run: without JavaScript, under reduced motion, when
-the visitor paused it, on calm routes, on a software renderer, without WebGL2, after a lost context
-or a failed chunk, and never under `prefers-contrast: more` or forced colours (no ink at all). A
-still is a settled frame of the same engine, captured on the real page (see `architecture.md`), so the
-caps are baked in. Each is scaled by the width of its backdrop and by nothing else, so the picture
-and the layout keep their proportions; the title still stands at its own size in its corner.
-
-### The cover
-
-A first visit is the first page load of a browser session, when that page is the home page. White, a
-pen strokes the mark (the legs, the crossbar, the tail in light blue), the name fades in, "Skip"
-sits at the foot. With ink ready in the first second, a black drop falls through the mark, a
-light-blue one chases it, the ink turns to mist and the page is there (about 2.8s after the
-take-over); without ink the cover fades at 1.65s. Any key, press, wheel or touch ends it within
-200ms and does not navigate. The page under it is complete and opaque from first paint (the h1 is
-painted, so Largest Contentful Paint is not held back). Its timings are local to
-`components/intro/intro-cover.module.css`; its states are the `data-intro` values on `<html>`
-(`play`, `ink`, `leave`). Never on any page but `/`, never twice in a session, never under reduced
-motion, without JavaScript, with storage blocked or in a tab that loads hidden.
-
-## Global CSS
-
-`app/globals.css` holds these rules, in this order. Components do not repeat them.
-
-1. The import of `app/motion.css`, then the token block: `:root`, the two breakpoint overrides and
-   the `[data-band]` scopes (`desk`, `paper`, `wash`, `ink`, `binder`; `ink` shares the binder's
-   values). The cover's timings are not here: they are local to its own module.
-2. Base: `box-sizing: border-box` on everything; `html` with `scrollbar-gutter: stable`,
-   `scroll-padding-top` and `-webkit-text-size-adjust`; `html:has(dialog[open])` with
-   `overflow: hidden`; `body` (desk ground, ink text, Atkinson at the copy size, weight 400, line
-   height 1.58, `font-synthesis: none`); zero margins on headings, `p`, `figure`, `dl` and `dd`;
-   `text-wrap` on headings and paragraphs; `a { color: inherit }`; controls inherit font and colour.
-   There is no global list reset: each module resets its own lists.
-3. `[data-band] { background: var(--ground); color: var(--text) }`.
-4. Focus: `:focus-visible` is a 3px outline in `--focus-ring`, offset 3px, on every surface.
-   Selection: `::selection` is `--mark` with `--ink` text.
-5. `[hidden]` always wins over a component's own `display`, except `hidden="until-found"`, which
-   must stay in the layout so find-in-page can open it.
-6. The twelve `.type-*` classes, `.visually-hidden` and `.tabular`.
-7. The reduced-motion safety net (`app/motion.css` carries the rest: no entrance, no view
-   transition).
-8. Forced colours: tally blocks, the blank, `[aria-current]` and the focus ring get system colours
-   (`CanvasText`, `Highlight`, `Canvas`), so every state stays visible when backgrounds are dropped.
-   (The cover sets its own in its module.)
-
-There is no `@property`, no `data-theme`, no `prefers-color-scheme`, no `.ruled` and no `.t-*`,
-`.w-*` or `.c-fg-*` class.
-
-## Brand
-
-The A glyph is drawn from three strokes in `lib/brand/mark.ts`: `MARK_VIEWBOX` (32 by 24),
-`MARK_ASPECT`, `MARK_STROKE_WIDTH` (4.2), `MARK_SEGMENTS`, `MARK_PATH_D` (the whole mark as one
-path), and the two halves `MARK_BODY_D` (both legs and the crossbar up to the centre line of the
-right leg) and `MARK_TAIL_D` (the crossbar's overshoot past the right leg). The body is also given
-as the two strokes a pen makes, `MARK_LEGS_D` and `MARK_BAR_D`, which together are `MARK_BODY_D`.
-
-- `LogoMark tone="one"` strokes `MARK_PATH_D` in `currentColor`. `tone="two"` draws the tail first in
-  `var(--logo-tail, currentColor)`, then the body in `currentColor` over it. Round caps and joins.
-- Tile lockup (bar, drawer): the two-ink A on a square `--ink` tile, body `--on-ink` and tail
-  `--mark`, then the name.
-- Bare lockup (footer): the two-ink A, body `--on-binder` and tail `--mark`, then the name in
-  `--on-binder`.
-- The name is "Advanta365", one unbroken word in Besley 700 with no tracking. It is never split,
-  never set around the mark, never larger than 28px and never 3D. It moves once: on the cover of a
-  first visit it fades in, whole.
-- The mark is never rotated, tilted or drawn in 3D. It is written once, stroke by stroke, on the
-  cover of a first visit (`IntroCover` draws the tail, `MARK_LEGS_D` and `MARK_BAR_D` as three
-  paths of its own, because a dash pattern starts again on every subpath); everywhere else it is
-  still.
-- `app/icon.svg` repeats the two-path form of the tile: an ink square with `rx="7"`, the tail
-  stroked in the mark and the body in white over it. `tests/unit/brand-mark.test.ts` keeps the icon,
-  `MARK_BODY_D` and `MARK_TAIL_D` in step.
-
-## Primitives
-
-All of `components/ui/`. Each has a `.module.css` beside it unless noted, and accepts `className`,
-merged last. Hooks for tests are the data attributes named in the entries. Every entry gives the
-real props and one usage line.
-
-### Layout
-
-- **`Wrap`** (`wrap.tsx`): `Wrap({ as = "div", ...rest })`; `as`: div, section, header, footer, nav.
-  The page column: at most `--page-max` wide, centred, with `--page-pad` on both sides.
-
-  ```tsx
-  <Wrap as="footer">{children}</Wrap>
-  ```
-
-- **`Band`** (`band.tsx`): `Band({ as = "section", surface = "desk", pad = "regular", innerClassName, ...rest })`;
-  `surface`: desk, paper, wash, binder; `pad`: none, title, tight, regular; `as`: section, div,
-  header, footer, aside. A full-width strip on one surface: it renders `data-band={surface}` around
-  an inner `Wrap` (`innerClassName` lands on it). `pad` sets `--pad` and the block padding: regular is
-  `--band-pad`, tight 42, title 28 (42 from 40em), none 0. A `Split` inside reads `--pad`.
-
-  ```tsx
-  <Band id="values" surface="paper" pad="tight">
-    {children}
-  </Band>
-  ```
-
-- **`Split`** (`split.tsx`): `Split({ margin, sticky = false, rule = true, marginClassName, contentClassName, children })`.
-  The margin layout. From 68em, `margin` fills columns 1 to 3 and the children columns 4 to 12.
-  `rule` draws a 1px `--line` rule in the middle of the gutter, through the band's padding. `sticky`
-  keeps the margin under the bar. Below 68em the margin sits above the content, 21px apart, with no
-  rule.
-
-  ```tsx
-  <Split sticky margin={<Eyebrow>Bundles</Eyebrow>}>
-    {children}
-  </Split>
-  ```
-
-- **`Eyebrow`** (`eyebrow.tsx`): `Eyebrow({ as = "p", marker = true, id, children })`; `as`: p, span, div.
-  A section label in `.type-eyebrow` and `--text`, with a square before it: 7px of `--mark` inside a
-  hairline of ink, 9px in all, the height of the capitals. `marker={false}` leaves the square out
-  (legends, table heads, a label on the binder).
-
-  ```tsx
-  <Eyebrow id="missing-next">Next</Eyebrow>
-  ```
-
-- **`ShelfHead`** (`shelf-head.tsx`): `ShelfHead({ eyebrow, title, titleAs = "h2", titleId, body, action })`;
-  `titleAs`: h1, h2, h3. The header row of a full-width section: eyebrow, title in `.type-page`,
-  an optional lead, and an `action` at the right (under the text below 40em). 42px below.
-
-  ```tsx
-  <ShelfHead
-    title="Bundles"
-    body={lead}
-    action={
-      <Button variant="outline" arrow href="/bundles">
-        All bundles
-      </Button>
-    }
-  />
-  ```
-
-- **`Sheet`** (`sheet.tsx`): `Sheet({ as = "div", edge = "rule", pad = "regular", ...rest })`; `as`: div,
-  section, aside; `edge`: rule, ink; `pad`: none, tight, regular, roomy. A paper panel on the desk:
-  `--surface` fill, radius 10, a 1px `--line` or 2px `--line-ink` border. Padding is one step smaller
-  below 40em. Every other prop, `ref` included, goes to the element.
-
-  ```tsx
-  <Sheet as="aside" edge="ink" aria-label="Purchase">
-    {children}
-  </Sheet>
-  ```
-
-- **`BandedList`** and **`BandedRow`** (`banded-list.tsx`): `BandedList({ as = "ul", ...rest })`, `as`:
-  ul, ol, dl, div; `BandedRow({ as = "li", ...rest })`, `as`: li, div. One sheet whose rows alternate
-  `--surface` and `--stripe`, with no lines between rows. A row publishes `--row-pad-block` and
-  `--row-pad-inline`, so a `RowLink` can reach its edges. Use `as="dl"` with `BandedRow as="div"`
-  for label and value pairs.
-
-  ```tsx
-  <BandedList>
-    <BandedRow>
-      <RowLink href="/pricing" label="Pricing" />
-    </BandedRow>
-  </BandedList>
-  ```
-
-- **`RowLink`** (`row-link.tsx`): `RowLink({ href, label, caption, trailing, lead, size = "md", external, onClick, aria-current })`;
-  `size`: md, lg. One link that fills its `BandedRow`: an optional `lead`, the label, a caption under
-  it, a `trailing` value (a price, a tally), then the arrow icon. Hover and focus: the row takes
-  `--mark-wash`, the label is underlined and the arrow moves 3px. An email label may break after its
-  `@`. A root-relative `href` is an internal link.
-
-  ```tsx
-  <RowLink href="/catalog" label="Browse the catalog" caption="25 templates" trailing="$49" />
-  ```
-
-- **`FactList`** (`fact-list.tsx`): `FactList({ items: Array<{ label: string; value: ReactNode }> })`.
-  A `dl` in a `BandedList`: the label (`.type-eyebrow`, faint) in a fixed first column and the value
-  beside it; the value goes under its label below 40em.
-
-  ```tsx
-  <FactList
-    items={[{ label: "Phase", value: <TextLink href="/phases/prepare">Prepare</TextLink> }]}
-  />
-  ```
-
-- **`FigureStrip`** (`figure-strip.tsx`): `FigureStrip({ items: Array<{ label: string; value: string; marked?: boolean }> })`.
-  Up to four figures on one sheet: the label (`.type-eyebrow`) first in the DOM, then a tabular
-  Besley value; two by two where the strip is narrow. A `marked` value is highlighted: the saving.
-
-  ```tsx
-  <FigureStrip
-    items={[
-      { label: "Templates", value: "12" },
-      { label: "You save", value: "$40", marked: true },
-    ]}
-  />
-  ```
-
-- **`CheckList`** (`check-list.tsx`): `CheckList({ items: Array<{ key: string; title?: string; body: ReactNode }>, titleAs = "h3", columns = 1 })`;
-  `titleAs`: h2, h3, h4, p; `columns`: 1, 2. A plain `ul` in which each item is a ticked box (decoration),
-  an optional title in `.type-item` and the body. Two columns from 40em.
-
-  ```tsx
-  <CheckList
-    columns={2}
-    items={[{ key: "a", title: "Field-tested", body: "Refined on real rollouts." }]}
-  />
-  ```
-
-### Wet Ink primitives
-
-Added or changed in this edition (all in `components/ui/` unless noted). Where an entry above
-disagrees with one here, this one wins.
-
-- **`Band`** gained `surface="ink"` (the black band: `#solution` and the AI statement only, on the same
-  values as the binder), `backdrop` (a node rendered before the `Wrap`, usually an `InkBackdrop`;
-  it makes the band `position: relative; isolation: isolate`) and `pad="roomy"`.
-- **`Sheet`** has no border any more: a paper panel with `--depth-*` shadow. **`Split`**'s `rule`
-  defaults to false (the margin rule is gone). **`BandedList`**/**`BandedRow`** are a ledger with no
-  box and no stripes; rows have no inline padding and a `RowLink` inside stands 14px past both ends.
-  **`RowLink`** has a 6px radius. **`Sentences`** takes `move` (the sentences ink in). **`ShelfHead`**
-  takes `stack` (the action under the text).
-- **`Appear`** (`appear.tsx`): `Appear({ as = "div", move = "drift", when = "view", order, ...rest })`. An entrance on
-  its own wrapper: `data-move`, and with `when="load"` `data-when="load"` and `--order`. Never put
-  `data-move` on a `PaperSheet` itself.
-- **`MotionRoot`** (`motion-root.tsx`, client, no props): rendered by `app/layout.tsx` after the
-  children. Arms the observer path (`data-io="armed"`), marks `[data-watch]` elements `data-seen` as
-  they arrive and starts `trackLight()`.
-- **`PageShift`** (`page-shift.tsx`): renders no element; it names its single element child for the
-  view transition, so a page's first block (the title block, the hero's text) fades in under the next
-  page's. Give it exactly one element child.
-- **`PaperSheet`** (`paper-sheet.tsx`): `PaperSheet({ as = "div", ratio = "free", size = "md", depth = 2, lit = false, turn, ...rest })`. A paper object:
-  grain, ring, layered shadow, no padding of its own (add it with a class). Hooks: `data-paper`,
-  `data-lit`.
-- **`PaperStack`** (`PaperStack({ under = 2, ...rest })`): the sheets beneath a top sheet, drawn as edges; leave about 14px around it
-  from 40em for the sheets underneath. `data-paper-stack`.
-- **`Folder`** (`Folder({ tab, sheets = 3, slug, frontClassName, ...rest })`): a bundle as a folder: a tab, sheets peeking out and a front panel;
-  `slug` names it for the view transition (`folder-<slug>`). `data-folder`.
-- **`Odometer`** (`odometer.tsx`): `Odometer({ value, suffix, className })`. A two-digit figure whose
-  tens roll on a wheel (blank, then 1 to 9) inside a one-line window. At rest it reads the figure.
-  `data-odometer` with `data-value`, and `data-odometer-wheel` on the wheel.
-- **`CountUp`** (`count-up.tsx`): `CountUp({ value })`. A number that counts up when it is first seen
-  below the fold, with `requestAnimationFrame`, and reads its value without JavaScript.
-- **`Tally`** gained `animate` (fills when seen, `data-watch`), `size="lg"` and
-  `anchor={{ block, name }}`, which puts `data-ink-anchor` on one block (the tenth).
-- **`InkBackdrop`** and **`InkLayer`** (`components/ink/`): see `architecture.md`.
-- **`TemplateCover`** (`components/catalog/template-cover.tsx`): `TemplateCover({ size, lit, slug, title, summary, phaseOrder, ... })`.
-  A `PaperSheet` printed with the template's own title and summary, a ghost text block, the
-  deliverable glyph and one blank at the foot, in its format (`data-cover` with `data-format`: a
-  document 5:7, a workbook 4:3, a deck 16:9). It scales with its own width (`container-type:
-  inline-size` and `cqi` units). With `slug` it carries the view transition name `cover-<slug>`; the
-  template page's large cover draws its own two sheets beneath, so do not wrap it in a `PaperStack`.
-- **`Tally`** (`tally.tsx`): `Tally({ total, filled, marked, size = "md", numerals = false, animate = false, label })`;
-  `filled`: a count or a list of 1-based positions; `marked`: a 1-based position; `size`: sm, md, lg.
-  A row of equal blocks. Ink blocks use `--line-ink`; the marked block is `--mark` with an inset ink
-  ring; empty blocks are an outline. Hooks: `data-tally` on the root, `data-block="ink"`, `"mark"`
-  or `"empty"` and `--i` on each block. `aria-hidden` unless `label` is given, which makes it an `img`
-  with that name. `animate` plays `tally-fill` once; `numerals` prints each position (size `md`).
-
-  ```tsx
-  <Tally total={10} filled={9} marked={10} size="lg" />
-  ```
-
-- **`Blank`** (`blank.tsx`): `Blank({ caret = "steady", size = "md" })`; `caret`: blink, steady, none;
-  `size`: sm (28), md (42), lg (56). A `--mark` field with a 2px ink border and an ink caret, as wide as
-  its container. Always `aria-hidden`. Hooks: `data-blank` on the field, `data-caret` on the caret.
-
-  ```tsx
-  <Blank caret="blink" />
-  ```
-
-- **`Tag`** (`tag.tsx`): `Tag({ variant = "format", children })`; `variant`: format, saving, plain. Never
-  interactive. `format` is the file-format tag (`.type-tag`, ink border, paper fill); `saving` is
-  `--mark` with ink text and an inset ink ring; `plain` is a quiet boxed word.
-
-  ```tsx
-  <Tag variant="saving">Save $40</Tag>
-  ```
-
-- **`Note`** (`note.tsx`): `Note({ children })`. A callout paragraph on `--mark-wash`, in `.type-ui`
-  at weight 400, for one sentence the reader should not miss.
-
-  ```tsx
-  <Note>Beta preview — templates shown are samples.</Note>
-  ```
-
-- **`Icon`** (`icon.tsx`, no CSS): `Icon({ name, size = 20, flip = false })`; `name`: arrow, chevron, plus,
-  minus, close, tick, bars. Line icons on a 20-unit grid, 1.75 stroke, round caps and joins,
-  `currentColor`, always `aria-hidden`. `flip` mirrors the icon (the arrow of "Previous").
-
-  ```tsx
-  <Icon name="chevron" size={14} />
-  ```
-
-- **`Sentences`** (`sentences.tsx`): `Sentences({ text })`. The words of a statement heading: a line
-  break in `text` makes each sentence a block of its own, joined by a space. One sentence renders as
-  plain text. It goes directly inside the heading.
-
-  ```tsx
-  <h2 className="type-page">
-    <Sentences text={"First sentence.\nSecond sentence."} />
-  </h2>
-  ```
-
-- **`KeepCompounds`** (`keep-compounds.tsx`): `KeepCompounds({ text })`. A title or a short line of
-  copy with each hyphenated compound kept whole; the text itself is unchanged. The split is
-  `splitCompounds()` in `lib/compounds.ts`.
-
-  ```tsx
-  <h3>
-    <KeepCompounds text="SharePoint End-User Training Deck" />
-  </h3>
-  ```
-
-### Controls and links
-
-- **`Button`** (`button.tsx`): `Button({ variant = "mark", size = "md", fullWidth, arrow, href, external, linkRef, children, ...rest })`;
-  `variant`: mark, outline, ink, text; `size`: sm, md, lg. With `href` it renders an anchor (a
-  `TransitionLink` for a root-relative href, a plain `<a>` for `#main`, `mailto:` or a full address;
-  `external` opens a new tab), otherwise `<button type="button">` taking every native attribute. See
-  "Buttons" below.
-
-  ```tsx
-  <Button variant="mark" size="lg" arrow href="/catalog">
-    Browse the catalog
-  </Button>
-  ```
-
-- **`TextLink`** (`text-link.tsx`): `TextLink({ href, children, external, onClick, aria-current })`. A link
-  in running text or a list: the text colour of its surface and a 1px underline at 3px offset. On
-  hover and focus the underline thickens to 2px and the highlighter is drawn behind the words, 2px
-  past their ends, like a stroke of a marker; the text is ink on it. On the binder the words stay
-  as they are and the underline takes `--mark`. Breadcrumb links and the `text` button take the same
-  stroke.
-
-  ```tsx
-  <TextLink href="mailto:hello@advanta365.com">hello@advanta365.com</TextLink>
-  ```
-
-- **`TransitionLink`** (`transition-link.tsx`, no CSS): `TransitionLink(props: ComponentProps<typeof Link>)`.
-  A plain wrapper over `next/link` with `prefetch` defaulting to true. No fade, no state, usable from
-  server components. The only file that imports `next/link`.
-
-  ```tsx
-  <TransitionLink href="/pricing" className={styles.link}>
-    Pricing
-  </TransitionLink>
-  ```
-
-- **`Input`** (`input.tsx`): `Input(props: InputHTMLAttributes<HTMLInputElement>)`. 48px, `--surface`, a
-  2px `--line-firm` border, radius 6. Hover border `--ink-soft`; focus border `--ink` plus the ring.
-  It fills its container; every prop goes to the `<input>`.
-
-  ```tsx
-  <Input type="search" name="q" placeholder="Search templates" />
-  ```
-
-- **`Select`** (`select.tsx`): `Select(props: SelectHTMLAttributes<HTMLSelectElement>)`. A native select
-  drawn as the same field, with the chevron icon. `className` lands on the wrapper.
-
-  ```tsx
-  <Select name="sort">
-    <option value="title">Title A–Z</option>
-  </Select>
-  ```
-
-- **`Checkbox`** (`checkbox.tsx`): `Checkbox({ label, count, disabled, ...rest })` (every input
-  attribute but `type`). A check row with a 21px box, the label and a faint tabular count at the right.
-  Checked: `--mark` fill, ink border, ink tick; `--mark-deep` under the pointer. The native input
-  covers the whole row, so the whole row is the target; its accessible name is the label followed by
-  the count. `className` lands on the row.
-
-  ```tsx
-  <Checkbox label="Training" count={12} name="type" value="training" />
-  ```
-
-- **`Pagination`** (`pagination.tsx`): `Pagination({ page, pageCount, hrefFor })`. `nav aria-label="Pagination"`;
-  renders nothing for one page. Previous and Next are outline small buttons with the arrow; the page
-  numbers are links that take the wash on hover, and the current one is a non-link drawn in `--mark`
-  with an ink border and `aria-current="page"`.
-
-  ```tsx
-  <Pagination page={2} pageCount={5} hrefFor={(n) => `/catalog?page=${n}`} />
-  ```
-
-- **`PhaseTabs`** (`phase-tabs.tsx`): `PhaseTabs({ phases: ReadonlyArray<{ slug: string; name: string }>, current, currentKind = "page", size = "rail" })`;
-  `currentKind`: page, true; `size`: rail, large. A `ul` of links to `/phases/{slug}`. Each link shows
-  its numeral (position in the list, `aria-hidden`) and the phase name, so its accessible name is
-  exactly the phase name. `rail` is the strip under the bar; `large` is the set of index cards on a
-  page. A tab takes the wash on hover; the current one is `--mark` inside a 2px ink edge, with its
-  name set heavier. No state: the caller that knows the pathname passes `current`.
-
-  ```tsx
-  <PhaseTabs phases={phases} current="prepare" size="large" />
-  ```
-
-### Buttons
-
-All buttons: `.type-ui`, radius 6, a 2px border, padding-inline 14 (sm), 21 (md) or 28 (lg), and a
-7px gap before an arrow. Heights: sm 40 on the desktop bar and 44 below 68em, md 48, lg 56. The
-transition runs on `background-color`, `color` and `border-color` over `--time-swap`, linear. The
-width never changes on hover. The arrow moves 3px right. Pressed: `translate: 0 1px`. Every hover
-state (under `(hover: hover)`) is also the `:focus-visible` state.
-
-| Variant  | Rest                                                                           | Hover and focus                                                     | Use                                                                                                                                  |
-| -------- | ------------------------------------------------------------------------------ | ------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------ |
-| mark     | `--ink` fill, `--on-ink` text, ink border                                      | `--mark` fill, `--ink` text, ink border; pressed: `--mark-deep`     | The buyer's main move: Browse the catalog, Add to cart, Add bundle to cart, Shop Advanta365, Go to home, Show results, the skip link |
-| outline  | transparent, `--text`, `--line-ink` border                                     | `--mark-wash` fill, ink text (`--surface` fill on the wash band)    | Secondary: See a sample, All bundles, Browse the sample catalog, See bundles, Cart, Menu, Close, Search, Filters, step links         |
-| ink      | the same as mark                                                               | the same as mark                                                    | The main action on the wash band, under its own name: See how it compares                                                            |
-| text     | no box, `--text`, underline 1px at 3px offset, 44px hit height                 | underline 2px, the highlighter behind the words (as on a text link) | Remove, Clear all filters                                                                                                            |
-| disabled | `--tile` fill, `--text-faint` text, 2px `--line` border, `cursor: not-allowed` | none                                                                | Checkout — coming soon (a native `disabled` button of any variant)                                                                   |
-
-The solid button is black because it is the action; the mark only shows where the pointer or the
-keyboard is. The skip link is only ever seen focused, so it keeps the ink fill and the white label
-there. The words of a `text` button sit in a span of their own (`.words`), which is what the
-highlighter is drawn behind.
-
-### Brand
-
-- **`LogoMark`** (`logo-mark.tsx`, no CSS): `LogoMark({ height = "1.5em", title, tone = "one" })`; `tone`:
-  one, two. The mark as an inline SVG in a 4:3 box. Decorative unless `title` is given, which exposes
-  it as an image with that name.
-
-  ```tsx
-  <LogoMark tone="two" height="28px" />
-  ```
-
-- **`BrandLockup`** (`brand-lockup.tsx`): `BrandLockup({ variant = "tile", size = "md", nameClassName })`;
-  `variant`: tile, bare; `size`: sm, md. The mark and the name as real text, so a link around it is
-  named "Advanta365". `tile` in the bar and the drawer, `bare` in the footer. `nameClassName` lands on
-  the name, for a caller that has to hide it visually on a very narrow bar.
-
-  ```tsx
-  <TransitionLink href="/">
-    <BrandLockup variant="tile" />
-  </TransitionLink>
-  ```
-
-## Page-level pieces
-
-These are not primitives, but they carry rules the rest of the code relies on. Props are the real
-ones.
-
-- **`TitleBlock`** (`components/layout/title-block.tsx`): `TitleBlock({ title, lead, form = "index", crumbs, meta, ink, aside, children })`;
-  `form`: index, document, wide. Opens every inner page on paper and holds the page's only `<h1>`,
-  whose text is exactly `title` and which never animates: `.type-banner` for `index` and
-  `document`, `.type-statement` for `wide`. The lead is an `Appear when="load"`. `ink` puts the
-  `title` backdrop in the right 42% from 68em (live ink, or its still); the title, lead and children
-  are one `data-ink-calm="text"` box, so the ink thins only under the words. `aside` stands in
-  columns 9 to 12 from 68em and under the lead below (the phase numeral, a paper stack). It wraps
-  itself in `PageShift`, so a page must not wrap it again. Pass `ink` on `/about`, `/pricing`,
-  `/contact`, `/sample`, `/bundles` and `/phases/[phase]`, never on `/catalog`, `/cart`,
-  `/templates/*` or `/bundles/*`.
-- **`Breadcrumbs`** (`components/layout/breadcrumbs.tsx`): `Breadcrumbs({ items: Array<{ href?: string; label: string }> })`.
-  `nav aria-label="Breadcrumb"` with an `ol`; the last item is the current page, set heavier. The "/"
-  separators are hidden from assistive technology.
-- **`BetaStrip`** (`components/layout/beta-strip.tsx`): no props. "Beta preview — templates shown are
-  samples." on `--mark-wash`, in the flow, scrolled away with the page. The layout renders it while the
-  catalog holds sample content.
-- **`Specimen`** (`components/home/hero-sheet.tsx`): `Specimen({ specimen })`, where `SpecimenContent` is
-  `{ title, summary, formatTag, facts, phaseOrder, phaseName }`. One catalog template drawn as the
-  top sheet of a `PaperStack` in the margin of `#inside` (from 68em): its own title, summary and facts
-  as a ledger, a blank and a ten-block tally that fills when seen. `aria-hidden`, hook
-  `data-specimen`. The one place where catalog text is repeated.
-- **`IntroCover`** (`components/intro/intro-cover.tsx`): no props. The cover of a first visit: a fixed
-  white sheet, full viewport, with an `InkBackdrop scene="intro"`, the mark written by three pen
-  strokes (`lib/brand/mark.ts`), the name in Besley 700 at 28px and a "Skip" hint. `aria-hidden`,
-  nothing focusable, hook `data-intro-cover`, not displayed unless `data-intro` on `<html>` says so.
-  Its companion `IntroScript` (`intro-script-tag.tsx`, no props) prints the boot script in the root
-  layout. See "The cover" under Ink.
-- **`LineDrawing`** (`components/home/value-tiles.tsx`): `LineDrawing({ name })`; `name`: tested, borrow,
-  adapt, sector, audiences, example, copilot. Line art on the page's own ground, 84px (70px below
-  40em), pulled left so the art stands on the text's edge. Only "adapt" carries the mark.
-- **`TemplateCover`** (`components/catalog/template-cover.tsx`): `TemplateCover({ type, format })`. The file as a
-  3:2 tile: a drafting board, the silhouette of the format, a title bar, ghost text lines, the
-  deliverable-type glyph and one blank at the foot. The blank is the only marked element on a cover;
-  the format `Tag` sits at the top right.
-- **`TemplateCard`** (`components/catalog/template-card.tsx`): `TemplateCard({ template, phaseName, phaseOrder, index, layout = "row", share = true, headingLevel = "h3" })`.
-  An `<article data-layout>` with one stretched link on the title. `row`: an index row (a numeral
-  chip, a thumbnail, title, meta, price and the format `Tag`), in a single-column list. `sheet`: the
-  cover's own sheet resting at a slight turn, for the home page's spread (a row again below 40em).
-  `share={false}` drops the view transition name where a template could appear twice on a page. The
-  focus ring is drawn on the article.
-- **`BundleCard`** (`components/catalog/bundle-card.tsx`): `BundleCard({ bundle, templateCount, savingsCents, coverage, layout = "row", headingLevel = "h3" })`.
-  An `<article>`: a ledger row, or with `layout="feature"` a `Folder` whose tab carries the template
-  count. With `coverage` it shows a seven-block `Tally` labelled `Phases: …`.
-- **`StatementSection`** (`components/company/statement-section.tsx`): `StatementSection({ id, label, statement, copy, surface = "desk", children })`;
-  `surface`: desk, paper, wash. A `Band` with a `Split`: the label in the margin; the statement as a
-  `.type-banner` `<h2>`, one sentence per block; the paragraphs, which drift in; then `children`.
-- **`AiStatement`**, **`ProofLedger`**, **`WaysToBuy`** and **`WorkedExample`** (`components/company/`):
-  the black AI band of `/about` (a `.type-statement` heading whose sentences ink in), the four proof
-  points as a two-column ledger, the pricing page's `PaperStack` of singles beside a `Folder` of
-  bundles, and the sample page's twelve-sheet stack with a printed first page.
-- **`ComparisonTable`** (`components/company/comparison-table.tsx`): `ComparisonTable({ id, caption, columns, rows, emphasized, note })`.
-  A real table in a sheet. The `emphasized` column is the buyer's: highlighted head, wash cells. Below
-  40em each row reflows to a block; the cells carry `data-label` and every part carries an explicit
-  `role`, so the table keeps its semantics once its display is block.
-- **`BundlePriceTable`** (`components/company/bundle-price-table.tsx`): `BundlePriceTable({ caption, rows })`.
-  The bundles and their prices as a table that reflows the same way; the saving is a
-  `Tag variant="saving"`.
-- **`BuyerList`** (`components/company/buyer-list.tsx`): `BuyerList({ buyers, caresLabel })`. The buyers as a
-  `BandedList`: the name (`h3`), what they care about, one quoted line.
-- **`FaqList`** (`components/company/faq-list.tsx`): `FaqList({ items })`, a client component. A
-  `BandedList` of questions that open in place; several can be open at once. A closed answer is
-  `inert`, and the panel opens by growing its row from zero height.
-- **`NextSteps`** (`components/company/next-steps.tsx`): `NextSteps({ surface = "desk", title, links, children })`.
-  The closing band of a company page: the "Next" label in the margin, a short heading and the places
-  to go as `RowLink`s.
-- **`PurchasePanel`** (`components/product/purchase-panel.tsx`): `PurchasePanel({ priceCents, note, children })`.
-  `aside aria-label="Purchase"` in an ink-edged `Sheet`: the price, the note, the one buy control
-  (passed as children) and the beta sentence.
-- **`MissingPage`** (`components/not-found/missing-page.tsx`): `MissingPage()`. The 404 as a blank page: an
-  empty sheet with the figure "404" (middle digit marked), a blank and an empty tally, beside the
-  address that was asked for (`AskedPath`), the h1, the way home and the next places to go.
-
-## CSS Modules rules
-
-These rules come from the Turbopack and lightningcss build. Break one and the build fails or the
-rule silently does nothing.
-
-- Every selector in a module contains at least one local class. A bare `dialog` or `:root[data-x]
-body` belongs in `globals.css`.
-- `@keyframes` are file scoped. A module uses only keyframes it defines itself, which is why
-  `scrim-in` is defined twice.
-- No `composes`.
-- A module overrides a primitive's declaration by doubling its selector (`.skip.skip { top: var(--s-1) }`),
-  never by relying on stylesheet order.
-- Join class names with `cx()`. `styles.foo` is `string | undefined`, so template strings are not
-  safe.
-- Never set `display` on a bare `dialog` class. Use `.sheet[open] { display: flex }`, so a closed
-  dialog stays hidden.
-- Inline custom properties go through `cssVars()`: `style={cssVars({ "--i": index })}`.
-
-## Do and don't
-
-| Do                                                                                     | Don't                                                                                      |
-| -------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------ |
-| Read colour from the semantic layer (`--text`, `--surface`, `--line`)                  | Write a hex or `rgb()` value outside `app/globals.css` and `app/icon.svg`                  |
-| Mark only what the buyer owns or has chosen, and pair it with ink (border, text, tick) | Use the mark as decoration, a section background, text or a line on a light surface        |
-| Set ink text on the mark (`--on-mark`) and white text on ink (`--on-ink`)              | Put white text on the mark, or make a large solid blue surface                             |
-| Make the main action the solid ink button                                              | Give a button the mark as its resting fill                                                 |
-| Use `--mark-wash` for one band per page and for hover fills                            | Put a second wash band on a page                                                           |
-| Choose a surface with `Band surface` and let hard edges separate bands                 | Add gradients, glows, blurs, blend modes, other shadows or a transition between bands      |
-| Use steps of `--s-1` to `--s-9` for layout space                                       | Write other spacing values                                                                 |
-| Lay out with the two breakpoints, 40em and 68em                                        | Add another layout media query                                                             |
-| Pick a `.type-*` class and add `.tabular` to prices, counts and table numerals         | Set negative letter-spacing, add weights outside the scale or set sentence case under 14px |
-| Link internal routes with `TransitionLink` or a primitive built on it                  | Import `next/link` anywhere except `components/ui/transition-link.tsx`                     |
-| Keep one `h1` per page with the exact title as its text (`TitleBlock`)                 | Split a heading into words, animate it or give it an effect                                |
-| Set a two-sentence statement with `Sentences`                                          | Put a `<br>` or `white-space: pre-line` in a heading                                       |
-| Show the current item with `aria-current` and a fill, border and weight                | Rely on colour alone                                                                       |
-| Hide decoration with `aria-hidden`; give an informative tally a `label`                | Repeat catalog text in the DOM to draw a second copy (the specimen is the one exception) |
-| Set `display` on `.sheet[open]`                                                        | Set `display` on a bare `dialog` class                                                     |
-| Define a `@keyframes` in the module that uses it                                       | Use a keyframes name defined in another file                                               |
-| Keep the cover to a first visit of the home page, over a page that is already complete | Hold content back for an animation, lock scrolling, trap focus or cover an inner page      |
-| Mark copy the ink must keep clear of with `data-ink-calm`, and give ink a pause button | Draw ink behind words without a calm zone, or run ink on a page where someone buys         |
-| Ask for an entrance with `data-move` (or `Appear`) and let `app/motion.css` run it     | Write a scroll or view timeline in a CSS module, or animate a shadow or a custom property  |
-| Make objects with `PaperSheet`, `PaperStack` and `Folder`, lists with ledgers          | Put a border around a product, stripe a list or draw a card grid                           |
-| Use `cssVars()` for inline custom properties                                           | Write `style={{ "--x": 1 }}`, which does not type check                                    |
-| Wrap every `localStorage` and `sessionStorage` access in try/catch                     | Assume storage exists                                                                      |
-| Use `<article>` only for template and bundle cards                                     | Add `<article>` anywhere else                                                              |
-| Use `role="status"` only on the catalog result count and the add-to-cart confirmation  | Add `role="status"` or `<output>` elsewhere                                                |
-| Read the catalog through `lib/catalog/repository.ts`                                   | Import from `content/` in a page or component (`content/taxonomy.ts` is the one exception) |
-
-## The design gate
-
-`tests/unit/design-gate.test.ts` runs with `pnpm test`. It reads every file under `app/`,
-`components/`, `lib/` and `tests/` as text and fails on:
-
-- **retired vocabulary**, matched in any case and in comments too: `wipe` (so also the longer word
-  that contains it), `reveal`, `sheen`, `swirl`, `liquid`, `chrome` (so also `monochrome`),
-  `wordmark`, the name of the retired typeface, a phrase for the site this one was once modelled on; the earlier presentation's scripted effects, blend
-  modes, `new Worker`, `@property`, `data-entry`, `data-theme`, negative letter-spacing, token
-  families named `--duration-*`, `--easing-*`, `--spacing-*`, `--measure-*` and `--container-*`, the
-  old measures (502, 938, 620, 366, 232 as pixel values) and the two wordings the site no longer
-  uses. Say fluid, water, curl, eddy, bloom, clear, drain, ink-in and show instead;
-- **scoped techniques**, in files under `app/`, `components/` and `lib/` only (tests may stub what
-  they need), each allowed only where the edition needs it:
-
-  | Pattern                           | Allowed under                                                                                                                           |
-  | --------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------- |
-  | `<canvas`, `getContext(`, `webgl` | `lib/ink/`, `components/ink/`, `lib/boot/`                                                                                              |
-  | `requestAnimationFrame`           | `lib/ink/`, `components/ink/`, `lib/scroll/`, `lib/boot/`, `components/intro/`, `components/ui/count-up.tsx`                            |
-  | a quoted `"scroll"` or `'scroll'` | `lib/ink/`, `components/ink/`, `lib/scroll/`                                                                                            |
-
-  The gate tests its own helper with synthetic files, so a hit outside the lists is reported and a
-  hit inside is not;
-- a **raw colour** (a hex value or a function named `rgb`, `hsl`, `lab`, `lch` or `color`) in any file
-  under `app/`, `components/` or `lib/` other than `app/globals.css` and `app/icon.svg`. The scan
-  also reads `app/motion.css` and shader files (`.glsl`, `.frag`, `.vert`); shader strings in
-  TypeScript hold numbers, never colours, and no function is named `rgb`, `hsl`, `lab`, `lch` or
-  `color`;
-- `infinite` in any stylesheet, comments included;
-- `package.json` dependencies other than exactly `next`, `react`, `react-dom` and `zod`: no
-  animation, 3D or scroll library;
-- `prefers-color-scheme` in a stylesheet;
-- a media query other than the two breakpoints, `(hover: hover)`, `(forced-colors: active)`,
-  `(prefers-reduced-motion: reduce)`, `(prefers-reduced-motion: no-preference)` and
-  `(prefers-contrast: more)`. Nest queries instead of joining them with `and`;
-- `@container` anywhere but `header.module.css` and `nav-drawer.module.css` (a container may give a size to `cqi`
-  units elsewhere, as the printed covers do, but no other file writes an `@container` rule);
-- an import of `next/link` outside `components/ui/transition-link.tsx`;
-- a second pass over `README.md` and `docs/` looks for three strings from the retired design, and
-  asserts that the retired folders do not exist.
-
-Beside it, `tests/unit/kit-motion.test.ts` checks `app/motion.css` (every keyframes, animation and
-transition inside the no-preference query, a timeline always written after its `animation`
-shorthand, nothing hidden without `html[data-motion="on"]`), and `tests/unit/kit-grain.test.ts` the
-paper grain. The browser specs check the same design where it is computed: `identity.spec.ts`
-(grounds, faces, landmarks, the five bands, one canvas at most and only in an ink slot, no blend
-mode, nothing that loops, the name never above 28px, the 3px ring, 44px targets, nothing moving five
-and a half seconds after load), `reduced-motion.spec.ts`, `ink-fallback.spec.ts`, `motion.spec.ts`,
-`intro.spec.ts` and, on a graphics card, `ink-live.spec.ts`.
-
-## Accessibility floor
-
-- Every text pair in the contrast table passes AA, and body text passes AAA. Colour is never the
-  only cue: a phase is a numeral and a name, current is fill, border and weight, a checked box has a
-  tick.
-- A 3px focus ring on every interactive element, on every surface (ink on the light bands, where
-  the mark would not reach 3:1, and the mark on the binder). Targets are at least 44px below 68em.
-  The sticky bar never covers a focused or targeted element (`scroll-padding-top`).
-- Both dialogs, the site menu and the filter sheet, are native `<dialog>` elements. Tables keep their
-  semantics when they reflow. No page scrolls sideways at 320px.
-- Movement that starts by itself, outside the ink, ends within five seconds of first paint and is
-  off under reduced motion. The ink runs longer, so it has a pause control (WCAG 2.2.2): a button
-  named "Pause ink", renamed "Play ink", in the stage, early in the tab order, with the choice kept
-  for the session. The cover can be dismissed with any key, press, wheel or touch, hides nothing from
-  assistive technology, and neither traps focus nor locks scrolling. Every calm zone keeps the
-  contrast of the text over it (see "Ink"). `prefers-contrast: more` and forced colours remove ink
-  and grain and give objects a border, and every state stays visible.
-- One canvas at most, created by script, `aria-hidden` and inside an ink slot; no worker and no
-  scroll listener outside the ink layer and the scroll helpers. Two variable font files. Client
-  JavaScript is limited to the cart, the catalog filters and sort, the phone drawer, the navs that
-  read the pathname, the FAQ, the 404 address, the motion observer, the ink layer and the inline
-  boot script.
+Level 3 and level 4 at 68em are the four-layer forms defined in the same file. Shadows on paper use the ink colour. `--depth-on-ink` is the exception: a white hairline and a black shadow.
+
+## 8. Motion
+
+### 8.1 Principles
+
+- Motion is opt-in. Every animation and movement is inside `@media (prefers-reduced-motion: no-preference)`, or starts only from a state the boot script sets when motion is allowed (the cover). Colour transitions on controls are short (`--time-swap`), and the reduced-motion safety net in `globals.css` shortens every transition.
+- Page-level motion is driven by attributes (8.5). A component's own class holds its one animation, for example `.blink` in `Blank` and `.animate` on `Tally`.
+- Surfaces never fade or slide. Content arrives; sheets respond.
+- Durations are short. Most motion is under 600ms, and the page-level entrances stay under one second.
+
+### 8.2 Root switches
+
+| Attribute | Set by | When |
+| --- | --- | --- |
+| `data-motion="on"` on `<html>` | The boot script | Motion is allowed (not reduced motion). |
+| `data-timeline="on"` on `<html>` | The boot script | The browser supports `animation-timeline: view()`. |
+| `data-io="armed"` on `<html>` | `MotionRoot`, before paint | The scroll-seen observer is running for the current page. |
+| `data-intro` | The boot script, then the ink controller | The cover is playing: `play`, `ink`, or `leave`. The attribute is gone when the cover ends. |
+| `data-ink` | The boot script, and the ink layer (to `still`, when the ink cannot run) | `live`, `paused` or `still`. |
+
+`MotionRoot` runs in a layout effect on each route change, so the observer is armed before the first paint of the incoming page. The reduced-motion check happens once, when the boot script runs.
+
+### 8.3 Motion tokens
+
+| Token | Value | Use |
+| --- | --- | --- |
+| `--time-press` | 90ms | Press feedback. |
+| `--time-swap` | 120ms | Swapping a state (a tab, an icon). |
+| `--time-enter` | 240ms | Entering a small element. |
+| `--time-exit` | 160ms | Leaving a small element. |
+| `--time-fill` | 180ms | One block filling in a tally. |
+| `--time-fill-gap` | 80ms | Delay between tally blocks. |
+| `--time-blink` | 1100ms | The caret cycle of a blank line. |
+| `--time-lift` | 260ms | Lifting a sheet on hover or focus. |
+| `--time-ink` | 640ms | An element arriving with ink-in. |
+| `--time-settle` | 560ms | An element settling in. |
+| `--time-count` | 1200ms | A counter or the ninety-percent wheel. |
+| `--time-page-out` | 140ms | The outgoing page. |
+| `--time-page-in` | 260ms | The incoming page. |
+| `--time-morph` | 420ms | A shared sheet or cover morph. |
+| `--stagger` | 70ms | Delay between siblings (multiplied by `--order`). |
+
+| Curve | Value | Use |
+| --- | --- | --- |
+| `--curve-settle` | `cubic-bezier(0.22, 0.61, 0.36, 1)` | Default ease for entrances and sheets. |
+| `--curve-leave` | `cubic-bezier(0.55, 0.06, 0.68, 0.19)` | Leaving the screen. |
+| `--curve-ink` | `cubic-bezier(0.16, 0.84, 0.3, 1)` | Ink arriving. |
+| `--curve-drop` | `cubic-bezier(0.3, 1.25, 0.5, 1)` | A small overshoot, used for settling sheets. |
+| `--curve-pen` | `cubic-bezier(0.65, 0, 0.2, 1)` | Pen strokes on the cover. |
+
+`motion.css` also uses a few literal values: 480ms for drift entrances, 600ms for grow entrances, 420ms for the paper shade and tilt transitions, and 1ms while the cover is up (so content behind it is already finished).
+
+### 8.4 Entrances
+
+`Appear` wraps content and sets `data-move` (`drift`, `ink-in`, `settle` or `grow`), `data-when="load"` when it should play on page load, and `--order` for a stagger. Entrances use one of three paths:
+
+- **Timeline path.** With `data-timeline="on"`, each entrance is tied to scroll position with `animation-timeline: view()`. The element's range depends on `--order`. Drift covers the first 22% of its view range. Ink-in covers 30%. Settle covers 30%. Grow covers 28%.
+- **Observer path.** Without view timelines, `data-io="armed"` applies the hidden starting state to elements that lack `data-seen`. The observer adds `data-seen` when an element has reached 88% of the viewport height (or half of it, for ninety sequences). The transition then plays with the curve of its kind (drift 480ms and grow 600ms on `--curve-settle`; ink-in on `--time-ink` with `--curve-ink`; settle on `--time-settle` with `--curve-drop` for its movement), delayed by `--order` times `--stagger`.
+- **Load path.** `data-when="load"` plays on page load with the same curves, and finishes at once under the cover.
+
+Entrance kinds:
+
+| `move` | What arrives |
+| --- | --- |
+| `drift` | Opacity from 0, and 12px upward movement. |
+| `ink-in` | Opacity from 0, with an 8px blur resolving at 68em. Used for sentences. |
+| `settle` | Opacity from 0, 28px drop from above, and a 1.03 scale easing down. Sheets use this. |
+| `grow` | A scale from 0 along the left edge. Used for ledger rules and tallies. |
+
+### 8.5 Hooks
+
+| Attribute | Set by | Effect |
+| --- | --- | --- |
+| `data-move` | `Appear`, `Sentences`, `TemplateCard` | The entrance kind. |
+| `data-when="load"` | `Appear when="load"` | Plays on load, not on scroll. |
+| `data-seen` | `MotionRoot` observer | The element has arrived. |
+| `data-watch` | `Tally animate`, observed elements | The element is watched for arrival. |
+| `data-paper`, `data-lit` | `PaperSheet` | A sheet with its shade and its pointer lift. |
+| `data-bar` | The site header | The sticky bar's shadow and forced-contrast border. |
+| `data-ninety` | The solution section | The scroll-linked ninety-percent sequence. |
+| `data-odometer-wheel` | `Odometer` | The digit wheel. |
+| `data-block` | `Tally` | Each block: `ink`, `mark` or `empty`. |
+| `data-ledger` | `BandedList` | The grow rules on each row. |
+| `data-ink-backdrop`, `data-ink-slot` | `InkBackdrop` | The ink layer's container and canvas slot. |
+| `data-lit-scope` | Read by the pointer tracker | Scope for a group of lit sheets that is not an article; read by `lib/scroll/pointer.ts` and the lit selectors in `app/motion.css`. |
+
+### 8.6 Sheets and the pointer
+
+A lit sheet (`PaperSheet lit`) responds to hover on a device that can hover (`(hover: hover)`), and to keyboard focus inside it:
+
+- It lifts 6px (`translate: 0 -6px`) over `--time-lift`.
+- It tilts up to 1.2 degrees toward the pointer (`--tx`, `--ty`), with a 900px perspective. Only `(hover: hover)` devices get the tilt; touch input is ignored.
+- Its shade (`::after`) fades in with `--curve-settle` over 420ms at rest, and over `--time-lift` on hover.
+
+The tilt and the light position are written by `lib/scroll/pointer.ts` in one animation frame per pointer move.
+
+### 8.7 Page transitions
+
+A page change swaps the page at once. The first block of a page, wrapped in `PageShift`, is a view transition: the outgoing block fades out over `--time-page-out`, and the incoming block arrives with `move-ink-in-plain` over `--time-page-in`, after an 80ms delay, and gains blur from 40em. A shared element named `cover-<slug>` or `folder-<slug>` morphs over `--time-morph` (class `sheet-morph`). Under reduced motion, every view transition group has no animation and the outgoing block is not shown.
+
+### 8.8 The first-load cover
+
+The home page opens with a cover: a full-viewport paper plane (`--layer-cover`) with the logo drawn stroke by stroke, the name, and a `Skip` hint at the bottom.
+
+| Element | Timing |
+| --- | --- |
+| Legs of the mark | 120ms to 480ms, on `--curve-pen`, from 0 to full stroke. |
+| Crossbar | 420ms to 600ms. |
+| Tail | 560ms to 800ms, in the mark colour. |
+| Name | 500ms to 900ms, fading in. |
+| Hint | 600ms to 900ms. |
+| Cover leaves | From 1200ms, 450ms with `--curve-leave`. |
+
+- It plays once per browser session on the home page, when motion is allowed and the tab is visible. The session flag is `advanta365.intro.v1` in `sessionStorage`.
+- Any pointer press, key press, wheel or touch ends it early. The skip is quiet: the cover fades over 200ms without moving the page.
+- A backstop ends it after 4500ms regardless of events.
+- When the ink layer is ready on the cover, ink runs inside the cover (section 10.6). The cover's own timeline then ends it.
+
+### 8.9 Counters and tallies
+
+- `CountUp` counts from 0 to its value over `--time-count` with a cubic ease-out, once 40% of it is in view. Before that it shows the final text, so the layout does not move.
+- `Tally animate` fills its blocks one after another: each block starts after `--time-enter` plus its index times `--time-fill-gap`, and takes `--time-fill` to fill.
+- `Odometer` renders the final figure. Inside a `[data-ninety]` band the digit wheel rolls from blank to its figure over `--time-count` as the band is scrolled through; elsewhere the `Odometer` shows its figure without movement.
+
+### 8.10 Reduced motion
+
+- With reduced motion, the boot script stops at its first check. It sets no motion or cover attributes and writes `data-ink="still"`.
+- The `no-preference` rules never apply. A global safety net (in `globals.css`) forces every remaining animation and transition to 0.01ms with one iteration.
+- Counters show their final text. Tallies are fully filled. The odometer shows its final figure.
+- The ink layer shows the still image for its scene.
+
+## 9. Primitives
+
+All primitives live in `components/ui/`. Props are shown with their defaults in parentheses. Every primitive also accepts the attributes of its root element where it is a wrapper, and `className` where it is styled. Server components are the default; only `CountUp` and `MotionRoot` are client components.
+
+### 9.1 Layout and surfaces
+
+| Primitive | Props | Usage |
+| --- | --- | --- |
+| `Wrap` | `as` (div, section, header, footer, nav; div), `ref`, `className` | `<Wrap as="section" className={styles.inner}>...</Wrap>` |
+| `Band` | `as` (section, div, header, footer, aside; section), `surface` (desk, paper, wash, ink, binder; desk), `pad` (regular, none, title, tight, roomy; regular), `backdrop`, `innerClassName`, `ref`, `className` | `<Band id="values" surface="paper">...</Band>` |
+| `Split` | `margin` (ReactNode), `sticky` (false), `rule` (false), `className`, `marginClassName`, `contentClassName` | `<Split margin={<h2 className="type-banner">Plan</h2>} rule>...</Split>` |
+| `PaperSheet` | `as` (div, section, aside, span, li; div), `ratio` (free, portrait, landscape, slide; free), `size` (sm, md, lg; md), `depth` (0 to 4; 2), `lit` (false), `turn` (degrees), `className`, `style`, `ref` | `<PaperSheet ratio="portrait" depth={3} lit>...</PaperSheet>` |
+| `PaperStack` | `under` (2), `className`, `ref` | `<PaperStack under={3}><PaperSheet ratio="portrait" /></PaperStack>` |
+| `Folder` | `tab` (ReactNode), `sheets` (3), `slug`, `frontClassName`, `ref`, element attributes | `<Folder tab="4 templates" sheets={3} slug={bundle.slug}>...</Folder>` |
+| `ShelfHead` | `eyebrow`, `title` (required), `titleAs` (h1, h2, h3; h2), `titleId`, `body`, `action`, `stack` (false), `className` | `<ShelfHead eyebrow="Featured" title="Featured templates" action={...} />` |
+| `BandedList` | `as` (ul, ol, dl, div; ul), `className`, `ref` | `<BandedList as="dl">...</BandedList>` |
+| `BandedRow` | `as` (li, div; li), `className` | `<BandedRow as="div">...</BandedRow>` |
+
+`BandedList` and `BandedRow` are also exported under the names `Ledger` and `LedgerRow`.
+
+### 9.2 Text and labels
+
+| Primitive | Props | Usage |
+| --- | --- | --- |
+| `Eyebrow` | `as` (p, span, div; p), `marker` (true), `id`, `className` | `<Eyebrow>The problem</Eyebrow>` |
+| `Note` | `className`, children | `<Note>These are samples.</Note>` |
+| `Sentences` | `text` (string, split on line breaks), `move` (false) | `<Sentences text={"Most rollouts launch.\nFewer get adopted."} move />` |
+| `KeepCompounds` | `text` | `<KeepCompounds text="Go/No-Go Decision Checklist" />` |
+| `Tag` | `variant` (format, saving, plain; format), `className`, children | `<Tag variant="saving">Save $36</Tag>` |
+| `FactList` | `items` ({ label, value }[]), `className` | `<FactList items={[{ label: "Type", value: "Plan" }]} />` |
+| `Icon` | `name` (arrow, chevron, plus, minus, close, tick, bars), `size` (20), `flip` (false), `className` | `<Icon name="arrow" size={32} />` |
+| `LogoMark` | `height` ("1.5em"), `className`, `title`, `tone` (one, two; one) | `<LogoMark tone="two" height="2rem" />` |
+| `BrandLockup` | `variant` (tile, bare; tile), `size` (sm, md; md), `className`, `nameClassName` | `<BrandLockup variant="bare" size="sm" />` |
+
+### 9.3 Links
+
+| Primitive | Props | Usage |
+| --- | --- | --- |
+| `TransitionLink` | `prefetch` (true), plus `next/link` props | `<TransitionLink href="/catalog">Catalog</TransitionLink>` |
+| `TextLink` | `href`, `external` (false), `onClick`, `className`, `aria-current` | `<TextLink href="/bundles/sponsor-essentials">Sponsor Essentials</TextLink>` |
+| `RowLink` | `href`, `label`, `caption`, `trailing`, `lead`, `size` (md, lg; md), `external`, `onClick`, `className`, `aria-current` | `<RowLink href="/templates/executive-sponsor-kickoff-deck" label="Executive Sponsor Kickoff Deck" caption="Sponsors · PowerPoint" trailing="$59" />` |
+| `Pagination` | `page`, `pageCount`, `hrefFor` (page to href) | `<Pagination page={2} pageCount={5} hrefFor={(p) => `/catalog?page=${p}`} />` |
+| `PhaseTabs` | `phases` ({ slug, name }[]), `current`, `currentKind` (page, true; page), `size` (rail, large; rail), `className` | `<PhaseTabs phases={phases} current="plan" size="large" />` |
+
+`TransitionLink` is the only module that imports `next/link`. Every internal link goes through it.
+
+### 9.4 Controls
+
+| Primitive | Props | Usage |
+| --- | --- | --- |
+| `Button` | `variant` (mark, outline, ink, text; mark), `size` (sm, md, lg; md), `fullWidth` (false), `arrow` (false), `href`, `external` (false), `linkRef`, `className`, native button attributes | `<Button variant="outline" size="lg" href="/sample" arrow>See a sample</Button>` |
+| `Checkbox` | `label` (string), `count`, `disabled`, `className`, input attributes except `type` | `<Checkbox label="Sharepoint" count={12} checked={on} onChange={...} />` |
+| `Input` | `className`, input attributes | `<Input id="catalog-search" name="q" maxLength={200} />` |
+| `Select` | `className`, select attributes, children (options) | `<Select aria-label="Sort by">...</Select>` |
+| `Blank` | `caret` (blink, steady, none; steady), `size` (sm, md, lg; md), `className` | `<Blank caret="blink" size="lg" />` |
+| `Button` in `href` form | Forwards only `id`, `title`, `tabIndex`, `aria-label`, `aria-describedby`, `aria-current`, `onClick` | `<Button href="/cart">Cart</Button>` |
+
+Button sizes: `sm` is 44px below 68em and 40px from 68em; `md` is 48px; `lg` is 56px. Buttons always carry `type-ui`. The `text` variant underlines its words and shows a mark highlight behind them on hover and focus.
+
+### 9.5 Feedback and state
+
+| Primitive | Props | Usage |
+| --- | --- | --- |
+| `Tally` | `total`, `filled` (number, or 1-based list), `marked` (1-based), `size` (sm, md, lg; md), `numerals` (false), `animate` (false), `label`, `anchor` ({ block, name }), `className` | `<Tally total={10} filled={9} marked={10} size="lg" anchor={{ block: 10, name: "tenth" }} />` |
+| `Odometer` | `value` (0 to 99), `suffix`, `className` | `<Odometer value={90} suffix="%" className="type-poster" />` |
+| `CountUp` | `value`, `className` (client) | `<CountUp value={59} className={styles.count} />` |
+
+`Tally` without `label` is decorative and hidden from assistive technology. With `label` it becomes an image with that label. Do not set `animate` on a tally inside a ninety sequence.
+
+### 9.6 Motion helpers
+
+| Primitive | Props | Usage |
+| --- | --- | --- |
+| `Appear` | `as` (div, p, span, ul, ol, li, section, figure; div), `move` (drift, ink-in, settle, grow; drift), `when` (view, load; view), `order`, `ref`, `style`, element attributes | `<Appear as="p" when="load" className="type-lead">...</Appear>` |
+| `PageShift` | `children` | `<PageShift>{children}</PageShift>` (wraps the first block of a page in a view transition; the rest of the page swaps at once) |
+| `MotionRoot` | none (client, renders nothing) | `<MotionRoot />` in `app/layout.tsx`, once per app |
+
+### 9.7 Shared behaviour
+
+- `cx` (`lib/cx.ts`) joins class names and drops falsy values. `cssVars` builds style objects and drops `undefined` values. Use them instead of template strings.
+- Sizes and variants map to CSS module classes. If a prop value has no matching class, the root class applies, so keep to the documented values.
+
+## 10. The ink layer
+
+### 10.1 Designer's view
+
+The ink is the one place the page behaves like a physical material. A drop lands on the ground, spreads into the paper, and fades as it spreads. It is the working copy's pen: a mark made by the page itself, always beneath the text. The layer should feel like something that happened on the sheet, not an effect laid on top of it. Three things hold it there. The ink is calmed around every text block, so the copy keeps its paper or binder ground. Its brightness is capped against that ground, so the copy stays legible. And each backdrop is a still image until the browser can run the simulation well.
+
+### 10.2 Scenes
+
+Each scene is a short composition of drops, streams and clears. Designers choose a scene by where it sits on the page.
+
+| Scene | Where | Ground | What the ink does |
+| --- | --- | --- | --- |
+| `intro` | The first-load cover | Paper | A black drop, then a blue drop, then the ink clears over about a second. |
+| `hero` | The home headline | Paper | A black drop, then a blue drop, then black drops that repeat slowly. The drops land in the open space beside the headline. |
+| `title` | Wide title blocks (for example about and bundles) | Paper | A black and a blue drop, then occasional drops in the open half. |
+| `ninety` | The home solution section (ink surface) | Binder | Waits. When the ninety-percent tally reaches its tenth block, blue ink drops onto it. |
+| `bloom` | The home closing section | Paper | Blue ink rises from the bottom edge in slow, staggered drops. |
+| `wisps` | The footer | Binder | Pale and blue wisps drift upward from the bottom. |
+| `spill` | The 404 page | Paper | Black drops spill to the left over several seconds. |
+
+Scenes run for a set time (about 2.8 seconds for the cover) or until a trigger fires. Scenes without a fixed duration keep running while their backdrop is on screen and rest once it leaves.
+
+### 10.3 Stages and the single canvas
+
+The page has one canvas. Only one backdrop is live at a time. The stage chooser works in three rules. If the topmost backdrop on screen has at least 40% of itself in view, it gets the canvas, unless another backdrop has at least 95% of itself in view; then the topmost of those gets it instead. Otherwise each backdrop scores its visible area times the weight of its scene (the cover is heaviest), and the highest score wins. The current holder keeps the canvas unless a challenger scores 1.25 times more, so the canvas stays put while the user scrolls slowly.
+
+Backdrops that are not chosen show their still image. Each stage runs for a fixed time, then eases to rest over about 2.5 seconds. Input wakes a resting stage for up to 12 seconds.
+
+### 10.4 Calm zones and caps
+
+Text and figures inside a backdrop mark themselves with `data-ink-calm`. The ink is calmed in rectangles around them.
+
+| Calm kind | Mark | Padding | Feather | Floor | Cap on paper | Cap on binder |
+| --- | --- | --- | --- | --- | --- | --- |
+| Text | `data-ink-calm="text"` | 24px (8px on narrow windows) | 120px (56px narrow) | 0.04 | 0.8 | 0.06 |
+| Display | `data-ink-calm="display"` | 26px | 110px | 0.42 | 0.3 | 0.14 |
+| Veil | `data-ink-calm="veil"` | 0 | 40px | 1 | 0.8 | 0.06 |
+
+- Padding is the extra space around the element. Feather is the distance over which the ink fades toward the zone.
+- Floor is the density the ink is calmed down to inside the zone. A floor of 1 means the zone is not calmed at all and only the cap applies. Display zones keep more ink than text zones, because large type reads through it.
+- The cap is the luminance the ground must not cross. On a light ground the ground must not get darker than the cap; on a dark ground it must not get lighter. `tests/e2e/ink-live.spec.ts` checks each cap from the pixels under each zone; `node scripts/ink-stills.mjs --check` checks the stills at seven widths.
+- When more than four calm rectangles exist, the closest pairs merge until four remain, and the stricter kind wins. Edges are kept separately, at most four.
+- Edges (`data-edges="top right bottom left"`) fade ink in from the viewport side, so it enters from the edge of the frame rather than from behind a block of text.
+
+`data-ink-anchor="open"` marks open water: the space where a drop is welcome. `data-ink-anchor="tenth"` marks the block the ninety scene answers.
+
+### 10.5 Quality tiers
+
+The engine runs at one of three tiers and picks one at start.
+
+| Tier | Simulation cells | Dye pixels | Pressure iterations | Max device pixel ratio | Canvas pixels |
+| --- | --- | --- | --- | --- | --- |
+| high | 112,000 | 1,300,000 | 26 | 2 | 2,400,000 |
+| medium | 62,000 | 760,000 | 20 | 1.75 | 1,700,000 |
+| low | 34,000 | 420,000 | 16 | 1.5 | 1,000,000 |
+
+A short probe on the first load picks the tier, starting at high on fine pointers and at medium on coarse ones. The tier steps down when frames run long, and is saved for the session. A device that cannot keep up at the lowest tier falls back to stills for the session.
+
+### 10.6 The cover handover
+
+If the browser supports the required extensions, the ink can start under the cover. It takes over the cover's intro scene only while the cover's exit animation has run for no more than 1050 ms; after that, the cover runs alone. Visually, the ink appears behind the logo as it draws and clears as the cover leaves.
+
+### 10.7 Stills
+
+When the simulation is not running, each backdrop shows a WebP still. Each backdrop names its still in the component that renders it, and the wide and tall frames are served by a `picture` element. The site keeps eleven stills, each at most 90 KiB, and at most 600 KiB in total.
+
+| Still | Route | Viewport (CSS px, ratio) | Scene |
+| --- | --- | --- | --- |
+| `hero-wide` | `/` | 1440 x 900, 1x | hero |
+| `hero-tall` | `/` | 320 x 700, 2x | hero |
+| `ninety-wide` | `/` | 1440 x 900, 1x | ninety |
+| `ninety-tall` | `/` | 320 x 700, 2x | ninety |
+| `bloom-wide` | `/` | 1920 x 900, 1x | bloom |
+| `bloom-tall` | `/` | 390 x 844, 2x | bloom |
+| `wisps-wide` | `/about` | 1920 x 900, 1x | wisps |
+| `wisps-tall` | `/about` | 390 x 844, 2x | wisps |
+| `title` | `/about` | 1088 x 900, 1x | title |
+| `spill-wide` | `/nope` | 1440 x 900, 1x | spill |
+| `spill-tall` | `/nope` | 320 x 700, 2x | spill |
+
+The manifest is `lib/ink/stills.json`. The stills live in `public/ink/`.
+
+### 10.8 Using the backdrop
+
+`InkBackdrop` takes `scene` (required), `still` (`{ wide, tall? }`), `edges`, and `className`. Its parent must be positioned, and the backdrop fills it. Content placed after the backdrop is lifted above it.
+
+```tsx
+<Band surface="paper" backdrop={<InkBackdrop scene="hero" still={{ wide: "hero-wide", tall: "hero-tall" }} edges="bottom" />}>
+  <p data-ink-calm="text" className="type-lead">...</p>
+</Band>
+```
+
+Rules for contributors:
+
+- Use one backdrop per section, and no more than one canvas on a page.
+- Mark every text block that sits over ink with `data-ink-calm`.
+- Use `veil` for a footer or panel that should stay clean. Use `text` for copy and `display` for large figures.
+- Place ink on a band's ground. Do not place it on a sheet or inside a panel.
+- Keep the pause control visible: the layer renders it in the backdrop's bottom-right corner, 44px square.
+
+### 10.9 Pause and fallbacks
+
+The ink shows a pause control. Paused ink stays on its still image and remembers the choice for the session. Ink falls back to stills when any of these holds:
+
+- Reduced motion is on.
+- Contrast is set to more, or forced colours are active.
+- Data saver is on.
+- WebGL2 is unavailable, or no float render target is available, or the renderer is a software one.
+- The lowest tier cannot keep up.
+
+## 11. Logo and icons
+
+### 11.1 The mark
+
+The logo is three strokes on a 32 by 24 grid: two legs meeting at a peak, and a crossbar that continues to the right as the tail. Stroke width is 4.2, with round caps and joins. The geometry lives in `lib/brand/mark.ts`:
+
+- `MARK_LEGS_D`: the legs.
+- `MARK_BAR_D`: the short crossbar inside the legs.
+- `MARK_TAIL_D`: the tail, drawn in the mark colour.
+- `MARK_BODY_D`: the legs and the crossbar together.
+- `MARK_VIEWBOX`: 32 by 24.
+
+`BrandLockup` renders the mark in tone `two`: the body takes `currentColor` and the tail takes `--logo-tail`, which is the mark colour. `LogoMark` defaults to tone `one`, which draws the whole mark in `currentColor`.
+
+### 11.2 Lockups
+
+`BrandLockup` pairs the mark with the name in Besley. The `tile` variant sets the mark in an ink square. The `bare` variant sets the mark and name on the current ground. Sizes are `sm` and `md`; the tile grows at 68em.
+
+### 11.3 Site icon
+
+`app/icon.svg` is the site icon: a 32 by 32 ink tile with a 7-unit corner radius, the white body and the blue tail. Its values match the mark and the tokens above.
+
+### 11.4 Icon set
+
+`Icon` draws seven glyphs on a 20-unit grid with a 1.75 stroke, round caps and joins, and `currentColor`. The names are `arrow`, `chevron`, `plus`, `minus`, `close`, `tick` and `bars`. Icons are decorative (`aria-hidden`); pair them with a visible or visually hidden label.
+
+## 12. Do and do not
+
+| Do | Do not |
+| --- | --- |
+| Put content on a sheet, a band, or a panel. | Place text directly on the desk without a band. |
+| Use the mark (blue highlight) for what the buyer fills in or owns, with ink. | Use the pale mark fill as a signal on its own, or as text colour on paper. |
+| Use the type classes for every text element. | Set font family, size or weight inline. |
+| Use the spacing tokens and the 7px module. | Write pixel values for spacing or type. |
+| Use `Band` for every full-width stripe, and alternate desk and paper. | Set a band ground with a raw colour or a custom class. |
+| Use `PaperSheet` for objects that sit on the desk, and set `depth` deliberately. | Build a card with a border and a radius by hand. |
+| Gate every animation and movement inside `prefers-reduced-motion: no-preference`, or start it from a state the boot script sets when motion is allowed. | Animate layout properties or add infinite animations. |
+| Use `Appear` for entrances, with `order` for sequences. | Hide content in CSS without a path that shows it again. |
+| Mark text over ink with `data-ink-calm`. | Place ink behind body copy with no calm zone. |
+| Use `TransitionLink` or `TextLink` for internal links. | Import `next/link` in a component. |
+| Keep the hit area of a control at least 44px below 68em. | Make a target smaller than `--tap` on a phone. |
+| Write copy with typographic quotes and apostrophes. | Use straight quotes or exclamation marks in copy. |
+| Keep one `h1` on each page. | Use a heading for styling alone. |
+| Use `--alert` only for errors. | Use the alert colour for emphasis. |
+
+## 13. Accessibility floor
+
+### 13.1 Text and non-text contrast
+
+- Body and heading text meets 4.5 : 1 on every ground the system uses (section 3.3).
+- Control borders meet 3 : 1 on the paper and desk grounds (`--line-firm`, 4.56 : 1 and 4.19 : 1).
+- The mark is never the only indicator. A marked block, link, or tab carries ink as well.
+
+### 13.2 Focus
+
+- Every focusable element shows a 3px outline with a 3px offset, in `--focus-ring`: ink on light bands, mark on the binder.
+- The skip link to `#main` appears on the first Tab.
+- Under forced colours, the outline becomes `Highlight`.
+- Native dialogs move focus into the dialog and return it to the control that opened it. Escape closes a dialog.
+
+### 13.3 Targets and sizes
+
+- Interactive targets are at least 44px tall below 68em (`--tap`). The desktop bar uses a 40px control.
+- The smallest text is 12px and only in uppercase tags. Body copy is 16px.
+- Text is sized in rem, so the browser's text size settings apply. The root uses `-webkit-text-size-adjust: 100%`.
+
+### 13.4 Media queries and modes
+
+In stylesheets, the allowed media queries are exactly these, and the design gate rejects any other:
+
+| Query | Behaviour |
+| --- | --- |
+| `(min-width: 40em)` | The tablet layout. |
+| `(min-width: 68em)` | The desktop layout: inline navigation, rail, four-layer depth, twelve columns. |
+| `(hover: hover)` | Hover states and the sheet tilt. |
+| `(prefers-reduced-motion: no-preference)` | Every animation and transition. |
+| `(prefers-reduced-motion: reduce)` | The global safety net and the reduced-motion branches. |
+| `(prefers-contrast: more)` | The ink backdrop is hidden, the bar gets a solid ink border, and sheets and the `Sheet` primitive get a solid border. |
+| `(forced-colors: active)` | Blocks use system colours, the backdrop is hidden, and borders use `CanvasText`. |
+| `@container (max-width: 24.3em)`, `(max-width: 21.2em)` (header), `(max-width: 17em)` (nav drawer) | A name that does not fit its container is hidden visually and stays readable to assistive technology. |
+
+Scripts also query `(pointer: coarse)` and `(prefers-reduced-data: reduce)`. Stylesheets do not query `prefers-color-scheme`. `:root` declares `color-scheme: light`, and the design gate enforces this.
+
+### 13.5 Semantics
+
+- Site pages have one `header` (the banner), one `main` with `id="main"`, and one `footer` (the contentinfo landmark).
+- Navigation is labelled: `Primary` for the header, `Phases` for the rail, `Footer` for the footer, `Breadcrumb` on section pages, `Pagination` on catalog pages, and `Menu` for the site drawer.
+- The current page is marked with `aria-current="page"`, and the current section with `aria-current="true"`.
+- Decorative elements are hidden from assistive technology: the ink backdrop, the odometer, unlabelled tallies, numerals on phase tabs, and the specimen sheet.
+- Each `Tally` or count with a meaning carries a `label`.
+
+### 13.6 Motion and ink
+
+- Motion is off for reduced motion, and the ink layer shows stills.
+- The cover never plays under reduced motion.
+- No motion is infinite.
+
+## 14. Contributing checklist
+
+- Read the token before you write a value. If a value is not a token, add one in `app/globals.css` and use it.
+- Compose with primitives: `Band`, `Wrap`, `Split`, `PaperSheet`, `Button`, `RowLink`, `BandedList`.
+- Check the contrast table for every pairing, and test it under forced colours and `prefers-contrast: more`.
+- Gate every animation and movement inside `no-preference`, or start it from a state the boot script sets when motion is allowed, and add its hook to section 8.5.
+- Mark every text block over ink with `data-ink-calm`.
+- Run the checks from the repository root:
+
+```sh
+corepack pnpm lint
+corepack pnpm typecheck
+corepack pnpm test
+corepack pnpm test:e2e
+```
+
+`corepack pnpm test` runs the design gate and the unit tests. `corepack pnpm test:e2e` builds the site, serves it on port 3100, and checks identity, motion, ink, reduced-motion, menu and keyboard behaviour in a browser (`tests/e2e`).

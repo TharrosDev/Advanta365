@@ -1,6 +1,6 @@
 @import "./motion.css";
 
-/* Working Copy tokens. Raw colour values live only here and in app/icon.svg. */
+/* Design tokens. Raw colour values live only here and in app/icon.svg. */
 :root {
   color-scheme: light;
 
@@ -26,7 +26,7 @@
   --on-mark: var(--ink);
   --on-ink: #ffffff;
 
-  /* The binder: the footer, the only dark surface */
+  /* The binder: the dark ground of the footer and of the ink bands */
   --binder: #0d0f15;
   --binder-rise: #1c202b;
   --on-binder: #f4f5f8;
@@ -68,7 +68,7 @@
   --depth-3: 0 0 0 1px rgb(11 13 18 / 0.05), 0 12px 24px -8px rgb(11 13 18 / 0.18);
   --depth-4: 0 0 0 1px rgb(11 13 18 / 0.05), 0 20px 40px -12px rgb(11 13 18 / 0.24);
   --depth-on-ink: 0 0 0 1px rgb(255 255 255 / 0.08), 0 20px 40px -12px rgb(0 0 0 / 0.6);
-  --lift: var(--depth-3); /* kept as an alias */
+  --lift: var(--depth-3); /* alias of --depth-3 */
 
   /*
    * Semantic layer: what components read. Each [data-band] redefines it. The focus ring is ink on

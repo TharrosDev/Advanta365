@@ -19,9 +19,9 @@ const NEXT_LINKS = [
 ] as const;
 
 /**
- * The 404 page: one band of white paper where a bottle of ink has been knocked over. From 68em the
- * text stands in columns 1 to 6 as one calm rectangle for the ink (the figure "404", the address
- * that was asked for, the one `<h1>` of the page, a sentence, the way home and a short ledger of
+ * The 404 page: one band of white paper with a bottle of ink knocked over. From 68em the
+ * text stands in columns 1 to 6 as one calm rectangle for the ink (the figure "404", the requested
+ * address, the one `<h1>` of the page, a sentence, the way home and a short ledger of
  * places to go next), and the open water is columns 8 to 12, which the spill aims at. Below 68em the
  * text comes first and the open water is a block under it.
  *

@@ -38,7 +38,7 @@ export function removeLine(lines: CartLine[], line: CartLine): CartLine[] {
   return lines.filter((existing) => !sameLine(existing, line));
 }
 
-/** Drops lines whose template or bundle is no longer in the catalog. */
+/** Drops lines whose template or bundle is missing from the catalog. */
 export function pruneLines(
   lines: CartLine[],
   known: { templates: Set<string>; bundles: Set<string> },
