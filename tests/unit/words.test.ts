@@ -75,7 +75,7 @@ describe("countWords", () => {
   });
 
   test("matches the number of word tokens", () => {
-    const sentence = "Thirty years of change practice, ready to use";
+    const sentence = "Proven change content, so your M365 rollout gets used, not just launched.";
     expect(countWords(sentence)).toBe(
       splitWords(sentence).filter((token) => token.kind === "word").length,
     );

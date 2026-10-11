@@ -12,7 +12,7 @@ const TYPES = ["training", "communication", "plan"] as const;
 const APPS = ["sharepoint", "teams", "onedrive"] as const;
 const AUDIENCES = ["sponsor", "manager", "end-user"] as const;
 const FORMATS = ["docx", "pptx"] as const;
-const PHASES = ["prepare", "manage", "sustain"] as const;
+const PHASES = ["prepare", "execute", "sustain"] as const;
 
 // 30 templates: t00..t29, attributes cycle so every combination is predictable.
 const templates: Template[] = Array.from({ length: 30 }, (_, i) => {
@@ -47,9 +47,9 @@ describe("queryTemplates", () => {
   });
 
   test("filters by phase", () => {
-    const result = query({ phase: ["manage"] });
+    const result = query({ phase: ["execute"] });
     expect(result.total).toBe(10);
-    expect(result.items.every((t) => t.phase === "manage")).toBe(true);
+    expect(result.items.every((t) => t.phase === "execute")).toBe(true);
   });
 
   test("filters by deliverable type", () => {
@@ -94,6 +94,24 @@ describe("queryTemplates", () => {
   test("search also looks in summary and description", () => {
     expect(query({ q: "summary 07" }).items.map((t) => t.slug)).toEqual(["t07"]);
     expect(query({ q: "description 09" }).items.map((t) => t.slug)).toEqual(["t09"]);
+  });
+
+  test("search treats straight and typographic apostrophes and quotes alike", () => {
+    const marked = [
+      ...templates,
+      makeTemplate({
+        slug: "marks",
+        title: "What’s Changing for Me",
+        summary: "The “launch day” note.",
+      }),
+    ];
+    const find = (q: string) =>
+      queryTemplates(marked, { ...DEFAULT_CRITERIA, q }).items.map((t) => t.slug);
+
+    expect(find("what's changing")).toEqual(["marks"]);
+    expect(find("What’s changing")).toEqual(["marks"]);
+    expect(find('"launch')).toEqual(["marks"]);
+    expect(find("“launch")).toEqual(["marks"]);
   });
 
   test("search treats regex characters and very long text literally", () => {

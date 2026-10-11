@@ -1,0 +1,56 @@
+/* doubled: the gap between the intro and whatever follows it goes on the section shell's inner block */
+.section.section {
+  gap: var(--spacing-xl3);
+}
+
+/* the label strip, then the statement and its copy */
+.intro {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-xl2);
+}
+
+.columns {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--spacing-xl);
+  align-items: start;
+}
+
+/* headline-large on a phone, display-medium from 768px (the sizes come from the type tokens) */
+.statement {
+  max-width: var(--measure-statement);
+  font-size: var(--text-headline-large-size);
+  line-height: var(--text-headline-large-line-height);
+  letter-spacing: var(--text-headline-large-letter-spacing);
+}
+
+/* one sentence of a statement of several: a block, so it wraps and balances by itself */
+.sentence {
+  display: block;
+}
+
+.copy {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-md);
+  max-width: var(--measure-prose);
+}
+
+@media (min-width: 768px) {
+  .intro {
+    gap: var(--spacing-xl3);
+  }
+
+  .statement {
+    font-size: var(--text-display-medium-size);
+    line-height: var(--text-display-medium-line-height);
+    letter-spacing: var(--text-display-medium-letter-spacing);
+  }
+}
+
+@media (min-width: 1024px) {
+  .columns {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}

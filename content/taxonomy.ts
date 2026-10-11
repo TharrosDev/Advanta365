@@ -19,7 +19,15 @@ export const APPS = [
   "m365-general",
 ] as const;
 
-export const AUDIENCES = ["sponsor", "change-lead", "manager", "end-user", "it-admin"] as const;
+export const AUDIENCES = [
+  "sponsor",
+  "change-lead",
+  "manager",
+  "end-user",
+  "site-owner",
+  "im-rep",
+  "it-admin",
+] as const;
 
 export const FORMATS = ["docx", "pptx", "xlsx", "pdf"] as const;
 
@@ -51,6 +59,8 @@ export const AUDIENCE_LABELS: Record<(typeof AUDIENCES)[number], string> = {
   "change-lead": "Change leads",
   manager: "People managers",
   "end-user": "End users",
+  "site-owner": "Site Owners",
+  "im-rep": "IM Representatives",
   "it-admin": "IT admins",
 };
 

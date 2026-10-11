@@ -1,0 +1,102 @@
+/* the table and the note under it */
+.root {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-sm);
+  width: 100%;
+}
+
+/* positioned, so the visually hidden caption stays inside the scrolling box */
+.scroll {
+  position: relative;
+  width: 100%;
+  overflow-x: auto;
+}
+
+/*
+ * Fixed layout: the criteria column takes its width from the corner cell and the options share the
+ * rest equally. Separate borders: every cell owns its rules, so a pinned cell keeps them while the
+ * others slide under it. Below 768px the table keeps the prose measure, which is wider than a phone:
+ * one option fits beside the criteria and the next one shows at the right edge.
+ */
+.table {
+  --cell-pad: var(--spacing-xs);
+
+  width: 100%;
+  min-width: var(--measure-prose);
+  table-layout: fixed;
+  border-collapse: separate;
+  border-spacing: 0;
+}
+
+.head,
+.cell {
+  padding: var(--spacing-sm) var(--cell-pad);
+  font-weight: inherit;
+  text-align: start;
+}
+
+.head {
+  border-bottom: 1px solid var(--color-foreground-100);
+  vertical-align: bottom;
+}
+
+/* baseline: the first line of a criterion (label type) sits on the first line of its cells (body type) */
+.cell {
+  border-bottom: 1px solid var(--color-foreground-20);
+  vertical-align: baseline;
+  overflow-wrap: anywhere;
+}
+
+/*
+ * The criteria column, flush with the container's edge. While the table scrolls it stays at the left
+ * edge on the section's own surface, with a hairline between it and the options passing under it.
+ * On a phone it is 104px wide: at 96px "Field-tested?" and "Starting point" miss the column by a
+ * pixel or two and break in two.
+ */
+.pinned {
+  position: sticky;
+  inset-inline-start: 0;
+  z-index: 1;
+  width: calc(var(--spacing-xl5) + var(--spacing-xs2));
+  padding-inline-start: 0;
+  border-inline-end: 1px solid var(--color-foreground-20);
+  background: var(--color-background-100);
+}
+
+/*
+ * The emphasized option is the exact inversion of the others: ink surface, background-coloured text,
+ * and the same two rules (strong under the header, hairline under a row) in the background ramp.
+ */
+.emphasis {
+  border-bottom-color: var(--color-background-20);
+  background: var(--color-foreground-100);
+  color: var(--color-background-100);
+}
+
+.head.emphasis {
+  border-bottom-color: var(--color-background-100);
+}
+
+/* the last rule of the column is ink, so the surface ends on the table's bottom edge */
+.table tbody tr:last-child > .emphasis {
+  border-bottom-color: var(--color-foreground-100);
+}
+
+@media (min-width: 768px) {
+  /* the table fits from here on: nothing scrolls, so the criteria need no dividing hairline */
+  .table {
+    min-width: 0;
+  }
+
+  .pinned {
+    width: 22%;
+    border-inline-end: 0;
+  }
+}
+
+@media (min-width: 1024px) {
+  .table {
+    --cell-pad: var(--spacing-sm);
+  }
+}

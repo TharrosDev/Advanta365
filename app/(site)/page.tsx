@@ -1,8 +1,10 @@
 import { BuiltForBand } from "@/components/home/built-for-band";
 import { BundlesSection } from "@/components/home/bundles-section";
+import { ClosingSection } from "@/components/home/closing-section";
 import { FeaturedSection } from "@/components/home/featured-section";
 import { Hero } from "@/components/home/hero";
-import { PhasesSection } from "@/components/home/phases-section";
+import { InsideSection } from "@/components/home/inside-section";
+import { ProblemSection, SolutionSection } from "@/components/home/pitch-section";
 import { PracticeSection } from "@/components/home/practice-section";
 import { ValuesSection } from "@/components/home/values-section";
 import { EntryOverlay } from "@/components/entry/entry-overlay";
@@ -12,6 +14,11 @@ import { PageShell } from "@/components/ui/page-shell";
 import { bundleSavingsCents } from "@/lib/catalog/pricing";
 import { getBundleTemplates, getBundles, getPhases, getTemplates } from "@/lib/catalog/repository";
 
+/**
+ * Home, top to bottom: the hero; the problem and the answer as two plain statement sections; the
+ * swirl band (what is inside the toolkit, bundles, featured templates, why it is different); the
+ * dark run to the footer (why Advanta365, the Microsoft 365 products, the closing call to action).
+ */
 export default async function Home() {
   const [phases, templates, bundles] = await Promise.all([
     getPhases(),
@@ -34,15 +41,19 @@ export default async function Home() {
     <>
       <PageShell bleed>
         <Hero />
-        {/* The four sections between the hero and Values share one sticky swirl backdrop. */}
-        <SwirlBand stops={["phases", "bundles", "featured", "practice"]}>
-          <PhasesSection phases={phases} />
+        {/* Plain sections on the page background: the swirl starts after them. */}
+        <ProblemSection />
+        <SolutionSection />
+        {/* These four sections share one sticky swirl backdrop; its keyframe set needs exactly four stops. */}
+        <SwirlBand stops={["inside", "bundles", "featured", "practice"]}>
+          <InsideSection phases={phases} />
           <BundlesSection items={featuredBundles} />
           <FeaturedSection templates={featuredTemplates} phaseNames={phaseNames} />
           <PracticeSection />
         </SwirlBand>
         <ValuesSection />
         <BuiltForBand />
+        <ClosingSection />
       </PageShell>
       {/* Turns the whole page dark once #practice passes the middle of the viewport. */}
       <ThemeScroll targetId="practice" />

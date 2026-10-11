@@ -5,6 +5,14 @@
  *   --overlay-duration    curtain and "Close" label duration (500ms)
  *   --menu-shift          how far below y = 32px the "Menu" text sits (down to -16px above it)
  *   --menu-close-inset    how far the "Menu" text's right edge is from the panel's 16px gutter
+ *
+ * Custom property on .secondary, also written by menu.tsx:
+ *   --secondary-rows      rows of the two-column phase list (half the links, rounded up)
+ *
+ * 712px in the two clamps below is the panel's minimum height (633px with the seven phase links in
+ * four rows) plus 80px. The gaps stay at their tightest until the viewport is about that tall, which
+ * keeps a strip free under the panel on a phone, where a tap closes the menu. Measure the panel again
+ * when the number of rows changes.
  */
 
 /* The toggle. The padding is the touch target; the negative margin keeps the text on the grid. */
@@ -83,7 +91,7 @@
   gap: var(--spacing-sm);
   min-height: 0;
   padding: var(--spacing-sm) var(--spacing-sm)
-    clamp(var(--spacing-sm), calc(100svh - 680px - 80px), var(--spacing-xl));
+    clamp(var(--spacing-sm), calc(100svh - 712px - 80px), var(--spacing-xl));
   overflow-y: auto;
   animation: inner-in var(--overlay-duration) var(--easing-emphasized) backwards;
 }
@@ -144,7 +152,7 @@
 .panelBody {
   display: flex;
   flex-direction: column;
-  gap: clamp(var(--spacing-sm), calc((100svh - 680px) / 2), var(--spacing-xl3));
+  gap: clamp(var(--spacing-sm), calc((100svh - 712px) / 2), var(--spacing-xl3));
 }
 
 /* Rows play the reveal on the curtain's clock: no base delay, 50ms apart. */
@@ -170,10 +178,13 @@
   white-space: nowrap;
 }
 
+/* Two columns, filled top to bottom: one column of every phase would outgrow a phone screen. */
 .secondary {
-  display: flex;
-  flex-direction: column;
-  gap: var(--spacing-xs);
+  display: grid;
+  grid-auto-flow: column;
+  grid-template-rows: repeat(var(--secondary-rows, 1), auto);
+  grid-auto-columns: minmax(0, 1fr);
+  gap: var(--spacing-xs) var(--spacing-md);
   max-width: var(--measure-card-body);
 }
 

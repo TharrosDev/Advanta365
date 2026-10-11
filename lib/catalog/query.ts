@@ -51,9 +51,17 @@ function matchesFacet(template: Template, key: FacetKey, selected: readonly stri
   return FACET_VALUES[key](template).some((value) => selected.includes(value));
 }
 
+/**
+ * Lower-cases and straightens typographic apostrophes and quotes, so a search typed on a keyboard
+ * (what's) finds copy set with typographic marks (What’s), and the other way round.
+ */
+function fold(text: string): string {
+  return text.toLowerCase().replace(/[‘’]/g, "'").replace(/[“”]/g, '"');
+}
+
 function matchesSearch(template: Template, terms: string[]) {
   if (terms.length === 0) return true;
-  const haystack = `${template.title} ${template.summary} ${template.description}`.toLowerCase();
+  const haystack = fold(`${template.title} ${template.summary} ${template.description}`);
   return terms.every((term) => haystack.includes(term));
 }
 
@@ -68,7 +76,7 @@ const SORTERS: Record<SortKey, (a: Template, b: Template) => number> = {
 
 /** Filters, searches, sorts and paginates. Values within a facet are OR; facets are AND. */
 export function queryTemplates(templates: Template[], criteria: CatalogCriteria): CatalogResult {
-  const terms = criteria.q.toLowerCase().split(/\s+/).filter(Boolean);
+  const terms = fold(criteria.q).split(/\s+/).filter(Boolean);
   const searched = templates.filter((t) => matchesSearch(t, terms));
 
   const matchesAllExcept = (template: Template, except?: FacetKey) =>

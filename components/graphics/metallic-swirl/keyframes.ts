@@ -169,5 +169,5 @@ const KF: SwirlParams = {
   brightness: 0.28,
 };
 
-/** Band top, `#phases`, `#bundles`, `#featured`, `#practice`, band bottom. */
+/** Band top, `#inside`, `#bundles`, `#featured`, `#practice`, band bottom. */
 export const HOME_SWIRL_KEYFRAMES: readonly SwirlParams[] = [K0, K1, K2, KF, K3, K4];

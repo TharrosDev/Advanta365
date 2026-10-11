@@ -1,5 +1,6 @@
 import { TransitionLink } from "@/components/motion/transition-link";
 import { Chip } from "@/components/ui/chip";
+import { KeepCompounds } from "@/components/ui/keep-compounds";
 import type { Bundle } from "@/lib/catalog/schema";
 import { cx } from "@/lib/cx";
 import { formatPrice } from "@/lib/format";
@@ -31,7 +32,7 @@ export function BundleCard({
     <article className={cx(styles.card, "ruled", className)}>
       <Heading className={cx("t-headline-large", styles.title)}>
         <TransitionLink className={styles.link} href={`/bundles/${bundle.slug}`}>
-          {bundle.title}
+          <KeepCompounds text={bundle.title} />
         </TransitionLink>
       </Heading>
       <p className={cx("t-body-large", "c-fg-60", styles.summary)}>{bundle.summary}</p>

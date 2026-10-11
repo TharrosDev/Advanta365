@@ -13,6 +13,7 @@ const ROUTES = [
   "/bundles/sponsor-essentials",
   "/pricing",
   "/about",
+  "/sample",
   "/contact",
   "/cart",
 ];

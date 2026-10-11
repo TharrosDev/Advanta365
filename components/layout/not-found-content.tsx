@@ -12,6 +12,7 @@ const DIGITS = ["4", "0", "4"] as const;
 
 const INDEX_LINKS = [
   { href: "/catalog", label: "Browse the catalog" },
+  { href: "/sample", label: "See a sample" },
   { href: "/bundles", label: "Bundles" },
   { href: "/pricing", label: "Pricing" },
   { href: "/contact", label: "Contact" },

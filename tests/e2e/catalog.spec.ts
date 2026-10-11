@@ -10,7 +10,7 @@ const cards = (page: Page) => page.getByRole("main").getByRole("article");
 
 test("filtering updates the URL and the results", async ({ page }) => {
   await page.goto("/catalog");
-  await expect(page.getByRole("status")).toHaveText("60 templates");
+  await expect(page.getByRole("status")).toHaveText("67 templates");
   await expect(cards(page)).toHaveCount(24);
 
   await openFiltersIfCollapsed(page);
@@ -20,12 +20,12 @@ test("filtering updates the URL and the results", async ({ page }) => {
     .check();
 
   await expect(page).toHaveURL(/type=training/);
-  await expect(page.getByRole("status")).toHaveText("9 templates");
+  await expect(page.getByRole("status")).toHaveText("10 templates");
 });
 
 test("a filtered URL restores the same state on load", async ({ page }) => {
   await page.goto("/catalog?type=training&app=sharepoint");
-  await expect(page.getByRole("status")).toHaveText("4 templates");
+  await expect(page.getByRole("status")).toHaveText("5 templates");
   await openFiltersIfCollapsed(page);
   await expect(
     page.getByRole("checkbox", { name: /^Training/ }).filter({ visible: true }),
@@ -58,11 +58,11 @@ test("no matches shows an empty state that can be cleared", async ({ page }) => 
 test("malformed parameters never break the page", async ({ page }) => {
   const response = await page.goto("/catalog?page=9999&type=poster&page=abc&sort=nope&phase=%00");
   expect(response?.status()).toBe(200);
-  await expect(page.getByRole("status")).toHaveText("60 templates");
+  await expect(page.getByRole("status")).toHaveText("67 templates");
 
   const lastPage = await page.goto("/catalog?page=9999");
   expect(lastPage?.status()).toBe(200);
-  await expect(cards(page)).toHaveCount(12);
+  await expect(cards(page)).toHaveCount(19);
 
   const odd = await page.goto(`/catalog?q=${encodeURIComponent("(a*\\ <b>")}`);
   expect(odd?.status()).toBe(200);

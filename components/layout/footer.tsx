@@ -21,7 +21,8 @@ const MARK_FOOT_GAP = Number(((MARK_VIEWBOX.height - MARK_FOOT) / MARK_VIEWBOX.h
 /**
  * The site footer. Always light (its own theme scope), so every page ends on a white sheet even when
  * the page above it is dark. Holds the one "Rollout phases" navigation of the site, the legal notice
- * and the full-width wordmark. Nothing in it animates on scroll.
+ * (whose product this is, then the non-affiliation and trademark lines) and the full-width wordmark.
+ * Nothing in it animates on scroll.
  */
 export function Footer({ phases }: { phases: Phase[] }) {
   return (
@@ -53,12 +54,17 @@ export function Footer({ phases }: { phases: Phase[] }) {
           </div>
         </div>
         <div className={styles.legal}>
-          <p className="t-label-medium">
-            © {new Date().getFullYear()} {SITE.name}. Templates are aligned with Prosci methodology.{" "}
-            {SITE.name} is an independent provider and is not affiliated with or endorsed by Prosci
-            Inc. or Microsoft Corporation. Microsoft 365 and SharePoint are trademarks of the
-            Microsoft group of companies.
-          </p>
+          <div className={styles.notice}>
+            <p className="t-label-medium">
+              © {new Date().getFullYear()} {SITE.name}. {SITE.name} is a product of {SITE.parent}.
+            </p>
+            <p className="t-label-medium">
+              {SITE.name} and {SITE.parent} are independent and are not affiliated with or endorsed
+              by Prosci Inc. or Microsoft Corporation. Prosci is a registered trademark of Prosci
+              Inc. Microsoft 365, SharePoint and Copilot are trademarks of the Microsoft group of
+              companies.
+            </p>
+          </div>
           <ul className={styles.legalRow}>
             <li className="t-label-medium">Sample catalog (beta)</li>
             <li className="t-label-medium">Checkout is not available yet</li>

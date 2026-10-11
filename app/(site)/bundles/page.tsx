@@ -9,9 +9,13 @@ import { bundleSavingsCents } from "@/lib/catalog/pricing";
 import { getBundleTemplates, getBundles } from "@/lib/catalog/repository";
 import styles from "./page.module.css";
 
+// The page lead and the metadata description are the same two sentences.
+const LEAD =
+  "Curated sets for a whole phase or a whole rollout. Each bundle costs less than the same pieces bought one at a time.";
+
 export const metadata: Metadata = {
   title: "Bundles",
-  description: "Curated sets of templates for a whole phase or a whole rollout.",
+  description: LEAD,
 };
 
 export default async function BundlesPage() {
@@ -27,10 +31,7 @@ export default async function BundlesPage() {
 
   return (
     <PageShell>
-      <PageTitle
-        title="Bundles"
-        lead="Curated sets for a whole phase or a whole rollout. Each bundle costs less than its templates bought one at a time."
-      />
+      <PageTitle title="Bundles" lead={LEAD} />
       <Container className={styles.block}>
         <RevealGroup as="ul" className={styles.grid}>
           {cards.map(({ bundle, count, savings }, index) => (

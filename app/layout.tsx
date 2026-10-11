@@ -12,9 +12,12 @@ const instrumentSans = Instrument_Sans({
   variable: "--font-instrument-sans",
 });
 
+// The Open Graph block carries no title or description of its own: Next fills both from the page's
+// resolved title and description, so a shared link to an inner page names that page.
 export const metadata: Metadata = {
-  title: { default: SITE.name, template: `%s · ${SITE.name}` },
+  title: { default: `${SITE.name} · ${SITE.tagline}`, template: `%s · ${SITE.name}` },
   description: SITE.description,
+  openGraph: { type: "website", siteName: SITE.name },
 };
 
 // Without JavaScript no RevealGroup can mark itself in view: release every paused reveal.

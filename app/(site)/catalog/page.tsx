@@ -12,10 +12,13 @@ import { parseCatalogParams } from "@/lib/catalog/search-params";
 import { cx } from "@/lib/cx";
 import styles from "./page.module.css";
 
+// Both sentences write the phase count out ("seven"): change it here if the catalog gains or loses a
+// phase. The listings are sample content (placeholders), so neither sentence says how much the
+// catalog holds or presents them as pieces of the toolkit.
 export const metadata: Metadata = {
   title: "Catalog",
   description:
-    "Search and filter every change management template by phase, type, app and audience.",
+    "The catalog is organized by the seven phases of a rollout. The listings shown are sample content, searchable by phase, type, app and audience.",
 };
 
 type CatalogPageProps = {
@@ -41,7 +44,7 @@ export default async function CatalogPage({ searchParams }: CatalogPageProps) {
     <PageShell>
       <PageTitle
         title="Catalog"
-        lead="Every template, organized by where it fits in your rollout. Search by name or narrow by phase, deliverable type, app and audience."
+        lead="Organized by the seven phases of a rollout. The listings shown are sample content. Search by name or narrow by phase, deliverable type, app and audience."
       />
       <Container className={styles.layout}>
         <div className={styles.rail}>

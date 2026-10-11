@@ -30,6 +30,8 @@ const CLOSE_TEXT_TOP = 16 + 16;
 const CLOSE_MAX_RISE = 16;
 /** The panel's side padding, which the "Close" text is inset by on phones. */
 const PANEL_GUTTER = 16;
+/** The secondary links (the phases) run down two columns; the stylesheet needs the row count. */
+const SECONDARY_COLUMNS = 2;
 
 const FOCUSABLE = "a[href], button:not([disabled])";
 
@@ -229,7 +231,12 @@ function MenuOverlay({
                   </Reveal>
                 ))}
               </ul>
-              <ul className={styles.secondary}>
+              <ul
+                className={styles.secondary}
+                style={cssVars({
+                  "--secondary-rows": Math.ceil(secondary.length / SECONDARY_COLUMNS),
+                })}
+              >
                 {secondary.map((link, row) => (
                   <Reveal
                     key={link.href}

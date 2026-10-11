@@ -8,5 +8,6 @@ next-env.d.ts
 .DS_Store
 playwright-report
 test-results
+.qa-shots
 .superpowers
 .impeccable/hook.cache.json

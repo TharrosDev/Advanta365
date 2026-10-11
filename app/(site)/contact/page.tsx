@@ -10,18 +10,19 @@ import { cx } from "@/lib/cx";
 import { SITE } from "@/lib/site";
 import styles from "./page.module.css";
 
+// The page lead and the metadata description are the same sentence.
+const LEAD =
+  "Questions about the toolkit, licensing for your organization, or buying by purchase order?";
+
 export const metadata: Metadata = {
   title: "Contact",
-  description: "Questions about the templates, licensing or purchasing for your organization.",
+  description: LEAD,
 };
 
 export default function ContactPage() {
   return (
     <PageShell>
-      <PageTitle
-        title="Contact"
-        lead="Questions about a template, licensing for your organization, or buying by purchase order?"
-      />
+      <PageTitle title="Contact" lead={LEAD} />
 
       <SectionShell innerClassName={styles.contacts}>
         <RevealGroup className={styles.intro}>

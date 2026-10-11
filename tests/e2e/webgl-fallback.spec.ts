@@ -37,7 +37,7 @@ test("the home page falls back to flat graphics and finishes its intro", async (
   await expect(page.locator("[data-swirl-canvas]")).toBeHidden();
 
   await expect(page.getByRole("heading", { level: 1 })).toHaveText(
-    "Change management templates for Microsoft 365 rollouts",
+    "Don’t start your M365 rollout from a blank prompt.",
   );
   expect(pageErrors).toEqual([]);
 });

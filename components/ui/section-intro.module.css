@@ -29,6 +29,11 @@
   max-width: var(--measure-heading-centered);
 }
 
+/* The centred body: lines of even length, never a short last line under a full one. */
+.center .body {
+  text-wrap: balance;
+}
+
 @media (min-width: 768px) {
   .center .text {
     gap: var(--spacing-xl);
