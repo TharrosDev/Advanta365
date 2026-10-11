@@ -1,0 +1,38 @@
+.root {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--s-3);
+  margin-block-end: var(--s-5);
+}
+
+.text {
+  min-width: 0;
+}
+
+.eyebrow {
+  margin-block-end: var(--s-2);
+}
+
+.title {
+  max-width: var(--wrap-head);
+}
+
+.body {
+  max-width: var(--wrap-lead);
+  margin-block-start: var(--s-2);
+  color: var(--text-soft);
+}
+
+.action {
+  flex: none;
+}
+
+@media (min-width: 40em) {
+  .root {
+    flex-direction: row;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: var(--col-gap);
+  }
+}

@@ -1,124 +1,38 @@
-/*
- * The sections that set a statement beside its copy (Mission, Why it exists, AI, Who it's for) are
- * laid out by components/company/statement-section. What is here belongs to this page only.
- */
-
-/* ---- Why it's different: the dark band with the swirl behind it ---- */
-
-.swirl {
-  position: absolute;
-  inset: 0;
+/* The comparison: label, statement and table stand one under the other across the grid. */
+.compareTitle {
+  max-width: var(--wrap-head);
+  margin-block-start: var(--s-2);
+  color: var(--text);
 }
 
-.different.different {
-  gap: var(--spacing-xl7);
+.compareTable {
+  margin-block-start: var(--s-5);
 }
 
-.differentIntro {
-  display: flex;
-  flex-direction: column;
-  gap: var(--spacing-xl);
-}
-
-.differentStatement {
-  max-width: var(--measure-statement);
-}
-
-/*
- * The statement sets as two lines of 8.5em ("Proven experience / at a template price."). At 40px
- * they miss a 360px phone and "Proven" ends up alone on a first line, so below 768px the size
- * follows the viewport just far enough to keep the two lines; the type token is the cap, reached at
- * 400px. The home page sizes the same sentence the same way. Doubled: it overrides `t-display-fluid`.
- */
-.differentStatement.differentStatement {
-  font-size: min(var(--text-display-small-size), 10vw);
-}
-
-/* four proof points: one column, two by two from 768px, one row from 1024px */
-.proofGrid {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr);
-  gap: 0;
-  width: 100%;
-}
-
-/* ---- Your alternatives: the intro, then the comparison table ---- */
-
-.compare {
-  display: flex;
-  flex-direction: column;
-  gap: var(--spacing-xl2);
-}
-
-/* ---- Who it's for: what follows the statement ---- */
-
-/* the public-sector line belongs to the list above it */
+/* The buyers and the line about the public sector are one block; the fact row is the next. */
 .buyers {
-  display: flex;
-  flex-direction: column;
-  gap: var(--spacing-md);
+  display: grid;
+  gap: var(--s-3);
 }
 
-/* the note is body copy: a reading measure inside the wide value column of the fact row */
-.noteText {
-  display: block;
-  max-width: var(--measure-prose);
+/*
+ * One short line, balanced; its one hyphenated word stays whole, so that on a phone the line never
+ * breaks after "public-" and leaves a stub.
+ */
+.proven {
+  max-width: var(--wrap-copy);
+  color: var(--text-soft);
+  text-wrap: balance;
 }
 
-/* ---- Next: three rows to the next places, then the parent company ---- */
-
-.closing.closing {
-  gap: var(--spacing-xl3);
+.compound {
+  white-space: nowrap;
 }
 
-.next {
-  display: flex;
-  flex-direction: column;
-  gap: var(--spacing-xl);
-  width: 100%;
-  max-width: var(--measure-prose);
-  margin-inline: auto;
-}
-
-.nextRows {
-  width: 100%;
+.beyond {
+  margin-block-start: var(--s-5);
 }
 
 .parent {
-  text-align: center;
-}
-
-@media (min-width: 768px) {
-  .different.different {
-    gap: var(--spacing-xl3);
-    justify-content: space-between;
-  }
-
-  .differentStatement.differentStatement {
-    font-size: var(--text-display-large-size);
-  }
-
-  .proofGrid {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: var(--spacing-xl);
-  }
-
-  .compare {
-    gap: var(--spacing-xl3);
-  }
-}
-
-@media (min-width: 1024px) {
-  .proofGrid {
-    grid-template-columns: repeat(4, minmax(0, 1fr));
-  }
-
-  /*
-   * The title is two sentences and its string carries a line break between them. The break is a
-   * space below 1024px and a real break from there, where each sentence fits on a line of its own
-   * (the hero headline does the same). Narrower, a forced break would leave "something." alone.
-   */
-  .compareTitle {
-    white-space: pre-line;
-  }
+  color: var(--text-faint);
 }

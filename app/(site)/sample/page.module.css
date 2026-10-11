@@ -1,84 +1,25 @@
-/* ---- Title block: the beta note under the lead ---- */
-
-/* the hairline on top comes from the global `.ruled` class; the measure is the lead's */
-.note {
-  max-width: var(--measure-intro);
-  padding-top: var(--spacing-xs);
+/*
+ * The phase number: Besley's own figures. Its column is 42px from 40em; on a phone it is 21px, which
+ * a single digit fills, so that the longest phase name still fits on a line at 320px.
+ */
+.numeral {
+  display: block;
+  width: var(--s-3);
+  font-family: var(--face-display);
+  font-size: 1.625rem;
+  line-height: 1.24;
+  font-weight: 700;
+  font-feature-settings: "tnum" 0;
 }
 
-/* ---- Shown, not just told: statement on the left, two paragraphs on the right ---- */
-
-.shown {
-  display: flex;
-  flex-direction: column;
-  gap: var(--spacing-xl2);
+/* The seven blocks of the tally: 98px, 7 blocks of 8px and 6 gaps of 7px. */
+.tally {
+  display: block;
+  width: calc(var(--s-1) * 14);
 }
 
-.columns {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr);
-  gap: var(--spacing-xl);
-  align-items: start;
-}
-
-/* headline-large on a phone, display-medium from 768px (the sizes come from the type tokens) */
-.statement {
-  max-width: var(--measure-statement);
-  font-size: var(--text-headline-large-size);
-  line-height: var(--text-headline-large-line-height);
-  letter-spacing: var(--text-headline-large-letter-spacing);
-}
-
-.copy {
-  display: flex;
-  flex-direction: column;
-  gap: var(--spacing-md);
-  max-width: var(--measure-prose);
-}
-
-/* ---- Phases: the label strip over a full-width ruled index ---- */
-
-.phases {
-  gap: var(--spacing-xl2);
-}
-
-/* the global `ul[class]` reset removes the list styling; the rows draw their own hairlines */
-.phaseList {
-  display: flex;
-  flex-direction: column;
-}
-
-/* ---- Next: two rows to the next places ---- */
-
-.closing {
-  gap: var(--spacing-xl3);
-}
-
-/* doubled: the global `ul[class]` reset (margin 0) would otherwise win over the centring margin */
-.next.next {
-  width: 100%;
-  max-width: var(--measure-prose);
-  margin-inline: auto;
-}
-
-@media (min-width: 768px) {
-  .shown {
-    gap: var(--spacing-xl3);
-  }
-
-  .statement {
-    font-size: var(--text-display-medium-size);
-    line-height: var(--text-display-medium-line-height);
-    letter-spacing: var(--text-display-medium-letter-spacing);
-  }
-
-  .phases {
-    gap: var(--spacing-xl3);
-  }
-}
-
-@media (min-width: 1024px) {
-  .columns {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
+@media (min-width: 40em) {
+  .numeral {
+    width: var(--s-5);
   }
 }

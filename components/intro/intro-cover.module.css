@@ -1,0 +1,225 @@
+/*
+ * The cover of a first visit: one ink sheet over the whole window, lifted off the top edge.
+ *
+ * It is not displayed until the inline script sets `data-intro` on the root element, so there is no
+ * cover without JavaScript, on a later load or on an inner page. Every part is drawn in its final
+ * state by default and each animation only holds an earlier state until its turn (`backwards`).
+ * The timeline is CSS from end to end: once it is switched on it runs out by itself and leaves the
+ * sheet off the screen, out of the layout and deaf to the pointer, whatever becomes of the script.
+ *
+ * Times are beats of `--time-intro-beat` (70ms), counted from first paint:
+ *
+ *   1 to 7    the pen writes both legs of the "A"
+ *   7 to 9    then the crossbar, up to the right leg
+ *   9 to 13   and its tail, in the highlighter
+ *   7 to 18   block i (0 to 9) fills over two beats from beat 7 + i
+ *   16 to 20  the tenth, filling in the highlighter, lands and settles
+ *   13 to 19  the name fades in
+ *   20 to 24  nothing moves
+ *   24 to 33  the sheet lifts (`--time-intro-cover`, `--time-intro-lift`)
+ */
+.cover {
+  position: fixed;
+  inset: 0 0 calc(var(--s-2) * -1);
+  z-index: var(--layer-cover);
+  display: none;
+  place-items: center;
+  padding: var(--page-pad);
+  border-block-end: var(--s-2) solid var(--mark);
+  background: var(--ink);
+  color: var(--on-ink);
+}
+
+/*
+ * The sheet is one edge taller than the window: its bottom border, a strip of the highlighter,
+ * hangs below the screen until the sheet lifts and then trails it. Inside the border the sheet is
+ * exactly the window, so what is centred on it is centred on the screen.
+ *
+ * Lifted by its own height, it is clear of the top edge. While it moves it no longer takes the
+ * pointer, and its last frame, which is held, takes it out of the layout (`visibility` does the
+ * same job in a browser that does not animate `display`). The same frames under two names: a
+ * change of name starts a new animation, where a change of duration would only retime the one that
+ * is running.
+ */
+@keyframes cover-lift {
+  from {
+    pointer-events: none;
+  }
+
+  to {
+    display: none;
+    visibility: hidden;
+    pointer-events: none;
+    translate: 0 -100%;
+  }
+}
+
+@keyframes cover-skip {
+  from {
+    pointer-events: none;
+  }
+
+  to {
+    display: none;
+    visibility: hidden;
+    pointer-events: none;
+    translate: 0 -100%;
+  }
+}
+
+:root[data-intro="play"] .cover,
+:root[data-intro="skip"] .cover {
+  display: grid;
+}
+
+:root[data-intro="play"] .cover {
+  animation: cover-lift var(--time-intro-lift) var(--curve-lift) var(--time-intro-cover) forwards;
+}
+
+/* The visitor pressed, typed or scrolled: off at once. */
+:root[data-intro="skip"] .cover {
+  animation: cover-skip var(--time-intro-skip) var(--curve-leave) forwards;
+}
+
+/* The mark, the tally and the name, stacked and centred as one signature. */
+.signature {
+  display: grid;
+  justify-items: center;
+}
+
+/* 70px high on a phone, 98px from 40em; the width follows the 4:3 view box. */
+.logo {
+  display: block;
+  width: auto;
+  height: calc(var(--s-1) * 10);
+  aspect-ratio: 4 / 3;
+}
+
+/*
+ * Each stroke is one unit long (`pathLength`), so one dash of that length is the whole stroke and
+ * an offset of one unit is none of it. A stroke stays hidden until its turn: with round caps, a
+ * dash of no length would still show as a dot.
+ */
+.pen {
+  stroke: currentColor;
+  stroke-dasharray: 1;
+}
+
+@keyframes pen-stroke {
+  from {
+    visibility: hidden;
+    stroke-dashoffset: 1;
+  }
+}
+
+.legs {
+  animation: pen-stroke calc(var(--time-intro-beat) * 6) var(--curve-settle) var(--time-intro-beat)
+    backwards;
+}
+
+.bar {
+  animation: pen-stroke calc(var(--time-intro-beat) * 2) linear calc(var(--time-intro-beat) * 7)
+    backwards;
+}
+
+.tail {
+  stroke: var(--mark);
+  animation: pen-stroke calc(var(--time-intro-beat) * 4) var(--curve-settle)
+    calc(var(--time-intro-beat) * 9) backwards;
+}
+
+/* Ten 14px blocks, 7px apart: the site's tally, written in white on the ink. */
+.tally {
+  display: flex;
+  gap: var(--s-1);
+  margin-block-start: var(--s-5);
+}
+
+.block {
+  width: var(--s-2);
+  height: var(--s-2);
+  border-radius: var(--round-1);
+  background: var(--on-ink);
+  animation: block-fill calc(var(--time-intro-beat) * 2) var(--curve-settle) backwards;
+  animation-delay: calc(var(--time-intro-beat) * (7 + var(--i)));
+}
+
+/* Not yet: an outline only, as an empty block of a tally is. */
+@keyframes block-fill {
+  from {
+    background-color: transparent;
+    box-shadow: inset 0 0 0 var(--edge) var(--rule-firm);
+  }
+}
+
+/*
+ * The tenth is yours: it fills in the highlighter and lands a fifth larger, then settles. The
+ * landing has no `backwards`, so until its turn the block waits at its own size.
+ */
+@keyframes block-land {
+  from {
+    scale: 1.2;
+  }
+}
+
+.yours {
+  background: var(--mark);
+  animation-name: block-fill, block-land;
+  animation-duration: calc(var(--time-intro-beat) * 2), calc(var(--time-intro-beat) * 4);
+  animation-fill-mode: backwards, none;
+}
+
+/* One unbroken word in Besley, with the font's own figures (see the display classes in globals.css). */
+.name {
+  margin-block-start: var(--s-3);
+  font-family: var(--face-display);
+  font-size: var(--size-section);
+  line-height: 1.24;
+  font-weight: 700;
+  font-feature-settings: "tnum" 0;
+  letter-spacing: 0;
+  white-space: nowrap;
+  animation: name-in calc(var(--time-intro-beat) * 6) linear calc(var(--time-intro-beat) * 13)
+    backwards;
+}
+
+@keyframes name-in {
+  from {
+    opacity: 0;
+  }
+}
+
+@media (min-width: 40em) {
+  .logo {
+    height: calc(var(--s-1) * 14);
+  }
+}
+
+/* No cover for a visitor who asked for less motion, whatever the root element says. */
+@media (prefers-reduced-motion: reduce) {
+  :root[data-intro] .cover {
+    display: none;
+  }
+}
+
+/* System colours only: the sheet on the canvas, its edge, the tail and the tenth block highlighted. */
+@media (forced-colors: active) {
+  .cover {
+    border-color: Highlight;
+    background: Canvas;
+    color: CanvasText;
+  }
+
+  .tail {
+    stroke: Highlight;
+  }
+
+  .block {
+    forced-color-adjust: none;
+    background: CanvasText;
+  }
+
+  .yours {
+    background: Highlight;
+  }
+}

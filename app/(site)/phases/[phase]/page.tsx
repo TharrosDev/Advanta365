@@ -3,16 +3,13 @@ import { notFound } from "next/navigation";
 import { StepNav } from "@/components/catalog/step-nav";
 import { TemplateCard } from "@/components/catalog/template-card";
 import { Breadcrumbs } from "@/components/layout/breadcrumbs";
-import { PageTitle } from "@/components/layout/page-title";
-import { Reveal, RevealWords } from "@/components/motion/reveal";
-import { RevealGroup } from "@/components/motion/reveal-group";
-import { Container } from "@/components/ui/container";
-import { PageShell } from "@/components/ui/page-shell";
-import { SectionShell } from "@/components/ui/section-shell";
-import { WipeButton } from "@/components/ui/wipe-button";
+import { TitleBlock } from "@/components/layout/title-block";
+import { Band } from "@/components/ui/band";
+import { Button } from "@/components/ui/button";
+import { Split } from "@/components/ui/split";
+import { Tally } from "@/components/ui/tally";
 import { getPhase, getPhases, getTemplates } from "@/lib/catalog/repository";
 import { cx } from "@/lib/cx";
-import { coarseIndexAfter, countWords } from "@/lib/motion/words";
 import styles from "./page.module.css";
 
 type PhasePageProps = { params: Promise<{ phase: string }> };
@@ -26,6 +23,12 @@ export async function generateMetadata({ params }: PhasePageProps): Promise<Meta
   return phase ? { title: phase.name, description: phase.summary } : {};
 }
 
+/**
+ * One rollout phase. The title block carries the trail, the phase numeral with its place among the
+ * phases, and links to the steps. Each step is then a band of its own, paper and desk in turn: the
+ * step number and summary in the margin, the step name and its templates beside them. The page ends
+ * with a link to the phase in the catalog.
+ */
 export default async function PhasePage({ params }: PhasePageProps) {
   const [phase, phases, templates] = await Promise.all([
     getPhase((await params).phase),
@@ -38,58 +41,67 @@ export default async function PhasePage({ params }: PhasePageProps) {
   const inPhase = templates.filter((t) => t.phase === phase.slug);
 
   return (
-    <PageShell>
-      <PageTitle
+    <>
+      <TitleBlock
+        form="document"
         title={phase.name}
         lead={phase.summary}
-        eyebrow={
-          <>
-            <Breadcrumbs items={[{ href: "/", label: "Home" }, { label: phase.name }]} />
-            <p className="t-label-medium c-fg-50">
-              Phase {number} of {phases.length}
+        crumbs={<Breadcrumbs items={[{ href: "/", label: "Home" }, { label: phase.name }]} />}
+        meta={
+          <div className={styles.place}>
+            <p className={cx("type-figure", styles.numeral)} aria-hidden="true">
+              {number}
             </p>
-          </>
+            <div className={styles.count}>
+              <p className="type-note">
+                Phase {number} of {phases.length}
+              </p>
+              <Tally
+                total={phases.length}
+                filled={number - 1}
+                marked={number}
+                size="sm"
+                className={styles.tally}
+              />
+            </div>
+          </div>
         }
-      />
-      <Container>
+      >
         <StepNav steps={phase.steps} />
-      </Container>
+      </TitleBlock>
 
       {phase.steps.map((step, index) => {
         const inStep = inPhase.filter((t) => t.step === step.slug);
         return (
-          <SectionShell key={step.slug} id={step.slug} innerClassName={styles.step}>
-            <RevealGroup className={cx("ruled", styles.stepHeader)}>
-              <Reveal as="p" effect="fade" index={0} className="t-headline-large">
-                {number}.{index + 1}
-              </Reveal>
-              <h2 className={cx("t-display-fluid", styles.stepTitle)}>
-                <RevealWords text={step.name} offset={1} />
-              </h2>
-              <p className={cx("t-body-large", "c-fg-60", styles.stepBody)}>
-                <Reveal effect="fade" index={coarseIndexAfter(1 + countWords(step.name))}>
-                  {step.summary}
-                </Reveal>
-              </p>
-            </RevealGroup>
-            <ul className={styles.grid}>
+          <Band
+            key={step.slug}
+            id={step.slug}
+            surface={index % 2 === 0 ? "paper" : "desk"}
+            innerClassName={styles.step}
+          >
+            <p className={styles.stepNumber}>
+              {number}.{index + 1}
+            </p>
+            <h2 className={cx("type-section", styles.stepTitle)}>{step.name}</h2>
+            <p className={cx("type-ui", styles.stepSummary)}>{step.summary}</p>
+            <ul className={styles.cards}>
               {inStep.map((template) => (
                 <li key={template.slug}>
                   <TemplateCard template={template} />
                 </li>
               ))}
             </ul>
-          </SectionShell>
+          </Band>
         );
       })}
 
-      <Container>
-        <div className={cx("ruled", styles.footerAction)}>
-          <WipeButton href={`/catalog?phase=${phase.slug}`} arrow="right">
+      <Band as="div" surface={phase.steps.length % 2 === 0 ? "paper" : "desk"} pad="tight">
+        <Split>
+          <Button variant="outline" arrow href={`/catalog?phase=${phase.slug}`}>
             {`View all ${phase.name} templates`}
-          </WipeButton>
-        </div>
-      </Container>
-    </PageShell>
+          </Button>
+        </Split>
+      </Band>
+    </>
   );
 }

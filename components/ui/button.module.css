@@ -1,33 +1,23 @@
 .root {
-  position: relative;
   display: inline-flex;
-  justify-content: center;
   align-items: center;
-  margin: 0;
-  border: 0;
-  border-radius: 0;
-  background: none;
-  color: inherit;
-  font: inherit;
+  justify-content: center;
+  gap: var(--s-1);
+  min-height: var(--control);
+  padding: var(--s-1) var(--s-3);
+  border: var(--edge) solid transparent;
+  border-radius: var(--round-2);
   text-align: center;
   text-decoration: none;
   cursor: pointer;
+  transition:
+    background-color var(--time-swap) linear,
+    color var(--time-swap) linear,
+    border-color var(--time-swap) linear;
 }
 
-.md {
-  min-height: var(--touch-target);
-  padding: var(--spacing-xs) var(--spacing-sm);
-  font-size: var(--text-label-large-size);
-  line-height: var(--text-label-large-line-height);
-  letter-spacing: var(--text-label-large-letter-spacing);
-}
-
-.lg {
-  min-height: 54px;
-  padding: var(--spacing-sm) var(--spacing-md);
-  font-size: var(--text-body-large-size);
-  line-height: var(--text-body-large-line-height);
-  letter-spacing: var(--text-body-large-letter-spacing);
+.root:active {
+  translate: 0 1px;
 }
 
 .fullWidth {
@@ -35,85 +25,153 @@
   width: 100%;
 }
 
-.content {
-  position: relative;
-  z-index: 0;
-  display: inline-flex;
-  align-items: center;
-  gap: var(--spacing-xs2);
+/* Sizes. The small one is 40px on the desktop bar and a full 44px target below 68em. */
+.sm {
+  min-height: var(--tap);
+  padding-inline: var(--s-2);
 }
 
-/* slab: a solid block in the foreground colour that inverts as a whole */
-.slab {
-  isolation: isolate;
-  overflow: hidden;
-  background: var(--color-foreground-100);
-  color: var(--color-background-100);
+.lg {
+  min-height: var(--control-lg);
+  padding-inline: var(--s-4);
 }
 
-/* outline: a hairline box with the same sweep; the border takes 1px out of the padding */
-.outline {
-  isolation: isolate;
-  overflow: hidden;
-  border: 1px solid var(--color-foreground-100);
-}
-
-.outline.md {
-  padding: calc(var(--spacing-xs) - 1px) calc(var(--spacing-sm) - 1px);
-}
-
-.outline.lg {
-  padding: calc(var(--spacing-sm) - 1px) calc(var(--spacing-md) - 1px);
-}
-
-/* The sweep blends against the button's own surface. The outline box is transparent at rest and
-   takes the page colour only while a bar is on it. */
-.outline[data-sweeping] {
-  background: var(--color-background-100);
-}
-
-/* A white bar blended as a difference: an exact inversion on either theme. */
-.sweep {
-  --wipe-bar-height: 100%;
-  --wipe-bar-color: var(--base-color-white);
-
-  position: absolute;
-  inset: 0;
-  z-index: 1;
-  mix-blend-mode: difference;
-  pointer-events: none;
-}
-
-/* text: no box, an underlined label */
-.text {
-  padding-inline: 0;
-  color: var(--color-foreground-60);
-  text-decoration: underline;
-  text-underline-position: from-font;
-  transition: color var(--duration-fast) var(--easing-out);
-}
-
-.text:hover,
-.text:focus-visible {
-  color: var(--color-foreground-100);
-}
-
-.root:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-}
-
-.text:disabled {
-  color: var(--color-foreground-60);
-}
-
-/* hidden, not removed: a bar that is already there still finishes and leaves the list */
-.root:disabled .sweep {
-  visibility: hidden;
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .text {
-    transition: none;
+@media (min-width: 68em) {
+  .sm {
+    min-height: var(--control-sm);
   }
+}
+
+.arrow {
+  transition: translate var(--time-swap) linear;
+}
+
+.root:focus-visible .arrow {
+  translate: 3px 0;
+}
+
+/*
+ * Mark: the buyer's main move. Ink with white text at rest; under the pointer or keyboard focus
+ * the highlighter comes up inside the ink border and the text turns to ink. The border never
+ * changes, so neither does the width. Ink is the same solid button under its own name, for the
+ * main action on the wash band.
+ */
+.mark,
+.ink {
+  border-color: var(--ink);
+  background: var(--ink);
+  color: var(--on-ink);
+}
+
+.mark:focus-visible,
+.ink:focus-visible {
+  background: var(--mark);
+  color: var(--on-mark);
+}
+
+/*
+ * Outline: the text colour of the surface as a border. The hover fill is the wash, which is light
+ * on every band, so the label reads in ink while it is on.
+ */
+.outline {
+  border-color: var(--line-ink);
+  background: transparent;
+  color: var(--text);
+}
+
+.outline:focus-visible {
+  background: var(--mark-wash);
+  color: var(--ink);
+}
+
+/* On the wash band that fill would vanish into the ground, so it is the paper there. */
+[data-band="wash"] .outline:focus-visible {
+  background: var(--surface);
+}
+
+/* Text: no box, an ink underline, and a 44px hit height. */
+.text {
+  min-height: var(--tap);
+  padding: 0;
+  border-width: 0;
+  border-radius: var(--round-1);
+  background: none;
+  color: var(--text);
+  text-decoration: underline;
+  text-decoration-thickness: var(--hair);
+  text-underline-offset: 3px;
+}
+
+/*
+ * The words of a text button. Under the pointer or focus the highlighter is drawn behind them and
+ * a little past their ends, as on a text link, and the underline thickens.
+ */
+.words {
+  border-radius: var(--round-1);
+  box-decoration-break: clone;
+  -webkit-box-decoration-break: clone;
+  transition:
+    background-color var(--time-swap) linear,
+    box-shadow var(--time-swap) linear;
+}
+
+.text:focus-visible {
+  text-decoration-thickness: var(--edge);
+}
+
+.text:focus-visible .words {
+  background: var(--mark);
+  box-shadow: 0 0 0 var(--edge) var(--mark);
+  color: var(--on-mark);
+}
+
+@media (hover: hover) {
+  .root:hover .arrow {
+    translate: 3px 0;
+  }
+
+  .mark:hover,
+  .ink:hover {
+    background: var(--mark);
+    color: var(--on-mark);
+  }
+
+  .outline:hover {
+    background: var(--mark-wash);
+    color: var(--ink);
+  }
+
+  [data-band="wash"] .outline:hover {
+    background: var(--surface);
+  }
+
+  .text:hover {
+    text-decoration-thickness: var(--edge);
+  }
+
+  .text:hover .words {
+    background: var(--mark);
+    box-shadow: 0 0 0 var(--edge) var(--mark);
+    color: var(--on-mark);
+  }
+}
+
+/* Pressed: the highlighter one step deeper. After the hover rules, so it holds while held down. */
+.mark:active,
+.ink:active {
+  background: var(--mark-deep);
+  color: var(--on-mark);
+}
+
+/* Disabled comes last so it wins over every variant and its hover. Nothing moves. */
+.root:disabled {
+  border-color: var(--line);
+  background: var(--tile);
+  color: var(--text-faint);
+  cursor: not-allowed;
+  translate: none;
+}
+
+.root:disabled .arrow {
+  translate: none;
 }

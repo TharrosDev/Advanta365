@@ -1,0 +1,152 @@
+.root {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.item {
+  display: grid;
+  min-width: 0;
+}
+
+.tab {
+  text-decoration: none;
+  transition:
+    background-color var(--time-swap) linear,
+    border-color var(--time-swap) linear;
+}
+
+/* Besley's own figures: see the note on the display classes in globals.css. */
+.numeral {
+  font-family: var(--face-display);
+  line-height: 1;
+  font-weight: 700;
+  font-feature-settings: "tnum" 0;
+}
+
+/*
+ * Rail: equal tabs in one row. A tab is the colour of the page below the rail, so it reads as a
+ * piece of that page reaching up. The side and top borders are always there and only take ink on
+ * the current tab, so no tab changes size.
+ */
+.rail {
+  display: grid;
+  grid-auto-columns: minmax(0, 1fr);
+  grid-auto-flow: column;
+  gap: var(--s-1);
+}
+
+/* Number and name share a baseline; the one line they form is centred in the tab. */
+.rail .tab {
+  display: flex;
+  flex-wrap: wrap;
+  align-content: center;
+  align-items: baseline;
+  justify-content: center;
+  gap: 0 var(--s-1);
+  height: calc(var(--s-1) * 5);
+  padding-inline: var(--s-1);
+  border: var(--edge) solid transparent;
+  border-block-end-width: 0;
+  border-radius: var(--round-2) var(--round-2) 0 0;
+  background: var(--desk);
+  color: var(--ink);
+}
+
+.rail .numeral {
+  font-size: 0.9375rem;
+}
+
+.rail .name {
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.rail .tab:focus-visible {
+  background: var(--mark-wash);
+}
+
+/* The phase being shown: the highlighter inside an ink edge, with its name set heavier. */
+.rail .tab[aria-current] {
+  border-color: var(--ink);
+  background: var(--mark);
+  color: var(--on-mark);
+}
+
+.rail .tab[aria-current] .name {
+  font-weight: 700;
+}
+
+/*
+ * Large: index cards, 56px tall, with the number over the name. The block padding gives up the
+ * hairline of the border so the card is exactly 56px.
+ */
+.large {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--s-1);
+}
+
+.large .tab {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  min-height: var(--control-lg);
+  padding: calc(var(--s-1) - var(--hair)) var(--s-2);
+  border: var(--hair) solid var(--line);
+  border-radius: var(--round-2);
+  background: var(--surface);
+  color: var(--text);
+}
+
+.large .numeral {
+  font-size: 1.25rem;
+}
+
+/* The wash is light on every band, so the card reads in ink while it is on. */
+.large .tab:focus-visible {
+  --text: var(--ink);
+  border-color: var(--ink);
+  background: var(--mark-wash);
+}
+
+/* The ring inside the border makes the ink edge of the current card 2px. */
+.large .tab[aria-current] {
+  --text: var(--on-mark);
+  border-color: var(--ink);
+  background: var(--mark);
+  box-shadow: inset 0 0 0 var(--hair) var(--ink);
+}
+
+.large .tab[aria-current] .name {
+  font-weight: 700;
+}
+
+@media (min-width: 40em) {
+  .large {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+}
+
+/* One row. Each card starts from the width of its name and takes an equal share of what is left. */
+@media (min-width: 68em) {
+  .large {
+    display: flex;
+  }
+
+  .large .item {
+    flex: 1 1 auto;
+  }
+}
+
+@media (hover: hover) {
+  .rail .tab:hover:not([aria-current]) {
+    background: var(--mark-wash);
+  }
+
+  .large .tab:hover:not([aria-current]) {
+    --text: var(--ink);
+    border-color: var(--ink);
+    background: var(--mark-wash);
+  }
+}

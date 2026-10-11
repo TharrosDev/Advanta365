@@ -1,0 +1,51 @@
+.root {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--s-3);
+}
+
+.margin,
+.content {
+  min-width: 0;
+}
+
+@media (min-width: 68em) {
+  .root {
+    grid-template-columns: repeat(12, minmax(0, 1fr));
+    gap: 0 var(--col-gap);
+  }
+
+  .margin {
+    grid-column: 1 / span 3;
+  }
+
+  .sticky {
+    position: sticky;
+    top: calc(var(--bar-h) + var(--s-3));
+    align-self: start;
+  }
+
+  /* Placed by line, so the content keeps its columns when there is no margin. */
+  .content {
+    position: relative;
+    grid-column: 4 / -1;
+  }
+
+  /* The margin rule: in the middle of the gutter, through the padding of the band around it. */
+  .hasRule::before {
+    content: "";
+    position: absolute;
+    inset-block: calc(-1 * var(--pad, 0px));
+    left: calc(var(--col-gap) / -2);
+    width: var(--hair);
+    background: var(--line);
+    pointer-events: none;
+  }
+}
+
+/* The pseudo-element only exists from 68em, where the rule above gives it content. */
+@media (forced-colors: active) {
+  .hasRule::before {
+    background: GrayText;
+  }
+}

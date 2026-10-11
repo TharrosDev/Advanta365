@@ -1,0 +1,37 @@
+.list {
+  display: flex;
+  gap: var(--s-1);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.link {
+  display: flex;
+  align-items: center;
+  height: var(--control-sm);
+  padding-inline: var(--s-2);
+  border-radius: var(--round-2);
+  color: var(--ink);
+  text-decoration: none;
+  white-space: nowrap;
+  transition: background-color var(--time-swap) linear;
+}
+
+.link:focus-visible {
+  background: var(--mark-wash);
+}
+
+/* Current: the highlighter, an ink edge and a heavier weight. Never the fill alone. */
+.link[aria-current] {
+  background: var(--mark);
+  box-shadow: inset 0 0 0 var(--edge) var(--ink);
+  color: var(--on-mark);
+  font-weight: 700;
+}
+
+@media (hover: hover) {
+  .link:hover:not([aria-current]) {
+    background: var(--mark-wash);
+  }
+}

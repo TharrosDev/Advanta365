@@ -1,10 +1,11 @@
-import { Reveal } from "@/components/motion/reveal";
-import { RevealGroup } from "@/components/motion/reveal-group";
-import { DetailCard } from "@/components/ui/detail-card";
-import { SectionIntro } from "@/components/ui/section-intro";
-import { SectionLabel } from "@/components/ui/section-label";
-import { SectionShell } from "@/components/ui/section-shell";
-import { WipeLink } from "@/components/ui/wipe-link";
+import { Band } from "@/components/ui/band";
+import { BandedList, BandedRow } from "@/components/ui/banded-list";
+import { Eyebrow } from "@/components/ui/eyebrow";
+import { Icon } from "@/components/ui/icon";
+import { KeepCompounds } from "@/components/ui/keep-compounds";
+import { PhaseTabs } from "@/components/ui/phase-tabs";
+import { Split } from "@/components/ui/split";
+import { TransitionLink } from "@/components/ui/transition-link";
 import type { Phase } from "@/lib/catalog/schema";
 import { cx } from "@/lib/cx";
 import { TOOLKIT } from "@/lib/site";
@@ -51,78 +52,55 @@ const ITEMS: readonly Item[] = [
 const PHASES_LABEL = "Browse the sample catalog by phase";
 
 /**
- * `#inside`: a label strip, a sticky intro on the left (from 1024px) and the six parts of the toolkit
- * as ruled cards on the right. The worked example is the one card that is a link (to `/sample`).
- * Under the cards, one link per catalog phase to `/phases/{slug}`; a link's accessible name is
- * exactly the phase name.
- *
- * Reveal order: label 0 (its own group); intro words 1..2 on the fine step and the body on coarse 3;
- * cards 0..5 in a group of their own; the phase links in a third group, caption 0 and then the links
- * from 1 on the fine step.
+ * `#inside`: the margin split on the desk. The heading and its sentence stay in the margin (sticky
+ * under the bar from 68em); the six parts of the toolkit are a banded list in the content column,
+ * each row a title with its description beside it; neither breaks inside a hyphenated word
+ * ("10,000-person"). The worked example is the one row that is a link, to `/sample`: its title is
+ * the anchor and is stretched over the row. Under the list, the seven phases as large index tabs; a
+ * tab's accessible name is exactly the phase name.
  */
-export function InsideSection({ phases }: { phases: Phase[] }) {
+export function InsideSection({ phases }: { phases: readonly Phase[] }) {
   return (
-    <SectionShell id="inside" height="full" innerClassName={styles.inside}>
-      <RevealGroup>
-        <Reveal as="div" effect="fade" index={0}>
-          <SectionLabel>What’s inside</SectionLabel>
-        </Reveal>
-      </RevealGroup>
-      <RevealGroup className={styles.insideIntro}>
-        <SectionIntro
-          title="What’s inside"
-          body="The change management and user adoption toolkit behind real SharePoint Online rollouts, ready to adapt by hand or with AI."
-          wordOffset={1}
-        />
-      </RevealGroup>
-      <div className={styles.insideGrid}>
-        <div className={styles.insideColumn}>
-          <RevealGroup as="ul" className={styles.insideList}>
-            {ITEMS.map((item, index) => (
-              <Reveal key={item.title} as="li" effect="fade-up" index={index}>
-                <DetailCard
-                  title={item.title}
-                  href={item.href}
-                  body={item.body}
-                  bodyClassName={styles.cardBody}
-                />
-              </Reveal>
-            ))}
-          </RevealGroup>
-          <RevealGroup
-            as="nav"
-            aria-label={PHASES_LABEL}
-            className={cx("ruled", styles.insidePhases)}
-          >
-            {/* Hidden from assistive technology: the nav already carries these words as its name. */}
-            <Reveal
-              as="p"
-              effect="fade"
-              index={0}
-              className="t-label-medium c-fg-60"
-              aria-hidden="true"
-            >
-              {PHASES_LABEL}
-            </Reveal>
-            <ul className={cx("t-body-large", styles.insidePhaseList)}>
-              {phases.map((phase, index) => (
-                <Reveal
-                  key={phase.slug}
-                  as="li"
-                  effect="fade-up"
-                  step="fine"
-                  index={index + 1}
-                  className={styles.insidePhaseItem}
-                >
-                  <WipeLink variant="underline" href={`/phases/${phase.slug}`}>
-                    {phase.name}
-                  </WipeLink>
-                </Reveal>
-              ))}
-            </ul>
-          </RevealGroup>
-        </div>
-      </div>
-    </SectionShell>
+    <Band id="inside" surface="desk">
+      <Split
+        sticky
+        margin={
+          <>
+            <h2 className="type-section">What’s inside</h2>
+            <p className={cx("type-ui", styles.insideBody)}>
+              The change management and user adoption toolkit behind real SharePoint Online
+              rollouts, ready to adapt by hand or with AI.
+            </p>
+          </>
+        }
+      >
+        <BandedList>
+          {ITEMS.map(({ title, body, href }) => (
+            <BandedRow key={title} className={cx(styles.manifestRow, href && styles.manifestLink)}>
+              <h3 className={cx("type-item", styles.manifestTitle)}>
+                {href ? (
+                  <TransitionLink href={href} className={styles.manifestAnchor}>
+                    <KeepCompounds text={title} />
+                  </TransitionLink>
+                ) : (
+                  <KeepCompounds text={title} />
+                )}
+              </h3>
+              <p className={cx("type-copy", styles.manifestBody)}>
+                <KeepCompounds text={body} />
+              </p>
+              {href ? <Icon name="arrow" className={styles.manifestArrow} /> : null}
+            </BandedRow>
+          ))}
+        </BandedList>
+        <nav aria-label={PHASES_LABEL} className={styles.insidePhases}>
+          {/* Hidden from assistive technology: the nav already carries these words as its name. */}
+          <div aria-hidden="true">
+            <Eyebrow className={styles.insidePhasesLabel}>{PHASES_LABEL}</Eyebrow>
+          </div>
+          <PhaseTabs phases={phases} size="large" />
+        </nav>
+      </Split>
+    </Band>
   );
 }

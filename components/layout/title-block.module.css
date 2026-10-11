@@ -1,0 +1,130 @@
+/*
+ * One column of the title block. The gaps are set between neighbours, so a part that is left out
+ * leaves no hole: trail and meta 21px above what follows, the lead 14px under the title, and
+ * `children` 28px under whatever comes before them.
+ */
+.column {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+.column > * {
+  max-width: 100%;
+}
+
+.title {
+  overflow-wrap: break-word;
+}
+
+.measured {
+  max-width: var(--wrap-head);
+}
+
+.lead {
+  max-width: var(--wrap-lead);
+  color: var(--text-soft);
+}
+
+.trail,
+.meta {
+  width: 100%;
+}
+
+/*
+ * The trail is drawn over what follows it. A large numeral in the meta has a text box taller than
+ * its line, and in forced colours that box is filled behind the glyph.
+ */
+.trail {
+  position: relative;
+  z-index: 1;
+}
+
+.trail + .meta,
+.trail + .title,
+.meta + .title,
+.titleLine + .meta {
+  margin-block-start: var(--s-3);
+}
+
+.title + .lead {
+  margin-block-start: var(--s-2);
+}
+
+.extra {
+  width: 100%;
+}
+
+.title + .extra,
+.lead + .extra,
+.titleLine + .extra {
+  margin-block-start: var(--s-4);
+}
+
+.titleLine {
+  width: 100%;
+}
+
+/* Stacked, the lead of an index page is as close to the title as on the other forms. */
+.index.index {
+  row-gap: var(--s-2);
+}
+
+/* An index page with nothing beside its title has no second block to stack. */
+.vacant {
+  display: none;
+}
+
+/* Wide: one column below 68em, the twelve-column grid from there. */
+.wide {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+@media (min-width: 68em) {
+  .vacant {
+    display: flex;
+  }
+
+  /*
+   * The first line beside the title stands on the title's baseline. The pseudo-element is an empty
+   * line set in the title's type; the text next to it is aligned to that line's baseline, so the
+   * two columns agree whatever the fonts measure.
+   */
+  .titleLine {
+    display: flex;
+    align-items: baseline;
+  }
+
+  .titleLine::before {
+    content: "\200B";
+    flex: none;
+    width: 0;
+    font-family: var(--face-display);
+    font-size: var(--size-page);
+    line-height: 1.16;
+    font-weight: 600;
+  }
+
+  .titleLine > * {
+    flex: 1 1 0;
+    min-width: 0;
+  }
+
+  .wide {
+    display: grid;
+    grid-template-columns: repeat(12, minmax(0, 1fr));
+    column-gap: var(--col-gap);
+    justify-items: start;
+  }
+
+  .wide > * {
+    grid-column: 1 / span 8;
+  }
+
+  .wide > .title {
+    grid-column: 1 / span 9;
+    max-width: none;
+  }
+}

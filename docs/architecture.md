@@ -1,21 +1,31 @@
 # Architecture
 
 Advanta365 is a Next.js 16 App Router site. Pages are server components that read a validated catalog
-and compose primitives. The motion and graphics layer is client-only and starts after hydration. This
-document describes how the parts connect. For the visual rules see `design-system.md`; for numbers you
-can tune see `graphics-tuning.md`.
+and compose primitives. The look is HTML, CSS and inline SVG; nothing is drawn by script, and the
+little client JavaScript there is serves the cart, the catalog filters, the phone menu, the two
+navigations that mark the current page and the cover of a first visit. This document describes how
+the parts connect. For the visual rules see `design-system.md`.
 
 ## Server and client boundaries
 
 - Layouts and pages are server components. They load data and pass plain values down.
 - A file with `"use client"` is a client island. It is still rendered to HTML on the server, then
-  hydrated, and its hooks run in the browser only.
-- A file without the directive uses no hooks and can be rendered from either side: `Container`,
-  `Text`, `SectionShell`, `SectionIntro`, `DetailCard`, `Chip`, `LogoMark` and the other static
-  primitives. `lib/motion/reduced-motion.ts` is deliberately without the directive, so
-  `prefersReducedMotion()` is an ordinary function that a server module can import.
-- WebGL code is loaded with `await import()` inside an effect, never by a static import. The first
-  route chunk contains no WebGL.
+  hydrated, and its hooks run in the browser only. The islands are:
+  - the cart: `components/cart/use-cart.ts` (the store), `cart-sync.tsx`, `cart-button.tsx`,
+    `add-to-cart.tsx` and `cart-contents.tsx`;
+  - the catalog: `components/catalog/filter-panel.tsx` and `sort-select.tsx`;
+  - the shell: `components/layout/primary-nav.tsx`, `phase-rail.tsx` and `nav-drawer.tsx`;
+  - `components/company/faq-list.tsx` and `components/not-found/asked-path.tsx`.
+- The cover of a first visit is not an island. `IntroCover` (`components/intro/intro-cover.tsx`) is
+  a static server component, and what switches it on is an inline script that the root layout
+  renders first thing in `<body>` (`IntroScript`, from the string in
+  `components/intro/intro-script.ts`). The script runs once per page load, before anything is
+  painted and long before hydration; no component reads or writes its state. See "The cover".
+- A file without the directive uses no state or effects and can be rendered from either side: `Band`,
+  `Wrap`, `Split`, `Sheet`, `BandedList`, `RowLink`, `Button`, `TextLink`, `Tally`, `Blank`, `Tag`,
+  `Icon`, `LogoMark`, `BrandLockup` and the other static primitives. `TransitionLink` is a plain
+  `next/link` wrapper with no state, so server components render it. `Header` and `Footer` are server
+  components too; the client parts inside them are `PrimaryNav` and `NavDrawer`.
 - Catalog data lives in `content/**`. Only `lib/catalog/repository.ts` reads it. It validates every
   record with zod when the module loads (`validateCatalog`) and throws `CatalogError`, which names the
   record, field or duplicate slug. Its functions are async, so a database can replace the file source
@@ -29,25 +39,42 @@ can tune see `graphics-tuning.md`.
 
 ## Routes
 
-| Route                | File                                   | Notes                                                |
-| -------------------- | -------------------------------------- | ---------------------------------------------------- |
-| `/`                  | `app/(site)/page.tsx`                  | Home: hero, two statements, swirl band, dark run     |
-| `/catalog`           | `app/(site)/catalog/page.tsx`          | Search, sort and filters in the URL                  |
-| `/phases/[phase]`    | `app/(site)/phases/[phase]/page.tsx`   | Static per phase. Calls `notFound()`                 |
-| `/templates/[slug]`  | `app/(site)/templates/[slug]/page.tsx` | Static per template. Calls `notFound()`              |
-| `/bundles`           | `app/(site)/bundles/page.tsx`          |                                                      |
-| `/bundles/[slug]`    | `app/(site)/bundles/[slug]/page.tsx`   | Static per bundle. Calls `notFound()`                |
-| `/cart`              | `app/(site)/cart/page.tsx`             | Checkout is a disabled "coming soon" control         |
-| `/pricing`           | `app/(site)/pricing/page.tsx`          |                                                      |
-| `/about`             | `app/(site)/about/page.tsx`            | `#compare` is linked from the home page              |
-| `/sample`            | `app/(site)/sample/page.tsx`           | Describes the worked example; offers no file         |
-| `/contact`           | `app/(site)/contact/page.tsx`          |                                                      |
-| any other path       | `app/(site)/[...rest]/page.tsx`        | Calls `notFound()`, so the site shell stays          |
+| Route               | File                                   | Notes                                           |
+| ------------------- | -------------------------------------- | ----------------------------------------------- |
+| `/`                 | `app/(site)/page.tsx`                  | Home, product first: hero sheet, shelves, pitch |
+| `/catalog`          | `app/(site)/catalog/page.tsx`          | Search, sort and filters in the URL             |
+| `/phases/[phase]`   | `app/(site)/phases/[phase]/page.tsx`   | Static per phase. Calls `notFound()`            |
+| `/templates/[slug]` | `app/(site)/templates/[slug]/page.tsx` | Static per template. Calls `notFound()`         |
+| `/bundles`          | `app/(site)/bundles/page.tsx`          |                                                 |
+| `/bundles/[slug]`   | `app/(site)/bundles/[slug]/page.tsx`   | Static per bundle. Calls `notFound()`           |
+| `/cart`             | `app/(site)/cart/page.tsx`             | Checkout is a disabled "coming soon" control    |
+| `/pricing`          | `app/(site)/pricing/page.tsx`          |                                                 |
+| `/about`            | `app/(site)/about/page.tsx`            | `#compare` is linked from the home page         |
+| `/sample`           | `app/(site)/sample/page.tsx`           | Describes the worked example; offers no file    |
+| `/contact`          | `app/(site)/contact/page.tsx`          |                                                 |
+| any other path      | `app/(site)/[...rest]/page.tsx`        | Calls `notFound()`, so the site shell stays     |
 
-The home page's sections, top to bottom (`components/home/`): the hero, `#problem`, `#solution`, then
-`#inside`, `#bundles`, `#featured` and `#practice` inside the swirl band (its four stops, in that
-order), then `#values`, the built-for band (no id) and `#closing`. The page is light down to
-`#practice`, where `ThemeScroll` turns it dark; the three sections after it are dark on their own.
+The home page is one array of sections in `app/(site)/page.tsx`; reordering the page is reordering
+that array. Before the sections it renders `IntroCover`, which no other page does (see "The
+cover"). Top to bottom, with the band each one sits on (`components/home/`):
+
+| Section                                       | File                   | Band  |
+| --------------------------------------------- | ---------------------- | ----- |
+| Hero: headline, lead, two buttons, hero sheet | `hero.tsx`             | desk  |
+| `#featured`: six featured templates           | `featured-section.tsx` | paper |
+| `#inside`: what the toolkit holds, phase tabs | `inside-section.tsx`   | desk  |
+| `#bundles`: three folders with phase coverage | `bundles-section.tsx`  | paper |
+| `#problem` and `#solution`: two facing sheets | `pitch-spread.tsx`     | desk  |
+| `#practice`: why it is different              | `practice-section.tsx` | wash  |
+| `#values`: four value tiles                   | `values-section.tsx`   | paper |
+| Built for Microsoft 365 (no id)               | `built-for-row.tsx`    | paper |
+| `#closing`: one bordered sheet                | `closing-section.tsx`  | desk  |
+
+The hero sheet (`hero-sheet.tsx`) is built in `page.tsx` by `buildSpecimen()` from the first featured
+template (the first template if none is featured), its phase and step, and the same labelled facts the
+template page lists. It is the one place where catalog text is repeated, and it is `aria-hidden`. A
+template whose phase is missing yields no specimen, and the hero renders without the sheet. The bundle
+cards take their phase coverage from `phaseCoverage()` in `lib/catalog/coverage.ts`.
 
 404 rules:
 
@@ -55,7 +82,13 @@ order), then `#values`, the built-for band (no id) and `#closing`. The page is l
   there sends a 200 shell before the not-found error, so `/nope` would answer 200. Keep this in mind
   when adding a layout.
 - `app/(site)/not-found.tsx` renders inside the site layout. `app/not-found.tsx` covers the rare case of
-  a path outside the group.
+  a path outside the group. Both render `MissingPage` (`components/not-found/missing-page.tsx`); the
+  address that was asked for is printed by the client component `AskedPath`.
+- A 404 that is decided at request time is answered as an empty document, and React builds the whole
+  page, root layout included, in the browser. Nothing in a layout may count on being parsed from the
+  server's HTML there. A `<script>` element is the case in point: one that React makes in the browser
+  never runs, and React logs an error about it. The inline script of the cover is therefore printed
+  as HTML inside a hidden wrapper (see "The cover"), which is inert and silent on such a page.
 
 `proxy.ts` answers mixed-case paths with a 308 redirect to lower case. Everything else passes through.
 
@@ -63,228 +96,239 @@ order), then `#values`, the built-for band (no id) and `#closing`. The page is l
 
 `app/(site)/layout.tsx` renders, in order:
 
-1. The skip link, which is the first focusable element.
-2. `CartSync`, `ViewportLock` and, while the catalog holds sample content, `BetaBar`.
-3. `.frame`, which holds `Header`, `<main id="main">` with the page, and `Footer`.
-4. `SiteFrame` (the 2000px guide lines, from 2000px wide) and `PageFade` (the route fade layer).
+1. The skip link ("Skip to content"), a `Button href="#main"`, which is the first focusable element. It
+   is parked above the top edge and drops into the corner on keyboard focus.
+2. `CartSync` and, while the catalog holds sample content (`hasSampleContent()`), `BetaStrip`: one line
+   on the wash, in the flow, which scrolls away.
+3. `.frame`, a column at least `100svh` tall that clips sideways (`overflow-x: clip`, so the sticky bar
+   keeps working). It holds `Header`, `PhaseRail`, `<main id="main">` with the page, and `Footer`.
 
-Pages render a `PageShell` (a `div`). The layout owns `<main>`, so there is exactly one per page.
+The layout reads the phases, templates and bundles once and passes the shell two plain values: `phases`
+(`PhaseLink[]`: slug and name) and `templatePhases` (a map from each template slug to its phase slug, the
+`TemplatePhases` type). Both are in `components/layout/nav-links.ts`, with `PRIMARY_LINKS` (Catalog,
+Bundles, Pricing, About, Contact) and two helpers that turn a pathname into `aria-current`:
+`linkCurrent()` for the primary links and `currentPhase()` for the phases.
 
-The header is absolutely positioned, scrolls away with the page and has no background of its own. It is
-a three-column grid: brand, Menu, cart. DOM order, visual order and tab order are the same at every width.
+Pages render `Band`s (usually opened by a `TitleBlock`) directly inside `<main>`. The layout owns
+`<main>`, so there is exactly one per page.
 
-The footer is always light. It holds the one `nav` named "Rollout phases", the primary links, the legal
-notice and the wordmark.
+### The bar
 
-### The Menu
+`header.tsx` renders `<header>`: sticky at the top, `--bar-h` tall (56px, 70px from 68em), on paper
+with a soft shadow and no line under it. Left to right, which is also the DOM order and the tab order:
 
-`components/layout/menu.tsx` is a curtain on every viewport, with no separate desktop navigation.
+1. The brand: a `TransitionLink` to `/` around the tile `BrandLockup`.
+2. `PrimaryNav` (`nav aria-label="Primary"`), from 68em. The link of the page being shown gets
+   `aria-current="page"`; on a page underneath it (a bundle under Bundles) it gets
+   `aria-current="true"`. It is a client component only because it reads the pathname.
+3. The cart. The layout passes `<CartButton />` in as the `cart` prop, so the header itself stays a
+   server component.
+4. `NavDrawer`, whose "Menu" button shows below 68em.
 
-- Opening requests the dark theme, drops the panel from the top and staggers the rows in.
-- Closing happens on Close, Escape, a tap on the backdrop, a link in the panel, or a route change.
-  Focus is kept inside while open and returns to the toggle when it closes.
-- The "Close" label is placed over the "Menu" text by measuring both (`--menu-shift`,
-  `--menu-close-inset`).
-- The page does not scroll while the menu is open.
-- Browser Back while open closes it: the component remembers the pathname it was opened on
-  (`openAt`) and drops the menu when the pathname differs. It needs no effect for this.
+The bar is a container (`container-type: inline-size`) and carries two micro-queries. They measure
+the bar, not the window, so a classic scrollbar does not shift the switch: below 24.3em the word
+"Menu" is hidden visually, and below 21.2em so is the brand name. The accessible names "Menu" and
+"Advanta365" stay. The drawer's panel does the same for its own brand name at 17em. These are the
+only `@container` queries in the code, and the design gate keeps it so.
 
-## Load sequence: a hard load of `/`
+### The phase rail
 
-Only a hard load of `/` plays the intro. Other routes show no overlay.
+`phase-rail.tsx` renders `<nav aria-label="Phases" data-phase-rail>` directly after the header, from
+68em only (it is `display: none` below). It is a full-bleed strip of paper that scrolls away, with
+`PhaseTabs size="rail"` inside a `Wrap`: seven numbered tabs, each named exactly by its phase. The tab
+of the phase being shown is current: `aria-current="page"` on `/phases/{slug}`, `aria-current="true"`
+on the page of a template in that phase (found through `templatePhases`). Any other page has no
+current tab. It is a client component only because it reads the pathname.
 
-1. **Before first paint.** `EntryScript` runs inline at the top of `<body>`. When the pathname is exactly
-   `/` and reduced motion is not requested, it sets `data-entry` and `data-entry-brand` on `<html>`,
-   sets `history.scrollRestoration` to `manual`, and arms a 16s timer. The timer clears every entry
-   attribute and dispatches `a365:entry-failsafe`. Under reduced motion, or on any other route, the
-   script does nothing.
-2. **Server HTML.** The overlay markup is in the document, but CSS hides it until `data-entry` (or
-   `data-docking`) is set. Its own last-resort animation hides it at 17s.
-3. **Hydration.** `EntryOverlay` shows a white layer with the words "Advanta" and "365". The chrome
-   symbol's renderer is loaded by dynamic import and created one animation frame after mount. Its first
-   frame is drawn once the shader has linked, and the intro clock starts there. The symbol stays empty for
-   0.12s, grows from nothing into an edge-on bar over 0.8s, then turns to face front over 1.5s. That is the
-   2.42s intro. It then spins until it is asked to land.
-4. **Scroll lock.** Three animation frames after mount the overlay sets `data-entry-lock`, which holds the
-   body at `overflow: hidden`. Until then the page is kept at the top of the scroll range.
-5. **Page ready.** `whenPageReady()` waits for window load, `document.fonts.ready` and every page-ready
-   claim. The claims are the hero's first frame, the swirl's first frame and the sheen words above the
-   fold. The wait is capped at 8s. Then the overlay asks the symbol to land.
-6. **Dock.** When the symbol has landed and the page is ready, the overlay flies the symbol to the header
-   mark (`[data-site-symbol] svg`) over 800ms and flattens its exposure to the logo colour. The overlay
-   lifts in the first frame of the flight: `liftOverlay()` runs its listeners and `data-entry` is removed.
-7. **Release.** Reveals run, the headline words rise 50ms apart, the hero ribbons draw in from the left
-   (about 2.9s, each ribbon 2.5s, staggered by 0.13s), and the header mark fades in over 200ms with the
-   brand text following. The overlay then unmounts.
+### The drawer
 
-Failsafes, in the order they can fire:
+`nav-drawer.tsx` is the site menu below 68em. The toggle is an outline button in the bar with
+`aria-haspopup="dialog"`, `aria-expanded` and `aria-controls`. The panel is a native modal `<dialog>`
+named "Site menu" (`data-nav-drawer`), opened with `showModal()`, on the right edge of the screen
+with the dimmed page behind it (`drawer-in` and `scrim-in`; see `design-system.md`).
 
-| Time  | What fires                                                                                               |
-| ----- | -------------------------------------------------------------------------------------------------------- |
-| 1.5s  | If the symbol has not drawn a frame, the overlay's words start animating anyway.                         |
-| 8s    | `whenPageReady` gives up waiting for claims and resolves.                                                |
-| 14s   | The overlay's own timer calls `fallbackLeave`: the overlay fades out without docking.                    |
-| 16s   | The inline script clears the entry attributes and dispatches `a365:entry-failsafe`. The page lifts.      |
-| 17s   | CSS hides the overlay if nothing else has removed it.                                                    |
+Top to bottom: the brand and its own Close button; `nav aria-label="Menu"` holding the five primary
+links and, under a visible "Rollout phases" label, the seven phases (a list labelled by that text,
+not a second navigation); the contact address at the foot.
 
-If the dock cannot find its target (no `[data-site-symbol] svg`, or zero-height boxes), the overlay takes
-the fallback leave instead of the dock.
+It closes on Close, Escape, a click on the dimmed page (a click whose target is the dialog itself; the
+inner panel covers the rest), any link inside it, any change of pathname and a window that grows past
+68em (a `matchMedia` listener). Closing is instant. `open` state only mirrors the dialog for
+`aria-expanded`; the dialog's own `close` event clears it, so every way of closing goes through one
+handler. Focus is trapped while open and returns to the toggle, both natively. The page does not
+scroll while a dialog is open (`html:has(dialog[open]) { overflow: hidden }`).
 
-## Route transitions
+### The footer
 
-`TransitionLink` is the only way internal links navigate. For a plain left click to another pathname, it:
+`footer.tsx` renders `<footer data-band="binder">`, the only dark surface of the site. From 68em it is
+the twelve-column grid: the bare brand and the contact address (columns 1 to 4), `nav aria-label="Footer"`
+with the primary links and Cart (5 to 7), the site's one navigation named "Rollout phases" under its
+visible label (8 to 10), and the two status lines "Sample catalog (beta)" and "Checkout is not
+available yet" (11 to 12). Under them: the copyright sentence and the non-affiliation notice. From 40em
+it is two columns; below, the two navigations stay side by side and the rest is stacked.
 
-1. Calls `coverPage()`, which asks `PageFade` to fade the page to the background over 300ms.
-2. Pushes the route when the cover is complete.
-3. `PageFade` sees the pathname change, scrolls to the top (unless the URL has a hash), and reveals the
-   page over 300ms. The layer is idle again after 400ms.
+### Page openers
 
-If the pathname never changes, a 4s hold failsafe reveals the page. `coverPage()` resolves immediately
-when no `PageFade` is mounted or under reduced motion, so navigation never depends on the fade.
+`TitleBlock` (`components/layout/title-block.tsx`) opens every inner page on the desk band and holds the
+page's only `<h1>`, whose text is exactly the page title. Its `form` is `index` (the h1 in the margin),
+`document` (breadcrumbs and meta in the margin) or `wide` (no margin). `Breadcrumbs` renders
+`nav aria-label="Breadcrumb"`.
 
-A link is not faded when it points at the current pathname (filters, pagination, same-page anchors),
-when it is external, `mailto:`, protocol-relative or has a `target` other than `_self`, when a modifier
-key is held, when the click is not a primary click, or when `fade={false}` is passed. The caller's own
-`onClick` always runs first; a handler that calls `preventDefault()` stops the fade too.
+## Movement
 
-## Theme controller
+There is no route transition, no fade, no scroll lock and nothing tied to scroll position. First paint
+is the page. Four things move, all in CSS (see "Motion" in `design-system.md`):
 
-`lib/motion/theme.ts` is the only writer of `<html data-theme>`. It keeps a set of requesters. The
-attribute is `dark` while any requester asks for dark, and is removed when none does. The two requesters
-are:
+- state changes (hover, focus, press, current, open) shift colour, border or underline in 120ms;
+- panels enter: the phone drawer from the right, the filter sheet from the bottom, the scrim, and the
+  FAQ panel growing from zero height. Dialogs close instantly;
+- the hero sheet fills its ten-block tally and blinks its caret three times, once, ending 4.5s after
+  first paint;
+- the cover: on a first visit an ink sheet lies over the home page for 2.3s, is signed and is lifted
+  off. The page under it is the same complete page.
 
-- **`scroll`**, owned by `ThemeScroll` on the home page. An `IntersectionObserver` with
-  `rootMargin: 0px 0px -50% 0px` watches `#practice`. Scroll and resize re-evaluate the same test in a
-  frame. The first time the page goes dark, `#practice` receives `data-in-view`, which starts the reveals
-  paused inside it. The request is released on `pagehide` and the observer is re-created on `pageshow`,
-  so a page restored from the back-forward cache is correct.
-- **`menu`**, owned by the open menu. It requests dark on open and releases the request when a close
-  starts, or on unmount.
+Under `prefers-reduced-motion: reduce` the tally and caret animations are `none`, the dialogs drop
+their entrance, there is no cover, and `app/globals.css` shortens every other animation and
+transition.
 
-Scoped themes do not touch `<html>`: the footer is light; the beta bar, the home page's `#values`,
-built-for band and `#closing`, and the about page's dark band are dark; the entry overlay is light.
+### The cover
 
-## Page-ready and motion contract
+A first visit is the first page load of a browser session, when that page is the home page. The
+parts, all in `components/intro/`:
 
-`lib/motion/page-ready.ts` is a module-level store with no React context:
+1. `IntroScript` (`intro-script-tag.tsx`), rendered by `app/layout.tsx` first thing in `<body>`,
+   prints the inline script `INTRO_SCRIPT` from `intro-script.ts`, as the HTML of a `<div hidden>`.
+   The parser runs it on every page load the server renders, before anything is painted. It reads
+   the flag `advanta365.intro.v1` from `sessionStorage` and sets it (in a try/catch; a session whose
+   storage cannot be read counts as seen), then decides as
+   `shouldPlayIntro({ path, seen, reducedMotion })` does: play only on `/`, only if the flag was not
+   set, never under reduced motion. It lives in the layout and not in the page for two reasons: a
+   session that starts on an inner page has to be counted, and a script that React creates during a
+   change of page is never run, so nothing may depend on one. The one load it does not run on is a
+   404 decided at request time, which React builds in the browser (see the 404 rules): that load is
+   not counted, so a session that starts there still has its first visit ahead of it.
+2. To play, the script sets `data-intro="play"` on `<html>`. That element carries
+   `suppressHydrationWarning`, because React did not render the attribute.
+3. `IntroCover` (`intro-cover.tsx`), rendered by the home page before its sections, is a fixed
+   `aria-hidden` sheet that is `display: none` unless `data-intro` is `play` or `skip`. Its timeline
+   is CSS: the mark is written, ten blocks fill, the name fades in, and at 1.68s the sheet slides up
+   by its own height and holds that last frame: `display: none`, hidden, `pointer-events: none`.
+4. The script keeps the attribute in step. A `pointerdown`, `keydown`, `wheel` or `touchmove` before
+   the sheet has begun to lift sets `skip` (the sheet is off in 200ms). The end of the cover's own
+   animation, or a backstop 4s after the first frame, sets `done`. When every animation that was
+   running at that moment has ended or been cancelled, the attribute is removed. It tells the cover's
+   animation events from its children's by the `data-intro-cover` hook.
+5. While the attribute is present, `:root[data-intro]` in `app/globals.css` sets `--intro-hold` and
+   `--intro-blinks`. `tally.module.css` and `blank.module.css` read them: the hero sheet's fill starts
+   as the cover lifts (1.75s) and its caret blinks twice, so the last movement ends 4.91s after first
+   paint. That is why the attribute outlives the cover: taking it off earlier would retime animations
+   that are still running. `:root[data-intro="play"]` also runs `intro-scrollbar` for the same 1.75s:
+   a classic scrollbar is not part of the page, so it is drawn in ink until the page comes into play.
 
-- `hasEntryOverlay()`, `isOverlayLifted()`, `onOverlayLifted(cb)`, `liftOverlay()`. Routes without the
-  overlay are lifted from the first call.
-- `claimReady()` registers "something above the fold is still warming up" and returns an idempotent
-  `release()`.
-- `whenPageReady()` resolves when window load, fonts and all claims are settled, or after 8s.
-
-Every canvas follows the same rules:
-
-1. Claim on mount, and release on the first drawn frame, on error and on cleanup.
-2. Draw the first frame as soon as the program has linked, whatever the scroll position. A canvas below
-   the fold must not hold the loader until its own timeout.
-3. Draw later frames only while the canvas is in view, the tab is visible and the overlay is lifted, and
-   only when something is changing.
-4. Link shaders without blocking: start the link, poll `isProgramComplete()` once per frame (using
-   `KHR_parallel_shader_compile` where it exists), then call `finishProgram()`. See `lib/gl/program.ts`.
-5. On context loss or a link error, switch to the fallback. A disposed renderer releases its context
-   with `WEBGL_lose_context`.
-6. Under reduced motion there is no time loop.
-
-| Component       | Loaded by                                                          | Page-ready claim                                       | Fallback                                         |
-| --------------- | ------------------------------------------------------------------ | ------------------------------------------------------ | ------------------------------------------------ |
-| `HeroLiquid`    | `renderer.ts` by dynamic import, mask from a worker or the main thread | Yes, released at the first frame                      | Flat SVG ribbons (`data-hero-lines`)             |
-| `MetallicSwirl` | `renderer.ts` by dynamic import                                    | Yes, on mount, released at the first frame             | Canvas hidden, plain background                  |
-| `ChromeSymbol`  | `session.ts` by dynamic import, one frame after mount              | No. The overlay waits on `whenPageReady()` and `land()` | Flat `LogoMark` (`data-failed`)                  |
-| `SheenWord`     | `sheen-engine.ts` by dynamic import                                | Yes, for words above the fold                          | Gradient text clipped to the glyphs              |
-
-### The hero mask
-
-`mask-loader.ts` builds the ribbon mask once per width and shading floor, and caches the result.
-
-- The width is chosen at mount: 2048 when the canvas extent is at least 1024px, otherwise 1024.
-- It first tries a module worker (`mask.worker.ts`) with an `OffscreenCanvas`. A worker that fails or
-  does not answer within 5s is abandoned.
-- Otherwise, or after that, it builds on the main thread at 1024. That build yields to the event loop
-  between stages and every 8 relaxation sweeps, so it never blocks the page with one long task.
-- A rejected build is evicted from the cache so the next mount can retry.
-
-The mask has three textures: a base RGBA8 texture (coverage and tone), a meta RGBA8 texture (branch id and
-a 16-bit arc length) and an R16F edge field at half resolution. The shader samples them; it never
-evaluates a curve.
+Nothing else knows about the cover. A change of page never plays it (no script runs), and going back
+to the home page later in the session finds the cover in the DOM and not displayed.
 
 ## Test hooks
 
 Tests and the cross-unit code locate elements by these attributes. Keep them stable.
 
-| Attribute                                        | Element                                                           |
-| ------------------------------------------------ | ----------------------------------------------------------------- |
-| `data-entry`, `data-entry-brand`, `data-entry-lock` | `<html>` during the intro                                      |
-| `data-entry-overlay`                             | Entry overlay root (`data-live`, `data-docking`, `data-leaving`, `data-swapping`) |
-| `data-site-symbol`                               | Span around the header `LogoMark` (the dock target)              |
-| `data-chrome-symbol`                             | Chrome symbol root (`data-live`, `data-failed`)                  |
-| `data-hero-lines`, `data-hero-liquid`            | Hero fallback SVG, and the hero canvas (`data-active`)           |
-| `data-swirl-band`, `data-swirl-canvas`           | Swirl band root, and the swirl canvas (`data-ready`, `hidden`)   |
-| `data-sheen-word`                                | Sheen word span (`data-live`)                                    |
-| `data-reveal-group`                              | Reveal group and any manual pause wrapper (`data-in-view`)       |
-| `data-theme`                                     | `<html>`, sections, footer, beta bar, entry overlay              |
-| `data-menu-backdrop`, `data-menu-label`          | Menu backdrop button, and the single text node "Menu"            |
-| `data-page-fade`                                 | Route fade layer (`data-state`: `idle`, `cover`, `hold`, `reveal`) |
-| `--viewport-height`                              | Set in pixels on `<html>` by `ViewportLock`                      |
+| Attribute                  | Element                                                                                                            |
+| -------------------------- | ------------------------------------------------------------------------------------------------------------------ |
+| `data-band`                | `Band` roots and the footer. The value is the surface: `desk`, `paper`, `wash` or `binder`                         |
+| `data-tally`               | `Tally` root                                                                                                       |
+| `data-block`               | Each block of a tally: `ink`, `mark` or `empty` (the forced-colours rules key on it too)                           |
+| `data-blank`, `data-caret` | The `Blank` field, and its caret                                                                                   |
+| `data-phase-rail`          | The phase rail `nav`                                                                                               |
+| `data-nav-drawer`          | The `<dialog>` of the phone menu                                                                                   |
+| `data-hero-sheet`          | Root of the hero sheet                                                                                             |
+| `data-label`               | A table cell that reflows below 40em (`ComparisonTable`, `BundlePriceTable`): the label printed before its value   |
+| `data-open`                | A `FaqList` item: `"true"` or `"false"`                                                                            |
+| `data-intro-cover`         | The cover of a first visit (home page only). The inline script reads this hook too                                 |
+| `data-intro`               | On `<html>`, set by the inline script only: `play`, `skip` or `done` while a first visit is in motion, else absent |
 
 ## Test contract
 
-- **Unit** (Vitest, `tests/unit/**/*.test.ts`): the logo geometry, word splitting, compound splitting,
-  page-ready gate, hero geometry, swirl keyframe interpolation, intro timeline and entry script, plus the
-  catalog, cart, query, format and pricing tests. `entry-script.test.ts` guards the inline script's
-  source text. `content.test.ts` checks the sample catalog: the seven phases in order, and that no
-  phase, step, template or bundle text names a methodology or a client.
-- **Browser** (Playwright, `tests/e2e/`): the existing browse, cart, cart keyboard, catalog, menu and
-  404 specs, plus the rebuild's specs for the intro, the desktop menu, the page theme, console errors on
-  the main routes, the WebGL fallbacks and reduced motion.
-- **Projects**: two, both with motion on: desktop Chromium at 1280 x 800 and Pixel 7. Reduced motion is
-  emulated inside a test with `page.emulateMedia({ reducedMotion: "reduce" })`, not with a project.
+- **Unit** (Vitest, `tests/unit/**/*.test.ts`): the logo geometry, the two-ink split of the mark and
+  `app/icon.svg` (`brand-mark.test.ts`), compound splitting, `phaseCoverage` (`coverage.test.ts`), the
+  design gate (`design-gate.test.ts`, described in `design-system.md`), the cover (`intro.test.ts`:
+  the decision, the inline script run against stand-ins for the globals it touches and the way it is
+  printed, the time budget worked out from the tokens, and the markup), plus the catalog, cart,
+  query, search-params, format, pricing and validation tests. `content.test.ts` checks the sample catalog: the
+  seven phases in order, and that no phase, step, template or bundle text names a methodology or a
+  client.
+- **Browser** (Playwright, `tests/e2e/`): `browse`, `cart`, `cart-keyboard`, `catalog` and `not-found`;
+  `console` (no console errors on the main routes); `header` (the desktop bar and rail); `menu` (the
+  phone drawer); `identity` (grounds, faces, landmarks and the four bands, computed on every route, plus
+  the home order, the hero sheet, the main button and the focus ring); `intro` (the cover of a first
+  visit); and `reduced-motion`. `helpers.ts` holds `NAVIGATION_TIMEOUT` and `introSeen(page)`.
+- **The cover in tests**: every test starts a browser session of its own, so its first load of `/`
+  is a first visit and opens under the cover. A spec that opens the home page for another reason
+  calls `introSeen(page)` before its first `goto` (it sets the session flag from an init script):
+  `browse`, `cart-keyboard`, `header`, `identity` and `menu` do. `intro` and `reduced-motion` do not,
+  and neither does `console`, which checks the home page as a first visit gets it.
+- **Projects**: two, both with motion on: desktop Chromium at 1280 x 800 (`chromium`) and Pixel 7
+  (`mobile`). Specs that belong to one of them skip on the other with `test.skip(isMobile, ...)`.
+  Reduced motion is emulated inside a test with `page.emulateMedia({ reducedMotion: "reduce" })`, not
+  with a project.
 - **Server**: `playwright.config.ts` builds and starts the production server on port 3100 and reuses a
   running one unless `CI` is set.
-- **Locators**: every link or button locator is scoped to its landmark (`banner`, the `Menu`
-  navigation, `main`, `contentinfo`). The header, the open menu and the footer repeat link names.
-- **WebGL fallback**: the tests stub `getContext` to return `null` for `webgl2` and `webgl` before the
-  page loads, then check that the SVG, the flat glyph and the gradient text are what is visible.
-- **Invariants checked by the tests**: one `h1` with the exact title text; one `main`; the skip link is
-  first; the beta text appears once; one "Rollout phases" navigation; the cart link is named
-  "Cart, N items" once the stored cart is known; only the allowed `article` and `role="status"` elements.
+- **Locators**: every link or button locator is scoped to its landmark (`banner`, the `Primary` or
+  `Phases` navigation, the `Site menu` dialog, `main`, `contentinfo`). The bar, the drawer and the
+  footer repeat link names. Match `Phases` with `exact: true`: the footer navigation "Rollout phases"
+  contains the same word.
+- **Hydration**: the Menu button works only once the bar has hydrated. The cart link beside it tells
+  when that is: its name gains the count ("Cart, 0 items") at that moment.
+- **Invariants the markup keeps** (the specs above check most of them): one `banner`, one `main` and
+  one `contentinfo`; one `h1` with the exact title text; the skip link is the first focusable element;
+  the beta text appears once while the catalog is sample content; exactly one navigation named
+  "Rollout phases" (the footer); exactly one searchbox named "Search templates" (the catalog); the cart
+  link is named "Cart, N items" once the stored cart is known; `role="status"` only on the catalog
+  result count and the add-to-cart confirmation; `article` only for template cards and bundle cards.
+  Style and structure checks: every `data-band` is one of the four surfaces, `binder` is the footer
+  alone and `wash` appears at most once per page; no `canvas`, no blend mode and, on any load but a
+  first visit, no animation outside the hero sheet; no theme or entry attribute on `<html>`, and
+  `data-intro` there only while a first visit is in motion; the footer names the brand once, in plain
+  text no larger than 28px.
 
 Before a merge, run `pnpm lint`, `pnpm typecheck`, `pnpm test`, `pnpm build` and `pnpm test:e2e`. After a
 production build, `curl` the unknown routes (`/nope`, `/templates/nope/extra`) to confirm they answer 404.
 
 ## Failure and fallback matrix
 
-| Situation                                              | What the visitor sees                                                                                  |
-| ------------------------------------------------------ | ------------------------------------------------------------------------------------------------------ |
-| JavaScript disabled                                    | Full content. No intro. Reveals are released by the no-JS rule. Hero shows SVG ribbons. Search (a GET form), result links and pagination work. Filters, sort and the Menu need JavaScript. |
-| No WebGL2                                              | Hero: SVG ribbons. Swirl: canvas hidden, plain background. Chrome logo: flat glyph. Headings: gradient text. |
-| WebGL2 context lost                                    | The same as no WebGL2, for that canvas only.                                                           |
-| Shader link fails                                      | The same as no WebGL2, for that canvas only.                                                           |
-| Hero mask worker fails or takes over 5s                | The main-thread build is used. The page is correct either way.                                         |
-| Reduced motion                                         | No intro, no overlay. Reveals are instant. Hero shows SVG ribbons. Swirl shows one frame per scroll stop. Logo is flat. Headings use the gradient. Route changes are not faded. The menu has no curtain. |
-| Overlay never lifts                                    | The 14s, 16s and 17s failsafes remove it in turn.                                                      |
-| Page-ready claim never released                        | `whenPageReady()` gives up at 8s.                                                                      |
-| Route fade never completes                             | `coverPage()` resolves after the 300ms cover. The 4s hold failsafe reveals the page.                  |
-| Storage blocked or disabled                            | The cart works in memory for the current page. Nothing else reads storage.                             |
-| Stored cart has lines for removed records              | `CartSync` removes them on the next page.                                                              |
-| Menu open and Back pressed                             | The menu closes and the page is scrollable with no theme left behind.                                  |
+| Situation                                  | What the visitor sees                                                                                                                                                                                                                                                                                                       |
+| ------------------------------------------ | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| JavaScript disabled                        | Full content and the same look: the hero sheet, covers and tallies are server-rendered HTML and SVG. The desktop bar and rail work as links. Search (a GET form), result links and pagination work. Filters, sort, the cart and the phone Menu button need JavaScript; the footer still links every page. There is no cover |
+| Reduced motion                             | Nothing starts by itself: there is no cover and the hero sheet is drawn in its final state. Dialogs open without an entrance. Hover and focus changes are instant                                                                                                                                                           |
+| Forced colours                             | Tally blocks, the blank, the current item and the parts of the cover take system colours, so every state stays visible                                                                                                                                                                                                      |
+| Storage blocked or disabled                | The cart works in memory for the current page. The cover is not played: a session that cannot be remembered counts as seen                                                                                                                                                                                                  |
+| A page that is not found                   | The 404 page inside the site shell. The server answers 404 with an empty document and React builds the page in the browser, so this one page needs JavaScript. The inline script of the cover does not run on it: no cover, and the load is not counted as the start of the session                                         |
+| Stored cart has lines for removed records  | `CartSync` removes them on the next page                                                                                                                                                                                                                                                                                    |
+| Menu open and Back pressed                 | The pathname changes, so the drawer closes                                                                                                                                                                                                                                                                                  |
+| Menu open and the window widened past 68em | The drawer closes; the inline navigation and the rail take over                                                                                                                                                                                                                                                             |
 
 ## Known failure modes
 
 These are the failures most likely to appear when the code changes. Check them first.
 
-- **The intro never plays**: the inline entry script has lost a backslash or contains a regular expression
-  or an escape. Its source must hold only plain string concatenation. `entry-script.test.ts` catches it.
 - **Unknown routes return 200**: a `<Suspense>` or `loading.tsx` sits above the page content in
   `app/(site)`.
-- **Content stays invisible**: a pause wrapper has neither a `RevealGroup` nor `data-in-view`, or the
-  page never went dark, so `#practice` never received `data-in-view`.
-- **The overlay sticks**: the header has no `[data-site-symbol] svg`, so the dock has no target. The
-  overlay then leaves through the fallback, which is correct but not the intended look.
+- **A closed dialog is visible**: a module sets `display` on a bare dialog class. Set it on
+  `.x[open]`.
 - **A class from another file does nothing**: a module uses a `@keyframes` name defined in another module.
   Keyframe names are scoped per file.
+- **A primitive's style loses to a caller's**: override it by doubling the selector (`.x.x`), not by
+  relying on stylesheet order.
+- **An anchor or focus target hides under the bar**: `html` carries `scroll-padding-top` from
+  `--bar-h`. Do not drop it, and keep the token in step with the bar's height.
 - **Hydration warnings**: a component reads `window`, `matchMedia` or `Date` during render. Read them in
-  an effect, or through `useSyncExternalStore` with a server snapshot.
+  an effect, or through `useSyncExternalStore` with a server snapshot (`AskedPath` does this).
 - **The cart count jumps**: `CartButton` shows the count in its accessible name only after the store has
   been read. Keep it that way.
+- **The design gate fails on a comment**: it reads files as text, so a retired word in a comment counts.
+- **A browser test of the home page cannot click anything**: its first load is a first visit and the
+  page is under the cover. Call `introSeen(page)` before the first `goto`.
+- **`data-intro="done"` stays on `<html>`**: an animation that never ends was running when the cover
+  left. The attribute comes off when every animation running at that moment has ended, so nothing on
+  the home page may animate without end.
+- **A 404 logs "Encountered a script tag" in development**: a layout renders a `<script>` element,
+  and React is building the page in the browser (see the 404 rules). Print it as `IntroScript` does.

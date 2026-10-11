@@ -6,17 +6,24 @@ import { describe, expect, it } from "vitest";
 import { LogoMark } from "@/components/ui/logo-mark";
 import {
   MARK_ASPECT,
-  MARK_HALF_WIDTH_NORMALIZED,
+  MARK_BAR_D,
+  MARK_BODY_D,
+  MARK_LEGS_D,
   MARK_PATH_D,
-  MARK_RADIUS_NORMALIZED,
   MARK_SEGMENTS,
   MARK_STROKE_WIDTH,
+  MARK_TAIL_D,
   MARK_VIEWBOX,
-  normalizedMarkSegments,
 } from "@/lib/brand/mark";
 
 /** Formats a coordinate the way the path data writes it ("20.5", "4"). */
 const n = (value: number) => String(value);
+
+/** Where the centre line of a stroke crosses a given height. */
+function xAt(stroke: (typeof MARK_SEGMENTS)[number], y: number): number {
+  const t = (y - stroke.a[1]) / (stroke.b[1] - stroke.a[1]);
+  return stroke.a[0] + t * (stroke.b[0] - stroke.a[0]);
+}
 
 describe("brand mark geometry", () => {
   it("is three strokes with the designed coordinates", () => {
@@ -31,9 +38,6 @@ describe("brand mark geometry", () => {
     expect(MARK_VIEWBOX).toEqual({ width: 32, height: 24 });
     expect(MARK_ASPECT).toBeCloseTo(4 / 3, 10);
     expect(MARK_STROKE_WIDTH).toBe(4.2);
-    expect(MARK_RADIUS_NORMALIZED).toBeCloseTo(MARK_STROKE_WIDTH / 2 / MARK_VIEWBOX.height, 10);
-    expect(MARK_RADIUS_NORMALIZED).toBeCloseTo(0.0875, 10);
-    expect(MARK_HALF_WIDTH_NORMALIZED).toBeCloseTo(2 / 3, 10);
   });
 
   it("joins the legs at the apex and runs the bar past the right leg", () => {
@@ -57,54 +61,36 @@ describe("brand mark geometry", () => {
   });
 });
 
-describe("normalizedMarkSegments", () => {
-  const normalized = normalizedMarkSegments();
+describe("the mark in two inks", () => {
+  const [, legTwo, bar] = MARK_SEGMENTS;
+  // The crossbar is cut where it meets the centre line of the right leg.
+  const cut = xAt(legTwo, bar.a[1]);
 
-  it("keeps the three segments in order", () => {
-    expect(normalized).toHaveLength(3);
+  it("cuts the crossbar on the centre line of the right leg", () => {
+    expect(cut).toBeCloseTo(17.5, 10);
+    expect(cut).toBeGreaterThan(bar.a[0]);
+    expect(cut).toBeLessThan(bar.b[0]);
   });
 
-  it("maps the view box centre (16, 12) to the origin, one unit per view box height", () => {
-    normalized.forEach((segment, index) => {
-      const source = MARK_SEGMENTS[index];
-      if (!source) throw new Error(`missing source segment ${index}`);
-      for (const end of ["a", "b"] as const) {
-        const [x, y] = source[end];
-        const [nx, ny] = segment[end];
-        // Inverting the mapping must give back the view box point: (16, 12) <-> (0, 0).
-        expect(nx * 24 + 16).toBeCloseTo(x, 10);
-        expect(12 - ny * 24).toBeCloseTo(y, 10);
-      }
-    });
+  it("keeps both legs and the near part of the crossbar in the body", () => {
+    expect(MARK_BODY_D).toBe("M4 20.5L12.5 3.5L21 20.5M8.5 13.5H17.5");
+    expect(MARK_BODY_D).toBe(`${MARK_PATH_D.slice(0, MARK_PATH_D.lastIndexOf("H"))}H${n(cut)}`);
   });
 
-  it("points y up", () => {
-    const [legOne, , bar] = normalized;
-    if (!legOne || !bar) throw new Error("missing segments");
-    // Leg 1 runs from the foot (low on screen) to the apex (high on screen).
-    expect(legOne.a[1]).toBeCloseTo(-8.5 / 24, 10);
-    expect(legOne.b[1]).toBeCloseTo(8.5 / 24, 10);
-    expect(legOne.b[1]).toBeGreaterThan(legOne.a[1]);
-    // The bar sits 1.5 units below the centre line of the view box.
-    expect(bar.a[1]).toBeCloseTo(-1.5 / 24, 10);
-    expect(bar.a[0]).toBeCloseTo(-7.5 / 24, 10);
-    expect(bar.b[0]).toBeCloseTo(12.5 / 24, 10);
+  it("splits the body into the two strokes a pen makes: the legs, then the crossbar", () => {
+    expect(MARK_LEGS_D).toBe("M4 20.5L12.5 3.5L21 20.5");
+    expect(MARK_BAR_D).toBe("M8.5 13.5H17.5");
+    expect(`${MARK_LEGS_D}${MARK_BAR_D}`).toBe(MARK_BODY_D);
+    // One stroke each: a path that moves the pen once.
+    expect(MARK_LEGS_D.match(/M/g)).toHaveLength(1);
+    expect(MARK_BAR_D.match(/M/g)).toHaveLength(1);
+    // The crossbar stops where the tail takes over.
+    expect(MARK_TAIL_D.startsWith(`M${MARK_BAR_D.split("H")[1]} `)).toBe(true);
   });
 
-  it("keeps every stroke, radius included, inside the glyph box", () => {
-    for (const segment of normalized) {
-      for (const [x, y] of [segment.a, segment.b]) {
-        expect(Math.abs(x) + MARK_RADIUS_NORMALIZED).toBeLessThanOrEqual(
-          MARK_HALF_WIDTH_NORMALIZED,
-        );
-        expect(Math.abs(y) + MARK_RADIUS_NORMALIZED).toBeLessThanOrEqual(0.5);
-      }
-    }
-  });
-
-  it("returns a fresh array on every call", () => {
-    expect(normalizedMarkSegments()).not.toBe(normalized);
-    expect(normalizedMarkSegments()).toEqual(normalized);
+  it("makes the tail the overshoot, from the cut to the end of the crossbar", () => {
+    expect(MARK_TAIL_D).toBe("M17.5 13.5H28.5");
+    expect(MARK_TAIL_D).toBe(`M${n(cut)} ${n(bar.a[1])}H${n(bar.b[0])}`);
   });
 });
 
@@ -129,16 +115,44 @@ describe("the mark as drawn", () => {
     expect(html).not.toContain("aria-hidden");
   });
 
-  it("the site icon repeats the same path in ink on a white rounded square", () => {
+  it("LogoMark in two inks draws the tail first and the body over it", () => {
+    const html = renderToStaticMarkup(createElement(LogoMark, { tone: "two" }));
+    expect(html.match(/<path/g)).toHaveLength(2);
+    expect(html).not.toContain(`d="${MARK_PATH_D}"`);
+
+    const tail = html.indexOf(`d="${MARK_TAIL_D}"`);
+    const body = html.indexOf(`d="${MARK_BODY_D}"`);
+    expect(tail).toBeGreaterThan(-1);
+    expect(body).toBeGreaterThan(tail);
+
+    // The tail takes its own ink from a custom property and falls back to the ink of the body.
+    expect(html).toContain('stroke="var(--logo-tail, currentColor)"');
+    expect(html.match(/stroke="currentColor"/g)).toHaveLength(1);
+    expect(html.match(/stroke-width="4\.2"/g)).toHaveLength(2);
+    expect(html.match(/stroke-linecap="round"/g)).toHaveLength(2);
+    expect(html.match(/stroke-linejoin="round"/g)).toHaveLength(2);
+    expect(html).toContain('aria-hidden="true"');
+  });
+
+  it("the site icon repeats the two paths on an ink tile: a white body, a highlighter tail", () => {
     const icon = readFileSync(
       fileURLToPath(new URL("../../app/icon.svg", import.meta.url)),
       "utf8",
     );
     expect(icon).toContain('viewBox="0 0 32 32"');
-    expect(icon).toContain(`d="${MARK_PATH_D}"`);
-    expect(icon).toContain('stroke="#181818"');
+    expect(icon).toContain('rx="7"');
+    expect(icon).toContain('fill="#0B0D12"');
+    expect(icon).toContain('transform="translate(3.5 6.6) scale(0.78)"');
     expect(icon).toContain(`stroke-width="${MARK_STROKE_WIDTH}"`);
-    expect(icon).toContain('transform="translate(0 4)"');
-    expect(icon).toContain('rx="6"');
+    expect(icon).toContain('stroke-linecap="round"');
+    expect(icon).toContain('stroke-linejoin="round"');
+    expect(icon.match(/<path/g)).toHaveLength(2);
+    expect(icon).not.toContain(`d="${MARK_PATH_D}"`);
+
+    // As in `LogoMark`, the tail is drawn first and the body over it.
+    const tail = icon.indexOf(`<path d="${MARK_TAIL_D}" stroke="#86C1FF"/>`);
+    const body = icon.indexOf(`<path d="${MARK_BODY_D}" stroke="#FFFFFF"/>`);
+    expect(tail).toBeGreaterThan(-1);
+    expect(body).toBeGreaterThan(tail);
   });
 });

@@ -1,102 +1,174 @@
-/* the table and the note under it */
-.root {
-  display: flex;
-  flex-direction: column;
-  gap: var(--spacing-sm);
-  width: 100%;
-}
-
-/* positioned, so the visually hidden caption stays inside the scrolling box */
-.scroll {
-  position: relative;
-  width: 100%;
-  overflow-x: auto;
-}
-
 /*
- * Fixed layout: the criteria column takes its width from the corner cell and the options share the
- * rest equally. Separate borders: every cell owns its rules, so a pinned cell keeps them while the
- * others slide under it. Below 768px the table keeps the prose measure, which is wider than a phone:
- * one option fits beside the criteria and the next one shows at the right edge.
+ * Written for the phone first: every part of the table is a block and each row reads as a short
+ * card. From 40em the table parts get their table display back. The head row stays in the page for
+ * assistive technology on a phone, clipped out of sight.
  */
-.table {
-  --cell-pad: var(--spacing-xs);
-
-  width: 100%;
-  min-width: var(--measure-prose);
-  table-layout: fixed;
-  border-collapse: separate;
-  border-spacing: 0;
+.sheet {
+  overflow: hidden;
 }
 
-.head,
+.table,
+.body,
+.row,
 .cell {
-  padding: var(--spacing-sm) var(--cell-pad);
-  font-weight: inherit;
-  text-align: start;
+  display: block;
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
 }
 
 .head {
-  border-bottom: 1px solid var(--color-foreground-100);
-  vertical-align: bottom;
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
 }
 
-/* baseline: the first line of a criterion (label type) sits on the first line of its cells (body type) */
+.row:nth-child(even) {
+  background: var(--stripe);
+}
+
+.row {
+  padding-block: var(--s-2);
+}
+
 .cell {
-  border-bottom: 1px solid var(--color-foreground-20);
-  vertical-align: baseline;
-  overflow-wrap: anywhere;
+  padding: var(--s-1) var(--s-2);
+  text-align: start;
+  overflow-wrap: break-word;
+  text-wrap: pretty;
 }
 
-/*
- * The criteria column, flush with the container's edge. While the table scrolls it stays at the left
- * edge on the section's own surface, with a hairline between it and the options passing under it.
- * On a phone it is 104px wide: at 96px "Field-tested?" and "Starting point" miss the column by a
- * pixel or two and break in two.
- */
-.pinned {
-  position: sticky;
-  inset-inline-start: 0;
-  z-index: 1;
-  width: calc(var(--spacing-xl5) + var(--spacing-xs2));
-  padding-inline-start: 0;
-  border-inline-end: 1px solid var(--color-foreground-20);
-  background: var(--color-background-100);
+.rowHead {
+  color: var(--text-soft);
 }
 
-/*
- * The emphasized option is the exact inversion of the others: ink surface, background-coloured text,
- * and the same two rules (strong under the header, hairline under a row) in the background ramp.
- */
-.emphasis {
-  border-bottom-color: var(--color-background-20);
-  background: var(--color-foreground-100);
-  color: var(--color-background-100);
+.columnHead {
+  color: var(--text);
 }
 
-.head.emphasis {
-  border-bottom-color: var(--color-background-100);
+/* The option's name over its answer, from the cell's own `data-label`. */
+.value {
+  color: var(--text);
 }
 
-/* the last rule of the column is ink, so the surface ends on the table's bottom edge */
-.table tbody tr:last-child > .emphasis {
-  border-bottom-color: var(--color-foreground-100);
+.value::before {
+  content: attr(data-label);
+  display: block;
+  color: var(--text-faint);
+  font-size: var(--size-note);
+  line-height: 1.43;
 }
 
-@media (min-width: 768px) {
-  /* the table fits from here on: nothing scrolls, so the criteria need no dividing hairline */
+/* The buyer's column: the wash and a heavier weight; its head is the mark with an ink ring. */
+.emphasis.emphasis {
+  color: var(--ink);
+  font-weight: 600;
+}
+
+.value.emphasis {
+  background: var(--mark-wash);
+}
+
+.value.emphasis::before {
+  color: var(--ink);
+  font-weight: 700;
+}
+
+.columnHead.emphasis {
+  background: var(--mark);
+  box-shadow: inset 0 0 0 var(--edge) var(--ink);
+}
+
+.note {
+  margin-block-start: var(--s-2);
+  color: var(--text-soft);
+}
+
+@media (min-width: 40em) {
   .table {
-    min-width: 0;
+    display: table;
+    table-layout: fixed;
   }
 
-  .pinned {
-    width: 22%;
-    border-inline-end: 0;
+  .head {
+    position: static;
+    display: table-header-group;
+    width: auto;
+    height: auto;
+    overflow: visible;
+    clip-path: none;
+    white-space: normal;
+  }
+
+  .body {
+    display: table-row-group;
+  }
+
+  .row {
+    display: table-row;
+    padding-block: 0;
+  }
+
+  .cell {
+    display: table-cell;
+    padding: var(--s-2);
+    vertical-align: baseline;
+  }
+
+  /* The heads centre in their row, so the buyer's block holds its name in the middle. */
+  .columnHead {
+    padding-block: var(--s-3);
+    vertical-align: middle;
+  }
+
+  /*
+   * Fixed layout reads the widths from the head row. The corner keeps room for the longest
+   * criterion ("Deliverable" in one piece); the buyer's column, the longest text, gets a little more.
+   */
+  .corner {
+    width: 24%;
+  }
+
+  .columnHead.emphasis {
+    width: 28%;
+  }
+
+  .value::before {
+    content: none;
   }
 }
 
-@media (min-width: 1024px) {
-  .table {
-    --cell-pad: var(--spacing-sm);
+@media (min-width: 68em) {
+  .cell {
+    padding-inline: var(--s-3);
+  }
+
+  .columnHead {
+    padding-inline: var(--s-3);
+  }
+
+  .corner {
+    width: 20%;
+  }
+
+  .columnHead.emphasis {
+    width: auto;
+  }
+}
+
+/* Fills and shadows are gone: the buyer's column keeps an outline and side lines. */
+@media (forced-colors: active) {
+  .columnHead.emphasis {
+    outline: var(--edge) solid CanvasText;
+    outline-offset: calc(-1 * var(--edge));
+  }
+
+  .value.emphasis {
+    border-inline: var(--hair) solid CanvasText;
   }
 }

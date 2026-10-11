@@ -1,61 +1,64 @@
-/* a ruled list: a hairline above every row and one under the last */
-.list {
-  display: flex;
-  flex-direction: column;
-  width: 100%;
-}
-
 .row {
   display: grid;
   grid-template-columns: minmax(0, 1fr);
-  gap: var(--spacing-sm);
-  padding-block: var(--spacing-md);
-  border-top: 1px solid var(--color-foreground-20);
+  gap: var(--s-2);
 }
 
-.row:last-child {
-  border-bottom: 1px solid var(--color-foreground-20);
+.name {
+  color: var(--text);
 }
 
-.detail {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr);
-  gap: var(--spacing-sm);
-}
-
-/* caption over value, like a FactList row turned on its side */
+/* The label and its value keep to the top of their cell when a longer neighbour stretches the row. */
 .cares {
-  display: flex;
-  flex-direction: column;
-  gap: var(--spacing-xs3);
+  display: grid;
+  align-content: start;
+  gap: var(--s-1);
+  margin: 0;
 }
 
-/* the value: no single word left on its last line */
-.cares dd {
+.label {
+  color: var(--text-faint);
+}
+
+.value {
+  color: var(--text-soft);
   text-wrap: pretty;
 }
 
+/* The quoted line is the documents' voice: Besley at a regular weight. */
 .line {
-  text-wrap: balance;
+  color: var(--text);
+  font-family: var(--face-display);
+  font-size: 1.1875rem;
+  line-height: 1.4211;
+  font-weight: 400;
+  font-feature-settings: "tnum" 0;
 }
 
-@media (min-width: 768px) {
-  /* the columns and the gap of FactList, so a fact list under the rows lines up with them */
+@media (min-width: 40em) {
   .row {
-    grid-template-columns: minmax(0, 1fr) minmax(0, 2fr);
-    gap: var(--spacing-xl);
-    padding-block: var(--spacing-xl);
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    column-gap: var(--s-3);
+    align-items: start;
   }
 
-  .detail {
-    gap: var(--spacing-md);
+  .name {
+    grid-column: 1 / -1;
   }
 }
 
-@media (min-width: 1024px) {
-  .detail {
-    grid-template-columns: minmax(0, 2fr) minmax(0, 3fr);
-    gap: var(--spacing-xl);
-    align-items: start;
+/*
+ * The name gets the widest part and the quote a little more than the middle one, so that a name
+ * such as "Change management leads and practitioners" sets in two lines at the narrowest desktop
+ * width instead of leaving "Change" alone on a line.
+ */
+@media (min-width: 68em) {
+  .row {
+    grid-template-columns: minmax(0, 7fr) minmax(0, 5fr) minmax(0, 6fr);
+    align-items: baseline;
+  }
+
+  .name {
+    grid-column: auto;
   }
 }

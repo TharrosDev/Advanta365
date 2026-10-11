@@ -1,0 +1,48 @@
+/*
+ * Ink with an ink underline. Under the pointer or keyboard focus the underline thickens and the
+ * highlighter is drawn behind the words and a little past their ends, like a stroke of a marker.
+ * A link that wraps gets the same rounded stroke on each of its lines.
+ */
+.root {
+  border-radius: var(--round-1);
+  color: var(--text);
+  text-decoration: underline;
+  text-decoration-thickness: var(--hair);
+  text-underline-offset: 3px;
+  box-decoration-break: clone;
+  -webkit-box-decoration-break: clone;
+  transition:
+    background-color var(--time-swap) linear,
+    box-shadow var(--time-swap) linear;
+}
+
+.root:focus-visible {
+  background: var(--mark);
+  box-shadow: 0 0 0 var(--edge) var(--mark);
+  color: var(--on-mark);
+  text-decoration-thickness: var(--edge);
+}
+
+/* On the binder the highlighter can be a line: the words stay as they are and the underline takes it. */
+[data-band="binder"] .root:focus-visible {
+  background: none;
+  box-shadow: none;
+  color: var(--text);
+  text-decoration-color: var(--mark);
+}
+
+@media (hover: hover) {
+  .root:hover {
+    background: var(--mark);
+    box-shadow: 0 0 0 var(--edge) var(--mark);
+    color: var(--on-mark);
+    text-decoration-thickness: var(--edge);
+  }
+
+  [data-band="binder"] .root:hover {
+    background: none;
+    box-shadow: none;
+    color: var(--text);
+    text-decoration-color: var(--mark);
+  }
+}

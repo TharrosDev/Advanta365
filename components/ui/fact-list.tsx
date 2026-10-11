@@ -1,8 +1,12 @@
 import type { ReactNode } from "react";
+import { BandedList, BandedRow } from "@/components/ui/banded-list";
 import { cx } from "@/lib/cx";
 import styles from "./fact-list.module.css";
 
-/** Label / value pairs as hairline rows under one strong top rule. */
+/**
+ * Label and value pairs as a banded sheet: a `dl` whose rows put the label in a fixed first
+ * column and the value beside it. Below 40em the value goes under its label.
+ */
 export function FactList({
   items,
   className,
@@ -11,13 +15,13 @@ export function FactList({
   className?: string;
 }) {
   return (
-    <dl className={cx(styles.root, className)}>
+    <BandedList as="dl" className={className}>
       {items.map((item) => (
-        <div key={item.label} className={styles.row}>
-          <dt className="t-label-medium c-fg-50">{item.label}</dt>
-          <dd className="t-body-large">{item.value}</dd>
-        </div>
+        <BandedRow as="div" key={item.label} className={styles.row}>
+          <dt className={cx("type-eyebrow", styles.label)}>{item.label}</dt>
+          <dd className={cx("type-copy", styles.value)}>{item.value}</dd>
+        </BandedRow>
       ))}
-    </dl>
+    </BandedList>
   );
 }

@@ -1,21 +1,11 @@
-/* Phones: Previous and Next share the first row, the page numbers wrap underneath. */
 .root {
   display: grid;
   grid-template-columns: 1fr 1fr;
   grid-template-areas:
-    "previous next"
-    "pages pages";
+    "pages pages"
+    "previous next";
+  gap: var(--s-2);
   align-items: center;
-  padding-block: var(--spacing-xs);
-  border-bottom: 1px solid var(--color-foreground-20);
-}
-
-.step {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--spacing-xs2);
-  min-height: var(--touch-target);
-  text-decoration: none;
 }
 
 .previous {
@@ -28,43 +18,71 @@
   justify-self: end;
 }
 
+.back {
+  transition: translate var(--time-swap) linear;
+}
+
+.previous:focus-visible .back {
+  translate: -3px 0;
+}
+
 .pages {
-  grid-area: pages;
   display: flex;
   flex-wrap: wrap;
+  grid-area: pages;
+  gap: var(--s-1);
   justify-content: center;
+  margin: 0;
+  padding: 0;
+  list-style: none;
 }
 
+/* A page number is a square the size of a small control: 44px, 40px from 68em. */
 .page {
-  position: relative;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  min-width: var(--touch-target);
-  min-height: var(--touch-target);
-  padding-inline: var(--spacing-xs2);
+  display: grid;
+  place-items: center;
+  min-width: var(--tap);
+  height: var(--tap);
+  padding-inline: var(--s-1);
+  border: var(--edge) solid var(--line-ink);
+  border-radius: var(--round-2);
+  color: var(--text);
   text-decoration: none;
+  transition: background-color var(--time-swap) linear;
 }
 
-.step:hover,
-.page:any-link:hover {
-  text-decoration: underline;
-  text-underline-position: from-font;
+.page:focus-visible {
+  background: var(--mark-wash);
 }
 
-/* The current page: a 2px bar under the number. */
-.current::after {
-  content: "";
-  position: absolute;
-  inset-inline: var(--spacing-xs);
-  bottom: var(--spacing-xs2);
-  height: 2px;
-  background: var(--color-foreground-100);
+/* The page you are on: the highlighter, the ink border and the heavier ink numeral. */
+.current {
+  border-color: var(--ink);
+  background: var(--mark);
+  color: var(--on-mark);
+  font-weight: 700;
 }
 
-@media (min-width: 768px) {
+@media (min-width: 40em) {
   .root {
     grid-template-columns: 1fr auto 1fr;
     grid-template-areas: "previous pages next";
+  }
+}
+
+@media (min-width: 68em) {
+  .page {
+    min-width: var(--control-sm);
+    height: var(--control-sm);
+  }
+}
+
+@media (hover: hover) {
+  .previous:hover .back {
+    translate: -3px 0;
+  }
+
+  a.page:hover {
+    background: var(--mark-wash);
   }
 }

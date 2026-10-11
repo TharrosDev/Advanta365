@@ -1,0 +1,4 @@
+/* The balance of the heading is inherited, so every sentence balances on its own. */
+.sentence {
+  display: block;
+}

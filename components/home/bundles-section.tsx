@@ -1,52 +1,50 @@
 import { BundleCard } from "@/components/catalog/bundle-card";
-import { Reveal } from "@/components/motion/reveal";
-import { RevealGroup } from "@/components/motion/reveal-group";
-import { SectionIntro } from "@/components/ui/section-intro";
-import { SectionShell } from "@/components/ui/section-shell";
-import { WipeButton } from "@/components/ui/wipe-button";
+import { Band } from "@/components/ui/band";
+import { Button } from "@/components/ui/button";
+import { ShelfHead } from "@/components/ui/shelf-head";
+import type { PhaseCoverage } from "@/lib/catalog/coverage";
 import type { Bundle } from "@/lib/catalog/schema";
 import styles from "./home.module.css";
 
-export type FeaturedBundle = { bundle: Bundle; count: number; savings: number };
+export type FeaturedBundle = {
+  bundle: Bundle;
+  count: number;
+  savings: number;
+  coverage: PhaseCoverage[];
+};
 
 /**
- * `#bundles`: the intro pinned to the top of the viewport-high block and the featured bundles
- * pinned to its bottom (from 768px), the way the reference spreads its second section.
- *
- * Reveal order: label 0, title word 1, body coarse 2 in one group; the cards 0..n-1 and then the
- * "All bundles" link in a second group.
+ * `#bundles`: a second shelf on paper. The header has no eyebrow, because it would only repeat the
+ * title, and carries the link to every bundle. The featured bundles stand below it as folders, each
+ * with the phases its templates reach: three across from 68em, two from 40em, one below.
  */
 export function BundlesSection({ items }: { items: FeaturedBundle[] }) {
   return (
-    <SectionShell id="bundles" height="full" innerClassName={styles.bundles}>
-      <RevealGroup className={styles.bundlesIntro}>
-        <SectionIntro
-          label="Bundles"
-          title="Bundles"
-          body="Curated sets for a whole phase or a whole rollout, priced below the same pieces bought one at a time."
-        />
-      </RevealGroup>
-      <RevealGroup className={styles.bundlesBlock}>
-        {items.length > 0 ? (
-          <ul className={styles.bundlesGrid}>
-            {items.map(({ bundle, count, savings }, index) => (
-              <Reveal key={bundle.slug} as="li" effect="fade-up" index={index}>
-                <BundleCard
-                  bundle={bundle}
-                  templateCount={count}
-                  savingsCents={savings}
-                  headingLevel="h3"
-                />
-              </Reveal>
-            ))}
-          </ul>
-        ) : null}
-        <Reveal as="div" effect="fade-up" index={items.length} className={styles.sectionAction}>
-          <WipeButton href="/bundles" arrow="right">
+    <Band id="bundles" surface="paper">
+      <ShelfHead
+        title="Bundles"
+        body="Curated sets for a whole phase or a whole rollout, priced below the same pieces bought one at a time."
+        action={
+          <Button variant="outline" href="/bundles" arrow>
             All bundles
-          </WipeButton>
-        </Reveal>
-      </RevealGroup>
-    </SectionShell>
+          </Button>
+        }
+      />
+      {items.length > 0 ? (
+        <ul className={styles.cardGrid}>
+          {items.map(({ bundle, count, savings, coverage }) => (
+            <li key={bundle.slug} className={styles.cardItem}>
+              <BundleCard
+                bundle={bundle}
+                templateCount={count}
+                savingsCents={savings}
+                coverage={coverage}
+                headingLevel="h3"
+              />
+            </li>
+          ))}
+        </ul>
+      ) : null}
+    </Band>
   );
 }

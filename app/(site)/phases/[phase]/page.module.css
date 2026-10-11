@@ -1,51 +1,126 @@
-/* One section per step: the reference's capability-section header over a card grid. */
-.step.step {
-  gap: var(--spacing-xl3);
+/* In the margin of the title block: the phase numeral, then its place among the phases. */
+.place {
+  display: flex;
+  align-items: flex-end;
+  gap: var(--s-3);
 }
 
-/* the hairline on top comes from the global `.ruled` class */
-.stepHeader {
+/* The figure face, held to 119px so it stays a margin note beside the title. */
+.numeral {
+  font-size: min(var(--size-figure), calc(var(--s-1) * 17));
+  color: var(--text);
+}
+
+/* Takes what the numeral leaves of the margin, so the tally never reaches the margin rule. */
+.count {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: var(--s-1);
+  min-width: 0;
+  padding-block-end: var(--s-1);
+  color: var(--text);
+}
+
+/* Seven blocks, 147px across at most. */
+.tally.tally {
+  max-width: calc(var(--s-1) * 21);
+}
+
+/*
+ * One step. Below 68em: the number beside the step name, the summary under them, then the cards.
+ * From 68em it is the margin layout of the page: number and summary in columns 1 to 3, name and
+ * cards in columns 4 to 12, with the margin rule in the gutter between them. The parts are placed
+ * by grid line, so in the document the name comes straight after the number and before the summary.
+ */
+.step {
   display: grid;
-  grid-template-columns: minmax(0, 1fr);
-  gap: var(--spacing-xl);
-  padding-top: var(--spacing-sm);
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: baseline;
+  gap: var(--s-1) var(--s-2);
 }
 
-/* number and title span the row; only the summary keeps a reading measure */
+/* Besley's own figures: its tabular zero is drawn at one weight only. */
+.stepNumber {
+  font-family: var(--face-display);
+  font-size: 1.625rem;
+  line-height: 1.24;
+  font-weight: 700;
+  font-feature-settings: "tnum" 0;
+  color: var(--text);
+}
+
 .stepTitle {
+  min-width: 0;
+}
+
+.stepSummary {
   grid-column: 1 / -1;
-  max-width: var(--measure-heading);
-  overflow-wrap: anywhere;
+  max-width: var(--wrap-copy);
+  color: var(--text-soft);
+  font-weight: 400;
 }
 
-.stepBody {
-  max-width: var(--measure-body);
-}
-
-/* 1 / 2 / 3 columns, like the catalog grid */
-.grid {
+.cards {
   display: grid;
+  grid-column: 1 / -1;
   grid-template-columns: minmax(0, 1fr);
-  gap: var(--spacing-xl);
+  gap: var(--col-gap);
+  margin: var(--s-3) 0 0;
+  padding: 0;
+  list-style: none;
 }
 
-.footerAction {
-  padding-block: var(--spacing-xl) var(--spacing-xl3);
-}
-
-@media (min-width: 768px) {
-  .grid {
+@media (min-width: 40em) {
+  .cards {
     grid-template-columns: repeat(2, minmax(0, 1fr));
-    row-gap: var(--spacing-xl3);
-  }
-
-  .footerAction {
-    padding-block: var(--spacing-xl) var(--spacing-xl6);
   }
 }
 
-@media (min-width: 1024px) {
-  .grid {
+@media (min-width: 68em) {
+  .step {
+    grid-template-columns: repeat(12, minmax(0, 1fr));
+    grid-template-rows: auto 1fr;
+    gap: 0 var(--col-gap);
+  }
+
+  .stepNumber {
+    grid-area: 1 / 1 / 2 / span 3;
+  }
+
+  .stepSummary {
+    grid-area: 2 / 1 / 3 / span 3;
+    align-self: start;
+    margin-block-start: var(--s-2);
+  }
+
+  .stepTitle {
+    grid-area: 1 / 4 / 2 / -1;
+  }
+
+  .cards {
+    grid-area: 2 / 4 / 3 / -1;
     grid-template-columns: repeat(3, minmax(0, 1fr));
+    align-self: start;
+    margin-block-start: var(--s-5);
+  }
+
+  /* The margin rule: in the middle of the gutter before column 4, through the band's padding. */
+  .step::before {
+    content: "";
+    grid-area: 1 / 4 / 3 / 5;
+    justify-self: start;
+    align-self: stretch;
+    width: var(--hair);
+    margin-block: calc(-1 * var(--pad, 0px));
+    margin-inline-start: calc(var(--col-gap) / -2);
+    background: var(--line);
+    pointer-events: none;
+  }
+}
+
+@media (forced-colors: active) {
+  .step::before {
+    background: GrayText;
   }
 }

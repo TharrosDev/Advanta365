@@ -5,7 +5,8 @@ toolkit for Microsoft 365 and SharePoint Online rollouts. The toolkit is playboo
 guides and training, not templates alone. The catalog is still **sample content** (placeholder
 listings); checkout, accounts and file delivery are not built yet.
 
-Original design spec (written before the rebuild):
+Original design spec (written before the rebuild; its visual design is superseded by
+[`docs/design-system.md`](docs/design-system.md)):
 `docs/superpowers/specs/2026-10-10-beta-storefront-design.md`
 
 ## Stack
@@ -13,9 +14,13 @@ Original design spec (written before the rebuild):
 - Next.js 16 (App Router), React 19, TypeScript (strict), pnpm via corepack.
 - Styling: CSS Modules next to each component, reading design tokens defined as CSS custom
   properties in `app/globals.css`. No Tailwind.
-- Type: Instrument Sans (variable font) through `next/font/google`.
-- Graphics: raw WebGL2 for the hero ribbons, the metallic swirl, the chrome logo and the sheen
-  text. No three.js, GSAP or smooth-scroll library. Every canvas has a non-WebGL fallback.
+- Design: "Working Copy", one light theme: black ink on white, a single light-blue highlighter and
+  a near-black footer. See `docs/design-system.md`.
+- Type: Besley and Atkinson Hyperlegible Next (variable fonts) through `next/font/google`.
+- Graphics: HTML, CSS and inline SVG, drawn on the server. No canvas, WebGL, worker or animation
+  library.
+- Motion: CSS only. A first visit to the home page opens under a cover that is signed and lifted
+  off in 2.3 seconds; it is switched on by a small inline script, once per browser session.
 - Catalog records are validated with zod when the catalog loads.
 - Tests: Vitest (unit) and Playwright (browser).
 
@@ -29,7 +34,7 @@ Uses pnpm (`corepack enable` if `pnpm` is not on your PATH).
 | `pnpm dev`       | Run the site at http://localhost:3000                      |
 | `pnpm lint`      | ESLint (React Compiler rules are errors)                   |
 | `pnpm typecheck` | Generate route types, then TypeScript                      |
-| `pnpm test`      | Unit tests (Vitest)                                        |
+| `pnpm test`      | Unit tests (Vitest), including the design gate             |
 | `pnpm test:e2e`  | Browser tests (Playwright; builds and serves on port 3100) |
 | `pnpm build`     | Production build                                           |
 | `pnpm format`    | Prettier                                                   |
@@ -41,39 +46,42 @@ reuse a server already running on port 3100 unless `CI` is set, so stop a stale 
 
 ```
 app/
-  layout.tsx              Root html and body, font, pre-paint entry script, no-JS reveal fallback
-  globals.css             Design tokens, theme scopes, base rules, global utility classes
-  (site)/                 Public pages inside the site shell (skip link, beta bar, header, main, footer)
-    page.tsx              Home
+  layout.tsx              Root html and body, the two fonts, the inline script of the cover
+  globals.css             Design tokens, the four [data-band] surfaces, base rules, the type classes
+  icon.svg                The site icon (with globals.css, the only file that holds raw colour)
+  (site)/                 Public pages inside the site shell (skip link, beta strip, sticky bar,
+                          phase rail, main, footer)
+    page.tsx              Home: the array of sections, in order
     catalog/ phases/[phase]/ templates/[slug]/ bundles/ bundles/[slug]/ cart/
     pricing/ about/ contact/
     sample/               /sample: the worked example, described (its file is not offered in this beta)
     [...rest]/            Calls notFound(), so unknown paths keep the site shell
   not-found.tsx           404 outside the site group
 components/
-  ui/                     Primitives: Text, Container, SectionShell, DetailCard, Button, WipeButton, ...
-  motion/                 Reveal, RevealGroup, GatherReveal, PageFade, TransitionLink, ThemeScroll
-  graphics/               hero-liquid, metallic-swirl, chrome-symbol, sheen-text (WebGL2, loaded after hydration)
-  entry/                  First-load overlay and its inline script
-  layout/                 Header, Menu, Footer, BetaBar, PageTitle, not-found content
-  home/                   Home page sections, top to bottom: hero, #problem, #solution, #inside,
-                          #bundles, #featured, #practice, #values, the built-for band, #closing
+  ui/                     Primitives: Band, Wrap, Split, Sheet, BandedList, RowLink, Button, Tally,
+                          Blank, Tag, Icon, TransitionLink, ...
+  layout/                 Header, PrimaryNav, NavDrawer, PhaseRail, Footer, BetaStrip, TitleBlock,
+                          Breadcrumbs
+  not-found/              MissingPage (the 404 content) and AskedPath
+  intro/                  The cover of a first visit to the home page: the sheet, its inline script
+                          and the decision to play it
+  home/                   Home page sections, top to bottom: hero (with the hero sheet), #featured,
+                          #inside, #bundles, #problem and #solution, #practice, #values, the
+                          built-for row, #closing
   catalog/ cart/ product/ Feature components
   company/                About and Pricing pieces: statement section, comparison table, buyer list, FAQ
 content/                  The sample catalog: seven phases, one template file per phase, bundles, taxonomy
 lib/
   site.ts                 Site name, parent company, tagline, and the toolkit counts (TOOLKIT)
-  catalog/                Schemas, validation, repository, query, URL state, pricing
+  catalog/                Schemas, validation, repository, query, URL state, pricing, phase coverage
   cart/                   Cart store (pure logic)
-  motion/                 Page-ready gate, reduced motion, theme requests, durations, word splitting
-  gl/                     Shared WebGL2 program helpers
   brand/mark.ts           The logo mark (single source of truth)
   cx.ts                   cx() and cssVars()
   compounds.ts            Finds the hyphenated compounds of a title (kept unbroken in card titles)
-tests/unit                Vitest
+tests/unit                Vitest, including the design gate
 tests/e2e                 Playwright
 proxy.ts                  Redirects mixed-case URLs to lower-case
-docs/                     Design system, architecture, graphics tuning
+docs/                     Design system, architecture
 ```
 
 Rules the code relies on:
@@ -83,26 +91,30 @@ Rules the code relies on:
 - Catalog search, filters, sort and page live in the URL, so every view is shareable and
   server-rendered.
 - Colours, spacing, type, and motion come from tokens in `app/globals.css`. Component CSS and TSX
-  contain no raw colour values.
+  contain no raw colour values: raw colour lives in `app/globals.css` and `app/icon.svg` only. Layout
+  space is a step of the 7px scale (`--s-1` to `--s-9`), and the only layout breakpoints are `40em`
+  and `68em`.
 - Internal links use `TransitionLink` (or a primitive built on it). Only
-  `components/motion/transition-link.tsx` imports `next/link`.
-- Each page has exactly one `<h1>`. Decorative repeated text is drawn with CSS `attr()` inside an
-  `aria-hidden` element, never duplicated in the DOM.
+  `components/ui/transition-link.tsx` imports `next/link`.
+- Each page has exactly one `<h1>`, whose text is the page title, and the shell has one `banner`, one
+  `main` and one `contentinfo`. Exactly one navigation is named "Rollout phases" (the footer), and
+  exactly one searchbox is named "Search templates" (the catalog).
 - The catalog result count and the add-to-cart confirmation are the only `role="status"` elements.
   Only template and bundle cards are `<article>`.
 - Any `localStorage` or `sessionStorage` access is wrapped in try/catch.
-- WebGL code is never in the first route chunk. Canvases load their renderer with `import()` after
-  hydration, and every canvas has an SVG or CSS fallback.
 - Prices are integer cents.
+
+`pnpm test` includes a design gate (`tests/unit/design-gate.test.ts`) that enforces the raw-colour,
+breakpoint and `next/link` rules above, and keeps the retired design's names and techniques out of
+the source.
 
 ## Documentation
 
-- [`docs/design-system.md`](docs/design-system.md): tokens, themes, primitives, reveal and wipe
-  conventions.
-- [`docs/architecture.md`](docs/architecture.md): server and client boundaries, the load sequence,
-  route transitions, the theme controller, test hooks, fallbacks.
-- [`docs/graphics-tuning.md`](docs/graphics-tuning.md): where to change the ribbons, the swirl, the
-  logo, the sheen and the reduced-motion behaviour.
+- [`docs/design-system.md`](docs/design-system.md): the Working Copy design: concept, colour and
+  the `data-band` surfaces, type, the 7px scale, motion, primitives, CSS Modules rules, the design
+  gate and the accessibility floor.
+- [`docs/architecture.md`](docs/architecture.md): server and client boundaries, routes, the site
+  shell (bar, phase rail, drawer, footer), test hooks, the test contract, fallbacks.
 
 ## Replacing the sample content
 
@@ -112,7 +124,8 @@ and Sustain (`sustain`). Each phase has two steps.
 
 1. Edit `content/phases.ts` to change phase and step names. Two places name the phases in plain
    text and do not follow that file: the catalog page writes the count out ("seven") and the
-   playbooks card on the home page (`components/home/inside-section.tsx`) lists the phase names.
+   playbooks row of the toolkit list on the home page (`components/home/inside-section.tsx`) lists
+   the phase names.
 2. Replace the entries in `content/templates/` and `content/bundles.ts`. There is one template file
    per phase (`make-the-case.ts`, `plan.ts`, and so on); `content/templates/index.ts` joins them in
    phase order. Real entries set `isSample: false` (do not use the `sample()` helper).
@@ -126,7 +139,14 @@ The one exception is "30+ years" inside three sentences quoted whole from the me
 toolkit, not the number of listings in the catalog, and no page may state or imply that the catalog
 lists that many.
 
-The beta banner disappears once no record has `isSample: true`. The other places that call the
+The home page is one array of sections in `app/(site)/page.tsx`, top to bottom: the hero (with the
+hero sheet), `#featured`, `#inside`, `#bundles`, `#problem` and `#solution`, `#practice`, `#values`,
+the built-for row and `#closing`. Reordering the page is reordering that array. Two parts follow the
+catalog on their own: the hero sheet shows the first featured template (the first template if none
+is featured), and the phase coverage on each bundle card is worked out from the bundle's templates
+(`phaseCoverage()` in `lib/catalog/coverage.ts`).
+
+The beta strip disappears once no record has `isSample: true`. The other places that call the
 catalog a sample are plain text and need editing by hand: the catalog lead and its metadata
 (`app/(site)/catalog/page.tsx`), the "Browse the sample catalog" links on the home page and on
 `/sample`, the footer line, and the note in `components/product/purchase-panel.tsx`. Some tests in

@@ -1,0 +1,66 @@
+/*
+ * The four value drawings. The tile is the desk-deep ground of the band's semantic layer, 70px
+ * square (56px on a phone); the units inside are the 96-unit drawing grid, so a stroke of 2.5 units
+ * is about 1.8px at full size. Board lines keep a hairline whatever the scale.
+ */
+.tile {
+  display: block;
+  flex: none;
+  width: calc(var(--s-1) * 8);
+  height: calc(var(--s-1) * 8);
+  border-radius: var(--round-2);
+  background: var(--tile);
+  fill: none;
+  stroke: var(--text);
+  stroke-width: 2.5;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.board {
+  stroke: var(--line);
+  stroke-width: var(--hair);
+  vector-effect: non-scaling-stroke;
+}
+
+.line {
+  fill: none;
+}
+
+/* A sheet hides the board lines behind it. */
+.sheet {
+  fill: var(--surface);
+}
+
+/* The one marked element: the part of the sheet that is left for the buyer. */
+.blank {
+  fill: var(--mark);
+  stroke: var(--ink);
+  stroke-width: 2;
+}
+
+@media (min-width: 40em) {
+  .tile {
+    width: calc(var(--s-1) * 10);
+    height: calc(var(--s-1) * 10);
+  }
+}
+
+@media (forced-colors: active) {
+  .tile {
+    stroke: CanvasText;
+  }
+
+  .board {
+    stroke: GrayText;
+  }
+
+  .sheet {
+    fill: Canvas;
+  }
+
+  .blank {
+    fill: Highlight;
+    stroke: CanvasText;
+  }
+}

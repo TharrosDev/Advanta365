@@ -1,0 +1,38 @@
+.root {
+  border-radius: var(--round-3);
+  background: var(--surface);
+}
+
+.rule {
+  border: var(--hair) solid var(--line);
+}
+
+.ink {
+  border: var(--edge) solid var(--line-ink);
+}
+
+.none {
+  padding: 0;
+}
+
+.tight {
+  padding: var(--s-2);
+}
+
+.regular {
+  padding: var(--s-3);
+}
+
+.roomy {
+  padding: var(--s-4);
+}
+
+@media (min-width: 40em) {
+  .regular {
+    padding: var(--s-4);
+  }
+
+  .roomy {
+    padding: var(--s-5);
+  }
+}

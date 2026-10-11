@@ -1,19 +1,21 @@
 import { expect, test } from "@playwright/test";
-import { INTRO_TEST_TIMEOUT, NAVIGATION_TIMEOUT, waitForIntroEnd } from "./helpers";
+import { introSeen, NAVIGATION_TIMEOUT } from "./helpers";
 
-// The two specs that start on "/" sit through the intro and then navigate by links, at the start of
-// the run when every worker is loading its first page. They get the intro's time budget and a
-// navigation budget, so a busy machine fails them on the page and not on the clock.
+// The two specs that start on "/" navigate by links at the start of the run, when every worker is
+// loading its first page. They get a navigation budget, so a busy machine fails them on the page and
+// not on the clock. They are about the links, so they start on the page and not under the cover of
+// a first visit.
+
+test.beforeEach(async ({ page }) => {
+  await introSeen(page);
+});
 
 test("home leads to a phase and on to a template", async ({ page }) => {
-  test.setTimeout(INTRO_TEST_TIMEOUT);
   await page.goto("/");
   await expect(page.getByText("Beta preview — templates shown are samples.")).toBeVisible();
   await expect(page.getByRole("heading", { level: 1 })).toHaveText(
     "Don’t start your M365 rollout from a blank prompt.",
   );
-  // The intro holds the page at the top and takes every click until it has lifted.
-  await waitForIntroEnd(page);
 
   await page.getByRole("main").getByRole("link", { name: "Prepare", exact: true }).click();
   await expect(page).toHaveURL(/\/phases\/prepare$/, { timeout: NAVIGATION_TIMEOUT });
@@ -31,9 +33,7 @@ test("home leads to a phase and on to a template", async ({ page }) => {
 test("the hero leads to the worked example, which says its file cannot be downloaded yet", async ({
   page,
 }) => {
-  test.setTimeout(INTRO_TEST_TIMEOUT);
   await page.goto("/");
-  await waitForIntroEnd(page);
   await page.getByRole("main").getByRole("link", { name: "See a sample", exact: true }).click();
 
   await expect(page).toHaveURL(/\/sample$/, { timeout: NAVIGATION_TIMEOUT });

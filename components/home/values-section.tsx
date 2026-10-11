@@ -1,83 +1,67 @@
-import type { ComponentType } from "react";
-import { Reveal } from "@/components/motion/reveal";
-import { RevealGroup } from "@/components/motion/reveal-group";
-import { DetailCard } from "@/components/ui/detail-card";
-import { SectionIntro } from "@/components/ui/section-intro";
-import { SectionShell } from "@/components/ui/section-shell";
+import { Band } from "@/components/ui/band";
+import { Eyebrow } from "@/components/ui/eyebrow";
+import { KeepCompounds } from "@/components/ui/keep-compounds";
+import { Sentences } from "@/components/ui/sentences";
 import { cx } from "@/lib/cx";
 import styles from "./home.module.css";
-import { BuildingsIcon, PencilIcon, ProvenIcon, StepsIcon } from "./value-icons";
+import { ValueTile, type ValueTileName } from "./value-tiles";
 
 type Value = {
   title: string;
   body: string;
-  Icon: ComponentType<{ className?: string }>;
+  tile: ValueTileName;
 };
 
 const VALUES: readonly Value[] = [
   {
     title: "Field-tested, not theoretical",
     body: "Built from 30+ years of field-tested practice on real rollouts, then refined into ready-to-use templates.",
-    Icon: ProvenIcon,
+    tile: "tested",
   },
   {
     title: "Experience you can borrow",
     body: "Grounded in Prosci certification and 30+ years of practice.",
-    Icon: StepsIcon,
+    tile: "borrow",
   },
   {
     title: "Yours to adapt",
     body: "Edit by hand or feed it to AI. You keep what you build.",
-    Icon: PencilIcon,
+    tile: "adapt",
   },
   {
     title: "Built for any sector",
     body: "Used from private companies to the public service.",
-    Icon: BuildingsIcon,
+    tile: "sector",
   },
 ];
 
-/** The cells sit two to a row from 768px. */
-const COLUMNS = 2;
-
 /**
- * `#values`: always dark (it does not follow the page theme), a bold label and the statement, then
- * four cells, each a solid glyph over a ruled card: one column on a phone, two by two from 768px.
- * Four across would leave a cell 216px wide at 1024px, too narrow for the longest body.
- *
- * Reveal order: label 0 and title words 1..4 in one group (the title breaks between its two
- * sentences, see `.sentenceLines`, and is sized so each sentence fits on a phone, see
- * `.valuesTitle`); per cell the glyph is index c and the card c + 1, where c is the cell's column, so
- * each row ripples left to right.
+ * `#values`: on paper. The label and the statement (one sentence to a line) sit over a two by two
+ * list from 40em, one column below. Each value is a line-drawing tile at the left and, 21px to its
+ * right, the title and the sentence under it; neither breaks inside a hyphenated word.
  */
 export function ValuesSection() {
   return (
-    <SectionShell id="values" theme="dark" height="full" innerClassName={styles.values}>
-      <RevealGroup>
-        <SectionIntro
-          label="Why Advanta365"
-          labelBold
-          title={"Field-tested change.\nAI-ready content."}
-          titleClassName={cx("t-display-fluid", styles.sentenceLines, styles.valuesTitle)}
-        />
-      </RevealGroup>
-      <ul className={styles.valuesGrid}>
-        {VALUES.map(({ title, body, Icon }, index) => {
-          const column = index % COLUMNS;
-          return (
-            <li key={title}>
-              <RevealGroup className={styles.valuesCellContent}>
-                <Reveal as="div" effect="fade-up" index={column} className={styles.valuesIconFrame}>
-                  <Icon className={styles.valuesIcon} />
-                </Reveal>
-                <Reveal as="div" effect="fade-up" index={column + 1}>
-                  <DetailCard title={title} body={body} bodyClassName={styles.cardBody} />
-                </Reveal>
-              </RevealGroup>
-            </li>
-          );
-        })}
+    <Band id="values" surface="paper">
+      <Eyebrow>Why Advanta365</Eyebrow>
+      <h2 className={cx("type-page", styles.valuesTitle)}>
+        <Sentences text={"Field-tested change.\nAI-ready content."} />
+      </h2>
+      <ul className={styles.valuesList}>
+        {VALUES.map(({ title, body, tile }) => (
+          <li key={title} className={styles.value}>
+            <ValueTile name={tile} />
+            <div className={styles.valueText}>
+              <h3 className="type-item">
+                <KeepCompounds text={title} />
+              </h3>
+              <p className={cx("type-copy", styles.valueBody)}>
+                <KeepCompounds text={body} />
+              </p>
+            </div>
+          </li>
+        ))}
       </ul>
-    </SectionShell>
+    </Band>
   );
 }

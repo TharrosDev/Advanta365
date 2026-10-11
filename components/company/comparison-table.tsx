@@ -1,18 +1,19 @@
+import { Sheet } from "@/components/ui/sheet";
 import { cx } from "@/lib/cx";
 import styles from "./comparison-table.module.css";
 
 export type ComparisonRow = { label: string; cells: readonly string[] };
 
 /**
- * A comparison as a real table: one column per option, one row per criterion, the criteria as row
- * headers. The `emphasized` column is drawn inverted (an ink surface with background-coloured text),
- * from the tokens of whatever theme the table sits in.
+ * A comparison as a real table in a sheet: one column per option, one row per criterion, the
+ * criteria as row headers. The `emphasized` column is the buyer's: its head is the highlighter with
+ * an ink ring, its cells the wash at a heavier weight.
  *
- * Below 768px the table is wider than a phone. It scrolls inside its own focusable region, so the
- * page never scrolls sideways, and the criteria stay pinned to the left edge while the options move.
+ * Below 40em the table does not scroll. Each row becomes a block with its criterion as the heading
+ * and one label and value pair per option; the label is printed from the cell's `data-label`. The
+ * roles are written out on every part, so the table keeps its semantics once its display is block.
  *
- * The caption is for assistive technology only and names the region; `note` is the line under the
- * table and describes it. It has no reveal of its own: the caller wraps it.
+ * The caption is for assistive technology only and names the table; `note` is the line under it.
  */
 export function ComparisonTable({
   id,
@@ -28,7 +29,7 @@ export function ComparisonTable({
   caption: string;
   columns: readonly string[];
   rows: readonly ComparisonRow[];
-  /** Index of the column drawn inverted. */
+  /** Index of the column drawn as the buyer's. */
   emphasized?: number;
   note?: string;
   className?: string;
@@ -37,23 +38,29 @@ export function ComparisonTable({
   const noteId = note ? `${id}-note` : undefined;
 
   return (
-    <div className={cx(styles.root, className)}>
-      {/* The table scrolls inside its own box on a narrow screen; the page never does. */}
-      <div className={styles.scroll} role="region" aria-labelledby={captionId} tabIndex={0}>
-        <table className={styles.table} aria-describedby={noteId}>
+    <div className={className}>
+      <Sheet pad="none" className={styles.sheet}>
+        <table
+          role="table"
+          className={styles.table}
+          aria-labelledby={captionId}
+          aria-describedby={noteId}
+        >
           <caption id={captionId} className="visually-hidden">
             {caption}
           </caption>
-          <thead>
-            <tr>
-              <td className={cx(styles.head, styles.pinned)} />
+          <thead role="rowgroup" className={styles.head}>
+            <tr role="row" className={styles.row}>
+              <td role="cell" className={cx(styles.corner, styles.cell)} />
               {columns.map((column, index) => (
                 <th
                   key={column}
                   scope="col"
+                  role="columnheader"
                   className={cx(
-                    "t-title-large",
-                    styles.head,
+                    "type-item",
+                    styles.cell,
+                    styles.columnHead,
                     index === emphasized && styles.emphasis,
                   )}
                 >
@@ -62,23 +69,26 @@ export function ComparisonTable({
               ))}
             </tr>
           </thead>
-          <tbody>
+          <tbody role="rowgroup" className={styles.body}>
             {rows.map((row) => (
-              <tr key={row.label}>
+              <tr key={row.label} role="row" className={styles.row}>
                 <th
                   scope="row"
-                  className={cx("t-label-large", "c-fg-60", styles.cell, styles.pinned)}
+                  role="rowheader"
+                  className={cx("type-eyebrow", styles.cell, styles.rowHead)}
                 >
                   {row.label}
                 </th>
                 {row.cells.map((cell, index) => (
-                  // The emphasized cell takes its colour from the module, so it carries no c-fg class.
                   <td
                     key={columns[index] ?? index}
+                    role="cell"
+                    data-label={columns[index]}
                     className={cx(
-                      "t-body-large",
+                      "type-copy",
                       styles.cell,
-                      index === emphasized ? styles.emphasis : "c-fg-80",
+                      styles.value,
+                      index === emphasized && styles.emphasis,
                     )}
                   >
                     {cell}
@@ -88,9 +98,9 @@ export function ComparisonTable({
             ))}
           </tbody>
         </table>
-      </div>
+      </Sheet>
       {note ? (
-        <p id={noteId} className="t-body-medium c-fg-60">
+        <p id={noteId} className={cx("type-note", styles.note)}>
           {note}
         </p>
       ) : null}

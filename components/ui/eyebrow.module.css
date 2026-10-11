@@ -1,0 +1,33 @@
+/* No margin is set here, so a caller can space the label with a class of its own. */
+.root {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--s-1);
+  color: var(--text);
+}
+
+.inline {
+  display: inline-flex;
+}
+
+/*
+ * The square is 7px of highlighter inside a hairline of ink, which is what draws it on a light
+ * surface: 9px in all, the height of the capitals beside it. It stays beside the first line when
+ * the label wraps: it is centred in one line box.
+ */
+.marker::before {
+  --square: calc(var(--s-1) + 2 * var(--hair));
+  content: "";
+  flex: none;
+  width: var(--square);
+  height: var(--square);
+  margin-block-start: calc((1lh - var(--square)) / 2);
+  border: var(--hair) solid var(--line-ink);
+  background: var(--mark);
+}
+
+@media (forced-colors: active) {
+  .marker::before {
+    background: CanvasText;
+  }
+}

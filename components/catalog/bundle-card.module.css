@@ -1,43 +1,143 @@
-/* A ruled text card in the language of DetailCard (which is a div, never an article). The global
-   `ruled` class draws the hairline on top. */
+/*
+ * The folder. Its top-left corner is square because the tab stands on it; the 28px above the card is
+ * the room the tab takes. In a stretched grid cell the card fills what is left under that room.
+ */
 .card {
   position: relative;
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-sm);
-  width: 100%;
-  padding-block: var(--spacing-sm);
+  height: calc(100% - var(--s-4));
+  margin-block-start: var(--s-4);
+  padding: var(--s-3);
+  border: var(--hair) solid var(--line);
+  border-radius: 0 var(--round-3) var(--round-3) var(--round-3);
+  background: var(--surface);
+  color: var(--text);
+  transition: border-color var(--time-swap) linear;
+}
+
+/*
+ * The tab stands on the card's top edge and covers that part of the border, so the two read as one
+ * outline. It is a label: a pointer on it does not reach the card.
+ */
+.tab {
+  position: absolute;
+  bottom: 100%;
+  left: calc(-1 * var(--hair));
+  display: flex;
+  align-items: center;
+  height: var(--s-4);
+  padding-inline: var(--s-2);
+  border: var(--hair) solid var(--line);
+  border-block-end-width: 0;
+  border-radius: var(--round-2) var(--round-2) 0 0;
+  background: var(--surface);
+  font-weight: 700;
+  white-space: nowrap;
+  pointer-events: none;
+  transition: border-color var(--time-swap) linear;
 }
 
 .title {
-  min-width: 0;
-  overflow-wrap: anywhere;
+  overflow-wrap: break-word;
+  hyphens: auto;
 }
 
+/* The one link: its underline is there from the start and only takes colour on hover and focus. */
 .link {
-  text-decoration: none;
+  color: inherit;
+  text-decoration: underline transparent;
+  text-decoration-thickness: var(--edge);
+  text-underline-offset: 3px;
+  transition: text-decoration-color var(--time-swap) linear;
 }
 
-/* Stretches the title link over the whole card: one link, one large target. */
+/* A compound kept whole is an inline block; it draws the same underline as the rest of the title. */
+.link span {
+  text-decoration-thickness: inherit;
+}
+
+/* Stretched over the card, so a click anywhere on it follows the link. */
 .link::after {
   content: "";
   position: absolute;
   inset: 0;
 }
 
-.card:hover .link,
-.link:focus-visible {
-  text-decoration: underline;
-  text-underline-position: from-font;
-}
-
 .summary {
-  max-width: var(--measure-card-body);
+  margin-block-start: var(--s-2);
+  color: var(--text-soft);
 }
 
-.footer {
+/*
+ * The tally and the foot row stand on the bottom edge, 28px apart, so both line up along a row of
+ * cards whatever the length of the titles and summaries above them.
+ */
+.base {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-4);
+  margin-block-start: auto;
+  padding-block-start: var(--s-3);
+}
+
+.foot {
   display: flex;
   flex-wrap: wrap;
-  align-items: baseline;
-  gap: var(--spacing-xs2) var(--spacing-sm);
+  align-items: center;
+  gap: var(--s-1) var(--s-2);
+}
+
+/* Besley's own figures: its tabular zero is drawn at one weight only. */
+.price {
+  font-family: var(--face-display);
+  font-size: 1.625rem;
+  line-height: 1.2;
+  font-weight: 700;
+  font-feature-settings: "tnum" 0;
+}
+
+/* Keyboard focus is shown on the card, not on the words of the title. */
+.link:focus-visible {
+  outline: none;
+}
+
+.card:has(.link:focus-visible) {
+  border-color: var(--line-ink);
+  outline: 3px solid var(--focus-ring);
+  outline-offset: 3px;
+}
+
+.card:has(.link:focus-visible) .tab {
+  border-color: var(--line-ink);
+}
+
+.card:has(.link:focus-visible) .link {
+  text-decoration-color: currentColor;
+}
+
+@media (min-width: 40em) {
+  .card {
+    padding: var(--s-4);
+  }
+}
+
+@media (hover: hover) {
+  .card:hover {
+    border-color: var(--line-ink);
+  }
+
+  .card:hover .tab {
+    border-color: var(--line-ink);
+  }
+
+  .card:hover .link {
+    text-decoration-color: currentColor;
+  }
+}
+
+@media (forced-colors: active) {
+  .card:has(.link:focus-visible) {
+    outline-color: Highlight;
+  }
 }

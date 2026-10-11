@@ -4,7 +4,11 @@ import type { CatalogCriteria } from "@/lib/catalog/query";
 import { serializeCatalogParams } from "@/lib/catalog/search-params";
 import styles from "./search-box.module.css";
 
-/** A plain GET form, so search works without JavaScript and keeps the active filters. */
+/**
+ * The catalog search: the field and its button in one row where the row is wide enough for a
+ * usable field, otherwise the button under the field at the same width. A plain GET form, so search
+ * works without JavaScript and keeps the active filters.
+ */
 export function SearchBox({ criteria }: { criteria: CatalogCriteria }) {
   const kept = new URLSearchParams(serializeCatalogParams({ ...criteria, q: "", page: 1 }));
 
@@ -25,7 +29,7 @@ export function SearchBox({ criteria }: { criteria: CatalogCriteria }) {
         placeholder="Search templates, e.g. sponsor kickoff"
         className={styles.input}
       />
-      <Button type="submit" variant="outline" size="md">
+      <Button type="submit" variant="outline" size="md" className={styles.submit}>
         Search
       </Button>
     </form>

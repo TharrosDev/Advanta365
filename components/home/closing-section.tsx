@@ -1,32 +1,33 @@
-import { RevealGroup } from "@/components/motion/reveal-group";
-import { SectionIntro } from "@/components/ui/section-intro";
-import { SectionShell } from "@/components/ui/section-shell";
-import { WipeButton } from "@/components/ui/wipe-button";
+import { Band } from "@/components/ui/band";
+import { Button } from "@/components/ui/button";
+import { Sentences } from "@/components/ui/sentences";
+import { Sheet } from "@/components/ui/sheet";
+import { Tally } from "@/components/ui/tally";
 import { cx } from "@/lib/cx";
 import styles from "./home.module.css";
 
 /**
- * `#closing`: the last band before the footer. Always dark, half a viewport, one centred statement
- * and the one button that leads to the catalog.
- *
- * Reveal order, in one group: title words 0..7 on the fine step (the title breaks between its two
- * sentences, see `.sentenceLines`), then the button on coarse 6.
+ * `#closing`: the last band before the footer. One sheet with an ink edge across the grid: the
+ * statement (one sentence to a block) in columns 1 to 8, the one button that leads to the catalog in
+ * columns 9 to 12 level with the last line (under the statement below 68em), and under them a thin
+ * tally, nine blocks inked and the tenth marked, the whole width of the sheet.
  */
 export function ClosingSection() {
   return (
-    <SectionShell id="closing" theme="dark" height="half" innerClassName={styles.closing}>
-      <RevealGroup>
-        <SectionIntro
-          center
-          title={"Get the 90%.\nFinish the rest your way."}
-          titleClassName={cx("t-display-fluid", styles.sentenceLines)}
-          actions={
-            <div className={styles.centredActions}>
-              <WipeButton href="/catalog">Shop Advanta365</WipeButton>
-            </div>
-          }
-        />
-      </RevealGroup>
-    </SectionShell>
+    <Band id="closing" surface="desk">
+      <Sheet edge="ink" pad="roomy" className={styles.closingSheet}>
+        <div className={styles.closingGrid}>
+          <h2 className={cx("type-banner", styles.closingTitle)}>
+            <Sentences text={"Get the 90%.\nFinish the rest your way."} />
+          </h2>
+          <div className={styles.closingAction}>
+            <Button variant="mark" size="lg" href="/catalog" arrow>
+              Shop Advanta365
+            </Button>
+          </div>
+        </div>
+        <Tally total={10} filled={9} marked={10} size="sm" className={styles.closingTally} />
+      </Sheet>
+    </Band>
   );
 }

@@ -1,0 +1,49 @@
+.root {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--s-3);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.item {
+  display: grid;
+  grid-template-columns: var(--s-3) minmax(0, 1fr);
+  gap: var(--s-2);
+  align-items: start;
+}
+
+/* A 21px box, centred on the first line of the text beside it. */
+.box {
+  display: grid;
+  place-items: center;
+  width: var(--s-3);
+  height: var(--s-3);
+  margin-block-start: calc((1lh - var(--s-3)) / 2);
+  border: var(--edge) solid var(--line-ink);
+  border-radius: var(--round-1);
+  background: var(--surface);
+  color: var(--text);
+}
+
+/* The tick is drawn as heavy as the box around it. */
+.tick {
+  stroke-width: 2.4;
+}
+
+.title {
+  margin-block-end: var(--s-1);
+  color: var(--text);
+}
+
+.body {
+  color: var(--text-soft);
+}
+
+@media (min-width: 40em) {
+  .two {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--s-4) var(--s-5);
+  }
+}

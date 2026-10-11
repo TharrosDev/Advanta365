@@ -1,27 +1,14 @@
-/* A disclosure list: hairlines between the items, the open item is framed in full ink. */
-.list {
-  display: flex;
-  flex-direction: column;
-  width: 100%;
+/*
+ * A row has no padding of its own: the question button and the answer carry the row's padding, so
+ * the button fills the row and its whole width is the target. The doubled selector beats the
+ * padding the banded row sets.
+ */
+.item.item {
+  padding: 0;
 }
 
-.item {
-  border-top: 1px solid var(--color-foreground-30);
-  transition: border-color var(--duration-slow) var(--easing-emphasized);
-}
-
-.item:last-child {
-  border-bottom: 1px solid var(--color-foreground-30);
-}
-
-/* the open item and the line under it (the top of the next item) are drawn in full ink */
-.item[data-open="true"],
-.item[data-open="true"] + .item {
-  border-top-color: var(--color-foreground-100);
-}
-
-.item[data-open="true"]:last-child {
-  border-bottom-color: var(--color-foreground-100);
+.item.item[data-open="true"] {
+  background: var(--surface);
 }
 
 .heading {
@@ -32,63 +19,54 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: var(--spacing-md);
+  gap: var(--s-2);
   width: 100%;
-  margin: 0;
-  padding: var(--spacing-md) 0;
+  min-height: var(--control-lg);
+  padding: var(--row-pad-block) var(--row-pad-inline);
   border: 0;
-  border-radius: 0;
   background: none;
-  color: inherit;
+  color: var(--text);
   text-align: start;
   cursor: pointer;
-  transition: color var(--duration-slow) var(--easing-emphasized);
-}
-
-/* while one item is open the others step back (24px type is large text: foreground-50 holds AA) */
-.dimmed {
-  color: var(--color-foreground-50);
-}
-
-.dimmed:focus-visible {
-  color: var(--color-foreground-100);
-}
-
-@media (hover: hover) {
-  .dimmed:hover {
-    color: var(--color-foreground-100);
-  }
+  transition: background-color var(--time-swap) linear;
 }
 
 .question {
   min-width: 0;
-  max-width: var(--measure-menu);
-  overflow-wrap: anywhere;
 }
 
-/* one headline line tall, so the arrow sits beside the first line of the question */
-.arrow {
-  display: flex;
-  flex-shrink: 0;
-  align-items: center;
-  height: calc(1em * 1.2);
-  transition: rotate var(--duration-slow) var(--easing-emphasized);
+/*
+ * The wash is a light surface on every band, so the ink colours read on it, whatever the band. The
+ * ring sits inside the row, clear of the rounded corners of the list that clips it.
+ */
+.trigger:focus-visible {
+  --text: var(--ink);
+  --focus-ring: var(--ink);
+  outline-offset: calc(-1 * var(--s-1));
+  background: var(--mark-wash);
 }
 
-/* the arrow glyph already points right (45deg); a quarter turn more points it down */
-.item[data-open="true"] .arrow {
-  rotate: 90deg;
+@media (hover: hover) {
+  .trigger:hover {
+    --text: var(--ink);
+    --focus-ring: var(--ink);
+    background: var(--mark-wash);
+  }
 }
 
-/* the answer grows from a zero-height grid row */
+/*
+ * The panel is a one-row grid that grows from 0fr to 1fr. Closing is the quicker move, so the
+ * closed state carries the exit timing and the open state the enter timing.
+ */
 .panel {
   display: grid;
   grid-template-rows: 0fr;
-  transition: grid-template-rows var(--duration-slow) var(--easing-emphasized);
+  transition: grid-template-rows var(--time-exit) var(--curve-leave);
 }
 
 .item[data-open="true"] .panel {
   grid-template-rows: 1fr;
+  transition: grid-template-rows var(--time-enter) var(--curve-settle);
 }
 
 .panelInner {
@@ -97,29 +75,17 @@
 }
 
 .panelContent {
-  display: flex;
-  flex-direction: column;
-  gap: var(--spacing-xl);
-  padding-bottom: var(--spacing-xl);
+  padding: 0 var(--row-pad-inline) var(--s-3);
 }
 
 .answer {
-  max-width: var(--measure-body);
-}
-
-@media (min-width: 768px) {
-  .trigger {
-    align-items: flex-start;
-    gap: var(--spacing-xl);
-    padding-block: var(--spacing-xl);
-  }
+  max-width: var(--wrap-copy);
+  color: var(--text-soft);
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .item,
-  .trigger,
-  .arrow,
-  .panel {
+  .panel,
+  .item[data-open="true"] .panel {
     transition: none;
   }
 }

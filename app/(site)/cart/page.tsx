@@ -1,13 +1,16 @@
 import type { Metadata } from "next";
 import { CartContents, type CartItem } from "@/components/cart/cart-contents";
-import { PageTitle } from "@/components/layout/page-title";
-import { Container } from "@/components/ui/container";
-import { PageShell } from "@/components/ui/page-shell";
+import { TitleBlock } from "@/components/layout/title-block";
+import { Band } from "@/components/ui/band";
+import { Split } from "@/components/ui/split";
 import { getBundles, getTemplates } from "@/lib/catalog/repository";
-import styles from "./page.module.css";
 
 export const metadata: Metadata = { title: "Cart" };
 
+/**
+ * The cart. The title stands in the margin; the contents fill the content columns of a paper band
+ * under it, with the margin left empty.
+ */
 export default async function CartPage() {
   const [templates, bundles] = await Promise.all([getTemplates(), getBundles()]);
   // The cart lives in the browser, so the page sends the titles and prices it may need.
@@ -29,11 +32,13 @@ export default async function CartPage() {
   ];
 
   return (
-    <PageShell>
-      <PageTitle title="Your cart" />
-      <Container className={styles.block}>
-        <CartContents items={items} />
-      </Container>
-    </PageShell>
+    <>
+      <TitleBlock title="Your cart" />
+      <Band as="div" surface="paper" pad="tight">
+        <Split>
+          <CartContents items={items} />
+        </Split>
+      </Band>
+    </>
   );
 }

@@ -1,4 +1,5 @@
 import { expect, test } from "@playwright/test";
+import { introSeen } from "./helpers";
 
 const KEY = "advanta365.cart.v1";
 
@@ -41,6 +42,8 @@ test("removing the last line moves focus to the empty-cart heading", async ({ pa
 });
 
 test("a stale saved cart is cleaned up on any page, not only the cart", async ({ page }) => {
+  // The home page stands for "any page" here: it is opened as on a later load, with no cover.
+  await introSeen(page);
   await page.addInitScript(
     ([key]) => {
       // Only seed once, so the cleaned-up cart is what a later page load sees.

@@ -2,14 +2,19 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { AddToCart } from "@/components/cart/add-to-cart";
 import { TemplateCard } from "@/components/catalog/template-card";
+import { TemplateCover } from "@/components/catalog/template-cover";
 import { Breadcrumbs } from "@/components/layout/breadcrumbs";
-import { PageTitle } from "@/components/layout/page-title";
-import { TransitionLink } from "@/components/motion/transition-link";
+import { TitleBlock } from "@/components/layout/title-block";
 import { PurchasePanel } from "@/components/product/purchase-panel";
-import { ActionRow } from "@/components/ui/action-row";
-import { Container } from "@/components/ui/container";
+import { Band } from "@/components/ui/band";
+import { BandedList, BandedRow } from "@/components/ui/banded-list";
+import { CheckList } from "@/components/ui/check-list";
 import { FactList } from "@/components/ui/fact-list";
-import { PageShell } from "@/components/ui/page-shell";
+import { KeepCompounds } from "@/components/ui/keep-compounds";
+import { RowLink } from "@/components/ui/row-link";
+import { Split } from "@/components/ui/split";
+import { Tally } from "@/components/ui/tally";
+import { TextLink } from "@/components/ui/text-link";
 import {
   APP_LABELS,
   AUDIENCE_LABELS,
@@ -21,6 +26,7 @@ import {
   getBundleTemplates,
   getBundlesContaining,
   getPhase,
+  getPhases,
   getRelatedTemplates,
   getTemplate,
   getTemplates,
@@ -40,16 +46,25 @@ export async function generateMetadata({ params }: TemplatePageProps): Promise<M
   return template ? { title: template.title, description: template.summary } : {};
 }
 
+/**
+ * One template. Under the title block the page has three zones from 68em: the cover in the margin,
+ * the details in the middle and the purchase panel at the right, where it stays in view. The panel
+ * comes before the details in the document, so below 68em the order is cover, panel, details (the
+ * cover and the panel side by side from 40em). A last band lists the bundles that hold the template
+ * and three related templates, each under a heading in the margin.
+ */
 export default async function TemplatePage({ params }: TemplatePageProps) {
   const template = await getTemplate((await params).slug);
   if (!template) notFound();
 
-  const [phase, related, bundles] = await Promise.all([
+  const [phase, phases, related, bundles] = await Promise.all([
     getPhase(template.phase),
+    getPhases(),
     getRelatedTemplates(template.slug, 3),
     getBundlesContaining(template.slug),
   ]);
   const step = phase?.steps.find((s) => s.slug === template.step);
+  const phaseNumber = phase ? phases.findIndex((p) => p.slug === phase.slug) + 1 : 0;
   const bundleRows = await Promise.all(
     bundles.map(async (bundle) => {
       const contents = await getBundleTemplates(bundle);
@@ -63,9 +78,9 @@ export default async function TemplatePage({ params }: TemplatePageProps) {
           {
             label: "Phase",
             value: (
-              <TransitionLink href={`/phases/${phase.slug}`} className={styles.link}>
+              <TextLink href={`/phases/${phase.slug}`} className={styles.reach}>
                 {phase.name}
-              </TransitionLink>
+              </TextLink>
             ),
           },
         ]
@@ -75,9 +90,9 @@ export default async function TemplatePage({ params }: TemplatePageProps) {
           {
             label: "Step",
             value: (
-              <TransitionLink href={`/phases/${phase.slug}#${step.slug}`} className={styles.link}>
+              <TextLink href={`/phases/${phase.slug}#${step.slug}`} className={styles.reach}>
                 {step.name}
-              </TransitionLink>
+              </TextLink>
             ),
           },
         ]
@@ -97,11 +112,12 @@ export default async function TemplatePage({ params }: TemplatePageProps) {
   ];
 
   return (
-    <PageShell>
-      <PageTitle
+    <>
+      <TitleBlock
+        form="document"
         title={template.title}
         lead={template.summary}
-        eyebrow={
+        crumbs={
           <Breadcrumbs
             items={[
               { href: "/", label: "Home" },
@@ -112,7 +128,13 @@ export default async function TemplatePage({ params }: TemplatePageProps) {
         }
       />
 
-      <Container className={styles.layout}>
+      <Band as="div" surface="paper" pad="tight" innerClassName={styles.zones}>
+        <TemplateCover
+          type={template.deliverableType}
+          format={template.format}
+          className={styles.cover}
+        />
+
         <PurchasePanel
           priceCents={template.priceCents}
           note="One-time purchase, editable file"
@@ -122,71 +144,69 @@ export default async function TemplatePage({ params }: TemplatePageProps) {
         </PurchasePanel>
 
         <div className={styles.details}>
-          <p className={cx("t-body-large", "c-fg-80", styles.description)}>
-            {template.description}
-          </p>
+          <p className={cx("type-copy", styles.description)}>{template.description}</p>
 
           <FactList items={facts} />
 
           <section className={styles.section}>
-            <h2 className="t-headline-large">What’s included</h2>
-            <ul className={styles.includes}>
-              {template.includes.map((item) => (
-                <li key={item} className="ruled t-body-large">
-                  {item}
-                </li>
-              ))}
-            </ul>
+            <h2 className="type-section">What’s included</h2>
+            <CheckList items={template.includes.map((item) => ({ key: item, body: item }))} />
           </section>
 
           {phase && step && (
             <section className={styles.section}>
-              <h2 className="t-headline-large">Where it fits</h2>
-              <p className={cx("t-body-large", "c-fg-60", styles.fits)}>
+              <h2 className="type-section">Where it fits</h2>
+              <Tally
+                total={phases.length}
+                filled={phaseNumber - 1}
+                marked={phaseNumber}
+                size="sm"
+                className={styles.tally}
+              />
+              <p className={cx("type-copy", styles.fits)}>
                 Use this in the{" "}
-                <TransitionLink href={`/phases/${phase.slug}#${step.slug}`} className={styles.link}>
+                <TextLink href={`/phases/${phase.slug}#${step.slug}`}>
                   {phase.name} phase, at the “{step.name}” step
-                </TransitionLink>
+                </TextLink>
                 . {step.summary}
               </p>
             </section>
           )}
         </div>
-      </Container>
+      </Band>
 
-      {bundleRows.length > 0 && (
-        <Container as="section" className={styles.block}>
-          <h2 className="t-headline-large">Included in these bundles</h2>
-          <ul className={styles.rows}>
-            {bundleRows.map(({ bundle, count, savings }, index) => (
-              <li key={bundle.slug}>
-                <ActionRow
-                  fill
-                  arrow="right"
-                  href={`/bundles/${bundle.slug}`}
-                  label={bundle.title}
-                  caption={`${count} templates${savings > 0 ? ` · Save ${formatPrice(savings)}` : ""}`}
-                  trailing={formatPrice(bundle.priceCents)}
-                  rule={index === bundleRows.length - 1 ? "both" : "top"}
-                />
-              </li>
-            ))}
-          </ul>
-        </Container>
-      )}
+      {bundleRows.length > 0 || related.length > 0 ? (
+        <Band as="div" surface="desk" innerClassName={styles.more}>
+          {bundleRows.length > 0 && (
+            <Split margin={<h2 className="type-section">Included in these bundles</h2>}>
+              <BandedList>
+                {bundleRows.map(({ bundle, count, savings }) => (
+                  <BandedRow key={bundle.slug}>
+                    <RowLink
+                      href={`/bundles/${bundle.slug}`}
+                      label={<KeepCompounds text={bundle.title} />}
+                      caption={`${count} templates${savings > 0 ? ` · Save ${formatPrice(savings)}` : ""}`}
+                      trailing={formatPrice(bundle.priceCents)}
+                    />
+                  </BandedRow>
+                ))}
+              </BandedList>
+            </Split>
+          )}
 
-      {related.length > 0 && (
-        <Container as="section" className={styles.block}>
-          <h2 className="t-headline-large">Related templates</h2>
-          <ul className={styles.cardGrid}>
-            {related.map((item) => (
-              <li key={item.slug}>
-                <TemplateCard template={item} phaseName={phase?.name} />
-              </li>
-            ))}
-          </ul>
-        </Container>
-      )}
-    </PageShell>
+          {related.length > 0 && (
+            <Split margin={<h2 className="type-section">Related templates</h2>}>
+              <ul className={styles.cards}>
+                {related.map((item) => (
+                  <li key={item.slug}>
+                    <TemplateCard template={item} phaseName={phase?.name} />
+                  </li>
+                ))}
+              </ul>
+            </Split>
+          )}
+        </Band>
+      ) : null}
+    </>
   );
 }

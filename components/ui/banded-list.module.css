@@ -1,0 +1,32 @@
+.list {
+  margin: 0;
+  padding: 0;
+  border: var(--hair) solid var(--line);
+  border-radius: var(--round-3);
+  background: var(--surface);
+  list-style: none;
+  overflow: hidden;
+}
+
+.row {
+  --row-pad-block: var(--s-2);
+  --row-pad-inline: var(--s-2);
+  padding: var(--row-pad-block) var(--row-pad-inline);
+}
+
+.row:nth-child(even) {
+  background: var(--stripe);
+}
+
+@media (min-width: 40em) {
+  .row {
+    --row-pad-inline: var(--s-3);
+  }
+}
+
+/* Without the two tones, a hairline keeps the rows apart. */
+@media (forced-colors: active) {
+  .row + .row {
+    border-block-start: var(--hair) solid GrayText;
+  }
+}

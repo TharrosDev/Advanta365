@@ -1,0 +1,225 @@
+/*
+ * The panel: a sheet of paper on the right edge with an ink edge toward the page. `display` is only
+ * set on the open dialog, so a closed one stays hidden.
+ */
+.drawer {
+  position: fixed;
+  inset: 0 0 0 auto;
+  width: min(88vw, 23.625rem);
+  height: 100dvh;
+  max-height: none;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  border-left: var(--edge) solid var(--ink);
+  background: var(--paper);
+  color: var(--ink);
+  box-shadow: var(--lift);
+}
+
+.drawer[open] {
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+  animation: drawer-in var(--time-enter) var(--curve-settle);
+}
+
+.drawer::backdrop {
+  background: var(--scrim);
+  animation: scrim-in var(--time-exit) linear;
+}
+
+@keyframes drawer-in {
+  from {
+    translate: 100% 0;
+  }
+}
+
+@keyframes scrim-in {
+  from {
+    opacity: 0;
+  }
+}
+
+/* Three groups 28px apart; the contact address is pushed to the foot of a tall panel. */
+.panel {
+  display: flex;
+  flex: 1 0 auto;
+  flex-direction: column;
+  gap: var(--s-4);
+  padding: var(--s-3);
+}
+
+/* The row measures itself: on the narrowest panels the brand is the tile alone (see below). */
+.top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--s-2);
+  container-type: inline-size;
+}
+
+/* Too narrow for the name beside the Close button: it is hidden visually and still read out. */
+@container (max-width: 17em) {
+  .brandName {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    margin: -1px;
+    padding: 0;
+    border: 0;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+}
+
+.nav {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-4);
+}
+
+/*
+ * The rows are padded 14px and pulled out by the same amount: their text lines up with the brand
+ * above while the fill of a hovered or current row reaches into the panel's padding.
+ */
+.list {
+  margin: 0 calc(-1 * var(--s-2));
+  padding: 0;
+  list-style: none;
+}
+
+.row {
+  display: flex;
+  align-items: center;
+  padding-inline: var(--s-2);
+  border-radius: var(--round-2);
+  color: var(--ink);
+  text-decoration: none;
+  transition: background-color var(--time-swap) linear;
+}
+
+/* The ring is drawn inside the row: the rows reach into the panel's padding as it is. */
+.row:focus-visible {
+  outline-offset: -3px;
+  background: var(--mark-wash);
+}
+
+.primary.primary {
+  min-height: calc(var(--s-1) * 7);
+  font-size: 1.125rem;
+}
+
+/* Current page: the highlighter, an ink edge and a heavier weight. */
+.primary.primary[aria-current] {
+  background: var(--mark);
+  box-shadow: inset 0 0 0 var(--edge) var(--ink);
+  color: var(--on-mark);
+  font-weight: 700;
+}
+
+.group {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-1);
+}
+
+.label.label {
+  color: var(--ink-soft);
+}
+
+.phase {
+  gap: var(--s-2);
+  min-height: var(--tap);
+}
+
+/* The numeral tile. Besley's own figures: see the note on the display classes in globals.css. */
+.numeral {
+  display: grid;
+  flex: none;
+  place-items: center;
+  width: var(--s-4);
+  height: var(--s-4);
+  border: var(--edge) solid transparent;
+  border-radius: var(--round-1);
+  background: var(--desk);
+  font-family: var(--face-display);
+  font-size: 0.875rem;
+  line-height: 1;
+  font-weight: 700;
+  font-feature-settings: "tnum" 0;
+  transition: background-color var(--time-swap) linear;
+}
+
+/* On the wash of a hovered row the grey tile would go flat, so it steps to paper to stay drawn. */
+.phase:focus-visible .numeral {
+  background: var(--paper);
+}
+
+/* Current phase: the tile is highlighted with an ink edge and the name is heavier. */
+.phase.phase[aria-current] {
+  font-weight: 700;
+}
+
+.phase[aria-current] .numeral {
+  border-color: var(--ink);
+  background: var(--mark);
+  color: var(--on-mark);
+}
+
+.contact {
+  margin-block-start: auto;
+}
+
+/*
+ * The address keeps its line height; its target is a full 44px tall. It is a block of that line
+ * height, so the stretch is measured from the line and not from the glyphs.
+ */
+.email {
+  position: relative;
+  display: inline-block;
+  overflow-wrap: anywhere;
+}
+
+.email::after {
+  content: "";
+  position: absolute;
+  inset-block: calc((1lh - var(--tap)) / 2);
+  inset-inline: 0;
+}
+
+@media (hover: hover) {
+  .row:hover:not(.primary[aria-current]) {
+    background: var(--mark-wash);
+  }
+
+  .phase:hover:not([aria-current]) .numeral {
+    background: var(--paper);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .drawer[open],
+  .drawer::backdrop {
+    animation: none;
+  }
+}
+
+/* Fills are dropped in forced colours: the panel keeps a system edge on every side it shows. */
+@media (forced-colors: active) {
+  .drawer {
+    border-left-color: CanvasText;
+  }
+
+  .numeral {
+    border-color: CanvasText;
+  }
+
+  .phase[aria-current] .numeral {
+    forced-color-adjust: none;
+    border-color: CanvasText;
+    background: Highlight;
+    color: HighlightText;
+  }
+}

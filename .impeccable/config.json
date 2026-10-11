@@ -2,13 +2,6 @@
   "detector": {
     "ignoreRules": [],
     "ignoreFiles": [],
-    "ignoreValues": [
-      {
-        "rule": "layout-transition",
-        "value": "*",
-        "files": ["components/ui/wipe-button.module.css"],
-        "createdAt": "2026-10-11T01:38:17.271Z"
-      }
-    ]
+    "ignoreValues": []
   }
 }

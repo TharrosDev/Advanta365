@@ -1,22 +1,19 @@
 import type { Metadata } from "next";
+import { BundlePriceTable } from "@/components/company/bundle-price-table";
 import { FaqList } from "@/components/company/faq-list";
 import type { FaqItem } from "@/components/company/faq-list";
-import { PageTitle } from "@/components/layout/page-title";
-import { Reveal } from "@/components/motion/reveal";
-import { RevealGroup } from "@/components/motion/reveal-group";
-import { TransitionLink } from "@/components/motion/transition-link";
-import { ActionRow } from "@/components/ui/action-row";
-import { Container } from "@/components/ui/container";
-import { PageShell } from "@/components/ui/page-shell";
-import { SectionIntro } from "@/components/ui/section-intro";
-import { SectionLabel } from "@/components/ui/section-label";
-import { SectionShell } from "@/components/ui/section-shell";
-import { WipeButton } from "@/components/ui/wipe-button";
+import { TitleBlock } from "@/components/layout/title-block";
+import { Band } from "@/components/ui/band";
+import { BandedList, BandedRow } from "@/components/ui/banded-list";
+import { Button } from "@/components/ui/button";
+import { Eyebrow } from "@/components/ui/eyebrow";
+import { RowLink } from "@/components/ui/row-link";
+import { Sheet } from "@/components/ui/sheet";
+import { Split } from "@/components/ui/split";
 import { bundleSavingsCents } from "@/lib/catalog/pricing";
 import { getBundleTemplates, getBundles, getTemplates } from "@/lib/catalog/repository";
 import { cx } from "@/lib/cx";
 import { formatPrice } from "@/lib/format";
-import { coarseIndexAfter, countWords } from "@/lib/motion/words";
 import styles from "./page.module.css";
 
 export const metadata: Metadata = {
@@ -80,165 +77,118 @@ function priceRange(cents: readonly number[]): string {
   return low === high ? formatPrice(low) : `${formatPrice(low)} – ${formatPrice(high)}`;
 }
 
+type Way = { title: string; range: string; body: string; href: string; action: string };
+
+/** What one way to buy holds: its name, the price range, a sentence on it and the way in. */
+function WayContent({ way }: { way: Way }) {
+  return (
+    <>
+      <h2 className="type-section">{way.title}</h2>
+      <p className={cx("type-amount", styles.range)}>{way.range}</p>
+      <p className={cx("type-copy", styles.body)}>{way.body}</p>
+      <div className={styles.action}>
+        <Button href={way.href} variant="outline" arrow>
+          {way.action}
+        </Button>
+      </div>
+    </>
+  );
+}
+
+/**
+ * `/pricing`: the two ways to buy, the bundle prices as a table, the questions people ask, and a
+ * link to talk about purchasing.
+ *
+ * Layout: the title block; bands that alternate paper and desk, each with its heading or label in
+ * the margin. The singles are a sheet and the bundles a folder, the shape of a bundle card with an
+ * empty tab, side by side from 40em.
+ */
 export default async function PricingPage() {
   const [templates, bundles] = await Promise.all([getTemplates(), getBundles()]);
   const bundleRows = await Promise.all(
     bundles.map(async (bundle) => {
       const contents = await getBundleTemplates(bundle);
-      return { bundle, count: contents.length, savings: bundleSavingsCents(bundle, contents) };
+      return {
+        slug: bundle.slug,
+        title: bundle.title,
+        count: contents.length,
+        priceCents: bundle.priceCents,
+        savingsCents: bundleSavingsCents(bundle, contents),
+      };
     }),
   );
 
-  const ways = [
-    {
-      number: "01",
-      title: "Single templates",
-      range: priceRange(templates.map((template) => template.priceCents)),
-      body: "Priced by depth: a one-page handout costs less than a full strategy document or a training deck.",
-      href: "/catalog",
-      action: "Browse the catalog",
-    },
-    {
-      number: "02",
-      title: "Bundles",
-      range: priceRange(bundles.map((bundle) => bundle.priceCents)),
-      body: "Curated sets for a phase or a full rollout, priced well below the same pieces bought one at a time.",
-      href: "/bundles",
-      action: "See bundles",
-    },
-  ];
-
-  // The table fades up on the first coarse step after the title words (the label is index 0, the
-  // words start at 1).
-  const tableIndex = coarseIndexAfter(1 + countWords(PRICES_TITLE));
+  const singles: Way = {
+    title: "Single templates",
+    range: priceRange(templates.map((template) => template.priceCents)),
+    body: "Priced by depth: a one-page handout costs less than a full strategy document or a training deck.",
+    href: "/catalog",
+    action: "Browse the catalog",
+  };
+  const sets: Way = {
+    title: "Bundles",
+    range: priceRange(bundles.map((bundle) => bundle.priceCents)),
+    body: "Curated sets for a phase or a full rollout, priced well below the same pieces bought one at a time.",
+    href: "/bundles",
+    action: "See bundles",
+  };
 
   return (
-    <PageShell>
-      <PageTitle
+    <>
+      <TitleBlock
+        form="index"
         title="Pricing"
         lead="Buy the one piece you need today, or take a bundle that covers a whole phase. Every purchase is a one-time payment for files you can edit by hand or with AI, reused across every wave of your rollout."
       />
 
-      <SectionShell innerClassName={styles.ways}>
-        <RevealGroup>
-          <Reveal as="div" effect="fade" index={0}>
-            <SectionLabel>Two ways to buy</SectionLabel>
-          </Reveal>
-        </RevealGroup>
-        <RevealGroup as="ul" className={styles.waysGrid}>
-          {ways.map((way, index) => (
-            <Reveal
-              key={way.number}
-              as="li"
-              effect="fade-up"
-              index={index}
-              className={cx("ruled", styles.way)}
-            >
-              <span className="t-label-medium">{way.number}</span>
-              <h2 className="t-headline-large">{way.title}</h2>
-              <p className="t-display-medium tabular">{way.range}</p>
-              <p className={cx("t-body-large", "c-fg-60", styles.wayBody)}>{way.body}</p>
-              <WipeButton href={way.href}>{way.action}</WipeButton>
-            </Reveal>
-          ))}
-        </RevealGroup>
-      </SectionShell>
-
-      <SectionShell>
-        <RevealGroup className={styles.pricesGroup}>
-          <Reveal as="div" effect="fade" index={0}>
-            <SectionLabel>{PRICES_TITLE}</SectionLabel>
-          </Reveal>
-          <div className={styles.pricesBody}>
-            <SectionIntro title={PRICES_TITLE} wordOffset={1} />
-            <Reveal as="div" effect="fade-up" index={tableIndex}>
-              {/* The table scrolls inside its own box on a narrow screen; the page never does. */}
-              <div
-                className={styles.tableScroll}
-                role="region"
-                aria-labelledby="bundle-prices-caption"
-                tabIndex={0}
-              >
-                <table className={styles.table}>
-                  <caption id="bundle-prices-caption" className="visually-hidden">
-                    {PRICES_TITLE}
-                  </caption>
-                  <thead>
-                    <tr>
-                      <th scope="col" className={cx("t-label-medium", "c-fg-50", styles.head)}>
-                        Bundle
-                      </th>
-                      <th
-                        scope="col"
-                        className={cx("t-label-medium", "c-fg-50", styles.head, styles.number)}
-                      >
-                        Templates
-                      </th>
-                      <th
-                        scope="col"
-                        className={cx("t-label-medium", "c-fg-50", styles.head, styles.number)}
-                      >
-                        Price
-                      </th>
-                      <th
-                        scope="col"
-                        className={cx("t-label-medium", "c-fg-50", styles.head, styles.number)}
-                      >
-                        You save
-                      </th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {bundleRows.map(({ bundle, count, savings }) => (
-                      <tr key={bundle.slug} className={styles.row}>
-                        <th scope="row" className={cx("t-body-large", styles.name)}>
-                          <TransitionLink href={`/bundles/${bundle.slug}`} className={styles.link}>
-                            {bundle.title}
-                          </TransitionLink>
-                        </th>
-                        <td className={cx("t-body-large", "tabular", styles.number)}>{count}</td>
-                        <td className={cx("t-body-large", "tabular", styles.number)}>
-                          {formatPrice(bundle.priceCents)}
-                        </td>
-                        <td className={cx("t-body-large", "tabular", styles.number)}>
-                          {formatPrice(savings)}
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
+      <Band surface="paper">
+        <Split margin={<Eyebrow>Two ways to buy</Eyebrow>}>
+          <ul className={styles.ways}>
+            <li className={styles.way}>
+              <Sheet className={styles.card}>
+                <WayContent way={singles} />
+              </Sheet>
+            </li>
+            <li className={cx(styles.way, styles.folderWay)}>
+              <div className={cx(styles.card, styles.folder)}>
+                <span className={styles.tab} aria-hidden="true" />
+                <WayContent way={sets} />
               </div>
-            </Reveal>
-          </div>
-        </RevealGroup>
-      </SectionShell>
+            </li>
+          </ul>
+        </Split>
+      </Band>
 
-      <SectionShell innerClassName={styles.faq}>
-        <RevealGroup>
-          <SectionIntro
-            center
-            label="Questions"
-            title="Questions"
-            body="Beta note: these answers are provisional and will be confirmed before launch."
-          />
-        </RevealGroup>
-        <FaqList items={FAQ} className={styles.faqList} />
-      </SectionShell>
+      <Band surface="desk">
+        <Split margin={<h2 className="type-section">{PRICES_TITLE}</h2>}>
+          <BundlePriceTable caption={PRICES_TITLE} rows={bundleRows} />
+        </Split>
+      </Band>
 
-      <Container className={styles.cta}>
-        <RevealGroup>
-          <Reveal as="div" effect="fade-up" index={0}>
-            <ActionRow
-              fill
-              padded
-              rule="both"
-              href="/contact"
-              label="Contact us about purchasing"
-              arrow="right"
-            />
-          </Reveal>
-        </RevealGroup>
-      </Container>
-    </PageShell>
+      <Band surface="paper">
+        <Split
+          margin={
+            <>
+              <h2 className="type-section">Questions</h2>
+              <p className={cx("type-note", styles.beta)}>
+                Beta note: these answers are provisional and will be confirmed before launch.
+              </p>
+            </>
+          }
+        >
+          <FaqList items={FAQ} />
+        </Split>
+      </Band>
+
+      <Band surface="desk" pad="tight">
+        <Split>
+          <BandedList>
+            <BandedRow>
+              <RowLink href="/contact" label="Contact us about purchasing" />
+            </BandedRow>
+          </BandedList>
+        </Split>
+      </Band>
+    </>
   );
 }

@@ -1,60 +1,61 @@
-"use client";
-
 import type { ButtonHTMLAttributes, MouseEventHandler, ReactNode, Ref } from "react";
-import { TransitionLink } from "@/components/motion/transition-link";
-import { WipeBars, useWipe, useWipeTriggers } from "@/components/ui/wipe";
+import { Icon } from "@/components/ui/icon";
+import { TransitionLink } from "@/components/ui/transition-link";
 import { cx } from "@/lib/cx";
 import styles from "./button.module.css";
 
 type ButtonProps = {
-  variant?: "slab" | "outline" | "text";
-  size?: "md" | "lg";
+  variant?: "mark" | "outline" | "ink" | "text";
+  size?: "sm" | "md" | "lg";
   fullWidth?: boolean;
+  /** Puts the arrow icon after the label; it moves on hover. */
+  arrow?: boolean;
   href?: string;
+  /** With `href`: opens a new tab. */
+  external?: boolean;
   linkRef?: Ref<HTMLAnchorElement>;
   className?: string;
   children: ReactNode;
 } & Omit<ButtonHTMLAttributes<HTMLButtonElement>, "className" | "children">;
 
 /**
- * The non-CTA button: purchase slab, form submit, dialog buttons. Renders a link when `href` is
- * given (the anchor receives `linkRef`), otherwise a `<button>` that takes every native attribute.
+ * The site's button. Renders a link when `href` is given (the anchor receives `linkRef`; a
+ * root-relative `href` is an internal link), otherwise a `<button type="button">` that takes every
+ * native attribute.
  *
- * `slab` and `outline` invert as a whole on hover and keyboard focus, wiping in from the left;
- * `text` is an underlined label. Children are rendered once, so the accessible name is the visible
- * text.
+ * `mark` is the buyer's main move on a page: solid ink, which turns to the highlighter under the
+ * pointer. `outline` is every secondary action. `ink` is the same solid button, named for the main
+ * action where the surface is already the wash. `text` is an underlined label with no box (Remove,
+ * Clear all filters); its words sit in a span of their own, so the highlighter can be drawn behind
+ * them. Sizes are heights: 40 (44 below 68em), 48 and 56. The children sit in a row 7px apart, so
+ * an icon can be passed before the label. Hover and keyboard focus look the same, and the width
+ * never changes between states.
  */
 export function Button({
-  variant = "slab",
+  variant = "mark",
   size = "md",
   fullWidth = false,
+  arrow = false,
   href,
+  external = false,
   linkRef,
   className,
   children,
   ...rest
 }: ButtonProps) {
-  const { wipes, spawn, release, settle } = useWipe();
-  const triggers = useWipeTriggers(spawn, release);
-  const sweeps = variant !== "text";
-
   const classes = cx(
+    "type-ui",
     styles.root,
-    styles[variant],
     styles[size],
+    styles[variant],
     fullWidth && styles.fullWidth,
     className,
   );
-  const sweeping = sweeps && wipes.length > 0 ? "" : undefined;
 
   const content = (
     <>
-      <span className={styles.content}>{children}</span>
-      {sweeps ? (
-        <span className={styles.sweep} aria-hidden="true">
-          <WipeBars wipes={wipes} settle={settle} />
-        </span>
-      ) : null}
+      {variant === "text" ? <span className={styles.words}>{children}</span> : children}
+      {arrow ? <Icon name="arrow" className={styles.arrow} /> : null}
     </>
   );
 
@@ -69,11 +70,9 @@ export function Button({
       "aria-current": rest["aria-current"],
       onClick: rest.onClick as MouseEventHandler<HTMLElement> | undefined,
       className: classes,
-      "data-sweeping": sweeping,
-      ...(sweeps ? triggers : null),
     };
 
-    if (href.startsWith("/") && !href.startsWith("//")) {
+    if (!external && href.startsWith("/") && !href.startsWith("//")) {
       return (
         <TransitionLink ref={linkRef} href={href} {...link}>
           {content}
@@ -82,41 +81,21 @@ export function Button({
     }
 
     return (
-      <a ref={linkRef} href={href} {...link}>
+      <a
+        ref={linkRef}
+        href={href}
+        {...link}
+        {...(external ? { target: "_blank", rel: "noopener noreferrer" } : null)}
+      >
         {content}
       </a>
     );
   }
 
-  const { onMouseEnter, onMouseLeave, onFocus, onBlur, onKeyUp, type = "button", ...native } = rest;
+  const { type = "button", ...native } = rest;
 
   return (
-    <button
-      {...native}
-      type={type}
-      className={classes}
-      data-sweeping={sweeping}
-      onMouseEnter={(event) => {
-        onMouseEnter?.(event);
-        if (sweeps) triggers.onMouseEnter();
-      }}
-      onMouseLeave={(event) => {
-        onMouseLeave?.(event);
-        if (sweeps) triggers.onMouseLeave();
-      }}
-      onFocus={(event) => {
-        onFocus?.(event);
-        if (sweeps) triggers.onFocus(event);
-      }}
-      onBlur={(event) => {
-        onBlur?.(event);
-        if (sweeps) triggers.onBlur();
-      }}
-      onKeyUp={(event) => {
-        onKeyUp?.(event);
-        if (sweeps) triggers.onKeyUp(event);
-      }}
-    >
+    <button {...native} type={type} className={classes}>
       {content}
     </button>
   );
