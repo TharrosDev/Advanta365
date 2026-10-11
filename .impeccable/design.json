@@ -1,0 +1,768 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-10-11T21:24:04.755Z",
+  "title": "Design System: Advanta365",
+  "extensions": {
+    "colorMeta": {
+      "mark": {
+        "role": "primary",
+        "displayName": "Highlighter Blue",
+        "canonical": "#86c1ff",
+        "oklch": "oklch(79.4% 0.108 250)",
+        "tonalRamp": [
+          "oklch(15.0% 0.108 250)",
+          "oklch(26.0% 0.108 250)",
+          "oklch(38.0% 0.108 250)",
+          "oklch(50.0% 0.108 250)",
+          "oklch(62.0% 0.108 250)",
+          "oklch(74.0% 0.108 250)",
+          "oklch(85.0% 0.108 250)",
+          "oklch(95.0% 0.108 250)"
+        ]
+      },
+      "mark-deep": {
+        "role": "primary",
+        "displayName": "Pressed Highlighter",
+        "canonical": "#5fa8f5",
+        "oklch": "oklch(71.7% 0.135 251)",
+        "tonalRamp": [
+          "oklch(15.0% 0.135 251)",
+          "oklch(26.0% 0.135 251)",
+          "oklch(38.0% 0.135 251)",
+          "oklch(50.0% 0.135 251)",
+          "oklch(62.0% 0.135 251)",
+          "oklch(74.0% 0.135 251)",
+          "oklch(85.0% 0.135 251)",
+          "oklch(95.0% 0.135 251)"
+        ]
+      },
+      "mark-wash": {
+        "role": "primary",
+        "displayName": "Highlighter Wash",
+        "canonical": "#eaf4ff",
+        "oklch": "oklch(96.3% 0.018 251)",
+        "tonalRamp": [
+          "oklch(15.0% 0.018 251)",
+          "oklch(26.0% 0.018 251)",
+          "oklch(38.0% 0.018 251)",
+          "oklch(50.0% 0.018 251)",
+          "oklch(62.0% 0.018 251)",
+          "oklch(74.0% 0.018 251)",
+          "oklch(85.0% 0.018 251)",
+          "oklch(95.0% 0.018 251)"
+        ]
+      },
+      "alert": {
+        "role": "secondary",
+        "displayName": "Correction Red",
+        "canonical": "#a32b1d",
+        "oklch": "oklch(47.6% 0.159 30)",
+        "tonalRamp": [
+          "oklch(15.0% 0.159 30)",
+          "oklch(26.0% 0.159 30)",
+          "oklch(38.0% 0.159 30)",
+          "oklch(50.0% 0.159 30)",
+          "oklch(62.0% 0.159 30)",
+          "oklch(74.0% 0.159 30)",
+          "oklch(85.0% 0.159 30)",
+          "oklch(95.0% 0.159 30)"
+        ]
+      },
+      "alert-wash": {
+        "role": "secondary",
+        "displayName": "Correction Wash",
+        "canonical": "#fbeae5",
+        "oklch": "oklch(94.9% 0.020 37)",
+        "tonalRamp": [
+          "oklch(15.0% 0.020 37)",
+          "oklch(26.0% 0.020 37)",
+          "oklch(38.0% 0.020 37)",
+          "oklch(50.0% 0.020 37)",
+          "oklch(62.0% 0.020 37)",
+          "oklch(74.0% 0.020 37)",
+          "oklch(85.0% 0.020 37)",
+          "oklch(95.0% 0.020 37)"
+        ]
+      },
+      "paper": {
+        "role": "neutral",
+        "displayName": "Paper",
+        "canonical": "#ffffff",
+        "oklch": "oklch(100.0% 0.000 0)",
+        "tonalRamp": [
+          "oklch(15.0% 0.000 0)",
+          "oklch(26.0% 0.000 0)",
+          "oklch(38.0% 0.000 0)",
+          "oklch(50.0% 0.000 0)",
+          "oklch(62.0% 0.000 0)",
+          "oklch(74.0% 0.000 0)",
+          "oklch(85.0% 0.000 0)",
+          "oklch(95.0% 0.000 0)"
+        ]
+      },
+      "paper-shade": {
+        "role": "neutral",
+        "displayName": "Paper Shade",
+        "canonical": "#f1f3f7",
+        "oklch": "oklch(96.4% 0.006 265)",
+        "tonalRamp": [
+          "oklch(15.0% 0.006 265)",
+          "oklch(26.0% 0.006 265)",
+          "oklch(38.0% 0.006 265)",
+          "oklch(50.0% 0.006 265)",
+          "oklch(62.0% 0.006 265)",
+          "oklch(74.0% 0.006 265)",
+          "oklch(85.0% 0.006 265)",
+          "oklch(95.0% 0.006 265)"
+        ]
+      },
+      "desk": {
+        "role": "neutral",
+        "displayName": "Desk",
+        "canonical": "#f4f5f8",
+        "oklch": "oklch(97.0% 0.004 271)",
+        "tonalRamp": [
+          "oklch(15.0% 0.004 271)",
+          "oklch(26.0% 0.004 271)",
+          "oklch(38.0% 0.004 271)",
+          "oklch(50.0% 0.004 271)",
+          "oklch(62.0% 0.004 271)",
+          "oklch(74.0% 0.004 271)",
+          "oklch(85.0% 0.004 271)",
+          "oklch(95.0% 0.004 271)"
+        ]
+      },
+      "desk-deep": {
+        "role": "neutral",
+        "displayName": "Deep Desk",
+        "canonical": "#e6e8ee",
+        "oklch": "oklch(93.1% 0.008 271)",
+        "tonalRamp": [
+          "oklch(15.0% 0.008 271)",
+          "oklch(26.0% 0.008 271)",
+          "oklch(38.0% 0.008 271)",
+          "oklch(50.0% 0.008 271)",
+          "oklch(62.0% 0.008 271)",
+          "oklch(74.0% 0.008 271)",
+          "oklch(85.0% 0.008 271)",
+          "oklch(95.0% 0.008 271)"
+        ]
+      },
+      "rule": {
+        "role": "neutral",
+        "displayName": "Rule",
+        "canonical": "#d2d5de",
+        "oklch": "oklch(87.3% 0.013 271)",
+        "tonalRamp": [
+          "oklch(15.0% 0.013 271)",
+          "oklch(26.0% 0.013 271)",
+          "oklch(38.0% 0.013 271)",
+          "oklch(50.0% 0.013 271)",
+          "oklch(62.0% 0.013 271)",
+          "oklch(74.0% 0.013 271)",
+          "oklch(85.0% 0.013 271)",
+          "oklch(95.0% 0.013 271)"
+        ]
+      },
+      "rule-firm": {
+        "role": "neutral",
+        "displayName": "Firm Rule",
+        "canonical": "#70758a",
+        "oklch": "oklch(56.6% 0.033 275)",
+        "tonalRamp": [
+          "oklch(15.0% 0.033 275)",
+          "oklch(26.0% 0.033 275)",
+          "oklch(38.0% 0.033 275)",
+          "oklch(50.0% 0.033 275)",
+          "oklch(62.0% 0.033 275)",
+          "oklch(74.0% 0.033 275)",
+          "oklch(85.0% 0.033 275)",
+          "oklch(95.0% 0.033 275)"
+        ]
+      },
+      "ink": {
+        "role": "neutral",
+        "displayName": "Ink",
+        "canonical": "#0b0d12",
+        "oklch": "oklch(15.9% 0.011 268)",
+        "tonalRamp": [
+          "oklch(15.0% 0.011 268)",
+          "oklch(26.0% 0.011 268)",
+          "oklch(38.0% 0.011 268)",
+          "oklch(50.0% 0.011 268)",
+          "oklch(62.0% 0.011 268)",
+          "oklch(74.0% 0.011 268)",
+          "oklch(85.0% 0.011 268)",
+          "oklch(95.0% 0.011 268)"
+        ]
+      },
+      "ink-soft": {
+        "role": "neutral",
+        "displayName": "Soft Ink",
+        "canonical": "#3a3f4c",
+        "oklch": "oklch(36.8% 0.023 269)",
+        "tonalRamp": [
+          "oklch(15.0% 0.023 269)",
+          "oklch(26.0% 0.023 269)",
+          "oklch(38.0% 0.023 269)",
+          "oklch(50.0% 0.023 269)",
+          "oklch(62.0% 0.023 269)",
+          "oklch(74.0% 0.023 269)",
+          "oklch(85.0% 0.023 269)",
+          "oklch(95.0% 0.023 269)"
+        ]
+      },
+      "ink-faint": {
+        "role": "neutral",
+        "displayName": "Faint Ink",
+        "canonical": "#596072",
+        "oklch": "oklch(49.0% 0.030 269)",
+        "tonalRamp": [
+          "oklch(15.0% 0.030 269)",
+          "oklch(26.0% 0.030 269)",
+          "oklch(38.0% 0.030 269)",
+          "oklch(50.0% 0.030 269)",
+          "oklch(62.0% 0.030 269)",
+          "oklch(74.0% 0.030 269)",
+          "oklch(85.0% 0.030 269)",
+          "oklch(95.0% 0.030 269)"
+        ]
+      },
+      "on-ink": {
+        "role": "neutral",
+        "displayName": "On Ink",
+        "canonical": "#ffffff",
+        "oklch": "oklch(100.0% 0.000 0)",
+        "tonalRamp": [
+          "oklch(15.0% 0.000 0)",
+          "oklch(26.0% 0.000 0)",
+          "oklch(38.0% 0.000 0)",
+          "oklch(50.0% 0.000 0)",
+          "oklch(62.0% 0.000 0)",
+          "oklch(74.0% 0.000 0)",
+          "oklch(85.0% 0.000 0)",
+          "oklch(95.0% 0.000 0)"
+        ]
+      },
+      "binder": {
+        "role": "neutral",
+        "displayName": "Binder",
+        "canonical": "#0d0f15",
+        "oklch": "oklch(16.9% 0.013 271)",
+        "tonalRamp": [
+          "oklch(15.0% 0.013 271)",
+          "oklch(26.0% 0.013 271)",
+          "oklch(38.0% 0.013 271)",
+          "oklch(50.0% 0.013 271)",
+          "oklch(62.0% 0.013 271)",
+          "oklch(74.0% 0.013 271)",
+          "oklch(85.0% 0.013 271)",
+          "oklch(95.0% 0.013 271)"
+        ]
+      },
+      "binder-rise": {
+        "role": "neutral",
+        "displayName": "Binder Rise",
+        "canonical": "#1c202b",
+        "oklch": "oklch(24.5% 0.022 269)",
+        "tonalRamp": [
+          "oklch(15.0% 0.022 269)",
+          "oklch(26.0% 0.022 269)",
+          "oklch(38.0% 0.022 269)",
+          "oklch(50.0% 0.022 269)",
+          "oklch(62.0% 0.022 269)",
+          "oklch(74.0% 0.022 269)",
+          "oklch(85.0% 0.022 269)",
+          "oklch(95.0% 0.022 269)"
+        ]
+      },
+      "on-binder": {
+        "role": "neutral",
+        "displayName": "On Binder",
+        "canonical": "#f4f5f8",
+        "oklch": "oklch(97.0% 0.004 271)",
+        "tonalRamp": [
+          "oklch(15.0% 0.004 271)",
+          "oklch(26.0% 0.004 271)",
+          "oklch(38.0% 0.004 271)",
+          "oklch(50.0% 0.004 271)",
+          "oklch(62.0% 0.004 271)",
+          "oklch(74.0% 0.004 271)",
+          "oklch(85.0% 0.004 271)",
+          "oklch(95.0% 0.004 271)"
+        ]
+      },
+      "on-binder-soft": {
+        "role": "neutral",
+        "displayName": "Soft On Binder",
+        "canonical": "#b4b9c7",
+        "oklch": "oklch(78.6% 0.021 270)",
+        "tonalRamp": [
+          "oklch(15.0% 0.021 270)",
+          "oklch(26.0% 0.021 270)",
+          "oklch(38.0% 0.021 270)",
+          "oklch(50.0% 0.021 270)",
+          "oklch(62.0% 0.021 270)",
+          "oklch(74.0% 0.021 270)",
+          "oklch(85.0% 0.021 270)",
+          "oklch(95.0% 0.021 270)"
+        ]
+      },
+      "rule-on-binder": {
+        "role": "neutral",
+        "displayName": "Binder Rule",
+        "canonical": "#343947",
+        "oklch": "oklch(34.6% 0.025 270)",
+        "tonalRamp": [
+          "oklch(15.0% 0.025 270)",
+          "oklch(26.0% 0.025 270)",
+          "oklch(38.0% 0.025 270)",
+          "oklch(50.0% 0.025 270)",
+          "oklch(62.0% 0.025 270)",
+          "oklch(74.0% 0.025 270)",
+          "oklch(85.0% 0.025 270)",
+          "oklch(95.0% 0.025 270)"
+        ]
+      },
+      "pigment-black": {
+        "role": "neutral",
+        "displayName": "Black Pigment",
+        "canonical": "#10131a",
+        "oklch": "oklch(18.7% 0.015 267)",
+        "tonalRamp": [
+          "oklch(15.0% 0.015 267)",
+          "oklch(26.0% 0.015 267)",
+          "oklch(38.0% 0.015 267)",
+          "oklch(50.0% 0.015 267)",
+          "oklch(62.0% 0.015 267)",
+          "oklch(74.0% 0.015 267)",
+          "oklch(85.0% 0.015 267)",
+          "oklch(95.0% 0.015 267)"
+        ]
+      },
+      "pigment-pale": {
+        "role": "neutral",
+        "displayName": "Pale Pigment",
+        "canonical": "#c3cedf",
+        "oklch": "oklch(84.8% 0.027 259)",
+        "tonalRamp": [
+          "oklch(15.0% 0.027 259)",
+          "oklch(26.0% 0.027 259)",
+          "oklch(38.0% 0.027 259)",
+          "oklch(50.0% 0.027 259)",
+          "oklch(62.0% 0.027 259)",
+          "oklch(74.0% 0.027 259)",
+          "oklch(85.0% 0.027 259)",
+          "oklch(95.0% 0.027 259)"
+        ]
+      },
+      "scrim": {
+        "role": "neutral",
+        "displayName": "Scrim",
+        "canonical": "rgb(11 13 18 / 0.5)",
+        "oklch": "oklch(15.9% 0.011 268)",
+        "tonalRamp": [
+          "oklch(15.0% 0.011 268)",
+          "oklch(26.0% 0.011 268)",
+          "oklch(38.0% 0.011 268)",
+          "oklch(50.0% 0.011 268)",
+          "oklch(62.0% 0.011 268)",
+          "oklch(74.0% 0.011 268)",
+          "oklch(85.0% 0.011 268)",
+          "oklch(95.0% 0.011 268)"
+        ]
+      }
+    },
+    "typographyMeta": {
+      "poster": {
+        "displayName": "Poster",
+        "purpose": "One figure per page at most: the 90% of the home statement band, the phase numeral, the 404."
+      },
+      "hero": {
+        "displayName": "Hero",
+        "purpose": "The home headline only."
+      },
+      "statement": {
+        "displayName": "Statement",
+        "purpose": "Large statements, and the wide form of a page title."
+      },
+      "banner": {
+        "displayName": "Banner",
+        "purpose": "Standard page titles and the one-sentence statement of a section."
+      },
+      "page": {
+        "displayName": "Page",
+        "purpose": "The heading of a shelf of content."
+      },
+      "section": {
+        "displayName": "Section",
+        "purpose": "Section headings and large row labels."
+      },
+      "item": {
+        "displayName": "Item",
+        "purpose": "Row and card titles."
+      },
+      "amount": {
+        "displayName": "Amount",
+        "purpose": "Prices and totals."
+      },
+      "lead": {
+        "displayName": "Lead",
+        "purpose": "Lead paragraphs, at most 40rem wide."
+      },
+      "copy": {
+        "displayName": "Copy",
+        "purpose": "Body copy and the body default, at most 36rem wide."
+      },
+      "ui": {
+        "displayName": "UI",
+        "purpose": "Buttons, links in the bar and field labels."
+      },
+      "note": {
+        "displayName": "Note",
+        "purpose": "Notes, captions, breadcrumbs and facts."
+      },
+      "eyebrow": {
+        "displayName": "Eyebrow",
+        "purpose": "The uppercase label over a heading."
+      },
+      "tag": {
+        "displayName": "Tag",
+        "purpose": "Uppercase format tags."
+      }
+    },
+    "shadows": [
+      {
+        "name": "depth-0",
+        "value": "0 0 0 1px rgb(11 13 18 / 0.06)",
+        "purpose": "A hairline ring: a sheet lying flat."
+      },
+      {
+        "name": "depth-1",
+        "value": "0 0 0 1px rgb(11 13 18 / 0.05), 0 1px 2px rgb(11 13 18 / 0.06), 0 3px 6px -2px rgb(11 13 18 / 0.06)",
+        "purpose": "A thumbnail or a tab: cover thumbnails, phase tabs on the rail, the sheets under a stack, the parts of a folder behind its front."
+      },
+      {
+        "name": "depth-2",
+        "value": "0 0 0 1px rgb(11 13 18 / 0.05), 0 2px 4px -1px rgb(11 13 18 / 0.06), 0 10px 20px -8px rgb(11 13 18 / 0.12), 0 28px 44px -24px rgb(11 13 18 / 0.14)",
+        "purpose": "An object at rest: the default sheet and the front of a folder."
+      },
+      {
+        "name": "depth-3",
+        "value": "0 0 0 1px rgb(11 13 18 / 0.05), 0 12px 24px -8px rgb(11 13 18 / 0.18)",
+        "purpose": "Lifted, or a panel, below 68em: the purchase panel, the cart summary, a lifted sheet."
+      },
+      {
+        "name": "depth-3-wide",
+        "value": "0 0 0 1px rgb(11 13 18 / 0.05), 0 4px 8px -2px rgb(11 13 18 / 0.07), 0 20px 36px -12px rgb(11 13 18 / 0.16), 0 48px 72px -32px rgb(11 13 18 / 0.2)",
+        "purpose": "Depth 3 from 68em, in four layers."
+      },
+      {
+        "name": "depth-4",
+        "value": "0 0 0 1px rgb(11 13 18 / 0.05), 0 20px 40px -12px rgb(11 13 18 / 0.24)",
+        "purpose": "The top of a stack below 68em: the navigation drawer and the filter sheet."
+      },
+      {
+        "name": "depth-4-wide",
+        "value": "0 0 0 1px rgb(11 13 18 / 0.05), 0 8px 14px -4px rgb(11 13 18 / 0.08), 0 32px 56px -16px rgb(11 13 18 / 0.2), 0 84px 112px -42px rgb(11 13 18 / 0.26)",
+        "purpose": "Depth 4 from 68em, in four layers."
+      },
+      {
+        "name": "bar-shadow",
+        "value": "0 10px 21px -14px rgb(11 13 18 / 0.4)",
+        "purpose": "Under the sticky bar; it arrives over the first 84px of scroll."
+      }
+    ],
+    "motion": [
+      {
+        "name": "time-swap",
+        "value": "120ms",
+        "purpose": "Colour changes on controls, links and rows; the 3px move of an arrow. Linear."
+      },
+      {
+        "name": "time-enter",
+        "value": "240ms",
+        "purpose": "A small element entering: the filter sheet rising, the wait before a tally fills."
+      },
+      {
+        "name": "time-exit",
+        "value": "160ms",
+        "purpose": "The scrim behind the drawer fading in."
+      },
+      {
+        "name": "time-fill",
+        "value": "180ms",
+        "purpose": "One block of a tally filling."
+      },
+      {
+        "name": "time-fill-gap",
+        "value": "80ms",
+        "purpose": "The delay between tally blocks."
+      },
+      {
+        "name": "time-blink",
+        "value": "1100ms",
+        "purpose": "One cycle of the caret in a blank; it blinks three times."
+      },
+      {
+        "name": "time-lift",
+        "value": "260ms",
+        "purpose": "A sheet lifting under the pointer or focus; folder sheets rising."
+      },
+      {
+        "name": "time-ink",
+        "value": "640ms",
+        "purpose": "An ink-in entrance."
+      },
+      {
+        "name": "time-settle",
+        "value": "560ms",
+        "purpose": "A sheet settling in."
+      },
+      {
+        "name": "time-count",
+        "value": "1200ms",
+        "purpose": "A counter, and the wheel of the 90% figure."
+      },
+      {
+        "name": "time-page-out",
+        "value": "140ms",
+        "purpose": "The first block of the outgoing page."
+      },
+      {
+        "name": "time-page-in",
+        "value": "260ms",
+        "purpose": "The first block of the incoming page, after 80ms."
+      },
+      {
+        "name": "time-morph",
+        "value": "420ms",
+        "purpose": "A cover or folder travelling between two pages."
+      },
+      {
+        "name": "stagger",
+        "value": "70ms",
+        "purpose": "The delay between siblings in an entrance."
+      },
+      {
+        "name": "curve-settle",
+        "value": "cubic-bezier(0.22, 0.61, 0.36, 1)",
+        "purpose": "The default ease for entrances, lifts and the drawer."
+      },
+      {
+        "name": "curve-leave",
+        "value": "cubic-bezier(0.55, 0.06, 0.68, 0.19)",
+        "purpose": "The first-load cover leaving."
+      },
+      {
+        "name": "curve-ink",
+        "value": "cubic-bezier(0.16, 0.84, 0.3, 1)",
+        "purpose": "Ink-in entrances and the incoming page."
+      },
+      {
+        "name": "curve-drop",
+        "value": "cubic-bezier(0.3, 1.25, 0.5, 1)",
+        "purpose": "The small overshoot of a settling sheet."
+      },
+      {
+        "name": "curve-pen",
+        "value": "cubic-bezier(0.65, 0, 0.2, 1)",
+        "purpose": "The pen strokes of the logo on the first-load cover."
+      }
+    ],
+    "breakpoints": [
+      {
+        "name": "tablet",
+        "value": "40em"
+      },
+      {
+        "name": "desktop",
+        "value": "68em"
+      }
+    ]
+  },
+  "components": [
+    {
+      "name": "Primary Button",
+      "kind": "button",
+      "refersTo": "button-mark",
+      "description": "The main move on a page: solid ink that takes the highlighter inside its ink border under the pointer or focus, and goes one step deeper while pressed.",
+      "html": "<button type=\"button\" class=\"ds-btn-mark\">Browse the catalog<svg class=\"ds-btn-arrow\" width=\"20\" height=\"20\" viewBox=\"0 0 20 20\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.75\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M4 10H16M11 5L16 10L11 15\"/></svg></button>",
+      "css": ".ds-btn-mark { display: inline-flex; align-items: center; justify-content: center; gap: var(--s-1); min-height: var(--control); padding: var(--s-1) var(--s-3); border: var(--edge) solid transparent; border-radius: var(--round-2); font-family: var(--face-text); font-size: var(--size-ui); line-height: 1.375; font-weight: 600; text-decoration: none; cursor: pointer; transition: background-color var(--time-swap) linear, color var(--time-swap) linear, border-color var(--time-swap) linear; } .ds-btn-mark:active { translate: 0 1px; } .ds-btn-mark:focus-visible { outline: 3px solid var(--ink); outline-offset: 3px; } .ds-btn-mark .ds-btn-arrow { transition: translate var(--time-swap) linear; } .ds-btn-mark:hover .ds-btn-arrow, .ds-btn-mark:focus-visible .ds-btn-arrow { translate: 3px 0; } .ds-btn-mark { border-color: var(--ink); background: var(--ink); color: var(--on-ink); } .ds-btn-mark:hover, .ds-btn-mark:focus-visible { background: var(--mark); color: var(--ink); } .ds-btn-mark:active { background: var(--mark-deep); color: var(--ink); } .ds-btn-mark:disabled { border-color: var(--rule); background: var(--desk-deep); color: var(--ink-faint); cursor: not-allowed; translate: none; }"
+    },
+    {
+      "name": "Outline Button",
+      "kind": "button",
+      "refersTo": "button-outline",
+      "description": "Every secondary action: a 2px ink border on a transparent ground, filled with the wash on hover, focus and press.",
+      "html": "<button type=\"button\" class=\"ds-btn-outline\">See a sample</button>",
+      "css": ".ds-btn-outline { display: inline-flex; align-items: center; justify-content: center; gap: var(--s-1); min-height: var(--control); padding: var(--s-1) var(--s-3); border: var(--edge) solid transparent; border-radius: var(--round-2); font-family: var(--face-text); font-size: var(--size-ui); line-height: 1.375; font-weight: 600; text-decoration: none; cursor: pointer; transition: background-color var(--time-swap) linear, color var(--time-swap) linear, border-color var(--time-swap) linear; } .ds-btn-outline:active { translate: 0 1px; } .ds-btn-outline:focus-visible { outline: 3px solid var(--ink); outline-offset: 3px; } .ds-btn-outline .ds-btn-arrow { transition: translate var(--time-swap) linear; } .ds-btn-outline:hover .ds-btn-arrow, .ds-btn-outline:focus-visible .ds-btn-arrow { translate: 3px 0; } .ds-btn-outline { border-color: var(--ink); background: transparent; color: var(--ink); } .ds-btn-outline:hover, .ds-btn-outline:focus-visible, .ds-btn-outline:active { background: var(--mark-wash); color: var(--ink); }"
+    },
+    {
+      "name": "Text Button",
+      "kind": "button",
+      "refersTo": "button-text",
+      "description": "An underlined label with no box and a 44px hit height; the highlighter is drawn behind its words on hover and focus.",
+      "html": "<button type=\"button\" class=\"ds-btn-text\"><span class=\"ds-btn-text-words\">Clear all filters</span></button>",
+      "css": ".ds-btn-text { display: inline-flex; align-items: center; min-height: var(--tap); padding: 0; border: 0; border-radius: var(--round-1); background: none; color: var(--ink); font-family: var(--face-text); font-size: var(--size-ui); line-height: 1.375; font-weight: 600; text-decoration: underline; text-decoration-thickness: var(--hair); text-underline-offset: 3px; cursor: pointer; } .ds-btn-text-words { border-radius: var(--round-1); transition: background-color var(--time-swap) linear, box-shadow var(--time-swap) linear; } .ds-btn-text:hover, .ds-btn-text:focus-visible, .ds-btn-text:active { text-decoration-thickness: var(--edge); } .ds-btn-text:hover .ds-btn-text-words, .ds-btn-text:focus-visible .ds-btn-text-words, .ds-btn-text:active .ds-btn-text-words { background: var(--mark); box-shadow: 0 0 0 var(--edge) var(--mark); } .ds-btn-text:focus-visible { outline: 3px solid var(--ink); outline-offset: 3px; }"
+    },
+    {
+      "name": "Text Input",
+      "kind": "input",
+      "refersTo": "input",
+      "description": "A paper field 48px tall with a 2px firm rule border that darkens under the pointer and turns to ink on focus.",
+      "html": "<input class=\"ds-input\" type=\"search\" placeholder=\"Search templates\" aria-label=\"Search templates\">",
+      "css": ".ds-input { display: block; width: 100%; max-width: 22rem; height: var(--control); padding: 0 var(--s-2); border: var(--edge) solid var(--rule-firm); border-radius: var(--round-2); background: var(--paper); color: var(--ink); font-family: var(--face-text); font-size: var(--size-ui); line-height: 1.375; font-weight: 400; appearance: none; transition: border-color var(--time-swap) linear; } .ds-input::placeholder { color: var(--ink-faint); opacity: 1; } .ds-input:hover { border-color: var(--ink-soft); } .ds-input:focus-visible { border-color: var(--ink); outline: 3px solid var(--ink); outline-offset: 3px; } .ds-input:disabled { border-color: var(--rule); background: var(--desk-deep); color: var(--ink-faint); cursor: not-allowed; }"
+    },
+    {
+      "name": "Checkbox",
+      "kind": "input",
+      "refersTo": "checkbox",
+      "description": "A filter row: a 21px box that takes the highlighter, an ink border and an ink tick when checked, with a faint count at the end of the row.",
+      "html": "<label class=\"ds-check\"><input class=\"ds-check-input\" type=\"checkbox\" checked><span class=\"ds-check-box\"><svg class=\"ds-check-tick\" width=\"16\" height=\"16\" viewBox=\"0 0 20 20\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2.4\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M4.5 10.5L8.5 14.5L15.5 6\"/></svg></span><span class=\"ds-check-label\">SharePoint</span><span class=\"ds-check-count\">12</span></label>",
+      "css": ".ds-check { position: relative; display: flex; align-items: center; gap: var(--s-2); min-height: var(--tap); max-width: 16rem; color: var(--ink); font-family: var(--face-text); font-size: var(--size-ui); line-height: 1.375; font-weight: 600; } .ds-check-input { position: absolute; inset: 0; width: 100%; height: 100%; margin: 0; opacity: 0; cursor: pointer; } .ds-check-box { display: grid; flex: none; place-items: center; width: var(--s-3); height: var(--s-3); border: var(--edge) solid var(--rule-firm); border-radius: var(--round-1); background: var(--paper); transition: background-color var(--time-swap) linear, border-color var(--time-swap) linear; } .ds-check-tick { color: var(--ink); visibility: hidden; } .ds-check-count { margin-inline-start: auto; color: var(--ink-faint); font-size: var(--size-note); font-weight: 400; font-variant-numeric: tabular-nums lining-nums; } .ds-check-input:checked + .ds-check-box { border-color: var(--ink); background: var(--mark); } .ds-check-input:checked + .ds-check-box .ds-check-tick { visibility: visible; } .ds-check:hover .ds-check-input:not(:checked) + .ds-check-box { border-color: var(--ink-soft); } .ds-check:hover .ds-check-input:checked + .ds-check-box { background: var(--mark-deep); } .ds-check-input:focus-visible + .ds-check-box { outline: 3px solid var(--ink); outline-offset: 3px; }"
+    },
+    {
+      "name": "Tags",
+      "kind": "chip",
+      "refersTo": "tag-format",
+      "description": "The format tag (paper, a 1px ink border, uppercase 12px) and the saving tag (the highlighter with its ink ring, 14px at weight 700).",
+      "html": "<span class=\"ds-tag ds-tag-format\">Word</span> <span class=\"ds-tag ds-tag-format\">PDF</span> <span class=\"ds-tag ds-tag-saving\">Save $36</span>",
+      "css": ".ds-tag { display: inline-flex; align-items: center; padding: 2px var(--s-1); border-radius: var(--round-1); font-family: var(--face-text); white-space: nowrap; } .ds-tag-format { border: var(--hair) solid var(--ink); background: var(--paper); color: var(--ink); font-size: var(--size-tag); line-height: 1.333; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; } .ds-tag-saving { background: var(--mark); box-shadow: inset 0 0 0 var(--hair) var(--ink); color: var(--ink); font-size: var(--size-note); line-height: 1.43; font-weight: 700; }"
+    },
+    {
+      "name": "Primary Navigation",
+      "kind": "nav",
+      "refersTo": "nav-link",
+      "description": "The links of the desktop bar: a wash on hover and focus; the current page is the highlighter with an inset 2px ink ring and a heavier weight.",
+      "html": "<nav class=\"ds-nav\" aria-label=\"Primary\"><a class=\"ds-nav-link\" href=\"#\" aria-current=\"page\">Catalog</a><a class=\"ds-nav-link\" href=\"#\">Bundles</a><a class=\"ds-nav-link\" href=\"#\">Pricing</a><a class=\"ds-nav-link\" href=\"#\">About</a></nav>",
+      "css": ".ds-nav { display: flex; gap: var(--s-1); padding: var(--s-2); background: var(--paper); } .ds-nav-link { display: flex; align-items: center; height: var(--control-sm); padding-inline: var(--s-2); border-radius: var(--round-2); color: var(--ink); font-family: var(--face-text); font-size: var(--size-ui); line-height: 1.375; font-weight: 600; text-decoration: none; white-space: nowrap; transition: background-color var(--time-swap) linear; } .ds-nav-link:hover:not([aria-current]), .ds-nav-link:focus-visible, .ds-nav-link:active:not([aria-current]) { background: var(--mark-wash); } .ds-nav-link[aria-current] { background: var(--mark); box-shadow: inset 0 0 0 var(--edge) var(--ink); font-weight: 700; } .ds-nav-link:focus-visible { outline: 3px solid var(--ink); outline-offset: 3px; }"
+    },
+    {
+      "name": "Phase Rail",
+      "kind": "nav",
+      "refersTo": "phase-tab",
+      "description": "The rollout phases as paper index tabs standing on the bottom edge of a strip of the desk; the current phase is the highlighter inside a 2px ink edge.",
+      "html": "<nav class=\"ds-rail\" aria-label=\"Phases\"><a class=\"ds-rail-tab\" href=\"#\"><span class=\"ds-rail-num\">1</span><span class=\"ds-rail-name\">Make the case</span></a><a class=\"ds-rail-tab\" href=\"#\" aria-current=\"page\"><span class=\"ds-rail-num\">2</span><span class=\"ds-rail-name\">Plan</span></a><a class=\"ds-rail-tab\" href=\"#\"><span class=\"ds-rail-num\">3</span><span class=\"ds-rail-name\">Design</span></a><a class=\"ds-rail-tab\" href=\"#\"><span class=\"ds-rail-num\">4</span><span class=\"ds-rail-name\">Prepare</span></a></nav>",
+      "css": ".ds-rail { display: grid; grid-auto-columns: minmax(0, 1fr); grid-auto-flow: column; align-items: end; gap: var(--s-1); height: var(--rail-h); padding-inline: var(--s-2); background: var(--desk); } .ds-rail-tab { display: flex; align-items: baseline; align-content: center; justify-content: center; flex-wrap: wrap; gap: 0 var(--s-1); height: calc(var(--s-1) * 5); padding-inline: var(--s-1); border: var(--edge) solid transparent; border-block-end-width: 0; border-radius: var(--round-2) var(--round-2) 0 0; background: var(--paper); box-shadow: var(--depth-1); color: var(--ink); text-decoration: none; transition: background-color var(--time-swap) linear, border-color var(--time-swap) linear; } .ds-rail-num { font-family: var(--face-display); font-size: 0.9375rem; line-height: 1; font-weight: 700; font-feature-settings: \"tnum\" 0; } .ds-rail-name { font-family: var(--face-text); font-size: var(--size-note); line-height: 1.43; font-weight: 600; white-space: nowrap; } .ds-rail-tab:hover:not([aria-current]), .ds-rail-tab:focus-visible { background: var(--mark-wash); } .ds-rail-tab[aria-current] { border-color: var(--ink); background: var(--mark); } .ds-rail-tab[aria-current] .ds-rail-name { font-weight: 700; } .ds-rail-tab:focus-visible { outline: 3px solid var(--ink); outline-offset: 3px; }"
+    },
+    {
+      "name": "Paper Sheet",
+      "kind": "card",
+      "refersTo": "paper-sheet",
+      "description": "The paper object: a 3px corner, light from the top left, a layered shadow, and a lifted shadow that fades in as it rises 6px. Shown with a title, a blank for the buyer and a ten-block tally.",
+      "html": "<div class=\"ds-sheet\"><p class=\"ds-sheet-eyebrow\">Template</p><p class=\"ds-sheet-title\">Stakeholder Communications Plan</p><span class=\"ds-blank\"><span class=\"ds-blank-caret\"></span></span><span class=\"ds-tally\" role=\"img\" aria-label=\"Nine of ten done, the tenth is yours\"><i class=\"ds-tally-ink\"></i><i class=\"ds-tally-ink\"></i><i class=\"ds-tally-ink\"></i><i class=\"ds-tally-ink\"></i><i class=\"ds-tally-ink\"></i><i class=\"ds-tally-ink\"></i><i class=\"ds-tally-ink\"></i><i class=\"ds-tally-ink\"></i><i class=\"ds-tally-ink\"></i><i class=\"ds-tally-mark\"></i></span></div>",
+      "css": ".ds-sheet { position: relative; isolation: isolate; display: grid; gap: var(--s-2); max-width: 20rem; padding: var(--s-3); border-radius: var(--round-1); box-shadow: var(--depth-2); color: var(--ink); transition: translate var(--time-lift) var(--curve-settle); } .ds-sheet::before { content: \"\"; position: absolute; inset: 0; z-index: -1; border-radius: inherit; background: var(--grain) 0 0 / 8rem 8rem, radial-gradient(farthest-corner at 14% 8%, var(--paper), var(--paper-shade)); } .ds-sheet::after { content: \"\"; position: absolute; inset: 0; z-index: -1; border-radius: inherit; box-shadow: var(--depth-3); opacity: 0; pointer-events: none; transition: opacity var(--time-lift) var(--curve-settle); } .ds-sheet:hover { translate: 0 -6px; } .ds-sheet:hover::after { opacity: 1; } .ds-sheet-eyebrow { display: flex; align-items: center; gap: var(--s-1); margin: 0; font-family: var(--face-text); font-size: var(--size-eyebrow); line-height: 1.385; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; } .ds-sheet-eyebrow::before { content: \"\"; flex: none; width: 9px; height: 9px; border: var(--hair) solid var(--ink); background: var(--mark); } .ds-sheet-title { margin: 0; font-family: var(--face-display); font-size: var(--size-section); line-height: 1.24; font-weight: 600; font-feature-settings: \"tnum\" 0; } .ds-blank { position: relative; display: block; height: var(--s-5); border: var(--edge) solid var(--ink); border-radius: var(--round-2); background: var(--mark); } .ds-blank-caret { position: absolute; inset-block: 25%; left: var(--s-2); width: var(--edge); background: var(--ink); } .ds-tally { display: flex; gap: var(--s-1); } .ds-tally i { flex: 1; height: var(--s-2); border-radius: var(--round-1); } .ds-tally-ink { background: var(--ink); } .ds-tally-mark { background: var(--mark); box-shadow: inset 0 0 0 var(--edge) var(--ink); }"
+    },
+    {
+      "name": "Folder",
+      "kind": "card",
+      "refersTo": "folder-front",
+      "description": "A bundle: a wash tab, white sheets standing in a back panel, and a wash front panel. The sheets rise 14, 10 and 6px under the pointer.",
+      "html": "<div class=\"ds-folder\"><span class=\"ds-folder-back\"></span><span class=\"ds-folder-tab\">4 templates</span><span class=\"ds-folder-sheet\" style=\"--n:0\"></span><span class=\"ds-folder-sheet\" style=\"--n:1\"></span><span class=\"ds-folder-sheet\" style=\"--n:2\"></span><div class=\"ds-folder-front\"><p class=\"ds-folder-title\">Sponsor Essentials</p><p class=\"ds-folder-price\">$149</p></div></div>",
+      "css": ".ds-folder { --tab-h: var(--s-4); position: relative; isolation: isolate; display: flex; flex-direction: column; max-width: 20rem; padding-block-start: calc(var(--tab-h) + 1.5rem); } .ds-folder-back { position: absolute; inset: var(--tab-h) 0 0; z-index: -3; border-radius: 0 var(--round-2) var(--round-2); background: var(--mark-wash); box-shadow: var(--depth-1); } .ds-folder-tab { position: absolute; top: 0; left: 0; z-index: -3; display: flex; align-items: center; height: calc(var(--tab-h) + 2px); padding-inline: var(--s-2); border-radius: var(--round-2) var(--round-2) 0 0; background: var(--mark-wash); box-shadow: var(--depth-1); clip-path: inset(-1rem -1rem 2px -1rem); color: var(--ink); font-family: var(--face-text); font-size: var(--size-note); font-weight: 700; white-space: nowrap; } .ds-folder-sheet { position: absolute; top: calc(var(--tab-h) + 5px + var(--n, 0) * 5px); right: calc(var(--s-2) - var(--n, 0) * 3px); left: calc(var(--s-2) - var(--n, 0) * 3px); z-index: -2; height: var(--s-6); border-radius: var(--round-1); background: var(--paper); box-shadow: var(--depth-1); transition: translate var(--time-lift) var(--curve-settle) calc(var(--n, 0) * 40ms); } .ds-folder:hover .ds-folder-sheet { translate: 0 calc(-14px + var(--n, 0) * 4px); } .ds-folder-front { position: relative; padding: var(--s-3); border-radius: var(--round-2); background: var(--mark-wash); box-shadow: var(--depth-2); color: var(--ink); } .ds-folder-title { margin: 0; font-family: var(--face-display); font-size: var(--size-item); line-height: 1.3; font-weight: 600; } .ds-folder-price { margin: var(--s-2) 0 0; font-family: var(--face-display); font-size: var(--size-amount); line-height: 1.1; font-weight: 700; font-feature-settings: \"tnum\" 0; }"
+    },
+    {
+      "name": "Ledger Row",
+      "kind": "custom",
+      "refersTo": "row-link",
+      "description": "A link row in a ledger ruled with hairlines: hover, focus and press fill it with the wash, underline the label and move the arrow 3px.",
+      "html": "<ul class=\"ds-ledger\"><li class=\"ds-ledger-row\"><a class=\"ds-rowlink\" href=\"#\"><span class=\"ds-rowlink-text\"><span class=\"ds-rowlink-label\">Executive Sponsor Kickoff Deck</span><span class=\"ds-rowlink-caption\">Sponsors · PowerPoint</span></span><span class=\"ds-rowlink-trailing\">$59</span><svg class=\"ds-rowlink-arrow\" width=\"20\" height=\"20\" viewBox=\"0 0 20 20\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.75\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M4 10H16M11 5L16 10L11 15\"/></svg></a></li><li class=\"ds-ledger-row\"><a class=\"ds-rowlink\" href=\"#\"><span class=\"ds-rowlink-text\"><span class=\"ds-rowlink-label\">Go/No-Go Decision Checklist</span><span class=\"ds-rowlink-caption\">IT admins · Excel</span></span><span class=\"ds-rowlink-trailing\">$39</span><svg class=\"ds-rowlink-arrow\" width=\"20\" height=\"20\" viewBox=\"0 0 20 20\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.75\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M4 10H16M11 5L16 10L11 15\"/></svg></a></li></ul>",
+      "css": ".ds-ledger { max-width: 32rem; margin: 0; padding: 0; border-block-end: var(--hair) solid var(--rule); list-style: none; } .ds-ledger-row { padding: var(--s-2) 0; border-block-start: var(--hair) solid var(--rule); } .ds-rowlink { display: flex; align-items: center; gap: var(--s-2); min-height: var(--control-lg); margin: calc(-1 * var(--s-2)); padding: var(--s-2); border-radius: var(--round-2); color: var(--ink); text-decoration: none; transition: background-color var(--time-swap) linear; } .ds-rowlink-text { display: flex; flex: 1; flex-direction: column; min-width: 0; } .ds-rowlink-label { font-family: var(--face-display); font-size: var(--size-item); line-height: 1.3; font-weight: 600; text-decoration: underline transparent; text-decoration-thickness: var(--edge); text-underline-offset: 3px; transition: text-decoration-color var(--time-swap) linear; } .ds-rowlink-caption { color: var(--ink-faint); font-family: var(--face-text); font-size: var(--size-note); line-height: 1.43; } .ds-rowlink-trailing { font-family: var(--face-text); font-size: var(--size-ui); line-height: 1.375; font-weight: 600; font-variant-numeric: tabular-nums lining-nums; } .ds-rowlink-arrow { flex: none; transition: translate var(--time-swap) linear; } .ds-rowlink:hover, .ds-rowlink:focus-visible, .ds-rowlink:active { background: var(--mark-wash); } .ds-rowlink:hover .ds-rowlink-label, .ds-rowlink:focus-visible .ds-rowlink-label { text-decoration-color: currentColor; } .ds-rowlink:hover .ds-rowlink-arrow, .ds-rowlink:focus-visible .ds-rowlink-arrow { translate: 3px 0; } .ds-rowlink:focus-visible { outline: 3px solid var(--ink); outline-offset: calc(-1 * var(--s-1)); }"
+    }
+  ],
+  "narrative": {
+    "northStar": "The Working Copy",
+    "overview": "The site is a desk with documents on it. White sheets of paper lie on a cool grey desk, set in near-black type, and one light-blue highlighter marks the parts that belong to the buyer: the blank still to fill, the tenth block of ten, the page they are on. Everything the system draws is an object from that desk. A sheet has a tooth, a light on it and a layered shadow. A folder has a tab and sheets standing in it. Phases are index tabs, lists are ledgers ruled with hairlines, and progress is a tally of blocks.\n\nInk is the one material that moves. A real-time simulation of ink in water runs behind the first screen, the 90% statement, the closing band, wide page titles, the 404 and the footer. It lies on the ground of a band and never on a sheet, it is held back around every block of text, and its strength is capped against the ground the copy is read on. The rest of the motion is small and physical: a sheet settles as it scrolls into view, rises 6px and tilts up to 1.2 degrees toward the pointer, a rule is drawn from the left, and a first visit opens on a blank page where the logo is signed stroke by stroke.\n\nThe density is that of a document, not of a dashboard: reading-width columns, a twelve-column grid from 68em, bands 56 to 112px deep, and type that carries the hierarchy before colour or depth add anything. The system has a light scheme only. Under reduced motion, raised contrast, forced colours, no JavaScript or no WebGL2 the page is complete: still images stand in for the ink, shadows give way to ink lines, and nothing waits hidden.",
+    "keyCharacteristics": [
+      "Paper objects on a desk: sheets, stacks, folders, index tabs and ledgers, each with a real edge and a real shadow.",
+      "Three inks: near-black for what is written, light blue for what is the buyer's, and a dark binder ground for the footer and the statement bands.",
+      "The highlighter always comes with ink (a border, a ring, a tick or the text itself) and is never a text colour on a light ground.",
+      "Two typefaces with fixed jobs: a slab serif for the documents and their figures, a hyperlegible sans for the store.",
+      "A 7px module for every space, two breakpoints (40em and 68em) for every layout.",
+      "Live ink in water as the showpiece, always beneath the text, always pausable, with a still image for every case where it cannot run.",
+      "Movement only inside the no-preference motion query. Bands and surfaces change ground with a hard edge and never fade."
+    ],
+    "rules": [
+      {
+        "name": "The Mark Carries Ink Rule",
+        "body": "The highlighter fill is never the only signal. On paper it measures 1.89 : 1, too pale to be seen alone, so every marked thing also has an ink border, an inset ink ring, an ink tick or a heavier weight of ink text.",
+        "section": "colors"
+      },
+      {
+        "name": "The Background Only Rule",
+        "body": "On a light ground the highlighter is a background behind ink text and never a text, icon or line colour. Only on the binder, where it measures 10.11 : 1, does it become a line: the focus ring and the underline of a hovered link.",
+        "section": "colors"
+      },
+      {
+        "name": "The Band Decides Rule",
+        "body": "Components read eleven semantic names (`ground`, `surface`, `stripe`, `tile`, `text`, `text-soft`, `text-faint`, `line`, `line-firm`, `line-ink`, `focus-ring`) and never a raw colour. Each band (`desk`, `paper`, `wash`, `ink`, `binder`) redefines them, and a sheet or a folder front resets them to the paper values, so one component is correct on every ground.",
+        "section": "colors"
+      },
+      {
+        "name": "The Light Fill Rule",
+        "body": "The wash and the highlighter are light on every band. While one of them is the fill of a hovered or current element, everything inside reads the ink colours, whatever the band says.",
+        "section": "colors"
+      },
+      {
+        "name": "The Two Voices Rule",
+        "body": "Besley is for what a document says: headings, figures, prices, numerals on tabs and tiles. Atkinson Hyperlegible Next is for everything the store says. A component never mixes them inside one line of text.",
+        "section": "typography"
+      },
+      {
+        "name": "The Small Is Loud Rule",
+        "body": "The two sizes under 14px are always uppercase, weight 700 and tracked. The text in the markup stays in sentence case; the capitals are drawn by the style.",
+        "section": "typography"
+      },
+      {
+        "name": "The Own Figures Rule",
+        "body": "Display type keeps Besley's own lining figures and turns tabular figures off, because its tabular zero is drawn thin from weight 600 up. Columns of numbers in the text face use tabular lining figures.",
+        "section": "typography"
+      },
+      {
+        "name": "The No Tracking Rule",
+        "body": "Letter spacing is 0 at every size from 14px up. Hierarchy comes from size, weight and face.",
+        "section": "typography"
+      },
+      {
+        "name": "The Second Shadow Rule",
+        "body": "No shadow is ever animated. An object that lifts carries its lifted shadow on a pseudo-element from the start, and only that layer's opacity moves.",
+        "section": "elevation"
+      },
+      {
+        "name": "The Rest And Lift Rule",
+        "body": "A sheet's lifted shadow is one step above its resting one and never lower than depth 3. Only a sheet marked as lit lifts, 6px, under the pointer on a device that hovers and under keyboard focus inside it.",
+        "section": "elevation"
+      },
+      {
+        "name": "The Ink Line Fallback Rule",
+        "body": "At raised contrast every shadow gives way to a 1px ink border, and in forced colours to a system border. An object is never defined by its shadow alone.",
+        "section": "elevation"
+      }
+    ],
+    "dos": [
+      "Do pair every highlighter fill with ink: a 2px inset ring, an ink border, a tick or weight 700 text.",
+      "Do put a band under everything, and let the band set the colours through the semantic names.",
+      "Do present a thing as a paper object (a sheet, a stack, a folder, a cover) or as a row on a hairline.",
+      "Do take every space from the 7px module and every layout change from the two breakpoints, 40em and 68em.",
+      "Do set documents, figures and prices in Besley at 600 to 800, and everything the store says in Atkinson Hyperlegible Next.",
+      "Do make hover and keyboard focus look the same, and give a press the same answer, so a finger gets what a pointer gets.",
+      "Do keep every target at least 44px tall below 68em, and show the 3px focus ring 3px off the element.",
+      "Do place ink on the ground of a band, mark every text block over it as a calm zone, and name a still for it.",
+      "Do keep every animation inside the no-preference motion query, with the finished state as the default.",
+      "Do give an object an ink line where its shadow is removed, at raised contrast and in forced colours."
+    ],
+    "donts": [
+      "Don't use the highlighter as a text, icon or line colour on a light ground, or as a fill with no ink beside it.",
+      "Don't introduce another accent. The palette is white, near-black and one light blue; the red is for errors only.",
+      "Don't build a boxed card with a border and a large radius. Corners are 3px on paper and 6px on controls.",
+      "Don't fade, slide or blend a band or a surface. Grounds change with a hard edge.",
+      "Don't animate a shadow, a layout property or a custom property, and don't loop an animation.",
+      "Don't let a state change alter a size: borders are always present and rings are drawn inside.",
+      "Don't place ink on a sheet, inside a panel or behind body copy that has no calm zone, and don't run a second canvas.",
+      "Don't set type smaller than 14px unless it is uppercase, weight 700 and tracked, and don't track anything larger.",
+      "Don't add a dark scheme or a query for one. The system declares a light scheme only.",
+      "Don't hide content in a starting state that a script has to undo. Without the script, nothing is missing."
+    ]
+  }
+}
