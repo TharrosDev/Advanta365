@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { AddToCart } from "@/components/cart/add-to-cart";
+import { CoverageTally } from "@/components/catalog/coverage-tally";
 import { Breadcrumbs } from "@/components/layout/breadcrumbs";
 import { TitleBlock } from "@/components/layout/title-block";
 import { PurchasePanel } from "@/components/product/purchase-panel";
@@ -9,7 +10,6 @@ import { BandedList, BandedRow } from "@/components/ui/banded-list";
 import { Folder } from "@/components/ui/folder";
 import { KeepCompounds } from "@/components/ui/keep-compounds";
 import { RowLink } from "@/components/ui/row-link";
-import { Tally } from "@/components/ui/tally";
 import { DELIVERABLE_TYPE_LABELS, FORMAT_LABELS } from "@/content/taxonomy";
 import { phaseCoverage } from "@/lib/catalog/coverage";
 import { bundleSavingsCents, bundleValueCents } from "@/lib/catalog/pricing";
@@ -30,8 +30,8 @@ export async function generateMetadata({ params }: BundlePageProps): Promise<Met
 }
 
 /**
- * One bundle. The title block carries the trail and a seven-block tally of the phases the bundle
- * reaches. Under it, on paper, the page has three zones from 68em: the bundle as a large folder in
+ * One bundle. The title block carries the trail and the phases the bundle reaches, in words over a
+ * seven-block tally. Under it, on paper, the page has three zones from 68em: the bundle as a large folder in
  * columns 1 to 3, the details in columns 4 to 9 (description, the four figures as a ledger row, then
  * the templates grouped by phase as ledger rows) and the purchase panel in columns 10 to 12. The
  * document order is panel, folder, details; the folder and the panel stay in view.
@@ -47,7 +47,6 @@ export default async function BundlePage({ params }: BundlePageProps) {
   const value = bundleValueCents(templates);
   const savings = bundleSavingsCents(bundle, templates);
   const coverage = phaseCoverage(phases, templates);
-  const covered = coverage.filter((phase) => phase.covered);
   const groups = phases
     .map((phase, index) => ({
       phase,
@@ -78,16 +77,7 @@ export default async function BundlePage({ params }: BundlePageProps) {
             ]}
           />
         }
-        meta={
-          <Tally
-            total={coverage.length}
-            filled={covered.map((phase) => phase.order)}
-            size="md"
-            numerals
-            label={`Phases: ${covered.map((phase) => phase.name).join(", ")}`}
-            className={styles.coverage}
-          />
-        }
+        meta={<CoverageTally coverage={coverage} className={styles.coverage} />}
       />
 
       <Band as="div" surface="paper" innerClassName={styles.zones}>
@@ -136,7 +126,9 @@ export default async function BundlePage({ params }: BundlePageProps) {
                 <span className={styles.tile} aria-hidden="true">
                   {number}
                 </span>
-                <h2 className="type-section">{`${phase.name} · ${inPhase.length}`}</h2>
+                <h2 className="type-section">
+                  {`${phase.name}, ${inPhase.length} ${inPhase.length === 1 ? "template" : "templates"}`}
+                </h2>
               </div>
               <BandedList>
                 {inPhase.map((template) => (

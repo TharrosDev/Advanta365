@@ -12,6 +12,11 @@
   }
 }
 
+/* Flush: nothing under the words; the tight band that follows holds the products 42px below. */
+.block.flush {
+  padding-block-end: 0;
+}
+
 /*
  * One column below 68em: the words, then the aside. From 68em the twelve-column grid, with the
  * words in the first columns and the aside in columns 9 to 12.
@@ -147,6 +152,10 @@
 
   .inked {
     min-height: 20rem;
+  }
+
+  .inked.flush {
+    min-height: 0;
   }
 
   .grid {

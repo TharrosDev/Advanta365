@@ -27,7 +27,7 @@ type CatalogPageProps = {
 };
 
 /**
- * The catalog, an index of documents. Under the title: a rail with the search, the sort order and
+ * The catalog, an index of documents. Under the title, 42px below its lead: a rail with the search, the sort order and
  * the filters (grid columns 1 to 3, staying under the bar from 68em) and the index beside it
  * (columns 4 to 12): the chips of the filters that are on, the count, then one row per template.
  * Below 68em the rail is a block above the index and the filters open as a sheet.
@@ -42,7 +42,7 @@ export default async function CatalogPage({ searchParams }: CatalogPageProps) {
     params,
     phases.map((phase) => phase.slug),
   );
-  const result = queryTemplates(templates, parsed);
+  const result = queryTemplates(templates, parsed, phases);
   // Use the clamped page so links and controls never carry an out-of-range value.
   const criteria = { ...parsed, page: result.page };
   const phaseOptions = phases.map(({ slug, name }) => ({ slug, name }));
@@ -50,10 +50,11 @@ export default async function CatalogPage({ searchParams }: CatalogPageProps) {
   return (
     <>
       <TitleBlock
+        flush
         title="Catalog"
         lead="Organized by the seven phases of a rollout. The listings shown are sample content. Search by name or narrow by phase, deliverable type, app and audience."
       />
-      <Band as="div" surface="paper" pad="tight" className={styles.band}>
+      <Band as="div" surface="paper" pad="tight">
         <Split
           sticky
           marginClassName={styles.rail}

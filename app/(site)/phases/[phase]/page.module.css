@@ -94,3 +94,35 @@
     margin-block-start: var(--s-4);
   }
 }
+
+/*
+ * The bundles of the phase: the heading and a sentence in the margin, the folders as ledger rows
+ * beside them. The rows draw their own hairlines, and their wash stands 14px past both ends.
+ */
+.offerHead {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-2);
+}
+
+.offerBody {
+  color: var(--text-soft);
+}
+
+.offers {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+/* The foot: the link to the phase in the catalog, then the phases before and after, 42px under it. */
+.foot {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--s-5);
+}
+
+.pager {
+  align-self: stretch;
+}

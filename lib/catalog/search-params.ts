@@ -18,7 +18,7 @@ import {
 
 type RawParams = Record<string, string | string[] | undefined>;
 
-const SORT_KEYS: readonly SortKey[] = ["featured", "title", "price-asc", "price-desc"];
+const SORT_KEYS: readonly SortKey[] = ["phase", "featured", "title", "price-asc", "price-desc"];
 const MAX_QUERY_LENGTH = 200;
 
 function first(value: string | string[] | undefined): string {

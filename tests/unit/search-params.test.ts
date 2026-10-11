@@ -52,8 +52,9 @@ describe("parseCatalogParams", () => {
     expect(parse({ page: ["4", "abc"] }).page).toBe(4);
   });
 
-  test("unknown sort falls back to featured", () => {
-    expect(parse({ sort: "random" }).sort).toBe("featured");
+  test("unknown sort falls back to phase order", () => {
+    expect(parse({ sort: "random" }).sort).toBe("phase");
+    expect(parse({ sort: "featured" }).sort).toBe("featured");
     expect(parse({ sort: "price-desc" }).sort).toBe("price-desc");
   });
 
@@ -66,6 +67,11 @@ describe("parseCatalogParams", () => {
 describe("serializeCatalogParams", () => {
   test("defaults serialize to an empty string", () => {
     expect(serializeCatalogParams(DEFAULT_CRITERIA)).toBe("");
+  });
+
+  test("the default phase order stays out of the URL; any other order is written", () => {
+    expect(serializeCatalogParams({ ...DEFAULT_CRITERIA, sort: "phase" })).toBe("");
+    expect(serializeCatalogParams({ ...DEFAULT_CRITERIA, sort: "featured" })).toBe("sort=featured");
   });
 
   test("emits keys in a fixed order and omits defaults", () => {

@@ -53,6 +53,22 @@ title `Advanta365 · Don’t start from a blank prompt.` The description is buil
 `proxy.ts` runs before routing. Any path containing an uppercase letter receives a 308 redirect to the
 lowercase path. Its matcher skips `_next/` and any path containing a dot.
 
+Page layouts that later work should keep:
+
+- `/catalog`, `/bundles` and `/cart` open with `TitleBlock flush`: the title block has no padding under its
+  words (and, with ink, no least height), and the `pad="tight"` band that follows puts the first product
+  42px under the lead. The cart's title block uses `form="document"`, so "Your cart" stands in the content
+  columns over the ledger and the receipt.
+- `/phases/[phase]`: after the step bands, a band "Bundles with this phase" (`bundlesForPhase`) lists the
+  bundles holding templates of the phase as `BundleCard` rows, each with a `detail` line ("Holds 5 of the 9
+  Prepare templates."). The foot band holds "View all <phase> templates" and `PhasePager`, a navigation named
+  "Previous and next phase" whose links read "Previous phase <name>" and "Next phase <name>". The bands
+  carry on the desk and paper alternation of the steps.
+- Bundle coverage is `CoverageTally` (`components/catalog/coverage-tally.tsx`) on bundle rows, the home
+  feature folder and the bundle page: the visible note "Covers phases 3–4" (`coverageLabel`), with the phase
+  names after it for assistive technology, over a seven-block tally hidden from it. On the bundle page each
+  phase group is headed "<Phase>, N templates".
+
 ## 2. Server and client boundaries
 
 Layouts and pages are server components. They read the catalog through the repository, then pass plain
@@ -149,6 +165,9 @@ Helpers used by pages and components:
 | `bundleValueCents(templates)` | Sum of the template prices |
 | `bundleSavingsCents(bundle, templates)` | Value minus bundle price, never below zero |
 | `phaseCoverage(phases, templates)` | One entry per phase, sorted by `order`, with `covered` set when any template belongs to it |
+| `coverageLabel(coverage)` | The covered phases in words: "Covers phase 4", "Covers phases 3–4", "Covers phases 1–2, 5"; empty when none |
+| `bundlesForPhase(phaseSlug, bundles, templates)` | Bundles holding at least one template of the phase, each with `inPhase` and `total`, the most focused first (share of the bundle in the phase, then `inPhase`, then the lower price) |
+| `adjacentPhases(phases, slug)` | `{ previous, next }` in `order`; either is undefined at an end, both for an unknown slug |
 | `formatPrice(cents)` (`lib/format.ts`) | en-US dollars; whole amounts drop `.00` |
 
 ### 3.4 Catalog contents
@@ -962,7 +981,7 @@ The catalog's filters, search, sort and page live in the URL. A search URL is th
 | `app` | apps | Validated against the taxonomy |
 | `audience` | audiences | Validated against the taxonomy |
 | `format` | formats | Validated against the taxonomy |
-| `sort` | `featured` (default), `title`, `price-asc`, `price-desc` | Anything else becomes `featured` |
+| `sort` | `phase` (default), `featured`, `title`, `price-asc`, `price-desc` | Anything else becomes `phase` |
 | `page` | integer | Must match `^[1-9]\d{0,5}$`; otherwise `1` |
 
 Facet values accept repeated keys and comma-separated lists. They are deduplicated, and unknown values are
@@ -980,8 +999,12 @@ default, then `page` only when it is above 1. Keys appear in that fixed order, a
   characters are literal. Phase names, apps and audiences are not searched.
 - Facet counts are computed with each facet's own selection cleared, so a count shows what ticking that box
   would return. Search and the other facets still apply.
-- Sort: `featured` puts featured templates first, then sorts by title with `localeCompare`. `title` sorts by
-  title. `price-asc` and `price-desc` sort by price and break ties by title.
+- Sort: `phase`, the default, follows the rollout: phase `order`, then step `order`, then the order the
+  content lists the templates in. It needs the phases, so the catalog page passes them as the third argument
+  of `queryTemplates`; without them it keeps the given order, and a template of an unknown phase or step goes
+  last. `featured` puts featured templates first, then sorts by title with `localeCompare`. `title` sorts by
+  title. `price-asc` and `price-desc` sort by price and break ties by title. The select labels the default
+  "Phase order".
 - Pagination: `PAGE_SIZE` is 24. The page is clamped to between 1 and the page count (at least 1). The catalog
   page passes the clamped page back into its criteria, so links never point past the last page.
 
@@ -1010,6 +1033,9 @@ default, then `page` only when it is above 1. Keys appear in that fixed order, a
   search inside a Suspense boundary whose fallback is the rail drawn from the pathname alone.
 - `Pagination` renders links to `/catalog` with the same criteria and the new page. It renders nothing when
   there is one page.
+- Rows (`TemplateCard layout="row"`) carry no position number. From 68em the summary shows under the title,
+  clamped to two lines. On a phase page the rows get no `phaseName`, so they name the deliverable type alone,
+  with no phase numeral beside it, and the type column is narrower (10rem in place of 13rem).
 
 ## 11. Test hooks and test contract
 

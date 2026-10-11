@@ -8,8 +8,9 @@ import { getBundles, getTemplates } from "@/lib/catalog/repository";
 export const metadata: Metadata = { title: "Cart" };
 
 /**
- * The cart. The title block opens the page; the contents fill the content columns of a paper band
- * under it, with the margin left empty: the lines as a ledger, the summary as a receipt.
+ * The cart. The title stands in the content columns, at the head of what it names, and the contents
+ * fill the same columns of a paper band 42px under it, with the margin left empty: the lines as a
+ * ledger, the summary as a receipt.
  */
 export default async function CartPage() {
   const [templates, bundles] = await Promise.all([getTemplates(), getBundles()]);
@@ -35,7 +36,7 @@ export default async function CartPage() {
 
   return (
     <>
-      <TitleBlock title="Your cart" />
+      <TitleBlock form="document" flush title="Your cart" />
       <Band as="div" surface="paper" pad="tight">
         <Split>
           <CartContents items={items} />

@@ -5,8 +5,8 @@ import {
   queryTemplates,
   type CatalogCriteria,
 } from "@/lib/catalog/query";
-import type { Template } from "@/lib/catalog/schema";
-import { makeTemplate } from "./fixtures/catalog";
+import type { Phase, Template } from "@/lib/catalog/schema";
+import { makeTemplate, rawPhases } from "./fixtures/catalog";
 
 const TYPES = ["training", "communication", "plan"] as const;
 const APPS = ["sharepoint", "teams", "onedrive"] as const;
@@ -119,9 +119,48 @@ describe("queryTemplates", () => {
     expect(query({ q: "x".repeat(600) }).total).toBe(0);
   });
 
+  test("the default order is phase order", () => {
+    expect(DEFAULT_CRITERIA.sort).toBe("phase");
+  });
+
+  test("sorts by phase, then by step, keeping the given order inside a step", () => {
+    // Given out of order: the fixture lists "prepare" (order 2) first, with its steps reversed.
+    const phases = rawPhases as Phase[];
+    const listed = [
+      makeTemplate({ slug: "train-a", phase: "prepare", step: "train" }),
+      makeTemplate({ slug: "recruit-a", phase: "prepare", step: "recruit" }),
+      makeTemplate({ slug: "sponsor-a", phase: "make-the-case", step: "sponsor" }),
+      makeTemplate({ slug: "train-b", phase: "prepare", step: "train" }),
+      makeTemplate({ slug: "recruit-b", phase: "prepare", step: "recruit" }),
+    ];
+    const order = (sort: CatalogCriteria["sort"]) =>
+      queryTemplates(listed, { ...DEFAULT_CRITERIA, sort }, phases).items.map((t) => t.slug);
+
+    expect(order("phase")).toEqual(["sponsor-a", "recruit-a", "recruit-b", "train-a", "train-b"]);
+    // The other orders do not depend on the phases.
+    expect(order("title")).toEqual(
+      queryTemplates(listed, { ...DEFAULT_CRITERIA, sort: "title" }).items.map((t) => t.slug),
+    );
+  });
+
+  test("phase order puts a phase or step it does not know last, and keeps the input without phases", () => {
+    const phases = rawPhases as Phase[];
+    const listed = [
+      makeTemplate({ slug: "stray", phase: "retired", step: "gone" }),
+      makeTemplate({ slug: "odd-step", phase: "prepare", step: "gone" }),
+      makeTemplate({ slug: "recruit", phase: "prepare", step: "recruit" }),
+      makeTemplate({ slug: "sponsor", phase: "make-the-case", step: "sponsor" }),
+    ];
+    const slugs = (given: Phase[]) =>
+      queryTemplates(listed, DEFAULT_CRITERIA, given).items.map((t) => t.slug);
+
+    expect(slugs(phases)).toEqual(["sponsor", "recruit", "odd-step", "stray"]);
+    expect(slugs([])).toEqual(["stray", "odd-step", "recruit", "sponsor"]);
+  });
+
   test("sorts featured first, then by title", () => {
     expect(
-      query()
+      query({ sort: "featured" })
         .items.slice(0, 3)
         .map((t) => t.slug),
     ).toEqual(["t05", "t20", "t04"]);

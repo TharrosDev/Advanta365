@@ -36,6 +36,11 @@
   color: var(--text-soft);
 }
 
+.detail {
+  margin-block-start: var(--s-1);
+  color: var(--text);
+}
+
 .foot {
   display: flex;
   flex-wrap: wrap;

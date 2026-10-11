@@ -3,12 +3,7 @@ import { Button } from "@/components/ui/button";
 import { PaperSheet } from "@/components/ui/paper-sheet";
 import { PhaseTabs } from "@/components/ui/phase-tabs";
 import { Pagination } from "@/components/ui/pagination";
-import {
-  FACET_KEYS,
-  PAGE_SIZE,
-  type CatalogCriteria,
-  type CatalogResult,
-} from "@/lib/catalog/query";
+import { FACET_KEYS, type CatalogCriteria, type CatalogResult } from "@/lib/catalog/query";
 import { catalogHref } from "@/lib/catalog/search-params";
 import { cx } from "@/lib/cx";
 import styles from "./result-list.module.css";
@@ -22,7 +17,7 @@ type ResultListProps = {
 
 /**
  * One page of catalog results as an index: a list whose items are rows (`TemplateCard
- * layout="row"`), each with its position in the whole result, and the page navigation under it.
+ * layout="row"`), and the page navigation under it.
  * Nothing in the list animates in, so a change of filter, sort or search only swaps the rows. With
  * no match it is a blank sheet with an empty field, the message and a link back to the unfiltered
  * catalog. When only a search found nothing, the message quotes the search, the link clears it, and
@@ -71,18 +66,16 @@ export function ResultList({ result, criteria, phases }: ResultListProps) {
   }
 
   const hrefFor = (page: number) => catalogHref({ ...criteria, page });
-  const first = (result.page - 1) * PAGE_SIZE;
 
   return (
     <div className={styles.root}>
       <ul className={styles.list}>
-        {result.items.map((template, position) => (
+        {result.items.map((template) => (
           <li key={template.slug}>
             <TemplateCard
               template={template}
               phaseName={phaseNames.get(template.phase)}
               phaseOrder={phaseOrders.get(template.phase)}
-              index={first + position + 1}
             />
           </li>
         ))}
