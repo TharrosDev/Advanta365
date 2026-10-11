@@ -57,6 +57,27 @@
   box-shadow: var(--depth-1);
 }
 
+/*
+ * The caller's own sheets (small covers, each as tall as its box) stand 84px tall, like files: the
+ * first furthest back, highest and furthest right, each one after it 14px lower, 20px to the left
+ * and in front, so the top edge of every one shows, with the format tag it prints there. The front
+ * panel starts 74px under the top of the first, over the feet of all three. A container scales the
+ * sheets, the steps and the rise together with `--cover-scale`.
+ */
+.holding {
+  --peek: calc(var(--s-1) + 4.625rem * var(--cover-scale, 1));
+}
+
+.standing {
+  position: absolute;
+  top: calc(var(--tab-h) + var(--s-1) + var(--n, 0) * var(--s-2) * var(--cover-scale, 1));
+  left: calc(var(--s-2) + var(--x, 0) * 1.25rem * var(--cover-scale, 1));
+  z-index: -2;
+  display: block;
+  width: max-content;
+  height: calc(5.25rem * var(--cover-scale, 1));
+}
+
 .front {
   /* The wash is a light surface on every band. */
   --ground: var(--mark-wash);
@@ -88,20 +109,21 @@
 }
 
 /* Open a little: the sheets rise 14, 10 and 6px. Keyboard focus inside does the same. */
-.root:has(:focus-visible) .sheet,
-:is(article):has(:focus-visible) .sheet {
+.root:has(:focus-visible) :is(.sheet, .standing),
+:is(article):has(:focus-visible) :is(.sheet, .standing) {
   translate: 0 calc(-14px + var(--n, 0) * 4px);
 }
 
 @media (hover: hover) {
-  .root:hover .sheet,
-  :is(article):hover .sheet {
+  .root:hover :is(.sheet, .standing),
+  :is(article):hover :is(.sheet, .standing) {
     translate: 0 calc(-14px + var(--n, 0) * 4px);
   }
 }
 
 @media (prefers-reduced-motion: no-preference) {
-  .sheet {
+  .sheet,
+  .standing {
     transition: translate var(--time-lift) var(--curve-settle) calc(var(--n, 0) * 40ms);
   }
 }

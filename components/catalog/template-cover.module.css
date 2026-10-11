@@ -13,22 +13,32 @@
   width: 100%;
 }
 
-/* A thumbnail has a width of its own, by format, and never outgrows its cell. */
+/*
+ * A thumbnail has a width of its own, by format, and never outgrows its cell. A container can
+ * scale all three with `--cover-scale` (a folder's sheets, the cart's lines); 1 is the catalog row.
+ */
 .sm {
   flex: none;
   max-width: 100%;
 }
 
 .sm.portrait {
-  width: 3.75rem;
+  width: calc(3.75rem * var(--cover-scale, 1));
 }
 
 .sm.landscape {
-  width: 5.25rem;
+  width: calc(5.25rem * var(--cover-scale, 1));
 }
 
 .sm.slide {
-  width: 6rem;
+  width: calc(6rem * var(--cover-scale, 1));
+}
+
+/* As tall as its container, as wide as its format makes it (the covers in a folder). */
+.sm.tall {
+  width: auto;
+  max-width: none;
+  height: 100%;
 }
 
 /* A PDF: the paper's top-right corner is cut, and the flap lies folded over it. */
@@ -80,17 +90,22 @@
   line-clamp: 4;
 }
 
-/* The first line of the summary; the ghost lines stand for the rest. */
+/*
+ * The first line of the summary; the ghost lines stand for the rest. The words wrap and the box is
+ * one line tall, so the line ends after a whole word, never inside one.
+ */
 .summary {
   display: block;
   flex: none;
+  height: calc(4.6 * 1.4 * var(--u));
   margin-block-start: calc(var(--u) * 4);
   padding-inline-end: calc(var(--u) * 13);
   overflow: hidden;
   color: var(--ink-soft);
   font-size: calc(var(--u) * 4.6);
   line-height: 1.4;
-  white-space: nowrap;
+  overflow-wrap: normal;
+  hyphens: none;
 }
 
 .lines {
@@ -326,6 +341,32 @@
   right: 4cqi;
   padding: 0.5cqi 2cqi;
   font-size: max(0.4375rem, 7.5cqi);
+}
+
+/*
+ * Standing at one height (`fill="height"`, in a folder): every unit counts from the sheet's height,
+ * as a portrait page's does, so the tag, the numeral and the lines print at one size on every
+ * format, and a wide slide does not print larger than the page beside it.
+ */
+.tall .face {
+  container-type: size;
+}
+
+.tall .page,
+.tall .numeral {
+  --u: 0.714cqb;
+}
+
+.sm.tall .format {
+  top: 3.5cqb;
+  right: 3.5cqb;
+  padding: 0.7cqb 2.1cqb;
+  font-size: max(0.4375rem, 8cqb);
+}
+
+.sm.tall.folded .format {
+  right: auto;
+  left: 3.5cqb;
 }
 
 /* In forced colours fills go: the outlines carry the page, in system colours. */

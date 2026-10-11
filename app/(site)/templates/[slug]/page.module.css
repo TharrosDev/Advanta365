@@ -50,7 +50,10 @@
   gap: var(--s-3);
 }
 
-/* One thing the purchase includes: its tick, then the words, on the ledger's hairline. */
+/*
+ * One thing the purchase includes: an ink tick with no box, then the words, on the ledger's
+ * hairline. A list of contents, not a set of choices, so nothing in it looks like a control.
+ */
 .included {
   display: grid;
   grid-template-columns: var(--s-3) minmax(0, 1fr);
@@ -64,9 +67,7 @@
   width: var(--s-3);
   height: var(--s-3);
   margin-block-start: calc((1lh - var(--s-3)) / 2);
-  border-radius: var(--round-1);
-  background: var(--mark);
-  color: var(--on-mark);
+  color: var(--text);
 }
 
 /* Seven blocks, 147px across at most. */

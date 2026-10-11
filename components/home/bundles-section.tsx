@@ -3,6 +3,7 @@ import { Band } from "@/components/ui/band";
 import { Button } from "@/components/ui/button";
 import { ShelfHead } from "@/components/ui/shelf-head";
 import type { PhaseCoverage } from "@/lib/catalog/coverage";
+import type { CoverSpec } from "@/lib/catalog/covers";
 import type { Bundle } from "@/lib/catalog/schema";
 import styles from "./home.module.css";
 
@@ -11,6 +12,8 @@ export type FeaturedBundle = {
   count: number;
   savings: number;
   coverage: PhaseCoverage[];
+  /** The covers that stand in the folder: `folderCovers` of the bundle's templates. */
+  covers: CoverSpec[];
 };
 
 /**
@@ -42,19 +45,21 @@ export function BundlesSection({ items }: { items: FeaturedBundle[] }) {
               templateCount={first.count}
               savingsCents={first.savings}
               coverage={first.coverage}
+              covers={first.covers}
               headingLevel="h3"
               layout="feature"
             />
           </div>
           {others.length > 0 ? (
             <ul className={styles.bundleRows}>
-              {others.map(({ bundle, count, savings, coverage }) => (
+              {others.map(({ bundle, count, savings, coverage, covers }) => (
                 <li key={bundle.slug}>
                   <BundleCard
                     bundle={bundle}
                     templateCount={count}
                     savingsCents={savings}
                     coverage={coverage}
+                    covers={covers}
                     headingLevel="h3"
                     layout="row"
                   />

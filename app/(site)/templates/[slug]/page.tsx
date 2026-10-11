@@ -169,7 +169,7 @@ export default async function TemplatePage({ params }: TemplatePageProps) {
               {template.includes.map((item) => (
                 <BandedRow key={item} className={styles.included}>
                   <span className={styles.tick} aria-hidden="true">
-                    <Icon name="tick" size={17} />
+                    <Icon name="tick" size={20} />
                   </span>
                   <span className="type-copy">{item}</span>
                 </BandedRow>

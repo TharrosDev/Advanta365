@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { AddToCart } from "@/components/cart/add-to-cart";
 import { CoverageTally } from "@/components/catalog/coverage-tally";
+import { TemplateCover } from "@/components/catalog/template-cover";
 import { Breadcrumbs } from "@/components/layout/breadcrumbs";
 import { TitleBlock } from "@/components/layout/title-block";
 import { PurchasePanel } from "@/components/product/purchase-panel";
@@ -12,6 +13,7 @@ import { KeepCompounds } from "@/components/ui/keep-compounds";
 import { RowLink } from "@/components/ui/row-link";
 import { DELIVERABLE_TYPE_LABELS, FORMAT_LABELS } from "@/content/taxonomy";
 import { phaseCoverage } from "@/lib/catalog/coverage";
+import { folderCovers } from "@/lib/catalog/covers";
 import { bundleSavingsCents, bundleValueCents } from "@/lib/catalog/pricing";
 import { getBundle, getBundleTemplates, getBundles, getPhases } from "@/lib/catalog/repository";
 import { cx } from "@/lib/cx";
@@ -36,8 +38,9 @@ export async function generateMetadata({ params }: BundlePageProps): Promise<Met
  * the templates grouped by phase as ledger rows) and the purchase panel in columns 10 to 12. The
  * document order is panel, folder, details; the folder and the panel stay in view.
  *
- * The folder shares its place with the same bundle's card on the page before, so on a page change
- * it travels; it is the only folder on the page that carries its name.
+ * The folder holds the covers of the bundle's first three templates, as its card does on the page
+ * before. It shares its place with that card's folder, so on a page change it travels; it is the
+ * only folder on the page that carries its name.
  */
 export default async function BundlePage({ params }: BundlePageProps) {
   const bundle = await getBundle((await params).slug);
@@ -47,6 +50,7 @@ export default async function BundlePage({ params }: BundlePageProps) {
   const value = bundleValueCents(templates);
   const savings = bundleSavingsCents(bundle, templates);
   const coverage = phaseCoverage(phases, templates);
+  const covers = folderCovers(templates, phases);
   const groups = phases
     .map((phase, index) => ({
       phase,
@@ -93,6 +97,16 @@ export default async function BundlePage({ params }: BundlePageProps) {
           <Folder
             tab={`${templates.length} ${templates.length === 1 ? "template" : "templates"}`}
             slug={bundle.slug}
+            inside={covers.map((cover) => (
+              <TemplateCover
+                key={cover.slug}
+                type={cover.type}
+                format={cover.format}
+                phaseOrder={cover.phaseOrder}
+                size="sm"
+                fill="height"
+              />
+            ))}
             className={styles.folder}
             frontClassName={styles.front}
           />

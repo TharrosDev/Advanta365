@@ -473,7 +473,7 @@ All primitives live in `components/ui/`. Props are shown with their defaults in 
 | `Split` | `margin` (ReactNode), `sticky` (false), `rule` (false), `className`, `marginClassName`, `contentClassName` | `<Split margin={<h2 className="type-banner">Plan</h2>} rule>...</Split>` |
 | `PaperSheet` | `as` (div, section, aside, span, li; div), `ratio` (free, portrait, landscape, slide; free), `size` (sm, md, lg; md), `depth` (0 to 4; 2), `lit` (false), `turn` (degrees), `className`, `style`, `ref` | `<PaperSheet ratio="portrait" depth={3} lit>...</PaperSheet>` |
 | `PaperStack` | `under` (2), `className`, `ref` | `<PaperStack under={3}><PaperSheet ratio="portrait" /></PaperStack>` |
-| `Folder` | `tab` (ReactNode), `sheets` (3), `slug`, `frontClassName`, `ref`, element attributes | `<Folder tab="4 templates" sheets={3} slug={bundle.slug}>...</Folder>` |
+| `Folder` | `tab` (ReactNode), `sheets` (3), `inside` (ReactNode[], at most 3, in place of the blank sheets), `slug`, `frontClassName`, `ref`, element attributes | `<Folder tab="4 templates" inside={covers} slug={bundle.slug}>...</Folder>` |
 | `ShelfHead` | `eyebrow`, `title` (required), `titleAs` (h1, h2, h3; h2), `titleId`, `body`, `action`, `stack` (false), `className` | `<ShelfHead eyebrow="Featured" title="Featured templates" action={...} />` |
 | `BandedList` | `as` (ul, ol, dl, div; ul), `className`, `ref` | `<BandedList as="dl">...</BandedList>` |
 | `BandedRow` | `as` (li, div; li), `className` | `<BandedRow as="div">...</BandedRow>` |

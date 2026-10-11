@@ -12,6 +12,7 @@ import { ValuesSection } from "@/components/home/values-section";
 import { IntroCover } from "@/components/intro/intro-cover";
 import { DELIVERABLE_TYPE_LABELS, FORMAT_LABELS } from "@/content/taxonomy";
 import { phaseCoverage } from "@/lib/catalog/coverage";
+import { folderCovers } from "@/lib/catalog/covers";
 import { bundleSavingsCents } from "@/lib/catalog/pricing";
 import { getBundleTemplates, getBundles, getPhases, getTemplates } from "@/lib/catalog/repository";
 import type { Phase, Template } from "@/lib/catalog/schema";
@@ -75,6 +76,7 @@ export default async function Home() {
           count: contents.length,
           savings: bundleSavingsCents(bundle, contents),
           coverage: phaseCoverage(phases, contents),
+          covers: folderCovers(contents, phases),
         };
       }),
   );

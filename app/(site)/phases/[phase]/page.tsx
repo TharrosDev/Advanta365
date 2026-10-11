@@ -11,6 +11,7 @@ import { Button } from "@/components/ui/button";
 import { Split } from "@/components/ui/split";
 import { Tally } from "@/components/ui/tally";
 import { adjacentPhases, bundlesForPhase, phaseCoverage } from "@/lib/catalog/coverage";
+import { folderCovers } from "@/lib/catalog/covers";
 import { bundleSavingsCents } from "@/lib/catalog/pricing";
 import {
   getBundleTemplates,
@@ -63,6 +64,7 @@ export default async function PhasePage({ params }: PhasePageProps) {
         count: contents.length,
         savings: bundleSavingsCents(bundle, contents),
         coverage: phaseCoverage(phases, contents),
+        covers: folderCovers(contents, phases),
       };
     }),
   );
@@ -145,13 +147,14 @@ export default async function PhasePage({ params }: PhasePageProps) {
             }
           >
             <ul className={styles.offers}>
-              {offers.map(({ bundle, held, count, savings, coverage }) => (
+              {offers.map(({ bundle, held, count, savings, coverage, covers }) => (
                 <li key={bundle.slug}>
                   <BundleCard
                     bundle={bundle}
                     templateCount={count}
                     savingsCents={savings}
                     coverage={coverage}
+                    covers={covers}
                     detail={
                       held === inPhase.length
                         ? `Holds all ${inPhase.length} ${phase.name} templates.`

@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
+import { TemplateCover } from "@/components/catalog/template-cover";
 import { BandedList, BandedRow } from "@/components/ui/banded-list";
 import { Blank } from "@/components/ui/blank";
 import { Button } from "@/components/ui/button";
@@ -16,24 +17,29 @@ import {
   type BundleContents,
   type CartLine,
 } from "@/lib/cart/store";
-import { cx } from "@/lib/cx";
+import type { CoverSpec } from "@/lib/catalog/covers";
+import { cssVars, cx } from "@/lib/cx";
 import { formatPrice } from "@/lib/format";
 import styles from "./cart-contents.module.css";
 import { useCart } from "./use-cart";
 
-/** A catalog entry as the cart needs it; a bundle also names the templates it holds. */
+/**
+ * A catalog entry as the cart needs it; a bundle also names the templates it holds. `covers` is
+ * what the line draws at its head: a template's own cover, or the first three a bundle holds.
+ */
 export type CartItem = CartLine & {
   title: string;
   priceCents: number;
   href: string;
   templateSlugs?: readonly string[];
+  covers?: readonly CoverSpec[];
 };
 
 const keyOf = (line: CartLine) => `${line.kind}:${line.slug}`;
 
 /**
- * The cart page below its title. With lines in it: the lines as a ledger (a small sheet or folder,
- * kind, title, price, Remove) and, beside them from 68em, the order summary on a receipt, a paper
+ * The cart page below its title. With lines in it: the lines as a ledger (the template's small
+ * cover, or a small folder with the bundle's first covers standing in it; kind, title, price, Remove) and, beside them from 68em, the order summary on a receipt, a paper
  * sheet with a torn top edge that stays in view. Empty: one blank sheet with a field, the message
  * and two ways on. Until the saved cart has been read it is a single sentence.
  *
@@ -123,14 +129,23 @@ export function CartContents({ items }: { items: CartItem[] }) {
           return (
             <BandedRow key={keyOf(row)} className={styles.row}>
               {row.kind === "bundle" ? (
-                <span aria-hidden="true" className={styles.folder} />
+                <MiniFolder covers={row.covers ?? []} />
+              ) : row.covers?.[0] ? (
+                <span className={styles.glyph}>
+                  <TemplateCover
+                    type={row.covers[0].type}
+                    format={row.covers[0].format}
+                    phaseOrder={row.covers[0].phaseOrder}
+                    size="sm"
+                  />
+                </span>
               ) : (
                 <PaperSheet
                   ratio="portrait"
                   size="sm"
                   depth={2}
                   aria-hidden="true"
-                  className={styles.glyph}
+                  className={cx(styles.glyph, styles.sheet)}
                 />
               )}
               <div className={styles.item}>
@@ -200,5 +215,33 @@ export function CartContents({ items }: { items: CartItem[] }) {
         </p>
       </PaperSheet>
     </div>
+  );
+}
+
+/**
+ * A bundle's line head: a folder the size of a thumbnail, its back panel and tab in the wash, the
+ * covers standing in it as in a large folder (without their tags, which would not fit), and
+ * the front panel over their feet.
+ */
+function MiniFolder({ covers }: { covers: readonly CoverSpec[] }) {
+  return (
+    <span aria-hidden="true" className={styles.folder}>
+      {covers.map((cover, index) => (
+        <span
+          key={cover.slug}
+          className={styles.standing}
+          style={cssVars({ "--n": index, "--x": covers.length - 1 - index })}
+        >
+          <TemplateCover
+            type={cover.type}
+            format={cover.format}
+            size="sm"
+            fill="height"
+            tagClassName={styles.miniTag}
+          />
+        </span>
+      ))}
+      <span className={styles.folderFront} />
+    </span>
   );
 }

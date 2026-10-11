@@ -3,14 +3,18 @@ import { KeepCompounds } from "@/components/ui/keep-compounds";
 import { Tag } from "@/components/ui/tag";
 import { TransitionLink } from "@/components/ui/transition-link";
 import type { PhaseCoverage } from "@/lib/catalog/coverage";
+import type { CoverSpec } from "@/lib/catalog/covers";
 import type { Bundle } from "@/lib/catalog/schema";
 import { cx } from "@/lib/cx";
 import { formatPrice } from "@/lib/format";
 import styles from "./bundle-card.module.css";
 import { CoverageTally } from "./coverage-tally";
+import { TemplateCover } from "./template-cover";
 
 /**
- * A bundle, drawn with a `Folder` whose tab carries the number of templates inside. Always an
+ * A bundle, drawn with a `Folder` whose tab carries the number of templates inside. With `covers`
+ * (from `folderCovers`), the sheets standing in the folder are the small covers of the first three
+ * templates the bundle holds; without, they are blank paper. Always an
  * `<article>` (one of only two kinds in the app; the other is `TemplateCard`) with exactly one
  * link, the title, stretched over the whole of it, so the card is one tab stop.
  *
@@ -32,6 +36,7 @@ export function BundleCard({
   savingsCents,
   coverage,
   detail,
+  covers,
   headingLevel = "h3",
   layout = "row",
   share = true,
@@ -42,6 +47,7 @@ export function BundleCard({
   savingsCents: number;
   coverage?: readonly PhaseCoverage[];
   detail?: string;
+  covers?: readonly CoverSpec[];
   headingLevel?: "h2" | "h3";
   layout?: "row" | "feature";
   share?: boolean;
@@ -51,6 +57,16 @@ export function BundleCard({
   const feature = layout === "feature";
   const count = `${templateCount} ${templateCount === 1 ? "template" : "templates"}`;
   const slug = share ? bundle.slug : undefined;
+  const inside = covers?.map((cover) => (
+    <TemplateCover
+      key={cover.slug}
+      type={cover.type}
+      format={cover.format}
+      phaseOrder={cover.phaseOrder}
+      size="sm"
+      fill="height"
+    />
+  ));
 
   const title = (
     <Heading className={cx(feature ? "type-page" : "type-section", styles.title)}>
@@ -76,7 +92,13 @@ export function BundleCard({
   if (feature) {
     return (
       <article data-layout="feature" className={cx(styles.card, styles.feature, className)}>
-        <Folder tab={count} slug={slug} className={styles.folder} frontClassName={styles.front}>
+        <Folder
+          tab={count}
+          slug={slug}
+          inside={inside}
+          className={styles.folder}
+          frontClassName={styles.front}
+        >
           {title}
           {summary}
           <div className={styles.base}>
@@ -90,7 +112,7 @@ export function BundleCard({
 
   return (
     <article data-layout="row" className={cx(styles.card, styles.row, className)}>
-      <Folder tab={count} slug={slug} className={styles.object} />
+      <Folder tab={count} slug={slug} inside={inside} className={styles.object} />
       <div className={styles.text}>
         {title}
         {summary}

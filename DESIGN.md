@@ -437,7 +437,7 @@ There are no boxed cards. A thing in a list is either a row on a hairline or a p
 
 - **Paper sheet:** a 3px corner, paper lit from its top-left corner and a shade darker at the far ones, a pre-rendered grain on medium and large sheets, depth 2 at rest. It has no padding of its own; a panel made from it is padded 21px, and 28px from 40em. Inside a sheet the colours are those of paper whatever band it lies on.
 - **Paper stack:** two or more blank sheets under the top one, at depth 1, offset and turned from 40em and only slightly turned below it.
-- **Folder:** a bundle. A wash-coloured tab 28px tall names it, a back panel holds up to three white sheets standing 5px lower each, and a wash front panel at depth 2 carries the content. Under the pointer or focus the sheets rise 14, 10 and 6px, 40ms apart.
+- **Folder:** a bundle. A wash-coloured tab 28px tall names it, a back panel holds up to three sheets, and a wash front panel at depth 2 carries the content. A bundle's sheets are the small covers of its first three templates, standing 84px tall like files: the first highest and furthest right, each next one 14px lower, 20px to the left and in front, so every format tag shows; the front panel covers their feet. A folder can scale them with `--cover-scale` (1 in ledger rows at every width, 1.5 for the home feature and the bundle page). Without covers the sheets are blank paper standing 5px lower each. Under the pointer or focus the sheets rise 14, 10 and 6px, 40ms apart. The cart draws the same folder at thumbnail size in a bundle's line, and a template's line carries its small cover.
 - **Template card:** below 40em, and in list view at every width, a row on a hairline with a cover thumbnail; its hover wash stands 14px past both ends and the thumbnail lifts and turns 1.5 degrees. From 40em in sheet view, the cover itself at the foot of a 17rem area (20rem from 68em) with the phase, the title and the price as a caption. A row shows the summary under the title at every width, at most two lines. The title is the one link and covers the whole article, and the focus ring is drawn on the article.
 - **Note:** a short sentence on the wash (6px corner, 14px by 21px, 16px text at weight 400), no wider than a lead; on the wash band it takes paper.
 
@@ -445,7 +445,7 @@ There are no boxed cards. A thing in a list is either a row on a hairline or a p
 
 - **Text input and select:** paper, 48px tall, a 2px firm rule border, a 6px corner, 14px of side padding and 16px text at weight 400. The select draws its own chevron 14px from the right edge. The catalog search carries its submit inside the field: a 44px square at the right end with the magnifier, which takes the wash under the pointer and focus.
 - **Hover / Focus:** the border darkens to soft ink under the pointer and to ink on focus, with the standard focus ring outside it.
-- **Checkbox:** a 21px box with a 2px firm rule border and a 3px corner in a row at least 44px tall (35px from 68em); the invisible input covers the whole row. Checked, it is the highlighter with an ink border and a heavy ink tick, one step deeper under the pointer. A faint count may close the row.
+- **Checkbox:** a 21px box with a 2px firm rule border and a 3px corner in a row at least 44px tall (35px from 68em); the invisible input covers the whole row. Checked, it is the highlighter with an ink border and a heavy ink tick, one step deeper under the pointer. A faint count may close the row. A list of contents (a template's "What's included") is never drawn as checked boxes: each item has a bare ink tick, 20px, with no box and no highlighter, so nothing in it looks selectable.
 - **Disabled:** deep-desk fill, rule border, faint text.
 - **Focus ring, everywhere:** a 3px outline 3px off the element, ink on light bands and the highlighter on the binder.
 
@@ -463,7 +463,7 @@ There are no boxed cards. A thing in a list is either a row on a hairline or a p
 
 ### Template Cover
 
-The signature object: a miniature first page of a template, printed on a paper sheet in the proportions of its format. Everything on it is sized as a share of the sheet's own width, so it reads the same as a 60px thumbnail and as the large sheet on a product page. It carries the title in Besley, one line of the summary, ghost lines for the rest (rows of three cells on a workbook), a line drawing of the deliverable type, the phase numeral on an ink index tab at the right edge, the format tag, and one blank in the highlighter with its ink edge. The blank is the only highlighted part of a cover: it is the part the buyer writes.
+The signature object: a miniature first page of a template, printed on a paper sheet in the proportions of its format. Everything on it is sized as a share of the sheet's own width, so it reads the same as a 60px thumbnail and as the large sheet on a product page. It carries the title in Besley, one line of the summary (ending on a whole word, never inside one), ghost lines for the rest (rows of three cells on a workbook), a line drawing of the deliverable type, the phase numeral on an ink index tab at the right edge, the format tag, and one blank in the highlighter with its ink edge. The blank is the only highlighted part of a cover: it is the part the buyer writes.
 
 ### Tally and Blank
 

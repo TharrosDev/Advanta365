@@ -168,6 +168,8 @@ Helpers used by pages and components:
 | `coverageLabel(coverage)` | The covered phases in words: "Covers phase 4", "Covers phases 3–4", "Covers phases 1–2, 5"; empty when none |
 | `bundlesForPhase(phaseSlug, bundles, templates)` | Bundles holding at least one template of the phase, each with `inPhase` and `total`, the most focused first (share of the bundle in the phase, then `inPhase`, then the lower price) |
 | `adjacentPhases(phases, slug)` | `{ previous, next }` in `order`; either is undefined at an end, both for an unknown slug |
+| `coverSpec(template, phases)` (`lib/catalog/covers.ts`) | What a small `TemplateCover` needs: `{ slug, type, format, phaseOrder? }`; no `phaseOrder` for an unknown phase |
+| `folderCovers(templates, phases, limit = 3)` | The `coverSpec` of a bundle's first `limit` templates, in the bundle's order: the sheets standing in its folder (bundle rows, the home feature, the bundle page, the cart) |
 | `formatPrice(cents)` (`lib/format.ts`) | en-US dollars; whole amounts drop `.00` |
 
 ### 3.4 Catalog contents
@@ -353,7 +355,7 @@ Primitives are the building blocks for pages. Each one has a CSS module unless n
 | `Sheet` | A surface with radius and an `edge` (rule or ink) |
 | `PaperSheet` | A sheet of paper with grain, `ratio` (free, portrait 5/7, landscape 4/3, slide 16/9), `size`, `depth`, and `lit` for pointer light |
 | `PaperStack` | Sheets placed behind a top sheet, each with a small offset and turn |
-| `Folder` | A folder shape with a tab and stacked sheets that lift on hover or focus |
+| `Folder` | A folder shape with a tab and stacked sheets that lift on hover or focus; with `inside`, the sheets are the caller's nodes (a bundle's first three small covers, `fill="height"`) |
 | `Button` | `variant` (mark, outline, ink, text), `size` (sm, md, lg), `href` (root-relative links use `TransitionLink`), `arrow` |
 | `TransitionLink` | `next/link` with prefetch on. The only file that imports `next/link` |
 | `TextLink`, `RowLink` | Inline and row-style links |
@@ -952,7 +954,7 @@ writes a whole list.
 | `CartSync` | Mounted in the site layout with every template and bundle slug. Replaces the saved lines with the pruned list only when the length changes. Renders nothing |
 | `CartButton` | A link to `/cart` with the text "Cart" and a count badge. Shows `0` until ready. The accessible name is "Cart" until ready, then "Cart, N item(s)". The badge remounts on each change so its pop animation restarts |
 | `AddToCart` | Before the line is in the cart: a full-width mark button with the label (for example "Add to cart" or "Add bundle to cart"). After adding: a link labelled "In cart — view cart", with focus moved to it, and a polite status message "Added to cart." A template page passes `bundles` (the bundles holding the template); while one of them is in the cart the control is a note "Included in <bundle>, which is in your cart." and an outline "View cart" link instead |
-| `CartContents` | Until ready: "Loading your cart…". Lines are pruned against the catalog items it receives. Empty: a sheet with the message and buttons to the catalog and to bundles. Non-empty: a ruled list, each row with a glyph, a kind label ("Template" or "Bundle"), a link to the item, its price and a Remove button. A template a bundle in the cart holds also shows "Included in <bundle>" (a link to the bundle) and its price struck through, read as "<price>, not charged"; it keeps its Remove button |
+| `CartContents` | Until ready: "Loading your cart…". Lines are pruned against the catalog items it receives. Empty: a sheet with the message and buttons to the catalog and to bundles. Non-empty: a ruled list, each row headed by the template's small cover (scaled with `--cover-scale: 0.6`) or a small folder with the bundle's first three covers standing in it (no tags), then a kind label ("Template" or "Bundle"), a link to the item, its price and a Remove button. A template a bundle in the cart holds also shows "Included in <bundle>" (a link to the bundle) and its price struck through, read as "<price>, not charged"; it keeps its Remove button |
 | Summary | A sheet labelled "Order summary" with the subtotal, a disabled "Checkout — coming soon" button and the note "Purchasing is not available in this beta. Your cart is saved in this browser." |
 
 Subtotal is the sum of line prices, leaving out templates that a bundle in the same cart holds
@@ -963,7 +965,8 @@ Focus after removing a line moves to the Remove button at the same index, or to 
 when the last line goes.
 
 `app/(site)/cart/page.tsx` is static. It builds one item for each of the 72 catalog entries (67 templates and
-5 bundles) with `title`, `priceCents` and `href` (and `templateSlugs` for a bundle), and passes them to
+5 bundles) with `title`, `priceCents`, `href` and `covers` (`[coverSpec]` for a template, `folderCovers` for a bundle,
+plus `templateSlugs` for a bundle), and passes them to
 `CartContents`. The client needs these
 values to show saved lines and to prune stale ones.
 
