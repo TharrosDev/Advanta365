@@ -202,7 +202,7 @@ paints with.
 
 Two faces are set as `--face-display` (Besley) and `--face-text` (Atkinson Hyperlegible Next).
 
-- Display classes, in Besley: `.type-poster`, `.type-hero`, `.type-statement`, `.type-figure`,
+- Display classes, in Besley: `.type-poster`, `.type-hero`, `.type-statement`,
   `.type-banner`, `.type-page`, `.type-section`, `.type-item` and `.type-amount`.
 - Text classes, in Atkinson Hyperlegible Next: `.type-lead`, `.type-copy`, `.type-ui`, `.type-note`,
   `.type-eyebrow` and `.type-tag`.
@@ -220,12 +220,12 @@ Display and lead sizes are `clamp()` tokens between a phone value and a desktop 
 - `--control-sm` (40px, on the desktop bar), `--control` (48px) and `--control-lg` (56px): control heights.
   `--tap` (44px) is the minimum target below 68em.
 - `--round-1` (3px) to `--round-3` (10px), `--edge` (2px) and `--hair` (1px).
-- `--depth-0` to `--depth-4`: elevation. `--lift` is an alias of `--depth-3`.
+- `--depth-0` to `--depth-4`: elevation.
 - `--layer-bar` (50), `--layer-skip` (90) and `--layer-cover` (100): stacking order.
 
 ### Motion tokens
 
-- Durations: `--time-press` (90ms), `--time-swap` (120ms), `--time-enter` (240ms), `--time-exit` (160ms),
+- Durations: `--time-swap` (120ms), `--time-enter` (240ms), `--time-exit` (160ms),
   `--time-fill` (180ms), `--time-fill-gap` (80ms), `--time-lift` (260ms), `--time-ink` (640ms),
   `--time-settle` (560ms), `--time-count` (1200ms), `--time-morph` (420ms), `--time-page-in` (260ms),
   `--time-page-out` (140ms) and `--stagger` (70ms).
