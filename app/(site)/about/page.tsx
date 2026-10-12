@@ -202,6 +202,11 @@ const NEXT = [
  * ledger, and a closing paper band. Each statement section has its label in the margin; the
  * comparison runs across the whole grid under its own statement. `#compare` is linked from the
  * home page and from the top of `/pricing`.
+ *
+ * Hierarchy: two headlines carry the page at the statement size, the h1 and the black AI band. The
+ * comparison's title is one step down (banner), and the mission, why, proof and buyer statements
+ * and the closing heading are set at the page size, so the bands read as one argument with two
+ * peaks instead of seven headlines of one size.
  */
 export default async function AboutPage() {
   const [templates, bundles, phases, sample] = await Promise.all([
@@ -222,6 +227,7 @@ export default async function AboutPage() {
 
       <StatementSection
         surface="desk"
+        size="page"
         label="Mission"
         statement={MISSION_STATEMENT}
         copy={MISSION_COPY}
@@ -229,6 +235,7 @@ export default async function AboutPage() {
 
       <StatementSection
         surface="paper"
+        size="page"
         label="Why it exists"
         statement={WHY_STATEMENT}
         copy={WHY_COPY}
@@ -237,13 +244,18 @@ export default async function AboutPage() {
       {/* The one black band of the company pages: static, no ink moves behind it. */}
       <AiStatement label="AI, stated plainly" statement={AI_STATEMENT} copy={AI_COPY} />
 
-      <StatementSection surface="wash" label="Why it’s different" statement={DIFFERENT_STATEMENT}>
+      <StatementSection
+        surface="wash"
+        size="page"
+        label="Why it’s different"
+        statement={DIFFERENT_STATEMENT}
+      >
         <ProofLedger items={PROOF_POINTS} />
       </StatementSection>
 
       <Band id="compare" surface="desk">
         <Eyebrow>Your alternatives</Eyebrow>
-        <h2 className={cx("type-statement", styles.compareTitle)}>
+        <h2 className={cx("type-banner", styles.compareTitle)}>
           <Sentences text={COMPARE_TITLE} move />
         </h2>
         <ComparisonTable
@@ -259,7 +271,7 @@ export default async function AboutPage() {
 
       {/* Under the statement: the buyers with the public-sector line, then the note on what the
           toolkit covers beyond SharePoint, as a fact row lined up with the list. */}
-      <StatementSection surface="paper" label="Who it’s for" statement={WHO_STATEMENT}>
+      <StatementSection surface="paper" size="page" label="Who it’s for" statement={WHO_STATEMENT}>
         <div className={styles.buyers}>
           <BuyerList buyers={BUYERS} caresLabel="What they care about" />
           <Appear as="p" className={cx("type-copy", styles.proven)}>

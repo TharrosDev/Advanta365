@@ -1,7 +1,14 @@
-/* Side by side, the label stands level with the first line of the statement beside it. */
+/*
+ * Side by side, the label stands level with the first line of the statement beside it: 21px down
+ * beside a banner line, 14px beside the shorter line of a page-size statement.
+ */
 @media (min-width: 68em) {
   .margin {
     padding-block-start: var(--s-3);
+  }
+
+  .margin.marginPage {
+    padding-block-start: var(--s-2);
   }
 }
 

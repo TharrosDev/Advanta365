@@ -345,7 +345,7 @@ White, near-black and one light blue, on cool greys that lean a few degrees towa
 
 - **Display** (`poster`, 800, 112 to 320px, 0.86): one figure per page at most. The 90% of the home statement band, the phase numeral, the 404.
 - **Display** (`hero`, 600, 40 to 80px, 1.04): the home headline only, at most 11.5em wide.
-- **Headline** (`statement`, 600, 34 to 72px, 1.06): large statements, and the wide form of a page title.
+- **Headline** (`statement`, 600, 34 to 72px, 1.06): large statements, and the wide form of a page title. One or two per page at most: where a page makes several statements in a row (About), the rest step down to `banner` or `page`, so two headlines carry it.
 - **Headline** (`banner`, 600, 34 to 56px, 1.12): standard page titles and the one-sentence statement of a section.
 - **Title** (`page`, 600, 28 to 40px, 1.16): the heading of a shelf of content.
 - **Title** (`section`, 600, 22 to 26px, 1.24): section headings and large row labels.
@@ -485,7 +485,7 @@ Content arrives in one of four ways: a drift (12px up, fading in), ink-in (fadin
 
 - **Do** pair every highlighter fill with ink: a 2px inset ring, an ink border, a tick or weight 700 text.
 - **Do** put a band under everything, and let the band set the colours through the semantic names.
-- **Do** present a thing as a paper object (a sheet, a stack, a folder, a cover) or as a row on a hairline.
+- **Do** present a thing as a paper object (a sheet, a stack, a folder, a cover) or as a row on a hairline. A set of short claims (the home values, the About proof points) is a ledger, not a grid of icon tiles; the line drawings belong to the home manifest alone.
 - **Do** take every space from the 7px module and every layout change from the two breakpoints, 40em and 68em.
 - **Do** set documents, figures and prices in Besley at 600 to 800, and everything the store says in Atkinson Hyperlegible Next.
 - **Do** make hover and keyboard focus look the same, and give a press the same answer, so a finger gets what a pointer gets.
