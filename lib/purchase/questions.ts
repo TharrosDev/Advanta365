@@ -1,9 +1,10 @@
-// Provisional beta copy. The answers on adapting the content, AI tools, SharePoint and language state
-// what the toolkit is today; the commercial ones (licence terms, updates, purchase orders) describe
-// the intent and stay placeholders until the terms are set. They live in lib/ because pages may not
-// import content/.
+// The questions of the purchase page, about the one thing it sells: the complete toolkit. They live
+// in lib/ because pages may not import content/.
 //
-// The questions of the purchase page, about the one thing it sells: the complete toolkit.
+// Provisional beta copy, and the page says so above them. The answers on adapting the content, AI
+// tools, SharePoint and language state what the toolkit is today; the commercial ones (licence
+// terms, updates, purchase orders) describe the intent and stay placeholders until the terms are
+// set.
 export const PURCHASE_QUESTIONS: readonly { question: string; answer: string }[] = [
   {
     question: "What file formats do I get?",

@@ -183,8 +183,12 @@
   color: var(--on-mark);
 }
 
-/* Disabled comes last so it wins over every variant and its hover. Nothing moves. */
-.root:disabled {
+/*
+ * Disabled comes last so it wins over every variant and its hover. Nothing moves. A button that is
+ * only `aria-disabled` looks the same and keeps its place in the tab order, focus ring and all.
+ */
+.root:disabled,
+.root[aria-disabled="true"] {
   border-color: var(--line);
   background: var(--tile);
   color: var(--text-faint);
@@ -192,6 +196,7 @@
   translate: none;
 }
 
-.root:disabled .arrow {
+.root:disabled .arrow,
+.root[aria-disabled="true"] .arrow {
   translate: none;
 }

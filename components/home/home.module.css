@@ -367,6 +367,56 @@
 }
 
 /*
+ * The toolkit. The words, then the portfolio under them; from 68em the words in columns 1 to 5 and
+ * the portfolio in columns 7 to 12, centred on each other.
+ */
+.toolkit {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--s-6);
+  align-items: center;
+}
+
+.toolkitText,
+.toolkitObject {
+  min-width: 0;
+}
+
+.toolkitLead {
+  max-width: var(--wrap-copy);
+  margin-block-start: var(--s-3);
+  color: var(--text-soft);
+}
+
+/* Full width on a phone, its own width after. */
+.toolkitAction {
+  display: flex;
+  flex-direction: column;
+  margin-block-start: var(--s-5);
+}
+
+@media (min-width: 40em) {
+  .toolkitAction {
+    align-items: flex-start;
+  }
+}
+
+@media (min-width: 68em) {
+  .toolkit {
+    grid-template-columns: repeat(12, minmax(0, 1fr));
+    gap: 0 var(--col-gap);
+  }
+
+  .toolkitText {
+    grid-column: 1 / span 5;
+  }
+
+  .toolkitObject {
+    grid-column: 7 / -1;
+  }
+}
+
+/*
  * A statement band (`#problem`, `#practice`): the label, the statement in columns 1 to 9, and
  * what follows it in columns 7 to 12, 42px lower.
  */

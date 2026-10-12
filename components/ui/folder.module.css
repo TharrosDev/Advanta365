@@ -6,6 +6,8 @@
 .root {
   --tab-h: var(--s-4);
   --peek: 1.5rem;
+  --lift: 14px;
+  --lift-step: 4px;
 
   position: relative;
   display: flex;
@@ -57,6 +59,20 @@
   box-shadow: var(--depth-1);
 }
 
+/*
+ * A sheet that was given stands in a strip of no height along the top edge of the back panel, and
+ * places itself from there: the strip is its positioning box, and what rises.
+ */
+.leaf {
+  position: absolute;
+  top: var(--tab-h);
+  right: 0;
+  left: 0;
+  z-index: -2;
+  height: 0;
+  pointer-events: none;
+}
+
 .front {
   /* The wash is a light surface on every band. */
   --ground: var(--mark-wash);
@@ -87,21 +103,65 @@
   }
 }
 
-/* Open a little: the sheets rise 14, 10 and 6px. Keyboard focus inside does the same. */
-.root:has(:focus-visible) .sheet,
-:is(article):has(:focus-visible) .sheet {
-  translate: 0 calc(-14px + var(--n, 0) * 4px);
+/*
+ * The folder of a page. It measures itself: one unit is 1% of its own width (`cqi`), so the tab,
+ * the pocket and the sheets keep their proportions from a phone to the full 34rem. The folder is
+ * the container, so its own box cannot use the unit: the room above the front panel is the front
+ * panel's margin here, not the folder's padding. The front is card stock: the wash under a light
+ * from the top left, with the paper's tooth, and it casts a little shade up onto the sheets that
+ * stand in the pocket behind it.
+ */
+.page {
+  --tab-h: clamp(1.75rem, 7cqi, 2.5rem);
+  --peek: 21cqi;
+  --lift: 3.2cqi;
+  --lift-step: 0.35cqi;
+
+  container-type: inline-size;
+  padding-block-start: 0;
+}
+
+.page .back {
+  border-radius: 0 var(--round-3) var(--round-3);
+}
+
+.page .tab {
+  padding-inline: clamp(var(--s-2), 4cqi, var(--s-3));
+  border-radius: var(--round-3) var(--round-3) 0 0;
+  font-size: clamp(var(--size-note), 3cqi, var(--size-ui));
+}
+
+.page .front {
+  margin-block-start: calc(var(--tab-h) + var(--peek));
+  padding: clamp(var(--s-3), 6.5cqi, var(--s-5));
+  border-radius: var(--round-3);
+  background:
+    radial-gradient(farthest-corner at 10% 0, var(--card-light), transparent 64%),
+    var(--grain) 0 0 / 8rem 8rem,
+    var(--mark-wash);
+  box-shadow: var(--pocket-shade), var(--depth-3);
+}
+
+/*
+ * Open a little: the sheets rise 14, 10 and 6px (on the folder of a page, a share of its width).
+ * Keyboard focus inside does the same, and so does focus beside the folder, in the article or the
+ * scope that holds it.
+ */
+.root:has(:focus-visible) :is(.sheet, .leaf),
+:is(article, [data-folder-scope]):has(:focus-visible) :is(.sheet, .leaf) {
+  translate: 0 calc(var(--n, 0) * var(--lift-step) - var(--lift));
 }
 
 @media (hover: hover) {
-  .root:hover .sheet,
-  :is(article):hover .sheet {
-    translate: 0 calc(-14px + var(--n, 0) * 4px);
+  .root:hover :is(.sheet, .leaf),
+  :is(article):hover :is(.sheet, .leaf) {
+    translate: 0 calc(var(--n, 0) * var(--lift-step) - var(--lift));
   }
 }
 
 @media (prefers-reduced-motion: no-preference) {
-  .sheet {
+  .sheet,
+  .leaf {
     transition: translate var(--time-lift) var(--curve-settle) calc(var(--n, 0) * 40ms);
   }
 }
@@ -118,6 +178,10 @@
   .tab {
     border-block-end-width: 0;
     clip-path: none;
+  }
+
+  .page .front {
+    background: var(--mark-wash);
   }
 }
 

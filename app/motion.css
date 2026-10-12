@@ -7,6 +7,7 @@
  *   [data-paper], [data-lit]                       a paper object and its light under the pointer
  *   [data-bar]                                     the bar and its shadow
  *   [data-ninety], [data-odometer-wheel]           the one band whose figure follows the scroll
+ *   [data-price-tag]                               the paper tag on its string, which swings
  *
  * Three attributes on the root element, set by the boot script before first paint, are the only
  * switches: `data-motion="on"` (movement is wanted), `data-timeline="on"` (view timelines exist)
@@ -395,6 +396,62 @@
   html[data-io="armed"]:not([data-timeline="on"]) [data-ninety][data-seen] [data-block] {
     animation: ninety-fill var(--time-fill) var(--curve-settle) backwards;
     animation-delay: calc(var(--i, 0) * (var(--time-count) - var(--time-fill)) / 9);
+  }
+
+  /*
+   * The price tag (components/purchase/price-tag.tsx). It hangs from its top centre, turned by
+   * `--tag-turn`, and swings about that point like a weight on a string: from rest out to one
+   * side, back past its rest, and to rest again in a few shorter passes. The box swings once, the
+   * wider swing, when it is first seen (the observer's mark). What hangs in the box swings again,
+   * less far, each time the pointer comes onto the folder the tag is tied to: a second element, so
+   * that the pointer leaving starts nothing over. The tag is deaf to the pointer, so its own
+   * movement never changes what is hovered. A swing is its turning points, so these keyframes name
+   * them; both ends are still the element's own.
+   */
+  @keyframes price-tag-swing {
+    20% {
+      rotate: calc(var(--tag-turn, 0deg) - 8deg);
+    }
+
+    44% {
+      rotate: calc(var(--tag-turn, 0deg) + 5deg);
+    }
+
+    66% {
+      rotate: calc(var(--tag-turn, 0deg) - 2.6deg);
+    }
+
+    84% {
+      rotate: calc(var(--tag-turn, 0deg) + 1deg);
+    }
+  }
+
+  @keyframes price-tag-nudge {
+    22% {
+      rotate: 4.5deg;
+    }
+
+    48% {
+      rotate: -2.6deg;
+    }
+
+    72% {
+      rotate: 1.2deg;
+    }
+
+    90% {
+      rotate: -0.4deg;
+    }
+  }
+
+  html[data-motion="on"] [data-price-tag][data-seen] {
+    animation: price-tag-swing 1700ms ease-in-out 240ms;
+  }
+
+  @media (hover: hover) {
+    html[data-motion="on"] [data-folder]:hover ~ [data-price-tag] > * {
+      animation: price-tag-nudge 1200ms ease-in-out;
+    }
   }
 
   /*

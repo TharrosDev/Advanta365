@@ -30,6 +30,10 @@ type ButtonProps = {
  * them. Sizes are heights: 40 (44 below 68em), 48 and 56. The children sit in a row 7px apart, so
  * an icon can be passed before the label. Hover and keyboard focus look the same, and the width
  * never changes between states.
+ *
+ * `disabled` takes the button out of the tab order. For an action that is not built yet, pass
+ * `aria-disabled="true"` and no `onClick` instead: it looks disabled and does nothing, but a
+ * keyboard still reaches its words.
  */
 export function Button({
   variant = "mark",

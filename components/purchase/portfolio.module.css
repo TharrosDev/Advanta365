@@ -1,0 +1,160 @@
+/*
+ * The portfolio: the folder with its tag, and under it the tally, both as wide as the folder and
+ * centred in whatever holds them. The object is a size container, and the folder inside it is one
+ * of the same width, so one unit (`cqi`) is 1% of the folder's width for the tag as well as for
+ * everything in the folder. `--tab` and `--pocket` are the folder's tab height and the height of
+ * its pocket, set here once: the folder reads them, and so does the tag, which hangs from the top
+ * corner of the front panel.
+ */
+.root {
+  --portfolio-w: 34rem;
+
+  display: grid;
+  justify-items: center;
+  gap: var(--s-5);
+  min-width: 0;
+}
+
+.section {
+  --portfolio-w: 30rem;
+}
+
+.object {
+  --tab: clamp(1.75rem, 7cqi, 2.5rem);
+  --pocket: 28cqi;
+  /*
+   * On a folder narrower than 20rem the tag would lie over the maker's name, so it is tied one row
+   * lower, under the mark: nothing until the folder is that narrow, then the whole step at once.
+   */
+  --tag-drop: clamp(0px, (20rem - 100cqi) * 999, 2.5cqi + 2rem);
+
+  position: relative;
+  container-type: inline-size;
+  width: min(100%, var(--portfolio-w));
+}
+
+/* The doubled selector beats the measures the folder sets for itself. */
+.folder.folder {
+  --tab-h: var(--tab);
+  --peek: var(--pocket);
+}
+
+/*
+ * A cover in the pocket. `--x`, `--y` and `--w` are hundredths of the folder's width, from the
+ * left end and the top edge of the back panel; `--turn` is its lean. It leans about its foot,
+ * which is out of sight in the pocket.
+ */
+.cover {
+  position: absolute;
+  top: calc(var(--y) * 1cqi);
+  left: calc(var(--x) * 1cqi);
+  width: calc(var(--w) * 1cqi);
+  rotate: var(--turn, 0deg);
+  transform-origin: 50% 100%;
+}
+
+/* The format tag is printed with the page: it shrinks with a cover that is a thumbnail's size. */
+.coverTag.coverTag {
+  top: clamp(3px, 1.2cqi, var(--s-1));
+  right: clamp(3px, 1.2cqi, var(--s-1));
+  padding: 1px clamp(3px, 3cqi, var(--s-1));
+  font-size: clamp(0.4375rem, 6.4cqi, var(--size-tag));
+}
+
+/*
+ * The front: the maker's mark, the heading, a sentence, and the formats on its bottom edge. It is
+ * at least half as tall as the folder is wide, so the folder keeps a folder's proportions.
+ */
+.front {
+  display: flex;
+  flex-direction: column;
+  min-height: 50cqi;
+}
+
+.maker {
+  align-self: flex-start;
+}
+
+/*
+ * While the tag lies on the front, the heading starts under it: the mark's row is as tall as the
+ * tag hangs.
+ */
+.title {
+  max-width: 16em;
+  margin-block-start: calc(clamp(var(--s-5), 27cqi, 9.5rem) + var(--tag-drop));
+}
+
+.summary {
+  max-width: var(--wrap-copy);
+  margin-block-start: var(--s-2);
+  color: var(--text-soft);
+}
+
+.formats {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--s-1);
+  margin: auto 0 0;
+  padding: var(--s-4) 0 0;
+  list-style: none;
+}
+
+/*
+ * The tag. Its box begins at the eyelet it is tied through, which stands on the front panel's top
+ * right corner, 5 units in from the right and 4 down. Lying on the front it leans inwards, so no
+ * part of it leaves the folder (or a phone's screen).
+ */
+.tag.tag {
+  --tag-turn: 5deg;
+
+  position: absolute;
+  top: calc(var(--tab) + var(--pocket) + 4cqi + var(--tag-drop));
+  right: 3.5cqi;
+  z-index: 1;
+}
+
+/*
+ * From 68em the folder of a page has the room beside it: the tag is tied 5 units in from the
+ * corner and hangs outwards, half of it off the folder's edge, and the heading takes its place
+ * under the mark.
+ */
+@media (min-width: 68em) {
+  .page .tag.tag {
+    --tag-turn: -6deg;
+
+    right: calc(5cqi - var(--tag-w) / 2);
+  }
+
+  .page .title {
+    margin-block-start: calc(var(--s-5) + var(--tag-drop));
+  }
+}
+
+/* The tally and the line that says what it counts. */
+.reach {
+  display: grid;
+  gap: var(--s-2);
+  width: min(100%, var(--portfolio-w));
+}
+
+.reachLine {
+  color: var(--text);
+  text-align: center;
+}
+
+/* Opened: the covers fan out as they rise (the rise is the folder's). */
+:global([data-folder-scope]):has(:focus-visible) .cover {
+  rotate: calc(var(--turn, 0deg) * 2.2);
+}
+
+@media (hover: hover) {
+  .folder:hover .cover {
+    rotate: calc(var(--turn, 0deg) * 2.2);
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .cover {
+    transition: rotate var(--time-lift) var(--curve-settle);
+  }
+}

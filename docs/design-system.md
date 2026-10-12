@@ -63,6 +63,8 @@ Defined on `:root` in `app/globals.css`.
 | `--scrim` | `rgb(11 13 18 / 0.5)` | The backdrop behind the menu drawer and dialogs. |
 | `--bar-shadow` | `0 10px 21px -14px rgb(11 13 18 / 0.4)` | The shadow under the sticky bar once it is scrolled. |
 | `--paper-shade` | `#f1f3f7` | The far corners of a sheet. |
+| `--card-light` | `rgb(255 255 255 / 0.62)` | The light on the card stock front of a page-size folder. |
+| `--pocket-shade` | `0 -8px 14px -8px rgb(11 13 18 / 0.22)` | The shade that front casts up onto the sheets in its pocket. |
 | `--grain` | `url("/paper/grain.png")` | A pre-rendered 128-pixel paper tooth, used by medium and large sheets. |
 
 ### 3.2 Semantic layer
@@ -413,6 +415,8 @@ Entrance kinds:
 | `data-block` | `Tally` | Each block: `ink`, `mark` or `empty`. |
 | `data-ledger` | `BandedList` | The grow rules on each row. |
 | `data-ink-backdrop`, `data-ink-slot` | `InkBackdrop` | The ink layer's container and canvas slot. |
+| `data-folder`, `data-folder-scope` | `Folder`, and an element around one | The folder whose sheets rise under the pointer; the scope in which keyboard focus raises them too. |
+| `data-price-tag` | `PriceTag` | The paper tag on its string: it swings once when it is first seen, and a little when its folder comes under the pointer. |
 | `data-lit-scope` | Read by the pointer tracker | Scope for a group of lit sheets that is not an article; read by `lib/scroll/pointer.ts` and the lit selectors in `app/motion.css`. |
 
 ### 8.6 Sheets and the pointer
@@ -473,7 +477,7 @@ All primitives live in `components/ui/`. Props are shown with their defaults in 
 | `Split` | `margin` (ReactNode), `sticky` (false), `rule` (false), `className`, `marginClassName`, `contentClassName` | `<Split margin={<h2 className="type-banner">Plan</h2>} rule>...</Split>` |
 | `PaperSheet` | `as` (div, section, aside, span, li; div), `ratio` (free, portrait, landscape, slide; free), `size` (sm, md, lg; md), `depth` (0 to 4; 2), `lit` (false), `turn` (degrees), `className`, `style`, `ref` | `<PaperSheet ratio="portrait" depth={3} lit>...</PaperSheet>` |
 | `PaperStack` | `under` (2), `className`, `ref` | `<PaperStack under={3}><PaperSheet ratio="portrait" /></PaperStack>` |
-| `Folder` | `tab` (ReactNode), `sheets` (3), `slug`, `frontClassName`, `ref`, element attributes | `<Folder tab="4 templates" sheets={3} slug={bundle.slug}>...</Folder>` |
+| `Folder` | `tab` (ReactNode), `sheets` (3, or the sheets themselves as nodes), `size` (card, page; card), `slug`, `frontClassName`, `ref`, element attributes | `<Folder size="page" tab="The complete toolkit" sheets={covers}>...</Folder>` |
 | `ShelfHead` | `eyebrow`, `title` (required), `titleAs` (h1, h2, h3; h2), `titleId`, `body`, `action`, `stack` (false), `className` | `<ShelfHead eyebrow="Featured" title="Featured templates" action={...} />` |
 | `BandedList` | `as` (ul, ol, dl, div; ul), `className`, `ref` | `<BandedList as="dl">...</BandedList>` |
 | `BandedRow` | `as` (li, div; li), `className` | `<BandedRow as="div">...</BandedRow>` |

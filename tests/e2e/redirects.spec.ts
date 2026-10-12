@@ -51,7 +51,8 @@ test("the contact section is on About, and Purchase gives the offer, its price a
 
   await page.goto("/purchase");
   await expect(page.getByRole("heading", { level: 1 })).toHaveText("Purchase");
-  await expect(page.getByText("The complete toolkit")).toBeVisible();
+  // Exactly: an answer further down the page speaks of "the complete toolkit" in a sentence.
+  await expect(page.getByText("The complete toolkit", { exact: true })).toBeVisible();
   await expect(page.getByText("$499.99")).toBeVisible();
   await expect(page.getByRole("button", { name: "Checkout coming soon" })).toBeDisabled();
 });
