@@ -32,8 +32,12 @@
   margin-block-start: var(--s-4);
 }
 
-/* The way in by phase: the seven index cards across the sheet, under their own label. */
+/*
+ * The way in by phase: the seven index cards across the sheet, under their own label. From 68em
+ * only: below it the catalog's strip of phases stands right above the sheet, and one is enough.
+ */
 .pivot {
+  display: none;
   align-self: stretch;
   margin-block-start: var(--s-5);
   padding-block-start: var(--s-4);
@@ -47,5 +51,11 @@
 @media (min-width: 40em) {
   .empty {
     padding: var(--s-6);
+  }
+}
+
+@media (min-width: 68em) {
+  .pivot {
+    display: block;
   }
 }

@@ -1,8 +1,8 @@
 /*
- * The rail: search, sort and filters. Below 40em it opens with the phases, a row of its own, and
- * the search and the Filters button share the row under it, 7px apart; the sort order is in the
- * sheet. From 40em the search keeps the first row and the sort order and the Filters button share
- * the second, one at each end.
+ * The rail: search, sort and filters. Below 68em it opens with the phases, a row of its own. Below
+ * 40em the search and the Filters button share the row under it, 7px apart; the sort order is in
+ * the sheet. From 40em the search keeps a row and the sort order and the Filters button share the
+ * next, one at each end.
  */
 .rail {
   display: grid;
@@ -25,7 +25,7 @@
 }
 
 /*
- * The phases on a phone: the index cards in one row that scrolls sideways, each as wide as its name
+ * The phases below 68em: the index cards in one row that scrolls sideways, each as wide as its name
  * needs and never narrower than 84px, so the card cut off at the edge says there is more. The row
  * runs out to both edges of the screen and starts and stops at the page padding; the 7px above and
  * below, taken back by the margin, is the room a focus ring needs inside a box that clips. The
@@ -96,16 +96,12 @@
   font-weight: 700;
 }
 
-/* From 40em the phases leave the rail and the sort order comes back into it. */
+/* From 40em the sort order comes back into the rail; the phases keep their row above the search. */
 @media (min-width: 40em) {
   .rail {
     grid-template-columns: calc(var(--s-9) + var(--s-6)) minmax(0, 1fr);
     align-items: end;
     gap: var(--s-3) var(--col-gap);
-  }
-
-  .phases {
-    display: none;
   }
 
   .sort {
@@ -123,15 +119,20 @@
 }
 
 /*
- * From 68em the rail is a column in the margin, its groups 28px apart. It stays under the bar and
- * scrolls inside itself when the filters are taller than the window. The 7px of padding, taken back
- * by the margin, is the room a focus ring needs inside a box that clips. Its foot is 28px of
- * padding that fades out (the mask is alpha only), so a row the box cuts off thins away in place of
- * ending on a hard edge, and the last row clears the fade once the column is scrolled to its end.
+ * From 68em the phases leave the rail (the bar's own rail has them) and the rail is a column in the
+ * margin, its groups 28px apart. It stays under the bar and scrolls inside itself when the filters
+ * are taller than the window. The 7px of padding, taken back by the margin, is the room a focus
+ * ring needs inside a box that clips. Its foot is 28px of padding that fades out (the mask is alpha
+ * only), so a row the box cuts off thins away in place of ending on a hard edge, and the last row
+ * clears the fade once the column is scrolled to its end.
  */
 @media (min-width: 68em) {
   .way::after {
     content: none;
+  }
+
+  .phases {
+    display: none;
   }
 
   .rail {

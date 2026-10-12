@@ -194,7 +194,7 @@ test("a click on the cover ends it within 500ms and does not navigate", async ({
 
   // The middle of the main button of the page, which lies under the cover.
   const button = page
-    .getByRole("main")
+    .locator("[data-band]:has(h1)")
     .getByRole("link", { name: "Get the toolkit", exact: true });
   const box = await button.boundingBox();
   if (!box) throw new Error("the button has no box");

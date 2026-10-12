@@ -292,7 +292,7 @@ export default function AboutPage() {
         </Split>
       </Band>
 
-      <NextSteps title="Find the piece for the phase you are on" links={NEXT}>
+      <NextSteps title="See what the toolkit holds for the phase you are on" links={NEXT}>
         <p className={cx("type-note", styles.parent)}>
           {`${SITE.name} is a product of ${SITE.parent}.`}
         </p>

@@ -25,7 +25,7 @@ async function openCatalog(page: Page, address = "/catalog") {
 
 test("the results are a grid of tiles, several to a row", async ({ page }) => {
   await openCatalog(page);
-  await expect(page.getByRole("status")).toHaveText("67 templates");
+  await expect(page.locator("#results-heading")).toHaveText("67 templates");
   await expect(tiles(page)).toHaveCount(24);
   await expect(page.getByRole("main").getByRole("article")).toHaveCount(24);
 
@@ -100,7 +100,7 @@ test("“Free samples only” leaves the six, and the URL says so", async ({ pag
   await page.getByRole("checkbox", { name: "Free samples only" }).filter({ visible: true }).check();
 
   await expect(page).toHaveURL(/[?&]free=1(&|$)/, { timeout: NAVIGATION_TIMEOUT });
-  await expect(page.getByRole("status")).toHaveText("6 templates");
+  await expect(page.locator("#results-heading")).toHaveText("6 templates");
   await expect(tiles(page)).toHaveCount(6);
   await expect(page.locator("[data-tile][data-locked]")).toHaveCount(0);
 
@@ -135,7 +135,7 @@ test("the sort order offers the samples first, the rollout order or the titles, 
 
 test("filtering updates the URL and the results", async ({ page }) => {
   await openCatalog(page);
-  await expect(page.getByRole("status")).toHaveText("67 templates");
+  await expect(page.locator("#results-heading")).toHaveText("67 templates");
 
   await openFiltersIfCollapsed(page);
   await page
@@ -144,12 +144,12 @@ test("filtering updates the URL and the results", async ({ page }) => {
     .check();
 
   await expect(page).toHaveURL(/type=training/, { timeout: NAVIGATION_TIMEOUT });
-  await expect(page.getByRole("status")).toHaveText("10 templates");
+  await expect(page.locator("#results-heading")).toHaveText("10 templates");
 });
 
 test("a filtered URL restores the same state on load", async ({ page }) => {
   await openCatalog(page, "/catalog?type=training&app=sharepoint");
-  await expect(page.getByRole("status")).toHaveText("5 templates");
+  await expect(page.locator("#results-heading")).toHaveText("5 templates");
   await openFiltersIfCollapsed(page);
   await expect(
     page.getByRole("checkbox", { name: /^Training/ }).filter({ visible: true }),
@@ -166,14 +166,21 @@ test("search keeps the active filters", async ({ page }) => {
 
   await expect(page).toHaveURL(/q=kickoff/, { timeout: NAVIGATION_TIMEOUT });
   await expect(page).toHaveURL(/type=sponsor/, { timeout: NAVIGATION_TIMEOUT });
-  await expect(page.getByRole("status")).toContainText("1 template");
+  await expect(page.locator("#results-heading")).toContainText("1 template");
   await expect(tiles(page).first()).toContainText("Executive Sponsor Kickoff Deck");
 });
 
-test("a search with no match names the search and offers the phases", async ({ page }) => {
+test("a search with no match names the search and offers the phases, once", async ({
+  page,
+  isMobile,
+}) => {
   await openCatalog(page, "/catalog?q=zzzzqqq");
   await expect(page.getByText("No templates match “zzzzqqq”.")).toBeVisible();
-  const pivot = page.getByRole("navigation", { name: "Browse by phase" });
+  // Below 68em the strip above the sheet is the way in by phase, and the sheet does not repeat it.
+  const inSheet = page.getByRole("navigation", { name: "Browse by phase" });
+  const strip = page.getByRole("navigation", { name: "Start from a phase" });
+  await expect(isMobile ? inSheet : strip).toHaveCount(0);
+  const pivot = isMobile ? strip : inSheet;
   await expect(pivot.getByRole("link")).toHaveCount(7);
   await expect(pivot.getByRole("link", { name: "Prepare", exact: true })).toHaveAttribute(
     "href",
@@ -316,7 +323,7 @@ test("on a phone the rail is one strip of phases, one search row and the sort in
 test("malformed parameters never break the page", async ({ page }) => {
   const response = await page.goto("/catalog?page=9999&type=poster&page=abc&sort=nope&phase=%00");
   expect(response?.status()).toBe(200);
-  await expect(page.getByRole("status")).toHaveText("67 templates");
+  await expect(page.locator("#results-heading")).toHaveText("67 templates");
 
   const lastPage = await page.goto("/catalog?page=9999");
   expect(lastPage?.status()).toBe(200);

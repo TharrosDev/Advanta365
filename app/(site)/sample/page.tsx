@@ -22,7 +22,7 @@ export const metadata: Metadata = {
     "A fully worked change management strategy for a 10,000-person organization shows how the pieces fit together.",
 };
 
-const STATEMENT = "See how the pieces fit before you buy one.";
+const STATEMENT = "See how the pieces fit before you buy the toolkit.";
 
 const COPY = [
   "Every SharePoint Online rollout needs the same core pieces: a business case, a CM strategy, a stakeholder map, a comms plan, kickoff emails, champion networks, training, a cutover playbook, hypercare and sustainment.",
@@ -36,7 +36,7 @@ const CONTENTS_TITLE = "Contents";
  * until the example's file is published (see content/worked-example.ts).
  */
 const CONTENTS_PLACEHOLDER =
-  "Beta note: placeholder contents. The real table of contents comes with the example’s file. Until then each section names a piece of the rollout and links to it in the catalog.";
+  "Beta note: placeholder contents. The real table of contents comes with the example’s file. Until then each section names a piece of the rollout. Free samples, steps and phases are links; the other templates come with the toolkit.";
 
 /**
  * The caption over the phase links and the accessible name of their `<nav>`. The links go to the
@@ -55,8 +55,8 @@ const NEXT = [
  *
  * Layout: the title block with ink and the example as a thick document in its aside; a statement
  * section on the desk; the contents on paper as a numbered ledger, each section's title in the
- * document's face with the catalog page for that piece beside it (marked as placeholders while
- * the content file says they are); the catalog phases on the desk as a ledger, each row
+ * document's face with the catalog's name for that piece beside it, a link unless it is a locked
+ * template (marked as placeholders while the content file says they are); the catalog phases on the desk as a ledger, each row
  * the one link to its phase page, with a seven-block tally that marks where the phase falls; a
  * closing paper band with two links to the next places.
  */
@@ -111,9 +111,13 @@ export default async function SamplePage() {
                 {section.link ? (
                   <p className={cx("type-ui", styles.see)}>
                     <span className={styles.seeKind}>{section.link.kind}: </span>
-                    <TextLink href={section.link.href}>
+                    {section.link.href ? (
+                      <TextLink href={section.link.href}>
+                        <KeepCompounds text={section.link.label} />
+                      </TextLink>
+                    ) : (
                       <KeepCompounds text={section.link.label} />
-                    </TextLink>
+                    )}
                   </p>
                 ) : null}
               </BandedRow>
@@ -158,7 +162,7 @@ export default async function SamplePage() {
         </Split>
       </Band>
 
-      <NextSteps title="Find the template for the step you are on" links={NEXT} />
+      <NextSteps title="See what the toolkit holds for the step you are on" links={NEXT} />
     </>
   );
 }

@@ -5,6 +5,8 @@ import { ShelfHead } from "@/components/ui/shelf-head";
 import { DEFAULT_CRITERIA } from "@/lib/catalog/query";
 import type { Phase, Template } from "@/lib/catalog/schema";
 import { catalogHref } from "@/lib/catalog/search-params";
+import { FREE_SAMPLE_COUNT } from "@/lib/catalog/validate";
+import { countWord } from "@/lib/format";
 
 /**
  * `#featured`: the free samples, on the desk, right under the hero that shows the same six as a
@@ -29,7 +31,7 @@ export function FeaturedSection({
       <ShelfHead
         stack
         eyebrow="Free samples"
-        title="The six free samples, one by one"
+        title={`The ${countWord(FREE_SAMPLE_COUNT)} free samples, one by one`}
         action={
           <Button variant="outline" href="/catalog" arrow>
             Browse the sample catalog

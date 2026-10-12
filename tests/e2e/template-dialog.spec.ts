@@ -249,7 +249,7 @@ test("of a repeated view the first value is the one that counts", async ({ page 
   await expect(page.locator("dialog[open]")).toHaveCount(0);
   await expect(dialog(page)).toHaveCount(0);
   await expect(page.locator("[data-denied]")).toHaveCount(0);
-  await expect(page.getByRole("status")).toHaveText("67 templates");
+  await expect(page.locator("#results-heading")).toHaveText("67 templates");
 });
 
 test("a sample opens over a page of results that does not hold it, and closing keeps the page", async ({

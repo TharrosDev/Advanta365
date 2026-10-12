@@ -483,7 +483,7 @@ There are no boxed cards. A thing in a list is either a row on a hairline or a p
 
 ### Template Cover
 
-The signature object: a miniature first page of a template, printed on a paper sheet in the proportions of its format. Everything on it is sized as a share of the sheet's own width, so it reads the same as a 60px thumbnail and as the large sheet on a product page. It carries the title in Besley, one line of the summary (ending on a whole word, never inside one), ghost lines for the rest (rows of three cells on a workbook), a line drawing of the deliverable type, the phase numeral on an ink index tab at the right edge, the format tag, and one blank in the highlighter with its ink edge. The blank is the only highlighted part of a cover: it is the part the buyer writes.
+The signature object: a miniature first page of a template, printed on a paper sheet in the proportions of its format. Everything on it is sized as a share of the sheet's own width, so it reads the same as a 60px thumbnail and as the large sheet in a template's pop-up. It carries the title in Besley, one line of the summary (ending on a whole word, never inside one), ghost lines for the rest (rows of three cells on a workbook), a line drawing of the deliverable type, the phase numeral on an ink index tab at the right edge, the format tag, and one blank in the highlighter with its ink edge. The blank is the only highlighted part of a cover: it is the part the buyer writes.
 
 ### Tally and Blank
 
