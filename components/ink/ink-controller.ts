@@ -242,7 +242,8 @@ export function createController(onControl: (control: Control) => void): Control
     if (destroyed || calm) return;
     const state = mode();
     if (state !== "live" && state !== "paused") return;
-    const pick = chooseStage(candidates(), moving ?? current);
+    const atEnd = window.scrollY + window.innerHeight >= document.documentElement.scrollHeight - 2;
+    const pick = chooseStage(candidates(), moving ?? current, atEnd);
     if (state === "paused") {
       // Stills, no engine: the same button, offering to play.
       const holder = pick ? holderOf(pick) : null;
