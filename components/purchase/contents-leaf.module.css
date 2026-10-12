@@ -1,0 +1,184 @@
+/*
+ * The contents leaf: one loose sheet, 34rem wide at most, that follows the folder in a column and
+ * stands beside it from 68em. The wrapper is the size container, and everything on the sheet is a
+ * share of its width (`cqi`), so it is one object on a phone and at its full size. It is also the
+ * sheet's scope for the light: the sheet rises 6px under the pointer, and a pointer left on its
+ * bottom edge would otherwise lose it and bring it back, again and again.
+ */
+.scope {
+  container-type: inline-size;
+  width: min(100%, 34rem);
+  min-width: 0;
+  margin-inline: auto;
+}
+
+/*
+ * The folded corner. The whole sheet (paper, grain, shadow and all that stands on it) is cut along
+ * the fold, so the shadow follows the cut and no outline of the missing corner is left behind; the
+ * cut reaches `--room` past the other three sides, which is where the shadow falls. The flap that
+ * lies over the cut is drawn below.
+ */
+.sheet {
+  --fold: clamp(2rem, 11cqi, 3.25rem);
+  --room: 6rem;
+
+  clip-path: polygon(
+    calc(0px - var(--room)) calc(0px - var(--room)),
+    calc(100% - var(--fold)) calc(0px - var(--room)),
+    calc(100% - var(--fold)) 0,
+    100% var(--fold),
+    calc(100% + var(--room)) var(--fold),
+    calc(100% + var(--room)) calc(100% + var(--room)),
+    calc(0px - var(--room)) calc(100% + var(--room))
+  );
+}
+
+/*
+ * The flap: the square the cut took half of, a shade darker than the paper, with the cut leaving
+ * its lower-left half, and a little shadow on the page under its two free edges.
+ */
+.flap {
+  position: absolute;
+  top: 0;
+  right: 0;
+  z-index: 1;
+  width: var(--fold);
+  height: var(--fold);
+  background: linear-gradient(225deg, var(--paper-shade) 50%, var(--desk-deep));
+  box-shadow: var(--depth-1);
+  pointer-events: none;
+}
+
+.page {
+  padding: clamp(1.125rem, 7cqi, 2.625rem);
+}
+
+.title {
+  margin-block-start: var(--s-1);
+}
+
+.ledger {
+  margin-block-start: var(--s-4);
+}
+
+/*
+ * A row of the ledger: the figure in the first column, the term over its words in the second, the
+ * pair centred on the figure (the two flexible rows take whatever height the figure adds). The
+ * row is its own hairline (the ledger draws it from the left as it scrolls in, app/motion.css) and
+ * is the entrance of its own contents.
+ */
+.row {
+  --figure: clamp(4.25rem, 23cqi, 6.5rem);
+
+  position: relative;
+  display: grid;
+  grid-template-columns: var(--figure) minmax(0, 1fr);
+  grid-template-rows: 1fr auto auto 1fr;
+  grid-template-areas:
+    "figure ."
+    "figure term"
+    "figure words"
+    "figure .";
+  column-gap: clamp(var(--s-2), 4cqi, var(--s-4));
+  align-items: center;
+  padding-block: var(--s-2);
+}
+
+.row::before {
+  content: "";
+  position: absolute;
+  inset: 0 0 auto;
+  height: var(--hair);
+  background: var(--line);
+  pointer-events: none;
+}
+
+.term {
+  grid-area: term;
+  display: flex;
+  align-items: center;
+  gap: var(--s-1);
+  margin: 0;
+  color: var(--text);
+}
+
+.figure {
+  grid-area: figure;
+  margin: 0;
+}
+
+.words {
+  grid-area: words;
+  margin: 0;
+  color: var(--text-soft);
+}
+
+/*
+ * A count, in Besley's own figures (see the display classes in globals.css), printed as it is.
+ * The highlighter is drawn under the lower half of the digits, a hair past both ends and a hair
+ * out of true, as a hand would; the digits above it are always ink.
+ */
+.count {
+  position: relative;
+  display: inline-block;
+  isolation: isolate;
+  font-family: var(--face-display);
+  font-size: clamp(2.25rem, 11cqi, 3.375rem);
+  line-height: 1;
+  font-weight: 800;
+  font-feature-settings: "tnum" 0;
+}
+
+.stroke {
+  position: absolute;
+  inset-inline: -0.03em -0.08em;
+  bottom: 0.06em;
+  z-index: -1;
+  height: 0.34em;
+  background: var(--mark);
+  rotate: -1deg;
+  pointer-events: none;
+}
+
+/* The foot of the sheet: the button, the way to write, and the note about the sample catalog. */
+.foot {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-3);
+  margin-block-start: var(--s-5);
+}
+
+.contact {
+  color: var(--text-soft);
+}
+
+/* More contrast draws the sheet as a plain rectangle: no cut corner, so no flap to lie over it. */
+@media (prefers-contrast: more) {
+  .sheet {
+    clip-path: none;
+  }
+
+  .flap {
+    display: none;
+  }
+}
+
+/*
+ * Forced colours remove the paper and its shades, and give the sheet a plain outline, which a cut
+ * corner would break; the highlighter would sit behind system text, and a row's hairline (a
+ * background) is drawn in a system colour, as the ledger's own are.
+ */
+@media (forced-colors: active) {
+  .sheet {
+    clip-path: none;
+  }
+
+  .row::before {
+    background: GrayText;
+  }
+
+  .flap,
+  .stroke {
+    display: none;
+  }
+}

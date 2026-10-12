@@ -74,11 +74,13 @@ const FORMATS = ["DOCX", "PPTX", "XLSX", "PDF"] as const;
  * folder, a tally of the rollout phases the toolkit reaches (`phases`, from `phaseCoverage`),
  * which is an image named by those phases, and a line that says the same in words.
  *
- * `size="page"` is the centrepiece of the purchase page: 34rem wide at most, centred, its front
- * headed by an `h2`; from 68em the tag hangs outwards, off the folder's edge. `size="section"` is
- * the same object as part of a section that has a heading of its own (so the front is headed by
- * an `h3`), 30rem at most, the tag always lying on the front. Everything in and on the folder is
- * measured from the folder's own width, so it is one object at every size.
+ * `size="page"` is the folder of the purchase page: 34rem wide at most, centred in what holds it
+ * (the page stands it at the start of its columns from 68em, beside the contents leaf, through
+ * `className`), its front headed by an `h2`; from 68em the tag hangs outwards, off the folder's
+ * edge. `size="section"` is the same object as part of a section that has a heading of its own
+ * (so the front is headed by an `h3`), 30rem at most, the tag always lying on the front.
+ * Everything in and on the folder is measured from the folder's own width, so it is one object at
+ * every size.
  *
  * Under the pointer the covers rise and fan a little, and the tag swings; the covers do the same
  * under keyboard focus where an element around the portfolio carries `data-folder-scope`. The
