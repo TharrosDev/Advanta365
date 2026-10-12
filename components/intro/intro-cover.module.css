@@ -68,10 +68,11 @@
 }
 
 /*
- * While it fades the cover does not take the pointer, and its last frame, which is held, keeps it
- * out of sight for good. Three names: a change of name starts a new animation, where a change of
- * duration would only retime the one that is running. On its own way out the paper stays opaque
- * for the first 40% (--sign-leave of --leave), while the signature fades on it.
+ * While it fades on its own way out (`cover-leave`, `cover-ink`) the cover does not take the
+ * pointer, and its last frame, which is held, keeps it out of sight for good. Three names: a
+ * change of name starts a new animation, where a change of duration would only retime the one that
+ * is running. On its own way out the paper stays opaque for the first 40% (--sign-leave of
+ * --leave), while the signature fades on it.
  */
 @keyframes cover-leave {
   from {
@@ -101,15 +102,17 @@
   }
 }
 
+/*
+ * The skip is the exception: it keeps the pointer for all of its 200ms and sets no `pointer-events`
+ * at all, in either frame (a discrete property flips halfway through an eased animation). The press
+ * that began it is still down, and a touch's click is aimed where the finger lifts: a cover that
+ * already let the pointer through would hand that click to the link under it. `visibility` ends
+ * the hit-testing, on the last frame.
+ */
 @keyframes cover-skip {
-  from {
-    pointer-events: none;
-  }
-
   to {
     visibility: hidden;
     opacity: 0;
-    pointer-events: none;
   }
 }
 

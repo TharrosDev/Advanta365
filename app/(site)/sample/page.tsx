@@ -113,7 +113,7 @@ export default async function SamplePage() {
                   <p className={cx("type-ui", styles.see)}>
                     <span className={styles.seeKind}>{section.link.kind}: </span>
                     {section.link.href ? (
-                      <TextLink href={section.link.href}>
+                      <TextLink href={section.link.href} className={styles.seeLink}>
                         <KeepCompounds text={section.link.label} />
                       </TextLink>
                     ) : (

@@ -50,6 +50,11 @@
   rotate: var(--lean);
 }
 
+/* The sheet inside leans the same angle again: that doubled fan is the look of the first screen. */
+.doc :global([data-paper]) {
+  --sheet-turn: var(--lean);
+}
+
 /* Under the keyboard it straightens and comes to the front; under the pointer too (below). */
 .doc:focus-within {
   z-index: 7;

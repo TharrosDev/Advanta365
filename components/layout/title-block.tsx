@@ -30,9 +30,10 @@ function has(node: ReactNode): boolean {
  * `aside` is an object (a stack of sheets, a numeral) in columns 9 to 12 from 68em, and under the
  * lead below it; the words then keep to columns 1 to 8.
  *
- * `ink` puts the `title` ink in the right 42% of the block, from 40em, and makes the block at least
- * 20rem tall from 68em. The title, the lead and `children` are one calm rectangle for it (the words
- * need no more room than that), so the ink thins under them and nowhere else.
+ * `ink` puts the `title` ink in the right 42% of the block, and makes the block at least 20rem tall,
+ * both from 68em (below it there is no ink). The title, the lead and `children` are one calm
+ * rectangle for it (the words need no more room than that), so the ink thins under them and nowhere
+ * else.
  *
  * Below 68em every form is one column in the same order: crumbs, meta, h1, lead, children, aside;
  * with an aside, from 40em the words and the aside stand side by side (the aside is 18rem at most,

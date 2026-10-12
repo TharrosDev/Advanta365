@@ -129,7 +129,15 @@ describe("parseView", () => {
     expect(parseView({ view: "change-management-strategy" })).toBe("change-management-strategy");
   });
 
-  test.each([[""], ["../x"], ["A"], ["a/b"], ["a b"], ["-a"], ["a-"], ["a--b"]])(
+  test("reads a slug typed in mixed case as the lowercase slug", () => {
+    expect(parseView({ view: "Change-Management-Strategy" })).toBe("change-management-strategy");
+    expect(parseView({ view: "A" })).toBe("a");
+    expect(parseView({ view: ["GO-LIVE-readiness-checklist", "other"] })).toBe(
+      "go-live-readiness-checklist",
+    );
+  });
+
+  test.each([[""], ["../x"], ["a/b"], ["a b"], ["-a"], ["a-"], ["a--b"], ["A--B"], ["%41"]])(
     "rejects %j",
     (view) => {
       expect(parseView({ view })).toBeUndefined();

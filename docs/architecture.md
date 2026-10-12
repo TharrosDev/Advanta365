@@ -129,7 +129,7 @@ content/*.ts  ->  lib/catalog/schema.ts (zod)  ->  lib/catalog/validate.ts
 | `content/templates/index.ts` | Concatenates the seven per-phase template lists in phase order |
 | `content/templates/make-the-case.ts`, `plan.ts`, `design.ts`, `prepare.ts`, `communicate.ts`, `execute.ts`, `sustain.ts` | Templates per phase |
 | `content/templates/sample.ts` | The `sample()` helper |
-| `content/taxonomy.ts` | Labels for deliverable types, apps, audiences, formats and ADKAR stages |
+| `content/taxonomy.ts` | Labels for deliverable types, apps, audiences and formats, and the list of ADKAR stage keys (stored on templates, never shown) |
 | `content/worked-example.ts` | The worked example's table of contents: placeholder sections (`placeholder: true`, a `TODO(owner)`), each pointing at a template, a step or a phase |
 
 `sample(phase, entries)` adds `phase`, `free` (default `false`) and `isSample: true` to each entry.
@@ -179,9 +179,11 @@ Helpers used by pages and components:
 |---|---|
 | `phaseCoverage(phases, templates)` | One entry per phase, sorted by `order`, with `covered` set when any template belongs to it |
 | `adjacentPhases(phases, slug)` | `{ previous, next }` in `order`; either is undefined at an end, both for an unknown slug |
-| `contentsRows(entries, templates, phases)` (`lib/catalog/worked-example.ts`) | Each contents section with its link: a template in the catalog (`/catalog?view=<slug>`) under its title, a step's anchor on its phase page, or a phase page; no link when the catalog lacks the target |
+| `contentsRows(entries, templates, phases)` (`lib/catalog/worked-example.ts`) | Each contents section with its link: a free sample links into the catalog (`/catalog?view=<slug>`) under the template's title, a locked template is named by its title with no link, a step links to its anchor on its phase page, a phase to its page; no link when the catalog lacks the target |
 | `formatLength(count, format)` (`lib/format.ts`) | A template's Length fact: slides for a `pptx` deck ("16 slides"), pages for every other format |
 | `intoViewOffset(row, item, padding)`, `scrollCurrentIntoView(row)` (`lib/scroll/into-view.ts`) | How far a sideways row must scroll so one item stands clear of its scroll padding (0 when it already does), and the call that scrolls a row to its `aria-current` item without moving the page |
+| `createScrimPress()` (`lib/scrim.ts`) | Tells a click on a dialog's dimmed page from a drag that merely ended there: it closes only when the press, the release and the click all have the dialog itself as their target. `TemplateDialog` and `NavDrawer` use it |
+| `previousEntryIs(navigation, href, origin)` (`lib/history.ts`) | Whether the history entry before the current one is `href`, in any order of its parameters; false whenever it cannot tell (no Navigation API, no earlier entry, another site). `TemplateDialog` closes with `router.back()` on true |
 | `formatPrice(cents)` (`lib/format.ts`) | en-US dollars; whole amounts drop `.00` and other amounts keep their cents, so `49999` prints `$499.99` |
 | `countWord(count, form)` (`lib/format.ts`) | A count as copy writes it: a word up to twelve, digits beyond; `"capital"` for the first word of a sentence. The catalog's key line and the home page's toolkit section print `FREE_SAMPLE_COUNT` with it |
 
@@ -295,7 +297,8 @@ are used only in `header.module.css` and `nav-drawer.module.css`.
   group labelled "Rollout phases" with the seven phase links, each with a numeral.
 - It shows the contact address as a `mailto:` link taken from `SITE.contactEmail`.
 - Escape and the Close button close it. A click on the backdrop closes it when the event target is the
-  dialog itself.
+  dialog itself and the press began there too (`createScrimPress`), so a selection dragged out of the panel
+  does not.
 - The dialog closes on a pathname change unless it was opened on that same pathname.
 - It closes when the viewport reaches `(min-width: 68em)`, where the inline navigation takes over.
 - The drawer is 88vw wide at most and 23.625rem at most, anchored to the right edge.
@@ -428,7 +431,6 @@ Primitives are the building blocks for pages. Each one has a CSS module unless n
 |---|---|
 | `Band` | A full-width section with `surface` (desk, paper, wash, ink, binder), `pad` (none, title, tight, regular, roomy), an optional `backdrop`, and an inner `Wrap` |
 | `Wrap` | Page column: `max-width: var(--page-max)` on the content box, centred, with `--page-pad` outside it |
-| `Sheet` | A surface with radius and an `edge` (rule or ink) |
 | `PaperSheet` | A sheet of paper with grain, `ratio` (free, portrait 5/7, landscape 4/3, slide 16/9), `size`, `depth`, and `lit` for pointer light |
 | `PaperStack` | Sheets placed behind a top sheet, each with a small offset and turn |
 | `Folder` | A folder shape with a tab and sheets that lift on hover or focus: `size` (`card`, or `page` for the portfolio, which measures itself in `cqi`), `sheets` (a number, or the sheets themselves as nodes), optional `slug` |
@@ -509,6 +511,7 @@ from constants in `lib/boot/state.ts` and runs before first paint. `IntroScript`
 | `INTRO_PATH` | `/` | Only the home route plays the cover |
 | `INTRO_SKIP_EVENTS` | `pointerdown`, `keydown`, `wheel`, `touchstart` | Any of these ends the cover early |
 | `INTRO_BACKSTOP_MS` | 5500 | The cover is ended at this time regardless |
+| `INTRO_CLICK_GUARD_MS` | 600 | After a touch or a pen ended the cover, the first click is swallowed for this long |
 | `INTRO_TAKEOVER_MS` | 1600 | The latest moment of the cover's own timeline at which the ink may still take it over |
 | `INK_KEY` | `advanta365.ink.v1` | sessionStorage key for the ink mode and tier |
 | `INK_BACKSTOP_MS` | 6000 | A live ink mode that no layer claims becomes still |
@@ -533,8 +536,8 @@ from constants in `lib/boot/state.ts` and runs before first paint. `IntroScript`
    `1` on every first load of the session, on any path and in a hidden tab. The cover plays only when the
    stored value was not `1`, the path is `/`, and `document.visibilityState` is `visible`.
 8. When the cover plays: set `data-intro="play"`, listen for `INTRO_SKIP_EVENTS` (capture and passive) to
-   set `data-intro="leave"`, listen for `animationstart` and `animationend` on the cover, and start a
-   5500 ms timer.
+   set `data-intro="leave"` (a touch or pen press also arms the click guard of section 6.5), listen for
+   `animationstart` and `animationend` on the cover, and start a 5500 ms timer.
 
 Pure equivalents of these decisions (`shouldPlayIntro`, `inkMode`, `isSoftwareRenderer`, `isCalmRoute`)
 live in `lib/boot/state.ts`. The unit tests run the inline script against them, so the two stay equal.
@@ -582,6 +585,14 @@ The mark is drawn with `pathLength={1}` and dash offsets. The pen curve is `--cu
 - Skip: any `INTRO_SKIP_EVENTS` input sets `data-intro="leave"`, which runs `cover-skip` (200 ms). The
   skip listeners are detached as soon as the cover's own animation starts, which is after its delay (2500 ms for
   `play`), so a press ends the cover through the whole hold. Child animations do not count.
+- Skip and the pointer: `cover-skip` sets no `pointer-events`, so the cover takes the pointer for all 200 ms and
+  `visibility: hidden` ends the hit-testing on its last frame. A touch's click is aimed where the finger lifts, not
+  where it came down, so a cover that let the pointer through at once would give the click to the link under it. A
+  tap held past the 200 ms would do the same, so a press by touch or pen (`touchstart`, or `pointerdown` whose
+  `pointerType` is not `mouse`) also arms a one-shot, capture-phase `click` listener on `window` that stops and
+  cancels the first click, and is dropped by that click or after `INTRO_CLICK_GUARD_MS`. A mouse, a key and the
+  wheel arm nothing. The guard outlives the cover: the end of the cover does not remove it. `cover-leave` and
+  `cover-ink` still turn the pointer off from their first frame, since by then the page is the visitor's.
 - End: an `animationend` event whose target is the cover itself, or the 5500 ms backstop, removes the
   `data-intro` attribute and detaches the listeners.
 - Takeover by ink: the ink controller fetches the engine module as soon as the controller module is evaluated
@@ -720,15 +731,23 @@ if no tier is stored. One tier costs about 120 ms of the main thread. At boot (`
 after the first is tried in a task of its own, and the engine is not usable in between; the probe at the
 end of the cover (`probe()`) answers in one task.
 
-Adaptive watch: a frame over 24 ms adds one to a slow counter, and a normal frame subtracts two (floor 0).
+Adaptive watch: a frame that is slow adds one to a slow counter, and a normal frame subtracts two (floor 0).
 At 75, the engine steps one tier down. At the lowest tier it emits `slow` instead, and the controller turns
-the ink off for the session.
+the ink off for the session. A frame is slow against the display's own cadence, not against a fixed
+figure: the first 30 frames of each run are timed (`CADENCE_FRAMES`), nothing is counted until they are,
+and their median is the cadence. A frame is then slow when it is over 24 ms and over 1.5 times the cadence
+(`slowFrameMs` in `lib/ink/engine/defaults.ts`), so a display capped at 30 Hz (a low-power mode, a battery
+saver, a 30 Hz monitor), whose frames all come 33 ms apart with the GPU idle between them, is not taken for
+a machine that cannot keep up. A cadence slower than 36 ms is not taken for a cap: those frames are
+judged by the 24 ms alone.
 
 Canvas size: the engine computes simulation size from the aspect ratio and the cell budget, and dye size
 from the dye budget and the device pixel ratio capped by `maxDpr` and the tier's `dprCap`. Resizing
 reallocates fields only when their sizes change. Existing fields are resampled into the new targets. When
 the aspect ratio crosses 0.8 either way (portrait or landscape), the scene is presetted again so it lays out
-for the new shape.
+for the new shape. The controller passes `anchors` to `preset` as a function, which the engine asks each
+time it lays the scene out, so the second layout (and the one after a context restore) is aimed at where
+the page's anchors stand then, not where they stood when the backdrop was activated.
 
 ### 7.6 Scenes
 
@@ -770,6 +789,9 @@ optional trigger.
 
 Choice rules (`chooseStage`): only candidates that are visible are considered.
 
+0. At the very end of the page (`scrollY + innerHeight >= scrollHeight - 2`, passed in as `atEnd`) the
+   lowest candidate wins when at least 95% of it is visible. A footer taller than most of the window
+   leaves only a sliver of the band above it, and the footer is what is being looked at.
 1. The topmost candidate wins when at least 40% of it is visible. A candidate that is at least 95%
    visible beats it when the topmost candidate is less than 95% visible.
 2. Otherwise the candidate with the best score (visible area times weight) wins.
@@ -927,7 +949,7 @@ described in section 7.12, and `ready` sets `data-ink-ready` on `<html>`.
 | Engine reports `unsupported` | `fail(true)`: stills for the session, `off` stored |
 | Engine chunk fails to load | Stills for this page view. The stored mode is not changed |
 | Lowest tier still too slow (`slow`) | `fail(true)`: stills for the session |
-| First context loss (`lost`) | Canvas stops; the backdrop goes `rest` and shows the still. A `restored` event brings it back to `live` |
+| First context loss (`lost`) | Canvas stops; the backdrop goes `rest` and shows the still. A `restored` event brings it back to `live`. A backdrop the canvas moves to before then is activated at `rest` as well, with its still showing and its scene not started; `restored` starts it |
 | Second context loss in the session | `fail(true)`: stills for the session |
 | `prefers-reduced-motion` changes to reduce | `fail(false)`: stills for this page view |
 | Reduced motion at load | Boot script returns early: stills, no cover, no motion |
@@ -946,7 +968,9 @@ The button is 44 px square (`calc(var(--s-5) + 2px)`).
 `toggle()`: when the mode is `paused` at load, the stored value is cleared, `data-ink` becomes `live`, and
 the controller chooses a backdrop. Otherwise it pauses: `paused` is set, the loop stops, `data-ink-paused`
 is set on `<html>`, and `paused` is stored. Resuming stores the tier, then runs the stage or re-arms ninety.
-While paused, the still of the chosen backdrop is shown.
+While paused, the still of the chosen backdrop is shown. A paused session holds no canvas, so on arriving
+at a calm route the controller takes the Play button away itself (`route()`); it would otherwise stay in
+the footer, which outlives the route.
 
 ## 8. Motion and page transitions
 
@@ -969,7 +993,7 @@ animated property sits inside `@media (prefers-reduced-motion: no-preference)`. 
 | `data-ledger` | `BandedList` | Rule that grows on scroll |
 | `data-block` | `Tally` | Blocks: ink, mark or empty |
 | `data-ink-backdrop`, `data-ink-slot` | `InkBackdrop` | Ink region, hidden under contrast or forced colours |
-| `data-lit-scope` | Read by `lib/scroll/pointer.ts` and `app/motion.css` | Scopes the pointer light to an ancestor (the Purchase page's contents leaf wraps its one sheet in it) |
+| `data-lit-scope` | Read by `lib/scroll/pointer.ts` and `app/motion.css` | Scopes the pointer light to an ancestor that stands where the lit sheet rests, so a lifted sheet does not flicker at its lower edge (the Purchase page's contents leaf, the About page's toolkit slot, the pop-up's cover and each hero document carry it) |
 | `data-folder`, `data-folder-scope` | `Folder`, an element around one | The folder whose sheets rise under the pointer; the scope in which keyboard focus raises them too |
 | `data-nav-underline` | `PrimaryNav` | The bar's underline slides to the current link (`translate`, `--time-lift`), and grows when it first appears |
 | `data-price-tag` | `PriceTag` | Swings once when first seen (1700 ms, after 240 ms), and its contents again when the folder is hovered (1200 ms) |
@@ -988,7 +1012,7 @@ through `animation-timeline: view()`.
 |---|---|---|
 | `drift` | `move-drift` (opacity 0 to 1, moves 12px up) | `entry calc(var(--order) * 4%) cover min(22%, 14rem)` |
 | `ink-in` | `move-ink-in` (opacity 0 to 1; no blur, no movement) | `entry calc(order * 4%) cover min(16%, 8rem)`: the shortest range, so a heading is legible before the text around it |
-| `settle` | `move-settle` (opacity, moves 28px up, scale 1.03). Its paper shadow uses `move-shadow` on the same timeline | `entry calc(order * 4%) cover min(30%, 18rem)` |
+| `settle` | `move-settle` (opacity, arrives from 28px above, scale 1.03). Its paper shadow uses `move-shadow` on the same timeline | `entry calc(order * 4%) cover min(30%, 18rem)` |
 | `grow` | `move-grow` (scale 0 to 1) | `entry calc(10% + order * 4%) cover min(28%, 16rem)` |
 
 Ledger rules grow on the `--ledger` timeline. The bar's shadow fades in over the first 84 px of scrolling
@@ -1041,8 +1065,11 @@ one page and starts no view transition.
 
 In `motion.css`, under no-preference: the outgoing page (`.page-out`) fades over 140 ms, the incoming page
 (`.page-in`) runs `move-ink-in` (opacity only) over 260 ms with an 80 ms delay, and the
-`.sheet-morph` group takes 420 ms on `--curve-settle`. Outside that query, `::view-transition` ignores
-pointer events and the root snapshot is hidden on exit.
+`.sheet-morph` group takes 420 ms on `--curve-settle`, and the outgoing root snapshot is not displayed. The
+`::view-transition` layer ignores pointer events whatever the motion setting (its rule stands outside the
+query), so a click always reaches the page. Under reduced motion a view transition still starts, and the
+reduce block (section 8.6) cancels the group, old and new animations and hides the old snapshots, so the
+change is a plain swap.
 
 ### 8.6 Reduced motion and other media
 
@@ -1165,7 +1192,7 @@ The catalog's filters, search, sort and page live in the URL. A search URL is th
 | `free` | `1` | Keeps only the free samples; anything else is off |
 | `sort` | `samples` (default), `phase`, `title` | Anything else becomes `samples` |
 | `page` | integer | Must match `^[1-9]\d{0,5}$`; otherwise `1` |
-| `view` | a template slug | Not a filter: asks for one template (section 9.3). `parseView` takes the first value if it has the shape of a slug |
+| `view` | a template slug | Not a filter: asks for one template (section 9.3). `parseView` takes the first value if it has the shape of a slug, reading mixed case as lowercase (an old `/Templates/Change-Management-Strategy` link keeps its case through the redirect) |
 
 Facet values accept repeated keys and comma-separated lists. They are deduplicated, and unknown values are
 dropped silently. `parseCatalogParams` (`lib/catalog/search-params.ts`) returns the criteria.
@@ -1205,14 +1232,21 @@ control and no price.
   Pressing it sets `data-denied` on the tile for 600 ms (a press while it is set takes it away and puts it
   back) and puts one line in a polite live region under the tile: "Included with the toolkit." with a link to
   `/purchase`. Each press renders that line anew, so it is announced once per press and never stacked. The line
-  stands in the row gap (56px), so nothing moves when it arrives. Under reduced motion the red outline, the wash
-  over the well and the line remain and nothing moves; under `prefers-contrast: more` and forced colours the blur is dropped and the
+  stands in the row gap (56px), so nothing moves when it arrives. A tile that holds keyboard focus keeps its
+  focus ring in place of the red pulse (the tile's outline is its only focus mark). Under reduced motion the red
+  outline (the focus ring, on a focused tile), the wash over the well and the line remain and nothing moves; under `prefers-contrast: more` and forced colours the blur is dropped and the
   well gets an edge.
 - `view` naming a free sample renders `TemplateDialog` with `TemplateDetail`. The server sends `<dialog open>`,
   drawn where the modal one stands and with the page dimmed around it, so the content shows before the script
   runs and without it; the client makes it modal in a layout effect. It closes on Escape, on Close (a link to
-  `closeHref`, the catalog address without `view` and with the clamped page) and on a click on the dimmed page.
-  Every way of closing ends in the dialog's `close` event, which calls `router.replace(closeHref, { scroll: false })`.
+  `closeHref`, the catalog address without `view` and with the clamped page) and on a click on the dimmed page,
+  one whose press and release both landed there (`createScrimPress`, `lib/scrim.ts`): a selection dragged out of
+  the panel ends there too, and does not close it.
+  Every way of closing ends in the dialog's `close` event. When a link inside the site opened the dialog and the
+  history entry before it is `closeHref` (`previousEntryIs`, `lib/history.ts`, read from the Navigation API), the open
+  was a push and the close is `router.back()`, so the pair leaves no entry behind. In every other case (a direct
+  load, a reload, an arrival from another page, a browser without the Navigation API) it is
+  `router.replace(closeHref, { scroll: false })`.
   Back closes it, and focus returns to the tile that opened it.
 - `view` naming a locked template opens nothing. If its tile is on the page of results it is rendered denied
   (`initialDenied`), with its line, and after hydration it is scrolled into view and denies once. If it is not
@@ -1228,10 +1262,13 @@ control and no price.
   page. Its submit button sits inside the far end of the field: a 44px square with the `search` icon and the
   visually hidden name "Search". Enter submits too, with or without script.
 - `SortSelect` and `FilterPanel` are client components. A change calls `router.replace` with the new query and
-  resets the page to 1. `FilterPanel` updates its checkboxes optimistically (`useOptimistic` in a transition).
+  resets the page to 1. Both update optimistically (`useOptimistic` in a transition): `FilterPanel` its
+  checkboxes and `SortSelect` its select, so neither is given back to the old value while the server answers.
   Its first control is "Free samples only" (`free`), and it counts toward "Filters (n)" and the clear link.
 - `FilterPanel` disables a checkbox whose count is 0 unless it is already checked. Below 68em the panel is a
-  native dialog opened from a "Filters" button, with a "Show results" button that closes it. Its `sort` prop
+  native dialog opened from a "Filters" button, with a "Show results" button that closes it. The dialog also
+  closes when the window grows to 68em (a `matchMedia` listener, as in `NavDrawer`): from there the sheet has no
+  box, and an open modal dialog would leave the page inert and its scrolling locked. Its `sort` prop
   is drawn at the top of the dialog's body below 40em only.
 - Layout of the rail below 68em: `PhaseStrip`, a navigation "Start from a phase" with the seven phases as
   large `PhaseTabs` in one row that scrolls sideways (the card is lit, `aria-current="true"`, under the same
@@ -1241,7 +1278,9 @@ control and no price.
   `FilterPanel`'s `sort`, hidden from 40em. Only one is ever displayed. From 68em the strip is not displayed:
   the bar's phase rail has the phases.
 - "Clear all filters" links to `/catalog?q=<q>` when a search term exists, or to `/catalog` otherwise. It keeps
-  only the search term, so the free filter and the sort also reset (`clearFiltersHref`).
+  only the search term, so the free filter and the sort also reset (`clearFiltersHref`). With script, a plain
+  click clears in place like every other change (`router.replace` without scrolling, optimistically), and
+  focus moves to "Free samples only", the first row of its own list, because the link goes when no filter is left.
 - `ActiveFilters` (client) lists every filter that is on above the result count as a chip, in a list labelled
   "Active filters": "Free samples only" first when it is on, then every selected facet value. Each chip is a
   link to the catalog without that value, on page 1 (`activeFilters` in `lib/catalog/search-params.ts`), named
@@ -1353,6 +1392,7 @@ Each file below is in `tests/unit/`:
 | `search-params.test.ts` | URL parsing and serialisation, `free`, `parseView`, `catalogHref`; `clearFiltersHref`, `hasFilters`, and the active-filter chips and their links |
 | `nav-links.test.ts` | The phase a page belongs to, including the catalog filtered on one phase |
 | `worked-example.test.ts`, `into-view.test.ts` | The worked example's contents resolved against the catalog; how far a sideways row scrolls to show an item |
+| `scrim.test.ts`, `history.test.ts` | A click closes a dialog only when its press and release were on the dimmed page too; the entry before the current one is an address (parameters in any order), and never when the history cannot say |
 | `validate.test.ts` | Validation errors and sorting; a catalog with 0, 5, 7 or 8 free templates is rejected |
 | `coverage.test.ts`, `format.test.ts` | Helpers; `adjacentPhases`; `formatPrice(49999)` is `$499.99`; `countWord(6)` is `six`; `formatLength(16, "pptx")` is `16 slides` |
 | `compounds.test.ts` | Compound splitting for `KeepCompounds` |
@@ -1362,7 +1402,7 @@ Each file below is in `tests/unit/`:
 | `kit-motion.test.ts` | `motion.css` rules: keyframes and animations inside `no-preference`, timeline ordering, hidden states only under `data-motion="on"`, no blurred entrance, the heading's range ending first |
 | `kit-grain.test.ts` | Paper grain image format and size |
 | `stills-files.test.ts` | The thirteen stills on disk match the manifest and size limits |
-| `ink-scenes.test.ts`, `ink-stage.test.ts`, `ink-zones.test.ts` | Scene scripts (the `intro` and `prompt` timelines), stage choice and calm zones |
+| `ink-scenes.test.ts`, `ink-stage.test.ts`, `ink-zones.test.ts`, `ink-cadence.test.ts` | Scene scripts (the `intro` and `prompt` timelines), stage choice, calm zones and what the adaptive watch counts as a slow frame |
 | `design-gate.test.ts` | Section 10.4 |
 | `smoke.test.ts` | Test runner check |
 
@@ -1384,9 +1424,9 @@ Specs:
 | Spec | Projects | Covers |
 |---|---|---|
 | `browse.spec.ts` | chromium, mobile, firefox | Home to a phase and on to its free sample; the hero to the six samples; the worked example; no horizontal overflow on 7 routes |
-| `catalog.spec.ts` | chromium, mobile | The grid of tiles; six free first, the rest locked; the canonical address; no price anywhere; "Free samples only"; the sort options; filters, chips, URL restore, search, phase order and the lit phase, empty states, malformed parameters, the phone's rail and filter dialog |
+| `catalog.spec.ts` | chromium, mobile | The grid of tiles; six free first, the rest locked; the canonical address; no price anywhere; "Free samples only"; the sort options; filters, chips, URL restore, search, phase order and the lit phase, empty states, malformed parameters, the sort select keeping the picked option while the server answers, Clear all filters clearing in place with focus kept, the phone's rail and filter dialog, the sheet closing when the window grows to 68em |
 | `locked.spec.ts` | chromium, mobile | A locked tile: its button, chain and padlock; the 600 ms denial and its line; Enter and Space; repeated presses; the vibration, rattle and red outline; reduced motion; `?view=` a locked template, on the page of results and off it; the locks' drawing once on a phase page; without JavaScript |
-| `template-dialog.spec.ts` | chromium, mobile | The pop-up: opening from a tile, its content, Escape, Close and the dimmed page each closing it and keeping the other parameters, Back, focus, values that open nothing, the home and phase tiles, without JavaScript |
+| `template-dialog.spec.ts` | chromium, mobile | The pop-up: opening from a tile, its content, Escape, Close and the dimmed page each closing it and keeping the other parameters, Back, focus, a selection dragged out of the pop-up not closing it, a close after an open from the catalog leaving no entry behind (Back leaves the catalog) and one after an open from another page staying on the catalog, values that open nothing, the home and phase tiles, without JavaScript |
 | `purchase.spec.ts` | chromium, mobile | The Purchase page: one title and the price once on the tag; the folder and the tally; the ledger; the Checkout button; no questions section, and the contents leaf beside the folder from 68em; 320px; the tag's swing; reduced motion; the home folder |
 | `redirects.spec.ts` | chromium, mobile | The retired addresses (bundles, pricing, cart, contact, template pages) end where they should; the 308; the contact section on About |
 | `hero.spec.ts` | chromium, mobile | The hero where the ink is still: structure and copy; the six documents as links; their pop-ups; the documents standing and focusable from the first frame with no box (still ink, a paused session, a return inside the site, a first visit under the cover); the first screen at several window sizes; no title or tag cut by a neighbour and 44px targets; the band's foot; reduced motion; no JavaScript |
@@ -1396,7 +1436,7 @@ Specs:
 | `intro.spec.ts` | chromium, mobile | The cover on a first visit: its states; the mark held to 2.5 s and gone by 3.4 s; skip on a click, key press (at any time) or wheel; no cover on reload or on other routes; no cover with reduced motion, blocked storage or JavaScript off |
 | `ink-fallback.spec.ts` | chromium, mobile, firefox | Without WebGL2, with more contrast, and without JavaScript: still images only, no canvas, no pause control, a clean console. The software-renderer case runs in Chromium only |
 | `ink-live.spec.ts` | gpu | Live ink: the prompt scene (its script, first frame, frame cost, long tasks, calm caps); the hero's sequence (its timings, the first visit, a pause or a fall to still half-way, a paused session played again, a return inside the site); pause, resize, context loss, the not-found scene, the takeover of the cover (within 1.6 s, gone 3.5 s later) |
-| `menu.spec.ts` | mobile (in chromium every test skips) | The phone bar and drawer: brand, button and Menu at 390 and 320px; the three links and seven phases; Escape, Close, the dimmed page; navigation closing it |
+| `menu.spec.ts` | mobile (in chromium every test skips) | The phone bar and drawer: brand, button and Menu at 390 and 320px; the three links and seven phases; Escape, Close, the dimmed page (a drag that ends there does not close it); navigation closing it |
 | `motion.spec.ts` | chromium, mobile, firefox | Entrances hidden until scrolled into view, with timelines and without; the ninety band; a page change runs a view transition; a filter change or a pop-up starts none |
 | `reduced-motion.spec.ts` | chromium, mobile, firefox | Reduced motion on 8 routes: still ink, no motion attributes, no canvas, no running animations, no cover; the stills load; the 90% figure and the tally show their final state |
 | `not-found.spec.ts` | chromium, mobile | 404 status and content for missing paths; lowercase redirect |

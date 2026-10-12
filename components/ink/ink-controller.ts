@@ -139,6 +139,8 @@ export function createController(onControl: (control: Control) => void): Control
   let resting = false;
   let paused = false;
   let lostOnce = false;
+  /** The engine's context is lost and not yet restored: nothing can be drawn in the meantime. */
+  let lost = false;
   let tookOver = false;
   let fired = false;
   let idle = 0;
@@ -396,7 +398,9 @@ export function createController(onControl: (control: Control) => void): Control
     ink.stop();
     setRunning(false);
     ink.resize();
-    ink.preset(name, { anchors: anchorsOf(backdrop) });
+    // A function, so a scene the engine lays out again by itself (a phone turned, a context
+    // restored) is aimed at where the anchors are then, not where they were.
+    ink.preset(name, { anchors: () => anchorsOf(backdrop) });
     ink.setCalmZone(() => zonesOf(backdrop, name));
     showControl();
 
@@ -405,8 +409,10 @@ export function createController(onControl: (control: Control) => void): Control
       if (root.hasAttribute("data-ink-ready")) takeOver();
       return;
     }
-    backdrop.setAttribute("data-ink-state", "live");
-    if (holdStill) return;
+    // Without a context the canvas shows nothing: the backdrop keeps its still (`rest`) and the
+    // scene starts when the context is restored (`onRestored`), not before.
+    backdrop.setAttribute("data-ink-state", lost ? "rest" : "live");
+    if (holdStill || lost) return;
     if (paused) {
       void ink.still(name);
       return;
@@ -422,7 +428,7 @@ export function createController(onControl: (control: Control) => void): Control
 
   /** Starts the loop and opens a window after which the water comes to rest by itself. */
   function run(ms: number) {
-    if (!ink) return;
+    if (!ink || lost) return;
     window.clearTimeout(windowTimer);
     ink.start();
     resting = false;
@@ -458,7 +464,7 @@ export function createController(onControl: (control: Control) => void): Control
    * of the cover's own time, whenever the ink came.
    */
   function takeOver() {
-    if (!ink || !canvas || tookOver || scene !== "intro" || !current) return;
+    if (!ink || !canvas || tookOver || lost || scene !== "intro" || !current) return;
     if (root.getAttribute("data-intro") !== "play") return;
     const cover = current.closest<HTMLElement>("[data-intro-cover]");
     const gl = canvas.getContext("webgl2");
@@ -520,7 +526,10 @@ export function createController(onControl: (control: Control) => void): Control
     if (!ink || fired || scene !== "ninety") return;
     fired = true;
     // The anchors may have moved since the scene was laid out: lay it out where they are now.
-    if (!running && current) ink.preset("ninety", { anchors: anchorsOf(current) });
+    if (!running && current) {
+      const at = current;
+      ink.preset("ninety", { anchors: () => anchorsOf(at) });
+    }
     ink.fire("tenth");
     run(STAGES.ninety.runMs);
   }
@@ -549,6 +558,7 @@ export function createController(onControl: (control: Control) => void): Control
     scene = null;
     running = false;
     resting = false;
+    lost = false;
     root.removeAttribute("data-ink-ready");
     root.removeAttribute("data-ink-paused");
     onControl(null);
@@ -568,12 +578,14 @@ export function createController(onControl: (control: Control) => void): Control
       return;
     }
     lostOnce = true;
+    lost = true;
     window.clearTimeout(windowTimer);
     setRunning(false);
     current?.setAttribute("data-ink-state", "rest");
   }
 
   function onRestored() {
+    lost = false;
     if (!ink || !current || !scene) return;
     current.setAttribute("data-ink-state", "live");
     fired = false;
@@ -712,6 +724,10 @@ export function createController(onControl: (control: Control) => void): Control
       scene = null;
       onControl(null);
     }
+    // A session paused before this page loaded holds no canvas (`current` is null), yet its Play
+    // button stands in a holder of the footer, which outlives the route: a calm route has no ink
+    // to play.
+    if (calm) onControl(null);
     observe();
     choose();
   }

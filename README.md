@@ -239,8 +239,9 @@ Display and lead sizes are `clamp()` tokens between a phone value and a desktop 
 
 - `--s-1` to `--s-9`: the 7px scale, from 7px to 168px.
 - `--page-max` and `--page-pad`: the page column and its side padding. The column is 77rem (1232px) up to a
-  1600px window, then 72% of the window to a ceiling of 120rem. `--over` is how far the window is past
-  1600px, which the root size and some caps read. `--col-gap` is the gap between columns.
+  1600px window. 77rem grows with the root size past that, and from about 1840px of window the column
+  follows 72% of the window, to a ceiling of 120rem. `--over` is how far the window is past 1600px, which
+  the root size and some caps read. `--col-gap` is the gap between columns.
 - `--bar-h` (56px, 70px from 68em): the sticky header. `--rail-h` (42px): the phase rail.
 - `--control-sm` (40px, on the desktop bar), `--control` (48px) and `--control-lg` (56px): control heights.
   `--tap` (44px) is the minimum target below 68em.
@@ -260,7 +261,7 @@ Display and lead sizes are `clamp()` tokens between a phone value and a desktop 
 
 `components/ui/` holds the primitives that pages and feature components are built from.
 
-- Layout: `Band`, `Wrap`, `Split`, `Sheet`, `ShelfHead`, `FactList`, `BandedList` and `BandedRow` (the
+- Layout: `Band`, `Wrap`, `Split`, `ShelfHead`, `FactList`, `BandedList` and `BandedRow` (the
   ledger), and `Note`.
 - Links and actions: `Button`, `TransitionLink`, `TextLink`, `RowLink`, `Pagination` and `PhaseTabs`.
 - Paper and objects: `PaperSheet`, `PaperStack`, `Folder`, `Tag`, `Blank` and `Tally`.
@@ -272,26 +273,26 @@ Display and lead sizes are `clamp()` tokens between a phone value and a desktop 
 
 ### Attributes that switch motion
 
-| Attribute                                         | Set by                                                 | Effect                                                                    |
-| ------------------------------------------------- | ------------------------------------------------------ | ------------------------------------------------------------------------- |
-| `html[data-motion="on"]`                          | Boot script                                            | Switches on the motion rules                                              |
-| `html[data-timeline="on"]`                        | Boot script, where the browser supports view timelines | Entrances follow the scroll                                               |
-| `html[data-io="armed"]`                           | `MotionRoot`, once the observer starts                 | Entrances on browsers without view timelines                              |
-| `html[data-intro]`                                | Boot script and ink controller                         | The cover: `play`, `ink` or `leave`; the attribute is removed at the end  |
-| `html[data-ink]`                                  | Boot script                                            | `live`, `paused` or `still`                                               |
-| `data-move` (`drift`, `ink-in`, `settle`, `grow`) | `Appear`, `Sentences`                                  | The entrance of an element; `data-when="load"` plays it on load instead   |
-| `data-paper`, `data-lit`                          | `PaperSheet` (the `lit` prop)                          | The sheet's shadow, its lift and its tilt toward the pointer              |
-| `data-bar`                                        | `Header`                                               | The shadow under the sticky bar                                           |
-| `data-ledger`                                     | `BandedList`                                           | The rule of a ledger draws in                                             |
-| `data-ninety`                                     | The solution band (`components/home/pitch-spread.tsx`) | The ten blocks fill; the 90% figure never moves                           |
-| `data-watch`                                      | `Tally` with `animate`, `PriceTag`                     | The blocks fill, or the tag swings, when the element is seen              |
-| `data-hero-stage`, `-prompt`, `-doc`              | `HeroStage`                                            | With live ink, the hero's prompt box dissolves and the six documents land |
+| Attribute                                         | Set by                                                 | Effect                                                                                     |
+| ------------------------------------------------- | ------------------------------------------------------ | ------------------------------------------------------------------------------------------ |
+| `html[data-motion="on"]`                          | Boot script                                            | Switches on the motion rules                                                               |
+| `html[data-timeline="on"]`                        | Boot script, where the browser supports view timelines | Entrances follow the scroll                                                                |
+| `html[data-io="armed"]`                           | `MotionRoot`, once the observer starts                 | Entrances on browsers without view timelines                                               |
+| `html[data-intro]`                                | Boot script and ink controller                         | The cover: `play`, `ink` or `leave`; the attribute is removed at the end                   |
+| `html[data-ink]`                                  | Boot script                                            | `live`, `paused` or `still`                                                                |
+| `data-move` (`drift`, `ink-in`, `settle`, `grow`) | `Appear`, `Sentences`                                  | The entrance of an element; `data-when="load"` plays it on load instead                    |
+| `data-paper`, `data-lit`                          | `PaperSheet` (the `lit` prop)                          | The sheet's shadow, its lift and its tilt toward the pointer                               |
+| `data-bar`                                        | `Header`                                               | The shadow under the sticky bar                                                            |
+| `data-ledger`                                     | `BandedList`                                           | The rule of a ledger draws in                                                              |
+| `data-ninety`                                     | The solution band (`components/home/pitch-spread.tsx`) | The ten blocks fill; the 90% figure never moves                                            |
+| `data-watch`                                      | `Tally` with `animate`, `PriceTag`                     | The blocks fill, or the tag swings, when the element is seen                               |
+| `data-hero-stage`, `-prompt`, `-doc`              | `HeroStage`                                            | With live ink, the hero's prompt box dissolves and the six documents land                  |
 | `data-tile` `data-denied`, `data-lock`            | `TemplateTile`, `LockedTile`, `ChainLock`              | A locked tile says no: it vibrates, its padlock rattles, its outline and wash hit and fade |
-| `data-template-dialog` `data-enter`               | `TemplateDialog`                                       | The pop-up rises as the page dims                                         |
-| `data-price-tag`                                  | `PriceTag`                                             | The tag swings on its string                                              |
-| `data-nav-underline`                              | `PrimaryNav`                                           | The bar's underline slides to the current link                            |
-| `data-ink-calm` (`text`, `display`, `veil`)       | Page copy                                              | Copy the ink keeps clear of                                               |
-| `data-ink-anchor` (`open`, `tenth`)               | Ink backdrops and the tally                            | Where the open water is, and the block that fires the ninety              |
+| `data-template-dialog` `data-enter`               | `TemplateDialog`                                       | The pop-up rises as the page dims                                                          |
+| `data-price-tag`                                  | `PriceTag`                                             | The tag swings on its string                                                               |
+| `data-nav-underline`                              | `PrimaryNav`                                           | The bar's underline slides to the current link                                             |
+| `data-ink-calm` (`text`, `display`, `veil`)       | Page copy                                              | Copy the ink keeps clear of                                                                |
+| `data-ink-anchor` (`open`, `tenth`)               | Ink backdrops and the tally                            | Where the open water is, and the block that fires the ninety                               |
 
 Entrances follow the scroll where view timelines exist and fall back to an intersection observer elsewhere.
 Every animation sits behind the no-preference query, and the stylesheet forces durations to 0.01ms under
@@ -358,9 +359,12 @@ Each phase has two steps.
 5. **Sample labels.** The sample wording is plain text, edited by hand, in these places: the catalog's
    metadata description and the line under its result count (`app/(site)/catalog/page.tsx`), the "Browse
    the sample catalog" links on the home page (`components/home/featured-section.tsx` and
-   `components/home/inside-section.tsx`), the footer's status line (`components/layout/footer.tsx`), the
-   sample note on the Purchase page (`components/purchase/contents-leaf.tsx`) and the About page's note on
-   the state of the site (`components/about/site-state.tsx`). No page reads `isSample` (only the unit tests
+   `components/home/inside-section.tsx`), the "Browse the sample catalog by phase" name (`PHASES_LABEL`) of
+   the phase links in `components/home/inside-section.tsx`, `components/about/phase-line.tsx` and
+   `app/(site)/sample/page.tsx` (where it is also the visible eyebrow), the footer's status line
+   (`components/layout/footer.tsx`), the sample note on the Purchase page
+   (`components/purchase/contents-leaf.tsx`) and the About page's note on the state of the site
+   (`components/about/site-state.tsx`). No page reads `isSample` (only the unit tests
    call `hasSampleContent()`), so nothing changes by itself when the real records arrive: edit each of
    these places by hand.
    The worked example is the fictional Meridian Group. The name appears in `app/(site)/sample/page.tsx`,
@@ -389,13 +393,13 @@ Each phase has two steps.
 
 The code already has the seams that a production build connects to.
 
-| Concern       | Seam in the code                                                                                                                                                                |
-| ------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Catalog data  | Files in `content/`, read through `lib/catalog/repository.ts`. Its functions are async, so another source can implement the same functions.                                     |
-| Record shapes | `lib/catalog/schema.ts` defines the phase, step and template records, and `lib/catalog/validate.ts` checks them.                                                                |
-| The offer     | `OFFER` in `lib/site.ts`: its name and its price in cents. The tag, the bar's button and the Purchase page all print it.                                                        |
+| Concern       | Seam in the code                                                                                                                                                                         |
+| ------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Catalog data  | Files in `content/`, read through `lib/catalog/repository.ts`. Its functions are async, so another source can implement the same functions.                                              |
+| Record shapes | `lib/catalog/schema.ts` defines the phase, step and template records, and `lib/catalog/validate.ts` checks them.                                                                         |
+| The offer     | `OFFER` in `lib/site.ts`: its name and its price in cents. The tag, the bar's button and the Purchase page all print it.                                                                 |
 | Checkout      | The disabled "Checkout coming soon" button on `components/purchase/contents-leaf.tsx`. A payment provider, and whatever unlocks the locked templates, connect there; neither exists yet. |
-| Page metadata | The root `metadata` in `app/layout.tsx`, and each page's metadata export.                                                                                                       |
+| Page metadata | The root `metadata` in `app/layout.tsx`, and each page's metadata export.                                                                                                                |
 
 Items to settle before launch, from content and commercial terms to the worked example's file, are in
 [Before public launch](#before-public-launch) at the end of this file.
@@ -448,9 +452,10 @@ The rest are about the site itself. None of this is legal advice.
     launch and change them there.
 - [ ] **The worked example's file.** `/sample` describes the Meridian Group worked example and
       says its file cannot be downloaded in this beta. It needs the real file, and its real table of
-      contents: `content/worked-example.ts` lists placeholder sections (the pieces `/sample` names, each
-      linked to its template in the catalog, or to its step or phase) that the page marks "Placeholder";
-      replace them and set `placeholder` to false. The sample catalog
+      contents: `content/worked-example.ts` lists placeholder sections (the pieces `/sample` names; a
+      free sample links to its template in the catalog, a locked template is named in plain text with
+      no link, and a step or phase links to its page) that the page marks "Placeholder"; replace them
+      and set `placeholder` to false. The sample catalog
       also lists the worked example as a locked template; decide whether it is a free sample, a
       product, or both.
 - [ ] **About copy and cost estimates.** The costs of the two alternatives on About (8 to 14

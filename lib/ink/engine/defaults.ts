@@ -70,6 +70,35 @@ export function isTier(value: unknown): value is Tier {
  */
 export const BUDGET: Record<Tier, number> = { high: 9, medium: 10, low: Infinity };
 
+/** A frame longer than this many milliseconds counts toward a step down (60 Hz leaves it slack). */
+export const SLOW_FRAME_MS = 24;
+/** Frames timed at the start of a run to learn the display's own cadence. */
+export const CADENCE_FRAMES = 30;
+/**
+ * The longest steady frame interval that is taken for the display's cap (30 Hz, with a little
+ * room) and not for a machine that cannot keep up. A slower cadence is judged by `SLOW_FRAME_MS`.
+ */
+export const MAX_CAPPED_CADENCE_MS = 36;
+
+/** The middle value of a list (the upper one of two); 0 for an empty list. */
+export function medianOf(values: readonly number[]): number {
+  if (!values.length) return 0;
+  const sorted = [...values].sort((a, b) => a - b);
+  return sorted[Math.floor(sorted.length / 2)] ?? 0;
+}
+
+/**
+ * How long a frame may take before it counts as slow, given the interval the display delivers
+ * frames at (`cadenceMs`, 0 when unknown). A display that is capped at 30 Hz (a battery saver, a
+ * low-power mode, a 30 Hz monitor) hands over a frame every 33 ms with the GPU idle between them:
+ * judged by the 24 ms of a 60 Hz display, every frame would be slow and the ink would be taken for
+ * a failure. A frame is slow when it is clearly later than the display's own rhythm.
+ */
+export function slowFrameMs(cadenceMs: number): number {
+  if (!(cadenceMs > 0) || cadenceMs > MAX_CAPPED_CADENCE_MS) return SLOW_FRAME_MS;
+  return Math.max(SLOW_FRAME_MS, cadenceMs * 1.5);
+}
+
 export const MAX_DYE_LEVELS = 7;
 export const MAX_CALM = 8;
 export const MAX_SWELL = 4;

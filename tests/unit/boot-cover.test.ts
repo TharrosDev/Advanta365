@@ -5,7 +5,7 @@ import { renderToStaticMarkup } from "react-dom/server";
 import { describe, expect, it } from "vitest";
 import { InkBackdrop } from "@/components/ink/ink-backdrop";
 import { IntroCover } from "@/components/intro/intro-cover";
-import { INTRO_BACKSTOP_MS, INTRO_TAKEOVER_MS } from "@/lib/boot/state";
+import { INTRO_BACKSTOP_MS, INTRO_CLICK_GUARD_MS, INTRO_TAKEOVER_MS } from "@/lib/boot/state";
 import { MARK_BAR_D, MARK_DIGITS, MARK_LEGS_D, MARK_TAIL_D } from "@/lib/brand/mark";
 import { STAGES } from "@/lib/ink/stage";
 import { STILLS, stillPath } from "@/lib/ink/stills";
@@ -121,6 +121,23 @@ describe("the cover's timeline", () => {
 
   it("is gone 200ms after an input", () => {
     expect(ms("skip")).toBe(200);
+  });
+
+  it("keeps the pointer through the whole skip: a touch's click is aimed when the finger lifts", () => {
+    const frames = (name: string) =>
+      css.match(new RegExp(`@keyframes ${name}\\s*\\{([\\s\\S]*?)\\n\\}`));
+    // The skip never turns the pointer off (a discrete property would flip halfway through the
+    // easing), and visibility ends the hit-testing on its last frame.
+    const skip = frames("cover-skip");
+    expect(skip).not.toBeNull();
+    expect(skip?.[1]).not.toMatch(/pointer-events/);
+    expect(skip?.[1]).toMatch(/visibility:\s*hidden/);
+    // The cover's own ways out do turn it off while the paper fades: the page is then the visitor's.
+    for (const name of ["cover-leave", "cover-ink"]) {
+      expect(frames(name)?.[1], name).toMatch(/pointer-events:\s*none/);
+    }
+    // And a touch held past the skip is covered by the boot script's click guard.
+    expect(INTRO_CLICK_GUARD_MS).toBeGreaterThan(ms("skip"));
   });
 
   it("signs the mark before the cover leaves: legs, crossbar, tail, then the name", () => {

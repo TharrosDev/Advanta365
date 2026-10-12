@@ -137,10 +137,11 @@
   /* Page */
   --over: max(0px, calc(100vw - 1600px)); /* how far the window is past a 1600px desktop */
   /*
-   * 1232 (twelve 77px columns, eleven 28px gaps) up to about 1600px of window; past it the column
-   * takes 72% of the window, to 120rem. The root font size grows past 1600px too (see `html`), so
-   * on a large monitor the type, the spacing and the controls scale with the column and the page
-   * keeps its proportions instead of standing in the middle of a wide empty desk.
+   * 1232 (twelve 77px columns, eleven 28px gaps) up to about 1600px of window. The root font size
+   * grows past 1600px (see `html`), and 77rem grows with it; from about 1840px of window, where 72%
+   * of the window is more, the column follows the window, to 120rem. So on a large monitor the type,
+   * the spacing and the controls scale with the column and the page keeps its proportions instead
+   * of standing in the middle of a wide empty desk.
    */
   --page-max: max(77rem, min(72vw, 120rem));
   --page-pad: 1.3125rem; /* 21 */

@@ -12,6 +12,12 @@
   --line-ink: var(--ink);
   --focus-ring: var(--ink);
 
+  /*
+   * The sheet's own resting turn, set by the `turn` prop. It is private to the sheet: a wrapper
+   * that leans itself (the hero's documents, the folder's covers) keeps its own `--turn`, and a
+   * sheet that read that one would lean a second time, by the same angle, inside it.
+   */
+  --sheet-turn: 0deg;
   --sheet-rest: var(--depth-2);
   --sheet-lifted: var(--depth-3);
   --sheet-light: radial-gradient(
@@ -26,7 +32,7 @@
   border-radius: var(--round-1);
   box-shadow: var(--sheet-rest);
   color: var(--text);
-  rotate: var(--turn, 0deg);
+  rotate: var(--sheet-turn);
 }
 
 /* The paper itself, under the content. `--sheet-clip` cuts the paper and leaves the shadow. */

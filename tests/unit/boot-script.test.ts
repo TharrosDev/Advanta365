@@ -11,6 +11,7 @@ import {
   INK_PAUSED,
   inkMode,
   INTRO_BACKSTOP_MS,
+  INTRO_CLICK_GUARD_MS,
   INTRO_FLAG,
   INTRO_SEEN,
   INTRO_SKIP_EVENTS,
@@ -23,7 +24,14 @@ import {
 // The inline boot script, run here against stand-ins for the few globals it touches, and compared
 // branch by branch with the pure decisions it mirrors.
 
-type Listener = (event: { type: string; target: unknown }) => void;
+type StandInEvent = {
+  type: string;
+  target: unknown;
+  pointerType?: string;
+  stopPropagation?: () => void;
+  preventDefault?: () => void;
+};
+type Listener = (event: StandInEvent) => void;
 
 const RENDERER = 0x1f01;
 const UNMASKED = 0x9246;
@@ -151,8 +159,8 @@ function load(world: World = {}) {
     queries,
     listening: () =>
       [...listeners.entries()].filter(([, set]) => set.size > 0).map(([type]) => type),
-    send: (type: string, target: unknown = child) =>
-      [...(listeners.get(type) ?? [])].forEach((listener) => listener({ type, target })),
+    send: (type: string, target: unknown = child, extra: Partial<StandInEvent> = {}) =>
+      [...(listeners.get(type) ?? [])].forEach((listener) => listener({ type, target, ...extra })),
     timers: () => timers.flatMap((timer) => (timer ? [timer.after] : [])),
     runTimer: (after: number) => {
       const index = timers.findIndex((timer) => timer?.after === after);
@@ -370,6 +378,89 @@ describe("the cover", () => {
       expect(page.attribute("data-intro")).toBe("leave");
       for (const other of INTRO_SKIP_EVENTS) expect(page.listening()).not.toContain(other);
     }
+  });
+
+  describe("the click guard", () => {
+    /** A click, with what the script does to it recorded. */
+    const click = () => {
+      const calls: string[] = [];
+      return {
+        calls,
+        extra: {
+          stopPropagation: () => calls.push("stop"),
+          preventDefault: () => calls.push("prevent"),
+        },
+      };
+    };
+
+    it("swallows the first click after a touch or a pen ended the cover, and only that one", () => {
+      const presses = [
+        ["pointerdown", { pointerType: "touch" }],
+        ["pointerdown", { pointerType: "pen" }],
+        ["touchstart", {}],
+      ] as const;
+      for (const [type, extra] of presses) {
+        const page = load();
+        expect(page.listening()).not.toContain("click");
+        page.send(type, page.cover, extra);
+        expect(page.attribute("data-intro")).toBe("leave");
+        expect(page.listening()).toContain("click");
+        expect(page.timers()).toContain(INTRO_CLICK_GUARD_MS);
+
+        const first = click();
+        page.send("click", page.child, first.extra);
+        expect(first.calls).toEqual(["stop", "prevent"]);
+        expect(page.listening()).not.toContain("click");
+        expect(page.timers()).not.toContain(INTRO_CLICK_GUARD_MS);
+
+        const second = click();
+        page.send("click", page.child, second.extra);
+        expect(second.calls).toEqual([]);
+      }
+    });
+
+    it("is not set for a mouse, a key or the wheel, whose clicks go where they were aimed", () => {
+      const inputs = [
+        ["pointerdown", { pointerType: "mouse" }],
+        ["pointerdown", {}],
+        ["keydown", {}],
+        ["wheel", {}],
+      ] as const;
+      for (const [type, extra] of inputs) {
+        const page = load();
+        page.send(type, page.cover, extra);
+        expect(page.attribute("data-intro")).toBe("leave");
+        expect(page.listening()).not.toContain("click");
+        expect(page.timers()).not.toContain(INTRO_CLICK_GUARD_MS);
+      }
+    });
+
+    it("lets go when its time is up, so a later click is the visitor's own", () => {
+      const page = load();
+      page.send("touchstart", page.cover);
+      page.runTimer(INTRO_CLICK_GUARD_MS);
+      expect(page.listening()).not.toContain("click");
+      const later = click();
+      page.send("click", page.child, later.extra);
+      expect(later.calls).toEqual([]);
+    });
+
+    it("outlives the cover: a tap held past the 200ms skip still does not click what is under it", () => {
+      const page = load();
+      page.send("pointerdown", page.cover, { pointerType: "touch" });
+      page.send("animationend", page.cover);
+      expect(page.attribute("data-intro")).toBeNull();
+      expect(page.listening()).toEqual(["click"]);
+      const held = click();
+      page.send("click", page.child, held.extra);
+      expect(held.calls).toEqual(["stop", "prevent"]);
+      expect(page.listening()).toEqual([]);
+    });
+
+    it("is longer than the skip itself and shorter than a long press", () => {
+      expect(INTRO_CLICK_GUARD_MS).toBeGreaterThan(200);
+      expect(INTRO_CLICK_GUARD_MS).toBeLessThanOrEqual(1000);
+    });
   });
 
   it("can be left while the ink has it", () => {

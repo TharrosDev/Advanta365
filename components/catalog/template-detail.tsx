@@ -49,7 +49,11 @@ export function TemplateDetail({
   return (
     <div className={styles.root}>
       <div className={styles.stage}>
-        <div className={styles.cover} data-format={template.format}>
+        {/*
+          The cover's box is the lit sheet's scope: it stands where the sheet rests, so a sheet that
+          has lifted does not drop and lift again under a pointer at its lower edge.
+        */}
+        <div className={styles.cover} data-format={template.format} data-lit-scope="">
           <TemplateCover
             type={template.deliverableType}
             format={template.format}

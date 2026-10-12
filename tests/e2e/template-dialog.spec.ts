@@ -129,6 +129,64 @@ test("a click on the dimmed page closes it, and a click inside it does not", asy
   expect(params(page).get("phase")).toBe("plan");
 });
 
+test("a selection dragged out of the pop-up onto the dimmed page leaves it open", async ({
+  page,
+}) => {
+  await openCatalog(page);
+  await openFromTile(page);
+
+  // The browser sends the click to the dialog, the common ancestor of the heading and the dimmed
+  // page, but the press was not on the dimmed page, so it is a selection and not a click on it.
+  const heading = await dialog(page).getByRole("heading", { level: 2 }).boundingBox();
+  if (!heading) throw new Error("no heading");
+  await page.mouse.move(heading.x + 4, heading.y + heading.height / 2);
+  await page.mouse.down();
+  await page.mouse.move(3, 3, { steps: 5 });
+  await page.mouse.up();
+  await expect(dialog(page)).toBeVisible();
+  await expect(page).toHaveURL(/view=/);
+});
+
+test("closing a pop-up opened from the catalog leaves no entry behind: Back leaves the catalog", async ({
+  page,
+}) => {
+  await page.goto("/about");
+  await openCatalog(page);
+  await openFromTile(page);
+
+  await page.keyboard.press("Escape");
+  await expect(dialog(page)).toHaveCount(0, { timeout: NAVIGATION_TIMEOUT });
+  await expect(page).toHaveURL(/\/catalog$/);
+  await expect(tileLink(page)).toBeFocused();
+
+  // The open and the close were one step: the entry before the catalog is the page that came
+  // before it, not the catalog twice.
+  await page.goBack();
+  await expect(page).toHaveURL(/\/about$/, { timeout: NAVIGATION_TIMEOUT });
+});
+
+test("a pop-up opened from another page closes in place, and Back goes to that page", async ({
+  page,
+}) => {
+  await introSeen(page);
+  await page.goto("/");
+  await hydrated(page);
+  await page.locator("#featured").getByRole("link", { name: FREE.title, exact: true }).click();
+  await expect(page).toHaveURL(new RegExp(`/catalog\\?view=${FREE.slug}$`), {
+    timeout: NAVIGATION_TIMEOUT,
+  });
+  await expect(dialog(page)).toBeVisible();
+  await expect.poll(() => dialog(page).evaluate((element) => element.matches(":modal"))).toBe(true);
+
+  // The page it was opened from is not the catalog, so the close stays on the catalog.
+  await page.keyboard.press("Escape");
+  await expect(dialog(page)).toHaveCount(0, { timeout: NAVIGATION_TIMEOUT });
+  await expect(page).toHaveURL(/\/catalog$/);
+
+  await page.goBack();
+  await expect(page).toHaveURL(/\/$/, { timeout: NAVIGATION_TIMEOUT });
+});
+
 test("Back closes it and focus returns to the tile", async ({ page }) => {
   await openCatalog(page);
   await openFromTile(page);

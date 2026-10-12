@@ -109,7 +109,15 @@ export function CompareSection() {
 
       <div className={styles.sheets}>
         {OPTIONS.map((option, index) => (
-          <Appear key={option.key} move="settle" order={index} className={styles.slot}>
+          <Appear
+            key={option.key}
+            move="settle"
+            order={index}
+            className={styles.slot}
+            // The slot is the lit sheet's scope: it stands where the sheet rests, so the sheet that
+            // has lifted does not drop and lift again under a pointer at its lower edge.
+            data-lit-scope={option.ours ? "" : undefined}
+          >
             <PaperSheet
               role="group"
               aria-labelledby={`compare-${option.key}`}

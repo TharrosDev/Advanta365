@@ -20,6 +20,11 @@ const MOVED: readonly { from: string; pathname: string; hash?: string; search?: 
     search: "?view=change-management-strategy",
   },
   { from: "/templates/nope", pathname: "/catalog", search: "?view=nope" },
+  {
+    from: "/Templates/Change-Management-Strategy",
+    pathname: "/catalog",
+    search: "?view=Change-Management-Strategy",
+  },
 ];
 
 for (const { from, pathname, hash = "", search } of MOVED) {
@@ -74,6 +79,10 @@ test("the old address of a free sample opens it in the pop-up; any other shows t
   await page.goto("/templates/change-management-strategy");
   await expect(page.getByRole("heading", { level: 1 })).toHaveText("Catalog");
   await expect(page.locator("dialog[open]")).toHaveCount(1);
+  await expect(page.getByRole("dialog", { name: "Change Management Strategy" })).toBeVisible();
+
+  // The address is not case-sensitive, and the redirect keeps the case it was typed in.
+  await page.goto("/Templates/Change-Management-Strategy");
   await expect(page.getByRole("dialog", { name: "Change Management Strategy" })).toBeVisible();
 
   for (const from of ["/templates/nope", "/templates/sharepoint-migration-impact-assessment"]) {

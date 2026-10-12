@@ -25,9 +25,11 @@ import styles from "./intro-cover.module.css";
  * animations started by the state alone, so the cover leaves even if every script stops.
  *
  * It is decoration over a finished page: `aria-hidden`, nothing in it can take focus, and it locks
- * neither focus nor scrolling. It takes the pointer while it is opaque, so the press that ends it
- * never lands on a link under it. "Skip" is a hint, not a control: any input ends the cover. It is
- * not displayed at all unless the boot script has set `data-intro` on the root element.
+ * neither focus nor scrolling. It takes the pointer for as long as a press can end it and through
+ * the whole 200ms skip, and the boot script swallows the click of a touch that outlasts the skip,
+ * so the press that ends it never lands on a link under it. "Skip" is a hint, not a control: any
+ * input ends the cover. It is not displayed at all unless the boot script has set `data-intro` on
+ * the root element.
  *
  * The mark is drawn here, not by `LogoMark`, because a pen needs the strokes of the "A" as
  * separate paths; `pathLength` makes each one unit long, whatever its real length.

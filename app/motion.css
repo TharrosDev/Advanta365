@@ -456,7 +456,8 @@
    * The red comes with a hit and goes with a fade: the outline is the alert colour within two
    * frames and thins away to nothing, and the wash under the cover (a pseudo-element whose opacity
    * moves; the well's own ground never changes) rises in 100ms and falls away by 560ms. All of it
-   * is over, and holds its end, before the state goes at 600ms.
+   * is over, and holds its end, before the state goes at 600ms. A tile that holds keyboard focus
+   * does not pulse its outline: that outline is its focus ring, and it stays.
    *
    * It plays where a script has set `data-motion="on"`. Without one, and under reduced motion, the
    * state is only its static look (components/catalog/template-tile.module.css): the alert outline
@@ -621,6 +622,16 @@
       denied-pulse 560ms ease-out forwards;
   }
 
+  /*
+   * A tile that holds keyboard focus keeps its focus ring: the tile's outline is the only mark of
+   * focus on a locked tile, and a running animation of `outline-color` (which ends on transparent
+   * and holds it) would take that ring away for the length of the denial. The shake, the wash and
+   * the padlock still say no. `tile-shake` keeps its place in the list, so it does not restart.
+   */
+  html[data-motion="on"] [data-tile][data-denied]:has(:focus-visible) {
+    animation: tile-shake 467ms linear;
+  }
+
   html[data-motion="on"] [data-tile][data-denied] [data-lock] {
     animation: lock-rattle 500ms linear;
   }
@@ -770,12 +781,9 @@
   /*
    * Page changes (components/ui/page-shift.tsx and the shared covers and folders). The page
    * itself swaps at once; only the first block of a page leaves and arrives, and a sheet or a
-   * folder that exists on both pages travels. Clicks reach the page all the while.
+   * folder that exists on both pages travels. Clicks reach the page all the while (the rule that
+   * says so stands below, outside this query, so it holds under reduced motion too).
    */
-  ::view-transition {
-    pointer-events: none;
-  }
-
   ::view-transition-old(root) {
     display: none;
   }
@@ -796,6 +804,15 @@
     animation-duration: var(--time-morph);
     animation-timing-function: var(--curve-settle);
   }
+}
+
+/*
+ * The layer of a page change takes no pointer events, whatever the motion setting: React starts a
+ * view transition under reduced motion too, and for the frame or two it lasts a click must still
+ * reach the page and not the snapshot.
+ */
+::view-transition {
+  pointer-events: none;
 }
 
 /* Reduced motion: a page change is a plain swap, with nothing left of the page before. */

@@ -68,6 +68,21 @@
   color: var(--text-soft);
 }
 
+/*
+ * The link stands alone on its line, so below 68em its pointer area is stretched to the 44px tap
+ * size; the layer is invisible and moves nothing. It stays inside the row's padding.
+ */
+.seeLink {
+  position: relative;
+}
+
+.seeLink::after {
+  content: "";
+  position: absolute;
+  inset-block: calc((1lh - var(--tap)) / 2);
+  inset-inline: 0;
+}
+
 @media (min-width: 40em) {
   .numeral {
     width: var(--s-5);
@@ -80,5 +95,11 @@
   .see {
     grid-column: 3;
     margin-block-start: 0;
+  }
+}
+
+@media (min-width: 68em) {
+  .seeLink::after {
+    content: none;
   }
 }

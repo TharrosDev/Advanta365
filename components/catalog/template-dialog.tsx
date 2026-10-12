@@ -1,10 +1,12 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useEffect, useLayoutEffect, useRef, useSyncExternalStore } from "react";
-import type { MouseEvent, ReactNode } from "react";
+import { useEffect, useLayoutEffect, useRef, useState, useSyncExternalStore } from "react";
+import type { MouseEvent, PointerEvent, ReactNode } from "react";
 import { Button } from "@/components/ui/button";
 import { Icon } from "@/components/ui/icon";
+import { previousEntryIs, type WindowWithNavigation } from "@/lib/history";
+import { createScrimPress } from "@/lib/scrim";
 import styles from "./template-dialog.module.css";
 
 // The server has no layout to measure; there the effect is the ordinary one and never runs.
@@ -17,10 +19,13 @@ const never = () => () => undefined;
  * the top of the stack with a bar that holds Close and a body that scrolls. The page renders it
  * only while the address names a free sample (`view`), so being rendered is being open: it is made
  * modal before the first paint, and it closes by going to `closeHref`, the same address without
- * `view`, in place of the current entry and without moving the page.
+ * `view`, without moving the page: back one entry when a link inside the site opened it from that
+ * very address (the open was a push, so no entry is left behind), otherwise in place of the
+ * current entry.
  *
  * It closes on Escape, on Close and on a click on the dimmed page (a click whose target is the
- * dialog itself: the panel covers all of it). The dialog's own `close` event is what leaves the
+ * dialog itself, the panel covers all of it, and whose press began there too, so that a selection
+ * dragged out of the panel does not close it). The dialog's own `close` event is what leaves the
  * address, so every way of closing is one handler. Focus goes back to whatever had it when the
  * dialog opened, the tile that was followed; when the page takes the dialog away instead (Back),
  * it is closed first so that focus goes back the same way.
@@ -45,6 +50,8 @@ export function TemplateDialog({
   const dialogRef = useRef<HTMLDialogElement>(null);
   // True while the dialog is being closed by this component on its way out: no address to leave.
   const leaving = useRef(false);
+  // Where the press and the release of the click in progress landed.
+  const [scrim] = useState(createScrimPress);
   // False while the server's page is being taken over, true for a dialog a navigation brought.
   const arrived = useRef(
     useSyncExternalStore(
@@ -80,12 +87,29 @@ export function TemplateDialog({
       leaving.current = false;
       return;
     }
-    router.replace(closeHref, { scroll: false });
+    // A dialog a link inside the site opened over this very address was a push, so closing it is
+    // going back: nothing is left behind for Back to land on twice. Anywhere else (a direct load,
+    // a link from another page, a browser without the Navigation API) the entry before it is not
+    // this page, so the close replaces the current entry.
+    const here =
+      arrived.current &&
+      previousEntryIs(
+        (window as WindowWithNavigation).navigation,
+        closeHref,
+        window.location.origin,
+      );
+    if (here) router.back();
+    else router.replace(closeHref, { scroll: false });
   };
 
-  // The dimmed page is the dialog's own backdrop: a click there has the dialog as its target.
+  // The dimmed page is the dialog's own backdrop: a click there has the dialog as its target. A
+  // selection dragged from the panel onto it also ends there, so the press must have been there too.
+  const pressOnScrim = (event: PointerEvent<HTMLDialogElement>) =>
+    scrim.press(event.target === event.currentTarget);
+  const releaseOnScrim = (event: PointerEvent<HTMLDialogElement>) =>
+    scrim.release(event.target === event.currentTarget);
   const closeFromScrim = (event: MouseEvent<HTMLDialogElement>) => {
-    if (event.target === event.currentTarget) event.currentTarget.close();
+    if (scrim.click(event.target === event.currentTarget)) event.currentTarget.close();
   };
 
   // With the script running, Close shuts the dialog and the `close` event does the rest.
@@ -104,6 +128,8 @@ export function TemplateDialog({
       data-template-dialog=""
       className={styles.dialog}
       onClose={onClose}
+      onPointerDown={pressOnScrim}
+      onPointerUp={releaseOnScrim}
       onClick={closeFromScrim}
     >
       {/* The panel covers the whole dialog, so only the dimmed page counts as "outside". */}

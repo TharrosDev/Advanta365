@@ -133,6 +133,26 @@ test("the sort order offers the samples first, the rollout order or the titles, 
   expect(titles).toEqual([...titles].sort((a, b) => a.localeCompare(b)));
 });
 
+test("the sort order keeps the option that was picked while the server answers", async ({
+  page,
+  isMobile,
+}) => {
+  await openCatalog(page);
+  if (isMobile) await openFiltersIfCollapsed(page);
+  const sort = page.getByRole("combobox", { name: "Sort by" });
+
+  // The server is slow to answer: the select is not given back to the old option meanwhile.
+  await page.route(/\/catalog\?.*sort=title/, async (route) => {
+    await new Promise((resolve) => setTimeout(resolve, 1_500));
+    await route.continue();
+  });
+  await sort.selectOption({ label: "Title A–Z" });
+  expect(await sort.inputValue()).toBe("title");
+
+  await expect(page).toHaveURL(/sort=title/, { timeout: NAVIGATION_TIMEOUT });
+  await expect(sort).toHaveValue("title");
+});
+
 test("filtering updates the URL and the results", async ({ page }) => {
   await openCatalog(page);
   await expect(page.locator("#results-heading")).toHaveText("67 templates");
@@ -332,6 +352,49 @@ test("malformed parameters never break the page", async ({ page }) => {
   const odd = await page.goto(`/catalog?q=${encodeURIComponent("(a*\\ <b>")}`);
   expect(odd?.status()).toBe(200);
   await expect(page.getByText("No templates match “(a*\\ <b>”.")).toBeVisible();
+});
+
+test("Clear all filters clears in place: the entry is replaced and focus stays in the list", async ({
+  page,
+  isMobile,
+}) => {
+  await openCatalog(page, "/catalog?q=strategy&phase=plan&type=training");
+  await openFiltersIfCollapsed(page);
+  const clear = page
+    .getByRole("link", { name: "Clear all filters", exact: true })
+    .filter({ visible: true });
+  const before = await page.evaluate(() => window.history.length);
+  await clear.click();
+
+  // The search stays; the filters go; no entry was added; the link has gone and focus is on the
+  // first row, not on nothing.
+  await expect(page).toHaveURL(/\/catalog\?q=strategy$/, { timeout: NAVIGATION_TIMEOUT });
+  await expect(clear).toHaveCount(0);
+  expect(await page.evaluate(() => window.history.length)).toBe(before);
+  await expect(
+    page.getByRole("checkbox", { name: "Free samples only" }).filter({ visible: true }),
+  ).toBeFocused();
+  if (isMobile) await expect(page.getByRole("dialog", { name: "Filters" })).toBeVisible();
+});
+
+test("the filter sheet closes when the window grows to the rail, and the page is free again", async ({
+  page,
+  isMobile,
+}) => {
+  test.skip(isMobile, "the test sets the width of the window itself");
+  await page.setViewportSize({ width: 1087, height: 800 });
+  await openCatalog(page);
+  await page.getByRole("button", { name: /^Filters/ }).click();
+  await expect(page.getByRole("dialog", { name: "Filters" })).toBeVisible();
+  await expect(page.locator("html")).toHaveCSS("overflow", "hidden");
+
+  // From 68em the filters stand in the rail and the sheet has no box: it must not stay open,
+  // inert and locking the scroll, behind nothing.
+  await page.setViewportSize({ width: 1088, height: 800 });
+  await expect(page.locator("dialog[open]")).toHaveCount(0);
+  await expect(page.locator("html")).not.toHaveCSS("overflow", "hidden");
+  await page.getByRole("checkbox", { name: "Free samples only" }).filter({ visible: true }).check();
+  await expect(page).toHaveURL(/free=1/, { timeout: NAVIGATION_TIMEOUT });
 });
 
 test("the filter dialog opens and closes on a phone", async ({ page, isMobile }) => {

@@ -486,7 +486,7 @@ Entrance kinds:
 | `data-well` | `TemplateTile` | The well of a tile: its `::before` is the red wash of a denied tile, animated by opacity. |
 | `data-template-dialog`, `data-enter` | `TemplateDialog` | The pop-up of the catalog; `data-enter` is on one that a link inside the site opened, which rises into place. |
 | `data-hero-stage`, `data-hero-prompt`, `data-hero-doc`, `data-landed` | `HeroStage`, `HeroLanding` | The hero's prompt box and the six documents that replace it; `data-landed` on the stage ends the sequence for it (section 8.9). |
-| `data-lit-scope` | Read by the pointer tracker | Scope for a group of lit sheets that is not an article (the Purchase page's contents leaf wraps its one sheet in it); read by `lib/scroll/pointer.ts` and the lit selectors in `app/motion.css`. |
+| `data-lit-scope` | Read by the pointer tracker | Scope for a group of lit sheets that is not an article (the Purchase page's contents leaf, the About page's toolkit sheet and the pop-up's cover each stand in one, and so does each of the hero's documents); the scope stands where the sheet rests, so a lifted sheet does not drop and lift again under a pointer at its lower edge; read by `lib/scroll/pointer.ts` and the lit selectors in `app/motion.css`. |
 
 ### 8.6 Sheets and the pointer
 
@@ -682,7 +682,7 @@ Scenes run for a set time (3.5 seconds for the cover) or until a trigger fires. 
 
 ### 10.3 Stages and the single canvas
 
-The page has one canvas. Only one backdrop is live at a time. The stage chooser works in three rules. If the topmost backdrop on screen has at least 40% of itself in view, it gets the canvas, unless another backdrop has at least 95% of itself in view; then the topmost of those gets it instead. Otherwise each backdrop scores its visible area times the weight of its scene (the cover is heaviest), and the highest score wins. The current holder keeps the canvas unless a challenger scores 1.25 times more, so the canvas stays put while the user scrolls slowly.
+The page has one canvas. Only one backdrop is live at a time. The stage chooser works in four rules. At the very end of the page (the window scrolled to within 2px of the bottom) the lowest backdrop gets the canvas once at least 95% of itself is in view, so a footer taller than most of the window is not left to the sliver of the band above it. Otherwise, if the topmost backdrop on screen has at least 40% of itself in view, it gets the canvas, unless another backdrop has at least 95% of itself in view; then the topmost of those gets it instead. Otherwise each backdrop scores its visible area times the weight of its scene (the cover is heaviest), and the highest score wins. The current holder keeps the canvas unless a challenger scores 1.25 times more, so the canvas stays put while the user scrolls slowly.
 
 Backdrops that are not chosen show their still image. Each stage runs for a fixed time, then eases to rest over about 2.5 seconds. Input wakes a resting stage for up to 12 seconds.
 

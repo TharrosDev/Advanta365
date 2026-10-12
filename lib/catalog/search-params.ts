@@ -65,10 +65,13 @@ export function serializeCatalogParams(criteria: CatalogCriteria): string {
 
 /**
  * The template a catalog link asks to show in the preview: the first `view` value, if it has the
- * shape of a slug. Whether such a template exists is for the caller to look up.
+ * shape of a slug. Whether such a template exists is for the caller to look up. Slugs are
+ * lowercase and the site's addresses are not case-sensitive, so a value typed in mixed case (an old
+ * `/Templates/Change-Management-Strategy` link keeps its case through the redirect) is read as the
+ * lowercase slug.
  */
 export function parseView(sp: RawParams): string | undefined {
-  const view = first(sp.view);
+  const view = first(sp.view).toLowerCase();
   return SLUG.test(view) ? view : undefined;
 }
 
