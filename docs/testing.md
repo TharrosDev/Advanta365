@@ -139,7 +139,7 @@ The colour pattern matches hex values and colour functions only. Keep 0 to 255 c
 
 Playwright is configured in `playwright.config.ts`:
 
-- The test directory is `tests/e2e`. The base URL is `http://localhost:3100`.
+- The test directory is `tests/e2e`. The base URL is `http://localhost:3100`; `PW_PORT` moves the port, for a second checkout that runs at the same time.
 - The reporter is `list`. Traces are kept for failing tests. `forbidOnly` is set in CI.
 - The web server step runs `npm run build && npm run start -- -p 3100`. Outside CI an existing server on the port is reused, so stop a stale server before a run that must use a fresh production build.
 
@@ -149,12 +149,16 @@ Playwright is configured in `playwright.config.ts`:
 |---|---|---|
 | `chromium` | Desktop Chrome, 1280 by 800 | Every spec except `ink-live.spec.ts`. |
 | `mobile` | Pixel 7 | Every spec except `ink-live.spec.ts`. |
-| `gpu` | Desktop Chrome, 1440 by 900, with the GPU arguments | `ink-live.spec.ts` only. It depends on `chromium`, `mobile` and, when that project is registered, `firefox`. It runs one test at a time. |
+| `quiet` | Desktop Chrome, 1280 by 800 | The tests tagged `@quiet`, which `chromium` and `mobile` leave out. It depends on `chromium`, `mobile` and, when that project is registered, `firefox`. |
+| `quiet-mobile` | Pixel 7 | The same tests. It depends on `quiet`. |
+| `gpu` | Desktop Chrome, 1440 by 900, with the GPU arguments | `ink-live.spec.ts` only. It depends on `quiet-mobile`, so it starts when every other project has finished. It runs one test at a time. |
 | `firefox` | Desktop Firefox, 1280 by 800 | `browse`, `console`, `reduced-motion`, `ink-fallback` and `motion`. Registered only when Firefox starts on the machine, or when `PW_FIREFOX=1` is set. |
 
 The default projects have no GPU, so the boot script finds the ink `still` there: a test that needs live ink, the hero's sequence among them, belongs in `ink-live.spec.ts`.
 
-No project retries. One test does: the first test of `ink-live.spec.ts`, which holds every task of the page's first five seconds to 200 ms, may be tried three times (`retries: 2` on its own `describe`). The browser reports every long task of the main thread, including one the machine held up before any code of the ink ran; the bound stays at 200 ms.
+A test that reads a paint time off the page's clock is tagged `@quiet` (`{ tag: "@quiet" }`). That clock runs through every moment the browser waits for the processor: beside seven other workers the home page's largest paint was measured at 424 to 1648 ms, against 232 to 552 ms alone, while the server answered in 8 to 25 ms both times. The `quiet` projects run those tests one at a time, after the parallel projects. The one test so far is the largest paint of a first visit in `intro.spec.ts`.
+
+No project retries. One test does: the second test of `ink-live.spec.ts`, which holds every task of the page's first five seconds to 200 ms and asserts nothing else, may be tried three times (`retries: 2` on its own `describe`). The browser reports every long task of the main thread, including one the machine held up before any code of the ink ran; the bound stays at 200 ms.
 
 A check that depends on how soon a test gets to look is written so that it always runs: it reads a record made in the page (an observer or a frame callback installed before the first script), or the scene stepped by hand, and where neither is possible it calls `test.skip` with a reason. No `expect` sits inside an `if` on a clock.
 
