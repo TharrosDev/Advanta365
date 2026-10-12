@@ -1,9 +1,10 @@
 import { Blank } from "@/components/ui/blank";
 import { Button } from "@/components/ui/button";
 import { PaperSheet } from "@/components/ui/paper-sheet";
+import { PhaseTabs } from "@/components/ui/phase-tabs";
 import { Pagination } from "@/components/ui/pagination";
 import type { CatalogCriteria, CatalogResult } from "@/lib/catalog/query";
-import { catalogHref } from "@/lib/catalog/search-params";
+import { catalogHref, hasFilters } from "@/lib/catalog/search-params";
 import { cx } from "@/lib/cx";
 import styles from "./result-list.module.css";
 import { TemplateTile, TileGrid } from "./template-tile";
@@ -21,23 +22,48 @@ type ResultListProps = {
  * it. A free sample's tile links to the same catalog address with `view` set to its slug, which
  * opens it in the pop-up without moving the page. Nothing in the grid animates in, so a change of
  * filter, sort or search only swaps the tiles. With no match it is a blank sheet with an empty
- * field, the message and a link back to the unfiltered catalog.
+ * field, the message and a link back to the unfiltered catalog. When only a search found nothing,
+ * the message quotes the search, the link clears it, and the seven phases follow as index cards, a
+ * way in that needs no right word.
  */
 export function ResultList({ result, criteria, phases, denied }: ResultListProps) {
   const phaseNames = new Map(phases.map((phase) => [phase.slug, phase.name]));
   const phaseOrders = new Map(phases.map((phase, position) => [phase.slug, position + 1]));
 
   if (result.total === 0) {
+    const filtered = hasFilters(criteria);
+    const searchOnly = !filtered && criteria.q !== "";
+    const clearLabel = !filtered
+      ? "Clear search"
+      : criteria.q
+        ? "Clear search and filters"
+        : "Clear filters";
     return (
       <PaperSheet size="md" className={styles.empty}>
         <Blank caret="steady" className={styles.blank} />
-        <h2 className={cx("type-section", styles.emptyTitle)}>No templates match these filters.</h2>
+        <h2 className={cx("type-section", styles.emptyTitle)}>
+          {searchOnly ? `No templates match “${criteria.q}”.` : "No templates match these filters."}
+        </h2>
         <p className={cx("type-copy", styles.emptyBody)}>
-          Try a different search term or remove a filter.
+          {searchOnly
+            ? "Try a shorter or different word, or start from the phase your rollout is in."
+            : "Try a different search term or remove a filter."}
         </p>
-        <Button variant="outline" href="/catalog" className={styles.emptyAction}>
-          Clear filters
+        <Button
+          variant="outline"
+          href={searchOnly ? catalogHref({ ...criteria, q: "", page: 1 }) : "/catalog"}
+          className={styles.emptyAction}
+        >
+          {clearLabel}
         </Button>
+        {searchOnly && phases.length > 0 && (
+          <nav aria-labelledby="empty-phases" className={styles.pivot}>
+            <h3 id="empty-phases" className={cx("type-ui", styles.pivotTitle)}>
+              Browse by phase
+            </h3>
+            <PhaseTabs phases={phases} size="large" />
+          </nav>
+        )}
       </PaperSheet>
     );
   }

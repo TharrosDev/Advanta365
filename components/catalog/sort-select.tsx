@@ -9,6 +9,7 @@ import styles from "./sort-select.module.css";
 
 const OPTIONS: { value: SortKey; label: string }[] = [
   { value: "samples", label: "Free samples first" },
+  { value: "phase", label: "Phase order" },
   { value: "title", label: "Title A–Z" },
 ];
 

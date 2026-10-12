@@ -9,9 +9,11 @@ import styles from "./statement-section.module.css";
 
 /**
  * A band that makes one statement. The label sits in the margin; beside it are the statement (the
- * band's `<h2>`, in `.type-banner`, one sentence per line block), the copy as paragraphs that drift
- * in, and then `children`, which bring their own layout. There is no rule in the margin. Below 68em
- * the label stacks above the statement. `surface` picks the band.
+ * band's `<h2>`, one sentence per line block), the copy as paragraphs that drift in, and then
+ * `children`, which bring their own layout. There is no rule in the margin. Below 68em the label
+ * stacks above the statement. `surface` picks the band. `size` sets the statement in `.type-banner`
+ * (the default) or one step down in `.type-page`, for a page that runs several statement bands in a
+ * row and keeps the large sizes for one or two of them.
  */
 export function StatementSection({
   id,
@@ -19,6 +21,7 @@ export function StatementSection({
   statement,
   copy = [],
   surface = "desk",
+  size = "banner",
   children,
 }: {
   id?: string;
@@ -26,12 +29,16 @@ export function StatementSection({
   statement: string;
   copy?: readonly string[];
   surface?: "desk" | "paper" | "wash";
+  size?: "banner" | "page";
   children?: ReactNode;
 }) {
   return (
     <Band id={id} surface={surface}>
-      <Split margin={<Eyebrow>{label}</Eyebrow>} marginClassName={styles.margin}>
-        <h2 className={cx("type-banner", styles.statement)}>
+      <Split
+        margin={<Eyebrow>{label}</Eyebrow>}
+        marginClassName={cx(styles.margin, size === "page" && styles.marginPage)}
+      >
+        <h2 className={cx(size === "page" ? "type-page" : "type-banner", styles.statement)}>
           <Sentences text={statement} />
         </h2>
         {copy.length > 0 ? (

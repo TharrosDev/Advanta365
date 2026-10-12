@@ -34,8 +34,8 @@ Related documents: `design-system.md` covers the visual rules and component usag
 | `/` | `app/(site)/page.tsx` | Server, reads phases, templates and the free samples | Renders the first-visit cover, then the home sections |
 | `/purchase` | `app/(site)/purchase/page.tsx` | Static, reads phases, templates and the free samples | Title `Purchase`; the one place a sale starts (section 3.5) |
 | `/catalog` | `app/(site)/catalog/page.tsx` | Dynamic (awaits `searchParams`) | Title `Catalog`; filters live in the URL, and `?view=<slug>` opens a free sample in a pop-up (section 9) |
-| `/about` | `app/(site)/about/page.tsx` | Server, no data reads | Title `About`; hosts the `#compare` band and the `#contact` section |
-| `/sample` | `app/(site)/sample/page.tsx` | Server, reads phases | Title `Sample` |
+| `/about` | `app/(site)/about/page.tsx` | Server, no data reads | Title `About`; hosts the `#compare` band, whose cost cell for the toolkit is the one price from `OFFER`, and the `#contact` section |
+| `/sample` | `app/(site)/sample/page.tsx` | Server, reads phases and the worked example's contents | Title `Sample` |
 | `/phases/[phase]` | `app/(site)/phases/[phase]/page.tsx` | Static params for the 7 phases | `notFound()` for other slugs |
 | `/ink-lab` | `app/(lab)/ink-lab/page.tsx` | Development only | Calls `notFound()` unless `NODE_ENV` is `development` |
 | Unmatched paths | `app/(site)/[...rest]/page.tsx`, `app/(site)/not-found.tsx`, `app/not-found.tsx` | 404 | Site 404 keeps the shell; the root 404 renders `MissingPage` and `InkLayer` without it |
@@ -59,6 +59,29 @@ origin of its own in the source, so the link is written as that path.
 where its tile is not on the page of results, a line above them does), and for any other value the catalog
 shows as it is (section 9.3).
 
+Page layouts:
+
+- `TitleBlock` takes `flush` on the catalog: the block keeps no padding under its words (and, with ink, no
+  least height), and the `pad="tight"` band that follows puts the first tile 42px under the lead.
+- `/phases/[phase]`: the step bands alternate desk and paper, and the foot band carries the alternation on. It
+  holds "View all <phase> templates" and `PhasePager`, a navigation named "Previous and next phase" whose
+  links read "Previous phase <name>" and "Next phase <name>" (`adjacentPhases`); the first phase has no
+  previous link and the last no next one. A tile on a phase page gets no `phaseName`, so it names its
+  deliverable type alone.
+- `/about`: two headlines stand at the statement size, the `h1` and the black AI band. The comparison's title
+  is a `type-banner`, and the mission, why, proof and buyer statements (`StatementSection size="page"`), the
+  contact heading and the closing heading are `type-page`. The contact address is a link set at the statement
+  size.
+- `/sample`: after the statement, a paper band "Contents" holds the worked example's table of contents
+  (`getWorkedExampleContents`) as a numbered `BandedList as="ol"` labelled by its heading: each section's
+  title in `type-item`, then its link ("Template: …", "Step: …" or "Phase: …"). A template's link is
+  `/catalog?view=<slug>`, so a free sample opens in the pop-up and a locked template gets the catalog's answer
+  for a locked one (section 9.3). While `content/worked-example.ts` sets `placeholder`, a beta note heads
+  the list and every section reads "Placeholder". The phase ledger follows on the desk.
+- Home `#values` is a ledger (`BandedList`): one row per value, the title and its sentence stacked on a phone,
+  side by side from 40em, and in columns 1 to 5 and 6 to 12 from 68em. The line drawings are the manifest's
+  alone (`#inside`).
+
 `proxy.ts` runs before routing. Any path containing an uppercase letter receives a 308 redirect to the
 lowercase path. Its matcher skips `_next/` and any path containing a dot.
 
@@ -77,7 +100,8 @@ Client components (files with `"use client"`):
 | Shell | `components/layout/primary-nav.tsx`, `purchase-button.tsx`, `phase-rail.tsx`, `nav-drawer.tsx` | Read `usePathname`; the drawer owns a native dialog |
 | Company | `components/company/faq-list.tsx` | Open and closed state |
 | Not found | `components/not-found/asked-path.tsx`, `late-boot.tsx` | Read `window.location`; add the boot script when needed |
-| UI | `components/ui/motion-root.tsx`, `count-up.tsx` | Observers, the counter animation and the `data-hydrated` signal |
+| UI | `components/ui/motion-root.tsx` | Observers and the `data-hydrated` signal |
+| Catalog | `components/catalog/active-filters.tsx`, `phase-strip.tsx` | The filter chips (the router, and focus after a removal); the phone's phase strip scrolling its lit card into view |
 | Ink | `components/ink/ink-layer.tsx` | Singleton controller and the pause control |
 | Home | `components/home/hero-landing.tsx` | Marks the hero's stage `data-landed` when the ink is not running, or stops (section 8.7) |
 
@@ -107,6 +131,7 @@ content/*.ts  ->  lib/catalog/schema.ts (zod)  ->  lib/catalog/validate.ts
 | `content/templates/make-the-case.ts`, `plan.ts`, `design.ts`, `prepare.ts`, `communicate.ts`, `execute.ts`, `sustain.ts` | Templates per phase |
 | `content/templates/sample.ts` | The `sample()` helper |
 | `content/taxonomy.ts` | Labels for deliverable types, apps, audiences, formats and ADKAR stages |
+| `content/worked-example.ts` | The worked example's table of contents: placeholder sections (`placeholder: true`, a `TODO(owner)`), each pointing at a template, a step or a phase |
 
 `sample(phase, entries)` adds `phase`, `free` (default `false`) and `isSample: true` to each entry.
 The per-phase files mark their entries as sample content, so the beta strip shows while any sample entry
@@ -147,12 +172,17 @@ ESLint enforces this: imports of `@/content/*` are rejected in `app/**` and `com
 | `getFreeTemplates()` | The six free samples, in phase order |
 | `getRelatedTemplates(slug, limit = 4)` | Templates in the same phase: same step first, then the rest of the phase; excludes the template itself |
 | `hasSampleContent()` | `true` when any template is marked as sample |
+| `getWorkedExampleContents()` | `{ placeholder, sections }`: the worked example's sections resolved with `contentsRows` |
 
 Helpers used by pages and components:
 
 | Helper | Behaviour |
 |---|---|
 | `phaseCoverage(phases, templates)` | One entry per phase, sorted by `order`, with `covered` set when any template belongs to it |
+| `adjacentPhases(phases, slug)` | `{ previous, next }` in `order`; either is undefined at an end, both for an unknown slug |
+| `contentsRows(entries, templates, phases)` (`lib/catalog/worked-example.ts`) | Each contents section with its link: a template in the catalog (`/catalog?view=<slug>`) under its title, a step's anchor on its phase page, or a phase page; no link when the catalog lacks the target |
+| `formatLength(count, format)` (`lib/format.ts`) | A template's Length fact: slides for a `pptx` deck ("16 slides"), pages for every other format |
+| `intoViewOffset(row, item, padding)`, `scrollCurrentIntoView(row)` (`lib/scroll/into-view.ts`) | How far a sideways row must scroll so one item stands clear of its scroll padding (0 when it already does), and the call that scrolls a row to its `aria-current` item without moving the page |
 | `formatPrice(cents)` (`lib/format.ts`) | en-US dollars; whole amounts drop `.00` and other amounts keep their cents, so `49999` prints `$499.99` |
 | `countWord(count, form)` (`lib/format.ts`) | A count as copy writes it: a word up to twelve, digits beyond; `"capital"` for the first word of a sentence. The catalog's key line and the home page's toolkit section print `FREE_SAMPLE_COUNT` with it |
 
@@ -171,7 +201,7 @@ Seven phases, each with two steps (14 steps in total):
 | 7 | `sustain` | Sustain | `measure-adoption`, `reinforce-and-hand-over` | 17 |
 
 There are 67 templates. Their formats are docx (32), xlsx (19), pptx (12) and pdf (4). `pageCount` is set on
-43 templates. Six are free samples, one for each of the first six phases (the Sustain phase has none):
+43 templates; it is printed as slides for a deck and pages otherwise (`formatLength`). Six are free samples, one for each of the first six phases (the Sustain phase has none):
 
 | Phase | Free sample | Format |
 |---|---|---|
@@ -272,8 +302,10 @@ are used only in `header.module.css` and `nav-drawer.module.css`.
 ### 4.3 Phase rail
 
 `components/layout/phase-rail.tsx` renders the phases as a `PhaseTabs` row labelled "Phases". It is
-hidden below 68em. It scrolls with the page. Its tabs use `aria-current="page"` on `/phases/<slug>`;
-no other page belongs to a phase. `currentPhase()` in `nav-links.ts` computes it.
+hidden below 68em. It scrolls with the page. Its tabs use `aria-current="page"` on `/phases/<slug>`,
+and `aria-current="true"` on `/catalog` while the `phase` parameter names exactly one known phase
+(`singleCatalogPhase`); no other page belongs to a phase. `currentPhase()` in `nav-links.ts` computes it. The
+rail reads the search inside a Suspense boundary whose fallback is the rail drawn from the pathname alone.
 
 ### 4.4 Footer
 
@@ -285,7 +317,10 @@ no other page belongs to a phase. `currentPhase()` in `nav-links.ts` computes it
 - two status lines: "Sample catalog (beta)" and "Checkout is not available yet";
 - the copyright line and the trademark notice.
 
-The footer has `InkBackdrop` with scene `wisps` and edges `top`, and a veil with `data-ink-calm="veil"`.
+The footer has `InkBackdrop` with scene `wisps` and no edges, confined by `.wisps` in `footer.module.css` to a
+strip `--foot` (112px) tall at the foot, under the legal line, with a mask that fades it in over its top half.
+The strip is the bottom padding of the veil, which carries `data-ink-calm="veil"`, so no wisp stands under the
+words, live or still.
 
 ### 4.5 Beta strip
 
@@ -379,8 +414,6 @@ Primitives are the building blocks for pages. Each one has a CSS module unless n
 | `Eyebrow` | Uppercase label with an optional square marker |
 | `Tag` | `format`, `saving` or `plain` labels |
 | `Tally` | A row of blocks for counts. `animate` fills the blocks on scroll |
-| `Odometer` | A rolling numeral used for the 90% figure |
-| `CountUp` | Counts from 0 to a value on first view |
 | `Blank` | A blinking or steady caret bar |
 | `Note` | A short paragraph on the wash ground |
 | `Input`, `Select`, `Checkbox` | Form controls |
@@ -418,6 +451,9 @@ Components built from the primitives for one part of the site. Each has a doc co
 | `LockedTile` | `components/catalog/locked-tile.tsx` | `title`, `headingLevel`, `initialDenied` | The button of a locked tile, named "<title>, locked", and the line it answers with (section 9.3) |
 | `ChainLock`, `ChainLockParts` | `components/catalog/chain-lock.tsx` | none | The two crossed steel chains and padlock over a locked cover. The drawing (`ChainLockParts`) is rendered once by `TileGrid`, or once by a page that holds several grids (the phase page, whose grids take `locks={false}`), and each lock draws from it |
 | `TemplateDialog` | `components/catalog/template-dialog.tsx` | `closeHref`, `labelledBy` | The pop-up: a native modal `<dialog>` (section 9.3) |
+| `ActiveFilters` | `components/catalog/active-filters.tsx` | `criteria`, `phases`, `fallbackFocusId` | The filters that are on, as a row of chips above the results (section 9.4) |
+| `PhaseStrip` | `components/catalog/phase-strip.tsx` | `label`, `current`, `className` | The `nav` around the phone catalog's row of phases; scrolls the row to its lit card once drawn, when the fonts arrive and when the phase changes |
+| `PhasePager` | `components/catalog/phase-pager.tsx` | `previous`, `next`, `className` | The phase before and the phase after, at the foot of a phase page |
 | `TemplateDetail` | `components/catalog/template-detail.tsx` | `template`, `phase`, `titleId` | The content of the pop-up: large cover, "Free sample" tag, title, summary, description, facts, what is included, and the button to `/purchase` |
 | `Hero`, `HeroStage` | `components/home/hero.tsx`, `hero-stage.tsx` | `samples`, `phases` | The first screen of the home page: headline, lead and two buttons over the `prompt` ink; the stage where an empty prompt box becomes the six free samples as a hand of documents (section 8.7) |
 | `HeroLanding` | `components/home/hero-landing.tsx` | none | Client. Renders nothing; sets `data-landed` on the stage when the ink is not running at mount, or stops running later, which ends the sequence for that stage (section 8.7) |
@@ -498,7 +534,8 @@ that). The selectors do not name a state, so a change of state never restarts a 
 | 600 | Skip hint fades in |
 | 800 to 1000 | The 365 is written on the tail in a finer pen (stroke 1.1): the 3 from 800 to 900, the 6 from 850 to 950, the 5 from 900 to 1000 |
 | 1000 to 2500 | The finished mark stands |
-| 2500 to 2950 | Cover leaves (`cover-leave`, 450 ms, `--curve-leave`) when no ink took over |
+| 2500 to 2680 | The signature and the hint fade on the still opaque paper (`sign-leave`, 180 ms) when no ink took over |
+| 2500 to 2950 | Cover leaves (`cover-leave`, 450 ms, `--curve-leave`) when no ink took over: its opacity holds at 1 until 40%, 2680, so the mark never lies over the hero |
 | 2500 to 2800 | The signature (mark and name) fades on the ink path, whenever the ink took over |
 | T + 2700 to T + 3500 | Cover ink leave (`cover-ink`, 800 ms), when the ink took over at T (T is 1600 at the latest) |
 | 5500 | Backstop: the `data-intro` attribute is unset |
@@ -875,13 +912,12 @@ animated property sits inside `@media (prefers-reduced-motion: no-preference)`. 
 | `data-when="load"` | `Appear` (`when` prop) | Entrance runs on page load, not on scroll |
 | `data-seen` | `watchSeen` | Set once the element has arrived in view |
 | `data-watch` | `Tally` (`animate`), `PriceTag` | Element to observe. `data-watch="half"` waits for half the element to be visible |
-| `data-ninety` | `SolutionSection` | Ninety band: wheel and blocks fill on scroll |
+| `data-ninety` | `SolutionSection` | Ninety band: the blocks fill on scroll; the figure never moves |
 | `--order` | `Appear`, `Sentences`, drawer items | Stagger index |
 | `data-paper`, `data-lit` | `PaperSheet` (`lit` prop) | Paper shadow and pointer tilt |
 | `data-bar` | `Header` | Shadow under the bar |
 | `data-ledger` | `BandedList` | Rule that grows on scroll |
 | `data-block` | `Tally` | Blocks: ink, mark or empty |
-| `data-odometer-wheel` | `Odometer` | Rolling digits |
 | `data-ink-backdrop`, `data-ink-slot` | `InkBackdrop` | Ink region, hidden under contrast or forced colours |
 | `data-lit-scope` | Read by `lib/scroll/pointer.ts` and `app/motion.css` | Scopes the pointer light to an ancestor |
 | `data-folder`, `data-folder-scope` | `Folder`, an element around one | The folder whose sheets rise under the pointer; the scope in which keyboard focus raises them too |
@@ -901,21 +937,20 @@ through `animation-timeline: view()`.
 | Move | Animation | Range |
 |---|---|---|
 | `drift` | `move-drift` (opacity 0 to 1, moves 12px up) | `entry calc(var(--order) * 4%) cover min(22%, 14rem)` |
-| `ink-in` | `move-ink-in-plain` (opacity); `move-ink-in` adds an 8px blur from 68em | `entry calc(10% + order * 4%) cover min(30%, 18rem)` |
+| `ink-in` | `move-ink-in` (opacity 0 to 1; no blur, no movement) | `entry calc(order * 4%) cover min(16%, 8rem)`: the shortest range, so a heading is legible before the text around it |
 | `settle` | `move-settle` (opacity, moves 28px up, scale 1.03). Its paper shadow uses `move-shadow` on the same timeline | `entry calc(order * 4%) cover min(30%, 18rem)` |
 | `grow` | `move-grow` (scale 0 to 1) | `entry calc(10% + order * 4%) cover min(28%, 16rem)` |
 
 Ledger rules grow on the `--ledger` timeline. The bar's shadow fades in over the first 84 px of scrolling
-(`bar-shadow-in` on `scroll(root block)`). The ninety band uses the `--ninety` timeline: the wheel rolls
-from 20% to 44% of the view, each block fills across a 3% window that starts 2.6% after the previous block,
+(`bar-shadow-in` on `scroll(root block)`). The ninety band uses the `--ninety` timeline: from 20% of the view each block fills across a 3% window that starts 2.6% after the previous block,
 and the mark block fills from 44% to 47%.
 
 Observer path (`html[data-motion="on"][data-io="armed"]`, without the timeline): elements start in their
 hidden state until they carry `data-seen`, then transition. Drift takes 480 ms on
 `--curve-settle`. Settle takes `--time-settle` (560 ms), with `--curve-settle` for opacity and `--curve-drop` for movement and scale; ink-in
-takes `--time-ink` (640 ms) on `--curve-ink`; grow takes 600 ms. The stagger for every move is
-`order * --stagger` (70 ms). The ninety band fills its wheel over `--time-count` (1200 ms), and its blocks fill over
-`--time-fill` (180 ms) with delays spread across the count.
+takes `--time-ink` (400 ms, opacity only) on `--curve-ink`; grow takes 600 ms. The stagger for every move is
+`order * --stagger` (70 ms). Without view timelines the ninety band's blocks fill over
+`--time-fill` (180 ms) with delays spread across `--time-count` (1200 ms).
 
 `MotionRoot` (`components/ui/motion-root.tsx`, client) runs before paint on each pathname change. It exits
 unless `data-motion` is `on`. It starts `watchSeen` on `[data-watch]` (plus `[data-move]` and `[data-ninety]` when
@@ -937,13 +972,11 @@ With `lit`, the sheet gets `data-lit`. `lib/scroll/pointer.ts` (`trackLight`) ru
 `--tx` and `--ty` (tilt, up to 1.2 degrees) on the sheet under the pointer, with one `requestAnimationFrame`
 per frame. On hover the sheet moves up 6 px (`translate: 0 -6px`) and tilts from `--tx` and `--ty`. On keyboard focus within the sheet it moves up 6 px without the tilt. The lift takes `--time-lift` (260 ms).
 
-### 8.4 Counters, odometer and tally
+### 8.4 Figures and tally
 
-- `CountUp` renders the final number on the server. When motion is on, and the element has not already
-  arrived, it counts from 0 to the value over `--time-count` (1200 ms) with a cubic ease-out once 40% of the
-  element is visible. The span's width is set from the digit count with `--digits` so the layout does not shift.
-- `Odometer` renders the figure as two digit wheels. The wheel moves to the tens digit with
-  `translate: 0 calc(var(--tens) * -1em)`. It is decorative and `aria-hidden`.
+- Figures never count or roll. The `#inside` counts and the 90% of the ninety band are printed as plain text
+  with their final value, so a reader scrolling past never sees a wrong number. The 90% is `aria-hidden`; the
+  heading beside it carries the figure in visually hidden words.
 - `Tally` renders blocks. With `animate`, blocks start empty and fill from the left with `tally-fill`, delayed
   by `--time-enter` plus `--i` times `--time-fill-gap`. The blocks are held empty only while `data-io` is
   `armed`.
@@ -957,7 +990,7 @@ no page does today, so nothing travels between pages. Opening a free sample in t
 one page and starts no view transition.
 
 In `motion.css`, under no-preference: the outgoing page (`.page-out`) fades over 140 ms, the incoming page
-(`.page-in`) runs `move-ink-in-plain` over 260 ms with an 80 ms delay (adding blur from 40em), and the
+(`.page-in`) runs `move-ink-in` (opacity only) over 260 ms with an 80 ms delay, and the
 `.sheet-morph` group takes 420 ms on `--curve-settle`. Outside that query, `::view-transition` ignores
 pointer events and the root snapshot is hidden on exit.
 
@@ -966,7 +999,7 @@ pointer events and the root snapshot is hidden on exit.
 Reduced motion is handled at three levels:
 
 1. The boot script returns early, so `data-motion`, `data-timeline` and `data-intro` are never set. Motion
-   hooks in CSS do nothing, `MotionRoot` exits, and `CountUp` does not count.
+   hooks in CSS do nothing and `MotionRoot` exits.
 2. Every animation and transition rule sits inside `(prefers-reduced-motion: no-preference)`. View
    transition groups under `reduce` have `animation: none !important`, and outgoing views are `display: none`.
 3. `app/globals.css` has a global safety net under reduce: animation and transition durations are set to
@@ -990,9 +1023,9 @@ Timing and curve tokens (`app/globals.css`):
 | `--time-fill-gap` | 80ms | Gap between blocks |
 | `--time-blink` | 1100ms | Caret blink cycle |
 | `--time-lift` | 260ms | Sheet lift and hover |
-| `--time-ink` | 640ms | Ink-in entrances |
+| `--time-ink` | 400ms | Ink-in entrances |
 | `--time-settle` | 560ms | Settle entrances |
-| `--time-count` | 1200ms | Counters and ninety wheel |
+| `--time-count` | 1200ms | The spread of the ninety's block fill without view timelines |
 | `--time-page-out`, `--time-page-in` | 140ms, 260ms | Page transitions |
 | `--time-morph` | 420ms | Shared element morph |
 | `--stagger` | 70ms | Entrance stagger |
@@ -1073,7 +1106,7 @@ The catalog's filters, search, sort and page live in the URL. A search URL is th
 | `audience` | audiences | Validated against the taxonomy |
 | `format` | formats | Validated against the taxonomy |
 | `free` | `1` | Keeps only the free samples; anything else is off |
-| `sort` | `samples` (default), `title` | Anything else becomes `samples` |
+| `sort` | `samples` (default), `phase`, `title` | Anything else becomes `samples` |
 | `page` | integer | Must match `^[1-9]\d{0,5}$`; otherwise `1` |
 | `view` | a template slug | Not a filter: asks for one template (section 9.3). `parseView` takes the first value if it has the shape of a slug |
 
@@ -1093,8 +1126,12 @@ values are omitted. `catalogHref(criteria, view?)` writes the same address with 
   characters are literal. Phase names, apps and audiences are not searched.
 - Facet counts are computed with each facet's own selection cleared, so a count shows what ticking that box
   would return. Search, the free filter and the other facets still apply.
-- Sort: `samples` puts the free templates first, then sorts by title with `localeCompare`. `title` sorts by
-  title. There is no price sort.
+- Sort: `samples`, the default, puts the free templates first and then follows the rollout inside each
+  group: phase `order`, then step `order`, then the order the content lists the templates in. `phase` is that
+  rollout order alone, with a free sample standing where its step is. Both need the phases, so the catalog
+  page passes them as the third argument of `queryTemplates`; without them they keep the given order, and a
+  template of an unknown phase or step goes last. `title` sorts by title with `localeCompare`. There is no
+  price sort. The select labels them "Free samples first", "Phase order" and "Title A–Z".
 - Pagination: `PAGE_SIZE` is 24. The page is clamped to between 1 and the page count (at least 1). The catalog
   page passes the clamped page back into its criteria, so links never point past the last page.
 
@@ -1131,15 +1168,34 @@ control and no price.
 ### 9.4 Controls
 
 - `SearchBox` is a plain `GET` form to `/catalog`. Hidden inputs keep the facets, `free` and the sort, and drop the
-  page.
+  page. Its submit button sits inside the far end of the field: a 44px square with the `search` icon and the
+  visually hidden name "Search". Enter submits too, with or without script.
 - `SortSelect` and `FilterPanel` are client components. A change calls `router.replace` with the new query and
   resets the page to 1. `FilterPanel` updates its checkboxes optimistically (`useOptimistic` in a transition).
   Its first control is "Free samples only" (`free`), and it counts toward "Filters (n)" and the clear link.
 - `FilterPanel` disables a checkbox whose count is 0 unless it is already checked. Below 68em the panel is a
-  native dialog opened from a "Filters" button, with a "Show results" button that closes it.
+  native dialog opened from a "Filters" button, with a "Show results" button that closes it. Its `sort` prop
+  is drawn at the top of the dialog's body below 40em only.
+- Phone layout of the rail (below 40em): `PhaseStrip`, a navigation "Start from a phase" with the seven phases
+  as large `PhaseTabs` in one row that scrolls sideways (the card is lit, `aria-current="true"`, under the same
+  rule as the phase rail, and scrolled into view by `scrollCurrentIntoView`), then the search and the "Filters"
+  button on one row. The catalog page renders `SortSelect` twice: once in the rail, hidden below 40em, and once
+  as `FilterPanel`'s `sort`, hidden from 40em. Only one is ever displayed. From 40em the strip is not displayed
+  and the rail is the search on its own row with the sort and Filters under it.
 - "Clear all filters" links to `/catalog?q=<q>` when a search term exists, or to `/catalog` otherwise. It keeps
-  only the search term, so the sort also resets.
-- The empty-state "Clear filters" link goes to `/catalog`.
+  only the search term, so the free filter and the sort also reset (`clearFiltersHref`).
+- `ActiveFilters` (client) lists every filter that is on above the result count as a chip, in a list labelled
+  "Active filters": "Free samples only" first when it is on, then every selected facet value. Each chip is a
+  link to the catalog without that value, on page 1 (`activeFilters` in `lib/catalog/search-params.ts`), named
+  "Remove <facet> filter: <value>" ("Remove filter: Free samples only" for the free filter). "Clear all" ends
+  the row and goes where "Clear all filters" goes. With script, a plain click calls `router.replace` without
+  scrolling; focus then moves to the chip now at the removed one's position (or the one before), or to the
+  result count (`#results-heading`, `tabIndex=-1`) once no chip is left. Nothing renders without filters.
+- Empty result: with only a search term, the heading is `No templates match “<q>”.`, the link is "Clear search"
+  (the same criteria without `q`), and a navigation labelled "Browse by phase" shows the phases as large
+  `PhaseTabs`. With a filter on (`hasFilters`: a facet value or the free filter) it is "No templates match
+  these filters." with "Clear filters" (or "Clear search and filters" when a term is also set), linking to
+  `/catalog`.
 - `Pagination` renders links to `/catalog` with the same criteria and the new page. It renders nothing when
   there is one page.
 
@@ -1194,7 +1250,7 @@ The controller also exposes a layer handle with `ink()`, `canvas()`, `scene()`, 
 | `data-ink-calm`, `data-ink-anchor` | Page elements | Calm regions and anchors |
 | `data-scene`, `data-edges` | Backdrop | Scene and edges |
 | `data-intro-cover` | Cover | The cover element |
-| `data-seen`, `data-tally`, `data-block`, `data-odometer`, `data-odometer-wheel` | Motion elements | Entrance and counter state |
+| `data-seen`, `data-tally`, `data-block` | Motion elements | Entrance and tally state |
 | `data-band` | Band | Ground: desk, paper, wash, ink or binder |
 | `data-paper`, `data-lit` | Sheets | Paper and pointer light |
 | `data-bar`, `data-phase-rail`, `data-nav-drawer` | Shell | Bar, rail and drawer |
@@ -1224,7 +1280,7 @@ The design gate (`tests/unit/design-gate.test.ts`) scans every file under `app/`
 - `package.json` dependencies are exactly `next`, `react`, `react-dom` and `zod`.
 - Canvas and WebGL calls are allowed only in `lib/ink/`, `components/ink/` and `lib/boot/`.
 - `requestAnimationFrame` calls are allowed only in `lib/ink/`, `components/ink/`, `lib/scroll/`,
-  `lib/boot/`, `components/intro/` and `components/ui/count-up.tsx`. The scroll string literal is allowed
+  `lib/boot/` and `components/intro/`. The scroll string literal is allowed
   only in `lib/ink/`, `components/ink/` and `lib/scroll/`.
 
 ### 10.5 Unit tests (Vitest)
@@ -1233,16 +1289,18 @@ Each file below is in `tests/unit/`:
 
 | File | Covers |
 |---|---|
-| `content.test.ts` | The real catalog: phases, counts, no price on any template, exactly six free templates (named), sample flags, copy rules, search, related templates |
-| `query.test.ts` | Filters, the free filter, search, the `samples` and `title` sorts (no price sort), facet counts, pagination |
-| `search-params.test.ts` | URL parsing and serialisation, `free`, `parseView`, `catalogHref` |
+| `content.test.ts` | The real catalog: phases, counts, no price on any template, exactly six free templates (named), sample flags, copy rules, search, the default order, related templates, the worked example's contents |
+| `query.test.ts` | Filters, the free filter, search, the `samples`, `phase` and `title` sorts (no price sort), facet counts, pagination |
+| `search-params.test.ts` | URL parsing and serialisation, `free`, `parseView`, `catalogHref`; `clearFiltersHref`, `hasFilters`, and the active-filter chips and their links |
+| `nav-links.test.ts` | The phase a page belongs to, including the catalog filtered on one phase |
+| `worked-example.test.ts`, `into-view.test.ts` | The worked example's contents resolved against the catalog; how far a sideways row scrolls to show an item |
 | `validate.test.ts` | Validation errors and sorting; a catalog with 0, 5, 7 or 8 free templates is rejected |
-| `coverage.test.ts`, `format.test.ts` | Helpers; `formatPrice(49999)` is `$499.99`; `countWord(6)` is `six` |
+| `coverage.test.ts`, `format.test.ts` | Helpers; `adjacentPhases`; `formatPrice(49999)` is `$499.99`; `countWord(6)` is `six`; `formatLength(16, "pptx")` is `16 slides` |
 | `compounds.test.ts` | Compound splitting for `KeepCompounds` |
 | `brand-mark.test.ts` | Logo geometry, the 365 (three one-stroke digits in their box, clear of the legs, above the arm, evenly set), `LogoMark` with and without digits, and `app/icon.svg` |
 | `boot-script.test.ts` | Runs `BOOT_SCRIPT` against stand-ins for the document, storage, media queries and WebGL; the calm routes (`/catalog` only); the 5500 ms backstop and the takeover limit |
-| `boot-cover.test.ts` | Cover markup and timings (six pen paths, the digits 800 to 1000, leave at 2500, ink leave ending with the scene); `InkBackdrop` markup and priority; stills manifest |
-| `kit-motion.test.ts` | `motion.css` rules: keyframes and animations inside `no-preference`, timeline ordering, hidden states only under `data-motion="on"` |
+| `boot-cover.test.ts` | Cover markup and timings (six pen paths, the digits 800 to 1000, leave at 2500 with the signature gone before the paper clears, ink leave ending with the scene); `InkBackdrop` markup and priority; stills manifest |
+| `kit-motion.test.ts` | `motion.css` rules: keyframes and animations inside `no-preference`, timeline ordering, hidden states only under `data-motion="on"`, no blurred entrance, the heading's range ending first |
 | `kit-grain.test.ts` | Paper grain image format and size |
 | `stills-files.test.ts` | The thirteen stills on disk match the manifest and size limits |
 | `ink-scenes.test.ts`, `ink-stage.test.ts`, `ink-zones.test.ts` | Scene scripts (the `intro` and `prompt` timelines), stage choice and calm zones |
@@ -1265,7 +1323,7 @@ Specs:
 | Spec | Projects | Covers |
 |---|---|---|
 | `browse.spec.ts` | chromium, mobile, firefox | Home to a phase and on to its free sample; the hero to the six samples; the worked example; no horizontal overflow on 7 routes |
-| `catalog.spec.ts` | chromium, mobile | The grid of tiles; six free first, the rest locked; the canonical address; no price anywhere; "Free samples only"; the sort options; filters, URL restore, search, empty state, malformed parameters, the phone filter dialog |
+| `catalog.spec.ts` | chromium, mobile | The grid of tiles; six free first, the rest locked; the canonical address; no price anywhere; "Free samples only"; the sort options; filters, chips, URL restore, search, phase order and the lit phase, empty states, malformed parameters, the phone's rail and filter dialog |
 | `locked.spec.ts` | chromium, mobile | A locked tile: its button, chain and padlock; the 600 ms denial and its line; Enter and Space; repeated presses; the shake, rattle and pulse; reduced motion; `?view=` a locked template, on the page of results and off it; the locks' drawing once on a phase page; without JavaScript |
 | `template-dialog.spec.ts` | chromium, mobile | The pop-up: opening from a tile, its content, Escape, Close and the dimmed page each closing it and keeping the other parameters, Back, focus, values that open nothing, the home and phase tiles, without JavaScript |
 | `purchase.spec.ts` | chromium, mobile | The Purchase page: one title and the price once on the tag; the folder and the tally; the ledger; the Checkout button; the questions; 320px; the tag's swing; reduced motion; the home folder |
@@ -1279,7 +1337,7 @@ Specs:
 | `ink-live.spec.ts` | gpu | Live ink: the prompt scene (its script, first frame, frame cost, long tasks, calm caps); the hero's sequence (its timings, the first visit, a pause or a fall to still half-way, a paused session played again, a return inside the site); pause, resize, context loss, the not-found scene, the takeover of the cover (within 1.6 s, gone 3.5 s later) |
 | `menu.spec.ts` | mobile (in chromium every test skips) | The phone bar and drawer: brand, button and Menu at 390 and 320px; the three links and seven phases; Escape, Close, the dimmed page; navigation closing it |
 | `motion.spec.ts` | chromium, mobile, firefox | Entrances hidden until scrolled into view, with timelines and without; the ninety band; a page change runs a view transition; a filter change or a pop-up starts none |
-| `reduced-motion.spec.ts` | chromium, mobile, firefox | Reduced motion on 8 routes: still ink, no motion attributes, no canvas, no running animations, no cover; the stills load; the odometer and tally show their final state |
+| `reduced-motion.spec.ts` | chromium, mobile, firefox | Reduced motion on 8 routes: still ink, no motion attributes, no canvas, no running animations, no cover; the stills load; the 90% figure and the tally show their final state |
 | `not-found.spec.ts` | chromium, mobile | 404 status and content for missing paths; lowercase redirect |
 
 `tests/e2e/support/ink.ts` gives the ink specs helpers for reading pixels, states, timings and console

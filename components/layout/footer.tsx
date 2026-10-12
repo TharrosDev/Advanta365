@@ -11,11 +11,12 @@ import { SITE } from "@/lib/site";
 import styles from "./footer.module.css";
 
 /**
- * The site footer: the binder, the only dark surface of the site. Faint blue wisps drift through it
- * (the `wisps` backdrop, first in the footer, so everything else is lifted above it); the whole
- * footer, edge to edge, is the veil that holds them under the light the words need. It spans the
- * full width because a still is scaled with the width of the window: a veil that stopped at the
- * page column would leave margins whose ink the scaling moves under the words.
+ * The site footer: the binder, the only dark surface of the site. Faint blue wisps drift at its
+ * foot (the `wisps` backdrop, first in the footer, so everything else is lifted above it). The
+ * backdrop is not the whole footer but a strip under the legal line, fading in from its top, so
+ * no wisp, live or still, ever stands under a link or a line of the notice. The whole footer, edge
+ * to edge, is still the veil that caps the ink under the light the words need; the strip is the
+ * veil's own bottom padding.
  *
  * From 68em it is the twelve-column grid: the brand and the contact address (columns 1 to 4), the
  * "Footer" navigation (5 to 7), the site's one "Rollout phases" navigation under its visible label
@@ -29,7 +30,11 @@ export function Footer({ phases }: { phases: readonly PhaseLink[] }) {
 
   return (
     <footer className={styles.root} data-band="binder">
-      <InkBackdrop scene="wisps" still={{ wide: "wisps-wide", tall: "wisps-tall" }} edges="top" />
+      <InkBackdrop
+        scene="wisps"
+        still={{ wide: "wisps-wide", tall: "wisps-tall" }}
+        className={styles.wisps}
+      />
       <div className={styles.veil} data-ink-calm="veil">
         <Wrap className={styles.grid}>
           <div className={styles.brand}>

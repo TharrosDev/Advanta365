@@ -7,7 +7,7 @@
  *   [data-paper], [data-lit]                       a paper object and its light under the pointer
  *   [data-bar]                                     the bar and its shadow
  *   [data-nav-underline]                           the bar’s underline, which slides to the current link
- *   [data-ninety], [data-odometer-wheel]           the one band whose figure follows the scroll
+ *   [data-ninety]                                  the one band whose tally follows the scroll
  *   [data-price-tag]                               the paper tag on its string, which swings
  *   [data-tile][data-denied], [data-lock]          a locked tile saying no, and its padlock
  *   [data-template-dialog][data-enter]             the pop-up of the catalog arriving
@@ -94,14 +94,8 @@
     }
   }
 
+  /* A heading arrives by its ink alone: no blur and no drift, so its words are never smeared. */
   @keyframes move-ink-in {
-    from {
-      opacity: 0;
-      filter: blur(8px);
-    }
-  }
-
-  @keyframes move-ink-in-plain {
     from {
       opacity: 0;
     }
@@ -139,12 +133,6 @@
     }
   }
 
-  @keyframes ninety-roll {
-    from {
-      translate: 0 0;
-    }
-  }
-
   @keyframes ninety-fill {
     from {
       background-color: transparent;
@@ -169,9 +157,13 @@
     animation-range: entry calc(var(--order, 0) * 4%) cover min(22%, 14rem);
   }
 
+  /*
+   * A heading is read as soon as it is seen, so it is inked first and over the shortest passage:
+   * from the moment it enters until it stands 8rem into the window, ahead of the text around it.
+   */
   html[data-motion="on"][data-timeline="on"] [data-move="ink-in"]:not([data-when="load"]) {
-    animation-name: move-ink-in-plain;
-    animation-range: entry calc(10% + var(--order, 0) * 4%) cover min(30%, 18rem);
+    animation-name: move-ink-in;
+    animation-range: entry calc(var(--order, 0) * 4%) cover min(16%, 8rem);
   }
 
   html[data-motion="on"][data-timeline="on"] [data-move="settle"]:not([data-when="load"]) {
@@ -214,12 +206,6 @@
     transform-origin: left center;
   }
 
-  @media (min-width: 68em) {
-    html[data-motion="on"][data-timeline="on"] [data-move="ink-in"]:not([data-when="load"]) {
-      animation-name: move-ink-in;
-    }
-  }
-
   /*
    * Entrances without view timelines. The observer marks each element `data-seen` once; until
    * then it waits in its starting state, and the mark is what carries the transition, so going
@@ -255,13 +241,6 @@
     scale: 0 1;
   }
 
-  @media (min-width: 68em) {
-    html[data-motion="on"][data-io="armed"]:not([data-timeline="on"])
-      [data-move="ink-in"]:not([data-when="load"]):not([data-seen]) {
-      filter: blur(8px);
-    }
-  }
-
   html[data-io="armed"]:not([data-timeline="on"]) [data-move][data-seen] {
     transition:
       opacity 480ms var(--curve-settle),
@@ -270,9 +249,7 @@
   }
 
   html[data-io="armed"]:not([data-timeline="on"]) [data-move="ink-in"][data-seen] {
-    transition:
-      opacity var(--time-ink) var(--curve-ink),
-      filter var(--time-ink) var(--curve-ink);
+    transition: opacity var(--time-ink) var(--curve-ink);
     transition-delay: calc(var(--order, 0) * var(--stagger));
   }
 
@@ -300,7 +277,7 @@
   }
 
   html[data-motion="on"] [data-move="ink-in"][data-when="load"] {
-    animation-name: move-ink-in-plain;
+    animation-name: move-ink-in;
     animation-duration: var(--time-ink);
     animation-timing-function: var(--curve-ink);
   }
@@ -314,12 +291,6 @@
   html[data-motion="on"] [data-move="grow"][data-when="load"] {
     animation-name: move-grow;
     animation-duration: 600ms;
-  }
-
-  @media (min-width: 68em) {
-    html[data-motion="on"] [data-move="ink-in"][data-when="load"] {
-      animation-name: move-ink-in;
-    }
   }
 
   :root[data-intro][data-motion="on"] [data-move][data-when="load"] {
@@ -379,19 +350,13 @@
   }
 
   /*
-   * The ninety. The band is the timeline: over its passage through the viewport the tens wheel
-   * rolls from blank to its figure between 20% and 44%, the blocks ink in one after another from
-   * 20%, each over 3% and 2.6% apart, and the marked block fills between 44% and 47%. The ink
-   * layer reads the same progress and drops its ink at 0.47.
+   * The ninety. The band is the timeline: over its passage through the viewport the blocks ink in
+   * one after another from 20%, each over 3% and 2.6% apart, and the marked block fills between
+   * 44% and 47%. The ink layer reads the same progress and drops its ink at 0.47. The figure
+   * itself never moves: it reads 90% from the start.
    */
   html[data-motion="on"][data-timeline="on"] [data-ninety] {
     view-timeline-name: --ninety;
-  }
-
-  html[data-motion="on"][data-timeline="on"] [data-ninety] [data-odometer-wheel] {
-    animation: ninety-roll linear both;
-    animation-timeline: --ninety;
-    animation-range: cover 20% cover 44%;
   }
 
   html[data-motion="on"][data-timeline="on"] [data-ninety] [data-block] {
@@ -405,24 +370,14 @@
   }
 
   /*
-   * Without view timelines the observer marks the band when half of it is in view. The wheel then
-   * rolls once and the blocks fill in the same time; the last block's `animationend` is the cue
-   * for the ink.
+   * Without view timelines the observer marks the band when half of it is in view. The blocks then
+   * fill one after another over `--time-count`; the last block's `animationend` is the cue for the
+   * ink.
    */
-  html[data-motion="on"][data-io="armed"]:not([data-timeline="on"])
-    [data-ninety]:not([data-seen])
-    [data-odometer-wheel] {
-    translate: 0 0;
-  }
-
   html[data-motion="on"][data-io="armed"]:not([data-timeline="on"])
     [data-ninety]:not([data-seen])
     [data-block] {
     background-color: transparent;
-  }
-
-  html[data-io="armed"]:not([data-timeline="on"]) [data-ninety][data-seen] [data-odometer-wheel] {
-    transition: translate var(--time-count) var(--curve-settle);
   }
 
   html[data-io="armed"]:not([data-timeline="on"]) [data-ninety][data-seen] [data-block] {
@@ -727,18 +682,12 @@
   }
 
   ::view-transition-new(.page-in) {
-    animation: move-ink-in-plain var(--time-page-in) var(--curve-ink) 80ms both;
+    animation: move-ink-in var(--time-page-in) var(--curve-ink) 80ms both;
   }
 
   ::view-transition-group(.sheet-morph) {
     animation-duration: var(--time-morph);
     animation-timing-function: var(--curve-settle);
-  }
-
-  @media (min-width: 40em) {
-    ::view-transition-new(.page-in) {
-      animation-name: move-ink-in;
-    }
   }
 }
 

@@ -78,6 +78,23 @@ describe("the cover's timeline", () => {
     expect(ms("leave-at") - written).toBe(1500);
   });
 
+  it("takes the signature off the paper before the paper clears, so the mark never lies over the page", () => {
+    expect(ms("sign-leave-at")).toBe(ms("leave-at"));
+    // The paper holds opaque for the first part of its own way out: as long as the signature takes.
+    const hold = css.match(/@keyframes cover-leave\s*\{[\s\S]*?(\d+)%\s*\{\s*opacity:\s*1;\s*\}/);
+    expect(hold).not.toBeNull();
+    const clearsAt = ms("leave-at") + (Number(hold?.[1]) / 100) * ms("leave");
+    expect(ms("sign-leave-at") + ms("sign-leave")).toBeLessThanOrEqual(clearsAt);
+    // After the mark is complete (1000) and after the latest takeover by the ink, so the ink never
+    // finds the signature half gone; and at the moment the ink's own state takes it off.
+    expect(ms("sign-leave-at")).toBeGreaterThan(INTRO_TAKEOVER_MS);
+    expect(ms("sign-leave-at")).toBe(ms("ink-sign-at"));
+    expect(css).toMatch(
+      /:root\[data-intro="play"\]\s+\.signature\s*\{\s*animation:\s*sign-leave\b/,
+    );
+    expect(css).toMatch(/:root\[data-intro="play"\]\s+\.hint\s*\{[^}]*sign-leave\b/);
+  });
+
   it("is gone 3500ms after the ink took it over, so at most 5100ms in, inside the backstop", () => {
     expect(ms("ink-leave-at")).toBe(2700);
     expect(ms("ink-leave-at") + ms("ink-leave")).toBe(3500);

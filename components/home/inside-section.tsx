@@ -1,6 +1,5 @@
 import { Band } from "@/components/ui/band";
 import { BandedList, BandedRow } from "@/components/ui/banded-list";
-import { CountUp } from "@/components/ui/count-up";
 import { Eyebrow } from "@/components/ui/eyebrow";
 import { Icon } from "@/components/ui/icon";
 import { KeepCompounds } from "@/components/ui/keep-compounds";
@@ -69,8 +68,8 @@ const PHASES_LABEL = "Browse the sample catalog by phase";
  * `#inside`: on paper. The margin (columns 1 to 4, sticky under the bar from 68em) holds the
  * heading, its sentence and, from 68em, the specimen: one real template as the top sheet of a
  * stack. The content (columns 6 to 12) is the manifest, a ledger of six tall rows: the first three
- * open with their count as a large figure that counts up when it is seen, the last three with a
- * line drawing; neither a title nor a description breaks inside a hyphenated word
+ * open with their count as a large figure, printed as it is and never counted up, the last three
+ * with a line drawing; neither a title nor a description breaks inside a hyphenated word
  * ("10,000-person"). The worked example is the one row that is a link, to `/sample`: its title is
  * the anchor and is stretched over the row. Under the ledger, the seven phases as large index tabs;
  * a tab's accessible name is exactly the phase name.
@@ -107,7 +106,7 @@ export function InsideSection({
                   {drawing ? (
                     <LineDrawing name={drawing} className={styles.manifestDrawing} />
                   ) : (
-                    <CountUp value={count} className={styles.manifestCount} />
+                    <span className={styles.manifestCount}>{count}</span>
                   )}
                 </span>
                 {drawing ? null : " "}

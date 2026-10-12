@@ -129,7 +129,7 @@ function glyphFor(type: DeliverableType): ReactNode {
  * The cover of a template: a sheet of paper in the proportions of its format (a Word or PDF page
  * 5 by 7, the PDF with a folded corner; a slide 16 by 9; a workbook 4 by 3), printed as the
  * template's own first page. At `md` and `lg`, with a `title`: the title, the first line of the
- * `summary`, ghost lines for the rest, the phase numeral on an index tab at the right edge, the
+ * `summary` (ending on a whole word), ghost lines for the rest, the phase numeral on an index tab at the right edge, the
  * line drawing of the deliverable type, the blank (the one highlighted part, which is the
  * buyer's) and the format tag at the top right, on two sheets beneath. At `sm`, and whenever
  * there is no `title`: the tag, the numeral, three ghost lines and the blank. Everything printed

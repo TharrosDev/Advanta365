@@ -8,6 +8,7 @@ import {
   getRelatedTemplates,
   getTemplate,
   getTemplates,
+  getWorkedExampleContents,
   hasSampleContent,
 } from "@/lib/catalog/repository";
 import { FREE_SAMPLE_COUNT } from "@/lib/catalog/validate";
@@ -162,6 +163,23 @@ describe("sample catalog", () => {
     expect(result.items.map((t) => t.slug)).toEqual(["executive-sponsor-kickoff-deck"]);
     expect(result.items[0]?.free).toBe(true);
   });
+
+  test("the catalog opens on the six free samples in phase order, then the rest in phase order", async () => {
+    const [templates, phases] = await Promise.all([getTemplates(), getPhases()]);
+    const all = queryTemplates(templates, DEFAULT_CRITERIA, phases);
+    const order = phases.map((phase) => phase.slug);
+    const firstPage = all.items;
+    expect(firstPage.slice(0, FREE_SAMPLE_COUNT).every((t) => t.free)).toBe(true);
+    expect(firstPage.slice(FREE_SAMPLE_COUNT).some((t) => t.free)).toBe(false);
+    for (const group of [
+      firstPage.slice(0, FREE_SAMPLE_COUNT),
+      firstPage.slice(FREE_SAMPLE_COUNT),
+    ]) {
+      const positions = group.map((t) => order.indexOf(t.phase));
+      expect(positions).toEqual([...positions].sort((x, y) => x - y));
+    }
+    expect(firstPage[0]?.slug).toBe("executive-sponsor-kickoff-deck");
+  });
 });
 
 describe("repository lookups", () => {
@@ -206,5 +224,22 @@ describe("repository lookups", () => {
 
   test("related templates of an unknown slug is empty", async () => {
     expect(await getRelatedTemplates("does-not-exist")).toEqual([]);
+  });
+});
+
+describe("the worked example's contents", () => {
+  test("every section links to a page the catalog holds", async () => {
+    const { sections } = await getWorkedExampleContents();
+    expect(sections.length).toBeGreaterThan(0);
+    for (const section of sections) expect(section.link, section.title).toBeDefined();
+  });
+
+  test("a template section links into the catalog, never to a page of its own", async () => {
+    const { sections } = await getWorkedExampleContents();
+    const links = sections.flatMap((section) => (section.link ? [section.link] : []));
+    const templates = links.filter((link) => link.kind === "Template");
+    expect(templates.length).toBeGreaterThan(0);
+    for (const link of templates) expect(link.href).toMatch(/^\/catalog\?view=[a-z0-9-]+$/);
+    for (const link of links) expect(link.href).not.toMatch(/^\/templates\//);
   });
 });

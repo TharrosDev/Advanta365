@@ -89,25 +89,30 @@ components/
   home/               Home sections: hero (HeroStage, ProofStrip), featured (the six samples), inside, the
                       portfolio, problem and solution, practice, values, built-for row, closing
   catalog/            Template covers, tiles (TemplateTile, LockedTile, ChainLock), the pop-up
-                      (TemplateDialog, TemplateDetail), filters, search, sort, result list, step nav
+                      (TemplateDialog, TemplateDetail), filters and their chips, search, sort, result
+                      list, the phone's phase strip, step nav, the phase pager
   purchase/           Portfolio (the toolkit as a folder) and PriceTag
   company/            Pieces of the about, purchase and sample pages
   ink/                InkBackdrop, InkLayer, the controller and the lab
   intro/              The cover of a first visit, and the tag that prints the boot script
   not-found/          MissingPage, AskedPath and LateBoot
-content/              The sample catalog: phases, one template file per phase, taxonomy
+content/              The sample catalog: phases, one template file per phase, taxonomy, and the worked
+                      example's table of contents
 lib/
   site.ts             Name, parent company, tagline, contact address, TOOLKIT counts, OFFER (the one
                       price) and NAV
-  format.ts           formatPrice: US dollars from integer cents
+  format.ts           formatPrice (US dollars from integer cents), formatLength (slides or pages) and
+                      countWord
   cx.ts               cx() for class names and cssVars() for custom properties
   compounds.ts        Hyphenated compounds, kept whole in titles
   brand/mark.ts       The logo mark geometry, the single source of truth
-  catalog/            Schemas, validation, repository, query, URL state, phase coverage
+  catalog/            Schemas, validation, repository, query, URL state, phase coverage and neighbours,
+                      the worked example's contents
   purchase/           The questions about buying, answered on the Purchase page
   ink/                The engine (engine/), scenes, stage choice, calm zones, pigments, stills, test hook
   boot/               The boot script and the pure decisions it mirrors
-  scroll/             The observer for entrances and the pointer's light
+  scroll/             The observer for entrances, the pointer's light, and a sideways row's current item
+                      brought into view
 public/ink/           The thirteen stills (WebP)
 public/paper/         The paper grain
 scripts/              ink-stills, check-budgets and paper-grain
@@ -125,7 +130,7 @@ next.config.ts        Redirects the retired addresses (bundles, pricing, cart, c
   `lib/catalog/repository.ts`, never from `content/`. ESLint enforces this. The one exception is
   `content/taxonomy.ts`, which holds the labels and lists of deliverable types, apps, audiences and formats.
 - **Catalog state lives in the URL.** Search (`q`), `phase`, `type`, `app`, `audience`, `format`, `free`
-  (`1` keeps the free samples), `sort` (`samples` or `title`) and `page` are query parameters, and `view`
+  (`1` keeps the free samples), `sort` (`samples`, `phase` or `title`) and `page` are query parameters, and `view`
   (a template's slug) opens a free sample in the pop-up, so every view can be shared and is rendered on the
   server. Values within one filter combine with OR, filters combine with AND, and a page holds 24 templates.
 - **Colour, spacing, type and motion are tokens.** Raw colour values (hex and the colour functions) appear
@@ -144,7 +149,7 @@ next.config.ts        Redirects the retired addresses (bundles, pricing, cart, c
   by attributes on `<html>` and on elements (see Motion and ink).
 - **Canvas, WebGL, animation frames and scroll listeners have fixed homes.** A canvas or WebGL call belongs
   in `lib/ink/`, `components/ink/` or `lib/boot/`. `requestAnimationFrame` and scroll listeners belong in
-  those three, or in `lib/scroll/`, `components/intro/` and `components/ui/count-up.tsx`.
+  those three, or in `lib/scroll/` and `components/intro/`.
 - **Internal links use `TransitionLink`**, or a primitive built on it. Only
   `components/ui/transition-link.tsx` imports `next/link`.
 - **Each page has one `h1`**, its title. The shell provides one `banner` (the header), one `main` and one
@@ -233,7 +238,7 @@ Display and lead sizes are `clamp()` tokens between a phone value and a desktop 
 ### Motion tokens
 
 - Durations: `--time-swap` (120ms), `--time-enter` (240ms), `--time-exit` (160ms),
-  `--time-fill` (180ms), `--time-fill-gap` (80ms), `--time-lift` (260ms), `--time-ink` (640ms),
+  `--time-fill` (180ms), `--time-fill-gap` (80ms), `--time-lift` (260ms), `--time-ink` (400ms),
   `--time-settle` (560ms), `--time-count` (1200ms), `--time-morph` (420ms), `--time-page-in` (260ms),
   `--time-page-out` (140ms) and `--stagger` (70ms).
 - Curves: `--curve-settle`, `--curve-leave`, `--curve-ink`, `--curve-drop` and `--curve-pen`.
@@ -245,8 +250,7 @@ Display and lead sizes are `clamp()` tokens between a phone value and a desktop 
 - Layout: `Band`, `Wrap`, `Split`, `Sheet`, `ShelfHead`, `FactList`, `BandedList` and `BandedRow` (the
   ledger), and `Note`.
 - Links and actions: `Button`, `TransitionLink`, `TextLink`, `RowLink`, `Pagination` and `PhaseTabs`.
-- Paper and objects: `PaperSheet`, `PaperStack`, `Folder`, `Tag`, `Blank`, `Tally`, `Odometer` and
-  `CountUp`.
+- Paper and objects: `PaperSheet`, `PaperStack`, `Folder`, `Tag`, `Blank` and `Tally`.
 - Text and marks: `Eyebrow`, `Sentences`, `KeepCompounds`, `LogoMark`, `BrandLockup` and `Icon`.
 - Form controls: `Input`, `Select` and `Checkbox`.
 - Motion: `Appear`, `MotionRoot` and `PageShift`.
@@ -266,7 +270,7 @@ Display and lead sizes are `clamp()` tokens between a phone value and a desktop 
 | `data-paper`, `data-lit`                          | `PaperSheet` (the `lit` prop)                          | The sheet's shadow, its lift and its tilt toward the pointer              |
 | `data-bar`                                        | `Header`                                               | The shadow under the sticky bar                                           |
 | `data-ledger`                                     | `BandedList`                                           | The rule of a ledger draws in                                             |
-| `data-ninety`                                     | The solution band (`components/home/pitch-spread.tsx`) | The odometer rolls and the ten blocks fill                                |
+| `data-ninety`                                     | The solution band (`components/home/pitch-spread.tsx`) | The ten blocks fill; the 90% figure never moves                           |
 | `data-watch`                                      | `Tally` with `animate`, `PriceTag`                     | The blocks fill, or the tag swings, when the element is seen              |
 | `data-hero-stage`, `-prompt`, `-doc`              | `HeroStage`                                            | With live ink, the hero's prompt box dissolves and the six documents land |
 | `data-tile` `data-denied`, `data-lock`            | `TemplateTile`, `LockedTile`, `ChainLock`              | A locked tile says no: it shakes, its padlock rattles, its outline pulses |
@@ -325,7 +329,8 @@ Each phase has two steps.
 2. **Templates.** Each phase has one file in `content/templates/`: `make-the-case.ts`, `plan.ts`,
    `design.ts`, `prepare.ts`, `communicate.ts`, `execute.ts` and `sustain.ts`. `index.ts` joins them in
    phase order. A template gives its phase and step, deliverable type, apps, audiences, format, ADKAR
-   stages (`adkar`, stored and not shown), an optional page count, what it includes, and `free` (true for a
+   stages (`adkar`, stored and not shown), an optional page count (shown as slides for a PowerPoint deck
+   and pages for every other format), what it includes, and `free` (true for a
    free sample). Real records are written out in full with `isSample: false`. The `sample()` helper in
    `content/templates/sample.ts` adds `isSample: true` (and `free: false` unless the entry says otherwise) and
    belongs only in the sample files. There is no price on a template: the one price is `OFFER` in
@@ -344,7 +349,9 @@ Each phase has two steps.
    line (`components/layout/footer.tsx`) and the sample note on the Purchase page
    (`app/(site)/purchase/page.tsx`).
    The worked example is the fictional Meridian Group. The name appears in `app/(site)/sample/page.tsx`,
-   `app/(site)/about/page.tsx` and `content/templates/plan.ts`. The 10,000 figure also
+   `app/(site)/about/page.tsx`, `content/templates/plan.ts` and `content/worked-example.ts`. That last
+   file holds the example's table of contents on `/sample`: placeholder sections, labelled as such on the
+   page, until the real file is published. The 10,000 figure also
    appears on the home page, in `components/home/inside-section.tsx` and `components/home/pitch-spread.tsx`.
    `tests/unit/content.test.ts` and the browser specs in `tests/e2e/` check the sample catalog by name and
    count, so they need updating with the real catalog.
@@ -397,9 +404,10 @@ The rest are about the site itself. None of this is legal advice.
       "Prosci-aligned" or "Prosci-approved content" suggests an endorsement Prosci hasn't given.
       Keep Prosci on the person, not the product, and check Prosci's trademark-use guidance at
       prosci.com.
-  - On the site: Prosci appears only as "built by a Prosci-certified practitioner", "Prosci
-    certification" and the footer's non-affiliation and trademark notice. ADKAR appears in no
-    visible copy; the `adkar` field on a template is data and is not rendered.
+  - On the site: Prosci appears only as "built by a Prosci-certified practitioner" and the
+    footer's non-affiliation and trademark notice; the design gate (`tests/unit/design-gate.test.ts`)
+    fails on any other line that names Prosci. ADKAR appears in no visible copy; the `adkar` field
+    on a template is data and is not rendered.
 - [ ] **Old product branding.** Client references (department names and terms, client platform
       names) were removed from the source material. The earlier product name is now Advanta365
       throughout, and the content for the other earlier product and for the provisioning tool has
@@ -422,7 +430,10 @@ The rest are about the site itself. None of this is legal advice.
   - On the site: the counts are read from `TOOLKIT` in `lib/site.ts`. Recount the folder before
     launch and change them there.
 - [ ] **The worked example's file.** `/sample` describes the Meridian Group worked example and
-      says its file cannot be downloaded in this beta. It needs the real file. The sample catalog
+      says its file cannot be downloaded in this beta. It needs the real file, and its real table of
+      contents: `content/worked-example.ts` lists placeholder sections (the pieces `/sample` names, each
+      linked to its template in the catalog, or to its step or phase) that the page marks "Placeholder";
+      replace them and set `placeholder` to false. The sample catalog
       also lists the worked example as a locked template; decide whether it is a free sample, a
       product, or both.
 - [ ] **Purchase answers.** The answers under "Questions" on `/purchase` are provisional and say

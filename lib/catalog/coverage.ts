@@ -5,8 +5,9 @@ export type PhaseCoverage = { order: number; slug: string; name: string; covered
 
 /**
  * Which phases a set of templates (the whole catalog's, for the portfolio) covers: one entry per
- * phase, in rollout order. A phase is covered when at least one of the templates belongs to it. `order` is the phase's
- * own 1-based position, so the covered orders can be handed to a seven-block tally as they are.
+ * phase, in rollout order. A phase is covered when at least one of the templates belongs to it.
+ * `order` is the phase's own 1-based position, so the covered orders can be handed to a
+ * seven-block tally as they are.
  */
 export function phaseCoverage(
   phases: readonly Phase[],
@@ -21,4 +22,15 @@ export function phaseCoverage(
       name: phase.name,
       covered: reached.has(phase.slug),
     }));
+}
+
+/** The phases before and after one, in rollout order; either is undefined at an end. */
+export function adjacentPhases<P extends Pick<Phase, "slug" | "order">>(
+  phases: readonly P[],
+  slug: string,
+): { previous?: P; next?: P } {
+  const ordered = [...phases].sort((a, b) => a.order - b.order);
+  const at = ordered.findIndex((phase) => phase.slug === slug);
+  if (at === -1) return {};
+  return { previous: ordered[at - 1], next: ordered[at + 1] };
 }

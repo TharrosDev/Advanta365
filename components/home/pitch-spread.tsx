@@ -2,7 +2,6 @@ import { InkBackdrop } from "@/components/ink/ink-backdrop";
 import { Appear } from "@/components/ui/appear";
 import { Band } from "@/components/ui/band";
 import { Eyebrow } from "@/components/ui/eyebrow";
-import { Odometer } from "@/components/ui/odometer";
 import { Sentences } from "@/components/ui/sentences";
 import { Tally } from "@/components/ui/tally";
 import { cx } from "@/lib/cx";
@@ -36,12 +35,13 @@ export function ProblemSection() {
 
 /**
  * `#solution`: the ninety, the one black band of the page, with its own ink behind it. The figure
- * "90%" is an odometer beside the heading, which says the same figure in words that are hidden
- * from the eye, so the heading still reads as the whole statement. Under them a ten-block tally:
- * nine blocks of ink and the tenth marked. As the band scrolls through the window the figure rolls
- * up to 90%, the blocks ink in one after another and, when the tenth turns light blue, one drop of
- * light-blue ink falls from it into the black water (app/motion.css and the ink layer; this file
- * only says where things are). The tenth block carries the anchor itself and names the place.
+ * "90%" stands beside the heading, which says the same figure in words that are hidden from the
+ * eye, so the heading still reads as the whole statement. The figure is printed as it is and never
+ * moves: a number that rolls shows a wrong one while the page scrolls. Under them a ten-block
+ * tally: nine blocks of ink and the tenth marked. As the band scrolls through the window the blocks
+ * ink in one after another and, when the tenth turns light blue, one drop of light-blue ink falls
+ * from it into the black water (app/motion.css and the ink layer; this file only says where things
+ * are). The tenth block carries the anchor itself and names the place.
  *
  * In the document: the label, the figure, the heading, the paragraph, the tally, the open water.
  * From 68em the grid sets the figure and the sentence on one line, the tally under them, and the
@@ -66,7 +66,10 @@ export function SolutionSection() {
       <Eyebrow className={styles.ninetyLabel}>The answer</Eyebrow>
       <div className={styles.ninetyFigure}>
         <span className={styles.ninetyNumber} data-ink-calm="display">
-          <Odometer value={90} suffix="%" className="type-poster" />
+          {/* Decoration: the heading says the figure. */}
+          <span aria-hidden="true" className="type-poster">
+            90%
+          </span>
         </span>
       </div>
       <h2 id="solution-title" className={cx("type-page", styles.ninetyTitle)} data-ink-calm="text">

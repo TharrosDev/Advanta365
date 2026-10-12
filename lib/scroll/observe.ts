@@ -89,21 +89,3 @@ function arrived(entry: IntersectionObserverEntry): boolean {
   const whole = Math.min(entry.boundingClientRect.height, room);
   return entry.intersectionRect.height >= whole / 2 - 1;
 }
-
-/**
- * Calls `onSeen` once, when `share` of the element is in view. Returns the function that gives
- * up waiting.
- */
-export function whenSeen(element: Element, share: number, onSeen: () => void): () => void {
-  const observer = new IntersectionObserver(
-    (entries) => {
-      if (!entries.some((entry) => entry.isIntersecting && entry.intersectionRatio >= share))
-        return;
-      observer.disconnect();
-      onSeen();
-    },
-    { threshold: share },
-  );
-  observer.observe(element);
-  return () => observer.disconnect();
-}

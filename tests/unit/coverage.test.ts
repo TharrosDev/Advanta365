@@ -1,5 +1,5 @@
-import { expect, test } from "vitest";
-import { phaseCoverage } from "@/lib/catalog/coverage";
+import { describe, expect, test } from "vitest";
+import { adjacentPhases, phaseCoverage } from "@/lib/catalog/coverage";
 import type { Phase } from "@/lib/catalog/schema";
 import { makeTemplate, rawPhases } from "./fixtures/catalog";
 
@@ -51,4 +51,19 @@ test("the inputs are left as they were given", () => {
   const before = phases.map((phase) => phase.slug);
   phaseCoverage(phases, [kickoff]);
   expect(phases.map((phase) => phase.slug)).toEqual(before);
+});
+
+describe("adjacentPhases", () => {
+  test("names the phases on either side, in rollout order", () => {
+    // The fixture lists "prepare" (order 2) before "make-the-case" (order 1).
+    expect(adjacentPhases(phases, "make-the-case")).toEqual({
+      previous: undefined,
+      next: phases[0],
+    });
+    expect(adjacentPhases(phases, "prepare")).toEqual({ previous: phases[1], next: undefined });
+  });
+
+  test("an unknown phase has neither", () => {
+    expect(adjacentPhases(phases, "nope")).toEqual({});
+  });
 });

@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { ChainLockParts } from "@/components/catalog/chain-lock";
+import { PhasePager } from "@/components/catalog/phase-pager";
 import { StepNav } from "@/components/catalog/step-nav";
 import { TemplateTile, TileGrid } from "@/components/catalog/template-tile";
 import { Breadcrumbs } from "@/components/layout/breadcrumbs";
@@ -9,6 +10,7 @@ import { Band } from "@/components/ui/band";
 import { Button } from "@/components/ui/button";
 import { Split } from "@/components/ui/split";
 import { Tally } from "@/components/ui/tally";
+import { adjacentPhases } from "@/lib/catalog/coverage";
 import { DEFAULT_CRITERIA } from "@/lib/catalog/query";
 import { getPhase, getPhases, getTemplates } from "@/lib/catalog/repository";
 import { catalogHref } from "@/lib/catalog/search-params";
@@ -31,9 +33,10 @@ export async function generateMetadata({ params }: PhasePageProps): Promise<Meta
  * with the phase numeral, its place among the phases and a tally standing beside them. Each step is
  * then a band of its own, desk and paper in turn: the step number and summary in the margin, the
  * step name and its templates as tiles beside them: a free sample links to the catalog, where it
- * opens in the pop-up, and every other tile is locked. The drawing the locks draw from
- * (`ChainLockParts`) is on the page once, ahead of the steps, for all their grids. The page ends
- * with a link to the phase in the catalog.
+ * opens in the pop-up, and every other tile is locked. Every tile is of this phase, so a tile names
+ * only its type. The drawing the locks draw from (`ChainLockParts`) is on the page once, ahead of
+ * the steps, for all their grids. The page ends with a link to the phase in the catalog and the
+ * links to the phases before and after it, on the band that carries on the alternation.
  */
 export default async function PhasePage({ params }: PhasePageProps) {
   const [phase, phases, templates] = await Promise.all([
@@ -45,6 +48,9 @@ export default async function PhasePage({ params }: PhasePageProps) {
 
   const number = phases.findIndex((p) => p.slug === phase.slug) + 1;
   const inPhase = templates.filter((t) => t.phase === phase.slug);
+  const { previous, next } = adjacentPhases(phases, phase.slug);
+  // The band after the steps carries on the alternation of desk and paper.
+  const surfaceAt = (position: number) => (position % 2 === 0 ? "desk" : "paper");
 
   return (
     <>
@@ -88,7 +94,7 @@ export default async function PhasePage({ params }: PhasePageProps) {
           <Band
             key={step.slug}
             id={step.slug}
-            surface={index % 2 === 0 ? "desk" : "paper"}
+            surface={surfaceAt(index)}
             innerClassName={styles.step}
           >
             <p className={styles.stepNumber}>
@@ -101,7 +107,6 @@ export default async function PhasePage({ params }: PhasePageProps) {
                 <li key={template.slug}>
                   <TemplateTile
                     template={template}
-                    phaseName={phase.name}
                     phaseOrder={number}
                     href={catalogHref(DEFAULT_CRITERIA, template.slug)}
                   />
@@ -112,11 +117,12 @@ export default async function PhasePage({ params }: PhasePageProps) {
         );
       })}
 
-      <Band as="div" surface="paper" pad="tight">
-        <Split>
+      <Band as="div" surface={surfaceAt(phase.steps.length)} pad="tight">
+        <Split contentClassName={styles.foot}>
           <Button variant="outline" arrow href={`/catalog?phase=${phase.slug}`}>
             {`View all ${phase.name} templates`}
           </Button>
+          <PhasePager previous={previous} next={next} className={styles.pager} />
         </Split>
       </Band>
     </>

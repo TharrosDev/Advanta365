@@ -1,44 +1,38 @@
 import { Band } from "@/components/ui/band";
+import { BandedList, BandedRow } from "@/components/ui/banded-list";
 import { Eyebrow } from "@/components/ui/eyebrow";
 import { KeepCompounds } from "@/components/ui/keep-compounds";
 import { Sentences } from "@/components/ui/sentences";
 import { cx } from "@/lib/cx";
 import styles from "./home.module.css";
-import { LineDrawing, type LineDrawingName } from "./value-tiles";
 
-type Value = {
-  title: string;
-  body: string;
-  drawing: LineDrawingName;
-};
+type Value = { title: string; body: string };
 
 const VALUES: readonly Value[] = [
   {
     title: "Field-tested, not theoretical",
     body: "Built from 30+ years of field-tested practice on real rollouts, then refined into ready-to-use templates.",
-    drawing: "tested",
   },
   {
     title: "Experience you can borrow",
-    body: "Grounded in Prosci certification and 30+ years of practice.",
-    drawing: "borrow",
+    body: "Built by a Prosci-certified practitioner with 30+ years of practice.",
   },
   {
     title: "Yours to adapt",
     body: "Edit by hand or feed it to AI. You keep what you build.",
-    drawing: "adapt",
   },
   {
     title: "Built for any sector",
     body: "Used from private companies to the public service.",
-    drawing: "sector",
   },
 ];
 
 /**
- * `#values`: on paper. The label and the statement (one sentence to a line) stand over four
- * values, two by two from 40em and 112px apart from 68em, one column below. Each value is a line
- * drawing, a hairline under it, then the title and its sentence; neither breaks inside a
+ * `#values`: on paper. The label and the statement (one sentence to a line) stand over the four
+ * values as a ledger: one row each on a hairline, the title and its sentence stacked on a phone,
+ * side by side from 40em (from 68em the title in columns 1 to 5 and the sentence in 6 to 12, on
+ * the title's first baseline). No drawings: the line drawings belong to
+ * the manifest, so the page has one set of them. Neither a title nor a sentence breaks inside a
  * hyphenated word.
  */
 export function ValuesSection() {
@@ -48,21 +42,18 @@ export function ValuesSection() {
       <h2 className={cx("type-page", styles.valuesTitle)}>
         <Sentences text={"Field-tested change.\nAI-ready content."} />
       </h2>
-      <ul className={styles.valuesList}>
-        {VALUES.map(({ title, body, drawing }) => (
-          <li key={title} className={styles.value}>
-            <LineDrawing name={drawing} className={styles.valueDrawing} />
-            <div className={styles.valueText}>
-              <h3 className="type-item">
-                <KeepCompounds text={title} />
-              </h3>
-              <p className={cx("type-copy", styles.valueBody)}>
-                <KeepCompounds text={body} />
-              </p>
-            </div>
-          </li>
+      <BandedList className={styles.valuesList}>
+        {VALUES.map(({ title, body }) => (
+          <BandedRow key={title} className={styles.value}>
+            <h3 className={cx("type-section", styles.valueTitle)}>
+              <KeepCompounds text={title} />
+            </h3>
+            <p className={cx("type-copy", styles.valueBody)}>
+              <KeepCompounds text={body} />
+            </p>
+          </BandedRow>
         ))}
-      </ul>
+      </BandedList>
     </Band>
   );
 }

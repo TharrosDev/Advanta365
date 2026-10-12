@@ -612,9 +612,9 @@ test("the catalog draws every template as a tile with a printed page, in its own
     await expect(card.locator("[data-cover]")).toHaveCount(1);
   }
 
-  // Each page is as wide over high as its format says: a document is a portrait page, a workbook
-  // a landscape one, a deck a slide.
-  const ratios = { docx: 5 / 7, xlsx: 4 / 3, pptx: 16 / 9 } as const;
+  // Each page is as wide over high as its format says: a document or a PDF is a portrait page, a
+  // workbook a landscape one, a deck a slide.
+  const ratios = { docx: 5 / 7, pdf: 5 / 7, xlsx: 4 / 3, pptx: 16 / 9 } as const;
   const measured = await cards.locator("[data-cover]").evaluateAll((covers) =>
     covers.map((cover) => {
       const box = cover.getBoundingClientRect();
@@ -659,13 +659,21 @@ test("at 320px no page runs past the screen, and the bar's controls and every bu
     expect(overflow, path).toBeLessThanOrEqual(0);
 
     // The frame clips sideways, which hides an element that sticks out from the measure above:
-    // check the edges of everything that takes up room on the page.
+    // check the edges of everything that takes up room on the page. A row that scrolls sideways
+    // (the phones' phase strip) is measured itself, and what scrolls inside it is not: its cards
+    // run past the screen on purpose, inside a box that does not.
     const outside = await page.evaluate(() => {
       const width = document.documentElement.clientWidth;
+      const scrolls = (element: Element) =>
+        ["auto", "scroll"].includes(getComputedStyle(element).overflowX);
       return [...document.querySelectorAll("header *, main *, footer *")]
         .filter((element) => {
           const box = element.getBoundingClientRect();
           if (box.width === 0 || box.height === 0) return false;
+          let parent = element.parentElement;
+          while (parent && !scrolls(parent)) parent = parent.parentElement;
+          if (parent && parent !== document.documentElement && parent !== document.body)
+            return false;
           return box.left < -0.5 || box.right > width + 0.5;
         })
         .map((element) => `${element.localName}.${element.getAttribute("class") ?? ""}`)

@@ -14,10 +14,11 @@ import { DELIVERABLE_TYPE_LABELS, FORMAT_LABELS } from "@/content/taxonomy";
 import { phaseCoverage } from "@/lib/catalog/coverage";
 import { getFreeTemplates, getPhases, getTemplates } from "@/lib/catalog/repository";
 import type { Phase, Template } from "@/lib/catalog/schema";
+import { formatLength } from "@/lib/format";
 
 /**
  * The specimen in the margin of `#inside` shows one real template: its title and summary, and the
- * same labelled facts the template page lists (Phase, Step, Type, Format, Length). Without a phase
+ * same labelled facts the pop-up of a free sample lists (Phase, Step, Type, Format, Length). Without a phase
  * for the template there is nothing to print in its corner, so there is no specimen.
  */
 function buildSpecimen(template: Template, phases: Phase[]): SpecimenContent | undefined {
@@ -38,7 +39,7 @@ function buildSpecimen(template: Template, phases: Phase[]): SpecimenContent | u
         ? [
             {
               label: "Length",
-              value: `${template.pageCount} ${template.pageCount === 1 ? "page" : "pages"}`,
+              value: formatLength(template.pageCount, template.format),
             },
           ]
         : []),

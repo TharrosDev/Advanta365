@@ -1,13 +1,32 @@
-/* `--row` is the height of one link row: a full touch target, then 35px from 68em. */
+/*
+ * `--row` is the height of one link row: a full touch target, then 35px from 68em. `--foot` is the
+ * strip under the legal line that the wisps keep to.
+ */
 .root {
   --row: var(--tap);
+  --foot: var(--s-8);
   /* The positioning box of the wisps. No z-index and no isolation: it is not a layer. */
   position: relative;
 }
 
-/* The veil for the wisps is the whole footer, edge to edge; the grid stands inside its padding. */
+/*
+ * The wisps keep to the strip at the foot, so no ink stands under the words. The still is anchored
+ * at the bottom (ink-backdrop.module.css), so the strip shows the foot of the frame, where the
+ * wisps rise from; they fade in over the top half of the strip instead of stopping on a line. The
+ * class is doubled to outrank the backdrop's own `inset: 0`.
+ */
+.wisps.wisps {
+  inset-block-start: auto;
+  block-size: var(--foot);
+  mask-image: linear-gradient(to bottom, transparent, black 50%);
+}
+
+/*
+ * The veil for the wisps is the whole footer, edge to edge; the grid stands inside its padding,
+ * and the strip of the wisps is its bottom padding, under the legal line.
+ */
 .veil {
-  padding-block: var(--s-6) var(--s-4);
+  padding-block: var(--s-6) var(--foot);
 }
 
 /*
@@ -154,7 +173,7 @@
 /* Tablet: two columns. The status lines move up beside the brand. */
 @media (min-width: 40em) {
   .veil {
-    padding-block: var(--s-7) var(--s-5);
+    padding-block-start: var(--s-7);
   }
 
   .grid {

@@ -105,8 +105,9 @@ What the storefront does today:
 - A home page whose first screen turns a blank prompt into the six free samples, shown as finished
   documents.
 - Browse a catalog by phase, deliverable type, app, audience and format, with search, a "Free samples
-  only" filter and a sort (free samples first, or by title). Catalog state lives in the URL, so every
-  view can be shared. The six free samples open in a pop-up (from the catalog, a phase page or the home
+  only" filter and a sort (free samples first, phase order, or by title). The filters that are on show as
+  removable chips above the results, and a search that finds nothing names itself and offers the seven
+  phases. Catalog state lives in the URL, so every view can be shared. The six free samples open in a pop-up (from the catalog, a phase page or the home
   page); every other template shows a locked cover and answers a press with "Included with the
   toolkit."
 - One Purchase page (`/purchase`): the toolkit as a folder with its price on a tag, what is inside,
@@ -114,7 +115,8 @@ What the storefront does today:
   There is no cart, no pricing page and no contact page. The old addresses of those pages, of the
   bundle pages and of the template pages redirect.
 - An about page with the comparison of alternatives and, in its `#contact` section, the one email
-  address (`hello@advanta365.com`), and a sample page.
+  address (`hello@advanta365.com`), and a sample page with the worked example's table of contents
+  (placeholder sections, labelled as placeholders, until its file is published).
 
 Constraints future work must respect:
 
@@ -162,8 +164,8 @@ Explicitly undecided:
 - **No bilingual claim.**
 - **Non-affiliation notice:** the site states that Advanta365 and EchoFive are independent of, and
   not endorsed by, Prosci Inc. or Microsoft Corporation, and credits their trademarks.
-- **Cost figures in the comparison are the owner's estimates** and are labelled as estimates, not
-  market data.
+- **Cost figures for the alternatives in the comparison are the owner's estimates** and are labelled
+  as estimates, not market data. The toolkit's own cost cell prints the one price, from `OFFER`.
 - **Spelling (inferred):** Canadian English, as the existing copy uses ("organization", "licence",
   "colour"). Copy uses typographic quotes and no exclamation marks.
 
@@ -189,7 +191,8 @@ Real and usable:
 - The worked example (Meridian Group, fictional, about 10,000 employees), described on `/sample`.
 - Copilot readiness material: Copilot readiness, a Copilot rollout playbook and a Copilot change
   impact assessment.
-- The comparison of alternatives on `/about#compare`, with the owner's cost estimates.
+- The comparison of alternatives on `/about#compare`, with the owner's cost estimates for the
+  alternatives and the toolkit's one price.
 - The messaging already written into the pages under `app/(site)/` and `components/home/`.
 - The pre-launch checklist: "Before public launch" in `README.md`.
 

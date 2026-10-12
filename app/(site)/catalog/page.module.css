@@ -1,16 +1,53 @@
 /*
- * The rail: search, sort and filters. Below 40em they are stacked, 21px apart. From 40em the search
- * keeps the first row and the sort order and the Filters button share the second, one at each end.
+ * The rail: search, sort and filters. Below 40em it opens with the phases, a row of its own, and
+ * the search and the Filters button share the row under it, 7px apart; the sort order is in the
+ * sheet. From 40em the search keeps the first row and the sort order and the Filters button share
+ * the second, one at each end.
  */
 .rail {
   display: grid;
-  grid-template-columns: minmax(0, 1fr);
-  gap: var(--s-3);
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: var(--s-3) var(--s-1);
 }
 
 .search,
 .filters {
   min-width: 0;
+}
+
+.phases {
+  grid-column: 1 / -1;
+  min-width: 0;
+}
+
+.sort {
+  display: none;
+}
+
+/*
+ * The phases on a phone: the index cards in one row that scrolls sideways, each as wide as its name
+ * needs and never narrower than 84px, so the card cut off at the edge says there is more. The row
+ * runs out to both edges of the screen and starts and stops at the page padding; the 7px above and
+ * below, taken back by the margin, is the room a focus ring needs inside a box that clips. The
+ * doubled class outranks the two-across grid of the cards' own module.
+ */
+.strip.strip {
+  display: flex;
+  gap: var(--s-1);
+  margin: calc(-1 * var(--s-1)) calc(-1 * var(--page-pad));
+  padding: var(--s-1) var(--page-pad);
+  overflow-x: auto;
+  overscroll-behavior-x: contain;
+  scroll-padding-inline: var(--page-pad);
+  scroll-snap-type: x proximity;
+  scrollbar-color: var(--line-firm) transparent;
+  scrollbar-width: thin;
+}
+
+.strip > li {
+  flex: none;
+  min-width: var(--s-7);
+  scroll-snap-align: start;
 }
 
 /*
@@ -23,9 +60,13 @@
   color: var(--text-soft);
 }
 
-/* The live region of the results: how many templates match, and for which search. */
+/*
+ * The live region of the results: how many templates match, and for which search. It takes focus
+ * from script when the last filter chip goes, so its ring follows its corners.
+ */
 .count {
   margin-block-end: var(--s-3);
+  border-radius: var(--round-1);
   color: var(--text-soft);
   overflow-wrap: anywhere;
 }
@@ -55,11 +96,21 @@
   font-weight: 700;
 }
 
+/* From 40em the phases leave the rail and the sort order comes back into it. */
 @media (min-width: 40em) {
   .rail {
     grid-template-columns: calc(var(--s-9) + var(--s-6)) minmax(0, 1fr);
     align-items: end;
     gap: var(--s-3) var(--col-gap);
+  }
+
+  .phases {
+    display: none;
+  }
+
+  .sort {
+    display: block;
+    min-width: 0;
   }
 
   .search {

@@ -5,8 +5,8 @@ import {
   queryTemplates,
   type CatalogCriteria,
 } from "@/lib/catalog/query";
-import type { Template } from "@/lib/catalog/schema";
-import { makeTemplate } from "./fixtures/catalog";
+import type { Phase, Template } from "@/lib/catalog/schema";
+import { makeTemplate, rawPhases } from "./fixtures/catalog";
 
 const TYPES = ["training", "communication", "plan"] as const;
 const APPS = ["sharepoint", "teams", "onedrive"] as const;
@@ -121,11 +121,71 @@ describe("queryTemplates", () => {
     expect(query({ q: "x".repeat(600) }).total).toBe(0);
   });
 
-  test("sorts the free samples first, then by title", () => {
+  test("the default order is the free samples first", () => {
     expect(DEFAULT_CRITERIA.sort).toBe("samples");
     const slugs = query().items.map((t) => t.slug);
     expect(slugs.slice(0, 6)).toEqual(["t05", "t09", "t12", "t17", "t20", "t27"]);
-    expect(slugs.slice(6, 8)).toEqual(["t04", "t00"]);
+    // Without the phases, each group keeps the order it was given in.
+    expect(slugs.slice(6, 9)).toEqual(["t00", "t01", "t02"]);
+  });
+
+  test("the free samples come first, and each group then goes in phase order", () => {
+    const phases = rawPhases as Phase[];
+    const listed = [
+      makeTemplate({ slug: "train-a", phase: "prepare", step: "train" }),
+      makeTemplate({ slug: "free-train", phase: "prepare", step: "train", free: true }),
+      makeTemplate({ slug: "recruit-a", phase: "prepare", step: "recruit" }),
+      makeTemplate({ slug: "sponsor-a", phase: "make-the-case", step: "sponsor" }),
+      makeTemplate({ slug: "free-sponsor", phase: "make-the-case", step: "sponsor", free: true }),
+      makeTemplate({ slug: "free-recruit", phase: "prepare", step: "recruit", free: true }),
+    ];
+    expect(queryTemplates(listed, DEFAULT_CRITERIA, phases).items.map((t) => t.slug)).toEqual([
+      "free-sponsor",
+      "free-recruit",
+      "free-train",
+      "sponsor-a",
+      "recruit-a",
+      "train-a",
+    ]);
+  });
+
+  test("sorts by phase, then by step, keeping the given order inside a step", () => {
+    // Given out of order: the fixture lists "prepare" (order 2) first, with its steps reversed.
+    const phases = rawPhases as Phase[];
+    const listed = [
+      makeTemplate({ slug: "train-a", phase: "prepare", step: "train" }),
+      makeTemplate({ slug: "recruit-a", phase: "prepare", step: "recruit", free: true }),
+      makeTemplate({ slug: "sponsor-a", phase: "make-the-case", step: "sponsor" }),
+      makeTemplate({ slug: "train-b", phase: "prepare", step: "train", free: true }),
+      makeTemplate({ slug: "recruit-b", phase: "prepare", step: "recruit" }),
+    ];
+    const order = (sort: CatalogCriteria["sort"]) =>
+      queryTemplates(listed, { ...DEFAULT_CRITERIA, sort }, phases).items.map((t) => t.slug);
+
+    // The rollout order alone: a free sample stands where its step is.
+    expect(order("phase")).toEqual(["sponsor-a", "recruit-a", "recruit-b", "train-a", "train-b"]);
+    // The title order does not depend on the phases.
+    expect(order("title")).toEqual(
+      queryTemplates(listed, { ...DEFAULT_CRITERIA, sort: "title" }).items.map((t) => t.slug),
+    );
+  });
+
+  test("phase order puts a phase or step it does not know last, and keeps the input without phases", () => {
+    const phases = rawPhases as Phase[];
+    const listed = [
+      makeTemplate({ slug: "stray", phase: "retired", step: "gone" }),
+      makeTemplate({ slug: "stray-too", phase: "also-retired", step: "gone" }),
+      makeTemplate({ slug: "odd-step", phase: "prepare", step: "gone" }),
+      makeTemplate({ slug: "recruit", phase: "prepare", step: "recruit" }),
+      makeTemplate({ slug: "sponsor", phase: "make-the-case", step: "sponsor" }),
+    ];
+    const slugs = (given: Phase[]) =>
+      queryTemplates(listed, { ...DEFAULT_CRITERIA, sort: "phase" }, given).items.map(
+        (t) => t.slug,
+      );
+
+    expect(slugs(phases)).toEqual(["sponsor", "recruit", "odd-step", "stray", "stray-too"]);
+    expect(slugs([])).toEqual(["stray", "stray-too", "odd-step", "recruit", "sponsor"]);
   });
 
   test("free: true keeps only the free templates", () => {

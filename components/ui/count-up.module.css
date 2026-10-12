@@ -1,6 +1,0 @@
-/* As wide as its final digits, so the line does not move while the figure counts. */
-.root {
-  display: inline-block;
-  min-width: calc(var(--digits, 1) * 1ch);
-  font-variant-numeric: tabular-nums;
-}

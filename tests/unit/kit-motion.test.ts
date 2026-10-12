@@ -96,7 +96,6 @@ describe(FILE, () => {
       expect.arrayContaining([
         "move-drift",
         "move-ink-in",
-        "move-ink-in-plain",
         "move-settle",
         "move-shadow",
         "move-grow",
@@ -163,6 +162,42 @@ describe(FILE, () => {
       if (hides && !block.prelude.includes('html[data-motion="on"]')) hidden.push(block.prelude);
     }
     expect(hidden).toEqual([]);
+  });
+
+  it("never blurs: an entrance that arrives is legible all the way", () => {
+    const blurred = blocks
+      .filter((block) =>
+        block.declarations.some(
+          ({ property, value }) =>
+            (property === "filter" || property === "transition") && /blur|filter/.test(value),
+        ),
+      )
+      .map((block) => block.prelude);
+    // The one blur of the sheet is not an entrance and has no words in it: the hero's empty prompt
+    // box, which dissolves into the ink as it leaves. Its rule names the box and nothing else.
+    const leaving = blurred.filter((prelude) => prelude.endsWith("[data-hero-prompt]"));
+    expect(leaving).toHaveLength(1);
+    expect(blurred.filter((prelude) => !leaving.includes(prelude))).toEqual([]);
+    // Nothing with a `data-move` entrance is ever blurred, in a rule or in its keyframes.
+    const entranceFrames = blocks.filter(
+      (block) =>
+        block.parents.some((parent) => /^@keyframes move-/.test(parent)) &&
+        block.declarations.some(({ property }) => property === "filter"),
+    );
+    expect(entranceFrames).toEqual([]);
+    expect(SOURCE).not.toContain("move-ink-in-plain");
+  });
+
+  it("inks a heading in sooner than the text around it", () => {
+    const range = (selector: string) =>
+      blocks
+        .find((block) => block.prelude.includes(selector) && block.prelude.includes("timeline"))
+        ?.declarations.find(({ property }) => property === "animation-range")?.value;
+    const end = (value?: string) => Number(value?.match(/,\s*([\d.]+)rem\)\s*$/)?.[1]);
+    const heading = range('[data-move="ink-in"]:not([data-when="load"])');
+    const text = range('[data-move]:not([data-when="load"])');
+    expect(heading).toMatch(/^entry calc\(var\(--order, 0\) \* 4%\) cover min\(/);
+    expect(end(heading)).toBeLessThan(end(text));
   });
 
   it("repeats nothing and registers no custom property", () => {

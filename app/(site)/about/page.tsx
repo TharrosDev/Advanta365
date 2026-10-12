@@ -16,7 +16,8 @@ import { Icon } from "@/components/ui/icon";
 import { Sentences } from "@/components/ui/sentences";
 import { Split } from "@/components/ui/split";
 import { cx } from "@/lib/cx";
-import { SITE, TOOLKIT } from "@/lib/site";
+import { formatPrice } from "@/lib/format";
+import { OFFER, SITE, TOOLKIT } from "@/lib/site";
 import styles from "./page.module.css";
 
 // The short mission: the page's h1 and the description a search result shows.
@@ -61,7 +62,7 @@ const PROOF_POINTS = [
   {
     key: "experience",
     title: "Experience, not guesswork",
-    body: `${TOOLKIT.experience} of client delivery and Prosci certification sit behind every template.`,
+    body: `Built by a Prosci-certified practitioner with ${TOOLKIT.experience} of client delivery.`,
   },
   {
     key: "complete",
@@ -84,7 +85,17 @@ const COMPARE_TITLE = "Three real alternatives.\nEach one misses something.";
 
 const COMPARE_COLUMNS = ["Build it yourself with AI", "Hire a CM consultant", SITE.name];
 
-// One cell per column, in the order of COMPARE_COLUMNS. The toolkit counts are read from TOOLKIT.
+/**
+ * The toolkit's cost cell: the one price, then the licence. The figure is read from `OFFER`, the
+ * only place the price is written, so the cell follows it.
+ */
+const COST = `${formatPrice(OFFER.priceCents)}, one purchase. One licence, reused across waves`;
+
+/** The line under the table: the alternatives' costs are our estimates; the toolkit's is its price. */
+const COMPARE_NOTE = "Cost figures for the alternatives are our estimates, not market data.";
+
+// One cell per column, in the order of COMPARE_COLUMNS. The toolkit counts are read from TOOLKIT
+// and its cost from OFFER.
 const COMPARE_ROWS: readonly ComparisonRow[] = [
   {
     label: "Starting point",
@@ -107,7 +118,7 @@ const COMPARE_ROWS: readonly ComparisonRow[] = [
     cells: [
       "Low in dollars, high in staff time (8 to 14 person-months to build internally)",
       "$150K to $400K per rollout",
-      "One licence, reused across waves",
+      COST,
     ],
   },
   {
@@ -185,9 +196,15 @@ const NEXT = [
  * the margin; the comparison runs across the whole grid under its own statement. `#compare` is
  * linked from the home page, and `#contact` is where the old contact address now lands.
  *
- * The contact section is the heading, one lead and the one address, set as large as a statement.
- * The address is a single `mailto:` link with the arrow after it; on hover and keyboard focus the
- * highlighter fills in behind the address (the words stay ink) and the arrow moves 6px.
+ * Hierarchy: two headlines carry the page at the statement size, the h1 and the black AI band. The
+ * comparison's title is one step down (banner), and the mission, why, proof and buyer statements,
+ * the contact heading and the closing heading are set at the page size, so the bands read as one
+ * argument with two peaks instead of seven headlines of one size.
+ *
+ * The contact section is the heading, one lead and the one address, set as large as a statement:
+ * it is the thing to act on, not a third headline. The address is a single `mailto:` link with the
+ * arrow after it; on hover and keyboard focus the highlighter fills in behind the address (the
+ * words stay ink) and the arrow moves 6px.
  */
 export default function AboutPage() {
   const [local, domain] = addressParts(SITE.contactEmail);
@@ -198,6 +215,7 @@ export default function AboutPage() {
 
       <StatementSection
         surface="desk"
+        size="page"
         label="Mission"
         statement={MISSION_STATEMENT}
         copy={MISSION_COPY}
@@ -205,6 +223,7 @@ export default function AboutPage() {
 
       <StatementSection
         surface="paper"
+        size="page"
         label="Why it exists"
         statement={WHY_STATEMENT}
         copy={WHY_COPY}
@@ -213,13 +232,18 @@ export default function AboutPage() {
       {/* The one black band of the company pages: static, no ink moves behind it. */}
       <AiStatement label="AI, stated plainly" statement={AI_STATEMENT} copy={AI_COPY} />
 
-      <StatementSection surface="wash" label="Why it’s different" statement={DIFFERENT_STATEMENT}>
+      <StatementSection
+        surface="wash"
+        size="page"
+        label="Why it’s different"
+        statement={DIFFERENT_STATEMENT}
+      >
         <ProofLedger items={PROOF_POINTS} />
       </StatementSection>
 
       <Band id="compare" surface="desk">
         <Eyebrow>Your alternatives</Eyebrow>
-        <h2 className={cx("type-statement", styles.compareTitle)}>
+        <h2 className={cx("type-banner", styles.compareTitle)}>
           <Sentences text={COMPARE_TITLE} move />
         </h2>
         <ComparisonTable
@@ -229,13 +253,13 @@ export default function AboutPage() {
           columns={COMPARE_COLUMNS}
           rows={COMPARE_ROWS}
           emphasized={COMPARE_COLUMNS.indexOf(SITE.name)}
-          note="Cost figures are our estimates, not market data."
+          note={COMPARE_NOTE}
         />
       </Band>
 
       {/* Under the statement: the buyers with the public-sector line, then the note on what the
           toolkit covers beyond SharePoint, as a fact row lined up with the list. */}
-      <StatementSection surface="paper" label="Who it’s for" statement={WHO_STATEMENT}>
+      <StatementSection surface="paper" size="page" label="Who it’s for" statement={WHO_STATEMENT}>
         <div className={styles.buyers}>
           <BuyerList buyers={BUYERS} caresLabel="What they care about" />
           <Appear as="p" className={cx("type-copy", styles.proven)}>

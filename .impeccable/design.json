@@ -607,8 +607,8 @@
       },
       {
         "name": "time-ink",
-        "value": "640ms",
-        "purpose": "An ink-in entrance."
+        "value": "400ms",
+        "purpose": "An ink-in entrance: opacity only, never blurred."
       },
       {
         "name": "time-settle",
@@ -618,7 +618,7 @@
       {
         "name": "time-count",
         "value": "1200ms",
-        "purpose": "A counter, and the wheel of the 90% figure."
+        "purpose": "The spread of the 90% tally's block fill where view timelines are missing. No figure counts or rolls."
       },
       {
         "name": "time-page-out",

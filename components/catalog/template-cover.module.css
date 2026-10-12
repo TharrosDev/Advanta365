@@ -80,17 +80,22 @@
   line-clamp: 4;
 }
 
-/* The first line of the summary; the ghost lines stand for the rest. */
+/*
+ * The first line of the summary; the ghost lines stand for the rest. The words wrap and the box is
+ * one line tall, so the line ends after a whole word, never inside one.
+ */
 .summary {
   display: block;
   flex: none;
+  height: calc(4.6 * 1.4 * var(--u));
   margin-block-start: calc(var(--u) * 4);
   padding-inline-end: calc(var(--u) * 13);
   overflow: hidden;
   color: var(--ink-soft);
   font-size: calc(var(--u) * 4.6);
   line-height: 1.4;
-  white-space: nowrap;
+  overflow-wrap: normal;
+  hyphens: none;
 }
 
 .lines {

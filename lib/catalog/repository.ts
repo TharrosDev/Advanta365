@@ -1,7 +1,9 @@
 import { phases as rawPhases } from "@/content/phases";
 import { templates as rawTemplates } from "@/content/templates";
+import { workedExampleContents } from "@/content/worked-example";
 import type { Phase, Template } from "./schema";
 import { validateCatalog } from "./validate";
+import { contentsRows, type ContentsRow } from "./worked-example";
 
 // The only module that reads content/. Functions are async, so the file source can be
 // swapped without changing any caller.
@@ -47,4 +49,18 @@ export async function getRelatedTemplates(slug: string, limit = 4): Promise<Temp
 
 export async function hasSampleContent(): Promise<boolean> {
   return catalog.templates.some((t) => t.isSample);
+}
+
+/**
+ * The worked example's table of contents, each section resolved against the catalog, and whether
+ * the sections are still placeholders (content/worked-example.ts).
+ */
+export async function getWorkedExampleContents(): Promise<{
+  placeholder: boolean;
+  sections: ContentsRow[];
+}> {
+  return {
+    placeholder: workedExampleContents.placeholder,
+    sections: contentsRows(workedExampleContents.entries, catalog.templates, catalog.phases),
+  };
 }

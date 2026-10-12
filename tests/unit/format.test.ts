@@ -1,6 +1,6 @@
 import { expect, test } from "vitest";
 import { FREE_SAMPLE_COUNT } from "@/lib/catalog/validate";
-import { countWord, formatPrice } from "@/lib/format";
+import { countWord, formatLength, formatPrice } from "@/lib/format";
 
 test("whole-dollar prices have no decimals", () => {
   expect(formatPrice(4900)).toBe("$49");
@@ -38,4 +38,14 @@ test("a count that opens a sentence takes a capital", () => {
 test("the number of free samples reads as the copy writes it", () => {
   expect(countWord(FREE_SAMPLE_COUNT)).toBe("six");
   expect(countWord(FREE_SAMPLE_COUNT, "capital")).toBe("Six");
+});
+
+test("a deck's length is counted in slides", () => {
+  expect(formatLength(16, "pptx")).toBe("16 slides");
+  expect(formatLength(1, "pptx")).toBe("1 slide");
+});
+
+test("every other format's length is counted in pages", () => {
+  expect(formatLength(22, "docx")).toBe("22 pages");
+  expect(formatLength(1, "pdf")).toBe("1 page");
 });

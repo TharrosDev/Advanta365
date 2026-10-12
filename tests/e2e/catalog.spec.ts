@@ -113,12 +113,19 @@ test("“Free samples only” leaves the six, and the URL says so", async ({ pag
   ).toBeChecked();
 });
 
-test("the sort order offers the samples first or the titles, and never a price", async ({
+test("the sort order offers the samples first, the rollout order or the titles, and never a price", async ({
   page,
+  isMobile,
 }) => {
   await openCatalog(page);
+  // On a phone the sort order is at the top of the filter sheet.
+  if (isMobile) await openFiltersIfCollapsed(page);
   const sort = page.getByRole("combobox", { name: "Sort by" });
-  await expect(sort.getByRole("option")).toHaveText(["Free samples first", "Title A–Z"]);
+  await expect(sort.getByRole("option")).toHaveText([
+    "Free samples first",
+    "Phase order",
+    "Title A–Z",
+  ]);
 
   await sort.selectOption({ label: "Title A–Z" });
   await expect(page).toHaveURL(/sort=title/, { timeout: NAVIGATION_TIMEOUT });
@@ -163,13 +170,147 @@ test("search keeps the active filters", async ({ page }) => {
   await expect(tiles(page).first()).toContainText("Executive Sponsor Kickoff Deck");
 });
 
-test("no matches shows an empty state that can be cleared", async ({ page }) => {
+test("a search with no match names the search and offers the phases", async ({ page }) => {
   await openCatalog(page, "/catalog?q=zzzzqqq");
-  await expect(page.getByText("No templates match these filters.")).toBeVisible();
+  await expect(page.getByText("No templates match “zzzzqqq”.")).toBeVisible();
+  const pivot = page.getByRole("navigation", { name: "Browse by phase" });
+  await expect(pivot.getByRole("link")).toHaveCount(7);
+  await expect(pivot.getByRole("link", { name: "Prepare", exact: true })).toHaveAttribute(
+    "href",
+    "/phases/prepare",
+  );
 
-  await page.getByRole("link", { name: "Clear filters" }).click();
+  await page.getByRole("link", { name: "Clear search" }).click();
   await expect(page).toHaveURL(/\/catalog$/, { timeout: NAVIGATION_TIMEOUT });
   await expect(tiles(page)).toHaveCount(24);
+});
+
+test("filters with no match keep the filters wording", async ({ page }) => {
+  await openCatalog(page, "/catalog?q=zzzzqqq&type=training");
+  await expect(page.getByText("No templates match these filters.")).toBeVisible();
+  await page.getByRole("link", { name: "Clear search and filters" }).click();
+  await expect(page).toHaveURL(/\/catalog$/, { timeout: NAVIGATION_TIMEOUT });
+});
+
+test("the free filter with a search that finds none of the six is a filter with no match", async ({
+  page,
+}) => {
+  await openCatalog(page, "/catalog?free=1&q=zzzzqqq");
+  await expect(page.getByText("No templates match these filters.")).toBeVisible();
+  await expect(page.getByRole("navigation", { name: "Browse by phase" })).toHaveCount(0);
+  await expect(page.getByRole("link", { name: "Clear search and filters" })).toBeVisible();
+});
+
+test("active filters show as chips that remove one value each", async ({ page }) => {
+  await openCatalog(page, "/catalog?phase=prepare&format=docx");
+  const chips = page.getByRole("list", { name: "Active filters" });
+  await expect(chips.getByRole("link", { name: /^Remove/ })).toHaveCount(2);
+
+  await chips.getByRole("link", { name: "Remove File format filter: Word" }).click();
+  await expect(page).toHaveURL(/\/catalog\?phase=prepare$/, { timeout: NAVIGATION_TIMEOUT });
+  await expect(chips.getByRole("link", { name: /^Remove/ })).toHaveCount(1);
+
+  await chips.getByRole("link", { name: "Clear all", exact: true }).click();
+  await expect(page).toHaveURL(/\/catalog$/, { timeout: NAVIGATION_TIMEOUT });
+  await expect(page.getByRole("list", { name: "Active filters" })).toHaveCount(0);
+});
+
+test("“Free samples only” has a chip of its own, and removing it brings the locked tiles back", async ({
+  page,
+}) => {
+  await openCatalog(page, "/catalog?free=1&phase=plan");
+  const chips = page.getByRole("list", { name: "Active filters" });
+  await expect(chips.getByRole("link", { name: /^Remove/ })).toHaveText([
+    "Free samples only",
+    "Plan",
+  ]);
+  await expect(tiles(page)).toHaveCount(1);
+
+  await chips.getByRole("link", { name: "Remove filter: Free samples only" }).click();
+  await expect(page).toHaveURL(/\/catalog\?phase=plan$/, { timeout: NAVIGATION_TIMEOUT });
+  await expect(page.locator("[data-tile][data-locked]").first()).toBeVisible();
+
+  // The last chip gone, focus is on the count: the keyboard is not left on nothing.
+  await chips.getByRole("link", { name: "Remove Phase filter: Plan" }).click();
+  await expect(page).toHaveURL(/\/catalog$/, { timeout: NAVIGATION_TIMEOUT });
+  await expect(page.locator("#results-heading")).toBeFocused();
+});
+
+test("a free tile keeps the filters that are on in its link", async ({ page }) => {
+  await openCatalog(page, "/catalog?free=1&format=docx");
+  const link = page.locator("[data-tile][data-free]").first().getByRole("link");
+  await expect(link).toHaveAttribute("href", /^\/catalog\?format=docx&free=1&view=[a-z0-9-]+$/);
+});
+
+test("phase order is the rollout order alone, and one filtered phase is lit", async ({
+  page,
+  isMobile,
+}) => {
+  await openCatalog(page, "/catalog?sort=phase");
+  // The first tile is of the first phase, and no tile's phase comes before the one ahead of it.
+  const phases = await tiles(page).evaluateAll((elements) =>
+    elements.map((element) => {
+      const meta = [...element.querySelectorAll("p")].find((p) => p.textContent?.includes(" · "));
+      return meta?.textContent?.split(" · ")[0] ?? "";
+    }),
+  );
+  expect(phases[0]).toBe("Make the case");
+  const order = [...new Set(phases)];
+  expect(phases).toEqual([...phases].sort((a, b) => order.indexOf(a) - order.indexOf(b)));
+  // Not the samples first: the six are spread through the phases they belong to.
+  const kinds = await tiles(page).evaluateAll((elements) =>
+    elements.map((element) => element.hasAttribute("data-free")),
+  );
+  expect(kinds.slice(0, 6).every(Boolean)).toBe(false);
+
+  await openCatalog(page, "/catalog?phase=execute");
+  const lit = isMobile
+    ? page.getByRole("navigation", { name: "Start from a phase" })
+    : page.getByRole("navigation", { name: "Phases" });
+  await expect(lit.locator('[aria-current="true"]')).toHaveText(/Execute/);
+  await expect(lit.locator("[aria-current]")).toHaveCount(1);
+
+  // Two phases are no single phase: nothing is lit.
+  await openCatalog(page, "/catalog?phase=execute,plan");
+  await expect(lit.getByRole("link").first()).toBeVisible();
+  await expect(lit.locator("[aria-current]")).toHaveCount(0);
+});
+
+test("on a phone the rail is one strip of phases, one search row and the sort in the sheet", async ({
+  page,
+  isMobile,
+}) => {
+  test.skip(!isMobile, "the strip and the sheet's sort order are the phone's");
+  await openCatalog(page, "/catalog?phase=sustain");
+
+  // One strip, seven phases, the lit one scrolled into view although it is the last.
+  const strip = page.getByRole("navigation", { name: "Start from a phase" });
+  await expect(strip).toHaveCount(1);
+  await expect(strip.getByRole("link")).toHaveCount(7);
+  const current = strip.locator('[aria-current="true"]');
+  await expect(current).toHaveText(/Sustain/);
+  await expect(current).toBeInViewport({ ratio: 1 });
+  // The bar's own rail is the desktop's: the page never shows the phases twice.
+  await expect(page.locator("[data-phase-rail]")).toBeHidden();
+
+  // One search field, with its button inside it, beside the Filters button.
+  const search = page.getByRole("searchbox", { name: "Search templates" });
+  await expect(search).toHaveCount(1);
+  const submit = page.getByRole("button", { name: "Search", exact: true });
+  const filters = page.getByRole("button", { name: /^Filters/ });
+  const [field, button, opener] = await Promise.all(
+    [search, submit, filters].map(async (locator) => (await locator.boundingBox())!),
+  );
+  expect(button!.x).toBeGreaterThanOrEqual(field!.x);
+  expect(button!.x + button!.width).toBeLessThanOrEqual(field!.x + field!.width + 0.5);
+  expect(Math.min(button!.width, button!.height)).toBeGreaterThanOrEqual(43.5);
+  expect(Math.abs(opener!.y - field!.y)).toBeLessThan(2);
+
+  // The sort order is not above the results; it is at the top of the sheet.
+  await expect(page.getByRole("combobox", { name: "Sort by" })).toHaveCount(0);
+  await filters.click();
+  const dialog = page.getByRole("dialog", { name: "Filters" });
+  await expect(dialog.getByRole("combobox", { name: "Sort by" })).toBeVisible();
 });
 
 test("malformed parameters never break the page", async ({ page }) => {
@@ -183,7 +324,7 @@ test("malformed parameters never break the page", async ({ page }) => {
 
   const odd = await page.goto(`/catalog?q=${encodeURIComponent("(a*\\ <b>")}`);
   expect(odd?.status()).toBe(200);
-  await expect(page.getByText("No templates match these filters.")).toBeVisible();
+  await expect(page.getByText("No templates match “(a*\\ <b>”.")).toBeVisible();
 });
 
 test("the filter dialog opens and closes on a phone", async ({ page, isMobile }) => {

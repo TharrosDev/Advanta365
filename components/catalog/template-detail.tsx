@@ -7,6 +7,7 @@ import { Tag } from "@/components/ui/tag";
 import { DELIVERABLE_TYPE_LABELS, FORMAT_LABELS } from "@/content/taxonomy";
 import type { Phase, Template } from "@/lib/catalog/schema";
 import { cx } from "@/lib/cx";
+import { formatLength } from "@/lib/format";
 import { PURCHASE_LINK } from "@/lib/site";
 import { TemplateCover } from "./template-cover";
 import styles from "./template-detail.module.css";
@@ -39,7 +40,7 @@ export function TemplateDetail({
       ? [
           {
             label: "Length",
-            value: `${template.pageCount} ${template.pageCount === 1 ? "page" : "pages"}`,
+            value: formatLength(template.pageCount, template.format),
           },
         ]
       : []),
@@ -82,7 +83,7 @@ export function TemplateDetail({
             {template.includes.map((item) => (
               <BandedRow key={item} className={styles.included}>
                 <span className={styles.tick} aria-hidden="true">
-                  <Icon name="tick" size={17} />
+                  <Icon name="tick" size={20} />
                 </span>
                 <span className="type-copy">{item}</span>
               </BandedRow>

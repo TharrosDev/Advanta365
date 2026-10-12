@@ -19,7 +19,9 @@
  * The finished mark then stands from 1000 to 2500, a second and a half, before one of three ways
  * out, each started by its state:
  *
- *   play    2500 to 2950   the cover fades
+ *   play    2500 to 2950   the cover leaves: the signature and the hint fade on the paper by
+ *                          2680, and only then does the paper clear, so the mark never lies over
+ *                          the hero's words
  *   ink     from T (the layer sets it when the engine is ready, 1600 at the latest; the scene
  *           runs from T, its clear from T + 2450 to T + 3500):
  *           2500 to 2800 the signature fades, whenever T was (the layer writes T as `--taken`),
@@ -42,6 +44,8 @@
   --hint-at: 600ms;
   --leave: 450ms;
   --leave-at: 2500ms;
+  --sign-leave: 180ms;
+  --sign-leave-at: 2500ms;
   --ink-sign: 300ms;
   --ink-sign-at: 2500ms;
   --ink-leave: 800ms;
@@ -65,12 +69,17 @@
 
 /*
  * While it fades the cover does not take the pointer, and its last frame, which is held, keeps it
- * out of sight for good. The same frames under three names: a change of name starts a new
- * animation, where a change of duration would only retime the one that is running.
+ * out of sight for good. Three names: a change of name starts a new animation, where a change of
+ * duration would only retime the one that is running. On its own way out the paper stays opaque
+ * for the first 40% (--sign-leave of --leave), while the signature fades on it.
  */
 @keyframes cover-leave {
   from {
     pointer-events: none;
+  }
+
+  40% {
+    opacity: 1;
   }
 
   to {
@@ -131,6 +140,21 @@
   to {
     opacity: 0;
   }
+}
+
+@keyframes sign-leave {
+  to {
+    opacity: 0;
+  }
+}
+
+/*
+ * The signature leaves before the paper does. The ink takes over by 1600 at the latest, before
+ * this fade begins, and starts its own under another name; once the cover is leaving no input
+ * changes the state any more.
+ */
+:root[data-intro="play"] .signature {
+  animation: sign-leave var(--sign-leave) linear var(--sign-leave-at) forwards;
 }
 
 /*
@@ -234,4 +258,11 @@
 
 :root[data-intro] .hint {
   animation: fade-in var(--hint-in) linear var(--hint-at) backwards;
+}
+
+/* On the cover's own way out the hint leaves with the signature, before the paper clears. */
+:root[data-intro="play"] .hint {
+  animation:
+    fade-in var(--hint-in) linear var(--hint-at) backwards,
+    sign-leave var(--sign-leave) linear var(--sign-leave-at) forwards;
 }
