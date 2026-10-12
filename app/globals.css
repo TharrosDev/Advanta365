@@ -69,8 +69,8 @@
   --depth-4: 0 0 0 1px rgb(11 13 18 / 0.05), 0 20px 40px -12px rgb(11 13 18 / 0.24);
 
   /*
-   * The folder of a page: the light on its card stock front, the shade that front casts up onto
-   * the sheets in the pocket behind it, and the string of the price tag that hangs from it.
+   * The folder of a page: the light on its card stock front, and the shade that front casts up
+   * onto the sheets in the pocket behind it.
    */
   --card-light: rgb(255 255 255 / 0.62);
   --pocket-shade: 0 -8px 14px -8px rgb(11 13 18 / 0.22);

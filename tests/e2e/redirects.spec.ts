@@ -81,6 +81,11 @@ test("the old address of a free sample opens it in the pop-up; any other shows t
     expect(response?.status(), from).toBe(200);
     await expect(page.getByRole("heading", { level: 1 })).toHaveText("Catalog");
     await expect(page.locator("dialog[open]")).toHaveCount(0);
-    await expect(page.getByRole("status")).toHaveText("67 templates");
+    await expect(page.locator("#results-heading")).toHaveText("67 templates");
+    // A locked template is answered, by its tile or, where the tile is not on the page, by the
+    // line above the results; a name the catalog does not hold is answered by nothing.
+    await expect(page.locator("[data-answer], [data-included]"), from).toHaveCount(
+      from.endsWith("/nope") ? 0 : 1,
+    );
   }
 });

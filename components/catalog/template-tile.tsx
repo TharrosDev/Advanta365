@@ -107,7 +107,8 @@ export function TemplateTile({
  * The grid tiles lie in: a list with as many columns of at least 176px as its width holds, and
  * never fewer than two. Its children are `<li>` elements, one tile each. The gap between its rows
  * is where a locked tile's line stands. It carries the drawing every lock in it draws from
- * (`ChainLockParts`); pass `locks={false}` for a grid that holds free samples only.
+ * (`ChainLockParts`); pass `locks={false}` for a grid that holds free samples only, and for each
+ * grid of a page that holds several and renders the drawing once itself.
  */
 export function TileGrid({
   className,

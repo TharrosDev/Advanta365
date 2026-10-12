@@ -248,8 +248,95 @@ test("a link to a locked template opens nothing: its tile denies once, with its 
   await expect(lockedTiles(page).locator("[aria-live]").filter({ hasText: /\S/ })).toHaveCount(1);
 });
 
+test("a link to a locked template whose tile is not on the page of results is answered in a line above them", async ({
+  page,
+}) => {
+  // Only the six free samples are listed here, so the template the link names has no tile.
+  const response = await openCatalog(page, `/catalog?free=1&view=${LOCKED_SLUG}`);
+  expect(response?.status()).toBe(200);
+  await expect(page.locator("dialog[open]")).toHaveCount(0);
+  await expect(page.locator("[data-tile]")).toHaveCount(6);
+  await expect(page.locator("[data-denied]")).toHaveCount(0);
+
+  const line = page.getByRole("main").locator("[data-included]");
+  await expect(line).toHaveCount(1);
+  await expect(line).toBeVisible();
+  await expect(line).toHaveAttribute("role", "status");
+  await expect(line).toHaveText(
+    "SharePoint Migration Impact Assessment is included with the toolkit. Purchase",
+  );
+  await expect(line.getByRole("link", { name: "Purchase", exact: true })).toHaveAttribute(
+    "href",
+    "/purchase",
+  );
+  // It stands above the count and the tiles.
+  const [lineBox, countBox] = await Promise.all([
+    line.boundingBox(),
+    page.locator("#results-heading").boundingBox(),
+  ]);
+  expect(lineBox?.y ?? Infinity).toBeLessThan(countBox?.y ?? -Infinity);
+
+  // The same on a page of the full results that does not hold the tile, whichever page that is.
+  let without = 0;
+  for (const number of [1, 2, 3]) {
+    await page.goto(`/catalog?page=${number}&view=${LOCKED_SLUG}`);
+    const onPage = await page.locator("[data-tile][data-denied]").count();
+    await expect(page.locator("[data-included]")).toHaveCount(onPage ? 0 : 1);
+    without += onPage ? 0 : 1;
+  }
+  expect(without).toBe(2);
+
+  // Where the tile is on the page, the tile answers and there is no line; a free sample, or a
+  // name the catalog does not hold, gets none either.
+  for (const address of [
+    `/catalog?phase=plan&view=${LOCKED_SLUG}`,
+    "/catalog?free=1&view=nope",
+    "/catalog?page=3&view=change-management-strategy",
+  ]) {
+    await page.goto(address);
+    await expect(page.getByRole("heading", { level: 1 })).toHaveText("Catalog");
+    await expect(page.locator("[data-included]"), address).toHaveCount(0);
+  }
+});
+
+test("a phase page carries the drawing of the locks once, for all its grids", async ({ page }) => {
+  await page.goto("/phases/plan");
+  // Several steps, each with a grid of its own, and locked tiles in more than one of them.
+  const grids = page.getByRole("main").locator("ul:has([data-tile])");
+  expect(await grids.count()).toBeGreaterThan(1);
+  expect(
+    await grids.evaluateAll(
+      (lists) => lists.filter((list) => list.querySelector("[data-tile][data-locked]")).length,
+    ),
+  ).toBeGreaterThan(1);
+
+  // No id is on the page twice, and every lock finds the paint it asks for.
+  const ids = await page.evaluate(() => [...document.querySelectorAll("[id]")].map((el) => el.id));
+  expect(ids.filter((id, index) => ids.indexOf(id) !== index)).toEqual([]);
+  const broken = await page.evaluate(() =>
+    [...document.querySelectorAll("svg[data-chain-lock] use")]
+      .map((use) => use.getAttribute("href") ?? "")
+      .filter((href) => !href.startsWith("#") || !document.getElementById(href.slice(1))),
+  );
+  expect(broken).toEqual([]);
+  for (const lock of await page.locator("svg[data-chain-lock]").all()) {
+    await expect(lock).toBeVisible();
+  }
+});
+
 test.describe("without JavaScript", () => {
   test.use({ javaScriptEnabled: false });
+
+  test("the line for a locked template that has no tile on the page is there too", async ({
+    page,
+  }) => {
+    await page.goto(`/catalog?free=1&view=${LOCKED_SLUG}`);
+    const line = page.locator("[data-included]");
+    await expect(line).toContainText(
+      "SharePoint Migration Impact Assessment is included with the toolkit.",
+    );
+    await expect(line.getByRole("link")).toHaveAttribute("href", "/purchase");
+  });
 
   test("a locked tile still reads as locked, and the page says where the rest is", async ({
     page,

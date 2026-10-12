@@ -50,11 +50,11 @@ function buildSpecimen(template: Template, phases: Phase[]): SpecimenContent | u
 
 /**
  * Home, top to bottom: the hero (the headline, and a blank prompt that turns into the six free
- * samples as a hand of documents); the same six as a row of tiles, with what each one is; what is inside the toolkit, with one real template as a specimen; the toolkit as the
- * one folder it is sold as, with its price; the problem; the answer (the one black band); why it is
- * different (the one wash band); why
- * Advanta365; the Microsoft 365 products; the closing statement. Reordering the page is reordering
- * the array below. The cover of a first visit is rendered before all of it.
+ * samples as a hand of documents); the same six as a row of tiles, with what each one is; what is
+ * inside the toolkit, with one real template as a specimen; the toolkit as the one folder it is
+ * sold as, with its price; the problem; the answer (the one black band); why it is different (the
+ * one wash band); why Advanta365; the Microsoft 365 products; the closing statement. Reordering
+ * the page is reordering the array below. The cover of a first visit is rendered before all of it.
  */
 export default async function Home() {
   const [phases, templates, freeTemplates] = await Promise.all([

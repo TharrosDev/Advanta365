@@ -68,6 +68,24 @@ test("the six free samples come first, and every other tile is locked", async ({
   await expect(locked.getByText("Free sample")).toHaveCount(0);
 });
 
+test("every address of the catalog names the plain catalog as the canonical one", async ({
+  page,
+}) => {
+  for (const address of [
+    "/catalog",
+    "/catalog?view=change-management-strategy",
+    "/catalog?view=sharepoint-migration-impact-assessment",
+    "/catalog?phase=plan&q=plan&page=2",
+  ]) {
+    await page.goto(address);
+    const canonical = page.locator('head link[rel="canonical"]');
+    await expect(canonical, address).toHaveCount(1);
+    const href = (await canonical.getAttribute("href")) ?? "";
+    const named = new URL(href, page.url());
+    expect(named.pathname + named.search + named.hash, address).toBe("/catalog");
+  }
+});
+
 test("nothing on the page has a price", async ({ page }) => {
   for (const address of ["/catalog", "/catalog?page=2", "/catalog?free=1"]) {
     await openCatalog(page, address);

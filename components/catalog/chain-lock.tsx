@@ -104,7 +104,8 @@ const STEEL = (
  * The drawing itself, once for a whole grid of tiles: the two chains and the padlock, with the
  * gradients that paint their steel. It takes up no room and shows nothing; every `ChainLock` on
  * the page draws from it, so a page of locked tiles carries the chain once and not once per tile.
- * `TileGrid` renders it. Two of them on one page are the same drawing twice, which does no harm.
+ * `TileGrid` renders it; a page with several grids renders it once itself, since its gradients
+ * are found by their ids and an id belongs to one element of a page.
  */
 export function ChainLockParts() {
   return (

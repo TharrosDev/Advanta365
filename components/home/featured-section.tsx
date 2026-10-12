@@ -2,7 +2,9 @@ import { TemplateTile, TileGrid } from "@/components/catalog/template-tile";
 import { Band } from "@/components/ui/band";
 import { Button } from "@/components/ui/button";
 import { ShelfHead } from "@/components/ui/shelf-head";
+import { DEFAULT_CRITERIA } from "@/lib/catalog/query";
 import type { Phase, Template } from "@/lib/catalog/schema";
+import { catalogHref } from "@/lib/catalog/search-params";
 
 /**
  * `#featured`: the free samples, on the desk, right under the hero that shows the same six as a
@@ -44,7 +46,7 @@ export function FeaturedSection({
                   template={template}
                   phaseName={phase?.name}
                   phaseOrder={phase?.order}
-                  href={`/catalog?view=${template.slug}`}
+                  href={catalogHref(DEFAULT_CRITERIA, template.slug)}
                 />
               </li>
             );

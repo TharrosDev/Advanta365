@@ -166,7 +166,7 @@ for (const view of [LOCKED_SLUG, "nope", "../x", "", "Change-Management-Strategy
     await expect(page.getByRole("heading", { level: 1 })).toHaveText("Catalog");
     await expect(page.locator("dialog[open]")).toHaveCount(0);
     await expect(dialog(page)).toHaveCount(0, { timeout: NAVIGATION_TIMEOUT });
-    await expect(page.getByRole("status")).toHaveText("67 templates");
+    await expect(page.locator("#results-heading")).toHaveText("67 templates");
   });
 }
 

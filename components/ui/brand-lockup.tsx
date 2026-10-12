@@ -9,7 +9,7 @@ import styles from "./brand-lockup.module.css";
  * Both variants draw the mark in two inks. `tile` (the bar, the drawer) puts it on a square ink
  * tile: the "A" in white, its tail in the highlighter. `bare` (the footer) draws the mark alone: on
  * the binder its tail is the highlighter. Size `md` is the bar's: a 28px tile that grows to 49px
- * from 68em, where the mark fills more of it; `sm` stays at 28px. The bare mark is 35px high (21px
+ * from 68em, where the mark fills more of it; `sm` stays at 28px. The bare mark is 36px high (21px
  * at `sm`).
  *
  * The "365" on the tail is drawn only where it is at least 7px high, which takes a mark of 35px:

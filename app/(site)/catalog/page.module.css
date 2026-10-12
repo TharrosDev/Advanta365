@@ -13,7 +13,17 @@
   min-width: 0;
 }
 
-/* The one live region of the page: how many templates match, and for which search. */
+/*
+ * A link named a locked template whose tile is not on this page of results: the answer the tile
+ * would have given, with the template's title, above everything else.
+ */
+.included {
+  max-width: var(--wrap-copy);
+  margin-block-end: var(--s-3);
+  color: var(--text-soft);
+}
+
+/* The live region of the results: how many templates match, and for which search. */
 .count {
   margin-block-end: var(--s-3);
   color: var(--text-soft);

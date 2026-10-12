@@ -4,7 +4,9 @@ import { Band } from "@/components/ui/band";
 import { Button } from "@/components/ui/button";
 import type { PhaseCoverage } from "@/lib/catalog/coverage";
 import type { Template } from "@/lib/catalog/schema";
+import { FREE_SAMPLE_COUNT } from "@/lib/catalog/validate";
 import { cx } from "@/lib/cx";
+import { countWord } from "@/lib/format";
 import { PURCHASE_LINK } from "@/lib/site";
 import styles from "./home.module.css";
 
@@ -28,8 +30,9 @@ export function PortfolioSection({
       <div className={styles.toolkitText}>
         <h2 className="type-page">One purchase, the whole toolkit</h2>
         <p className={cx("type-lead", styles.toolkitLead)}>
-          Every playbook, template, field guide and job aid, for all seven phases of the rollout.
-          Six of the templates are free samples in the catalog; the rest come in the folder.
+          Every playbook, template, field guide and job aid, for all seven phases of the rollout.{" "}
+          {countWord(FREE_SAMPLE_COUNT, "capital")} of the templates are free samples in the
+          catalog; the rest come in the folder.
         </p>
         <div className={styles.toolkitAction}>
           <Button variant="mark" size="lg" href={PURCHASE_LINK.href} arrow>
