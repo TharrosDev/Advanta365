@@ -78,7 +78,7 @@ app/
   icon.svg            The site icon
   not-found.tsx       The 404 page outside the site group, with the ink layer
   (site)/             Public pages inside the site shell
-    layout.tsx        Skip link, beta strip, header, phase rail, main, footer, ink layer
+    layout.tsx        Skip link, header, phase rail, main, footer, ink layer
     page.tsx          Home: an array of sections, in order
     purchase/ catalog/ phases/[phase]/ about/ sample/
     [...rest]/        Calls notFound(), so unknown paths keep the site shell
@@ -86,14 +86,16 @@ app/
 components/
   ui/                 Primitives (see Design system)
   layout/             Header, PrimaryNav, PurchaseButton, NavDrawer, PhaseRail, TitleBlock, Breadcrumbs,
-                      Footer, BetaStrip
+                      Footer
   home/               Home sections: hero (HeroStage, ProofStrip), featured (the six samples), inside, the
-                      portfolio, problem and solution, practice, values, built-for row, closing
+                      portfolio, solution, practice, closing
   catalog/            Template covers, tiles (TemplateTile, LockedTile, ChainLock), the pop-up
                       (TemplateDialog, TemplateDetail), filters and their chips, search, sort, result
                       list, the phone's phase strip, step nav, the phase pager
-  purchase/           Portfolio (the toolkit as a folder) and PriceTag
-  company/            Pieces of the about, purchase and sample pages
+  purchase/           Portfolio (the toolkit as a folder), PriceTag and the contents leaf (ContentsLeaf)
+  about/              The About page's sections: promise, how it was made, who it is for, comparison,
+                      state of the site, contact
+  company/            NextSteps (About and Sample), StatementSection and WorkedExample (Sample)
   ink/                InkBackdrop, InkLayer, the controller and the lab
   intro/              The cover of a first visit, and the tag that prints the boot script
   not-found/          MissingPage, AskedPath and LateBoot
@@ -109,7 +111,6 @@ lib/
   brand/mark.ts       The logo mark geometry, the single source of truth
   catalog/            Schemas, validation, repository, query, URL state, phase coverage and neighbours,
                       the worked example's contents
-  purchase/           The questions about buying, answered on the Purchase page
   ink/                The engine (engine/), scenes, stage choice, calm zones, pigments, stills, test hook
   boot/               The boot script and the pure decisions it mirrors
   scroll/             The observer for entrances, the pointer's light, and a sideways row's current item
@@ -181,7 +182,7 @@ in `components/ui/`. `docs/design-system.md` describes the system in full.
 | `desk` (default) | `--desk`, a light table  | Sections on which the paper sheets lie                  |
 | `paper`          | `--paper`, white         | Most content sections                                   |
 | `wash`           | `--mark-wash`, pale blue | Highlighted sections                                    |
-| `ink`            | `--binder`, near black   | The solution band on home and the AI statement on About |
+| `ink`            | `--binder`, near black   | The solution band on home and the promise band on About |
 | `binder`         | `--binder`, near black   | The footer                                              |
 
 The `ink` and `binder` surfaces share one dark block in the stylesheet, and text on them is `--on-binder`.
@@ -274,7 +275,7 @@ Display and lead sizes are `clamp()` tokens between a phone value and a desktop 
 | `data-ninety`                                     | The solution band (`components/home/pitch-spread.tsx`) | The ten blocks fill; the 90% figure never moves                           |
 | `data-watch`                                      | `Tally` with `animate`, `PriceTag`                     | The blocks fill, or the tag swings, when the element is seen              |
 | `data-hero-stage`, `-prompt`, `-doc`              | `HeroStage`                                            | With live ink, the hero's prompt box dissolves and the six documents land |
-| `data-tile` `data-denied`, `data-lock`            | `TemplateTile`, `LockedTile`, `ChainLock`              | A locked tile says no: it shakes, its padlock rattles, its outline pulses |
+| `data-tile` `data-denied`, `data-lock`            | `TemplateTile`, `LockedTile`, `ChainLock`              | A locked tile says no: it vibrates, its padlock rattles, its outline and wash hit and fade |
 | `data-template-dialog` `data-enter`               | `TemplateDialog`                                       | The pop-up rises as the page dims                                         |
 | `data-price-tag`                                  | `PriceTag`                                             | The tag swings on its string                                              |
 | `data-nav-underline`                              | `PrimaryNav`                                           | The bar's underline slides to the current link                            |
@@ -323,8 +324,8 @@ The catalog has seven phases in rollout order: Make the case (`make-the-case`), 
 Each phase has two steps.
 
 1. **Phases and steps.** Edit `content/phases.ts`. Each phase has a slug, a name, a summary, an `order` and
-   its steps. Slugs are lower-case words joined by hyphens. The catalog lead and its metadata write the
-   phase count out as "seven" (`app/(site)/catalog/page.tsx`), so change those by hand if the count changes.
+   its steps. Slugs are lower-case words joined by hyphens. The catalog's metadata description writes the
+   phase count out as "seven" (`app/(site)/catalog/page.tsx`), so change it by hand if the count changes.
    The tally of the phases on the Purchase page and in the home portfolio follows the phase list
    automatically.
 2. **Templates.** Each phase has one file in `content/templates/`: `make-the-case.ts`, `plan.ts`,
@@ -343,14 +344,16 @@ Each phase has two steps.
    `pnpm build` fail with the record and field named if a record is invalid, a slug repeats, a template
    names a phase or step that is missing or belongs to another phase, or the number of free templates is
    not six.
-5. **Sample labels.** The beta strip shows while any template has `isSample: true`. The sample wording is
-   plain text, edited by hand, in these places: the catalog lead and metadata
-   (`app/(site)/catalog/page.tsx`), the "Browse the sample catalog" links on the home page
-   (`components/home/featured-section.tsx` and `components/home/inside-section.tsx`), the footer's status
-   line (`components/layout/footer.tsx`) and the sample note on the Purchase page
-   (`app/(site)/purchase/page.tsx`).
+5. **Sample labels.** The sample wording is plain text, edited by hand, in these places: the catalog's
+   metadata description and the line under its result count (`app/(site)/catalog/page.tsx`), the "Browse
+   the sample catalog" links on the home page (`components/home/featured-section.tsx` and
+   `components/home/inside-section.tsx`), the footer's status line (`components/layout/footer.tsx`), the
+   sample note on the Purchase page (`components/purchase/contents-leaf.tsx`) and the About page's note on
+   the state of the site (`components/about/site-state.tsx`). No page reads `isSample` (only the unit tests
+   call `hasSampleContent()`), so nothing changes by itself when the real records arrive: edit each of
+   these places by hand.
    The worked example is the fictional Meridian Group. The name appears in `app/(site)/sample/page.tsx`,
-   `app/(site)/about/page.tsx`, `content/templates/plan.ts` and `content/worked-example.ts`. That last
+   `content/templates/plan.ts` and `content/worked-example.ts`. That last
    file holds the example's table of contents on `/sample`: placeholder sections, labelled as such on the
    page, until the real file is published. The 10,000 figure also
    appears on the home page, in `components/home/inside-section.tsx` and `components/home/pitch-spread.tsx`.
@@ -358,13 +361,15 @@ Each phase has two steps.
    count, so they need updating with the real catalog.
 6. **Toolkit counts.** `TOOLKIT` in `lib/site.ts` holds the counts for the whole toolkit: playbooks,
    templates, field guides, job aids, training audiences and years of experience. Pages read them from
-   there. Two places write the experience in words instead: the hero lead and the values section
-   (`components/home/hero.tsx` and `components/home/values-section.tsx`). The counts describe the whole
+   there. The experience is also set in sentences, built from `TOOLKIT.experience`: the hero lead
+   (`components/home/hero.tsx`), the promise and "How it was made" sections of About
+   (`components/about/promise-band.tsx` and `components/about/making-section.tsx`) and the About page's
+   description. The counts describe the whole
    toolkit, not the number of catalog listings, and no page may imply that the catalog lists that many. The
    Purchase page's "What is inside" ledger and the hero's proof strip read them from there.
 7. **Home page.** The home page is the `sections` array in `app/(site)/page.tsx`, top to bottom: the hero,
-   `#featured`, `#inside`, `#toolkit`, `#problem` and `#solution`, `#practice`, `#values`, the built-for row
-   and `#closing`. Reordering the page means reordering that array. The specimen in `#inside` shows the
+   `#featured`, `#inside`, `#toolkit`, `#solution`, `#practice` and `#closing`.
+   Reordering the page means reordering that array. The specimen in `#inside` shows the
    first free sample. The hero's documents, `#featured` and the covers in the folder of `#toolkit` are the six
    free samples. The phase coverage in the folder comes from `phaseCoverage()` in
    `lib/catalog/coverage.ts`.
@@ -378,7 +383,7 @@ The code already has the seams that a production build connects to.
 | Catalog data  | Files in `content/`, read through `lib/catalog/repository.ts`. Its functions are async, so another source can implement the same functions.                                     |
 | Record shapes | `lib/catalog/schema.ts` defines the phase, step and template records, and `lib/catalog/validate.ts` checks them.                                                                |
 | The offer     | `OFFER` in `lib/site.ts`: its name and its price in cents. The tag, the bar's button and the Purchase page all print it.                                                        |
-| Checkout      | The disabled "Checkout coming soon" button on `app/(site)/purchase/page.tsx`. A payment provider, and whatever unlocks the locked templates, connect there; neither exists yet. |
+| Checkout      | The disabled "Checkout coming soon" button on `components/purchase/contents-leaf.tsx`. A payment provider, and whatever unlocks the locked templates, connect there; neither exists yet. |
 | Page metadata | The root `metadata` in `app/layout.tsx`, and each page's metadata export.                                                                                                       |
 
 Items to settle before launch, from content and commercial terms to the worked example's file, are in
@@ -437,9 +442,12 @@ The rest are about the site itself. None of this is legal advice.
       replace them and set `placeholder` to false. The sample catalog
       also lists the worked example as a locked template; decide whether it is a free sample, a
       product, or both.
-- [ ] **Purchase answers.** The answers under "Questions" on `/purchase` are provisional and say
-      so on the page. Licence terms, updates and purchase orders describe the intent only. Replace
-      them once the commercial terms are set.
+- [ ] **About copy and cost estimates.** The costs of the two alternatives on About (8 to 14
+      person-months, $150K to $400K per rollout) were carried over from the earlier page as the
+      owner's estimates and are labelled Estimate; confirm or replace them in
+      `components/about/compare-section.tsx`. The four passes under "How it was made"
+      (`components/about/making-section.tsx`) restate "built, delivered, revised and re-delivered"
+      and name no real revision history; the owner should read them.
 - [ ] **Currency.** The price, $499.99, is shown in US dollars. The owner has not confirmed the
       currency; confirm it, then change `formatPrice` in `lib/format.ts` if it is not US dollars.
 - [ ] **Checkout.** Build it: connect a payment provider, and decide how a purchase unlocks the

@@ -110,18 +110,22 @@ What the storefront does today:
   phases. Catalog state lives in the URL, so every view can be shared. The six free samples open in a pop-up (from the catalog, a phase page or the home
   page); every other template shows a locked cover and answers a press with "Included with the
   toolkit."
-- One Purchase page (`/purchase`): the toolkit as a folder with its price on a tag, what is inside,
-  the disabled Checkout button with the contact address beside it, and the questions about buying.
-  There is no cart, no pricing page and no contact page. The old addresses of those pages, of the
-  bundle pages and of the template pages redirect.
-- An about page with the comparison of alternatives and, in its `#contact` section, the one email
-  address (`hello@advanta365.com`), and a sample page with the worked example's table of contents
-  (placeholder sections, labelled as placeholders, until its file is published).
+- One Purchase page (`/purchase`): the toolkit as a folder with its price on a tag and, beside it from
+  68em (under it below), a contents leaf: what is inside, the disabled Checkout button, the contact
+  address and the note that the catalog is sample content. There are no questions on the page. There
+  is no cart, no pricing page and no contact page. The old addresses of those pages, of the bundle
+  pages and of the template pages redirect.
+- An about page: the 90 percent promise, how the toolkit was made, the five buyers, the comparison of
+  alternatives (`#compare`), a plain note on the state of the site (`#state`) and, in its `#contact`
+  section, the one email address (`hello@advanta365.com`). And a sample page with the worked example's
+  table of contents (placeholder sections, labelled as placeholders, until its file is published).
 
 Constraints future work must respect:
 
-- **The catalog is sample content.** Phases, steps and templates are placeholders, and the site
-  labels itself a beta while any record is a sample. No page may imply that the catalog lists the
+- **The catalog is sample content.** Phases, steps and templates are placeholders, and the site says
+  so in plain words where a visitor meets them, not in a banner: the footer's status line, the note
+  on the Purchase page, the "Free sample" tags, the line under the catalog's result count and the
+  note on the state of the site on About (`#state`). No page may imply that the catalog lists the
   full toolkit. The price is written once, in `lib/site.ts`, and printed from there.
 - **Checkout is not built.** It is a disabled "Checkout coming soon" button on the Purchase page.
   Nothing can be purchased yet, locked templates stay locked for every visitor, and there are no
@@ -193,7 +197,8 @@ Real and usable:
   impact assessment.
 - The comparison of alternatives on `/about#compare`, with the owner's cost estimates for the
   alternatives and the toolkit's one price.
-- The messaging already written into the pages under `app/(site)/` and `components/home/`.
+- The messaging already written into the pages under `app/(site)/` and `components/home/` and
+  `components/about/`.
 - The pre-launch checklist: "Before public launch" in `README.md`.
 
 Absent. Future work must not fabricate any of these:
@@ -211,7 +216,10 @@ Derived from the answers above (inferred as a set; each rests on a stated fact).
 1. **Proof before polish in what is claimed.** Every claim traces to real delivery. Where proof is
    absent, say less instead of inventing it.
 2. **Honest about its state.** Sample content is labelled as sample, the beta as a beta, estimates as
-   estimates, and what is not built as not built.
+   estimates, and what is not built as not built. The labels are plain words in the place a visitor
+   meets the thing (the footer's status line, the Purchase page's note, the "Free sample" tags, the
+   note under the catalog's result count and the About page's note on the state of the site), not a
+   banner above the page.
 3. **Meet the buyer at the phase they are on.** People arrive with one deliverable in mind. The
    rollout phases are the map, and the way to the right piece should be short.
 4. **A starting point, not a finished answer.** The toolkit does 90 percent; the buyer, with AI or a
