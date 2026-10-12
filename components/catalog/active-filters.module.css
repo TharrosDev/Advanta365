@@ -1,0 +1,24 @@
+/*
+ * The chips run in one wrapping row, 7px apart, with "Clear all" after the last: a text button, so
+ * the gap is all the room it needs, and on a wrapped line it starts flush with the chips. The row
+ * stands 21px above the result count. Each chip is a small outline button (44px tall below 68em,
+ * 40px from there) with the value's name and a close mark after it.
+ */
+.root {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--s-1);
+  margin: 0 0 var(--s-3);
+  padding: 0;
+  list-style: none;
+}
+
+/* The close mark has room of its own inside its box, so the side after it takes half the pad. */
+.chip.chip {
+  padding-inline: var(--s-2) var(--s-1);
+}
+
+.root[aria-busy="true"] {
+  cursor: progress;
+}

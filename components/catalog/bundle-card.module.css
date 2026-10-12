@@ -36,6 +36,11 @@
   color: var(--text-soft);
 }
 
+.detail {
+  margin-block-start: var(--s-1);
+  color: var(--text);
+}
+
 .foot {
   display: flex;
   flex-wrap: wrap;
@@ -77,6 +82,8 @@
 }
 
 .folder {
+  --cover-scale: 1.5;
+
   flex: 1;
 }
 
@@ -127,9 +134,14 @@
   pointer-events: none;
 }
 
+/*
+ * The row's folder is one size at every width (never wider than the row), so the covers in it print
+ * as large as a catalog thumbnail.
+ */
 .object {
-  width: 9rem;
-  height: 7rem;
+  width: 13rem;
+  max-width: 100%;
+  height: 9.625rem;
 }
 
 .text {
@@ -185,8 +197,6 @@
 
   .object {
     grid-row: 1 / span 2;
-    width: 13rem;
-    height: 9.625rem;
   }
 
   .row .text {

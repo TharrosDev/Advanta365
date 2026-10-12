@@ -19,6 +19,11 @@
   max-width: 21rem;
 }
 
+/* The covers of the first templates stand in it at 1.5 times a catalog thumbnail. */
+.folder {
+  --cover-scale: 1.5;
+}
+
 /* A large folder: as tall as the front panel it holds, which has nothing to say but its tab. */
 .front.front {
   min-height: 9rem;

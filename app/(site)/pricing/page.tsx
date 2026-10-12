@@ -9,6 +9,7 @@ import { Band } from "@/components/ui/band";
 import { BandedList, BandedRow } from "@/components/ui/banded-list";
 import { RowLink } from "@/components/ui/row-link";
 import { Split } from "@/components/ui/split";
+import { TextLink } from "@/components/ui/text-link";
 import { bundleSavingsCents } from "@/lib/catalog/pricing";
 import { getBundleTemplates, getBundles, getTemplates } from "@/lib/catalog/repository";
 import { cx } from "@/lib/cx";
@@ -78,7 +79,8 @@ function priceRange(cents: readonly number[]): string {
 
 /**
  * `/pricing`: the two ways to buy, the bundle prices as a ledger, the questions people ask, and a
- * link to talk about purchasing.
+ * link to talk about purchasing. The comparison with the alternatives (`/about#compare`) is linked
+ * under the lead, for the buyer still weighing AI or a consultant.
  *
  * Layout: the title block with ink; a desk band where the singles lie on a stack of paper and the
  * bundles in a folder; the bundle prices on paper; the questions on the desk as a ledger of 84px
@@ -121,7 +123,12 @@ export default async function PricingPage() {
         ink
         title="Pricing"
         lead="Buy the one piece you need today, or take a bundle that covers a whole phase. Every purchase is a one-time payment for files you can edit by hand or with AI, reused across every wave of your rollout."
-      />
+      >
+        <p className="type-copy">
+          Weighing it against AI or a consultant?{" "}
+          <TextLink href="/about#compare">See how it compares</TextLink>
+        </p>
+      </TitleBlock>
 
       <Band surface="desk" pad="roomy">
         <WaysToBuy

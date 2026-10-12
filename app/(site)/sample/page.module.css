@@ -18,8 +18,58 @@
   width: calc(var(--s-1) * 14);
 }
 
+/*
+ * The contents: one numbered section a row. Below 40em the catalog link stands under the title;
+ * from 40em it is the row's last column, on the title's baseline, set flush left so the links read
+ * as one column. The numerals are drawn like the phase ledger's below.
+ */
+.placeholderNote {
+  margin-block-end: var(--s-4);
+}
+
+/* There are ten sections: the contents keep the 42px numeral column on a phone too, so "10" fits. */
+.section .numeral {
+  width: var(--s-5);
+}
+
+.section {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  column-gap: var(--s-2);
+  align-items: baseline;
+}
+
+.sectionText {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.placeholder {
+  color: var(--text-faint);
+}
+
+.see {
+  grid-column: 2;
+  margin-block-start: var(--s-1);
+  color: var(--text);
+}
+
+.seeKind {
+  color: var(--text-soft);
+}
+
 @media (min-width: 40em) {
   .numeral {
     width: var(--s-5);
+  }
+
+  .section {
+    grid-template-columns: auto minmax(0, 1fr) minmax(0, 20rem);
+  }
+
+  .see {
+    grid-column: 3;
+    margin-block-start: 0;
   }
 }

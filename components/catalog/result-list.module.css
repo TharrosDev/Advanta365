@@ -41,6 +41,18 @@
   margin-block-start: var(--s-4);
 }
 
+/* The way in by phase: the seven index cards across the sheet, under their own label. */
+.pivot {
+  align-self: stretch;
+  margin-block-start: var(--s-5);
+  padding-block-start: var(--s-4);
+  border-block-start: var(--hair) solid var(--line);
+}
+
+.pivotTitle {
+  margin-block-end: var(--s-2);
+}
+
 @media (min-width: 40em) {
   .empty {
     padding: var(--s-6);

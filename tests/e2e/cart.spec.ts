@@ -23,14 +23,36 @@ test("a template can be added, seen in the cart and removed", async ({ page }) =
 });
 
 test("a template and a bundle add up in the subtotal", async ({ page }) => {
-  await page.goto(TEMPLATE);
+  // The playbook is not in Sponsor Essentials.
+  await page.goto("/templates/champion-network-playbook");
   await page.getByRole("button", { name: "Add to cart" }).click();
   await page.goto("/bundles/sponsor-essentials");
   await page.getByRole("button", { name: "Add bundle to cart" }).click();
   await expect(page.getByRole("link", { name: "Cart, 2 items" })).toBeVisible();
 
   await page.goto("/cart");
-  await expect(page.getByLabel("Order summary")).toContainText("$198");
+  await expect(page.getByLabel("Order summary")).toContainText("$183");
+});
+
+test("a template a bundle in the cart holds is not charged twice", async ({ page }) => {
+  await page.goto(TEMPLATE);
+  await page.getByRole("button", { name: "Add to cart" }).click();
+  await page.goto("/bundles/sponsor-essentials");
+  await page.getByRole("button", { name: "Add bundle to cart" }).click();
+
+  await page.goto("/cart");
+  await expect(page.getByText("Included in Sponsor Essentials")).toBeVisible();
+  await expect(page.getByLabel("Order summary")).toContainText("$139");
+  await expect(
+    page.getByRole("button", { name: "Remove Executive Sponsor Kickoff Deck" }),
+  ).toBeVisible();
+
+  await page.goto(TEMPLATE);
+  await expect(
+    page.getByText("Included in Sponsor Essentials, which is in your cart."),
+  ).toBeVisible();
+  await expect(page.getByRole("button", { name: "Add to cart" })).toHaveCount(0);
+  await expect(page.getByRole("link", { name: "View cart" })).toHaveAttribute("href", "/cart");
 });
 
 test("a corrupted saved cart is treated as empty", async ({ page }) => {

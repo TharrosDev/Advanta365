@@ -485,8 +485,11 @@
   flex: none;
 }
 
+/* One em high with its glyphs on one line of that height: the sentence beside it is set to that. */
 .ninetyFigure .ninetyNumber > * {
   font-size: inherit;
+  line-height: 1;
+  white-space: nowrap;
 }
 
 .ninetyTitle {
@@ -554,64 +557,58 @@
   }
 }
 
-/* Why Advanta365: a label, a statement, then four values, two by two from 40em. */
+/*
+ * Why Advanta365: a label, a statement, then the four values as a ledger. A row is its title and
+ * its sentence, stacked on a phone and side by side from 40em; from 68em the ledger takes the
+ * twelve columns, the title 1 to 5 and the sentence 6 to 12.
+ */
 .valuesTitle {
   max-width: var(--wrap-head);
   margin-block-start: var(--s-2);
 }
 
-.valuesList {
+/* Doubled to outrank the ledger's own `margin: 0`. */
+.valuesList.valuesList {
+  margin-block-start: var(--s-6);
+}
+
+.value.value {
   display: grid;
   grid-template-columns: minmax(0, 1fr);
-  gap: var(--s-5);
-  margin: var(--s-6) 0 0;
-  padding: 0;
-  list-style: none;
+  gap: var(--s-1);
+  padding-block: var(--s-3) var(--s-4);
 }
 
-.value {
+.valueTitle {
   min-width: 0;
-}
-
-/* The art starts a sixth of the way into its square: pulled back so it stands on the left edge. */
-.valueDrawing {
-  --drawing: 4.375rem;
-  margin-inline-start: calc(var(--drawing) * -0.165);
-}
-
-/* A hairline under the drawing, then the title and its sentence. */
-.valueText {
-  margin-block-start: var(--s-3);
-  padding-block-start: var(--s-3);
-  border-block-start: var(--hair) solid var(--line);
+  color: var(--text);
 }
 
 .valueBody {
+  min-width: 0;
   max-width: var(--wrap-copy);
-  margin-block-start: var(--s-1);
   color: var(--text-soft);
 }
 
 @media (min-width: 40em) {
-  .valuesList {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: var(--s-6) var(--s-5);
-  }
-
-  .valueDrawing {
-    --drawing: 5.25rem;
+  .value.value {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    column-gap: var(--col-gap);
+    align-items: baseline;
   }
 }
 
 @media (min-width: 68em) {
-  .valuesList {
-    column-gap: var(--s-8);
+  .value.value {
+    grid-template-columns: repeat(12, minmax(0, 1fr));
   }
-}
 
-@media (forced-colors: active) {
-  .valueText {
-    border-block-start-color: GrayText;
+  .valueTitle {
+    grid-column: 1 / span 5;
+  }
+
+  .valueBody {
+    grid-column: 6 / -1;
   }
 }
 

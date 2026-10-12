@@ -17,11 +17,13 @@ const TURNS = [-0.6, 0.4, -0.3, 0.5, -0.4, 0.3] as const;
  * link is stretched over the article, so the card is one tab stop and its focus ring is drawn
  * around the whole of it. A hyphenated compound in the title ("End-User") is never broken.
  *
- * `layout="row"` is a row of an index: from 68em its position (`index`, from 1, printed as "01"),
- * the cover as a thumbnail, the title with the summary on one line, the phase numeral
- * (`phaseOrder`) with `Phase · Type`, the format tag, the price and an arrow, on a hairline; one
- * above the first row too, when the rows are list items. Narrower, the row drops the number and
- * the summary, and below 40em the price and the tag share its last line. A row never animates in.
+ * `layout="row"` is a row of an index: from 68em the cover as a thumbnail, the title with the
+ * summary under it (two lines at most), the phase numeral (`phaseOrder`) with `Phase · Type`, the
+ * format tag, the price and an arrow, on a hairline; one above the first row too, when the rows are
+ * list items. Without `phaseName` (a list that is all one phase) the row names the type alone, with
+ * no numeral, and its column for it is narrower; `phaseOrder` still prints on the cover's tab.
+ * Narrower than 68em the phase and the tag go under the summary, and below 40em the price and the
+ * tag share the row's last line. A row never animates in.
  *
  * `layout="sheet"` is the template as an object, from 40em: its cover printed with its own title
  * and first line, lit, standing at the foot of a sheet area in its format's proportions and turned
@@ -61,13 +63,13 @@ export function TemplateCard({
     <article
       data-layout={layout}
       data-format={template.format}
-      className={cx(styles.card, sheet ? styles.sheet : styles.row, className)}
+      className={cx(
+        styles.card,
+        sheet ? styles.sheet : styles.row,
+        !phaseName && styles.typeOnly,
+        className,
+      )}
     >
-      {!sheet && index !== undefined ? (
-        <span aria-hidden="true" className={styles.index}>
-          {String(index).padStart(2, "0")}
-        </span>
-      ) : null}
       <div className={styles.thumb}>
         <TemplateCover {...cover} size="sm" slug={share && !sheet ? template.slug : undefined} />
       </div>
@@ -100,7 +102,7 @@ export function TemplateCard({
       </div>
       <div className={styles.facts}>
         <p className={cx("type-note", styles.meta)}>
-          {phaseOrder === undefined ? null : (
+          {phaseName === undefined || phaseOrder === undefined ? null : (
             <span aria-hidden="true" className={styles.chip}>
               {phaseOrder}
             </span>

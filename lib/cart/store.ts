@@ -47,3 +47,55 @@ export function pruneLines(
     (line.kind === "template" ? known.templates : known.bundles).has(line.slug),
   );
 }
+
+/** Which templates each bundle holds: bundle slug to template slugs. */
+export type BundleContents = Readonly<Record<string, readonly string[]>>;
+
+/**
+ * The bundle in the cart that already holds a template, if any: the first such bundle in cart
+ * order. The template itself need not be in the cart, so a template page can ask before it is added.
+ */
+export function bundleHolding(
+  lines: CartLine[],
+  templateSlug: string,
+  contents: BundleContents,
+): string | undefined {
+  const line = lines.find(
+    (l) =>
+      l.kind === "bundle" &&
+      Object.hasOwn(contents, l.slug) &&
+      contents[l.slug]?.includes(templateSlug),
+  );
+  return line?.slug;
+}
+
+/**
+ * The template lines that a bundle in the same cart already holds, as template slug to bundle
+ * slug. Those lines are not charged: the bundle's price covers them.
+ */
+export function coveredLines(lines: CartLine[], contents: BundleContents): Map<string, string> {
+  const covered = new Map<string, string>();
+  for (const line of lines) {
+    if (line.kind !== "template") continue;
+    const bundle = bundleHolding(lines, line.slug, contents);
+    if (bundle) covered.set(line.slug, bundle);
+  }
+  return covered;
+}
+
+/**
+ * What the cart costs: the sum of its line prices, leaving out templates a bundle in the cart holds.
+ * A line whose price is unknown (an item that left the catalog) counts as nothing.
+ */
+export function cartSubtotalCents(
+  lines: CartLine[],
+  priceOf: (line: CartLine) => number | undefined,
+  contents: BundleContents,
+): number {
+  const covered = coveredLines(lines, contents);
+  return lines.reduce(
+    (sum, line) =>
+      line.kind === "template" && covered.has(line.slug) ? sum : sum + (priceOf(line) ?? 0),
+    0,
+  );
+}

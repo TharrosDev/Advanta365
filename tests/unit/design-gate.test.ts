@@ -124,14 +124,7 @@ const SCOPED: ScopedRule[] = [
   { ...literal("webgl", "i"), allowed: INK_HOMES },
   {
     ...literal("requestAnimationFrame"),
-    allowed: [
-      "lib/ink/",
-      "components/ink/",
-      "lib/scroll/",
-      "lib/boot/",
-      "components/intro/",
-      "components/ui/count-up.tsx",
-    ],
+    allowed: ["lib/ink/", "components/ink/", "lib/scroll/", "lib/boot/", "components/intro/"],
   },
   {
     name: `"scroll" or 'scroll'`,
@@ -217,7 +210,6 @@ describe("design gate: scoped techniques", () => {
       "lib/ink/engine/gl.ts": "canvas.getContext('webgl2'); requestAnimationFrame(tick);",
       "components/ink/ink-layer.tsx": "<canvas />; addEventListener('scroll', f);",
       "lib/scroll/observe.ts": 'addEventListener("scroll", f); requestAnimationFrame(f);',
-      "components/ui/count-up.tsx": "requestAnimationFrame(step);",
       "components/intro/intro-cover.tsx": "requestAnimationFrame(step);",
       "components/ui/odometer.tsx": "requestAnimationFrame(step);",
       "tests/unit/anything.test.ts": "canvas.getContext('webgl2');",
@@ -338,5 +330,20 @@ describe("design gate: standing rules", () => {
       "react-dom",
       "zod",
     ]);
+  });
+
+  it("Prosci describes the practitioner, never the product", () => {
+    // Allowed: "a Prosci-certified practitioner" and the footer's non-affiliation and trademark
+    // notice. Anything else ("Prosci certification sits behind…", "Prosci-aligned") ties Prosci to
+    // the content.
+    const allowed = /Prosci-certified practitioner|by Prosci Inc\.|trademark of Prosci/;
+    const ties = STYLES_AND_MARKUP.filter((file) => /\.tsx?$/.test(file)).flatMap((file) =>
+      read(file)
+        .split("\n")
+        .flatMap((line, index) =>
+          /prosci/i.test(line) && !allowed.test(line) ? [`${file}:${index + 1}`] : [],
+        ),
+    );
+    expect(ties).toEqual([]);
   });
 });

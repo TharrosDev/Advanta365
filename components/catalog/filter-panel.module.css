@@ -97,9 +97,20 @@
   overscroll-behavior: contain;
 }
 
+/* The sort order, on a phone only: from 40em it stands in the rail beside the Filters button. */
+.sort {
+  margin-block-end: var(--s-4);
+}
+
 .foot {
   padding-block-end: max(var(--s-2), env(safe-area-inset-bottom));
   border-block-start: var(--hair) solid var(--line);
+}
+
+@media (min-width: 40em) {
+  .sort {
+    display: none;
+  }
 }
 
 @media (min-width: 68em) {

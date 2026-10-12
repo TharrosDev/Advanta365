@@ -129,17 +129,19 @@ function glyphFor(type: DeliverableType): ReactNode {
  * The cover of a template: a sheet of paper in the proportions of its format (a Word or PDF page
  * 5 by 7, the PDF with a folded corner; a slide 16 by 9; a workbook 4 by 3), printed as the
  * template's own first page. At `md` and `lg`, with a `title`: the title, the first line of the
- * `summary`, ghost lines for the rest, the phase numeral on an index tab at the right edge, the
- * line drawing of the deliverable type, the blank (the one highlighted part, which is the
- * buyer's) and the format tag at the top right, on two sheets beneath. At `sm`, and whenever
- * there is no `title`: the tag, the numeral, three ghost lines and the blank. Everything printed
- * is sized from the sheet's own width, so a cover reads the same at any size.
+ * `summary` (ending on a whole word), ghost lines for the rest, the phase numeral on an index tab
+ * at the right edge, the line drawing of the deliverable type, the blank (the one highlighted
+ * part, which is the buyer's) and the format tag at the top right, on two sheets beneath. At
+ * `sm`, and whenever there is no `title`: the tag, the numeral, three ghost lines and the blank.
+ * Everything printed is sized from the sheet's own width, so a cover reads the same at any size.
  *
  * The cover is as wide as its container at `md` and `lg` and has a fixed width at `sm` (60, 84 or
- * 96px by format, never wider than its container). `lit` makes the sheet rise and take the light
- * under the pointer. `slug` makes it a shared object: on a page change it travels to the cover of
- * the same slug on the next page, so pass it at most once per page. Decoration only, hidden from
- * assistive technology. Hooks: `data-cover` and `data-format` on the sheet itself.
+ * 96px by format, times `--cover-scale` where a container sets it, never wider than its
+ * container). At `sm`, `fill="height"` makes it as tall as its container instead, its width
+ * following its format, so covers of different formats stand side by side at one height. `lit` makes the sheet rise and take the light under the pointer. `slug` makes it a
+ * shared object: on a page change it travels to the cover of the same slug on the next page, so
+ * pass it at most once per page. Decoration only, hidden from assistive technology. Hooks:
+ * `data-cover` and `data-format` on the sheet itself.
  */
 export function TemplateCover({
   type,
@@ -152,6 +154,7 @@ export function TemplateCover({
   phaseOrder,
   className,
   tagClassName,
+  fill = "width",
 }: {
   type: DeliverableType;
   format: Format;
@@ -163,6 +166,7 @@ export function TemplateCover({
   phaseOrder?: number;
   className?: string;
   tagClassName?: string;
+  fill?: "width" | "height";
 }) {
   const printed = size !== "sm" && Boolean(title);
   const ratio = RATIOS[format];
@@ -183,6 +187,7 @@ export function TemplateCover({
         format === "pdf" && styles.folded,
         format === "xlsx" && styles.ruled,
         printed ? styles.printed : styles.plain,
+        size === "sm" && fill === "height" && styles.tall,
         size === "sm" && className,
       )}
     >

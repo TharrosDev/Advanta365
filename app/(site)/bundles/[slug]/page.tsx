@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { AddToCart } from "@/components/cart/add-to-cart";
+import { CoverageTally } from "@/components/catalog/coverage-tally";
+import { TemplateCover } from "@/components/catalog/template-cover";
 import { Breadcrumbs } from "@/components/layout/breadcrumbs";
 import { TitleBlock } from "@/components/layout/title-block";
 import { PurchasePanel } from "@/components/product/purchase-panel";
@@ -9,9 +11,9 @@ import { BandedList, BandedRow } from "@/components/ui/banded-list";
 import { Folder } from "@/components/ui/folder";
 import { KeepCompounds } from "@/components/ui/keep-compounds";
 import { RowLink } from "@/components/ui/row-link";
-import { Tally } from "@/components/ui/tally";
 import { DELIVERABLE_TYPE_LABELS, FORMAT_LABELS } from "@/content/taxonomy";
 import { phaseCoverage } from "@/lib/catalog/coverage";
+import { folderCovers } from "@/lib/catalog/covers";
 import { bundleSavingsCents, bundleValueCents } from "@/lib/catalog/pricing";
 import { getBundle, getBundleTemplates, getBundles, getPhases } from "@/lib/catalog/repository";
 import { cx } from "@/lib/cx";
@@ -30,14 +32,15 @@ export async function generateMetadata({ params }: BundlePageProps): Promise<Met
 }
 
 /**
- * One bundle. The title block carries the trail and a seven-block tally of the phases the bundle
- * reaches. Under it, on paper, the page has three zones from 68em: the bundle as a large folder in
+ * One bundle. The title block carries the trail and the phases the bundle reaches, in words over a
+ * seven-block tally. Under it, on paper, the page has three zones from 68em: the bundle as a large folder in
  * columns 1 to 3, the details in columns 4 to 9 (description, the four figures as a ledger row, then
  * the templates grouped by phase as ledger rows) and the purchase panel in columns 10 to 12. The
  * document order is panel, folder, details; the folder and the panel stay in view.
  *
- * The folder shares its place with the same bundle's card on the page before, so on a page change
- * it travels; it is the only folder on the page that carries its name.
+ * The folder holds the covers of the bundle's first three templates, as its card does on the page
+ * before. It shares its place with that card's folder, so on a page change it travels; it is the
+ * only folder on the page that carries its name.
  */
 export default async function BundlePage({ params }: BundlePageProps) {
   const bundle = await getBundle((await params).slug);
@@ -47,7 +50,7 @@ export default async function BundlePage({ params }: BundlePageProps) {
   const value = bundleValueCents(templates);
   const savings = bundleSavingsCents(bundle, templates);
   const coverage = phaseCoverage(phases, templates);
-  const covered = coverage.filter((phase) => phase.covered);
+  const covers = folderCovers(templates, phases);
   const groups = phases
     .map((phase, index) => ({
       phase,
@@ -78,16 +81,7 @@ export default async function BundlePage({ params }: BundlePageProps) {
             ]}
           />
         }
-        meta={
-          <Tally
-            total={coverage.length}
-            filled={covered.map((phase) => phase.order)}
-            size="md"
-            numerals
-            label={`Phases: ${covered.map((phase) => phase.name).join(", ")}`}
-            className={styles.coverage}
-          />
-        }
+        meta={<CoverageTally coverage={coverage} className={styles.coverage} />}
       />
 
       <Band as="div" surface="paper" innerClassName={styles.zones}>
@@ -103,6 +97,16 @@ export default async function BundlePage({ params }: BundlePageProps) {
           <Folder
             tab={`${templates.length} ${templates.length === 1 ? "template" : "templates"}`}
             slug={bundle.slug}
+            inside={covers.map((cover) => (
+              <TemplateCover
+                key={cover.slug}
+                type={cover.type}
+                format={cover.format}
+                phaseOrder={cover.phaseOrder}
+                size="sm"
+                fill="height"
+              />
+            ))}
             className={styles.folder}
             frontClassName={styles.front}
           />
@@ -136,7 +140,9 @@ export default async function BundlePage({ params }: BundlePageProps) {
                 <span className={styles.tile} aria-hidden="true">
                   {number}
                 </span>
-                <h2 className="type-section">{`${phase.name} · ${inPhase.length}`}</h2>
+                <h2 className="type-section">
+                  {`${phase.name}, ${inPhase.length} ${inPhase.length === 1 ? "template" : "templates"}`}
+                </h2>
               </div>
               <BandedList>
                 {inPhase.map((template) => (

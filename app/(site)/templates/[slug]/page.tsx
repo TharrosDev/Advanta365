@@ -32,7 +32,7 @@ import {
   getTemplates,
 } from "@/lib/catalog/repository";
 import { cx } from "@/lib/cx";
-import { formatPrice } from "@/lib/format";
+import { formatLength, formatPrice } from "@/lib/format";
 import styles from "./page.module.css";
 
 type TemplatePageProps = { params: Promise<{ slug: string }> };
@@ -108,7 +108,7 @@ export default async function TemplatePage({ params }: TemplatePageProps) {
       ? [
           {
             label: "Length",
-            value: `${template.pageCount} ${template.pageCount === 1 ? "page" : "pages"}`,
+            value: formatLength(template.pageCount, template.format),
           },
         ]
       : []),
@@ -152,7 +152,10 @@ export default async function TemplatePage({ params }: TemplatePageProps) {
           note="One-time purchase, editable file"
           className={styles.panel}
         >
-          <AddToCart line={{ kind: "template", slug: template.slug }} />
+          <AddToCart
+            line={{ kind: "template", slug: template.slug }}
+            bundles={bundles.map(({ slug, title }) => ({ slug, title }))}
+          />
         </PurchasePanel>
 
         <div className={styles.details}>
@@ -166,7 +169,7 @@ export default async function TemplatePage({ params }: TemplatePageProps) {
               {template.includes.map((item) => (
                 <BandedRow key={item} className={styles.included}>
                   <span className={styles.tick} aria-hidden="true">
-                    <Icon name="tick" size={17} />
+                    <Icon name="tick" size={20} />
                   </span>
                   <span className="type-copy">{item}</span>
                 </BandedRow>

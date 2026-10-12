@@ -64,6 +64,32 @@
 }
 
 /*
+ * Below 68em the hero and the ninety stand their text over a block of open water at the foot of
+ * the band, and their tall frames are composed the same way: the words in the upper part, the ink
+ * in the lower. Scaled with the width, a frame grows taller than its band on most phones and its
+ * ink falls past the foot, leaving the open water empty. So there the frame takes the height of
+ * the band instead, centred, and its ink lands in the open water. The frame's sides are the ground
+ * of the band, so the margins it leaves either side are the same ground. From 68em the wide frame
+ * is scaled with the width again.
+ */
+.backdrop:is([data-scene="hero"], [data-scene="ninety"]) .still img {
+  inset-inline: 50% auto;
+  width: auto;
+  max-width: none;
+  height: 100%;
+  translate: -50% 0;
+}
+
+@media (min-width: 68em) {
+  .backdrop:is([data-scene="hero"], [data-scene="ninety"]) .still img {
+    inset-inline: 0;
+    width: 100%;
+    height: auto;
+    translate: none;
+  }
+}
+
+/*
  * The title stage is a strip beside the words whose height is the words' own, so a frame scaled
  * with the width would drift against the numeral or the heading it keeps clear of. It stands at
  * its own size in the corner the ink falls from.

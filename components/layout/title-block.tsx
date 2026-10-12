@@ -34,6 +34,11 @@ function has(node: ReactNode): boolean {
  * 20rem tall from 68em. The title, the lead and `children` are one calm rectangle for it (the words
  * need no more room than that), so the ink thins under them and nowhere else.
  *
+ * `flush` is for a page whose products start right under the title (an index, the cart): the block
+ * keeps no padding under its words, and no least height for the ink, so the padding of the band
+ * that follows is the one space between the title and the first product. Give that band
+ * `pad="tight"`.
+ *
  * Below 68em every form is one column in the same order: crumbs, meta, h1, lead, children, aside.
  */
 export function TitleBlock({
@@ -44,6 +49,7 @@ export function TitleBlock({
   meta,
   children,
   ink = false,
+  flush = false,
   aside,
 }: {
   title: string;
@@ -53,6 +59,7 @@ export function TitleBlock({
   meta?: ReactNode;
   children?: ReactNode;
   ink?: boolean;
+  flush?: boolean;
   aside?: ReactNode;
 }) {
   const hasLead = has(lead);
@@ -131,7 +138,7 @@ export function TitleBlock({
         as="div"
         surface="paper"
         pad="none"
-        className={cx(styles.block, ink && styles.inked)}
+        className={cx(styles.block, ink && styles.inked, flush && styles.flush)}
         backdrop={
           ink ? (
             <InkBackdrop

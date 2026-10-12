@@ -33,10 +33,10 @@ Related documents: `design-system.md` covers the visual rules and component usag
 | Path | Source | Rendering | Notes |
 |---|---|---|---|
 | `/` | `app/(site)/page.tsx` | Server, reads phases, templates and bundles | Renders the first-visit cover, then the home sections |
-| `/about` | `app/(site)/about/page.tsx` | Server, no data reads | Title `About`; hosts the `#compare` band |
-| `/pricing` | `app/(site)/pricing/page.tsx` | Server, reads templates and bundles | Title `Pricing` |
+| `/about` | `app/(site)/about/page.tsx` | Server, reads phases, templates and bundles | Title `About`; hosts the `#compare` band, whose cost cell for the toolkit is `catalogPriceSpan` |
+| `/pricing` | `app/(site)/pricing/page.tsx` | Server, reads templates and bundles | Title `Pricing`; links `/about#compare` under the lead |
 | `/contact` | `app/(site)/contact/page.tsx` | Server, no data reads | Title `Contact` |
-| `/sample` | `app/(site)/sample/page.tsx` | Server, reads phases | Title `Sample` |
+| `/sample` | `app/(site)/sample/page.tsx` | Server, reads phases and the worked example's contents | Title `Sample` |
 | `/catalog` | `app/(site)/catalog/page.tsx` | Dynamic (awaits `searchParams`) | Title `Catalog`; filters live in the URL |
 | `/phases/[phase]` | `app/(site)/phases/[phase]/page.tsx` | Static params for the 7 phases | `notFound()` for other slugs |
 | `/templates/[slug]` | `app/(site)/templates/[slug]/page.tsx` | Static params for the 67 templates | `notFound()` for other slugs |
@@ -52,6 +52,27 @@ title `Advanta365 · Don’t start from a blank prompt.` The description is buil
 
 `proxy.ts` runs before routing. Any path containing an uppercase letter receives a 308 redirect to the
 lowercase path. Its matcher skips `_next/` and any path containing a dot.
+
+Page layouts that later work should keep:
+
+- `/catalog`, `/bundles` and `/cart` open with `TitleBlock flush`: the title block has no padding under its
+  words (and, with ink, no least height), and the `pad="tight"` band that follows puts the first product
+  42px under the lead. The cart's title block uses `form="document"`, so "Your cart" stands in the content
+  columns over the ledger and the receipt.
+- `/phases/[phase]`: after the step bands, a band "Bundles with this phase" (`bundlesForPhase`) lists the
+  bundles holding templates of the phase as `BundleCard` rows, each with a `detail` line ("Holds 5 of the 9
+  Prepare templates."). The foot band holds "View all <phase> templates" and `PhasePager`, a navigation named
+  "Previous and next phase" whose links read "Previous phase <name>" and "Next phase <name>". The bands
+  carry on the desk and paper alternation of the steps.
+- Bundle coverage is `CoverageTally` (`components/catalog/coverage-tally.tsx`) on bundle rows, the home
+  feature folder and the bundle page: the visible note "Covers phases 3–4" (`coverageLabel`), with the phase
+  names after it for assistive technology, over a seven-block tally hidden from it. On the bundle page each
+  phase group is headed "<Phase>, N templates".
+- `/sample`: after the statement, a paper band "Contents" holds the worked example's table of contents
+  (`getWorkedExampleContents`) as a numbered `BandedList as="ol"` labelled by its heading: each section's
+  title in `type-item`, then its catalog link ("Template: …", "Step: …" or "Phase: …"). While
+  `content/worked-example.ts` sets `placeholder`, a beta note heads the list and every section reads
+  "Placeholder". The phase ledger follows on the desk.
 
 ## 2. Server and client boundaries
 
@@ -69,7 +90,7 @@ Client components (files with `"use client"`, and the cart store module they sha
 | Shell | `components/layout/primary-nav.tsx`, `phase-rail.tsx`, `nav-drawer.tsx` | Read `usePathname`; the drawer owns a native dialog |
 | Company | `components/company/faq-list.tsx` | Open and closed state |
 | Not found | `components/not-found/asked-path.tsx`, `late-boot.tsx` | Read `window.location`; add the boot script when needed |
-| UI | `components/ui/motion-root.tsx`, `count-up.tsx` | Observers and the counter animation |
+| UI | `components/ui/motion-root.tsx` | Observers |
 | Ink | `components/ink/ink-layer.tsx` | Singleton controller and the pause control |
 
 The ink controller itself (`components/ink/ink-controller.ts`) is plain TypeScript created by `InkLayer`.
@@ -99,6 +120,7 @@ content/*.ts  ->  lib/catalog/schema.ts (zod)  ->  lib/catalog/validate.ts
 | `content/templates/sample.ts` | The `sample()` helper |
 | `content/bundles.ts` | The five bundles |
 | `content/taxonomy.ts` | Labels for deliverable types, apps, audiences, formats and ADKAR stages |
+| `content/worked-example.ts` | The worked example's table of contents: placeholder sections (`placeholder: true`, a `TODO(owner)`), each pointing at a template, a step or a phase |
 
 `sample(phase, entries)` adds `phase`, `featured` (default `false`) and `isSample: true` to each entry.
 The per-phase files and `bundles.ts` mark their entries as sample content, so the beta strip shows while
@@ -141,6 +163,7 @@ ESLint enforces this: imports of `@/content/*` are rejected in `app/**` and `com
 | `getBundlesContaining(templateSlug)` | Bundles that include a template |
 | `getRelatedTemplates(slug, limit = 4)` | Templates in the same phase: same step first, then the rest of the phase; excludes the template itself |
 | `hasSampleContent()` | `true` when any template or bundle is marked as sample |
+| `getWorkedExampleContents()` | `{ placeholder, sections }`: the worked example's sections resolved with `contentsRows` |
 
 Helpers used by pages and components:
 
@@ -148,8 +171,16 @@ Helpers used by pages and components:
 |---|---|
 | `bundleValueCents(templates)` | Sum of the template prices |
 | `bundleSavingsCents(bundle, templates)` | Value minus bundle price, never below zero |
+| `catalogPriceSpan(templates, bundles, phaseSlugs)` | `{ fromCents, toCents? }`: the cheapest template, and the dearest bundle whose templates reach every phase (left out when none does); undefined without templates. The toolkit's cost cell on `/about#compare` |
+| `contentsRows(entries, templates, phases)` (`lib/catalog/worked-example.ts`) | Each contents section with its link: a template's page under its title, a step's anchor on its phase page, or a phase page; no link when the catalog lacks the target |
 | `phaseCoverage(phases, templates)` | One entry per phase, sorted by `order`, with `covered` set when any template belongs to it |
+| `coverageLabel(coverage)` | The covered phases in words: "Covers phase 4", "Covers phases 3–4", "Covers phases 1–2, 5"; empty when none |
+| `bundlesForPhase(phaseSlug, bundles, templates)` | Bundles holding at least one template of the phase, each with `inPhase` and `total`, the most focused first (share of the bundle in the phase, then `inPhase`, then the lower price) |
+| `adjacentPhases(phases, slug)` | `{ previous, next }` in `order`; either is undefined at an end, both for an unknown slug |
+| `coverSpec(template, phases)` (`lib/catalog/covers.ts`) | What a small `TemplateCover` needs: `{ slug, type, format, phaseOrder? }`; no `phaseOrder` for an unknown phase |
+| `folderCovers(templates, phases, limit = 3)` | The `coverSpec` of a bundle's first `limit` templates, in the bundle's order: the sheets standing in its folder (bundle rows, the home feature, the bundle page, the cart) |
 | `formatPrice(cents)` (`lib/format.ts`) | en-US dollars; whole amounts drop `.00` |
+| `formatLength(count, format)` (`lib/format.ts`) | A template's Length fact: slides for a `pptx` deck ("16 slides"), pages for every other format |
 
 ### 3.4 Catalog contents
 
@@ -166,7 +197,7 @@ Seven phases, each with two steps (14 steps in total):
 | 7 | `sustain` | Sustain | `measure-adoption`, `reinforce-and-hand-over` | 17 |
 
 There are 67 templates. Their formats are docx (32), xlsx (19), pptx (12) and pdf (4). Prices range from
-$19 to $79. Eight templates are featured. `pageCount` is set on 43 templates.
+$19 to $79. Eight templates are featured. `pageCount` is set on 43 templates; it is printed as slides for a deck and pages otherwise (`formatLength`).
 
 Five bundles, all marked as sample content:
 
@@ -253,7 +284,10 @@ hidden below 68em. It scrolls with the page. Its tabs use `aria-current="page"` 
 - two status lines: "Sample catalog (beta)" and "Checkout is not available yet";
 - the copyright line and the trademark notice.
 
-The footer has `InkBackdrop` with scene `wisps` and edges `top`, and a veil with `data-ink-calm="veil"`.
+The footer has `InkBackdrop` with scene `wisps` and no edges, confined by `.wisps` in `footer.module.css` to a
+strip `--foot` (112px) tall at the foot, under the legal line, with a mask that fades it in over its top half.
+The strip is the bottom padding of the veil, which carries `data-ink-calm="veil"`, so no wisp stands under the
+words, live or still.
 
 ### 4.5 Beta strip
 
@@ -334,7 +368,7 @@ Primitives are the building blocks for pages. Each one has a CSS module unless n
 | `Sheet` | A surface with radius and an `edge` (rule or ink) |
 | `PaperSheet` | A sheet of paper with grain, `ratio` (free, portrait 5/7, landscape 4/3, slide 16/9), `size`, `depth`, and `lit` for pointer light |
 | `PaperStack` | Sheets placed behind a top sheet, each with a small offset and turn |
-| `Folder` | A folder shape with a tab and stacked sheets that lift on hover or focus |
+| `Folder` | A folder shape with a tab and stacked sheets that lift on hover or focus; with `inside`, the sheets are the caller's nodes (a bundle's first three small covers, `fill="height"`) |
 | `Button` | `variant` (mark, outline, ink, text), `size` (sm, md, lg), `href` (root-relative links use `TransitionLink`), `arrow` |
 | `TransitionLink` | `next/link` with prefetch on. The only file that imports `next/link` |
 | `TextLink`, `RowLink` | Inline and row-style links |
@@ -345,8 +379,6 @@ Primitives are the building blocks for pages. Each one has a CSS module unless n
 | `Eyebrow` | Uppercase label with an optional square marker |
 | `Tag` | `format`, `saving` or `plain` labels |
 | `Tally` | A row of blocks for counts. `animate` fills the blocks on scroll |
-| `Odometer` | A rolling numeral used for the 90% figure |
-| `CountUp` | Counts from 0 to a value on first view |
 | `Blank` | A blinking or steady caret bar |
 | `Note` | A short paragraph on the wash ground |
 | `Input`, `Select`, `Checkbox` | Form controls |
@@ -431,7 +463,8 @@ live in `lib/boot/state.ts`. The unit tests run the inline script against them, 
 | 500 to 900 | The name (`.name`) fades in |
 | 560 to 800 | Tail is drawn |
 | 600 | Skip hint fades in |
-| 1200 to 1650 | Cover leaves (`cover-leave`, 450 ms, `--curve-leave`) |
+| 1200 to 1380 | The signature and the hint fade on the still opaque paper (`sign-leave`, 180 ms) |
+| 1200 to 1650 | Cover leaves (`cover-leave`, 450 ms, `--curve-leave`): its opacity holds at 1 until 40%, 1380, so the mark never lies over the hero |
 | 2000 to 2800 | Cover ink leave (`cover-ink`, used when the ink took over) |
 | 4500 | Backstop: the `data-intro` attribute is unset |
 
@@ -776,7 +809,6 @@ animated property sits inside `@media (prefers-reduced-motion: no-preference)`. 
 | `data-bar` | `Header` | Shadow under the bar |
 | `data-ledger` | `BandedList` | Rule that grows on scroll |
 | `data-block` | `Tally` | Blocks: ink, mark or empty |
-| `data-odometer-wheel` | `Odometer` | Rolling digits |
 | `data-ink-backdrop`, `data-ink-slot` | `InkBackdrop` | Ink region, hidden under contrast or forced colours |
 | `data-lit-scope` | Read by `lib/scroll/pointer.ts` and `app/motion.css` | Scopes the pointer light to an ancestor |
 
@@ -790,7 +822,7 @@ through `animation-timeline: view()`.
 | Move | Animation | Range |
 |---|---|---|
 | `drift` | `move-drift` (opacity 0 to 1, moves 12px up) | `entry calc(var(--order) * 4%) cover min(22%, 14rem)` |
-| `ink-in` | `move-ink-in-plain` (opacity); `move-ink-in` adds an 8px blur from 68em | `entry calc(10% + order * 4%) cover min(30%, 18rem)` |
+| `ink-in` | `move-ink-in` (opacity 0 to 1; no blur, no movement) | `entry calc(order * 4%) cover min(16%, 8rem)`: the shortest range, so a heading is legible before the text around it |
 | `settle` | `move-settle` (opacity, moves 28px up, scale 1.03). Its paper shadow uses `move-shadow` on the same timeline | `entry calc(order * 4%) cover min(30%, 18rem)` |
 | `grow` | `move-grow` (scale 0 to 1) | `entry calc(10% + order * 4%) cover min(28%, 16rem)` |
 
@@ -802,9 +834,9 @@ and the mark block fills from 44% to 47%.
 Observer path (`html[data-motion="on"][data-io="armed"]`, without the timeline): elements start in their
 hidden state until they carry `data-seen`, then transition. Drift takes 480 ms on
 `--curve-settle`. Settle takes `--time-settle` (560 ms), with `--curve-settle` for opacity and `--curve-drop` for movement and scale; ink-in
-takes `--time-ink` (640 ms) on `--curve-ink`; grow takes 600 ms. The stagger for every move is
-`order * --stagger` (70 ms). The ninety band fills its wheel over `--time-count` (1200 ms), and its blocks fill over
-`--time-fill` (180 ms) with delays spread across the count.
+takes `--time-ink` (400 ms, opacity only) on `--curve-ink`; grow takes 600 ms. The stagger for every move is
+`order * --stagger` (70 ms). Without view timelines the ninety band's blocks fill over
+`--time-fill` (180 ms) with delays spread across `--time-count` (1200 ms).
 
 `MotionRoot` (`components/ui/motion-root.tsx`, client) runs before paint on each pathname change. It exits
 unless `data-motion` is `on`. It starts `watchSeen` on `[data-watch]` (plus `[data-move]` and `[data-ninety]` when
@@ -826,13 +858,11 @@ With `lit`, the sheet gets `data-lit`. `lib/scroll/pointer.ts` (`trackLight`) ru
 `--tx` and `--ty` (tilt, up to 1.2 degrees) on the sheet under the pointer, with one `requestAnimationFrame`
 per frame. On hover the sheet moves up 6 px (`translate: 0 -6px`) and tilts from `--tx` and `--ty`. On keyboard focus within the sheet it moves up 6 px without the tilt. The lift takes `--time-lift` (260 ms).
 
-### 8.4 Counters, odometer and tally
+### 8.4 Figures and tally
 
-- `CountUp` renders the final number on the server. When motion is on, and the element has not already
-  arrived, it counts from 0 to the value over `--time-count` (1200 ms) with a cubic ease-out once 40% of the
-  element is visible. The span's width is set from the digit count with `--digits` so the layout does not shift.
-- `Odometer` renders the figure as two digit wheels. The wheel moves to the tens digit with
-  `translate: 0 calc(var(--tens) * -1em)`. It is decorative and `aria-hidden`.
+- Figures never count or roll. The `#inside` counts and the 90% of the ninety band are printed as plain text
+  with their final value, so a reader scrolling past never sees a wrong number. The 90% is `aria-hidden`; the
+  heading beside it carries the figure in visually hidden words.
 - `Tally` renders blocks. With `animate`, blocks start empty and fill from the left with `tally-fill`, delayed
   by `--time-enter` plus `--i` times `--time-fill-gap`. The blocks are held empty only while `data-io` is
   `armed`.
@@ -847,7 +877,7 @@ It is used by the home hero, the title block and the not-found page. Shared elem
 - `Folder` on bundle rows, the home bundles section and bundle pages, named `folder-<slug>`.
 
 In `motion.css`, under no-preference: the outgoing page (`.page-out`) fades over 140 ms, the incoming page
-(`.page-in`) runs `move-ink-in-plain` over 260 ms with an 80 ms delay (adding blur from 40em), and the
+(`.page-in`) runs `move-ink-in` (opacity only) over 260 ms with an 80 ms delay, and the
 `.sheet-morph` group takes 420 ms on `--curve-settle`. Outside that query, `::view-transition` ignores
 pointer events and the root snapshot is hidden on exit.
 
@@ -856,7 +886,7 @@ pointer events and the root snapshot is hidden on exit.
 Reduced motion is handled at three levels:
 
 1. The boot script returns early, so `data-motion`, `data-timeline` and `data-intro` are never set. Motion
-   hooks in CSS do nothing, `MotionRoot` exits, and `CountUp` does not count.
+   hooks in CSS do nothing and `MotionRoot` exits.
 2. Every animation and transition rule sits inside `(prefers-reduced-motion: no-preference)`. View
    transition groups under `reduce` have `animation: none !important`, and outgoing views are `display: none`.
 3. `app/globals.css` has a global safety net under reduce: animation and transition durations are set to
@@ -880,9 +910,9 @@ Timing and curve tokens (`app/globals.css`):
 | `--time-fill-gap` | 80ms | Gap between blocks |
 | `--time-blink` | 1100ms | Caret blink cycle |
 | `--time-lift` | 260ms | Sheet lift and hover |
-| `--time-ink` | 640ms | Ink-in entrances |
+| `--time-ink` | 400ms | Ink-in entrances |
 | `--time-settle` | 560ms | Settle entrances |
-| `--time-count` | 1200ms | Counters and ninety wheel |
+| `--time-count` | 1200ms | The spread of the ninety's block fill without view timelines |
 | `--time-page-out`, `--time-page-in` | 140ms, 260ms | Page transitions |
 | `--time-morph` | 420ms | Shared element morph |
 | `--stagger` | 70ms | Entrance stagger |
@@ -893,7 +923,7 @@ Timing and curve tokens (`app/globals.css`):
 | `--curve-pen` | `cubic-bezier(0.65,0,0.2,1)` | Pen strokes |
 
 Other keyframes sit in component CSS modules: `caret-blink`, `drawer-in`, `fade-in`, `link-in`, `pen-stroke`,
-`pop` (the cart badge), `scrim-in`, `sheet-up`, `sign-out`, `tally-fill`, `cover-ink`, `cover-leave` and
+`pop` (the cart badge), `scrim-in`, `sheet-up`, `sign-leave`, `sign-out`, `tally-fill`, `cover-ink`, `cover-leave` and
 `cover-skip`.
 
 ## 9. Cart
@@ -911,6 +941,11 @@ The cart is a list of lines in the browser. A line is one template or one bundle
 - `addLine`, `removeLine`, `hasLine` operate on the kind and slug. `addLine` returns the same array when the
   line is already present.
 - `pruneLines(lines, { templates, bundles })` drops lines whose slug is not in the matching set.
+- `BundleContents` maps a bundle slug to the template slugs it holds. `bundleHolding(lines, templateSlug,
+  contents)` returns the first bundle line (in cart order) that holds the template; the template need not be
+  in the cart. `coveredLines(lines, contents)` maps each template line a bundle in the cart holds to that
+  bundle. `cartSubtotalCents(lines, priceOf, contents)` sums the line prices, leaving out covered template
+  lines and counting an unknown price as 0.
 
 `components/cart/use-cart.ts` holds the external store. The lines are cached in memory after the first
 read. Writes update memory first, then `localStorage` inside a try block, so a blocked storage still leaves
@@ -927,17 +962,21 @@ writes a whole list.
 |---|---|
 | `CartSync` | Mounted in the site layout with every template and bundle slug. Replaces the saved lines with the pruned list only when the length changes. Renders nothing |
 | `CartButton` | A link to `/cart` with the text "Cart" and a count badge. Shows `0` until ready. The accessible name is "Cart" until ready, then "Cart, N item(s)". The badge remounts on each change so its pop animation restarts |
-| `AddToCart` | Before the line is in the cart: a full-width mark button with the label (for example "Add to cart" or "Add bundle to cart"). After adding: a link labelled "In cart — view cart", with focus moved to it, and a polite status message "Added to cart." |
-| `CartContents` | Until ready: "Loading your cart…". Lines are pruned against the catalog items it receives. Empty: a sheet with the message and buttons to the catalog and to bundles. Non-empty: a ruled list, each row with a glyph, a kind label ("Template" or "Bundle"), a link to the item, its price and a Remove button |
+| `AddToCart` | Before the line is in the cart: a full-width mark button with the label (for example "Add to cart" or "Add bundle to cart"). After adding: a link labelled "In cart — view cart", with focus moved to it, and a polite status message "Added to cart." A template page passes `bundles` (the bundles holding the template); while one of them is in the cart the control is a note "Included in <bundle>, which is in your cart." and an outline "View cart" link instead |
+| `CartContents` | Until ready: "Loading your cart…". Lines are pruned against the catalog items it receives. Empty: a sheet with the message and buttons to the catalog and to bundles. Non-empty: a ruled list, each row headed by the template's small cover (scaled with `--cover-scale: 0.6`) or a small folder with the bundle's first three covers standing in it (no tags), then a kind label ("Template" or "Bundle"), a link to the item, its price and a Remove button. A template a bundle in the cart holds also shows "Included in <bundle>" (a link to the bundle) and its price struck through, read as "<price>, not charged"; it keeps its Remove button |
 | Summary | A sheet labelled "Order summary" with the subtotal, a disabled "Checkout — coming soon" button and the note "Purchasing is not available in this beta. Your cart is saved in this browser." |
 
-Subtotal is the plain sum of line prices. Each line is priced on its own.
+Subtotal is the sum of line prices, leaving out templates that a bundle in the same cart holds
+(`cartSubtotalCents`). When any are left out, the summary says "Leaves out N template(s) already in a bundle."
+under the amount. Two bundles that overlap are both charged.
 
 Focus after removing a line moves to the Remove button at the same index, or to the empty-state heading
 when the last line goes.
 
 `app/(site)/cart/page.tsx` is static. It builds one item for each of the 72 catalog entries (67 templates and
-5 bundles) with `title`, `priceCents` and `href`, and passes them to `CartContents`. The client needs these
+5 bundles) with `title`, `priceCents`, `href` and `covers` (`[coverSpec]` for a template, `folderCovers` for a bundle,
+plus `templateSlugs` for a bundle), and passes them to
+`CartContents`. The client needs these
 values to show saved lines and to prune stale ones.
 
 ## 10. Catalog URL state
@@ -954,7 +993,7 @@ The catalog's filters, search, sort and page live in the URL. A search URL is th
 | `app` | apps | Validated against the taxonomy |
 | `audience` | audiences | Validated against the taxonomy |
 | `format` | formats | Validated against the taxonomy |
-| `sort` | `featured` (default), `title`, `price-asc`, `price-desc` | Anything else becomes `featured` |
+| `sort` | `phase` (default), `featured`, `title`, `price-asc`, `price-desc` | Anything else becomes `phase` |
 | `page` | integer | Must match `^[1-9]\d{0,5}$`; otherwise `1` |
 
 Facet values accept repeated keys and comma-separated lists. They are deduplicated, and unknown values are
@@ -972,24 +1011,50 @@ default, then `page` only when it is above 1. Keys appear in that fixed order, a
   characters are literal. Phase names, apps and audiences are not searched.
 - Facet counts are computed with each facet's own selection cleared, so a count shows what ticking that box
   would return. Search and the other facets still apply.
-- Sort: `featured` puts featured templates first, then sorts by title with `localeCompare`. `title` sorts by
-  title. `price-asc` and `price-desc` sort by price and break ties by title.
+- Sort: `phase`, the default, follows the rollout: phase `order`, then step `order`, then the order the
+  content lists the templates in. It needs the phases, so the catalog page passes them as the third argument
+  of `queryTemplates`; without them it keeps the given order, and a template of an unknown phase or step goes
+  last. `featured` puts featured templates first, then sorts by title with `localeCompare`. `title` sorts by
+  title. `price-asc` and `price-desc` sort by price and break ties by title. The select labels the default
+  "Phase order".
 - Pagination: `PAGE_SIZE` is 24. The page is clamped to between 1 and the page count (at least 1). The catalog
   page passes the clamped page back into its criteria, so links never point past the last page.
 
 ### 10.3 Controls
 
 - `SearchBox` is a plain `GET` form to `/catalog`. Hidden inputs keep the facets and the sort, and drop the
-  page.
+  page. Its submit button sits inside the far end of the field: a 44px square with the `search` icon and the
+  visually hidden name "Search". Enter submits too, with or without script.
 - `SortSelect` and `FilterPanel` are client components. A change calls `router.replace` with the new query and
   resets the page to 1. `FilterPanel` updates its checkboxes optimistically (`useOptimistic` in a transition).
 - `FilterPanel` disables a checkbox whose count is 0 unless it is already checked. Below 68em the panel is a
-  native dialog opened from a "Filters" button, with a "Show results" button that closes it.
+  native dialog opened from a "Filters" button, with a "Show results" button that closes it. Its `sort` prop
+  is drawn at the top of the dialog's body below 40em only.
+- Phone layout of the rail (below 40em): a navigation "Start from a phase" with the seven phases as large
+  `PhaseTabs` in one row that scrolls sideways (the card is lit, `aria-current="true"`, under the same rule as
+  the phase rail), then the search and the "Filters" button on one row. The catalog page renders `SortSelect`
+  twice: once in the rail, hidden below 40em, and once as `FilterPanel`'s `sort`, hidden from 40em. Only one is
+  ever displayed. From 40em the rail is unchanged: the search on its own row, the sort and Filters under it.
 - "Clear all filters" links to `/catalog?q=<q>` when a search term exists, or to `/catalog` otherwise. It keeps
-  only the search term, so the sort also resets.
-- The empty-state "Clear filters" link goes to `/catalog`.
+  only the search term, so the sort also resets (`clearFiltersHref`).
+- `ActiveFilters` (client) lists every selected facet value above the result count as a chip, a list labelled
+  "Active filters". Each chip is a link to the catalog without that value, on page 1 (`activeFilters` in
+  `lib/catalog/search-params.ts`), named "Remove <facet> filter: <value>". "Clear all" ends the row and goes
+  where "Clear all filters" goes. With script, a plain click calls `router.replace` without scrolling; focus
+  then moves to the chip now at the removed one's position (or the one before), or to the result count
+  (`#results-heading`, `tabIndex=-1`) once no chip is left. Nothing renders without filters.
+- Empty result: with only a search term, the heading is `No templates match “<q>”.`, the link is "Clear search"
+  (the same criteria without `q`), and a navigation labelled "Browse by phase" shows the phases as large
+  `PhaseTabs`. With filters it stays "No templates match these filters." with "Clear filters" (or "Clear
+  search and filters" when a term is also set), linking to `/catalog`.
+- The phase rail marks a phase (`aria-current="true"`) on `/catalog` while the `phase` parameter names exactly
+  one known phase (`singleCatalogPhase` and `currentPhase` in `components/layout/nav-links.ts`). It reads the
+  search inside a Suspense boundary whose fallback is the rail drawn from the pathname alone.
 - `Pagination` renders links to `/catalog` with the same criteria and the new page. It renders nothing when
   there is one page.
+- Rows (`TemplateCard layout="row"`) carry no position number. At every width the summary shows under the
+  title, clamped to two lines. On a phase page the rows get no `phaseName`, so they name the deliverable type alone,
+  with no phase numeral beside it, and the type column is narrower (10rem in place of 13rem).
 
 ## 11. Test hooks and test contract
 
@@ -1041,7 +1106,7 @@ The controller also exposes a layer handle with `ink()`, `canvas()`, `scene()`, 
 | `data-ink-calm`, `data-ink-anchor` | Page elements | Calm regions and anchors |
 | `data-scene`, `data-edges` | Backdrop | Scene and edges |
 | `data-intro-cover` | Cover | The cover element |
-| `data-seen`, `data-tally`, `data-block`, `data-odometer`, `data-odometer-wheel` | Motion elements | Entrance and counter state |
+| `data-seen`, `data-tally`, `data-block` | Motion elements | Entrance and tally state |
 | `data-band` | Band | Ground: desk, paper, wash, ink or binder |
 | `data-paper`, `data-lit` | Sheets | Paper and pointer light |
 | `data-bar`, `data-phase-rail`, `data-nav-drawer` | Shell | Bar, rail and drawer |
@@ -1063,7 +1128,7 @@ The design gate (`tests/unit/design-gate.test.ts`) scans every file under `app/`
 - `package.json` dependencies are exactly `next`, `react`, `react-dom` and `zod`.
 - Canvas and WebGL calls are allowed only in `lib/ink/`, `components/ink/` and `lib/boot/`.
 - `requestAnimationFrame` calls are allowed only in `lib/ink/`, `components/ink/`, `lib/scroll/`,
-  `lib/boot/`, `components/intro/` and `components/ui/count-up.tsx`. The scroll string literal is allowed
+  `lib/boot/` and `components/intro/`. The scroll string literal is allowed
   only in `lib/ink/`, `components/ink/` and `lib/scroll/`.
 
 ### 11.5 Unit tests (Vitest)
@@ -1072,10 +1137,11 @@ Each file below is in `tests/unit/`:
 
 | File | Covers |
 |---|---|
-| `cart-store.test.ts` | Parsing, adding, removing and pruning cart lines |
+| `cart-store.test.ts` | Parsing, adding, removing and pruning cart lines; bundle overlap and the subtotal |
+| `nav-links.test.ts` | The phase a page belongs to, including the catalog filtered on one phase |
 | `content.test.ts` | The real catalog: phases, counts, prices, sample flags, copy rules, search, bundles, related templates |
 | `query.test.ts` | Filters, search, sort, facet counts, pagination |
-| `search-params.test.ts` | URL parsing and serialisation |
+| `search-params.test.ts` | URL parsing and serialisation; active-filter chips and their links |
 | `validate.test.ts` | Validation errors and sorting |
 | `coverage.test.ts`, `pricing.test.ts`, `format.test.ts` | Helpers |
 | `compounds.test.ts` | Compound splitting for `KeepCompounds` |
@@ -1105,8 +1171,8 @@ Specs:
 | Spec | Projects | Covers |
 |---|---|---|
 | `browse.spec.ts` | chromium, mobile, firefox | Navigating from the home page to a phase and a template; the sample page; no horizontal overflow on 11 routes |
-| `cart.spec.ts`, `cart-keyboard.spec.ts` | chromium, mobile | Adding, removing, subtotal, reload, corrupt storage, pruning, blocked storage, focus after changes |
-| `catalog.spec.ts` | chromium, mobile | Counts, pages, filters, URL restore, search, empty state, malformed parameters, the phone filter dialog |
+| `cart.spec.ts`, `cart-keyboard.spec.ts` | chromium, mobile | Adding, removing, subtotal and bundle overlap, reload, corrupt storage, pruning, blocked storage, focus after changes |
+| `catalog.spec.ts` | chromium, mobile | Counts, pages, filters, chips, URL restore, search, empty states, malformed parameters, the phone filter dialog |
 | `console.spec.ts` | chromium, mobile, firefox | No console errors or page errors on 11 routes |
 | `header.spec.ts` | chromium | Desktop navigation, `aria-current`, the rail, the sticky bar |
 | `menu.spec.ts` | mobile | The drawer: links, Escape, Close, scrim click, navigation and Back closing it |

@@ -1,8 +1,8 @@
-import type { App, Audience, DeliverableType, Format, Template } from "./schema";
+import type { App, Audience, DeliverableType, Format, Phase, Template } from "./schema";
 
 export const PAGE_SIZE = 24;
 
-export type SortKey = "featured" | "title" | "price-asc" | "price-desc";
+export type SortKey = "phase" | "featured" | "title" | "price-asc" | "price-desc";
 export type FacetKey = "phase" | "type" | "app" | "audience" | "format";
 
 export type CatalogCriteria = {
@@ -23,7 +23,7 @@ export const DEFAULT_CRITERIA: CatalogCriteria = {
   app: [],
   audience: [],
   format: [],
-  sort: "featured",
+  sort: "phase",
   page: 1,
 };
 
@@ -35,7 +35,8 @@ export type CatalogResult = {
   facets: Record<FacetKey, Record<string, number>>;
 };
 
-const FACET_KEYS: FacetKey[] = ["phase", "type", "app", "audience", "format"];
+/** The facets in the order the filters list them. */
+export const FACET_KEYS: readonly FacetKey[] = ["phase", "type", "app", "audience", "format"];
 
 /** The values a template carries for each facet. */
 const FACET_VALUES: Record<FacetKey, (t: Template) => readonly string[]> = {
@@ -67,15 +68,43 @@ function matchesSearch(template: Template, terms: string[]) {
 
 const byTitle = (a: Template, b: Template) => a.title.localeCompare(b.title);
 
-const SORTERS: Record<SortKey, (a: Template, b: Template) => number> = {
+type Comparator = (a: Template, b: Template) => number;
+
+const SORTERS: Record<Exclude<SortKey, "phase">, Comparator> = {
   featured: (a, b) => Number(b.featured) - Number(a.featured) || byTitle(a, b),
   title: byTitle,
   "price-asc": (a, b) => a.priceCents - b.priceCents || byTitle(a, b),
   "price-desc": (a, b) => b.priceCents - a.priceCents || byTitle(a, b),
 };
 
-/** Filters, searches, sorts and paginates. Values within a facet are OR; facets are AND. */
-export function queryTemplates(templates: Template[], criteria: CatalogCriteria): CatalogResult {
+/**
+ * The order a rollout moves in: by the phase's order, then by the step's order inside it. Templates
+ * of one step keep the order they were given in (the sort is stable). A phase or a step the list
+ * does not know goes after every known one.
+ */
+function byPhase(phases: readonly Pick<Phase, "slug" | "order" | "steps">[]): Comparator {
+  const phaseRank = new Map(phases.map((phase) => [phase.slug, phase.order]));
+  const stepRank = new Map(
+    phases.flatMap((phase) =>
+      phase.steps.map((step) => [`${phase.slug}/${step.slug}`, step.order]),
+    ),
+  );
+  const rank = (map: Map<string, number>, key: string) => map.get(key) ?? Number.POSITIVE_INFINITY;
+  return (a, b) =>
+    rank(phaseRank, a.phase) - rank(phaseRank, b.phase) ||
+    rank(stepRank, `${a.phase}/${a.step}`) - rank(stepRank, `${b.phase}/${b.step}`);
+}
+
+/**
+ * Filters, searches, sorts and paginates. Values within a facet are OR; facets are AND. `phases`
+ * gives the phase and step order for the default sort ("phase"); without it that sort keeps the
+ * order the templates were given in.
+ */
+export function queryTemplates(
+  templates: Template[],
+  criteria: CatalogCriteria,
+  phases: readonly Pick<Phase, "slug" | "order" | "steps">[] = [],
+): CatalogResult {
   const terms = fold(criteria.q).split(/\s+/).filter(Boolean);
   const searched = templates.filter((t) => matchesSearch(t, terms));
 
@@ -94,7 +123,8 @@ export function queryTemplates(templates: Template[], criteria: CatalogCriteria)
     facets[key] = counts;
   }
 
-  const matched = searched.filter((t) => matchesAllExcept(t)).sort(SORTERS[criteria.sort]);
+  const sorter = criteria.sort === "phase" ? byPhase(phases) : SORTERS[criteria.sort];
+  const matched = searched.filter((t) => matchesAllExcept(t)).sort(sorter);
   const total = matched.length;
   const pageCount = Math.max(1, Math.ceil(total / PAGE_SIZE));
   const requested = Number.isFinite(criteria.page) ? Math.trunc(criteria.page) : 1;

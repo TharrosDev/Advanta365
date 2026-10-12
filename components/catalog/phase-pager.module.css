@@ -1,0 +1,181 @@
+/*
+ * Two cells on a hairline above and below. Below 40em they are stacked, the previous phase first;
+ * from 40em they share a row, the next phase always in the right-hand cell.
+ */
+.root {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  border-block: var(--hair) solid var(--line);
+}
+
+/*
+ * The words are flush with the hairlines' ends; the wash of a link stands 14px past them, as on a
+ * row of a ledger.
+ */
+.link {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: var(--s-2);
+  min-height: var(--control-lg);
+  margin-inline: calc(-1 * var(--s-2));
+  padding: var(--s-3) var(--s-2);
+  border-radius: var(--round-2);
+  color: var(--text);
+  text-decoration: none;
+}
+
+/* Stacked, a hairline parts the two, from end to end of the ledger. */
+.link + .link::before {
+  content: "";
+  position: absolute;
+  inset-inline: var(--s-2);
+  top: 0;
+  height: var(--hair);
+  background: var(--line);
+}
+
+/* The previous link points back: its arrow comes first, turned round. */
+.previous .arrow {
+  scale: -1 1;
+}
+
+/* The next link's words come first and its arrow ends the cell. */
+.next {
+  justify-content: space-between;
+}
+
+.next .words {
+  order: -1;
+}
+
+.words {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-1);
+  min-width: 0;
+}
+
+.label {
+  color: var(--text-faint);
+}
+
+.phase {
+  display: flex;
+  align-items: center;
+  gap: var(--s-2);
+  min-width: 0;
+}
+
+/* The phase numeral on a 28px tile, as on the bundle page. Besley's own figures. */
+.tile {
+  display: grid;
+  flex: none;
+  place-items: center;
+  width: var(--s-4);
+  height: var(--s-4);
+  border-radius: var(--round-1);
+  background: var(--tile);
+  color: var(--text);
+  font-family: var(--face-display);
+  font-size: var(--size-note);
+  line-height: 1;
+  font-weight: 700;
+  font-feature-settings: "tnum" 0;
+}
+
+.name {
+  overflow-wrap: break-word;
+  text-decoration: underline transparent;
+  text-decoration-thickness: var(--edge);
+  text-underline-offset: 3px;
+}
+
+@media (min-width: 40em) {
+  .root {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    column-gap: var(--col-gap);
+  }
+
+  .link + .link::before {
+    display: none;
+  }
+
+  .next {
+    grid-column: 2;
+    justify-content: flex-end;
+    text-align: end;
+  }
+
+  .next .words {
+    align-items: flex-end;
+  }
+}
+
+/*
+ * Hover, keyboard focus and a press look the same. The wash is a light surface on every band, so
+ * while it is on, the link reads the ink colours, whatever the band says.
+ */
+.link:focus-visible,
+.link:active {
+  --text: var(--ink);
+  --text-faint: var(--ink-faint);
+  --tile: var(--desk-deep);
+  --focus-ring: var(--ink);
+  background: var(--mark-wash);
+}
+
+.link:focus-visible .name,
+.link:active .name {
+  text-decoration-color: currentColor;
+}
+
+.link:focus-visible.next .arrow {
+  translate: 3px 0;
+}
+
+.link:focus-visible.previous .arrow {
+  translate: -3px 0;
+}
+
+@media (hover: hover) {
+  .link:hover {
+    --text: var(--ink);
+    --text-faint: var(--ink-faint);
+    --tile: var(--desk-deep);
+    --focus-ring: var(--ink);
+    background: var(--mark-wash);
+  }
+
+  .link:hover .name {
+    text-decoration-color: currentColor;
+  }
+
+  .link:hover.next .arrow {
+    translate: 3px 0;
+  }
+
+  .link:hover.previous .arrow {
+    translate: -3px 0;
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .link {
+    transition: background-color var(--time-swap) linear;
+  }
+
+  .name {
+    transition: text-decoration-color var(--time-swap) linear;
+  }
+
+  .arrow {
+    transition: translate var(--time-swap) linear;
+  }
+}
+
+@media (forced-colors: active) {
+  .tile {
+    border: var(--hair) solid CanvasText;
+  }
+}

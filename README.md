@@ -139,7 +139,7 @@ proxy.ts              Redirects mixed-case paths to lower case
   by attributes on `<html>` and on elements (see Motion and ink).
 - **Canvas, WebGL, animation frames and scroll listeners have fixed homes.** A canvas or WebGL call belongs
   in `lib/ink/`, `components/ink/` or `lib/boot/`. `requestAnimationFrame` and scroll listeners belong in
-  those three, or in `lib/scroll/`, `components/intro/` and `components/ui/count-up.tsx`.
+  those three, or in `lib/scroll/` and `components/intro/`.
 - **Internal links use `TransitionLink`**, or a primitive built on it. Only
   `components/ui/transition-link.tsx` imports `next/link`.
 - **Each page has one `h1`**, its title. The shell provides one `banner` (the header), one `main` and one
@@ -226,7 +226,7 @@ Display and lead sizes are `clamp()` tokens between a phone value and a desktop 
 ### Motion tokens
 
 - Durations: `--time-swap` (120ms), `--time-enter` (240ms), `--time-exit` (160ms),
-  `--time-fill` (180ms), `--time-fill-gap` (80ms), `--time-lift` (260ms), `--time-ink` (640ms),
+  `--time-fill` (180ms), `--time-fill-gap` (80ms), `--time-lift` (260ms), `--time-ink` (400ms),
   `--time-settle` (560ms), `--time-count` (1200ms), `--time-morph` (420ms), `--time-page-in` (260ms),
   `--time-page-out` (140ms) and `--stagger` (70ms).
 - Curves: `--curve-settle`, `--curve-leave`, `--curve-ink`, `--curve-drop` and `--curve-pen`.
@@ -238,8 +238,7 @@ Display and lead sizes are `clamp()` tokens between a phone value and a desktop 
 - Layout: `Band`, `Wrap`, `Split`, `Sheet`, `ShelfHead`, `FactList`, `BandedList` and `BandedRow` (the
   ledger), and `Note`.
 - Links and actions: `Button`, `TransitionLink`, `TextLink`, `RowLink`, `Pagination` and `PhaseTabs`.
-- Paper and objects: `PaperSheet`, `PaperStack`, `Folder`, `Tag`, `Blank`, `Tally`, `Odometer` and
-  `CountUp`.
+- Paper and objects: `PaperSheet`, `PaperStack`, `Folder`, `Tag`, `Blank` and `Tally`.
 - Text and marks: `Eyebrow`, `Sentences`, `KeepCompounds`, `LogoMark`, `BrandLockup` and `Icon`.
 - Form controls: `Input`, `Select` and `Checkbox`.
 - Motion: `Appear`, `MotionRoot` and `PageShift`.
@@ -259,7 +258,7 @@ Display and lead sizes are `clamp()` tokens between a phone value and a desktop 
 | `data-paper`, `data-lit`                          | `PaperSheet` (the `lit` prop)                          | The sheet's shadow, its lift and its tilt toward the pointer             |
 | `data-bar`                                        | `Header`                                               | The shadow under the sticky bar                                          |
 | `data-ledger`                                     | `BandedList`                                           | The rule of a ledger draws in                                            |
-| `data-ninety`                                     | The solution band (`components/home/pitch-spread.tsx`) | The odometer rolls and the ten blocks fill                               |
+| `data-ninety`                                     | The solution band (`components/home/pitch-spread.tsx`) | The ten blocks fill; the 90% figure never moves                          |
 | `data-watch`                                      | `Tally` with `animate`                                 | The blocks fill when the tally is seen                                   |
 | `data-ink-calm` (`text`, `display`, `veil`)       | Page copy                                              | Copy the ink keeps clear of                                              |
 | `data-ink-anchor` (`open`, `tenth`)               | Ink backdrops and the tally                            | Where the open water is, and the block that fires the ninety             |
@@ -310,8 +309,8 @@ Each phase has two steps.
 2. **Templates.** Each phase has one file in `content/templates/`: `make-the-case.ts`, `plan.ts`,
    `design.ts`, `prepare.ts`, `communicate.ts`, `execute.ts` and `sustain.ts`. `index.ts` joins them in
    phase order. A template gives its phase and step, deliverable type, apps, audiences, format, ADKAR
-   stages (`adkar`, stored and not shown), price in cents, an optional page count, what it includes, and
-   whether it is featured. Real records are written out in full with `isSample: false`. The `sample()`
+   stages (`adkar`, stored and not shown), price in cents, an optional page count (shown as slides for a
+   PowerPoint deck and pages for every other format), what it includes, and whether it is featured. Real records are written out in full with `isSample: false`. The `sample()`
    helper in `content/templates/sample.ts` adds `isSample: true` and belongs only in the sample files.
 3. **Bundles.** `content/bundles.ts` lists the bundles, each with a slug, title, summary, description,
    `templateSlugs` (at least two), a price in cents, a featured flag and `isSample`.
@@ -324,7 +323,9 @@ Each phase has two steps.
    (`components/home/featured-section.tsx` and `components/home/inside-section.tsx`), the footer's status
    line (`components/layout/footer.tsx`) and the purchase note (`components/product/purchase-panel.tsx`).
    The worked example is the fictional Meridian Group. The name appears in `app/(site)/sample/page.tsx`,
-   `app/(site)/about/page.tsx`, `content/bundles.ts` and `content/templates/plan.ts`. The 10,000 figure also
+   `app/(site)/about/page.tsx`, `content/bundles.ts`, `content/templates/plan.ts` and
+   `content/worked-example.ts`. That last file holds the example's table of contents on `/sample`: placeholder
+   sections, labelled as such on the page, until the real file is published. The 10,000 figure also
    appears on the home page, in `components/home/inside-section.tsx` and `components/home/pitch-spread.tsx`.
    `tests/unit/content.test.ts` and the browser specs in `tests/e2e/` check the sample catalog by name and
    count, so they need updating with the real catalog.
@@ -374,9 +375,10 @@ The last two are about the site itself. None of this is legal advice.
       "Prosci-aligned" or "Prosci-approved content" suggests an endorsement Prosci hasn't given.
       Keep Prosci on the person, not the product, and check Prosci's trademark-use guidance at
       prosci.com.
-  - On the site: Prosci appears only as "built by a Prosci-certified practitioner", "Prosci
-    certification" and the footer's non-affiliation and trademark notice. ADKAR appears in no
-    visible copy; the `adkar` field on a template is data and is not rendered.
+  - On the site: Prosci appears only as "built by a Prosci-certified practitioner" and the
+    footer's non-affiliation and trademark notice; the design gate (`tests/unit/design-gate.test.ts`)
+    fails on any other line that names Prosci. ADKAR appears in no visible copy; the `adkar` field
+    on a template is data and is not rendered.
 - [ ] **Old product branding.** Client references (department names and terms, client platform
       names) were removed from the source material. The earlier product name is now Advanta365
       throughout, and the content for the other earlier product and for the provisioning tool has
@@ -400,7 +402,10 @@ The last two are about the site itself. None of this is legal advice.
   - On the site: the counts are read from `TOOLKIT` in `lib/site.ts`. Recount the folder before
     launch and change them there.
 - [ ] **The worked example's file.** `/sample` describes the Meridian Group worked example and
-      says its file cannot be downloaded in this beta. It needs the real file. The sample catalog
+      says its file cannot be downloaded in this beta. It needs the real file, and its real table of
+      contents: `content/worked-example.ts` lists placeholder sections (the pieces `/sample` names, each
+      linked to its template) that the page marks "Placeholder"; replace them and set `placeholder` to
+      false. The sample catalog
       also lists the worked example with a placeholder price and puts it in two bundles; decide
       whether it is a free sample, a product, or both.
 - [ ] **Pricing answers.** The answers on `/pricing` are provisional and say so on the page.

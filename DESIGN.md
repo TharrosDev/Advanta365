@@ -345,7 +345,7 @@ White, near-black and one light blue, on cool greys that lean a few degrees towa
 
 - **Display** (`poster`, 800, 112 to 320px, 0.86): one figure per page at most. The 90% of the home statement band, the phase numeral, the 404.
 - **Display** (`hero`, 600, 40 to 80px, 1.04): the home headline only, at most 11.5em wide.
-- **Headline** (`statement`, 600, 34 to 72px, 1.06): large statements, and the wide form of a page title.
+- **Headline** (`statement`, 600, 34 to 72px, 1.06): large statements, and the wide form of a page title. One or two per page at most: where a page makes several statements in a row (About), the rest step down to `banner` or `page`, so two headlines carry it.
 - **Headline** (`banner`, 600, 34 to 56px, 1.12): standard page titles and the one-sentence statement of a section.
 - **Title** (`page`, 600, 28 to 40px, 1.16): the heading of a shelf of content.
 - **Title** (`section`, 600, 22 to 26px, 1.24): section headings and large row labels.
@@ -437,15 +437,15 @@ There are no boxed cards. A thing in a list is either a row on a hairline or a p
 
 - **Paper sheet:** a 3px corner, paper lit from its top-left corner and a shade darker at the far ones, a pre-rendered grain on medium and large sheets, depth 2 at rest. It has no padding of its own; a panel made from it is padded 21px, and 28px from 40em. Inside a sheet the colours are those of paper whatever band it lies on.
 - **Paper stack:** two or more blank sheets under the top one, at depth 1, offset and turned from 40em and only slightly turned below it.
-- **Folder:** a bundle. A wash-coloured tab 28px tall names it, a back panel holds up to three white sheets standing 5px lower each, and a wash front panel at depth 2 carries the content. Under the pointer or focus the sheets rise 14, 10 and 6px, 40ms apart.
-- **Template card:** below 40em, and in list view at every width, a row on a hairline with a cover thumbnail; its hover wash stands 14px past both ends and the thumbnail lifts and turns 1.5 degrees. From 40em in sheet view, the cover itself at the foot of a 17rem area (20rem from 68em) with the phase, the title and the price as a caption. The title is the one link and covers the whole article, and the focus ring is drawn on the article.
+- **Folder:** a bundle. A wash-coloured tab 28px tall names it, a back panel holds up to three sheets, and a wash front panel at depth 2 carries the content. A bundle's sheets are the small covers of its first three templates, standing 84px tall like files: the first highest and furthest right, each next one 14px lower, 20px to the left and in front, so every format tag shows; the front panel covers their feet. A folder can scale them with `--cover-scale` (1 in ledger rows at every width, 1.5 for the home feature and the bundle page). Without covers the sheets are blank paper standing 5px lower each. Under the pointer or focus the sheets rise 14, 10 and 6px, 40ms apart. The cart draws the same folder at thumbnail size in a bundle's line, and a template's line carries its small cover.
+- **Template card:** below 40em, and in list view at every width, a row on a hairline with a cover thumbnail; its hover wash stands 14px past both ends and the thumbnail lifts and turns 1.5 degrees. From 40em in sheet view, the cover itself at the foot of a 17rem area (20rem from 68em) with the phase, the title and the price as a caption. A row shows the summary under the title at every width, at most two lines. The title is the one link and covers the whole article, and the focus ring is drawn on the article.
 - **Note:** a short sentence on the wash (6px corner, 14px by 21px, 16px text at weight 400), no wider than a lead; on the wash band it takes paper.
 
 ### Inputs / Fields
 
-- **Text input and select:** paper, 48px tall, a 2px firm rule border, a 6px corner, 14px of side padding and 16px text at weight 400. The select draws its own chevron 14px from the right edge.
+- **Text input and select:** paper, 48px tall, a 2px firm rule border, a 6px corner, 14px of side padding and 16px text at weight 400. The select draws its own chevron 14px from the right edge. The catalog search carries its submit inside the field: a 44px square at the right end with the magnifier, which takes the wash under the pointer and focus.
 - **Hover / Focus:** the border darkens to soft ink under the pointer and to ink on focus, with the standard focus ring outside it.
-- **Checkbox:** a 21px box with a 2px firm rule border and a 3px corner in a row at least 44px tall (35px from 68em); the invisible input covers the whole row. Checked, it is the highlighter with an ink border and a heavy ink tick, one step deeper under the pointer. A faint count may close the row.
+- **Checkbox:** a 21px box with a 2px firm rule border and a 3px corner in a row at least 44px tall (35px from 68em); the invisible input covers the whole row. Checked, it is the highlighter with an ink border and a heavy ink tick, one step deeper under the pointer. A faint count may close the row. A list of contents (a template's "What's included") is never drawn as checked boxes: each item has a bare ink tick, 20px, with no box and no highlighter, so nothing in it looks selectable.
 - **Disabled:** deep-desk fill, rule border, faint text.
 - **Focus ring, everywhere:** a 3px outline 3px off the element, ink on light bands and the highlighter on the binder.
 
@@ -454,7 +454,7 @@ There are no boxed cards. A thing in a list is either a row on a hairline or a p
 - **Bar:** white and sticky, with no border and no shadow at the top of the page. It holds the brand lockup (the logo in an ink tile, the name in Besley 700), the primary links from 68em, the cart and, below 68em, a Menu button.
 - **Primary links:** 40px tall, a 6px corner, ink text. Hover and focus fill with the wash. The current page is the highlighter with an inset 2px ink ring and weight 700.
 - **Phase rail (from 68em):** seven equal tabs standing on the bottom edge of a desk strip, white with rounded top corners at depth 1, each a Besley numeral and a name. The current phase is the highlighter inside a 2px ink edge.
-- **Phase cards:** the same seven as index cards 56px tall, two across on a phone, four from 40em and one row where they fit, with the numeral over the name.
+- **Phase cards:** the same seven as index cards 56px tall, two across on a phone, four from 40em and one row where they fit, with the numeral over the name. At the top of the phone catalog they stand in one row that scrolls sideways from edge to edge, each as wide as its name, so the card cut off at the edge shows there are more.
 - **Drawer (below 68em):** a paper panel on the right edge, at most 378px wide, at depth 4 over the scrim. It slides in over 320ms and its links drift in 40ms apart; closing has no animation. Rows are 49px, and the current one is highlighted with its ink ring.
 - **Text link:** ink with a 1px ink underline. On hover and focus the highlighter is drawn behind the words like a stroke of a marker and the underline thickens. On the binder the words stay as they are and the underline takes the highlighter.
 - **Row link:** a row at least 56px tall inside a ledger. Hover, focus and press fill it with the wash, underline its label and move its arrow 3px.
@@ -463,7 +463,7 @@ There are no boxed cards. A thing in a list is either a row on a hairline or a p
 
 ### Template Cover
 
-The signature object: a miniature first page of a template, printed on a paper sheet in the proportions of its format. Everything on it is sized as a share of the sheet's own width, so it reads the same as a 60px thumbnail and as the large sheet on a product page. It carries the title in Besley, one line of the summary, ghost lines for the rest (rows of three cells on a workbook), a line drawing of the deliverable type, the phase numeral on an ink index tab at the right edge, the format tag, and one blank in the highlighter with its ink edge. The blank is the only highlighted part of a cover: it is the part the buyer writes.
+The signature object: a miniature first page of a template, printed on a paper sheet in the proportions of its format. Everything on it is sized as a share of the sheet's own width, so it reads the same as a 60px thumbnail and as the large sheet on a product page. It carries the title in Besley, one line of the summary (ending on a whole word, never inside one), ghost lines for the rest (rows of three cells on a workbook), a line drawing of the deliverable type, the phase numeral on an ink index tab at the right edge, the format tag, and one blank in the highlighter with its ink edge. The blank is the only highlighted part of a cover: it is the part the buyer writes.
 
 ### Tally and Blank
 
@@ -473,11 +473,11 @@ The signature object: a miniature first page of a template, printed on a paper s
 
 ### Ink Backdrop
 
-The showpiece. One canvas serves the whole page, and the backdrop most in view holds it; every other backdrop shows a still image of its scene. Seven scenes exist: drops beside the home headline, a drop onto the tenth block of the 90% tally when the scroll reaches it, blue ink rising from the foot of the closing band, pale wisps in the footer, a strip beside wide page titles, a spill on the 404, and the drop under the first-load cover. Text over ink marks itself as a calm zone and the ink is thinned and capped around it. A 44px pause button with a 32px round sits at the foot of the stage. The ink gives way to its stills under reduced motion, raised contrast, forced colours, data saving, without WebGL2, and on a device that cannot keep up.
+The showpiece. One canvas serves the whole page, and the backdrop most in view holds it; every other backdrop shows a still image of its scene. Seven scenes exist: drops beside the home headline, a drop onto the tenth block of the 90% tally when the scroll reaches it, blue ink rising from the foot of the closing band, pale wisps in the footer, a strip beside wide page titles, a spill on the 404, and the drop under the first-load cover. Text over ink marks itself as a calm zone and the ink is thinned and capped around it. The footer's wisps keep to a 112px strip under the legal line, fading in from its top, so no wisp stands under a link or the notice. Below 68em the home hero and 90% stills take the height of their band, so their ink lands in the open water under the buttons and under the tally instead of past the foot. A 44px pause button with a 32px round sits at the foot of the stage. The ink gives way to its stills under reduced motion, raised contrast, forced colours, data saving, without WebGL2, and on a device that cannot keep up.
 
 ### Entrances and Page Changes
 
-Content arrives in one of four ways: a drift (12px up, fading in), ink-in (fading in, with an 8px blur resolving from 68em), a settle (a sheet dropping 28px from 1.03 times its size, with a small overshoot) and a grow (a rule drawn from its left end). Where the browser supports view timelines an entrance follows the scroll; elsewhere it plays once when the element is seen, 70ms apart for siblings. On a page change only the first block of the page leaves and arrives, and a cover or a folder that exists on both pages travels between them over 420ms. On a first visit to the home page a paper cover fills the window, the logo is written on it in three strokes within 800ms, and the cover is gone by 1650ms, by 2800ms when the ink runs under it, or within 200ms of any press, key, scroll or touch.
+Content arrives in one of four ways: a drift (12px up, fading in), ink-in (fading in, never blurred, and done first: a heading is legible by the time it stands 8rem into the window), a settle (a sheet dropping 28px from 1.03 times its size, with a small overshoot) and a grow (a rule drawn from its left end). Where the browser supports view timelines an entrance follows the scroll; elsewhere it plays once when the element is seen, 70ms apart for siblings. On a page change only the first block of the page leaves and arrives, and a cover or a folder that exists on both pages travels between them over 420ms. On a first visit to the home page a paper cover fills the window, the logo is written on it in three strokes within 800ms, the logo fades from the paper before the paper itself clears, and the cover is gone by 1650ms, by 2800ms when the ink runs under it, or within 200ms of any press, key, scroll or touch.
 
 ## Do's and Don'ts
 
@@ -485,13 +485,14 @@ Content arrives in one of four ways: a drift (12px up, fading in), ink-in (fadin
 
 - **Do** pair every highlighter fill with ink: a 2px inset ring, an ink border, a tick or weight 700 text.
 - **Do** put a band under everything, and let the band set the colours through the semantic names.
-- **Do** present a thing as a paper object (a sheet, a stack, a folder, a cover) or as a row on a hairline.
+- **Do** present a thing as a paper object (a sheet, a stack, a folder, a cover) or as a row on a hairline. A set of short claims (the home values, the About proof points) is a ledger, not a grid of icon tiles; the line drawings belong to the home manifest alone.
 - **Do** take every space from the 7px module and every layout change from the two breakpoints, 40em and 68em.
 - **Do** set documents, figures and prices in Besley at 600 to 800, and everything the store says in Atkinson Hyperlegible Next.
 - **Do** make hover and keyboard focus look the same, and give a press the same answer, so a finger gets what a pointer gets.
 - **Do** keep every target at least 44px tall below 68em, and show the 3px focus ring 3px off the element.
 - **Do** place ink on the ground of a band, mark every text block over it as a calm zone, and name a still for it.
 - **Do** keep every animation inside the no-preference motion query, with the finished state as the default.
+- **Do** print a figure as it is. A number never counts or rolls up to its value: while it moves it reads a wrong one.
 - **Do** give an object an ink line where its shadow is removed, at raised contrast and in forced colours.
 
 ### Don't:

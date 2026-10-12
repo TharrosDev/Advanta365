@@ -7,6 +7,7 @@ const PATHS = {
   close: "M5 5L15 15M15 5L5 15",
   tick: "M4.5 10.5L8.5 14.5L15.5 6",
   bars: "M3 6H17M3 10H17M3 14H17",
+  search: "M12.4 12.4L16.5 16.5M14 8.5A5.5 5.5 0 1 1 3 8.5A5.5 5.5 0 1 1 14 8.5Z",
 } as const;
 
 type IconName = keyof typeof PATHS;

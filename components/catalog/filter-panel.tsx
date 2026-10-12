@@ -1,7 +1,7 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useOptimistic, useRef, useTransition } from "react";
+import { useOptimistic, useRef, useTransition, type ReactNode } from "react";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import {
@@ -15,7 +15,11 @@ import {
   FORMAT_LABELS,
 } from "@/content/taxonomy";
 import type { CatalogCriteria, CatalogResult, FacetKey } from "@/lib/catalog/query";
-import { serializeCatalogParams } from "@/lib/catalog/search-params";
+import {
+  FACET_TITLES,
+  clearFiltersHref,
+  serializeCatalogParams,
+} from "@/lib/catalog/search-params";
 import { cx } from "@/lib/cx";
 import styles from "./filter-panel.module.css";
 
@@ -29,6 +33,8 @@ type FilterPanelProps = {
   criteria: CatalogCriteria;
   facets: CatalogResult["facets"];
   phases: { slug: string; name: string }[];
+  /** Shown at the top of the sheet below 40em, where the rail leaves the sort order out. */
+  sort?: ReactNode;
 };
 
 /**
@@ -37,9 +43,10 @@ type FilterPanelProps = {
  *
  * From 68em the groups stand in the rail as an `aside`. Below that they sit behind a "Filters"
  * button, in a native dialog that comes up from the bottom edge as a sheet: a bar with the title and
- * Close, the groups in a scrolling body, and "Show results" at the foot.
+ * Close, the groups in a scrolling body, and "Show results" at the foot. Below 40em the body opens
+ * with `sort`, so a phone keeps one control above the results instead of two.
  */
-export function FilterPanel({ criteria: committed, facets, phases }: FilterPanelProps) {
+export function FilterPanel({ criteria: committed, facets, phases, sort }: FilterPanelProps) {
   const router = useRouter();
   const dialogRef = useRef<HTMLDialogElement>(null);
   const [isPending, startTransition] = useTransition();
@@ -49,17 +56,17 @@ export function FilterPanel({ criteria: committed, facets, phases }: FilterPanel
   const groups: Group[] = [
     {
       key: "phase",
-      title: "Phase",
+      title: FACET_TITLES.phase,
       options: phases.map((p) => ({ value: p.slug, label: p.name })),
     },
     {
       key: "type",
-      title: "Deliverable type",
+      title: FACET_TITLES.type,
       options: options(DELIVERABLE_TYPES, DELIVERABLE_TYPE_LABELS),
     },
-    { key: "app", title: "Microsoft 365 app", options: options(APPS, APP_LABELS) },
-    { key: "audience", title: "Audience", options: options(AUDIENCES, AUDIENCE_LABELS) },
-    { key: "format", title: "File format", options: options(FORMATS, FORMAT_LABELS) },
+    { key: "app", title: FACET_TITLES.app, options: options(APPS, APP_LABELS) },
+    { key: "audience", title: FACET_TITLES.audience, options: options(AUDIENCES, AUDIENCE_LABELS) },
+    { key: "format", title: FACET_TITLES.format, options: options(FORMATS, FORMAT_LABELS) },
   ];
 
   const selectedCount = groups.reduce((sum, group) => sum + criteria[group.key].length, 0);
@@ -100,11 +107,7 @@ export function FilterPanel({ criteria: committed, facets, phases }: FilterPanel
         </fieldset>
       ))}
       {selectedCount > 0 && (
-        <Button
-          variant="text"
-          href={criteria.q ? `/catalog?q=${encodeURIComponent(criteria.q)}` : "/catalog"}
-          className={styles.clear}
-        >
+        <Button variant="text" href={clearFiltersHref(criteria)} className={styles.clear}>
           Clear all filters
         </Button>
       )}
@@ -134,7 +137,10 @@ export function FilterPanel({ criteria: committed, facets, phases }: FilterPanel
               Close
             </Button>
           </div>
-          <div className={styles.body}>{fields}</div>
+          <div className={styles.body}>
+            {sort ? <div className={styles.sort}>{sort}</div> : null}
+            {fields}
+          </div>
           <div className={styles.foot}>
             <Button variant="mark" size="lg" fullWidth onClick={() => dialogRef.current?.close()}>
               Show results

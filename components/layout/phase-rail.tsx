@@ -1,10 +1,18 @@
 "use client";
 
-import { usePathname } from "next/navigation";
-import { currentPhase, type PhaseLink, type TemplatePhases } from "@/components/layout/nav-links";
+import { usePathname, useSearchParams } from "next/navigation";
+import { Suspense } from "react";
+import {
+  currentPhase,
+  singleCatalogPhase,
+  type PhaseLink,
+  type TemplatePhases,
+} from "@/components/layout/nav-links";
 import { PhaseTabs } from "@/components/ui/phase-tabs";
 import { Wrap } from "@/components/ui/wrap";
 import styles from "./phase-rail.module.css";
+
+type PhaseRailProps = { phases: readonly PhaseLink[]; templatePhases: TemplatePhases };
 
 /**
  * The strip of seven numbered tabs under the bar, from 68em only. The rail is a strip of the desk
@@ -12,18 +20,36 @@ import styles from "./phase-rail.module.css";
  * scrolls away.
  *
  * The tab of the phase being shown is current: `aria-current="page"` on the phase's own page,
- * `aria-current="true"` on the page of a template in that phase. A client component only because
- * it reads the pathname.
+ * `aria-current="true"` on the page of a template in that phase, and on the catalog while it is
+ * filtered on that phase alone. A client component because it reads the pathname and the search.
+ *
+ * Reading the search needs a Suspense boundary on a page rendered ahead of time; until it resolves
+ * the rail is drawn from the pathname alone, which is all such a page needs.
  */
-export function PhaseRail({
+export function PhaseRail(props: PhaseRailProps) {
+  return (
+    <Suspense fallback={<Rail {...props} />}>
+      <RailWithSearch {...props} />
+    </Suspense>
+  );
+}
+
+function RailWithSearch(props: PhaseRailProps) {
+  const search = useSearchParams();
+  const catalogPhase = singleCatalogPhase(
+    search.getAll("phase"),
+    props.phases.map((phase) => phase.slug),
+  );
+  return <Rail {...props} catalogPhase={catalogPhase} />;
+}
+
+function Rail({
   phases,
   templatePhases,
-}: {
-  phases: readonly PhaseLink[];
-  templatePhases: TemplatePhases;
-}) {
+  catalogPhase,
+}: PhaseRailProps & { catalogPhase?: string }) {
   const pathname = usePathname();
-  const current = currentPhase(pathname, templatePhases);
+  const current = currentPhase(pathname, templatePhases, catalogPhase);
 
   return (
     <nav aria-label="Phases" data-phase-rail="" className={styles.root}>

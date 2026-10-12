@@ -363,9 +363,9 @@ Level 3 and level 4 at 68em are the four-layer forms defined in the same file. S
 | `--time-fill-gap` | 80ms | Delay between tally blocks. |
 | `--time-blink` | 1100ms | The caret cycle of a blank line. |
 | `--time-lift` | 260ms | Lifting a sheet on hover or focus. |
-| `--time-ink` | 640ms | An element arriving with ink-in. |
+| `--time-ink` | 400ms | An element arriving with ink-in. |
 | `--time-settle` | 560ms | An element settling in. |
-| `--time-count` | 1200ms | A counter or the ninety-percent wheel. |
+| `--time-count` | 1200ms | The spread of the ninety's block fill where view timelines are missing. |
 | `--time-page-out` | 140ms | The outgoing page. |
 | `--time-page-in` | 260ms | The incoming page. |
 | `--time-morph` | 420ms | A shared sheet or cover morph. |
@@ -394,7 +394,7 @@ Entrance kinds:
 | `move` | What arrives |
 | --- | --- |
 | `drift` | Opacity from 0, and 12px upward movement. |
-| `ink-in` | Opacity from 0, with an 8px blur resolving at 68em. Used for sentences. |
+| `ink-in` | Opacity from 0, with no blur and no movement, over the shortest range (it ends 8rem into the window), so a heading is legible as soon as it is seen. Used for sentences. |
 | `settle` | Opacity from 0, 28px drop from above, and a 1.03 scale easing down. Sheets use this. |
 | `grow` | A scale from 0 along the left edge. Used for ledger rules and tallies. |
 
@@ -409,7 +409,6 @@ Entrance kinds:
 | `data-paper`, `data-lit` | `PaperSheet` | A sheet with its shade and its pointer lift. |
 | `data-bar` | The site header | The sticky bar's shadow and forced-contrast border. |
 | `data-ninety` | The solution section | The scroll-linked ninety-percent sequence. |
-| `data-odometer-wheel` | `Odometer` | The digit wheel. |
 | `data-block` | `Tally` | Each block: `ink`, `mark` or `empty`. |
 | `data-ledger` | `BandedList` | The grow rules on each row. |
 | `data-ink-backdrop`, `data-ink-slot` | `InkBackdrop` | The ink layer's container and canvas slot. |
@@ -427,7 +426,7 @@ The tilt and the light position are written by `lib/scroll/pointer.ts` in one an
 
 ### 8.7 Page transitions
 
-A page change swaps the page at once. The first block of a page, wrapped in `PageShift`, is a view transition: the outgoing block fades out over `--time-page-out`, and the incoming block arrives with `move-ink-in-plain` over `--time-page-in`, after an 80ms delay, and gains blur from 40em. A shared element named `cover-<slug>` or `folder-<slug>` morphs over `--time-morph` (class `sheet-morph`). Under reduced motion, every view transition group has no animation and the outgoing block is not shown.
+A page change swaps the page at once. The first block of a page, wrapped in `PageShift`, is a view transition: the outgoing block fades out over `--time-page-out`, and the incoming block arrives with `move-ink-in` (opacity only) over `--time-page-in`, after an 80ms delay. A shared element named `cover-<slug>` or `folder-<slug>` morphs over `--time-morph` (class `sheet-morph`). Under reduced motion, every view transition group has no animation and the outgoing block is not shown.
 
 ### 8.8 The first-load cover
 
@@ -440,29 +439,29 @@ The home page opens with a cover: a full-viewport paper plane (`--layer-cover`) 
 | Tail | 560ms to 800ms, in the mark colour. |
 | Name | 500ms to 900ms, fading in. |
 | Hint | 600ms to 900ms. |
-| Cover leaves | From 1200ms, 450ms with `--curve-leave`. |
+| Signature and hint leave | 1200ms to 1380ms, fading on the paper while it is still opaque. |
+| Cover leaves | From 1200ms, 450ms with `--curve-leave`. The paper holds until 40% (1380ms) and only then clears, so the logo is gone before the hero shows. |
 
 - It plays once per browser session on the home page, when motion is allowed and the tab is visible. The session flag is `advanta365.intro.v1` in `sessionStorage`.
 - Any pointer press, key press, wheel or touch ends it early. The skip is quiet: the cover fades over 200ms without moving the page.
 - A backstop ends it after 4500ms regardless of events.
 - When the ink layer is ready on the cover, ink runs inside the cover (section 10.6). The cover's own timeline then ends it.
 
-### 8.9 Counters and tallies
+### 8.9 Figures and tallies
 
-- `CountUp` counts from 0 to its value over `--time-count` with a cubic ease-out, once 40% of it is in view. Before that it shows the final text, so the layout does not move.
+- A figure is printed as it is and never counts or rolls up to its value: while it moves it reads a wrong one. The `#inside` counts and the ninety's 90% are plain text.
 - `Tally animate` fills its blocks one after another: each block starts after `--time-enter` plus its index times `--time-fill-gap`, and takes `--time-fill` to fill.
-- `Odometer` renders the final figure. Inside a `[data-ninety]` band the digit wheel rolls from blank to its figure over `--time-count` as the band is scrolled through; elsewhere the `Odometer` shows its figure without movement.
 
 ### 8.10 Reduced motion
 
 - With reduced motion, the boot script stops at its first check. It sets no motion or cover attributes and writes `data-ink="still"`.
 - The `no-preference` rules never apply. A global safety net (in `globals.css`) forces every remaining animation and transition to 0.01ms with one iteration.
-- Counters show their final text. Tallies are fully filled. The odometer shows its final figure.
+- Tallies are fully filled. Figures read as they always do.
 - The ink layer shows the still image for its scene.
 
 ## 9. Primitives
 
-All primitives live in `components/ui/`. Props are shown with their defaults in parentheses. Every primitive also accepts the attributes of its root element where it is a wrapper, and `className` where it is styled. Server components are the default; only `CountUp` and `MotionRoot` are client components.
+All primitives live in `components/ui/`. Props are shown with their defaults in parentheses. Every primitive also accepts the attributes of its root element where it is a wrapper, and `className` where it is styled. Server components are the default; only `MotionRoot` is a client component.
 
 ### 9.1 Layout and surfaces
 
@@ -473,7 +472,7 @@ All primitives live in `components/ui/`. Props are shown with their defaults in 
 | `Split` | `margin` (ReactNode), `sticky` (false), `rule` (false), `className`, `marginClassName`, `contentClassName` | `<Split margin={<h2 className="type-banner">Plan</h2>} rule>...</Split>` |
 | `PaperSheet` | `as` (div, section, aside, span, li; div), `ratio` (free, portrait, landscape, slide; free), `size` (sm, md, lg; md), `depth` (0 to 4; 2), `lit` (false), `turn` (degrees), `className`, `style`, `ref` | `<PaperSheet ratio="portrait" depth={3} lit>...</PaperSheet>` |
 | `PaperStack` | `under` (2), `className`, `ref` | `<PaperStack under={3}><PaperSheet ratio="portrait" /></PaperStack>` |
-| `Folder` | `tab` (ReactNode), `sheets` (3), `slug`, `frontClassName`, `ref`, element attributes | `<Folder tab="4 templates" sheets={3} slug={bundle.slug}>...</Folder>` |
+| `Folder` | `tab` (ReactNode), `sheets` (3), `inside` (ReactNode[], at most 3, in place of the blank sheets), `slug`, `frontClassName`, `ref`, element attributes | `<Folder tab="4 templates" inside={covers} slug={bundle.slug}>...</Folder>` |
 | `ShelfHead` | `eyebrow`, `title` (required), `titleAs` (h1, h2, h3; h2), `titleId`, `body`, `action`, `stack` (false), `className` | `<ShelfHead eyebrow="Featured" title="Featured templates" action={...} />` |
 | `BandedList` | `as` (ul, ol, dl, div; ul), `className`, `ref` | `<BandedList as="dl">...</BandedList>` |
 | `BandedRow` | `as` (li, div; li), `className` | `<BandedRow as="div">...</BandedRow>` |
@@ -490,7 +489,7 @@ All primitives live in `components/ui/`. Props are shown with their defaults in 
 | `KeepCompounds` | `text` | `<KeepCompounds text="Go/No-Go Decision Checklist" />` |
 | `Tag` | `variant` (format, saving, plain; format), `className`, children | `<Tag variant="saving">Save $36</Tag>` |
 | `FactList` | `items` ({ label, value }[]), `className` | `<FactList items={[{ label: "Type", value: "Plan" }]} />` |
-| `Icon` | `name` (arrow, chevron, plus, minus, close, tick, bars), `size` (20), `flip` (false), `className` | `<Icon name="arrow" size={32} />` |
+| `Icon` | `name` (arrow, chevron, plus, minus, close, tick, bars, search), `size` (20), `flip` (false), `className` | `<Icon name="arrow" size={32} />` |
 | `LogoMark` | `height` ("1.5em"), `className`, `title`, `tone` (one, two; one) | `<LogoMark tone="two" height="2rem" />` |
 | `BrandLockup` | `variant` (tile, bare; tile), `size` (sm, md; md), `className`, `nameClassName` | `<BrandLockup variant="bare" size="sm" />` |
 
@@ -524,8 +523,6 @@ Button sizes: `sm` is 44px below 68em and 40px from 68em; `md` is 48px; `lg` is 
 | Primitive | Props | Usage |
 | --- | --- | --- |
 | `Tally` | `total`, `filled` (number, or 1-based list), `marked` (1-based), `size` (sm, md, lg; md), `numerals` (false), `animate` (false), `label`, `anchor` ({ block, name }), `className` | `<Tally total={10} filled={9} marked={10} size="lg" anchor={{ block: 10, name: "tenth" }} />` |
-| `Odometer` | `value` (0 to 99), `suffix`, `className` | `<Odometer value={90} suffix="%" className="type-poster" />` |
-| `CountUp` | `value`, `className` (client) | `<CountUp value={59} className={styles.count} />` |
 
 `Tally` without `label` is decorative and hidden from assistive technology. With `label` it becomes an image with that label. Do not set `animate` on a tally inside a ninety sequence.
 
@@ -624,6 +621,8 @@ When the simulation is not running, each backdrop shows a WebP still. Each backd
 
 The manifest is `lib/ink/stills.json`. The stills live in `public/ink/`.
 
+A still is scaled with the width of its backdrop, with two exceptions. Below 68em the `hero` and `ninety` frames take the height of their band, centred, so their ink lands in the open water under the words instead of past the foot of a band shorter than the frame; the margins either side are the frame's own ground. The footer's `wisps` backdrop is a strip 112px tall under the legal line (`--foot` in `footer.module.css`), anchored at the bottom and faded in over its top half, so the footer's words never stand over ink.
+
 ### 10.8 Using the backdrop
 
 `InkBackdrop` takes `scene` (required), `still` (`{ wide, tall? }`), `edges`, and `className`. Its parent must be positioned, and the backdrop fills it. Content placed after the backdrop is lifted above it.
@@ -676,7 +675,7 @@ The logo is three strokes on a 32 by 24 grid: two legs meeting at a peak, and a 
 
 ### 11.4 Icon set
 
-`Icon` draws seven glyphs on a 20-unit grid with a 1.75 stroke, round caps and joins, and `currentColor`. The names are `arrow`, `chevron`, `plus`, `minus`, `close`, `tick` and `bars`. Icons are decorative (`aria-hidden`); pair them with a visible or visually hidden label.
+`Icon` draws eight glyphs on a 20-unit grid with a 1.75 stroke, round caps and joins, and `currentColor`. The names are `arrow`, `chevron`, `plus`, `minus`, `close`, `tick`, `bars` and `search` (the magnifier on the catalog search's submit button). Icons are decorative (`aria-hidden`); pair them with a visible or visually hidden label.
 
 ## 12. Do and do not
 
@@ -740,7 +739,7 @@ Scripts also query `(pointer: coarse)` and `(prefers-reduced-data: reduce)`. Sty
 - Site pages have one `header` (the banner), one `main` with `id="main"`, and one `footer` (the contentinfo landmark).
 - Navigation is labelled: `Primary` for the header, `Phases` for the rail, `Footer` for the footer, `Breadcrumb` on section pages, `Pagination` on catalog pages, and `Menu` for the site drawer.
 - The current page is marked with `aria-current="page"`, and the current section with `aria-current="true"`.
-- Decorative elements are hidden from assistive technology: the ink backdrop, the odometer, unlabelled tallies, numerals on phase tabs, and the specimen sheet.
+- Decorative elements are hidden from assistive technology: the ink backdrop, the 90% figure (its heading says it in words), unlabelled tallies, numerals on phase tabs, and the specimen sheet.
 - Each `Tally` or count with a meaning carries a `label`.
 
 ### 13.6 Motion and ink

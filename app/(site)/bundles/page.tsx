@@ -3,6 +3,7 @@ import { BundleCard } from "@/components/catalog/bundle-card";
 import { TitleBlock } from "@/components/layout/title-block";
 import { Band } from "@/components/ui/band";
 import { phaseCoverage } from "@/lib/catalog/coverage";
+import { folderCovers } from "@/lib/catalog/covers";
 import { bundleSavingsCents } from "@/lib/catalog/pricing";
 import { getBundleTemplates, getBundles, getPhases } from "@/lib/catalog/repository";
 import styles from "./page.module.css";
@@ -17,8 +18,9 @@ export const metadata: Metadata = {
 };
 
 /**
- * Every bundle as a row of a ledger, featured ones first: its folder at the left, then the title,
- * the summary and which of the rollout phases its templates reach, and the price with the saving.
+ * Every bundle as a row of a ledger, featured ones first, starting 42px under the lead: its folder
+ * at the left, with the covers of its first three templates standing in it, then the title, the summary and which of the rollout phases its templates reach, and
+ * the price with the saving.
  */
 export default async function BundlesPage() {
   const [bundles, phases] = await Promise.all([getBundles(), getPhases()]);
@@ -32,22 +34,24 @@ export default async function BundlesPage() {
           count: contents.length,
           savings: bundleSavingsCents(bundle, contents),
           coverage: phaseCoverage(phases, contents),
+          covers: folderCovers(contents, phases),
         };
       }),
   );
 
   return (
     <>
-      <TitleBlock title="Bundles" lead={LEAD} ink />
-      <Band as="div" surface="paper" pad="roomy">
+      <TitleBlock title="Bundles" lead={LEAD} ink flush />
+      <Band as="div" surface="paper" pad="tight">
         <ul className={styles.rows}>
-          {cards.map(({ bundle, count, savings, coverage }) => (
+          {cards.map(({ bundle, count, savings, coverage, covers }) => (
             <li key={bundle.slug}>
               <BundleCard
                 bundle={bundle}
                 templateCount={count}
                 savingsCents={savings}
                 coverage={coverage}
+                covers={covers}
                 headingLevel="h2"
               />
             </li>
