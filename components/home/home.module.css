@@ -6,10 +6,12 @@
 
 /*
  * Hero: the first screen. One centred column on paper: the text, the stage, the proof strip as
- * the band's foot. The column's box is as wide as the band (its padding makes up the page's
- * margins) and clips sideways, because the foot's paper runs out past both edges. The clip is
- * on the column and not on the band: a clip on an ancestor of the ink's canvas costs the engine
- * some 170ms when it starts.
+ * the band's foot. The band has no padding of its own: the column's box is the band's, edge to
+ * edge and top to bottom (its padding makes up the page's margins and the band's), and it clips
+ * sideways, because the foot's paper is drawn out past the band's sides. Downwards nothing is
+ * clipped: the foot's paper ends at the band's bottom edge by measure (`--hero-under`, the
+ * column's own bottom padding). A clip on the band, or one on the column in both directions,
+ * costs the ink's engine some 170ms when it starts, so there is neither.
  *
  * From 68em the whole of it fits the window. The column is as tall as the window leaves (the bar,
  * the rail and the beta strip taken off, 56rem at most) and the stage stands in the middle of
@@ -18,16 +20,18 @@
  * large that its longer line, 15.3 of its ems, would not fit the page) and then the
  * hand: `--hero-room` is what is left for it once the headline's two lines and the 15.5rem of
  * everything else are taken off, and the stage narrows until its hand is no taller than that. The
- * band itself is never less than 85.5% of the window; what that adds lies under the foot.
+ * band itself is never less than 85.5% of the window; what that adds is padding under the foot
+ * (`--hero-under`).
  */
 .hero.hero {
-  box-sizing: border-box;
-  padding-block: var(--s-5) var(--s-2);
+  --hero-above: var(--s-5);
+  --hero-under: var(--s-2);
 }
 
 .heroInner {
   display: grid;
   max-width: none;
+  padding-block: var(--hero-above) var(--hero-under);
   padding-inline: max(var(--page-pad), (100% - var(--page-max)) / 2);
   overflow-x: clip;
   grid-template-columns: minmax(0, 1fr);
@@ -85,7 +89,8 @@
 
 /*
  * The proof strip: a ruled row that is the band's foot. Its paper and the hairline over it run
- * the whole width of the band and down past its bottom edge (the next band lies over the rest), so the ink
+ * the whole width of the band (the column clips them at its sides) and down to its bottom edge,
+ * `--hero-under` below the strip, and no further, so the ink
  * behind the band ends at the foot as it does at the edge of a sheet, and the facts are always
  * read on paper. Two facts to a row below 40em, four from there, a hairline between them. The
  * strip leaves the band's bottom right corner to the pause button (44px, and 14px of air): below
@@ -107,7 +112,7 @@
 .proof::before {
   content: "";
   position: absolute;
-  inset: 0 -50vw -12rem;
+  inset: 0 -50vw calc(-1 * var(--hero-under));
   z-index: -1;
   border-block-start: var(--hair) solid var(--line);
   background: var(--ground);
@@ -137,7 +142,7 @@
 
 @media (min-width: 40em) {
   .hero.hero {
-    padding-block: var(--s-6) var(--s-2);
+    --hero-above: var(--s-6);
   }
 
   .heroActions {
@@ -168,9 +173,10 @@
     --hero-window: min(100svh - var(--bar-h) - var(--rail-h) - var(--strip-h, 0px), 56rem);
     --hero-size: min(var(--size-hero), 12svh - 1.375rem, (100vw - 2 * var(--page-pad)) / 15.3);
     --hero-room: calc(var(--hero-window) - 2.12 * var(--hero-size) - 15.5rem);
-
-    min-height: min(85.5svh, 56rem);
-    padding-block: var(--hero-above) var(--hero-below);
+    --hero-under: max(
+      var(--hero-below),
+      min(85.5svh, 56rem) - var(--hero-window) + var(--hero-below)
+    );
   }
 
   .heroInner {

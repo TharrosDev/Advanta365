@@ -211,6 +211,7 @@ test.describe("the hero", () => {
       await hydrated(page);
       const doc = page.getByRole("link", { name: title, exact: true }).and(page.locator(DOCS));
       // By the keyboard: a document may lie half under its neighbour, and focus brings it forward.
+      await settled(page);
       await expect(doc).toBeVisible();
       await doc.focus();
       await page.keyboard.press("Enter");
@@ -227,6 +228,7 @@ test.describe("the hero", () => {
     await page.goto("/");
     await hydrated(page);
     const docs = page.locator(DOCS);
+    await settled(page);
     await expect(docs.last()).toBeVisible();
 
     // A key press first, so that focus moved by script counts as keyboard focus.
@@ -441,6 +443,61 @@ test.describe("the hero", () => {
         expect(doc.own, doc.name).toBeGreaterThanOrEqual(44);
         expect(doc.height, doc.name).toBeGreaterThanOrEqual(44);
       }
+    });
+  }
+
+  for (const [width, height] of [
+    [1440, 900],
+    [390, 844],
+  ] as const) {
+    test(`at ${width}px the band ends at its own bottom edge: the section after it is not covered`, async ({
+      page,
+    }) => {
+      await page.setViewportSize({ width, height });
+      await page.goto("/");
+      await settled(page);
+      const heading = page.locator("#featured").getByRole("heading").first();
+      await expect(heading).toHaveText("The six free samples, one by one");
+      const hit = await page.evaluate((selector) => {
+        const band = document.querySelector(selector);
+        const title = document.querySelector("#featured h2, #featured h3");
+        if (!band || !title) return null;
+        // The foot of the band and the head of the next one in the middle of the window.
+        const edge = band.getBoundingClientRect().bottom + window.scrollY;
+        window.scrollTo({ top: edge - window.innerHeight / 2, behavior: "instant" });
+        const bottom = band.getBoundingClientRect().bottom;
+        const box = title.getBoundingClientRect();
+        const at = (x: number, y: number) => document.elementFromPoint(x, y);
+        const centre = at(box.left + box.width / 2, box.top + box.height / 2);
+        // Everything the band holds ends where the band does (the ink's own layers apart, which
+        // the backdrop clips).
+        const past = [...band.querySelectorAll("*")]
+          .filter((element) => !element.closest("[data-ink-backdrop]"))
+          .filter((element) => {
+            const rect = element.getBoundingClientRect();
+            return rect.height > 0 && rect.bottom > bottom + 0.5;
+          })
+          .map((element) => `${element.localName}.${element.getAttribute("class") ?? ""}`);
+        // And nothing drawn by it lies under its bottom edge: at five points across the window,
+        // 2px, 24px and 120px below the edge, the page is some other band's.
+        const under: string[] = [];
+        for (const share of [0.02, 0.25, 0.5, 0.75, 0.98]) {
+          for (const below of [2, 24, 120]) {
+            const found = at(window.innerWidth * share, bottom + below);
+            if (found && band.contains(found)) under.push(`${share} +${below}: ${found.localName}`);
+          }
+        }
+        return {
+          titleIsHit: !!centre && (centre === title || title.contains(centre)),
+          hitBy: centre ? `${centre.localName}.${centre.getAttribute("class") ?? ""}` : "nothing",
+          past,
+          under,
+        };
+      }, HERO);
+      expect(hit).not.toBeNull();
+      expect(hit?.titleIsHit, hit?.hitBy).toBe(true);
+      expect(hit?.past).toEqual([]);
+      expect(hit?.under).toEqual([]);
     });
   }
 

@@ -162,6 +162,18 @@ describe("a backdrop's markup", () => {
     expect(html).toMatch(/<img[^>]*fetchPriority="low"/i);
   });
 
+  it("asks for a first-screen still at high priority, and still lazily", () => {
+    const first = renderToStaticMarkup(
+      createElement(InkBackdrop, {
+        scene: "prompt",
+        still: { wide: "prompt-wide", tall: "prompt-tall" },
+        priority: true,
+      }),
+    );
+    expect(first).toMatch(/<img[^>]*fetchPriority="high"/i);
+    expect(first).toMatch(/<img[^>]*loading="lazy"/);
+  });
+
   it("uses one image when a scene has one still", () => {
     const one = renderToStaticMarkup(
       createElement(InkBackdrop, { scene: "title", still: { wide: "title" } }),

@@ -13,6 +13,12 @@ type InkBackdropProps = {
   still?: StillPair;
   /** The sides where ink must thin to nothing before the backdrop ends, space separated. */
   edges?: Edges;
+  /**
+   * The still is in the first screen, where it is the largest thing painted for a visitor without
+   * live ink: it is asked for at high priority. It stays lazy, so it is still never fetched where
+   * it is not displayed.
+   */
+  priority?: boolean;
   className?: string;
 };
 
@@ -31,7 +37,13 @@ type InkBackdropProps = {
  * colours. Hooks: `data-ink-backdrop`, `data-scene`, `data-edges`, `data-ink-state`,
  * `data-ink-still`, `data-ink-slot`, `data-ink-control`.
  */
-export function InkBackdrop({ scene, still, edges, className }: InkBackdropProps) {
+export function InkBackdrop({
+  scene,
+  still,
+  edges,
+  priority = false,
+  className,
+}: InkBackdropProps) {
   return (
     <>
       <div
@@ -55,7 +67,7 @@ export function InkBackdrop({ scene, still, edges, className }: InkBackdropProps
               alt=""
               loading="lazy"
               decoding="async"
-              fetchPriority="low"
+              fetchPriority={priority ? "high" : "low"}
             />
           </picture>
         )}

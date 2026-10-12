@@ -49,6 +49,7 @@ export function Hero({
           scene="prompt"
           still={{ wide: "prompt-wide", tall: "prompt-tall" }}
           edges="bottom"
+          priority
         />
       }
     >
