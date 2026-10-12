@@ -47,7 +47,9 @@ test.describe("phone menu", () => {
     await expect(buy(page)).toHaveAttribute("href", "/purchase");
     await expect(page.getByRole("banner").getByText("$499.99")).toBeHidden();
     await expect(page.getByRole("banner").getByRole("link", { name: /\$/ })).toHaveCount(0);
-    await expect(page.getByRole("banner").getByRole("navigation", { name: "Primary" })).toBeHidden();
+    await expect(
+      page.getByRole("banner").getByRole("navigation", { name: "Primary" }),
+    ).toBeHidden();
 
     const [brandBox, buyBox, menuBox] = await Promise.all([
       brand(page).boundingBox(),
@@ -193,6 +195,25 @@ test.describe("phone menu", () => {
 
     await drawer(page).getByText("Rollout phases", { exact: true }).click();
     await expect(drawer(page)).toBeVisible();
+  });
+
+  test("a drag that starts inside the panel and ends on the scrim leaves it open", async ({
+    page,
+  }) => {
+    await page.goto("/");
+    await openDrawer(page);
+
+    // The browser sends the click to the dialog, the common ancestor of the label and the scrim,
+    // but the press was not on the scrim, so it is a selection and not a click on the dimmed page.
+    const label = await drawer(page).getByText("Rollout phases", { exact: true }).boundingBox();
+    const viewport = page.viewportSize();
+    if (!label || !viewport) throw new Error("no label or viewport");
+    await page.mouse.move(label.x + 4, label.y + label.height / 2);
+    await page.mouse.down();
+    await page.mouse.move(8, viewport.height / 2, { steps: 5 });
+    await page.mouse.up();
+    await expect(drawer(page)).toBeVisible();
+    await expect(toggle(page)).toHaveAttribute("aria-expanded", "true");
   });
 
   test("its own Close button closes it", async ({ page }) => {

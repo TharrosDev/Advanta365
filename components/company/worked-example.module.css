@@ -1,11 +1,21 @@
 /*
  * The stack is as large as its first page, and its edges reach up to 14px past it, so the box keeps
  * clear of the column's edge. The page is the width of the aside up to 20rem.
+ *
+ * On a large monitor the aside's four columns grow faster than the root size does, and a document
+ * of 20rem would fill little more than half of them. `--grow` is how many times wider the page
+ * column is than its 77rem at the root size in use (1 up to a 1600px window, 1.15 at 2560, 1.4 from
+ * 3440), held to what the window's height allows (1.25 at 1440px, the height of an ultrawide), and
+ * never below 1; the document is drawn that much larger, as one piece. The quotient of two lengths
+ * is made a plain number by the tangent of their arc tangent.
  */
 .stack {
+  --grow: max(1, min(tan(atan2(var(--page-max), 77rem)), tan(atan2(100svh, 1150px))));
+
   width: min(100%, 18rem);
   margin-inline-end: var(--s-2);
   margin-block-end: var(--s-2);
+  zoom: var(--grow);
 }
 
 .page {

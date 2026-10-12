@@ -1,6 +1,6 @@
 /*
- * `--row` is the height of one link row: a full touch target, then 35px from 68em. `--foot` is the
- * strip under the legal line that the wisps keep to.
+ * `--row` is the height of one row of the two lists: a full touch target, then 35px from 68em.
+ * `--foot` is the strip under the legal text that the wisps keep to.
  */
 .root {
   --row: var(--tap);
@@ -23,86 +23,146 @@
 
 /*
  * The veil for the wisps is the whole footer, edge to edge; the grid stands inside its padding,
- * and the strip of the wisps is its bottom padding, under the legal line.
+ * and the strip of the wisps is its bottom padding, under the legal text.
  */
 .veil {
   padding-block: var(--s-6) var(--foot);
 }
 
 /*
- * Phone: the brand, the two navigations side by side, the status lines, the legal text. The phase
- * names are longer than the site links, so their column takes three parts of five.
+ * Phone: one column, in reading order. The groups stand 42px apart, so each list and its label
+ * read as one thing.
  */
 .grid {
   display: grid;
-  grid-template-columns: minmax(0, 2fr) minmax(0, 3fr);
-  grid-template-areas:
-    "brand brand"
-    "site phases"
-    "status status"
-    "legal legal";
+  grid-template-columns: minmax(0, 1fr);
   gap: var(--s-5) var(--col-gap);
 }
 
-.brand {
-  grid-area: brand;
-}
-
-.site {
-  grid-area: site;
-}
-
-.phases {
-  grid-area: phases;
-}
-
-.status {
-  grid-area: status;
-}
-
-.legal {
+/* The statement: the lockup, the tagline, then the button and the address. */
+.statement {
   display: grid;
-  grid-area: legal;
-  gap: var(--s-2);
-}
-
-.contact {
-  margin-block-start: var(--s-3);
-}
-
-.list {
-  margin: 0;
-  padding: 0;
-  list-style: none;
-}
-
-.row {
-  display: flex;
-  align-items: center;
-  min-height: var(--row);
+  align-content: start;
+  justify-items: start;
+  gap: var(--s-3);
 }
 
 /*
- * A link is as tall as its text, so the focus ring hugs the words; the pseudo-element stretches its
- * target to the full row.
+ * The tagline is the one line of Besley the footer sets large, and the footer's largest type: 28px.
+ * It breaks into two even lines where it has to.
  */
-.link,
-.email {
-  position: relative;
+.tagline {
+  margin: 0;
+  color: var(--text);
+  font-family: var(--face-display);
+  font-size: clamp(1.5rem, 1.2rem + 1.2vw, 1.75rem);
+  line-height: 1.2;
+  font-weight: 600;
+  font-feature-settings: "tnum" 0;
+  text-wrap: balance;
 }
 
-.link::after,
+/*
+ * The last two words are the ones the first screen sets in the highlighter. On the binder the
+ * highlighter is a line, so they stand over one, drawn clear of the descenders and kept together.
+ */
+.marked {
+  text-decoration: underline;
+  text-decoration-color: var(--mark);
+  text-decoration-thickness: calc(var(--hair) * 3);
+  text-decoration-skip-ink: none;
+  text-underline-offset: 0.24em;
+  white-space: nowrap;
+}
+
+/* A phone gets the button across the column, with the address under it. */
+.actions {
+  display: grid;
+  gap: var(--s-2);
+  width: 100%;
+}
+
+/*
+ * On the binder the primary button is the highlighter itself, with ink on it: a solid ink button
+ * would be the ground. Under the pointer and keyboard focus it dilutes to the wash, held down it
+ * goes one step deeper. Doubled to outrank the button's own hover, focus and press.
+ */
+.buy.buy {
+  border-color: var(--mark);
+  background: var(--mark);
+  color: var(--on-mark);
+}
+
+.buy.buy:focus-visible {
+  border-color: var(--mark-wash);
+  background: var(--mark-wash);
+}
+
+@media (hover: hover) {
+  .buy.buy:hover {
+    border-color: var(--mark-wash);
+    background: var(--mark-wash);
+  }
+}
+
+.buy.buy:active {
+  border-color: var(--mark-deep);
+  background: var(--mark-deep);
+}
+
+.contact {
+  margin: 0;
+}
+
+/*
+ * The address is a block of its own line height, so the stretch below is measured from the line
+ * and not from the glyphs: its target is a full 44px.
+ */
+.email {
+  position: relative;
+  display: inline-block;
+  overflow-wrap: anywhere;
+}
+
 .email::after {
   content: "";
   position: absolute;
-  inset-block: calc((1lh - var(--row)) / 2);
+  inset-block: calc((1lh - var(--tap)) / 2);
   inset-inline: 0;
 }
 
+/* The label of a list: quiet, and a little clear of the first row. */
+.label.label {
+  margin-block-end: var(--s-2);
+  color: var(--text-soft);
+}
+
+/*
+ * Both lists are ledgers on a phone and a tablet: one row to an entry, each on a hairline, the last
+ * closed by one. The seven phases become tabs from 68em.
+ */
+.ledger,
+.index {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  border-block-end: var(--hair) solid var(--line);
+}
+
+.entry {
+  border-block-start: var(--hair) solid var(--line);
+}
+
+/*
+ * A link is the width of its row and as tall as `--row`: its padding is what is left of the row
+ * once the line is in, so a name that wraps grows the row instead of leaving it. The name and a
+ * numeral share one baseline.
+ */
 .link {
-  display: inline-flex;
+  display: flex;
   align-items: baseline;
-  gap: var(--s-1);
+  gap: var(--s-2);
+  padding-block: calc((var(--row) - 1lh) / 2);
   border-radius: var(--round-1);
   color: var(--text);
   text-decoration: none;
@@ -123,46 +183,72 @@
   text-decoration-line: underline;
 }
 
-/*
- * The address is a block of its own line height, so the stretch above is measured from the line and
- * not from the glyphs: a full 44px below 68em.
- */
-.email {
-  display: inline-block;
-  overflow-wrap: anywhere;
-}
-
-/* The label of the phase list stands in for a first row, so the two lists keep one rhythm. */
-.label.label {
-  align-items: center;
-  min-height: var(--row);
-  color: var(--text-soft);
-}
-
 /* A fixed column for the numeral, so the seven names share a left edge. Besley's own figures. */
 .numeral {
   flex: none;
-  width: var(--s-2);
+  width: var(--s-3);
   color: var(--text-soft);
   font-family: var(--face-display);
-  font-size: 0.9375rem;
+  font-size: 1.125rem;
   line-height: 1;
   font-weight: 700;
   font-feature-settings: "tnum" 0;
 }
 
+.tab:focus-visible .numeral {
+  color: var(--text);
+}
+
+/*
+ * The fine print. The two status lines are the tally's blocks: the marked one is what is there
+ * (the sample catalog) and the open one is what is not yet (checkout).
+ */
+.fine {
+  display: grid;
+  gap: var(--s-4) var(--col-gap);
+}
+
 .status {
   display: grid;
+  align-content: start;
   gap: var(--s-1);
   margin: 0;
   padding: 0;
   list-style: none;
   color: var(--text-soft);
-  text-wrap: balance;
+}
+
+.here,
+.yet {
+  display: flex;
+  gap: var(--s-1);
+}
+
+.here::before,
+.yet::before {
+  --block: calc(var(--s-1) + 2 * var(--hair));
+  content: "";
+  flex: none;
+  width: var(--block);
+  height: var(--block);
+  margin-block-start: calc((1lh - var(--block)) / 2);
+  border: var(--hair) solid var(--line-firm);
+}
+
+.here::before {
+  border-color: var(--line-ink);
+  background: var(--mark);
+}
+
+.legal {
+  display: grid;
+  align-content: start;
+  gap: var(--s-2);
 }
 
 .copyright,
 .notice {
+  margin: 0;
   color: var(--text-soft);
 }
 
@@ -170,7 +256,10 @@
   max-width: 70ch;
 }
 
-/* Tablet: two columns. The status lines move up beside the brand. */
+/*
+ * Tablet: two columns. The statement and the fine print take the full width, the lists share a
+ * row.
+ */
 @media (min-width: 40em) {
   .veil {
     padding-block-start: var(--s-7);
@@ -178,68 +267,119 @@
 
   .grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
-    grid-template-areas:
-      "brand status"
-      "site phases"
-      "copyright notice";
     row-gap: var(--s-6);
   }
 
-  /* The first status line is centred on the lockup beside it. */
+  .statement,
+  .fine {
+    grid-column: 1 / -1;
+  }
+
+  .actions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--s-1) var(--s-4);
+    width: auto;
+  }
+
   .status {
-    align-content: start;
-    padding-block-start: calc((var(--s-4) - 1lh) / 2);
-  }
-
-  .legal {
-    display: contents;
-  }
-
-  .copyright {
-    grid-area: copyright;
-  }
-
-  .notice {
-    grid-area: notice;
+    grid-auto-flow: column;
+    justify-content: start;
+    gap: var(--s-1) var(--s-4);
   }
 }
 
-/* Desktop: the twelve-column grid, four parts in one row and the legal text under them. */
+/*
+ * Desktop: the twelve-column grid. The statement stands in columns 1 to 7 beside the site list
+ * (9 to 12). The phases are seven index tabs across all twelve columns, standing on one hairline
+ * like the tabs of the rail under the bar, in the binder's own raised surface. Under them the
+ * status lines (1 to 4) and the legal text (5 to 12).
+ */
 @media (min-width: 68em) {
   .root {
     --row: calc(var(--s-1) * 5);
   }
 
-  .grid {
-    grid-template-columns: repeat(12, minmax(0, 1fr));
-    grid-template-areas: none;
+  .veil {
+    padding-block-start: var(--s-6);
   }
 
-  /* Each first line is centred in the first 35px row: the lockup, a link, the label, a status. */
-  .brand {
-    grid-area: 1 / 1 / auto / span 4;
-    padding-block-start: calc((var(--row) - var(--s-4)) / 2);
+  .grid {
+    grid-template-columns: repeat(12, minmax(0, 1fr));
+    row-gap: var(--s-5);
+  }
+
+  /*
+   * Beside the site list the statement is as tall as the list: the lockup at the label's line, the
+   * button on the list's last hairline, and the tagline in the room between.
+   */
+  .statement {
+    grid-column: 1 / span 7;
+    align-content: space-between;
   }
 
   .site {
-    grid-area: 1 / 5 / auto / span 3;
+    grid-column: 9 / -1;
   }
 
   .phases {
-    grid-area: 1 / 8 / auto / span 3;
+    grid-column: 1 / -1;
+  }
+
+  .index {
+    display: grid;
+    grid-template-columns: repeat(7, minmax(0, 1fr));
+    gap: var(--s-1);
+    border-block-end-color: var(--line-firm);
+  }
+
+  .index .entry {
+    display: grid;
+    border: 0;
+  }
+
+  /*
+   * A tab: the numeral above, the name at the foot. The top and sides are always drawn and only
+   * the top takes the highlighter, so no tab changes size.
+   */
+  .tab {
+    flex-direction: column;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: var(--s-3);
+    min-height: calc(var(--s-1) * 12);
+    padding: var(--s-2) clamp(0.5rem, 0.1rem + 0.9vw, 0.875rem);
+    border: solid var(--line);
+    border-width: var(--edge) var(--hair) 0;
+    border-radius: var(--round-2) var(--round-2) 0 0;
+    background: var(--surface);
+    transition: border-color var(--time-swap) linear;
+  }
+
+  .tab .numeral {
+    width: auto;
+    font-size: 1.5rem;
+  }
+
+  .tab:focus-visible {
+    position: relative;
+    z-index: 1;
+    border-block-start-color: var(--mark);
+  }
+
+  .fine {
+    grid-column: 1 / -1;
+    grid-template-columns: repeat(12, minmax(0, 1fr));
   }
 
   .status {
-    grid-area: 1 / 11 / auto / span 2;
-    padding-block-start: calc((var(--row) - 1lh) / 2);
+    grid-column: 1 / span 4;
+    grid-auto-flow: row;
   }
 
-  .copyright {
-    grid-area: 2 / 1 / auto / span 4;
-  }
-
-  .notice {
-    grid-area: 2 / 5 / auto / -1;
+  .legal {
+    grid-column: 5 / -1;
   }
 }
 
@@ -247,11 +387,41 @@
   .link:hover .name {
     text-decoration-line: underline;
   }
+
+  .tab:hover {
+    border-block-start-color: var(--mark);
+  }
+
+  .tab:hover .numeral {
+    color: var(--text);
+  }
 }
 
-/* The binder's ground is dropped in forced colours: a system edge marks where the footer starts. */
+/* Raised contrast: the hairlines are the firm ones. */
+@media (prefers-contrast: more) {
+  .ledger,
+  .index,
+  .entry,
+  .tab {
+    border-color: var(--line-firm);
+  }
+}
+
+/*
+ * The binder's ground is dropped in forced colours: a system edge marks where the footer starts,
+ * and the blocks and tabs keep system edges of their own.
+ */
 @media (forced-colors: active) {
   .root {
     border-block-start: var(--hair) solid CanvasText;
+  }
+
+  .here::before {
+    background: CanvasText;
+  }
+
+  .yet::before,
+  .tab {
+    border-color: CanvasText;
   }
 }

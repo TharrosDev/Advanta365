@@ -68,10 +68,11 @@
 }
 
 /*
- * While it fades the cover does not take the pointer, and its last frame, which is held, keeps it
- * out of sight for good. Three names: a change of name starts a new animation, where a change of
- * duration would only retime the one that is running. On its own way out the paper stays opaque
- * for the first 40% (--sign-leave of --leave), while the signature fades on it.
+ * While it fades on its own way out (`cover-leave`, `cover-ink`) the cover does not take the
+ * pointer, and its last frame, which is held, keeps it out of sight for good. Three names: a
+ * change of name starts a new animation, where a change of duration would only retime the one that
+ * is running. On its own way out the paper stays opaque for the first 40% (--sign-leave of
+ * --leave), while the signature fades on it.
  */
 @keyframes cover-leave {
   from {
@@ -101,15 +102,17 @@
   }
 }
 
+/*
+ * The skip is the exception: it keeps the pointer for all of its 200ms and sets no `pointer-events`
+ * at all, in either frame (a discrete property flips halfway through an eased animation). The press
+ * that began it is still down, and a touch's click is aimed where the finger lifts: a cover that
+ * already let the pointer through would hand that click to the link under it. `visibility` ends
+ * the hit-testing, on the last frame.
+ */
 @keyframes cover-skip {
-  from {
-    pointer-events: none;
-  }
-
   to {
     visibility: hidden;
     opacity: 0;
-    pointer-events: none;
   }
 }
 
@@ -165,17 +168,32 @@
   animation: sign-out var(--ink-sign) linear calc(var(--ink-sign-at) - var(--taken, 0ms)) forwards;
 }
 
-/* 84px high on a phone, 112px from 40em; the width follows the 4:3 view box. */
+/*
+ * 84px high on a phone, 112px from 40em; the width follows the 4:3 view box. On a large monitor
+ * from 68em the signature grows with the window, to an eighth of its height (and no more than 7%
+ * of its width), so that it stands in the paper as it does on a desktop and not as a speck: that
+ * is more than 112px only from about 1700px of window. The name beneath it keeps its proportion.
+ */
+.signature {
+  --mark-h: var(--s-7);
+}
+
 .logo {
   display: block;
   width: auto;
-  height: var(--s-7);
+  height: var(--mark-h);
   aspect-ratio: 4 / 3;
 }
 
 @media (min-width: 40em) {
-  .logo {
-    height: var(--s-8);
+  .signature {
+    --mark-h: var(--s-8);
+  }
+}
+
+@media (min-width: 68em) {
+  .signature {
+    --mark-h: max(var(--s-8), min(12.4svh, 7vw));
   }
 }
 
@@ -227,11 +245,11 @@
   --digit: 2;
 }
 
-/* The name, as one word, 21px under the mark. Never larger than this anywhere. */
+/* The name, as one word, 21px under the mark, a quarter of its height. */
 .name {
-  margin-block-start: var(--s-3);
+  margin-block-start: max(var(--s-3), var(--mark-h) * 0.1875);
   font-family: var(--face-display);
-  font-size: var(--s-4);
+  font-size: max(var(--s-4), var(--mark-h) / 4);
   line-height: 1;
   font-weight: 700;
   letter-spacing: 0;

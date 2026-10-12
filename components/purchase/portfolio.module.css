@@ -53,6 +53,11 @@
   transform-origin: 50% 100%;
 }
 
+/* The sheet inside leans the same angle again: that doubled lean is the look of the pocket. */
+.cover :global([data-paper]) {
+  --sheet-turn: var(--turn, 0deg);
+}
+
 /* The format tag is printed with the page: it shrinks with a cover that is a thumbnail's size. */
 .coverTag.coverTag {
   top: clamp(3px, 1.2cqi, var(--s-1));

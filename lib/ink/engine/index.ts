@@ -30,11 +30,14 @@ import type {
 } from "../types";
 import {
   BUDGET,
+  CADENCE_FRAMES,
   isTier,
   LOOK_DEFAULTS,
   MAX_CALM,
   MAX_SWELL,
+  medianOf,
   SIM_DEFAULTS,
+  slowFrameMs,
   TIER_ORDER,
   TIERS,
   type Look,
@@ -284,6 +287,9 @@ export function createInk(canvas: HTMLCanvasElement, userOptions: InkOptions): I
   let frameIndex = 0;
   let frameFilled = 0;
   let slowFrames = 0;
+  /** The display's own frame interval, timed over the first frames of a run; 0 until it is known. */
+  let cadenceMs = 0;
+  const cadenceSamples: number[] = [];
   const cleanup: (() => void)[] = [];
 
   /** Set while the first probe waits between two tiers: the engine is not to be used yet. */
@@ -691,7 +697,8 @@ export function createInk(canvas: HTMLCanvasElement, userOptions: InkOptions): I
     presetName = name;
     if (!usable()) return api;
     random = makeRandom(options.seed);
-    anchors = overrides.anchors ?? {};
+    anchors =
+      (typeof overrides.anchors === "function" ? overrides.anchors() : overrides.anchors) ?? {};
     scene = make(context());
     sim = { ...SIM_DEFAULTS, ...scene.sim, ...(overrides.sim as Partial<Sim> | undefined) };
     look = { ...LOOK_DEFAULTS, ...scene.look, ...(overrides.look as Partial<Look> | undefined) };
@@ -989,8 +996,17 @@ export function createInk(canvas: HTMLCanvasElement, userOptions: InkOptions): I
     if (!running) return;
     raf = requestAnimationFrame(frame);
     const stepMs = 1000 / options.stepsPerSecond;
-    const elapsed = lastNow ? Math.min(100, now - lastNow) : stepMs;
+    const timed = lastNow > 0;
+    const elapsed = timed ? Math.min(100, now - lastNow) : stepMs;
     lastNow = now;
+    // The first frames of a run time the display itself (its cap, if it has one): see `watch`.
+    if (timed && !cadenceMs) {
+      cadenceSamples.push(elapsed);
+      if (cadenceSamples.length >= CADENCE_FRAMES) {
+        cadenceMs = medianOf(cadenceSamples);
+        cadenceSamples.length = 0;
+      }
+    }
     frameTimes[frameIndex] = elapsed;
     frameIndex = (frameIndex + 1) % frameTimes.length;
     frameFilled = Math.min(frameTimes.length, frameFilled + 1);
@@ -1008,9 +1024,15 @@ export function createInk(canvas: HTMLCanvasElement, userOptions: InkOptions): I
     if (options.adapt) watch(elapsed);
   }
 
-  /** Frames that stay slow cost a tier; at the lowest tier they are reported as "slow". */
+  /**
+   * Frames that stay slow cost a tier; at the lowest tier they are reported as "slow". A frame is
+   * slow against the display's own cadence (`slowFrameMs`), so a display capped at 30 Hz, whose
+   * frames all come 33 ms apart with the GPU idle between them, is not taken for a slow machine.
+   * Nothing is counted until the cadence is known.
+   */
   function watch(elapsed: number) {
-    slowFrames = elapsed > 24 ? slowFrames + 1 : Math.max(0, slowFrames - 2);
+    if (!cadenceMs) return;
+    slowFrames = elapsed > slowFrameMs(cadenceMs) ? slowFrames + 1 : Math.max(0, slowFrames - 2);
     if (slowFrames <= 75) return;
     slowFrames = 0;
     const i = TIER_ORDER.indexOf(tierName);
@@ -1026,6 +1048,9 @@ export function createInk(canvas: HTMLCanvasElement, userOptions: InkOptions): I
       lastNow = 0;
       acc = 0;
       slowFrames = 0;
+      // The display may have changed its rate while the loop stood still (a power mode, a screen).
+      cadenceMs = 0;
+      cadenceSamples.length = 0;
       raf = requestAnimationFrame(frame);
     } else if (!should && running) {
       running = false;

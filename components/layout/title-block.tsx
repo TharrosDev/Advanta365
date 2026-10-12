@@ -12,11 +12,11 @@ function has(node: ReactNode): boolean {
 }
 
 /**
- * The band that opens every inner page, on white paper. It holds the page's only `<h1>`, whose text
- * is exactly `title`, and it is the one block of the page that changes with the route
- * (`PageShift`). The title never animates; the lead drifts in as the page loads. A hyphenated
- * compound in the title ("End-User") is kept whole, so the title breaks at its spaces. There is no
- * rule in the margin.
+ * The band that opens an inner page (every one but the catalog, which opens on its results), on
+ * white paper. It holds the page's only `<h1>`, whose text is exactly `title`, and it is the one
+ * block of the page that changes with the route (`PageShift`). The title never animates; the lead
+ * drifts in as the page loads. A hyphenated compound in the title ("End-User") is kept whole, so
+ * the title breaks at its spaces. There is no rule in the margin.
  *
  * `form` chooses the layout from 68em:
  * - `index` (short titles, in `.type-banner`): the h1 stands in the margin; the lead and `children`
@@ -30,16 +30,15 @@ function has(node: ReactNode): boolean {
  * `aside` is an object (a stack of sheets, a numeral) in columns 9 to 12 from 68em, and under the
  * lead below it; the words then keep to columns 1 to 8.
  *
- * `ink` puts the `title` ink in the right 42% of the block, from 40em, and makes the block at least
- * 20rem tall from 68em. The title, the lead and `children` are one calm rectangle for it (the words
- * need no more room than that), so the ink thins under them and nowhere else.
+ * `ink` puts the `title` ink in the right 42% of the block, and makes the block at least 20rem tall,
+ * both from 68em (below it there is no ink). The title, the lead and `children` are one calm
+ * rectangle for it (the words need no more room than that), so the ink thins under them and nowhere
+ * else.
  *
- * `flush` is for a page whose products start right under the title (an index, the catalog): the block
- * keeps no padding under its words, and no least height for the ink, so the padding of the band
- * that follows is the one space between the title and the first product. Give that band
- * `pad="tight"`.
- *
- * Below 68em every form is one column in the same order: crumbs, meta, h1, lead, children, aside.
+ * Below 68em every form is one column in the same order: crumbs, meta, h1, lead, children, aside;
+ * with an aside, from 40em the words and the aside stand side by side (the aside is 18rem at most,
+ * at the right), so a tablet's first screen is not a column of words over an object with half of
+ * every row empty.
  */
 export function TitleBlock({
   title,
@@ -49,7 +48,6 @@ export function TitleBlock({
   meta,
   children,
   ink = false,
-  flush = false,
   aside,
 }: {
   title: string;
@@ -59,7 +57,6 @@ export function TitleBlock({
   meta?: ReactNode;
   children?: ReactNode;
   ink?: boolean;
-  flush?: boolean;
   aside?: ReactNode;
 }) {
   const hasLead = has(lead);
@@ -138,7 +135,7 @@ export function TitleBlock({
         as="div"
         surface="paper"
         pad="none"
-        className={cx(styles.block, ink && styles.inked, flush && styles.flush)}
+        className={cx(styles.block, ink && styles.inked)}
         backdrop={
           ink ? (
             <InkBackdrop
@@ -150,7 +147,9 @@ export function TitleBlock({
           ) : undefined
         }
       >
-        <div className={styles.grid}>
+        <div
+          className={cx(styles.grid, hasAside && styles.paired, form === "index" && styles.measure)}
+        >
           <div
             className={cx(styles.words, styles[form], span)}
             data-ink-calm={ink ? "text" : undefined}

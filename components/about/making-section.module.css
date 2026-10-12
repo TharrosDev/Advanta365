@@ -1,0 +1,88 @@
+/*
+ * Stacked: the head, the four passes, the seven phases. Where the row holds the head (22rem) and
+ * the passes (28rem) side by side, which a wide tablet does from about 55em, they stand beside each
+ * other (the row wraps by itself) and the phases are the full width under both. From 68em the head
+ * takes columns 1 to 4 and stays under the bar, the ledger columns 6 to 12 beside it, and the
+ * phases the full width under both.
+ */
+.grid {
+  display: flex;
+  flex-wrap: wrap;
+  column-gap: var(--s-5);
+  row-gap: var(--s-6);
+}
+
+.slot {
+  flex: 4 1 22rem;
+  min-width: 0;
+}
+
+.steps {
+  flex: 7 1 28rem;
+  min-width: 0;
+}
+
+.phases {
+  flex: 1 1 100%;
+  min-width: 0;
+}
+
+/*
+ * A pass: the verb and its tally on one line, the sentence under them. The row's own padding is the
+ * room around its text; the hairline above it is the ledger's.
+ */
+.step.step {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  column-gap: var(--s-3);
+  align-items: baseline;
+  padding-block: var(--s-4);
+}
+
+.verb {
+  min-width: 0;
+  color: var(--text);
+}
+
+/* Four blocks of 19px with three gaps of 7px. */
+.passes {
+  display: block;
+  width: calc(var(--s-1) * 14);
+}
+
+.body {
+  grid-column: 1 / -1;
+  max-width: var(--wrap-copy);
+  margin-block-start: var(--s-1);
+  color: var(--text-soft);
+}
+
+@media (min-width: 68em) {
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(12, minmax(0, 1fr));
+    column-gap: var(--col-gap);
+    row-gap: var(--s-7);
+  }
+
+  .slot {
+    grid-column: 1 / span 4;
+  }
+
+  /*
+   * A sticky grid item is held by the grid container and not by its own row, so the head sticks
+   * inside the slot, which ends where the ledger does.
+   */
+  .head {
+    position: sticky;
+    top: calc(var(--bar-h) + var(--s-4));
+  }
+
+  .steps {
+    grid-column: 6 / -1;
+  }
+
+  .phases {
+    grid-column: 1 / -1;
+  }
+}

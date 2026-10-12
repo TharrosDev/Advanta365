@@ -1,0 +1,182 @@
+/* The register lies 56px under the head, with 14px around it for the sheets beneath it. */
+.book {
+  margin-block-start: var(--s-6);
+}
+
+/*
+ * The sheet is ruled paper: the rows run to its edges, so their hairlines are the ruling. The
+ * column labels are the wide layout's; the rows carry their own below it.
+ */
+.head {
+  display: none;
+}
+
+.ledger {
+  border-block-end: 0;
+}
+
+/* The sheet's own top edge is the first rule. */
+.row:first-child::before {
+  display: none;
+}
+
+/*
+ * A buyer. Stacked: the numeral tile beside the name, then the concern under both, lined up with
+ * the name. Where the sheet is wide enough for the name (20rem) and the concern (16rem) side by
+ * side, they share the line, which a tablet's sheet is from about 52em (the row wraps by itself;
+ * the concern's margin is the numeral and its gap, so it lines up under the name when it drops).
+ * From 68em the three stand in one row on the twelve columns, each by the first line of its own
+ * text. The row's inline padding is the sheet's margin: its hairline runs across it.
+ */
+.row.row {
+  display: flex;
+  flex-wrap: wrap;
+  column-gap: var(--s-2);
+  row-gap: var(--s-2);
+  align-items: start;
+  padding: var(--s-4) var(--s-2);
+}
+
+/* Besley's own figures: see the note on the display classes in globals.css. */
+.numeral {
+  display: grid;
+  flex: none;
+  place-items: center;
+  width: var(--s-4);
+  height: var(--s-4);
+  margin-block-start: var(--s-1);
+  border-radius: var(--round-1);
+  background: var(--tile);
+  color: var(--text);
+  font-family: var(--face-display);
+  font-size: var(--size-note);
+  line-height: 1;
+  font-weight: 700;
+  font-feature-settings: "tnum" 0;
+}
+
+.name {
+  flex: 1 1 min(20rem, calc(100% - 3rem));
+  min-width: 0;
+  color: var(--text);
+}
+
+.cares {
+  flex: 1 1 min(16rem, calc(100% - 3rem));
+  grid-column: 2;
+  min-width: 0;
+  margin-inline-start: calc(var(--s-4) + var(--s-2));
+}
+
+.label {
+  color: var(--text-faint);
+}
+
+.value {
+  margin-block-start: var(--s-1);
+  color: var(--text-soft);
+  text-wrap: pretty;
+}
+
+/* A bare ink tick, never a box: nothing about a statement of fact looks selectable. */
+.proof {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--s-1);
+  margin-block-start: var(--s-2);
+  color: var(--text);
+}
+
+.tick {
+  margin-block-start: calc((1lh - 1.25rem) / 2);
+}
+
+.beyond {
+  margin-block-start: var(--s-6);
+}
+
+@media (min-width: 40em) {
+  .row.row {
+    padding-inline: var(--s-4);
+  }
+
+  /*
+   * From 40em to 68em the sheets beneath the register turn by up to 2 degrees under a tall page,
+   * and with the page margin of 28px their corners reach past the window: the register stands 14px
+   * in from the text, which keeps them inside. From 68em the margin is 42px and the sheet shorter.
+   */
+  .book {
+    margin-inline: var(--s-2);
+  }
+}
+
+@media (min-width: 68em) {
+  .book {
+    margin-inline: 0;
+  }
+
+  .head {
+    display: grid;
+    grid-template-columns: repeat(12, minmax(0, 1fr));
+    column-gap: var(--col-gap);
+    padding: var(--s-2) var(--s-5);
+    border-block-end: var(--hair) solid var(--line);
+    background: var(--stripe);
+    color: var(--text-faint);
+  }
+
+  .headBuyer {
+    grid-column: 2 / span 6;
+  }
+
+  .headCares {
+    grid-column: 8 / -1;
+  }
+
+  .row.row {
+    display: grid;
+    grid-template-columns: repeat(12, minmax(0, 1fr));
+    column-gap: var(--col-gap);
+    row-gap: 0;
+    padding: var(--s-5);
+  }
+
+  /* The margin line: between the numerals and the names, through the rows into one line. */
+  .row::after {
+    content: "";
+    position: absolute;
+    inset-block: 0;
+    left: calc(
+      var(--s-5) + (100% - 2 * var(--s-5) - 11 * var(--col-gap)) / 12 + var(--col-gap) / 2
+    );
+    width: var(--hair);
+    background: var(--line);
+    pointer-events: none;
+  }
+
+  .numeral {
+    grid-column: 1;
+    margin-block-start: var(--s-1);
+  }
+
+  .name {
+    grid-column: 2 / span 6;
+  }
+
+  .cares {
+    grid-column: 8 / -1;
+    margin-inline-start: 0;
+    padding-block-start: var(--s-1);
+  }
+
+  /* The head row carries the label: it stays in the page for assistive technology only. */
+  .label {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    margin: -1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+}

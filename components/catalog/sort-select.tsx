@@ -1,6 +1,7 @@
 "use client";
 
 import { useRouter } from "next/navigation";
+import { useOptimistic, useTransition } from "react";
 import { Select } from "@/components/ui/select";
 import type { CatalogCriteria, SortKey } from "@/lib/catalog/query";
 import { cx } from "@/lib/cx";
@@ -15,20 +16,27 @@ const OPTIONS: { value: SortKey; label: string }[] = [
 
 /**
  * The sort order of the catalog: a small label over a native select. A change goes straight to the
- * URL and returns to the first page.
+ * URL and returns to the first page; the select shows the new order at once, as the filters tick
+ * their boxes, and not only when the server has answered.
  */
 export function SortSelect({ criteria }: { criteria: CatalogCriteria }) {
   const router = useRouter();
+  const [isPending, startTransition] = useTransition();
+  const [sort, setOptimisticSort] = useOptimistic(criteria.sort);
 
   return (
     <label className={styles.row}>
       <span className={cx("type-eyebrow", styles.label)}>Sort by</span>
       <Select
-        value={criteria.sort}
+        value={sort}
+        aria-busy={isPending}
         onChange={(event) => {
-          const sort = event.target.value as SortKey;
-          const query = serializeCatalogParams({ ...criteria, sort, page: 1 });
-          router.replace(query ? `/catalog?${query}` : "/catalog", { scroll: false });
+          const next = event.target.value as SortKey;
+          const query = serializeCatalogParams({ ...criteria, sort: next, page: 1 });
+          startTransition(() => {
+            setOptimisticSort(next);
+            router.replace(query ? `/catalog?${query}` : "/catalog", { scroll: false });
+          });
         }}
       >
         {OPTIONS.map((option) => (

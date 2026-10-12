@@ -26,6 +26,13 @@ export const INTRO_PATH = "/";
 /** What ends the cover at once: a press, a key, a turn of the wheel, a finger on the screen. */
 export const INTRO_SKIP_EVENTS = ["pointerdown", "keydown", "wheel", "touchstart"] as const;
 
+/**
+ * After a touch (or a pen) ends the cover, the first click is swallowed for this long. A touch's
+ * click is aimed when the finger lifts, not when it came down, and the cover is gone 200 ms after
+ * the press: a tap held longer than that would otherwise click the link that lies under it.
+ */
+export const INTRO_CLICK_GUARD_MS = 600;
+
 /** The cover is taken off this long after the script ran, whatever else happened. */
 export const INTRO_BACKSTOP_MS = 5500;
 

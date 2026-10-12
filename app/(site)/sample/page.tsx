@@ -87,6 +87,7 @@ export default async function SamplePage() {
 
       <Band surface="paper">
         <Split
+          contentClassName={styles.measure}
           margin={
             <h2 id="contents-title" className="type-section">
               {CONTENTS_TITLE}
@@ -112,7 +113,7 @@ export default async function SamplePage() {
                   <p className={cx("type-ui", styles.see)}>
                     <span className={styles.seeKind}>{section.link.kind}: </span>
                     {section.link.href ? (
-                      <TextLink href={section.link.href}>
+                      <TextLink href={section.link.href} className={styles.seeLink}>
                         <KeepCompounds text={section.link.label} />
                       </TextLink>
                     ) : (
@@ -128,6 +129,7 @@ export default async function SamplePage() {
 
       <Band surface="desk">
         <Split
+          contentClassName={styles.measure}
           margin={
             // The nav carries the name; the visible label only repeats it.
             <div aria-hidden="true">

@@ -9,7 +9,8 @@
  *   [data-nav-underline]                           the bar’s underline, which slides to the current link
  *   [data-ninety]                                  the one band whose tally follows the scroll
  *   [data-price-tag]                               the paper tag on its string, which swings
- *   [data-tile][data-denied], [data-lock]          a locked tile saying no, and its padlock
+ *   [data-tile][data-denied], [data-lock],
+ *   [data-well]                                    a locked tile saying no, its padlock and wash
  *   [data-template-dialog][data-enter]             the pop-up of the catalog arriving
  *   [data-hero-stage], [data-hero-prompt],
  *   [data-hero-doc], [data-landed]                 the hero: a prompt box that becomes documents
@@ -443,68 +444,171 @@
 
   /*
    * A locked tile saying no (components/catalog/locked-tile.tsx sets `data-denied` on the tile for
-   * 600ms). Three things happen at once and are over inside that time. The tile shakes: 6px to the
-   * left and to the right, five swings in 420ms. The padlock rattles about the top of its bow,
-   * sharper and a little longer: 12 degrees each way, dying down. The outline, which is the alert
-   * colour for as long as the state lasts, pulses: it comes, goes and comes back. When the state
-   * goes the outline fades instead of cutting out. Under reduced motion none of this is read, and
-   * the outline simply stands for the 600ms.
+   * 600ms). It is a vibration, not a swing. The tile buzzes sideways about 15 times a second, a
+   * stop every 33ms (two frames at 60fps), and each swing is a sixth smaller than the one before:
+   * 3px at the first, rest at 467ms. Every stop also carries a little up and down (1px at most) and
+   * a little turn (0.3 degrees at most), out of step with the sideways swing, so that the tile
+   * shivers and does not slide. The timing is linear, so nothing dwells at the end of a swing. The
+   * padlock rattles about the crossing it hangs on at the same pace, 3 degrees to start, and rings
+   * a little longer (500ms). It turns by `transform` and not by `rotate`: the browser runs the turn
+   * of an SVG element on the compositor only through `transform`, and so the rattle costs the page
+   * no work per frame (the tile's own `translate` and `rotate` are on an HTML element and are fine).
+   * The red comes with a hit and goes with a fade: the outline is the alert colour within two
+   * frames and thins away to nothing, and the wash under the cover (a pseudo-element whose opacity
+   * moves; the well's own ground never changes) rises in 100ms and falls away by 560ms. All of it
+   * is over, and holds its end, before the state goes at 600ms. A tile that holds keyboard focus
+   * does not pulse its outline: that outline is its focus ring, and it stays.
+   *
+   * It plays where a script has set `data-motion="on"`. Without one, and under reduced motion, the
+   * state is only its static look (components/catalog/template-tile.module.css): the alert outline
+   * and the wash for as long as the state stands.
    */
   @keyframes tile-shake {
-    10%,
-    50%,
-    90% {
-      translate: -6px 0;
+    7.143% {
+      translate: -3px 1px;
+      rotate: 0.3deg;
     }
 
-    30%,
-    70% {
-      translate: 6px 0;
+    14.286% {
+      translate: 2.49px 0px;
+      rotate: 0.25deg;
+    }
+
+    21.429% {
+      translate: -2.07px -0.69px;
+      rotate: -0.21deg;
+    }
+
+    28.571% {
+      translate: 1.72px 0px;
+      rotate: -0.17deg;
+    }
+
+    35.714% {
+      translate: -1.42px 0.47px;
+      rotate: 0.14deg;
+    }
+
+    42.857% {
+      translate: 1.18px 0px;
+      rotate: 0.12deg;
+    }
+
+    50% {
+      translate: -0.98px -0.33px;
+      rotate: -0.1deg;
+    }
+
+    57.143% {
+      translate: 0.81px 0px;
+      rotate: -0.08deg;
+    }
+
+    64.286% {
+      translate: -0.68px 0.23px;
+      rotate: 0.07deg;
+    }
+
+    71.429% {
+      translate: 0.56px 0px;
+      rotate: 0.06deg;
+    }
+
+    78.571% {
+      translate: -0.47px -0.16px;
+      rotate: -0.05deg;
+    }
+
+    85.714% {
+      translate: 0.39px 0px;
+      rotate: -0.04deg;
+    }
+
+    92.857% {
+      translate: -0.32px 0.11px;
+      rotate: 0.03deg;
     }
   }
 
   @keyframes lock-rattle {
-    8% {
-      rotate: -12deg;
+    6.667% {
+      transform: rotate(-3deg);
+    }
+
+    13.333% {
+      transform: rotate(2.52deg);
     }
 
     20% {
-      rotate: 12deg;
+      transform: rotate(-2.12deg);
     }
 
-    32% {
-      rotate: -12deg;
+    26.667% {
+      transform: rotate(1.78deg);
     }
 
-    44% {
-      rotate: 10deg;
+    33.333% {
+      transform: rotate(-1.49deg);
     }
 
-    56% {
-      rotate: -8deg;
+    40% {
+      transform: rotate(1.25deg);
     }
 
-    68% {
-      rotate: 6deg;
+    46.667% {
+      transform: rotate(-1.05deg);
+    }
+
+    53.333% {
+      transform: rotate(0.89deg);
+    }
+
+    60% {
+      transform: rotate(-0.74deg);
+    }
+
+    66.667% {
+      transform: rotate(0.62deg);
+    }
+
+    73.333% {
+      transform: rotate(-0.52deg);
     }
 
     80% {
-      rotate: -3deg;
+      transform: rotate(0.44deg);
     }
 
-    92% {
-      rotate: 1.5deg;
+    86.667% {
+      transform: rotate(-0.37deg);
+    }
+
+    93.333% {
+      transform: rotate(0.31deg);
     }
   }
 
   @keyframes denied-pulse {
     0%,
-    50% {
+    100% {
       outline-color: transparent;
     }
 
-    25% {
+    6%,
+    30% {
       outline-color: var(--alert);
+    }
+  }
+
+  @keyframes denied-wash {
+    0%,
+    100% {
+      opacity: 0;
+    }
+
+    18%,
+    38% {
+      opacity: 1;
     }
   }
 
@@ -512,14 +616,28 @@
     transition: outline-color var(--time-exit) linear;
   }
 
-  [data-tile][data-denied] {
+  html[data-motion="on"] [data-tile][data-denied] {
     animation:
-      tile-shake 420ms ease-in-out,
-      denied-pulse 560ms ease-in-out;
+      tile-shake 467ms linear,
+      denied-pulse 560ms ease-out forwards;
   }
 
-  [data-tile][data-denied] [data-lock] {
-    animation: lock-rattle 480ms ease-in-out;
+  /*
+   * A tile that holds keyboard focus keeps its focus ring: the tile's outline is the only mark of
+   * focus on a locked tile, and a running animation of `outline-color` (which ends on transparent
+   * and holds it) would take that ring away for the length of the denial. The shake, the wash and
+   * the padlock still say no. `tile-shake` keeps its place in the list, so it does not restart.
+   */
+  html[data-motion="on"] [data-tile][data-denied]:has(:focus-visible) {
+    animation: tile-shake 467ms linear;
+  }
+
+  html[data-motion="on"] [data-tile][data-denied] [data-lock] {
+    animation: lock-rattle 500ms linear;
+  }
+
+  html[data-motion="on"] [data-tile][data-denied] [data-well]::before {
+    animation: denied-wash 560ms ease-out forwards;
   }
 
   /*
@@ -663,12 +781,9 @@
   /*
    * Page changes (components/ui/page-shift.tsx and the shared covers and folders). The page
    * itself swaps at once; only the first block of a page leaves and arrives, and a sheet or a
-   * folder that exists on both pages travels. Clicks reach the page all the while.
+   * folder that exists on both pages travels. Clicks reach the page all the while (the rule that
+   * says so stands below, outside this query, so it holds under reduced motion too).
    */
-  ::view-transition {
-    pointer-events: none;
-  }
-
   ::view-transition-old(root) {
     display: none;
   }
@@ -689,6 +804,15 @@
     animation-duration: var(--time-morph);
     animation-timing-function: var(--curve-settle);
   }
+}
+
+/*
+ * The layer of a page change takes no pointer events, whatever the motion setting: React starts a
+ * view transition under reduced motion too, and for the frame or two it lasts a click must still
+ * reach the page and not the snapshot.
+ */
+::view-transition {
+  pointer-events: none;
 }
 
 /* Reduced motion: a page change is a plain swap, with nothing left of the page before. */

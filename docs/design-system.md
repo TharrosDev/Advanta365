@@ -20,12 +20,12 @@ Six principles guide every decision:
 | Path | What it holds |
 | --- | --- |
 | `app/globals.css` | Every colour, type, space, depth, shape, layer and motion token; the band definitions; base element rules; the type classes; the reduced-motion safety net; the forced-colours rules. |
-| `app/motion.css` | Entrances, view transitions, paper and lift behaviour, the sticky bar's shadow, the bar's sliding underline, the ninety-percent scroll sequence, the price tag's swing, a locked tile saying no, the pop-up's arrival and the hero's sequence. Imported first by `globals.css`. |
+| `app/motion.css` | Entrances, view transitions, paper and lift behaviour, the sticky bar's shadow, the bar's sliding underline, the ninety-percent scroll sequence, the price tag's swing, a locked tile saying no (a vibration, a rattle and a wash), the pop-up's arrival and the hero's sequence. Imported first by `globals.css`. |
 | `app/layout.tsx` | Font loading (Besley and Atkinson Hyperlegible Next as CSS variables), root attributes, the boot script, and `MotionRoot`. |
 | `app/icon.svg` | The site icon: the logo mark on an ink tile. |
 | `lib/brand/mark.ts` | The logo geometry, the single source for the mark path data. |
 | `components/ui/` | The UI primitives described in section 9. |
-| `components/catalog/`, `components/purchase/`, `components/home/`, `components/layout/` | Feature components built from the primitives (section 9.8): the template tiles, locks and pop-up, the portfolio and its price tag, the hero, the bar's purchase button. |
+| `components/catalog/`, `components/purchase/`, `components/about/`, `components/home/`, `components/layout/` | Feature components built from the primitives (section 9.8): the template tiles, locks and pop-up, the portfolio, its price tag and the contents leaf, the sections of the About page, the hero, the bar's purchase button and the footer. |
 | `components/ink/`, `lib/ink/` | The ink layer: the backdrop component, the controller, the engine, scenes, zones and stills. |
 | `lib/boot/` | The inline boot script and the pure functions it mirrors. |
 | `lib/scroll/` | The scroll-seen observer and the pointer light tracker. |
@@ -60,19 +60,19 @@ Defined on `:root` in `app/globals.css`.
 | `--on-binder-soft` | `#b4b9c7` | Secondary text on the binder. |
 | `--rule-on-binder` | `#343947` | Hairlines on the binder. |
 | `--alert` | `#a32b1d` | Errors, and the outline of a locked tile that says no. |
-| `--alert-wash` | `#fbeae5` | The ground behind an error. |
+| `--alert-wash` | `#fbeae5` | The ground behind an error, and the wash over the cover well of a locked tile that says no. |
 | `--scrim` | `rgb(11 13 18 / 0.5)` | The backdrop behind the menu drawer and dialogs. |
 | `--bar-shadow` | `0 10px 21px -14px rgb(11 13 18 / 0.4)` | The shadow under the sticky bar once it is scrolled. |
 | `--paper-shade` | `#f1f3f7` | The far corners of a sheet. |
 | `--card-light` | `rgb(255 255 255 / 0.62)` | The light on the card stock front of a page-size folder. |
 | `--pocket-shade` | `0 -8px 14px -8px rgb(11 13 18 / 0.22)` | The shade that front casts up onto the sheets in its pocket. |
-| `--steel-light` | `#f8fafd` | The light along the top of a link of a lock's chain. |
-| `--steel` | `#b6bdca` | The body of a chain link. |
-| `--steel-shade` | `#6a7182` | The shaded side of a chain link and of the padlock's bow. |
+| `--steel-light` | `#f8fafd` | The light along the top of a link and a hairline glint. |
+| `--steel` | `#b6bdca` | Now only the keyhole of the padlock. |
+| `--steel-shade` | `#6a7182` | The shaded side of a link and of the bow. |
 | `--steel-edge` | `#262a35` | The dark line around every piece of steel. |
-| `--lock-light` | `#515869` | The light on the padlock's body. |
+| `--lock-light` | `#515869` | The hairline of light along the top of the padlock body (no longer a gradient stop). |
 | `--lock` | `#1e222c` | The padlock's body. |
-| `--lock-cast` | `rgb(11 13 18 / 0.34)` | The shadow the chains and padlock cast on the cover under them. |
+| `--lock-cast` | `rgb(11 13 18 / 0.26)` | The one soft shadow the chains and padlock cast on the cover under them. |
 | `--grain` | `url("/paper/grain.png")` | A pre-rendered 128-pixel paper tooth, used by medium and large sheets. |
 
 ### 3.2 Semantic layer
@@ -114,7 +114,7 @@ Measured as WCAG 2.x contrast ratios from the token values.
 | On-binder on binder | 17.57 : 1 | Body text in the footer. |
 | On-binder-soft on binder | 9.76 : 1 | Secondary text in the footer. |
 | On-binder-soft on binder-rise | 8.29 : 1 | Secondary text on a raised binder surface. |
-| Mark on binder | 10.11 : 1 | The focus ring on the binder. |
+| Mark on binder | 10.11 : 1 | The focus ring on the binder, and the highlighter lines in the footer. |
 | Alert on paper | 7.19 : 1 | Error text. |
 | Alert on alert-wash | 6.16 : 1 | Error text on its ground. |
 | Line-firm on paper | 4.56 : 1 | Control borders, above the 3 : 1 non-text floor. |
@@ -128,10 +128,11 @@ Measured as WCAG 2.x contrast ratios from the token values.
 - Text on a mark fill is `--on-mark` (ink). Text on an ink fill is `--on-ink` (white).
 - The mark is the colour of the highlighter behind words (`::selection`, `[data-mark]` headline spans, the link highlight on focus). It is a background, never a text colour on paper.
 - The logo tail is the mark colour. Under forced colours it uses `currentColor`.
+- On the binder, where the mark measures 10.11 : 1, it may be a line: the focus ring, the underline of a hovered or focused link, and in the footer the underline of the tagline's last two words and the top edge of a hovered or focused phase tab. The footer's one button is a mark fill with ink text, which dilutes to `--mark-wash` under the pointer or focus and goes to `--mark-deep` when held down.
 
 ### 3.5 Binder and ink surfaces
 
-`[data-band="ink"]` and `[data-band="binder"]` share one definition: ground `--binder`, surface and tile `--binder-rise`, text `--on-binder`, lines `--rule-on-binder`, focus ring `--mark`. The footer uses `binder` directly. The ink band is the surface of the home solution section and of the AI statement on the about page.
+`[data-band="ink"]` and `[data-band="binder"]` share one definition: ground `--binder`, surface and tile `--binder-rise`, text `--on-binder`, lines `--rule-on-binder`, focus ring `--mark`. The footer uses `binder` directly. The ink band is the surface of the home solution section and of the promise band on the about page.
 
 ### 3.6 Pigments
 
@@ -195,7 +196,7 @@ Both are loaded in `app/layout.tsx` with `display: "swap"` and exposed as CSS va
 
 ### 5.2 Size scale
 
-Display sizes are fluid. The minimum and maximum below are the rendered sizes.
+Display sizes are fluid. The minimum and maximum below are the rendered sizes at the 16px root. Every size is in rem, so on a large monitor, where the root grows (section 6.2), each size grows with it by the same factor. The home headline is also held to a sixteenth of `--page-max` from 68em, so on a large monitor its two lines still span the page.
 
 | Token | Min | Max | Used by |
 | --- | --- | --- | --- |
@@ -239,7 +240,7 @@ Display classes keep the font's own figures: they set `font-feature-settings: "t
 
 Writing rules:
 
-- One `h1` per page. The home headline uses `.type-hero`; inner page titles use `.type-banner`, or `.type-statement` in the wide title block.
+- One `h1` per page. The home headline uses `.type-hero`; inner page titles use `.type-banner`, or `.type-statement` in the wide title block. The catalog has no title block: its `h1` ("Catalog") is `type-banner visually-hidden`, read out and not shown.
 - Measure body copy with `--wrap-copy` (36rem) and lead copy with `--wrap-lead` (40rem). Headings take `--wrap-head` (22em).
 - Headings use `text-wrap: balance`; paragraphs use `text-wrap: pretty`.
 - Copy uses typographic apostrophes and quotation marks. The content tests reject straight quotes and exclamation marks in copy.
@@ -249,7 +250,7 @@ Writing rules:
 
 ### 6.1 Spacing
 
-The space scale runs on a 7px module.
+The space scale runs on a 7px module. Space, widths and control heights are in rem: the pixels given in this section are those at the 16px root, and past a 1600px window they grow with it (section 6.2). Corner radii, edges and hairlines (section 6.5) stay in pixels.
 
 | Token | Value | Typical use |
 | --- | --- | --- |
@@ -267,20 +268,48 @@ The space scale runs on a 7px module.
 
 | Token | Below 40em | 40em and up | 68em and up |
 | --- | --- | --- | --- |
-| `--page-max` | 1232px (77rem) | same | same |
+| `--page-max` | `max(77rem, min(72vw, 120rem))` | same | same |
 | `--page-pad` | 21px | 28px | 42px |
 | `--col-gap` | 14px | 21px | 28px |
 | `--band-pad` | 56px | 84px | 84px |
 | `--bar-h` | 56px | 56px | 70px |
 
-`--page-max` is twelve 77px columns with eleven 28px gaps. From 68em, the `Split` primitive lays content on a twelve-column grid: the margin takes columns 1 to 3 and the content takes columns 4 to 12.
+`--page-max` is the width of the grid itself, so it limits the content box of `Wrap` and the page padding stands outside it. Its floor, 77rem, is twelve 77px columns with eleven 28px gaps: 1232px at the 16px root. From 68em, the `Split` primitive lays content on a twelve-column grid: the margin takes columns 1 to 3 and the content takes columns 4 to 12.
+
+#### Large monitors
+
+Past a 1600px window the page is drawn larger as one piece, and a wide window is not left as a narrow column on a wide desk. Three rules in `app/globals.css` do it:
+
+- `--over` is how far the window is past 1600px: `max(0px, calc(100vw - 1600px))`.
+- The root size is `html { font-size: min(140%, calc(100% + var(--over) * 0.005)) }`: the browser's own size (16px by default, the 100%) up to a 1600px window, then 0.5% of every pixel past it, up to 140% (22.4px) from about 2880px. The sizes and spaces in the site are in rem (the 7px module, the type, the controls, the icons and the caps on a band), so the root size scales all of it together. The `em` media queries do not follow it (a browser reads them at its own text size), so `40em` and `68em` stay where they are.
+- `--page-max` takes 72% of the window (`72vw`) from about 1840px of window, where that is more than 77rem, and stops at 120rem.
+
+| Window | Root size | `--page-max` |
+| --- | --- | --- |
+| to 1600px | 16px | 77rem, 1232px |
+| 1680px | 16.4px | 77rem, 1263px |
+| 1920px | 17.6px | `72vw`, 1382px |
+| 2560px | 20.8px | `72vw`, 1843px |
+| 2880px | 22.4px | `72vw`, 2074px |
+| 3440px | 22.4px | `72vw`, 2477px |
+| 3840px | 22.4px | 120rem, 2688px |
+
+Where a thing is drawn in rem and the column grows faster than the root does, it follows the column and not the root alone:
+
+- The home hero: `--hero-cap` (`max(56rem, 57vw)`) is the most the first screen is tall, so a 16:9 and a 16:10 monitor are filled to the fold at any size. `--hero-type` is the headline's size: a sixteenth of the column when that is more than `--size-hero`, with the lead at a quarter of it. The prompt box is `max(40rem, --page-max * 0.5195)` wide, just over half of the column, and the proof strip is at most `max(64rem, --page-max * 0.8)` wide. `--stage-bleed` stands the hand of documents past the column on each side (0.2px for every pixel of window past 1920px) so that it keeps the height the window gives it.
+- The toolkit's folder on the home page takes `max(30rem, 79.7%)` of its six columns, and the "what's inside" specimen `max(20rem, 78%)` of its margin.
+- The Purchase page's folder and contents leaf, and the worked example's page, are drawn larger with CSS `zoom` by `--grow`: how many times wider the column is than 77rem at the root size in use (1 up to a 1600px window, 1.15 at 2560, above 1.4 from 3440), held to what the window's height allows (`100svh` over 1150px, so 1.25 at 1440px high, the height of an ultrawide monitor) and never below 1. The ratio of two lengths is made a plain number by the tangent of the arc tangent of the pair (`tan(atan2(...))`).
+- The ink stills: from 68em a wide still stands where the page's grid is and not where the window's edges are, so the ink stays under the same words (section 10.7).
+- The cap on the minimum height of the ninety band (`min(88svh, 46rem)`) and of the closing band (`min(72svh, 40rem)`) grows by 0.25px and 0.15px for every pixel of window past 1600px, so a large monitor gets bands as deep as they are wide.
+
+A few measures stay fixed, so that a row is never a thousand pixels from its arrow: a ledger of rows with a label at one end and a link or a tally at the other (the Sample page's ledgers and the list of next steps) holds to 64rem, the 404's ledger and the statement's aside hold to `--wrap-lead`, and the filter sheet is at most 40rem wide.
 
 Other layout tokens:
 
 | Token | Value | Use |
 | --- | --- | --- |
+| `--over` | `max(0px, 100vw - 1600px)` | How far the window is past a 1600px desktop. The root size, the hero's cap, the stage's bleed and the minimum height of two bands read it. |
 | `--rail-h` | 42px | The phase rail below the bar, from 68em. |
-| `--strip-h` | 0px by default | The beta strip sets it to 35px, and to 36px from 68em, while it is shown. |
 | `--wrap-copy` | 36rem | Body measure. |
 | `--wrap-lead` | 40rem | Lead measure. |
 | `--wrap-head` | 22em | Heading measure. |
@@ -288,7 +317,34 @@ Other layout tokens:
 
 ### 6.3 Breakpoints
 
-Two viewport breakpoints exist: `40em` and `68em`. Below 40em is the phone layout. From 68em the site shows the inline navigation, the phase rail, the twelve-column grid, and the four-layer depth. The header and the nav drawer also use container queries at 27.4em and 24.3em (header) and 17em (drawer). The other media queries in use are listed in section 13.4.
+Two viewport breakpoints exist: `40em` and `68em`. Below 40em is the phone layout. From 40em sheets stand two across and rows gain a second column, which is a tablet's layout (640 to 1087px wide). From 68em the site shows the inline navigation, the phase rail, the twelve-column grid, and the four-layer depth. The header and the nav drawer also use container queries at 27.4em and 24.3em (header) and 17em (drawer). The other media queries in use are listed in section 13.4.
+
+A large monitor is not a third breakpoint. The breakpoints are in em, which a browser reads at its own text size and not at the root size that section 6.2 grows past a 1600px window, so they stay at 640px and 1088px, and nothing changes layout at 1600px: the page only grows. The design gate allows no other width query.
+
+A tablet is not a stretched phone or a squeezed desktop, and the layout does not wait for 68em where a pair has room for two columns before it. It does that without a query, with a grid or a flex row that wraps at a stated measure (`repeat(auto-fit, minmax(min(100%, 24rem), 1fr))`, `flex: 1 1 22rem`), so the two columns appear as soon as each has the room and not at a width chosen for a device. These stand beside each other before 68em:
+
+| Surface | Beside each other from | How |
+| --- | --- | --- |
+| A page title and its aside (`TitleBlock` with `aside`: the phase numeral and its count, the worked example's page) | 40em | The `paired` grid: words and a column of `clamp(16rem, 25vw + 6rem, 18rem)`. The numeral and its count stand in a row below 68em and stack from it. |
+| The home page's toolkit: the words and the folder | each has 24rem | An auto-fit grid. |
+| The six free samples on the home page | 40em: three across; 68em: six across | A grid of three and then six equal columns, so no tile is left alone on a second row. |
+| The About page's head and passes of the making; a buyer's name and concern; a thing not finished and its sentence | about 55em; about 52em; about 50em | Wrapping flex rows: the head (22rem) and the passes (28rem); the name (20rem) and the concern (16rem); the thing (20rem) and its sentence (24rem). The phases of the making take the full width under both. |
+| The About comparison | 40em | The two alternatives are two columns on five shared rows (a subgrid), and the toolkit's sheet lies the full width under them. A fact stands as a line where its sheet holds both of its parts. |
+| The Purchase page's folder and contents leaf | about 1010px | An auto-fit grid of two 28rem columns, the tag lying on the folder. |
+| The 404's words and the open water | each has 23rem | An auto-fit grid, so the spill is on the first screen of a landscape tablet. |
+| The catalog's phase row | 40em | The seven cards share the row equally where they fit (a 768px tablet holds them; each card is 70px at least from 40em, 84px below) and scroll sideways where they do not. |
+
+Other tablet details: the filter sheet is the window's width on a phone and at most 40rem, centred, past it; the pop-up's side padding runs from 21px at 640px to 42px from 1088px; the `large` phase cards (a page's index of the phases) stand in one row from 40em where their list is 42rem wide, a window of about 730px, and four across where it is not.
+
+The site is checked at sixteen window sizes by `tests/e2e/viewports.spec.ts`, on seven routes (`/`, `/catalog`, `/phases/plan`, `/purchase`, `/about`, `/sample` and `/nope`). Nothing is drawn past the window's edge at any of them, and from 1280px up the words of a page span more than half of the window (the 404 is the exception):
+
+| Group | Window sizes (width by height) |
+| --- | --- |
+| Phones | 320 by 640, 390 by 844 |
+| Tablets | 768 by 1024, 820 by 1180, 1024 by 768 |
+| Either side of 68em | 1087 by 800, 1088 by 800 |
+| Laptops and monitors | 1280 by 720, 1366 by 768, 1440 by 900, 1536 by 864, 1680 by 1050, 1920 by 1080 |
+| Large monitors | 2560 by 1440, 3440 by 1440 (an ultrawide), 3840 by 2160 |
 
 ### 6.4 Controls
 
@@ -326,7 +382,7 @@ Depth is a shadow scale. Level 0 is a hairline ring, and higher levels lift obje
 | `--depth-0` | Hairline ring | A sheet sitting flat on the desk. |
 | `--depth-1` | Thumbnail or tab | Phase tabs and small covers. |
 | `--depth-2` | At rest | Sheets at rest. The default for `PaperSheet`. |
-| `--depth-3` | Lifted or panel | Lifted sheets, the raised column of the comparison, the front of a page-size folder. |
+| `--depth-3` | Lifted or panel | Lifted sheets, the toolkit's sheet in the comparison, the front of a page-size folder. |
 | `--depth-4` | Top of a stack | The menu drawer, the filter sheet and the pop-up of the catalog. |
 
 Values, as written in `globals.css`:
@@ -390,7 +446,7 @@ Level 3 and level 4 at 68em are the four-layer forms defined in the same file. S
 | `--curve-drop` | `cubic-bezier(0.3, 1.25, 0.5, 1)` | A small overshoot, used for settling sheets. |
 | `--curve-pen` | `cubic-bezier(0.65, 0, 0.2, 1)` | Pen strokes on the cover. |
 
-`motion.css` also uses a few literal values: 480ms for drift entrances, 600ms for grow entrances, 420ms for the paper shade and tilt transitions, 1ms while the cover is up (so content behind it is already finished), the price tag's swing (1700ms, and 1200ms when its folder is hovered), a locked tile's denial (a state of 600ms: 420ms shake, 480ms rattle, 560ms outline pulse), the pop-up's arrival (320ms) and the hero's sequence (section 8.9).
+`motion.css` also uses a few literal values: 480ms for drift entrances, 600ms for grow entrances, 420ms for the paper shade and tilt transitions, 1ms while the cover is up (so content behind it is already finished), the price tag's swing (1700ms, and 1200ms when its folder is hovered), a locked tile's denial (a state of 600ms: a 467ms vibration, a 500ms rattle, a 560ms outline hit-and-fade and a 560ms wash), the pop-up's arrival (320ms) and the hero's sequence (section 8.9).
 
 ### 8.4 Entrances
 
@@ -426,10 +482,11 @@ Entrance kinds:
 | `data-folder`, `data-folder-scope` | `Folder`, and an element around one | The folder whose sheets rise under the pointer; the scope in which keyboard focus raises them too. |
 | `data-price-tag` | `PriceTag` | The paper tag on its string: it swings once when it is first seen, and a little when its folder comes under the pointer. |
 | `data-nav-underline` | `PrimaryNav` | The bar's ink underline: it stands under the current link and slides to the next. |
-| `data-tile`, `data-free`, `data-locked`, `data-denied` | `TemplateTile`, `LockedTile` | A catalog tile, its kind, and the 600ms state in which a locked tile shakes, pulses its outline in `--alert` and rattles its padlock (`data-lock`). |
+| `data-tile`, `data-free`, `data-locked`, `data-denied` | `TemplateTile`, `LockedTile` | A catalog tile, its kind, and the 600ms state in which a locked tile vibrates, hits and fades its outline and wash in `--alert` and rattles its padlock (`data-lock`). |
+| `data-well` | `TemplateTile` | The well of a tile: its `::before` is the red wash of a denied tile, animated by opacity. |
 | `data-template-dialog`, `data-enter` | `TemplateDialog` | The pop-up of the catalog; `data-enter` is on one that a link inside the site opened, which rises into place. |
 | `data-hero-stage`, `data-hero-prompt`, `data-hero-doc`, `data-landed` | `HeroStage`, `HeroLanding` | The hero's prompt box and the six documents that replace it; `data-landed` on the stage ends the sequence for it (section 8.9). |
-| `data-lit-scope` | Read by the pointer tracker | Scope for a group of lit sheets that is not an article; read by `lib/scroll/pointer.ts` and the lit selectors in `app/motion.css`. |
+| `data-lit-scope` | Read by the pointer tracker | Scope for a group of lit sheets that is not an article (the Purchase page's contents leaf, the About page's toolkit sheet and the pop-up's cover each stand in one, and so does each of the hero's documents); the scope stands where the sheet rests, so a lifted sheet does not drop and lift again under a pointer at its lower edge; read by `lib/scroll/pointer.ts` and the lit selectors in `app/motion.css`. |
 
 ### 8.6 Sheets and the pointer
 
@@ -506,7 +563,7 @@ All primitives live in `components/ui/`. Props are shown with their defaults in 
 | Primitive | Props | Usage |
 | --- | --- | --- |
 | `Wrap` | `as` (div, section, header, footer, nav; div), `ref`, `className` | `<Wrap as="section" className={styles.inner}>...</Wrap>` |
-| `Band` | `as` (section, div, header, footer, aside; section), `surface` (desk, paper, wash, ink, binder; desk), `pad` (regular, none, title, tight, roomy; regular), `backdrop`, `innerClassName`, `ref`, `className` | `<Band id="values" surface="paper">...</Band>` |
+| `Band` | `as` (section, div, header, footer, aside; section), `surface` (desk, paper, wash, ink, binder; desk), `pad` (regular, none, title, tight, roomy; regular), `backdrop`, `innerClassName`, `ref`, `className` | `<Band id="practice" surface="wash">...</Band>` |
 | `Split` | `margin` (ReactNode), `sticky` (false), `rule` (false), `className`, `marginClassName`, `contentClassName` | `<Split margin={<h2 className="type-banner">Plan</h2>} rule>...</Split>` |
 | `PaperSheet` | `as` (div, section, aside, span, li; div), `ratio` (free, portrait, landscape, slide; free), `size` (sm, md, lg; md), `depth` (0 to 4; 2), `lit` (false), `turn` (degrees), `className`, `style`, `ref` | `<PaperSheet ratio="portrait" depth={3} lit>...</PaperSheet>` |
 | `PaperStack` | `under` (2), `className`, `ref` | `<PaperStack under={3}><PaperSheet ratio="portrait" /></PaperStack>` |
@@ -521,13 +578,13 @@ All primitives live in `components/ui/`. Props are shown with their defaults in 
 
 | Primitive | Props | Usage |
 | --- | --- | --- |
-| `Eyebrow` | `as` (p, span, div; p), `marker` (true), `id`, `className` | `<Eyebrow>The problem</Eyebrow>` |
+| `Eyebrow` | `as` (p, span, div; p), `marker` (true), `id`, `className` | `<Eyebrow>The answer</Eyebrow>` |
 | `Note` | `className`, children | `<Note>These are samples.</Note>` |
-| `Sentences` | `text` (string, split on line breaks), `move` (false) | `<Sentences text={"Most rollouts launch.\nFewer get adopted."} move />` |
+| `Sentences` | `text` (string, split on line breaks), `move` (false) | `<Sentences text="Proven experience at a template price." move />` |
 | `KeepCompounds` | `text` | `<KeepCompounds text="Go/No-Go Decision Checklist" />` |
 | `Tag` | `variant` (format, saving, plain; format), `className`, children | `<Tag variant="saving">Free sample</Tag>` |
 | `FactList` | `items` ({ label, value }[]), `className` | `<FactList items={[{ label: "Type", value: "Plan" }]} />` |
-| `Icon` | `name` (arrow, chevron, plus, minus, close, tick, bars, search), `size` (20), `flip` (false), `className` | `<Icon name="arrow" size={32} />` |
+| `Icon` | `name` (arrow, chevron, plus, minus, close, tick, bars, search), `size` (20, the width and height in pixels at the 16px root, drawn in rem), `flip` (false), `className` | `<Icon name="arrow" size={32} />` |
 | `LogoMark` | `height` ("1.5em"), `className`, `title`, `tone` (one, two; one), `digits` (true) | `<LogoMark tone="two" height="2.5rem" />` (the 365 is drawn only in two inks, and only where the mark is 35px high or more) |
 | `BrandLockup` | `variant` (tile, bare; tile), `size` (sm, md; md), `className`, `nameClassName` | `<BrandLockup variant="bare" size="sm" />` |
 
@@ -585,18 +642,21 @@ Built from the primitives for one part of the site; each has a doc comment that 
 | Component | Props | Usage |
 | --- | --- | --- |
 | `TemplateTile` | `template`, `phaseName`, `phaseOrder`, `href`, `headingLevel`, `scroll` (true), `denied` (false) | `<li><TemplateTile template={t} phaseName="Plan" phaseOrder={2} href={catalogHref(criteria, t.slug)} headingLevel="h2" /></li>` inside a `TileGrid`. A free sample is a link; any other template is locked. |
-| `TileGrid` | `className`, `locks` (true), children | `<TileGrid>{items}</TileGrid>`: a list with as many columns of at least 176px as fit, never fewer than two. It carries the drawing the locks draw from. |
+| `TileGrid` | `className`, `locks` (true), children | `<TileGrid>{items}</TileGrid>`: a list with as many columns of at least 11rem (176px at the 16px root) as fit, never fewer than two. It carries the drawing the locks draw from. A page that holds a set number of tiles gives the grid its own columns by `className` (the home page's six free samples: three across from 40em, six from 68em). |
 | `LockedTile` | `title`, `headingLevel` (h3), `initialDenied` (false), children | Used by `TemplateTile`: the button named "<title>, locked" and its live line, "Included with the toolkit." |
-| `ChainLock` | none | A drawing over a locked cover: two crossed steel chains and a padlock. Decorative, deaf to the pointer. |
+| `ChainLock` | none | A drawing over a locked cover: two crossed fine steel chains and a small padlock. Decorative, deaf to the pointer. |
 | `TemplateDialog` | `closeHref`, `labelledBy`, children | `<TemplateDialog closeHref="/catalog" labelledBy="title-id"><TemplateDetail ... /></TemplateDialog>`: a native modal dialog; Escape, Close and the dimmed page close it. |
 | `TemplateDetail` | `template`, `phase`, `titleId` | The pop-up's content: a large lit cover, the "Free sample" tag, the title, facts, what is included, and a button to `/purchase`. |
 | `Portfolio` | `size` (page, section), `covers`, `phases`, `className` | `<Portfolio size="page" covers={samples} phases={phaseCoverage(phases, templates)} />`: the toolkit as a folder with its price tag and a tally of the phases. |
 | `PriceTag` | `className` | The price from `OFFER` on a paper tag on a string. Used by `Portfolio`. |
+| `ContentsLeaf` | `className` | The Purchase page's contents leaf: a lit, dog-eared `PaperSheet` (cut as a whole along the fold, with a flap over the cut) holding a ledger (`dl`) of counts from `TOOLKIT`, each a large Besley figure with a drawn highlighter stroke, then the Checkout button, contact line and sample note. |
 | `Hero`, `HeroStage` | `samples`, `phases` | The home page's first screen and its stage (section 8.9). |
 | `ProofStrip` | none | The hero's foot: four facts in a ruled row, on opaque paper. |
 | `PurchaseButton` | `className` | The bar's one call to action; quiet on `/purchase` itself. |
 
-Rules for them: a catalog tile has exactly one control; a price is printed from `OFFER` and never typed; text over a backdrop is marked with `data-ink-calm`, and an object on paper (the folder, the tag, the proof strip) needs no zone because no ink is behind its words.
+Rules for them: a catalog tile has exactly one control; a price is printed from `OFFER` and never typed; text over a backdrop is marked with `data-ink-calm`, and an object on paper (the folder, the tag, the contents leaf, the proof strip) needs no zone because no ink is behind its words.
+
+`components/about/` holds the sections of the About page: `PromiseBand`, `MakingSection`, `PhaseLine`, `BuyersSection`, `CompareSection`, `SiteState`, `ContactSection` and `SectionHead`; each file's doc comment says what it does.
 
 ## 10. The ink layer
 
@@ -622,7 +682,7 @@ Scenes run for a set time (3.5 seconds for the cover) or until a trigger fires. 
 
 ### 10.3 Stages and the single canvas
 
-The page has one canvas. Only one backdrop is live at a time. The stage chooser works in three rules. If the topmost backdrop on screen has at least 40% of itself in view, it gets the canvas, unless another backdrop has at least 95% of itself in view; then the topmost of those gets it instead. Otherwise each backdrop scores its visible area times the weight of its scene (the cover is heaviest), and the highest score wins. The current holder keeps the canvas unless a challenger scores 1.25 times more, so the canvas stays put while the user scrolls slowly.
+The page has one canvas. Only one backdrop is live at a time. The stage chooser works in four rules. At the very end of the page (the window scrolled to within 2px of the bottom) the lowest backdrop gets the canvas once at least 95% of itself is in view, so a footer taller than most of the window is not left to the sliver of the band above it. Otherwise, if the topmost backdrop on screen has at least 40% of itself in view, it gets the canvas, unless another backdrop has at least 95% of itself in view; then the topmost of those gets it instead. Otherwise each backdrop scores its visible area times the weight of its scene (the cover is heaviest), and the highest score wins. The current holder keeps the canvas unless a challenger scores 1.25 times more, so the canvas stays put while the user scrolls slowly.
 
 Backdrops that are not chosen show their still image. Each stage runs for a fixed time, then eases to rest over about 2.5 seconds. Input wakes a resting stage for up to 12 seconds.
 
@@ -680,9 +740,9 @@ When the simulation is not running, each backdrop shows a WebP still. Each backd
 | `spill-wide` | `/nope` | 1440 x 900, 1x | spill |
 | `spill-tall` | `/nope` | 320 x 700, 2x | spill |
 
-The manifest is `lib/ink/stills.json`. The stills live in `public/ink/`. A page whose text zones differ from the home page's has a pair of its own, captured on that page: the Purchase page's tally stands where the home page's `bloom` frame holds ink. A wide frame is captured at the narrowest window it serves (a zone of fixed size covers more of a frame the narrower the window), a tall one at 320 or 390.
+The manifest is `lib/ink/stills.json`. The stills live in `public/ink/`. A page whose text zones differ from the home page's has a pair of its own, captured on that page: the Purchase page's tally stands in the left columns, under the folder (the contents leaf is opaque and needs no zone), so the `bloom-purchase` pair can be recaptured for that layout. A wide frame is captured at the narrowest window it serves (a zone of fixed size covers more of a frame the narrower the window), a tall one at 320 or 390.
 
-A still is scaled with the width of its backdrop, with three exceptions. From 68em the `prompt` frame stands at the size it was captured at (90rem wide), centred, and is only scaled where the band is wider. Below 68em the `ninety` frame takes the height of its band, centred, so its ink lands in the open water under the tally instead of past the foot of a band shorter than the frame; the margins either side are the frame's own ground. The footer's `wisps` backdrop is a strip 112px tall under the legal line (`--foot` in `footer.module.css`), anchored at the bottom and faded in over its top half, so the footer's words never stand over ink.
+A still is scaled with the width of its backdrop, with these exceptions. From 68em the `prompt`, `ninety`, `bloom` and `wisps` frames stand where the page's grid is and not where the window's edges are, so the ink lies under the same words and columns at any window. Each is as wide as a factor of `--page-max` (`--keep`: 1.157, or 1.378 for the home page's `bloom` and the `wisps`, which were captured at a 1920px window where the page is 1382px), never less than 100rem (a 1600px desktop, which grows with the root size) and never wider than the backdrop, centred; the frame's own edges are the ground of its band, so what it does not reach is the same colour. The `prompt` frame, which was captured at 90rem and is laid out by the window's height as much as its width, is also never taller than its band on a wide and low window, and rests on the band's foot when the band is taller. The `title` strip stands in the corner the ink falls from, which is the window's on a desktop and the page's on a larger one (it keeps the 11.5rem that a 1600px desktop leaves beside the page). Below 68em the `ninety` frame takes the height of its band, centred, so its ink lands in the open water under the tally instead of past the foot of a band shorter than the frame; the margins either side are the frame's own ground. The 404's `spill` keeps the window's width at any size, since it runs off its frame's right and bottom edges. Below 68em its tall frame keeps to the size it was captured at (22rem at most) and rises from the band's foot: at the left on a phone, and from 40em turned about its middle, so that its ink pours in from the window's right edge beside the words. The Purchase page's stage fades its ink, live or still, in over its first 6rem below 68em, where the pair is a short stage and a frame taller than it would end in a straight line. The footer's `wisps` backdrop is a strip 112px tall under the legal line (`--foot` in `footer.module.css`), anchored at the bottom and faded in over its top half, so the footer's words never stand over ink.
 
 ### 10.8 Using the backdrop
 
@@ -737,7 +797,7 @@ The logo is three strokes on a 32 by 24 grid: two legs meeting at a peak, and a 
 
 ### 11.4 Icon set
 
-`Icon` draws eight glyphs on a 20-unit grid with a 1.75 stroke, round caps and joins, and `currentColor`. The names are `arrow`, `chevron`, `plus`, `minus`, `close`, `tick`, `bars` and `search` (the magnifier on the catalog search's submit button). Icons are decorative (`aria-hidden`); pair them with a visible or visually hidden label.
+`Icon` draws eight glyphs on a 20-unit grid with a 1.75 stroke, round caps and joins, and `currentColor`. Its `size` is in pixels at the 16px root and the icon is set in rem (`size / 16`), so on a large monitor it grows with the words and the controls it stands beside (section 6.2). The names are `arrow`, `chevron`, `plus`, `minus`, `close`, `tick`, `bars` and `search` (the magnifier on the catalog search's submit button). Icons are decorative (`aria-hidden`); pair them with a visible or visually hidden label.
 
 ## 12. Do and do not
 
@@ -777,7 +837,7 @@ The logo is three strokes on a 32 by 24 grid: two legs meeting at a peak, and a 
 
 - Interactive targets are at least 44px tall below 68em (`--tap`). The desktop bar uses a 40px control.
 - The smallest text is 12px and only in uppercase tags. Body copy is 16px.
-- Text is sized in rem, so the browser's text size settings apply. The root uses `-webkit-text-size-adjust: 100%`.
+- Text is sized in rem, so the browser's text size settings apply. The root uses `-webkit-text-size-adjust: 100%`. Past a 1600px window the root grows from the browser's own size (section 6.2), so a visitor's chosen size is the base of the scale and not overridden by it.
 
 ### 13.4 Media queries and modes
 
@@ -786,7 +846,7 @@ In stylesheets, the allowed media queries are exactly these, and the design gate
 | Query | Behaviour |
 | --- | --- |
 | `(min-width: 40em)` | The tablet layout. |
-| `(min-width: 68em)` | The desktop layout: inline navigation, rail, four-layer depth, twelve columns. |
+| `(min-width: 68em)` | The desktop layout: inline navigation, rail, four-layer depth, twelve columns. There is no query for a larger monitor: the root size scales it (section 6.2). |
 | `(hover: hover)` | Hover states and the sheet tilt. |
 | `(prefers-reduced-motion: no-preference)` | Every animation and transition. |
 | `(prefers-reduced-motion: reduce)` | The global safety net and the reduced-motion branches. |
@@ -799,7 +859,7 @@ Scripts also query `(pointer: coarse)` and `(prefers-reduced-data: reduce)`. Sty
 ### 13.5 Semantics
 
 - Site pages have one `header` (the banner), one `main` with `id="main"`, and one `footer` (the contentinfo landmark).
-- Navigation is labelled: `Primary` for the header, `Phases` for the rail, `Footer` for the footer, `Breadcrumb` on section pages, `Pagination` on catalog pages, `Start from a phase` for the phone catalog's strip, `Browse by phase` in the catalog's empty search, `Previous and next phase` at the foot of a phase page, and `Menu` for the site drawer.
+- Navigation is labelled: `Primary` for the header, `Phases` for the rail, `Footer` for the footer's site links, `Rollout phases` for its phase links, `Breadcrumb` on section pages, `Pagination` on catalog pages, `Start from a phase` for the phone catalog's strip, `Browse by phase` in the catalog's empty search, `Previous and next phase` at the foot of a phase page, and `Menu` for the site drawer.
 - The current page is marked with `aria-current="page"`, and the current section with `aria-current="true"`.
 - Decorative elements are hidden from assistive technology: the ink backdrop, the 90% figure (its heading says it in words), unlabelled tallies, numerals on phase tabs, the specimen sheet, the hero's prompt box and the chain and padlock over a locked cover (the tile's button says "locked").
 - Each `Tally` or count with a meaning carries a `label`.

@@ -2,8 +2,9 @@ import { expect, test } from "@playwright/test";
 import { introSeen } from "./helpers";
 
 // The one place a sale starts. `/purchase` shows the toolkit as one folder with its price on a paper
-// tag, the phases it reaches, what is inside it, a Checkout button that is not built yet and says
-// so, and the questions about buying. The home page shows the same folder with a way to that page.
+// tag, the phases it reaches, and, on a contents leaf beside it, what is inside (the ledger, a
+// Checkout button that is not built yet and says so, the address to write to and the note that the
+// catalog is sample content). The home page shows the same folder with a way to that page.
 
 const PHASES = ["Make the case", "Plan", "Design", "Prepare", "Communicate", "Execute", "Sustain"];
 
@@ -90,19 +91,37 @@ test("checkout is not built: the button says so, can be reached and does nothing
   await expect(main.getByText(/the catalog on this site shows sample content/i)).toBeVisible();
 });
 
-test("the questions open in place and say they are provisional", async ({ page }) => {
+test("there is no questions section, and what is inside sits beside the folder from 68em", async ({
+  page,
+}) => {
+  await page.setViewportSize({ width: 1280, height: 800 });
   await page.goto("/purchase");
 
-  await expect(page.getByRole("heading", { level: 2, name: "Questions" })).toBeVisible();
-  await expect(page.getByText(/provisional/i)).toBeVisible();
+  await expect(page.getByRole("heading", { level: 2, name: "Questions" })).toHaveCount(0);
 
-  const question = page.getByRole("button", { name: "What file formats do I get?" });
-  await expect(question).toHaveAttribute("aria-expanded", "false");
-  // The first click waits for the list to be interactive.
-  await expect(async () => {
-    await question.click();
-    await expect(question).toHaveAttribute("aria-expanded", "true", { timeout: 1000 });
-  }).toPass();
+  // The folder is on the left, the price tag clear of the leaf, and the leaf holds the ledger, the
+  // button, the address and the note, in that order.
+  const folder = await page.locator("[data-folder]").boundingBox();
+  const tag = await page.locator("[data-price-tag]").boundingBox();
+  const leaf = page.locator("[data-paper][data-lit]").filter({ hasText: "What is inside" });
+  await expect(leaf).toHaveCount(1);
+  const sheet = await leaf.boundingBox();
+  expect(folder && tag && sheet).toBeTruthy();
+  expect(folder!.x + folder!.width).toBeLessThanOrEqual(sheet!.x);
+  expect(tag!.x + tag!.width).toBeLessThanOrEqual(sheet!.x);
+
+  const order = await leaf.evaluate((root) => {
+    const at = (selector: string) => root.querySelector(selector);
+    const follows = (first: Element | null, second: Element | null) =>
+      !!first &&
+      !!second &&
+      (first.compareDocumentPosition(second) & Node.DOCUMENT_POSITION_FOLLOWING) !== 0;
+    const ledger = at("dl");
+    const button = at('[aria-disabled="true"]');
+    const mail = at('a[href^="mailto:"]');
+    return { one: follows(ledger, button), two: follows(button, mail) };
+  });
+  expect(order).toEqual({ one: true, two: true });
 });
 
 test("at 320px the purchase page does not scroll sideways and the tag stays on the page", async ({

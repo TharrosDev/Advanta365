@@ -131,6 +131,7 @@ spacing:
   s-8: "7rem"
   s-9: "10.5rem"
   page-max: "77rem"
+  page-max-ceiling: "120rem"
   tap: "2.75rem"
   control-sm: "2.5rem"
   control: "3rem"
@@ -147,6 +148,19 @@ components:
     backgroundColor: "{colors.mark}"
     textColor: "{colors.ink}"
   button-mark-active:
+    backgroundColor: "{colors.mark-deep}"
+    textColor: "{colors.ink}"
+  button-on-binder:
+    backgroundColor: "{colors.mark}"
+    textColor: "{colors.ink}"
+    typography: "{typography.ui}"
+    rounded: "{rounded.round-2}"
+    padding: "0.4375rem 1.75rem"
+    height: "{spacing.control-lg}"
+  button-on-binder-hover:
+    backgroundColor: "{colors.mark-wash}"
+    textColor: "{colors.ink}"
+  button-on-binder-active:
     backgroundColor: "{colors.mark-deep}"
     textColor: "{colors.ink}"
   button-outline:
@@ -302,7 +316,8 @@ The density is that of a document, not of a dashboard: reading-width columns, a 
 - Three inks: near-black for what is written, light blue for what is the buyer's, and a dark binder ground for the footer and the statement bands.
 - The highlighter always comes with ink (a border, a ring, a tick or the text itself) and is never a text colour on a light ground.
 - Two typefaces with fixed jobs: a slab serif for the documents and their figures, a hyperlegible sans for the store.
-- A 7px module for every space, two breakpoints (40em and 68em) for every layout.
+- A 7px module for every space, two breakpoints (40em and 68em) for every layout, and one root size that grows past a 1600px window, so a large monitor gets the same page drawn larger.
+- Every size and space in rem, so the whole page scales together on a large monitor.
 - Live ink in water as the showpiece, always beneath the text, always pausable, with a still image for every case where it cannot run.
 - Movement only inside the no-preference motion query. Bands and surfaces change ground with a hard edge and never fade.
 
@@ -312,13 +327,13 @@ White, near-black and one light blue, on cool greys that lean a few degrees towa
 
 ### Primary
 
-- **Highlighter Blue** (`mark`, #86c1ff): the buyer's colour. It fills the blank on a template cover, the marked block of a tally, a checked box, the current phase tab, a saving tag (the "Free sample" tag among them), the square before an eyebrow, the tail of the logo and the 365 on it, the headline's last words and the text selection. Under the pointer or keyboard focus it comes up inside solid buttons and behind the words of a link.
+- **Highlighter Blue** (`mark`, #86c1ff): the buyer's colour. It fills the blank on a template cover, the marked block of a tally, a checked box, the current phase tab, a saving tag (the "Free sample" tag among them), the square before an eyebrow, the tail of the logo and the 365 on it, the headline's last words and the text selection. Under the pointer or keyboard focus it comes up inside solid buttons and behind the words of a link. On the binder it is the fill of the footer's one button.
 - **Pressed Highlighter** (`mark-deep`, #5fa8f5): the highlighter one step deeper. A solid button while it is held down, a checked box under the pointer, and the blue pigment of the ink on light grounds.
-- **Highlighter Wash** (`mark-wash`, #eaf4ff): the highlighter diluted to a ground. The wash band, the front and tab of a folder (the front of a page-size folder lies under a light, `card-light`), a note, the beta strip, the bar's button when it is the current page, and the hover and focus fill of rows, outline buttons, navigation links and tabs.
+- **Highlighter Wash** (`mark-wash`, #eaf4ff): the highlighter diluted to a ground. The wash band, the front and tab of a folder (the front of a page-size folder lies under a light, `card-light`), a note, the bar's button when it is the current page, the hover and focus fill of the footer's button, and the hover and focus fill of rows, outline buttons, navigation links and tabs.
 
 ### Secondary
 
-- **Correction Red** (`alert`, #a32b1d) on **Correction Wash** (`alert-wash`, #fbeae5): reserved for errors and for a locked tile's refusal, whose outline pulses in the red. No component draws an error state today; the wash exists so that the first one has its ground.
+- **Correction Red** (`alert`, #a32b1d) on **Correction Wash** (`alert-wash`, #fbeae5): reserved for errors and for a locked tile's refusal, whose outline and wash hit and fade in the red. No component draws an error state today; the wash exists so that the first one has its ground.
 
 ### Neutral
 
@@ -337,14 +352,14 @@ White, near-black and one light blue, on cool greys that lean a few degrees towa
 - **On Binder** (`on-binder`, #f4f5f8) and **Soft On Binder** (`on-binder-soft`, #b4b9c7): primary and secondary text on the binder.
 - **Binder Rule** (`rule-on-binder`, #343947): hairlines on the binder.
 - **Black Pigment** (`pigment-black`, #10131a) and **Pale Pigment** (`pigment-pale`, #c3cedf): the ink simulation's black on paper and its pale ink on the binder. Its two blues are the highlighter pair.
-- **Steel** (`steel-light` #f8fafd, `steel` #b6bdca, `steel-shade` #6a7182, `steel-edge` #262a35) and **Lock** (`lock-light` #515869, `lock` #1e222c, and `lock-cast`, ink at 34%): the chains and padlock over the cover of a locked template, and the shadow they cast. They are drawn there and nowhere else.
+- **Steel** (`steel-light` #f8fafd, `steel` #b6bdca, `steel-shade` #6a7182, `steel-edge` #262a35) and **Lock** (`lock-light` #515869, `lock` #1e222c, and `lock-cast`, ink at 26%): the fine chains and small padlock over the cover of a locked template, and the one soft shadow they cast. `steel` is only the keyhole, and `lock-light` only the hairline of light along the top of the padlock's body. They are drawn there and nowhere else.
 - **Scrim** (`scrim`, ink at 50%): the dimmed page behind the navigation drawer, the filter sheet and the pop-up of the catalog.
 
 ### Named Rules
 
 **The Mark Carries Ink Rule.** The highlighter fill is never the only signal. On paper it measures 1.89 : 1, too pale to be seen alone, so every marked thing also has an ink border, an inset ink ring, an ink tick or a heavier weight of ink text.
 
-**The Background Only Rule.** On a light ground the highlighter is a background behind ink text and never a text, icon or line colour. Only on the binder, where it measures 10.11 : 1, does it become a line: the focus ring and the underline of a hovered link.
+**The Background Only Rule.** On a light ground the highlighter is a background behind ink text and never a text, icon or line colour. Only on the binder, where it measures 10.11 : 1, does it become a line: the focus ring and the underline of a hovered link, and in the footer the underline of the tagline's last two words and the top edge of a hovered or focused phase tab.
 
 **The Band Decides Rule.** Components read eleven semantic names (`ground`, `surface`, `stripe`, `tile`, `text`, `text-soft`, `text-faint`, `line`, `line-firm`, `line-ink`, `focus-ring`) and never a raw colour. Each band (`desk`, `paper`, `wash`, `ink`, `binder`) redefines them, and a sheet or a folder front resets them to the paper values, so one component is correct on every ground.
 
@@ -360,7 +375,7 @@ White, near-black and one light blue, on cool greys that lean a few degrees towa
 ### Hierarchy
 
 - **Display** (`poster`, 800, 112 to 320px, 0.86): one figure per page at most. The 90% of the home statement band, the phase numeral, the 404.
-- **Display** (`hero`, 600, 40 to 80px, 1.04): the home headline only. From 68em it is two lines across the page and never taller than the window lets them be, so the first screen fits.
+- **Display** (`hero`, 600, 40 to 80px, 1.04): the home headline only. From 68em it is two lines across the page and never taller than the window lets them be, so the first screen fits. On a large monitor it grows with the column (a sixteenth of it, once that is more than the size's own top of 5rem), so the two lines still span the page.
 - **Headline** (`statement`, 600, 34 to 72px, 1.06): large statements, and the wide form of a page title. One or two headlines per page at most: where a page makes several statements in a row (About), the rest step down to `banner` or `page`, so two headlines carry it. About's contact address, a link and not a headline, is set at this size too.
 - **Headline** (`banner`, 600, 34 to 56px, 1.12): standard page titles and the one-sentence statement of a section.
 - **Title** (`page`, 600, 28 to 40px, 1.16): the heading of a shelf of content.
@@ -374,7 +389,7 @@ White, near-black and one light blue, on cool greys that lean a few degrees towa
 - **Label** (`eyebrow`, 700, 13px, 0.08em, uppercase): the label over a heading, with a 9px highlighter square before it.
 - **Label** (`tag`, 700, 12px, 0.06em, uppercase): format tags.
 
-Every display size is fluid between the two ends given, and every size is set in rem. Headings are balanced (`text-wrap: balance`, at most 22em wide) and paragraphs use `text-wrap: pretty`.
+Every display size is fluid between the two ends given, and every size is set in rem. The sizes in pixels on this page are those at the 16px root: past a 1600px window the root grows (see Layout) and every size grows with it. Headings are balanced (`text-wrap: balance`, at most 22em wide) and paragraphs use `text-wrap: pretty`.
 
 ### Named Rules
 
@@ -388,13 +403,15 @@ Every display size is fluid between the two ends given, and every size is set in
 
 ## Layout
 
-The page is a stack of full-width bands. A band paints its own ground, sets the text colour for everything inside it, and holds a centred column at most 77rem wide (twelve 77px columns and eleven 28px gaps) with the page padding outside it: 21px on a phone, 28px from 40em and 42px from 68em. The column gap follows the same steps at 14, 21 and 28px.
+The page is a stack of full-width bands. A band paints its own ground, sets the text colour for everything inside it, and holds a centred column 77rem wide (twelve 77px columns and eleven 28px gaps, 1232px) up to a 1600px window, and wider past it (see below), with the page padding outside it: 21px on a phone, 28px from 40em and 42px from 68em. The column gap follows the same steps at 14, 21 and 28px.
 
-All space comes from a 7px module: 7, 14, 21, 28, 42, 56, 84, 112 and 168px. A band is padded 56px above and below on a phone and 84px from 40em. A roomy band takes 84 and 112px, a tight one 42px, a title band 28 and 42px.
+All space comes from a 7px module: 7, 14, 21, 28, 42, 56, 84, 112 and 168px. A band is padded 56px above and below on a phone and 84px from 40em. A roomy band takes 84 and 112px, a tight one 42px, a title band 28 and 42px. A pixel figure for a size or a space in this file is that size at the 16px root; hairlines, edges, corner radii and shadows are drawn in pixels at any root.
 
-There are two breakpoints and no others. Below 40em is the phone layout: one column, full-width stacked buttons, index rows in place of sheets. From 40em sheets stand two across and rows gain a second column. From 68em the twelve-column grid applies: a margin in columns 1 to 3 with content in 4 to 12, the home first screen centred across the whole band, the inline navigation, the phase rail and the deeper shadows. Three container queries hide the brand name or the word Menu visually when the bar or the drawer is too narrow for them; the text stays readable to assistive technology.
+A large monitor gets the same page, drawn larger, and not a wider desk with the same page in its middle. Up to a 1600px window the root font size is 16px. Past it the root grows by 0.5% of every pixel of window, to 140% (22.4px) at about 2880px, and since every size and space is in rem (the module, the type, the controls, the icons and the caps on a band) the whole page scales together. The column grows faster: `page-max` is 77rem as a floor, from about 1840px of window it is 72% of the window, and it stops at `page-max-ceiling`, 120rem. On a 1920, 2560 or 3440 monitor the words span about 70% of the window, on a 4K panel the ceiling holds them at 2688px. Objects that would be lost in a wider column are drawn larger with it: the hero's headline, prompt box and proof strip, the toolkit's folder on the home page, and, by a scale that stops at what the window's height leaves room for, the folder and the contents leaf of the Purchase page and the worked example's page. A few measures stay fixed on purpose: a ledger of rows with a label at one end and a link at the other holds to 64rem, and the filter sheet to 40rem, so a row is never a thousand pixels from its arrow.
 
-A sticky white bar tops every page, 56px tall and 70px from 68em. From 68em a 42px strip of the desk under it holds the seven phases as tabs. A beta strip in the wash sits above the bar and scrolls away with the page. Anchors and focused elements stop 21px clear of the bar.
+There are two breakpoints and no others, and a large monitor is not a third. They are written in em, which a browser reads at its own text size and not at the root size the page sets, so 40em and 68em stay where they are while the root grows; nothing changes layout at 1600px, the page only grows from there. Below 40em is the phone layout: one column, full-width stacked buttons, index rows in place of sheets. From 40em sheets stand two across and rows gain a second column; a tablet in portrait, 768px wide, is this layout, and where a pair of things has room for two columns before 68em (an aside beside a page title, the About sheets, the Purchase folder and leaf from about 1010px) it takes them. From 68em the twelve-column grid applies: a margin in columns 1 to 3 with content in 4 to 12, the home first screen centred across the whole band, the inline navigation, the phase rail and the deeper shadows. Three container queries hide the brand name or the word Menu visually when the bar or the drawer is too narrow for them; the text stays readable to assistive technology.
+
+A sticky white bar tops every page, 56px tall and 70px from 68em. From 68em a 42px strip of the desk under it holds the seven phases as tabs. Anchors and focused elements stop 21px clear of the bar. The catalog is the one page with no title block: it opens straight on its rail and results, 42px under the bar (and the phase rail), and its `h1` is read out and not shown.
 
 Bands alternate between paper and desk down a page. The wash is a single tinted moment, the ink band a single statement, and the binder is the footer. Controls are 48px tall by default, 56px large, and 40px in the desktop bar; below 68em no target is shorter than 44px.
 
@@ -407,7 +424,7 @@ Depth is layered and physical. Every paper object casts a soft shadow in the ink
 - **Depth 0, a hairline ring** (`box-shadow: 0 0 0 1px rgb(11 13 18 / 0.06)`): a sheet lying flat.
 - **Depth 1, a thumbnail or a tab** (`box-shadow: 0 0 0 1px rgb(11 13 18 / 0.05), 0 1px 2px rgb(11 13 18 / 0.06), 0 3px 6px -2px rgb(11 13 18 / 0.06)`): cover thumbnails, phase tabs on the rail, the sheets under a stack, the back, tab and inner sheets of a folder, and the round of the ink's pause button.
 - **Depth 2, an object at rest** (`box-shadow: 0 0 0 1px rgb(11 13 18 / 0.05), 0 2px 4px -1px rgb(11 13 18 / 0.06), 0 10px 20px -8px rgb(11 13 18 / 0.12), 0 28px 44px -24px rgb(11 13 18 / 0.14)`): the default sheet and the front of a folder.
-- **Depth 3, lifted or a panel** (`box-shadow: 0 0 0 1px rgb(11 13 18 / 0.05), 0 12px 24px -8px rgb(11 13 18 / 0.18)`; from 68em `0 0 0 1px rgb(11 13 18 / 0.05), 0 4px 8px -2px rgb(11 13 18 / 0.07), 0 20px 36px -12px rgb(11 13 18 / 0.16), 0 48px 72px -32px rgb(11 13 18 / 0.2)`): the raised column of the comparison, the front of a page-size folder, the middle documents of the hero's hand, and the shadow a resting sheet takes when it is lifted.
+- **Depth 3, lifted or a panel** (`box-shadow: 0 0 0 1px rgb(11 13 18 / 0.05), 0 12px 24px -8px rgb(11 13 18 / 0.18)`; from 68em `0 0 0 1px rgb(11 13 18 / 0.05), 0 4px 8px -2px rgb(11 13 18 / 0.07), 0 20px 36px -12px rgb(11 13 18 / 0.16), 0 48px 72px -32px rgb(11 13 18 / 0.2)`): the toolkit's sheet in the comparison, the front of a page-size folder, the middle documents of the hero's hand, and the shadow a resting sheet takes when it is lifted.
 - **Depth 4, the top of a stack** (`box-shadow: 0 0 0 1px rgb(11 13 18 / 0.05), 0 20px 40px -12px rgb(11 13 18 / 0.24)`; from 68em `0 0 0 1px rgb(11 13 18 / 0.05), 0 8px 14px -4px rgb(11 13 18 / 0.08), 0 32px 56px -16px rgb(11 13 18 / 0.2), 0 84px 112px -42px rgb(11 13 18 / 0.26)`): the navigation drawer, the filter sheet and the pop-up of the catalog.
 - **Bar shadow** (`box-shadow: 0 10px 21px -14px rgb(11 13 18 / 0.4)`): under the sticky bar. It is absent at the top of a page and arrives over the first 84px of scroll.
 
@@ -435,6 +452,7 @@ Plain and certain. A button answers the pointer by taking the highlighter, and i
 
 - **Shape:** gently squared (6px), a 2px border, 48px tall with 7px by 21px of padding. The small size is 44px, and 40px in the desktop bar; the large size is 56px with 28px of side padding.
 - **Primary (`mark`, and `ink` on the wash band):** solid ink with white text. Under the pointer or keyboard focus the fill becomes the highlighter inside the unchanged ink border and the text turns to ink. Held down, the fill goes one step deeper.
+- **On the binder:** the primary button is the highlighter fill with ink text (a solid ink button would be the ground). Under the pointer or keyboard focus it dilutes to the wash, and held down it goes one step deeper to `mark-deep`. The footer's one button is drawn this way.
 - **Secondary (`outline`):** transparent with a 2px border in the text colour of its band. Hover, focus and press fill it with the wash, or with paper on the wash band.
 - **Text:** no box. Underlined ink words with a 44px hit height; on hover and focus the underline thickens to 2px and the highlighter is drawn behind the words and 2px past their ends.
 - **Motion:** colour changes take 120ms, linear. An arrow after the label moves 3px to the right on hover and focus. A press moves the button down 1px.
@@ -454,9 +472,11 @@ There are no boxed cards. A thing in a list is either a row on a hairline or a p
 
 - **Paper sheet:** a 3px corner, paper lit from its top-left corner and a shade darker at the far ones, a pre-rendered grain on medium and large sheets, depth 2 at rest. It has no padding of its own; a panel made from it is padded 21px, and 28px from 40em. Inside a sheet the colours are those of paper whatever band it lies on.
 - **Paper stack:** two or more blank sheets under the top one, at depth 1, offset and turned from 40em and only slightly turned below it.
+- **Register:** a ruled ledger on one paper sheet with two sheets beneath it (the About buyers). Hairline rows run to the sheet's edges, from 68em a margin line stands between the numerals and the names, and a head row carries the column labels.
 - **Folder:** the toolkit. A wash-coloured tab 28px tall names it, a back panel holds up to three white sheets standing 5px lower each, and a wash front panel at depth 2 carries the content. Under the pointer or focus the sheets rise 14, 10 and 6px, 40ms apart. At page size (the Purchase page and the home portfolio) it measures itself against its own width: the pocket is taller and holds the real covers of the six free samples in two ranks, the front is card stock (the wash under a light, with the paper's grain) at depth 3 that casts a shade up onto the sheets, and a price tag hangs from its corner.
 - **Price tag:** a sheet of paper with rounded shoulders and an eyelet, hung by a two-strand string tied through a second eyelet. It carries the price in Besley (`$499.99`) and "one purchase" under it, set at a slight turn. It swings once, like a weight on a string, when it is first seen, and a little each time the pointer comes onto the folder.
-- **Template tile:** a small article in a grid of at least 176px columns, two across on a phone. The cover, printed with its own title and first line, stands in a square well in its format's proportions, with the phase and type, the title and the format tag under it. There is no price. A free sample carries a "Free sample" tag, its title is the one link and covers the whole tile, and the cover rises under the pointer. On a phase page a tile names its type alone, since every tile there is of that phase. A locked template has its cover out of focus under two crossed steel chains with a padlock at the centre (the title and summary stay readable); its one control is a button named "<title>, locked". Pressing it opens nothing: for 600ms the tile is outlined in the alert red, shakes 6px and its padlock rattles, and a line under it says "Included with the toolkit." with a link to the Purchase page. Under reduced motion only the outline and the line remain.
+- **Contents leaf:** the contents of the toolkit as one loose sheet of paper beside the folder: opaque paper with the grain, depth 2, lit under the pointer, with a dog-eared top-right corner (the whole sheet is cut along the fold, so its shadow follows the cut, and a darker flap lies over the cut with a small contact shadow). An eyebrow, the h2, then a ruled ledger of five rows: an ink tick and term, a large Besley 800 figure printed as it is (never counted up) with a highlighter stroke drawn in once under its lower half, and a line of words. Under the ledger: the disabled Checkout button, the way to write, and the sample note. Its measures are shares of its own width. From 68em it stands on the page's right edge, as the folder stands on the left, and on a large monitor the pair is drawn larger together; on a tablet wider than about 1010px the two stand side by side before 68em, each centred on the other.
+- **Template tile:** a small article in a grid of at least 176px columns, two across on a phone. The cover, printed with its own title and first line, stands in a square well in its format's proportions, with the phase and type, the title and the format tag under it. There is no price. A free sample carries a "Free sample" tag, its title is the one link and covers the whole tile, and the cover rises under the pointer. On a phase page a tile names its type alone, since every tile there is of that phase. A locked template has its cover out of focus under two crossed fine steel chains with a small flat padlock (a keyhole, a hairline of light along its top) at the centre (the title and summary stay readable); its one control is a button named "<title>, locked". Pressing it opens nothing: for 600ms the tile is outlined in the alert red and its cover well is washed with it (the outline arrives within two frames and the wash within 100ms, and both fade out), the tile vibrates about 15 times a second from 3px to rest (467ms), and the padlock rattles 3 degrees, dying away (500ms). A tile that holds keyboard focus keeps its focus ring in place of the red outline, since the outline is its focus ring. A line under the tile says "Included with the toolkit." with a link to the Purchase page. Under reduced motion only the outline, the wash and the line remain; they stand for as long as the state does, and are all a tile shows when the server renders it already denied (a link that names it) without a script.
 - **Pop-up:** a native modal dialog over the dimmed page, a sheet of paper at depth 4 with a 10px corner and a bar that holds Close. A free sample opens in it: its cover large and lit on a desk of its own at the left, and at the right the tag, the title, the summary, the facts as a ledger, what is included and a button to the Purchase page; below 40em the cover stands above the words. It closes on Escape, on Close and on a click on the dimmed page, and rises 14px into place when a link inside the site opened it.
 - **Note:** a short sentence on the wash (6px corner, 14px by 21px, 16px text at weight 400), no wider than a lead; on the wash band it takes paper.
 
@@ -473,13 +493,13 @@ There are no boxed cards. A thing in a list is either a row on a hairline or a p
 - **Bar:** white and sticky, with no border and no shadow at the top of the page. It holds the brand lockup (the logo in an ink tile, with the 365 on its tail from 68em, and the name in Besley 700), the primary links from 68em, the purchase button and, below 68em, a Menu button. From 68em the row is three zones: the brand at the left, the links centred on the bar itself, the button at the right.
 - **Primary links:** Catalog and About, 40px tall, a 6px corner, soft-ink text, set wide apart. Hover and focus fill with the wash. The current page is ink text under one 2px ink line that slides from link to link; with no current page the line is not drawn.
 - **Phase rail (from 68em):** seven equal tabs standing on the bottom edge of a desk strip, white with rounded top corners at depth 1, each a Besley numeral and a name. The current phase is the highlighter inside a 2px ink edge.
-- **Phase cards:** the same seven as index cards 56px tall, two across on a phone, four from 40em and one row where they fit, with the numeral over the name. At the top of the phone catalog they stand in one row that scrolls sideways from edge to edge, each as wide as its name, so the card cut off at the edge shows there are more.
+- **Phase cards:** the same seven as index cards 56px tall, with the numeral over the name: two across on a phone, and from 40em one row where the list is wide enough for all seven names (42rem), each card as wide as its name needs, and four across where it is not (the last three share the second row below 68em). At the top of the catalog below 68em they stand in one row from edge to edge, each as wide as its name (84px at least, 70px from 40em): where the seven fit, on a tablet, they share the row equally and it does not scroll; where they do not, the row scrolls sideways, so the card cut off at the edge shows there are more.
 - **Phase pager:** at the foot of a phase page, the phase before and the phase after as two links on a hairline above and below, stacked below 40em and side by side from there, the next one always at the right. Each is a faint label over the phase's numeral tile and name, with an arrow pointing its way; hover, focus and press fill it with the wash and move the arrow 3px.
 - **Drawer (below 68em):** a paper panel on the right edge, at most 378px wide, at depth 4 over the scrim. It slides in over 320ms and its links drift in 40ms apart; closing has no animation. Rows are 49px, and the current one is highlighted with its ink ring.
 - **Text link:** ink with a 1px ink underline. On hover and focus the highlighter is drawn behind the words like a stroke of a marker and the underline thickens. On the binder the words stay as they are and the underline takes the highlighter.
 - **Row link:** a row at least 56px tall inside a ledger. Hover, focus and press fill it with the wash, underline its label and move its arrow 3px.
 - **Pagination:** square page numbers (44px, 40px from 68em) with a 2px ink border; the current page is the highlighter at weight 700.
-- **Footer:** the binder, with the lockup, two link lists, status lines and the legal text on the twelve-column grid. A hovered link is underlined in the highlighter.
+- **Footer:** the binder. A statement (the lockup, the tagline in Besley with its last two words underlined in the highlighter, the one button and the contact address), a ledger of the site (Purchase, Catalog, Worked example, About, Contact), the seven phases as index tabs in the binder's raised surface standing on one hairline across the twelve-column grid (ledger rows below 68em), the two status lines drawn as tally blocks, and the legal text. A hovered or focused link is underlined in the highlighter, and a hovered or focused tab takes a highlighter top edge.
 
 ### Template Cover
 
@@ -493,7 +513,7 @@ The signature object: a miniature first page of a template, printed on a paper s
 
 ### Ink Backdrop
 
-The showpiece. One canvas serves the whole page, and the backdrop most in view holds it; every other backdrop shows a still image of its scene. Seven scenes exist: a black drop and a blue one landing in the hero's empty prompt box and opening across the first screen before they clear (slow drops then keep arriving), a drop onto the tenth block of the 90% tally when the scroll reaches it, blue ink rising from the foot of the closing band and of the Purchase page's stage, pale wisps in the footer, a strip beside wide page titles, a spill on the 404, and the drop under the first-load cover. Text over ink marks itself as a calm zone and the ink is thinned and capped around it. The footer's wisps keep to a 112px strip under the legal line, fading in from its top, so no wisp stands under a link or the notice. Below 68em the 90% still takes the height of its band, so its ink lands in the open water under the tally instead of past the foot. A 44px pause button with a 32px round sits at the foot of the stage. The ink gives way to its stills under reduced motion, raised contrast, forced colours, data saving, without WebGL2, and on a device that cannot keep up.
+The showpiece. One canvas serves the whole page, and the backdrop most in view holds it; every other backdrop shows a still image of its scene. Seven scenes exist: a black drop and a blue one landing in the hero's empty prompt box and opening across the first screen before they clear (slow drops then keep arriving), a drop onto the tenth block of the 90% tally when the scroll reaches it, blue ink rising from the foot of the closing band and of the Purchase page's stage, pale wisps in the footer, a strip beside wide page titles, a spill on the 404, and the drop under the first-load cover. Text over ink marks itself as a calm zone and the ink is thinned and capped around it. The footer's wisps keep to a 112px strip under the legal line, fading in from its top, so no wisp stands under a link or the notice. Below 68em the 90% still takes the height of its band, so its ink lands in the open water under the tally instead of past the foot. From 68em a wide still stands where the page's grid is and not where the window's edges are: it is scaled with the window only as far as a 1600px desktop and is as wide as the page asks past it, centred, so the ink keeps to the same words and columns on a large monitor. A 44px pause button with a 32px round sits at the foot of the stage. The ink gives way to its stills under reduced motion, raised contrast, forced colours, data saving, without WebGL2, and on a device that cannot keep up.
 
 ### Entrances and Page Changes
 
@@ -505,8 +525,9 @@ Content arrives in one of four ways: a drift (12px up, fading in), ink-in (fadin
 
 - **Do** pair every highlighter fill with ink: a 2px inset ring, an ink border, a tick or weight 700 text.
 - **Do** put a band under everything, and let the band set the colours through the semantic names.
-- **Do** present a thing as a paper object (a sheet, a stack, a folder, a cover) or as a row on a hairline. A set of short claims (the home values, the About proof points) is a ledger, not a grid of icon tiles; the line drawings belong to the home manifest alone.
+- **Do** present a thing as a paper object (a sheet, a stack, a folder, a cover) or as a row on a hairline. A set of short claims (the About buyers, as a ruled register) is a ledger, not a grid of icon tiles; the line drawings belong to the home manifest alone.
 - **Do** take every space from the 7px module and every layout change from the two breakpoints, 40em and 68em.
+- **Do** write every size and space in rem, so the root size scales the page on a large monitor. Hairlines, edges, corner radii and shadows stay in pixels.
 - **Do** set documents, figures and prices in Besley at 600 to 800, and everything the store says in Atkinson Hyperlegible Next.
 - **Do** make hover and keyboard focus look the same, and give a press the same answer, so a finger gets what a pointer gets.
 - **Do** keep every target at least 44px tall below 68em, and show the 3px focus ring 3px off the element.

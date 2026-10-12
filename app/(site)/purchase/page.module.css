@@ -1,52 +1,80 @@
 /*
- * The stage: the portfolio alone on white paper, with 28px over it (the title block is right
- * above) and the band's own room under it.
+ * The stage: the folder and the contents leaf on white paper, with 28px over it (the title block
+ * is right above) and the band's own room under it.
  */
 .stage.stage {
   padding-block-start: var(--s-4);
 }
 
-/* A count of the ledger, in Besley's own figures (see the display classes in globals.css). */
-.count {
-  margin-inline-end: 0.15em;
-  font-family: var(--face-display);
-  font-size: var(--size-section);
-  line-height: 1;
-  font-weight: 700;
-  font-feature-settings: "tnum" 0;
+/*
+ * A phone and a tablet get one column, the folder first, 56px above the leaf. A landscape tablet
+ * (from about 1010px of window, as wide as the two need at 28rem each with 56px between them) gets
+ * the two side by side, each centred on the other, the tag lying on the folder's front as it does
+ * in one column. From 68em it is the twelve-column grid: the folder in columns 1 to 6, column 7
+ * left empty (the price tag hangs about 50px past the folder's edge, into it) and the leaf in
+ * columns 8 to 12.
+ */
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 28rem), 1fr));
+  gap: var(--s-6);
+  align-items: center;
 }
 
-/* The button, then the address: stacked on a phone, beside each other from 40em. */
-.action {
-  display: flex;
-  flex-direction: column;
-  gap: var(--s-3);
-  margin-block-start: var(--s-5);
+.folder,
+.leaf {
+  min-width: 0;
 }
 
-.contact {
-  max-width: var(--wrap-copy);
-  color: var(--text-soft);
+/*
+ * Below 68em the still of the ink is the tall frame, scaled by the width of the window and set on
+ * the foot of the stage. Beside each other the pair is a short stage, so a frame as tall as the
+ * window is wide is cut by the stage's top edge, and a cloud that goes on past it would show as a
+ * straight line. The ink thins to nothing over the first 6rem instead.
+ */
+.stage [data-ink-backdrop] {
+  mask-image: linear-gradient(to bottom, transparent, var(--ink) 6rem);
 }
 
-.sample {
-  margin-block-start: var(--s-4);
-}
-
-.provisional {
-  max-width: var(--wrap-copy);
-  margin-block-end: var(--s-3);
-  color: var(--text-soft);
-}
-
-@media (min-width: 40em) {
-  .action {
-    flex-direction: row;
-    align-items: center;
-    gap: var(--s-4);
+@media (min-width: 68em) {
+  .stage [data-ink-backdrop] {
+    mask-image: none;
   }
 
-  .action > :first-child {
-    flex: none;
+  .grid {
+    grid-template-columns: repeat(12, minmax(0, 1fr));
+    gap: 0 var(--col-gap);
+    align-items: center;
+  }
+
+  /*
+   * On a large monitor the column grows faster than the root size does (see `--page-max` and the
+   * `html` rule in globals.css), and the folder and the leaf are drawn in rem: left alone they would
+   * stand at the two ends of the column with a wide empty stretch between them. `--grow` is how many
+   * times wider the column is than its 77rem at the root size in use: 1 up to a 1600px window, 1.15
+   * at 2560 and 1.4 from 3440. Each object is drawn that much larger, as one piece (its type, its
+   * paper, its shadow), so the pair keeps its proportions in the column. A short window (an
+   * ultrawide is 1440px high) cannot hold the pair that large, so the growth also stops at what the
+   * window's height allows, 1.25 at 1440px; and it never goes below 1. The ratio of two lengths is
+   * made a plain number by the tangent of the arc tangent of the pair.
+   */
+  .folder,
+  .leaf {
+    --grow: max(1, min(tan(atan2(var(--page-max), 77rem)), tan(atan2(100svh, 1150px))));
+
+    zoom: var(--grow);
+  }
+
+  .folder {
+    grid-column: 1 / span 6;
+  }
+
+  .leaf {
+    grid-column: 8 / -1;
+  }
+
+  /* The folder stands on the page's left edge, under the title, not in the middle of its columns. */
+  .portfolio.portfolio {
+    justify-items: start;
   }
 }

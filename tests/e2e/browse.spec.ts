@@ -12,7 +12,6 @@ test.beforeEach(async ({ page }) => {
 
 test("home leads to a phase and on to its free sample, open in the catalog", async ({ page }) => {
   await page.goto("/");
-  await expect(page.getByText("Beta preview — templates shown are samples.")).toBeVisible();
   await expect(page.getByRole("heading", { level: 1 })).toHaveText(
     "Don’t start your M365 rollout from a blank prompt.",
   );

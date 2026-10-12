@@ -128,6 +128,20 @@ describe("the choice", () => {
     expect(chooseStage([bloom, partial])).toBe("bloom");
   });
 
+  it("gives the very end of the page to a footer taller than the band above it shows", () => {
+    // A tall footer: only a third of the closing band's tail is left, which is below the share
+    // that makes the topmost win, and by weight and area the band would hold the canvas.
+    const bloom = band("bloom", -429, 640);
+    const wisps = band("wisps", 788, 112);
+    expect(bloom.visible / bloom.area).toBeLessThan(0.4);
+    expect(chooseStage([bloom, wisps])).toBe("bloom");
+    expect(chooseStage([bloom, wisps], "bloom", true)).toBe("wisps");
+
+    // Not at the end of the page, or with the lowest backdrop only partly there, nothing changes.
+    expect(chooseStage([bloom, wisps], "bloom", false)).toBe("bloom");
+    expect(chooseStage([bloom, band("wisps", 850, 112)], "bloom", true)).toBe("bloom");
+  });
+
   it("gives the window to the cover while the cover is up", () => {
     const cover = candidate("intro", { left: 0, top: 0, width: 1440, height: 900 }, view);
     expect(chooseStage([cover])).toBe("intro");

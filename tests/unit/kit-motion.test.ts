@@ -200,6 +200,26 @@ describe(FILE, () => {
     expect(end(heading)).toBeLessThan(end(text));
   });
 
+  it("keeps the red pulse off a denied tile that holds keyboard focus", () => {
+    // The tile's outline is the only mark of focus on a locked tile; an animation of its
+    // `outline-color` that ends on transparent would take the ring away for the whole denial.
+    const animationOf = (prelude: string) =>
+      blocks
+        .find((block) => block.prelude === prelude)
+        ?.declarations.find(({ property }) => property === "animation")?.value;
+    const denied = 'html[data-motion="on"] [data-tile][data-denied]';
+    expect(animationOf(denied)).toContain("denied-pulse");
+    const focused = animationOf(`${denied}:has(:focus-visible)`);
+    expect(focused).toContain("tile-shake");
+    expect(focused).not.toContain("denied-pulse");
+  });
+
+  it("leaves the layer of a view transition without pointer events under every motion setting", () => {
+    const rule = blocks.find((block) => block.prelude === "::view-transition");
+    expect(rule?.parents).toEqual([]);
+    expect(rule?.declarations).toEqual([{ property: "pointer-events", value: "none" }]);
+  });
+
   it("repeats nothing and registers no custom property", () => {
     // Spelled in two halves: the design gate reads this file too.
     expect(SOURCE).not.toMatch(new RegExp(["infi", "nite"].join(""), "i"));

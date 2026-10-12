@@ -6,7 +6,7 @@
 }
 
 .format {
-  padding: 2px var(--s-1);
+  padding: 0.125rem var(--s-1);
   border: var(--hair) solid var(--line-ink);
   background: var(--surface);
   color: var(--text);
@@ -14,7 +14,7 @@
 
 /* The highlighter with its ink ring and ink text; the heavier weight is one more cue. */
 .saving {
-  padding: 2px var(--s-1);
+  padding: 0.125rem var(--s-1);
   background: var(--mark);
   box-shadow: inset 0 0 0 var(--hair) var(--ink);
   color: var(--on-mark);

@@ -2,16 +2,23 @@
  * The stage of the hero: the prompt box and the hand of documents in one cell, the box in the
  * middle of the hand. The stage is a size container, so one unit (`cqi`) is 1% of its width for
  * everything in it, and making the stage narrower makes the whole hand smaller. It is as wide as the page
- * at most, and never so wide that the hand (`--hand` units tall) outgrows the height the band has
- * for it (`--hero-room`, set by the band from 68em; without it there is no such limit).
+ * at most (on a large monitor a little wider: `--stage-bleed`, set by the band from 68em, is how
+ * far each side of the hand stands out past the column, into the margin, so that the hand still
+ * has the height the window gives it), and never so wide that the hand (`--hand` units tall)
+ * outgrows the height the band has for it (`--hero-room`, set by the band from 68em; without it
+ * there is no such limit).
  */
 .stage {
   --tall: var(--hand-narrow);
+  --bleed: var(--stage-bleed, 0px);
 
   display: grid;
   container-type: inline-size;
-  width: 100%;
-  max-width: min(var(--page-max), calc(var(--hero-room, 500rem) * 100 / var(--tall)));
+  width: calc(100% + 2 * var(--bleed));
+  max-width: min(
+    var(--page-max) + 2 * var(--bleed),
+    calc(var(--hero-room, 500rem) * 100 / var(--tall))
+  );
   min-width: 0;
 }
 
@@ -41,6 +48,11 @@
   z-index: var(--z);
   width: calc(var(--w-narrow) * 1cqi);
   rotate: var(--lean);
+}
+
+/* The sheet inside leans the same angle again: that doubled fan is the look of the first screen. */
+.doc :global([data-paper]) {
+  --sheet-turn: var(--lean);
 }
 
 /* Under the keyboard it straightens and comes to the front; under the pointer too (below). */
@@ -90,14 +102,19 @@
  * behind it is seen inside it. A caret stands where the first word would go; a key for adding
  * something and the send key, in solid ink, stand on its bottom edge. It never takes the pointer,
  * so the documents under it can be reached from the first moment they show. Whether it is
- * displayed at all is decided in app/motion.css.
+ * displayed at all is decided in app/motion.css. It is 40rem by 7.5rem, which is just over half
+ * of the page (0.5195 of `--page-max`, 77rem) up to a 1600px desktop; past it the box follows the
+ * page and not the root size alone, so that on a large monitor it is still half of the headline's
+ * width and not a small field in the middle of a wide stage.
  */
 .prompt {
+  --prompt-w: max(40rem, var(--page-max) * 0.5195);
+
   z-index: 8;
   place-self: center;
   align-content: space-between;
-  width: min(100%, 40rem);
-  height: min(7.5rem, 100%);
+  width: min(100%, var(--prompt-w));
+  height: min(var(--prompt-w) * 0.1875, 100%);
   padding: var(--s-2);
   border: var(--edge) solid var(--ink);
   border-radius: var(--round-3);

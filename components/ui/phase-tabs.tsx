@@ -8,8 +8,9 @@ import styles from "./phase-tabs.module.css";
  * and the phase name, so its accessible name is exactly the phase name.
  *
  * `size="rail"` is the strip under the bar: equal tabs in one row, standing on the bottom edge of
- * whatever holds them. `size="large"` is the set of index cards on a page: two per row, four from
- * 40em, and one row from 68em in which each card is as wide as its name needs.
+ * whatever holds them. `size="large"` is the set of index cards on a page: two per row, then from
+ * 40em one row in which each card is as wide as its name needs where the list is wide enough for
+ * the seven, and four across where it is not.
  *
  * `current` is the slug of the phase being shown. `currentKind` says how: `page` when the page is
  * that phase, `true` when the page only belongs to it (a template of that phase). The component has

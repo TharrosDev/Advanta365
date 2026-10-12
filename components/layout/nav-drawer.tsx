@@ -2,7 +2,7 @@
 
 import { usePathname } from "next/navigation";
 import { useEffect, useId, useRef, useState } from "react";
-import type { MouseEvent } from "react";
+import type { MouseEvent, PointerEvent } from "react";
 import {
   PRIMARY_LINKS,
   currentPhase,
@@ -16,6 +16,7 @@ import { Icon } from "@/components/ui/icon";
 import { TextLink } from "@/components/ui/text-link";
 import { TransitionLink } from "@/components/ui/transition-link";
 import { cssVars, cx } from "@/lib/cx";
+import { createScrimPress } from "@/lib/scrim";
 import styles from "./nav-drawer.module.css";
 
 /** From this width the bar shows its links inline and the drawer has no button. */
@@ -30,8 +31,8 @@ const INLINE_NAV = "(min-width: 68em)";
  * inside, closes on Escape and hands focus back to the button.
  *
  * It enters in 320ms and its links drift in one after another, 40ms apart (the CSS module owns both).
- * It closes on Close, Escape, a click on the dimmed page, any link inside it and any change of
- * page. Closing is instant. `open` only mirrors the dialog for `aria-expanded`; the dialog's own
+ * It closes on Close, Escape, a click on the dimmed page (one that began there as well: a selection
+ * dragged out of the panel does not count), any link inside it and any change of page. Closing is instant. `open` only mirrors the dialog for `aria-expanded`; the dialog's own
  * `close` event is what clears it, so every way of closing is covered by one handler.
  */
 export function NavDrawer({
@@ -52,6 +53,8 @@ export function NavDrawer({
   const phasesLabelId = useId();
   const dialogRef = useRef<HTMLDialogElement>(null);
   const [open, setOpen] = useState(false);
+  // Where the press and the release of the click in progress landed.
+  const [scrim] = useState(createScrimPress);
   const openedOn = useRef(pathname);
   const phase = currentPhase(pathname);
 
@@ -65,9 +68,14 @@ export function NavDrawer({
 
   const close = () => dialogRef.current?.close();
 
-  // The dimmed page is the dialog's own backdrop: a click there has the dialog as its target.
+  // The dimmed page is the dialog's own backdrop: a click there has the dialog as its target. A
+  // selection dragged from the panel onto it also ends there, so the press must have been there too.
+  const pressOnScrim = (event: PointerEvent<HTMLDialogElement>) =>
+    scrim.press(event.target === event.currentTarget);
+  const releaseOnScrim = (event: PointerEvent<HTMLDialogElement>) =>
+    scrim.release(event.target === event.currentTarget);
   const closeFromScrim = (event: MouseEvent<HTMLDialogElement>) => {
-    if (event.target === event.currentTarget) close();
+    if (scrim.click(event.target === event.currentTarget)) close();
   };
 
   // A change of page that did not start from a link in the panel (the Back button) closes it too.
@@ -108,6 +116,8 @@ export function NavDrawer({
         data-nav-drawer=""
         className={styles.drawer}
         onClose={() => setOpen(false)}
+        onPointerDown={pressOnScrim}
+        onPointerUp={releaseOnScrim}
         onClick={closeFromScrim}
       >
         {/* The panel covers the whole dialog, so only the dimmed page counts as "outside". */}

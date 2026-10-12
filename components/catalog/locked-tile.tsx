@@ -17,11 +17,12 @@ const DENIED_MS = 600;
  * empty, from the first render.
  *
  * Pressing the button opens nothing. The tile (the nearest `[data-tile]`) carries `data-denied`
- * for 600ms: a red outline that pulses, a shake, and the padlock rattling (app/motion.css; under
- * reduced motion the outline alone). A press while it still carries the state takes it away and
- * puts it back, so the answer starts over. From the first press on, the live region holds one
- * line, "Included with the toolkit.", with a link to the purchase page; the button is described by
- * it. Every press renders that one line anew, so it is announced once per press and never stacked.
+ * for 600ms: a red outline and wash that hit and fade, the tile vibrating, and the padlock rattling
+ * (app/motion.css; under reduced motion the outline and wash, standing). A press while it still
+ * carries the state takes it away and puts it back, so the answer starts over. From the first
+ * press on, the live region holds one line, "Included with the toolkit.", with a link to the
+ * purchase page; the button is described by it. Every press renders that one line anew, so it is
+ * announced once per press and never stacked.
  *
  * `initialDenied` is for a link that names this template (`?view=`): the server has already
  * rendered the tile with the state and the line, and here the tile is brought into view and the

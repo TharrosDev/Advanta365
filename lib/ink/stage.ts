@@ -65,11 +65,22 @@ const score = (candidate: Candidate) => candidate.visible * STAGES[candidate.sce
  * in view, except that a backdrop in view whole beats a topmost one that is only partly there (at
  * the foot of a page the footer is what is being looked at, not the tail of the band above it);
  * otherwise the largest visible area times weight wins, and the current holder keeps the canvas
- * unless a challenger beats it by a quarter.
+ * unless a challenger beats it by a quarter. With the page scrolled to its very end (`atEnd`), the
+ * lowest backdrop wins once it is in view whole: a footer taller than most of the window leaves
+ * only a sliver of the band above it, and what is being looked at is the footer.
  */
-export function chooseStage<T>(candidates: readonly Candidate<T>[], holder?: T | null): T | null {
+export function chooseStage<T>(
+  candidates: readonly Candidate<T>[],
+  holder?: T | null,
+  atEnd = false,
+): T | null {
   const shown = candidates.filter((candidate) => candidate.visible > 0 && candidate.area > 0);
   if (!shown.length) return null;
+
+  if (atEnd) {
+    const lowest = shown.reduce((a, b) => (b.top > a.top ? b : a));
+    if (lowest.visible / lowest.area >= WHOLE_SHARE) return lowest.id;
+  }
 
   const higher = (a: Candidate<T>, b: Candidate<T>) => (b.top < a.top ? b : a);
   const topmost = shown.reduce(higher);

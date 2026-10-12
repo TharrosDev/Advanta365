@@ -12,7 +12,7 @@ type PaperSheetProps = {
   depth?: 0 | 1 | 2 | 3 | 4;
   /** Rises, tilts and takes the light under the pointer. */
   lit?: boolean;
-  /** The resting turn, in degrees. */
+  /** The resting turn, in degrees. Only this prop turns the sheet: a wrapper's `--turn` is not read. */
   turn?: number;
   ref?: Ref<HTMLElement>;
 } & HTMLAttributes<HTMLElement>;
@@ -48,7 +48,9 @@ export function PaperSheet({
       data-paper=""
       data-lit={lit ? "" : undefined}
       className={cx(styles.root, styles[ratio], styles[size], styles[`depth${depth}`], className)}
-      style={turn === undefined ? style : { ...style, ...cssVars({ "--turn": `${turn}deg` }) }}
+      style={
+        turn === undefined ? style : { ...style, ...cssVars({ "--sheet-turn": `${turn}deg` }) }
+      }
     />
   );
 }

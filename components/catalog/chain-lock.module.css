@@ -1,6 +1,6 @@
 /*
- * The drawing fills the well of its tile and lies over the cover. Its two shadows are the steel
- * touching the paper and the steel standing a little off it.
+ * The drawing fills the well of its tile and lies over the cover. It casts one soft shadow: the
+ * steel standing a little off the paper.
  */
 .root {
   position: absolute;
@@ -9,7 +9,7 @@
   width: 100%;
   height: 100%;
   overflow: visible;
-  filter: drop-shadow(0 1px 0.8px var(--lock-cast)) drop-shadow(0 4px 5px var(--lock-cast));
+  filter: drop-shadow(0 1px 1.5px var(--lock-cast));
   pointer-events: none;
 }
 
@@ -21,7 +21,7 @@
   overflow: hidden;
 }
 
-/* Steel: a dark edge, the metal (painted by a gradient across the wire) and the light on it. */
+/* Steel: a hairline edge, the metal (painted by a gradient across the wire) and the light on it. */
 .edge {
   fill: none;
   stroke: var(--steel-edge);
@@ -37,54 +37,58 @@
   fill: none;
   stroke: var(--steel-light);
   stroke-linecap: round;
-  opacity: 0.9;
+  opacity: 0.55;
 }
 
 .stopLight {
   stop-color: var(--steel-light);
 }
 
-.stopSteel {
-  stop-color: var(--steel);
-}
-
 .stopShade {
   stop-color: var(--steel-shade);
 }
 
-.stopLockLight {
-  stop-color: var(--lock-light);
-}
-
-.stopLock {
-  stop-color: var(--lock);
-}
-
-.stopLockShade {
-  stop-color: var(--ink);
-}
-
-/* The padlock turns about the top of its bow, where it hangs. */
+/* The padlock hangs on the crossing of the chains and turns about it (its origin is set in the markup). */
 .lock {
-  transform-box: fill-box;
-  transform-origin: 50% 8%;
+  transform-box: view-box;
 }
 
-.bodyEdge,
-.hole {
-  fill: var(--ink);
+/* The body is nearly flat; the light is one hairline along its top edge. */
+.body {
+  fill: var(--lock);
 }
 
-.plateEdge {
-  fill: var(--steel-edge);
-}
-
-.bevel {
+.topLight {
   fill: none;
-  stroke: var(--steel-light);
-  stroke-width: 0.7;
+  stroke: var(--lock-light);
+  stroke-width: 0.8;
   stroke-linecap: round;
-  opacity: 0.38;
+}
+
+.hole {
+  fill: var(--steel);
+  opacity: 0.8;
+}
+
+/* More contrast: no soft shadow and no light on the steel; the edge is as dark as it can be. */
+@media (prefers-contrast: more) {
+  .root {
+    filter: none;
+  }
+
+  .edge {
+    stroke: var(--ink);
+  }
+
+  .glint,
+  .topLight {
+    display: none;
+  }
+
+  .hole {
+    fill: var(--paper);
+    opacity: 1;
+  }
 }
 
 /* In forced colours the gradients go: the chain and the padlock are drawn in the text colour. */
@@ -99,17 +103,16 @@
   }
 
   .glint,
-  .bevel {
+  .topLight {
     display: none;
   }
 
-  .padlock rect,
-  .plateEdge,
-  .hole {
+  .body {
     fill: CanvasText;
   }
 
-  .plate {
+  .hole {
     fill: Canvas;
+    opacity: 1;
   }
 }

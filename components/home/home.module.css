@@ -13,12 +13,16 @@
  * column's own bottom padding). A clip on the band, or one on the column in both directions,
  * costs the ink's engine some 170ms when it starts, so there is neither.
  *
- * From 68em the whole of it fits the window. The column is as tall as the window leaves (the bar,
- * the rail and the beta strip taken off, 56rem at most) and the stage stands in the middle of
- * whatever the rest does not use. On a low window the headline gives first (`--hero-size`: its
- * own size down to 12svh less 22px, which is its own size from 800px of height up, and never so
- * large that its longer line, 15.3 of its ems, would not fit the page) and then the
- * hand: `--hero-room` is what is left for it once the headline's two lines and the 15.5rem of
+ * From 68em the whole of it fits the window. The column is as tall as the window leaves (the bar
+ * and the rail taken off, `--hero-cap` at most: 56rem up to a 1600px desktop, then 57% of the
+ * window's width, so that a 16:9 and a 16:10 monitor are filled to the fold at any size) and the
+ * stage stands in the middle of whatever the rest does not use. The headline is the page's width
+ * as much as its height: on a large monitor it grows with the column (`--hero-type`, a sixteenth
+ * of it) so that it still spans it, as it does on a desktop. On a low window the headline gives
+ * first (`--hero-size`: its own size down to 12svh less 22px, which is its own size from 800px of
+ * height up, and never so large that its longer line, 15.3 of its ems, would not fit the column:
+ * the column's own width, `cqi` of the band's inner box, so a scrollbar is not counted) and then
+ * the hand: `--hero-room` is what is left for it once the headline's two lines and the 15.5rem of
  * everything else are taken off, and the stage narrows until its hand is no taller than that. The
  * band itself is never less than 85.5% of the window; what that adds is padding under the foot
  * (`--hero-under`).
@@ -95,7 +99,7 @@
  * read on paper. Two facts to a row below 40em, four from there, a hairline between them. The
  * strip leaves the band's bottom right corner to the pause button (44px, and 14px of air): below
  * 40em by ending short of it, from 40em by standing centred between two such margins, 64rem wide
- * at most.
+ * at most (four fifths of the column on a large monitor, where that is more).
  */
 .proof {
   position: relative;
@@ -154,7 +158,7 @@
   .proof {
     grid-template-columns: repeat(4, minmax(0, 1fr));
     justify-self: center;
-    width: min(64rem, 100% - 2 * (var(--tap) + var(--s-2)));
+    width: min(max(64rem, var(--page-max) * 0.8), 100% - 2 * (var(--tap) + var(--s-2)));
   }
 
   .proofItem:nth-child(n + 2) {
@@ -170,16 +174,25 @@
   .hero.hero {
     --hero-above: var(--s-2);
     --hero-below: var(--s-1);
-    --hero-window: min(100svh - var(--bar-h) - var(--rail-h) - var(--strip-h, 0px), 56rem);
-    --hero-size: min(var(--size-hero), 12svh - 1.375rem, (100vw - 2 * var(--page-pad)) / 15.3);
-    --hero-room: calc(var(--hero-window) - 2.12 * var(--hero-size) - 15.5rem);
+    --stage-bleed: calc(max(0px, var(--over) - 320px) * 0.2);
+    --hero-cap: max(56rem, 57vw);
+    --hero-window: min(100svh - var(--bar-h) - var(--rail-h), var(--hero-cap));
+    --hero-type: max(var(--size-hero), var(--page-max) / 16.2);
+    --hero-size: min(var(--hero-type), 12svh - 1.375rem, 100cqi / 15.3);
+    --hero-lead: max(var(--size-lead), var(--hero-size) / 4);
+    --hero-room: calc(
+      var(--hero-window) - 2.12 * var(--hero-size) - 3 * (var(--hero-lead) - var(--size-lead)) -
+        15.5rem
+    );
     --hero-under: max(
       var(--hero-below),
-      min(85.5svh, 56rem) - var(--hero-window) + var(--hero-below)
+      min(85.5svh, var(--hero-cap)) - var(--hero-window) + var(--hero-below)
     );
   }
 
+  /* The column's own width is what `--hero-size` and the stage's measure are taken from. */
   .heroInner {
+    container-type: inline-size;
     row-gap: var(--s-2);
     min-height: calc(var(--hero-window) - var(--hero-above) - var(--hero-below));
   }
@@ -189,8 +202,14 @@
     font-size: var(--hero-size);
   }
 
-  .heroLead {
+  /*
+   * Doubled, as the title is. The lead is a quarter of the headline, which is its own size up to
+   * about 1920px of window and grows with the headline past it.
+   */
+  .heroLead.heroLead {
+    max-width: max(58rem, var(--hero-lead) * 46.4);
     margin-block-start: var(--s-2);
+    font-size: var(--hero-lead);
   }
 
   .heroActions {
@@ -202,6 +221,25 @@
   .proof::before,
   .proofItem {
     border-color: GrayText;
+  }
+}
+
+/*
+ * The six free samples as tiles. The catalog's own grid fills a row with as many columns of at
+ * least 11rem as it holds, which leaves a lone tile on a second row at 960 to 1090px and an empty
+ * column or two on a large monitor. Six is what is here, so six is what the rows are made of: two
+ * by two on a phone (the grid's own), three by two from 40em, and from 68em one row of six that
+ * is as wide as the page whatever its size.
+ */
+@media (min-width: 40em) {
+  .featuredGrid.featuredGrid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+@media (min-width: 68em) {
+  .featuredGrid.featuredGrid {
+    grid-template-columns: repeat(6, minmax(0, 1fr));
   }
 }
 
@@ -250,10 +288,13 @@
     grid-column: 6 / -1;
   }
 
-  /* At most 20rem wide, with room on its left for the sheets that lie beneath it. */
+  /*
+   * At most 20rem wide, with room on its left for the sheets that lie beneath it; on a large
+   * monitor four fifths of the margin, which is wider than that.
+   */
   .insideSpecimen {
     display: block;
-    max-width: 20rem;
+    max-width: max(20rem, 78%);
     margin-block-start: var(--s-5);
     margin-inline-start: var(--s-1);
   }
@@ -351,13 +392,13 @@
 /* The arrow stands at the end of the row, centred on it. */
 .manifestArrow {
   position: absolute;
-  top: calc(50% - 10px);
+  top: calc(50% - 0.625rem);
   right: 0;
   pointer-events: none;
 }
 
 .manifestLink .manifestBody {
-  padding-inline-end: calc(20px + var(--s-2));
+  padding-inline-end: calc(1.25rem + var(--s-2));
 }
 
 .manifestLink:has(.manifestAnchor:focus-visible) .manifestAnchor {
@@ -415,11 +456,13 @@
 
 /*
  * The toolkit. The words, then the portfolio under them; from 68em the words in columns 1 to 5 and
- * the portfolio in columns 7 to 12, centred on each other.
+ * the portfolio in columns 7 to 12, centred on each other. Before that the two stand side by side
+ * as soon as each has 24rem (a tablet held wide), so the folder is not left alone in the middle of
+ * a row with 270px of nothing on either side; narrower, one column.
  */
 .toolkit {
   display: grid;
-  grid-template-columns: minmax(0, 1fr);
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 24rem), 1fr));
   gap: var(--s-6);
   align-items: center;
 }
@@ -461,11 +504,21 @@
   .toolkitObject {
     grid-column: 7 / -1;
   }
+
+  /*
+   * The folder is 30rem wide, which is four fifths of its six columns on a desktop and less of
+   * them on a large monitor, where the columns grow faster than the root size does: so it takes
+   * four fifths of them when that is more. (Doubled by the attribute selector to outrank the
+   * measure the portfolio sets for itself.)
+   */
+  .toolkitObject > [class] {
+    --portfolio-w: max(30rem, 79.7%);
+  }
 }
 
 /*
- * A statement band (`#problem`, `#practice`): the label, the statement in columns 1 to 9, and
- * what follows it in columns 7 to 12, 42px lower.
+ * The statement band (`#practice`): the label, the statement in columns 1 to 9, and what follows
+ * it in columns 7 to 12, 42px lower.
  */
 .statement {
   display: grid;
@@ -518,19 +571,22 @@
     grid-column: 1 / span 9;
   }
 
+  /* Its six columns, and no wider than a lead's reading width, which they are not at a desktop. */
   .statementAside {
     grid-column: 7 / -1;
-    max-width: none;
+    max-width: var(--wrap-lead);
   }
 }
 
 /*
  * The ninety. `--figure` is the size of "90%": the poster size, never more than 30% of the
  * window's height and, from 68em, never so large that the figure (2.45em wide) leaves its six
- * columns: the grid measures itself for that. Stacked in document order below 68em, the open water 14rem tall at the foot.
- * From 68em the band is at least min(88svh, 46rem) tall: the label; the figure in columns 1 to 6
- * with the rest of the sentence in columns 7 to 12 on its baseline; the tally across the grid; the
- * paragraph in columns 1 to 6 beside the open water in columns 7 to 12.
+ * columns: the grid measures itself for that. Stacked in document order below 68em, the open water
+ * 14rem tall at the foot. From 68em the band is at least min(88svh, 46rem) tall (a quarter of a
+ * pixel more for every pixel of window past a 1600px desktop, so a large monitor gets a band as
+ * deep as it is): the label; the figure in columns 1 to 6 with the rest of the sentence in columns
+ * 7 to 12 on its baseline; the tally across the grid; the paragraph in columns 1 to 6 beside the
+ * open water in columns 7 to 12.
  */
 .ninety {
   --figure: min(var(--size-poster), 30svh);
@@ -586,7 +642,7 @@
     grid-template-columns: repeat(12, minmax(0, 1fr));
     grid-template-rows: auto auto auto 1fr;
     column-gap: var(--col-gap);
-    min-height: calc(min(88svh, 46rem) - 2 * var(--pad));
+    min-height: calc(min(88svh, 46rem + var(--over) * 0.25) - 2 * var(--pad));
   }
 
   .ninetyLabel {
@@ -626,99 +682,16 @@
 }
 
 /*
- * Why Advanta365: a label, a statement, then the four values as a ledger. A row is its title and
- * its sentence, stacked on a phone and side by side from 40em; from 68em the ledger takes the
- * twelve columns, the title 1 to 5 and the sentence 6 to 12.
- */
-.valuesTitle {
-  max-width: var(--wrap-head);
-  margin-block-start: var(--s-2);
-}
-
-/* Doubled to outrank the ledger's own `margin: 0`. */
-.valuesList.valuesList {
-  margin-block-start: var(--s-6);
-}
-
-.value.value {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr);
-  gap: var(--s-1);
-  padding-block: var(--s-3) var(--s-4);
-}
-
-.valueTitle {
-  min-width: 0;
-  color: var(--text);
-}
-
-.valueBody {
-  min-width: 0;
-  max-width: var(--wrap-copy);
-  color: var(--text-soft);
-}
-
-@media (min-width: 40em) {
-  .value.value {
-    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
-    column-gap: var(--col-gap);
-    align-items: baseline;
-  }
-}
-
-@media (min-width: 68em) {
-  .value.value {
-    grid-template-columns: repeat(12, minmax(0, 1fr));
-  }
-
-  .valueTitle {
-    grid-column: 1 / span 5;
-  }
-
-  .valueBody {
-    grid-column: 6 / -1;
-  }
-}
-
-/*
- * Built for Microsoft 365. The band has no padding above (the values band supplies it) and 84px
- * below. The names run on as one wrapping line of large type; a name keeps its slash.
- */
-.builtFor.builtFor {
-  padding-block-end: var(--s-7);
-}
-
-.builtForNames {
-  margin: var(--s-3) 0 0;
-  padding: 0;
-  list-style: none;
-  color: var(--text-soft);
-  font-family: var(--face-display);
-  font-size: var(--size-page);
-  line-height: 1.25;
-  font-weight: 600;
-}
-
-.builtForName {
-  display: inline-block;
-  margin-inline-end: 0.4em;
-}
-
-.builtForSlash {
-  margin-inline-start: 0.4em;
-  color: var(--text-faint);
-}
-
-/*
- * Closing. The band is at least min(72svh, 40rem) tall: the statement in columns 1 to 9, the
- * button 42px under it, and the thin tally across the grid at the foot.
+ * Closing. The band is at least min(72svh, 40rem) tall (and 0.15px for every pixel of window past
+ * a 1600px desktop): the statement in columns 1 to 9, the button 42px under it, and the thin tally
+ * across the grid at the foot.
  */
 .closing {
   display: grid;
   grid-template-columns: minmax(0, 1fr);
   grid-template-rows: auto auto 1fr;
   justify-items: start;
-  min-height: calc(min(72svh, 40rem) - 2 * var(--pad));
+  min-height: calc(min(72svh, 40rem + var(--over) * 0.15) - 2 * var(--pad));
 }
 
 .closingTitle {
@@ -746,12 +719,26 @@
 
 @media (min-width: 68em) {
   .closing {
+    container-type: inline-size;
     grid-template-columns: repeat(12, minmax(0, 1fr));
     column-gap: var(--col-gap);
   }
 
   .closingTitle {
     grid-column: 1 / span 9;
+  }
+
+  /*
+   * The statement is two lines, one to a sentence, and its longer one ("Finish the rest your way.")
+   * is 12.96 ems wide. Its nine columns are that wide for the size only at 1280 to 1366px of
+   * window and from 1920px on; between them (1440 to 1900px, where the size has stopped growing
+   * with the window and the page has not yet started to) the sentence broke in two and the
+   * statement stood in three lines. So the size is never more than those nine columns over 13
+   * ems: `cqi` is the page's width here, the container being the band's own column.
+   * (Doubled: the type class on the same element sets a size too.)
+   */
+  .closingTitle.closingTitle {
+    font-size: min(var(--size-statement), calc((75cqi - 0.25 * var(--col-gap)) / 13));
   }
 
   .closingAction,

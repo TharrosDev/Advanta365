@@ -92,12 +92,19 @@
 
 @media (min-width: 40em) {
   .root {
+    /*
+     * The side padding of both zones: 21px at 640px of window, 42px from 1088px (the dialog's own
+     * width stops growing there), so the words keep a readable line in the narrow dialog of a
+     * small tablet instead of a column of 256px.
+     */
+    --pad-x: clamp(var(--s-3), 4.6875vw - 0.5625rem, var(--s-5));
+
     grid-template-columns: minmax(0, 5fr) minmax(0, 7fr);
   }
 
   .stage {
     align-items: flex-start;
-    padding: var(--s-6) var(--s-5);
+    padding: var(--s-6) var(--pad-x);
   }
 
   /* The cover stays in view while the words scroll past it. */
@@ -109,7 +116,7 @@
   }
 
   .words {
-    padding: var(--s-5) var(--s-5) var(--s-6);
+    padding: var(--s-5) var(--pad-x) var(--s-6);
   }
 }
 

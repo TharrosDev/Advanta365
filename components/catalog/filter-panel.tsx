@@ -1,7 +1,14 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useOptimistic, useRef, useTransition, type ReactNode } from "react";
+import {
+  useEffect,
+  useOptimistic,
+  useRef,
+  useTransition,
+  type MouseEvent,
+  type ReactNode,
+} from "react";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import {
@@ -14,7 +21,12 @@ import {
   FORMATS,
   FORMAT_LABELS,
 } from "@/content/taxonomy";
-import type { CatalogCriteria, CatalogResult, FacetKey } from "@/lib/catalog/query";
+import {
+  DEFAULT_CRITERIA,
+  type CatalogCriteria,
+  type CatalogResult,
+  type FacetKey,
+} from "@/lib/catalog/query";
 import {
   FACET_TITLES,
   FREE_FILTER_LABEL,
@@ -23,6 +35,9 @@ import {
 } from "@/lib/catalog/search-params";
 import { cx } from "@/lib/cx";
 import styles from "./filter-panel.module.css";
+
+/** From this width the filters stand in the rail and the sheet's button is not displayed. */
+const RAIL = "(min-width: 68em)";
 
 type Option = { value: string; label: string };
 type Group = { key: FacetKey; title: string; options: Option[] };
@@ -41,7 +56,8 @@ type FilterPanelProps = {
 /**
  * The catalog filters: "Free samples only", then five groups of check rows with their counts, and a
  * link that clears them.
- * Every change goes to the URL at once; the box ticks before the server answers.
+ * Every change goes to the URL at once; the box ticks before the server answers. Clearing them
+ * replaces the entry in place too, and hands focus to the first row, since the link leaves.
  *
  * From 68em the groups stand in the rail as an `aside`. Below that they sit behind a "Filters"
  * button, in a native dialog that comes up from the bottom edge as a sheet: a bar with the title and
@@ -54,6 +70,18 @@ export function FilterPanel({ criteria: committed, facets, phases, sort }: Filte
   const [isPending, startTransition] = useTransition();
   // Tick the box immediately; the results follow when the server responds.
   const [criteria, setOptimisticCriteria] = useOptimistic(committed);
+
+  // A window that grows to the rail loses the button, and the sheet with it: its box is no longer
+  // drawn. A sheet still open then would leave the page inert and its scrolling locked behind
+  // nothing, so it closes when the rail takes over.
+  useEffect(() => {
+    const rail = window.matchMedia(RAIL);
+    const onChange = () => {
+      if (rail.matches) dialogRef.current?.close();
+    };
+    rail.addEventListener("change", onChange);
+    return () => rail.removeEventListener("change", onChange);
+  }, []);
 
   const groups: Group[] = [
     {
@@ -88,6 +116,19 @@ export function FilterPanel({ criteria: committed, facets, phases, sort }: Filte
     apply({ ...criteria, [key]: next, page: 1 });
   }
 
+  // The link works before the script loads. With the script it clears in place, like every other
+  // change: the entry is replaced and the page stays where it is. The link is gone once no filter
+  // is left, so focus moves first, to the top row of the list of filters it ends.
+  function clearAll(event: MouseEvent<HTMLElement>) {
+    // A click that asks for a new tab or window keeps the browser's own behaviour.
+    if (event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) {
+      return;
+    }
+    event.preventDefault();
+    event.currentTarget.parentElement?.querySelector<HTMLInputElement>("input")?.focus();
+    apply({ ...DEFAULT_CRITERIA, q: criteria.q });
+  }
+
   const fields = (
     <div className={styles.fields} aria-busy={isPending}>
       <Checkbox
@@ -117,7 +158,12 @@ export function FilterPanel({ criteria: committed, facets, phases, sort }: Filte
         </fieldset>
       ))}
       {selectedCount > 0 && (
-        <Button variant="text" href={clearFiltersHref(criteria)} className={styles.clear}>
+        <Button
+          variant="text"
+          href={clearFiltersHref(criteria)}
+          onClick={clearAll}
+          className={styles.clear}
+        >
           Clear all filters
         </Button>
       )}

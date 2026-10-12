@@ -125,8 +125,12 @@ export type InkStream = {
 export type PresetOverrides = {
   sim?: object;
   look?: object;
-  /** Rectangles a scene aims at, in fractions of the canvas. */
-  anchors?: Record<string, Rect>;
+  /**
+   * Rectangles a scene aims at, in fractions of the canvas. A function is asked each time the
+   * scene is laid out, so it also follows the page when the scene is laid out again (a phone
+   * turned, a context restored).
+   */
+  anchors?: Record<string, Rect> | (() => Record<string, Rect>);
 };
 
 export type Ink = {
