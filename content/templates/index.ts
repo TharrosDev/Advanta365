@@ -6,7 +6,7 @@ import { planTemplates } from "./plan";
 import { prepareTemplates } from "./prepare";
 import { sustainTemplates } from "./sustain";
 
-// Listed in phase order: the home page shows the first featured entries it finds.
+// Listed in phase order: the free samples come out of this list in that order.
 export const templates = [
   ...makeTheCaseTemplates,
   ...planTemplates,

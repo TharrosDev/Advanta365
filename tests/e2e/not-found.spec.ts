@@ -1,14 +1,7 @@
 import { expect, test } from "@playwright/test";
 
-const MISSING = [
-  "/templates/nope",
-  "/templates/NOPE",
-  "/templates/a%20b",
-  "/bundles/nope",
-  "/phases/nope",
-  "/nope",
-  "/templates/nope/extra",
-];
+// A template's old address is not here: it leads to the catalog now (redirects.spec.ts).
+const MISSING = ["/cart/nope", "/phases/nope", "/nope", "/templates/nope/extra"];
 
 for (const path of MISSING) {
   test(`${path} returns the 404 page`, async ({ page }) => {
@@ -21,10 +14,8 @@ for (const path of MISSING) {
 }
 
 test("a mixed-case address redirects to the lower-case page", async ({ page }) => {
-  const response = await page.goto("/Templates/Executive-Sponsor-Kickoff-Deck");
+  const response = await page.goto("/Phases/Prepare");
   expect(response?.status()).toBe(200);
-  await expect(page).toHaveURL(/\/templates\/executive-sponsor-kickoff-deck$/);
-  await expect(page.getByRole("heading", { level: 1 })).toHaveText(
-    "Executive Sponsor Kickoff Deck",
-  );
+  await expect(page).toHaveURL(/\/phases\/prepare$/);
+  await expect(page.getByRole("heading", { level: 1 })).toHaveText("Prepare");
 });

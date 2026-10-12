@@ -53,8 +53,9 @@ SharePoint Online. It is a product of EchoFive. This repository is its storefron
 - **Success for the buyer:** users who want the change, not users who were told to comply; a rollout
   that is used, not just launched.
 - **Success for the storefront (inferred):** a visitor understands what the toolkit holds, believes
-  it comes from real delivery, finds the piece for the phase they are on, and buys it or gets in
-  touch. Until checkout exists, getting in touch is the only completed outcome the site can produce.
+  it comes from real delivery, tries the free samples for the phase they are on, and buys the
+  complete toolkit or gets in touch. Until checkout exists, getting in touch is the only completed
+  outcome the site can produce.
 
 ## Positioning
 
@@ -84,7 +85,11 @@ Tagline: "Don't start from a blank prompt."
 - **Files:** templates are editable Word, PowerPoint and Excel files, with a few print-ready PDFs.
   Buyers edit them by hand or feed them to their AI tools.
 - **Microsoft 365 products covered:** SharePoint, Teams, OneDrive, Outlook and Copilot.
-- **Ways to buy:** a single template, or a bundle for a phase or a whole rollout.
+- **Ways to buy:** one: the complete toolkit, $499.99, a single purchase. The price is the owner's
+  decision. It is shown in US dollars, which was chosen on his behalf (inferred) and is waiting for
+  his confirmation. Six templates, one for each of the first six phases, are free samples. Every
+  other template is listed in the catalog and locked until the toolkit is bought. Templates are not
+  sold one at a time and there are no bundles.
 - **The worked example:** a full change management strategy for the fictional Meridian Group, an
   organization of about 10,000 employees, showing how the pieces fit together.
 - **Alternatives the buyer weighs:** build it yourself with AI, or hire a change management
@@ -97,36 +102,50 @@ Tagline: "Don't start from a blank prompt."
 
 What the storefront does today:
 
-- Browse a catalog by phase, deliverable type, app, audience and format, with search and sort. Catalog
-  state lives in the URL, so every view can be shared.
-- Template pages, bundle pages, a pricing page with questions, an about page with the comparison of
-  alternatives, a sample page, and a contact page with one email address (`hello@advanta365.com`).
-- A cart kept in the browser's `localStorage`.
+- A home page whose first screen turns a blank prompt into the six free samples, shown as finished
+  documents.
+- Browse a catalog by phase, deliverable type, app, audience and format, with search, a "Free samples
+  only" filter and a sort (free samples first, phase order, or by title). The filters that are on show as
+  removable chips above the results, and a search that finds nothing names itself and offers the seven
+  phases. Catalog state lives in the URL, so every view can be shared. The six free samples open in a pop-up (from the catalog, a phase page or the home
+  page); every other template shows a locked cover and answers a press with "Included with the
+  toolkit."
+- One Purchase page (`/purchase`): the toolkit as a folder with its price on a tag, what is inside,
+  the disabled Checkout button with the contact address beside it, and the questions about buying.
+  There is no cart, no pricing page and no contact page. The old addresses of those pages, of the
+  bundle pages and of the template pages redirect.
+- An about page with the comparison of alternatives and, in its `#contact` section, the one email
+  address (`hello@advanta365.com`), and a sample page with the worked example's table of contents
+  (placeholder sections, labelled as placeholders, until its file is published).
 
 Constraints future work must respect:
 
-- **The catalog is sample content.** Phases, steps, templates, bundles and prices are placeholders,
-  and the site labels itself a beta while any record is a sample. No page may imply that the catalog
-  lists the full toolkit.
-- **Checkout is not built.** It is a disabled "coming soon" button. Nothing can be purchased yet.
+- **The catalog is sample content.** Phases, steps and templates are placeholders, and the site
+  labels itself a beta while any record is a sample. No page may imply that the catalog lists the
+  full toolkit. The price is written once, in `lib/site.ts`, and printed from there.
+- **Checkout is not built.** It is a disabled "Checkout coming soon" button on the Purchase page.
+  Nothing can be purchased yet, locked templates stay locked for every visitor, and there are no
+  accounts.
 - **The worked example's file cannot be downloaded yet.**
 - **English only.** The job aids are English only today. No bilingual or French claim.
 - **Runtime dependencies are fixed** at `next`, `react`, `react-dom` and `zod`; the design gate in
   `pnpm test` fails if that list changes.
 - **Light scheme only.** The site sets `color-scheme: light` and has no dark mode.
 
-Terminology: "playbooks", "templates", "field guides", "job aids", "bundles", "phases" and "steps";
-"Site Owners" and "IM Representatives" (IM Reps); "user adoption"; "M365" as the short form of
-Microsoft 365; "30+ years".
+Terminology: "playbooks", "templates", "field guides", "job aids", "phases" and "steps"; "the
+complete toolkit"; "free samples"; "Site Owners" and "IM Representatives" (IM Reps); "user adoption";
+"M365" as the short form of Microsoft 365; "30+ years".
+
+Decided: the toolkit is sold as one purchase at $499.99.
 
 Explicitly undecided:
 
-- Real prices, and the currency. The code formats prices in US dollars; no commercial decision on
-  currency is recorded.
+- The currency. The price is shown in US dollars; the owner has not confirmed it.
 - Licence terms. The stated intent is one licence per organization, reused across every wave.
 - Whether buyers receive updates, and how.
 - Purchase orders and invoicing for government buyers (planned, not available).
-- Whether the worked example is a free sample, a product, or both.
+- Whether the worked example is a free sample, a product, or both. (The six free samples are one
+  template for each of the first six phases; the worked example is not among them.)
 - Which source files are the owner's to sell (rebuilt from his own know-how, as opposed to client
   deliverables under contract). This decides which real entries may replace the sample catalog.
 - The checkout and payment provider.
@@ -145,8 +164,8 @@ Explicitly undecided:
 - **No bilingual claim.**
 - **Non-affiliation notice:** the site states that Advanta365 and EchoFive are independent of, and
   not endorsed by, Prosci Inc. or Microsoft Corporation, and credits their trademarks.
-- **Cost figures in the comparison are the owner's estimates** and are labelled as estimates, not
-  market data.
+- **Cost figures for the alternatives in the comparison are the owner's estimates** and are labelled
+  as estimates, not market data. The toolkit's own cost cell prints the one price, from `OFFER`.
 - **Spelling (inferred):** Canadian English, as the existing copy uses ("organization", "licence",
   "colour"). Copy uses typographic quotes and no exclamation marks.
 
@@ -172,7 +191,8 @@ Real and usable:
 - The worked example (Meridian Group, fictional, about 10,000 employees), described on `/sample`.
 - Copilot readiness material: Copilot readiness, a Copilot rollout playbook and a Copilot change
   impact assessment.
-- The comparison of alternatives on `/about#compare`, with the owner's cost estimates.
+- The comparison of alternatives on `/about#compare`, with the owner's cost estimates for the
+  alternatives and the toolkit's one price.
 - The messaging already written into the pages under `app/(site)/` and `components/home/`.
 - The pre-launch checklist: "Before public launch" in `README.md`.
 
@@ -180,7 +200,7 @@ Absent. Future work must not fabricate any of these:
 
 - No testimonials, client names, logos, case studies, press or endorsements.
 - No adoption metrics, benchmarks or outcome statistics from real rollouts.
-- No real catalog entries, real prices or published licence terms.
+- No real catalog entries or published licence terms.
 - No downloadable sample file and no product screenshots or previews of real documents.
 - No named author. The practitioner is described, not named, on the site.
 

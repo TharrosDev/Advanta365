@@ -1,26 +1,24 @@
 import type { ReactElement } from "react";
 import { BuiltForRow } from "@/components/home/built-for-row";
-import { BundlesSection, type FeaturedBundle } from "@/components/home/bundles-section";
 import { ClosingSection } from "@/components/home/closing-section";
 import { FeaturedSection } from "@/components/home/featured-section";
 import { Hero } from "@/components/home/hero";
 import type { SpecimenContent } from "@/components/home/hero-sheet";
 import { InsideSection } from "@/components/home/inside-section";
+import { PortfolioSection } from "@/components/home/portfolio-section";
 import { ProblemSection, SolutionSection } from "@/components/home/pitch-spread";
 import { PracticeSection } from "@/components/home/practice-section";
 import { ValuesSection } from "@/components/home/values-section";
 import { IntroCover } from "@/components/intro/intro-cover";
 import { DELIVERABLE_TYPE_LABELS, FORMAT_LABELS } from "@/content/taxonomy";
 import { phaseCoverage } from "@/lib/catalog/coverage";
-import { folderCovers } from "@/lib/catalog/covers";
-import { bundleSavingsCents } from "@/lib/catalog/pricing";
-import { getBundleTemplates, getBundles, getPhases, getTemplates } from "@/lib/catalog/repository";
+import { getFreeTemplates, getPhases, getTemplates } from "@/lib/catalog/repository";
 import type { Phase, Template } from "@/lib/catalog/schema";
 import { formatLength } from "@/lib/format";
 
 /**
  * The specimen in the margin of `#inside` shows one real template: its title and summary, and the
- * same labelled facts the template page lists (Phase, Step, Type, Format, Length). Without a phase
+ * same labelled facts the pop-up of a free sample lists (Phase, Step, Type, Format, Length). Without a phase
  * for the template there is nothing to print in its corner, so there is no specimen.
  */
 function buildSpecimen(template: Template, phases: Phase[]): SpecimenContent | undefined {
@@ -52,45 +50,34 @@ function buildSpecimen(template: Template, phases: Phase[]): SpecimenContent | u
 }
 
 /**
- * Home, top to bottom: the hero (the headline beside the ink); the featured templates as a spread
- * of sheets; what is inside the toolkit, with one real template as a specimen; the bundles; the
- * problem; the answer (the one black band); why it is different (the one wash band); why
- * Advanta365; the Microsoft 365 products; the closing statement. Reordering the page is reordering
- * the array below. The cover of a first visit is rendered before all of it.
+ * Home, top to bottom: the hero (the headline, and a blank prompt that turns into the six free
+ * samples as a hand of documents); the same six as a row of tiles, with what each one is; what is
+ * inside the toolkit, with one real template as a specimen; the toolkit as the one folder it is
+ * sold as, with its price; the problem; the answer (the one black band); why it is different (the
+ * one wash band); why Advanta365; the Microsoft 365 products; the closing statement. Reordering
+ * the page is reordering the array below. The cover of a first visit is rendered before all of it.
  */
 export default async function Home() {
-  const [phases, templates, bundles] = await Promise.all([
+  const [phases, templates, freeTemplates] = await Promise.all([
     getPhases(),
     getTemplates(),
-    getBundles(),
+    getFreeTemplates(),
   ]);
-  const featuredTemplates = templates.filter((template) => template.featured).slice(0, 6);
-  const specimenTemplate = featuredTemplates[0] ?? templates[0];
-  const featuredBundles: FeaturedBundle[] = await Promise.all(
-    bundles
-      .filter((bundle) => bundle.featured)
-      .slice(0, 3)
-      .map(async (bundle) => {
-        const contents = await getBundleTemplates(bundle);
-        return {
-          bundle,
-          count: contents.length,
-          savings: bundleSavingsCents(bundle, contents),
-          coverage: phaseCoverage(phases, contents),
-          covers: folderCovers(contents, phases),
-        };
-      }),
-  );
+  const specimenTemplate = freeTemplates[0] ?? templates[0];
 
   const sections: ReactElement[] = [
-    <Hero key="hero" />,
-    <FeaturedSection key="featured" templates={featuredTemplates} phases={phases} />,
+    <Hero key="hero" samples={freeTemplates} phases={phases} />,
+    <FeaturedSection key="featured" templates={freeTemplates} phases={phases} />,
     <InsideSection
       key="inside"
       phases={phases}
       specimen={specimenTemplate ? buildSpecimen(specimenTemplate, phases) : undefined}
     />,
-    <BundlesSection key="bundles" items={featuredBundles} />,
+    <PortfolioSection
+      key="toolkit"
+      covers={freeTemplates}
+      phases={phaseCoverage(phases, templates)}
+    />,
     <ProblemSection key="problem" />,
     <SolutionSection key="solution" />,
     <PracticeSection key="practice" />,

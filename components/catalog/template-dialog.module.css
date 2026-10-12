@@ -1,0 +1,82 @@
+/*
+ * The pop-up: paper at the top of the stack (depth 4), centred in the window with 14px around it
+ * at least, never wider than 60rem. It is placed the same way whether or not it is modal yet, so
+ * the server's `<dialog open>` stands exactly where the modal dialog will; until then it lies over
+ * the bar and dims the page with a shadow of its own in place of the backdrop it does not have.
+ */
+.dialog {
+  position: fixed;
+  inset: 0;
+  z-index: calc(var(--layer-bar) + 1);
+  width: min(100vw - 2 * var(--s-2), 60rem);
+  max-width: none;
+  height: fit-content;
+  max-height: calc(100dvh - 2 * var(--s-2));
+  margin: auto;
+  padding: 0;
+  border: 0;
+  border-radius: var(--round-3);
+  background: var(--paper);
+  color: var(--ink);
+  box-shadow:
+    var(--depth-4),
+    0 0 0 100vmax var(--scrim);
+  overflow: hidden;
+}
+
+.dialog[open] {
+  display: flex;
+}
+
+.dialog:modal {
+  box-shadow: var(--depth-4);
+}
+
+.dialog::backdrop {
+  background: var(--scrim);
+}
+
+.panel {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  min-width: 0;
+  min-height: 0;
+}
+
+/* The bar keeps its place while the body scrolls under it. */
+.bar {
+  display: flex;
+  flex: none;
+  justify-content: flex-end;
+  padding: var(--s-2) var(--s-3);
+  border-block-end: var(--hair) solid var(--line);
+}
+
+.body {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+
+@media (min-width: 40em) {
+  .dialog {
+    width: min(100vw - 2 * var(--s-4), 60rem);
+    max-height: calc(100dvh - 2 * var(--s-4));
+  }
+}
+
+/* At raised contrast the panel gets an edge in place of its soft shadow. */
+@media (prefers-contrast: more) {
+  .dialog {
+    border: var(--hair) solid var(--ink);
+  }
+}
+
+@media (forced-colors: active) {
+  .dialog {
+    border: var(--edge) solid CanvasText;
+    box-shadow: none;
+  }
+}

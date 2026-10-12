@@ -1,4 +1,4 @@
-import type { Page } from "@playwright/test";
+import { expect, type Page } from "@playwright/test";
 import { INTRO_FLAG, INTRO_SEEN } from "../../lib/boot/state";
 
 /**
@@ -26,4 +26,15 @@ export async function introSeen(page: Page): Promise<void> {
     },
     [INTRO_FLAG, INTRO_SEEN] as const,
   );
+}
+
+/**
+ * Waits until the page answers to input. The server sends every page complete, so a control can be
+ * seen, and clicked, before the script that listens to it has run; a click that early is lost. The
+ * root element carries `data-hydrated` from the moment the client components have their handlers
+ * (components/ui/motion-root.tsx). Call it after a `goto` and before the first click or key press
+ * on anything a script answers: a filter, a locked tile, a menu.
+ */
+export async function hydrated(page: Page): Promise<void> {
+  await expect(page.locator("html[data-hydrated]")).toBeAttached();
 }

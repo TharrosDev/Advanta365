@@ -13,32 +13,22 @@
   width: 100%;
 }
 
-/*
- * A thumbnail has a width of its own, by format, and never outgrows its cell. A container can
- * scale all three with `--cover-scale` (a folder's sheets, the cart's lines); 1 is the catalog row.
- */
+/* A thumbnail has a width of its own, by format, and never outgrows its cell. */
 .sm {
   flex: none;
   max-width: 100%;
 }
 
 .sm.portrait {
-  width: calc(3.75rem * var(--cover-scale, 1));
+  width: 3.75rem;
 }
 
 .sm.landscape {
-  width: calc(5.25rem * var(--cover-scale, 1));
+  width: 5.25rem;
 }
 
 .sm.slide {
-  width: calc(6rem * var(--cover-scale, 1));
-}
-
-/* As tall as its container, as wide as its format makes it (the covers in a folder). */
-.sm.tall {
-  width: auto;
-  max-width: none;
-  height: 100%;
+  width: 6rem;
 }
 
 /* A PDF: the paper's top-right corner is cut, and the flap lies folded over it. */
@@ -341,32 +331,6 @@
   right: 4cqi;
   padding: 0.5cqi 2cqi;
   font-size: max(0.4375rem, 7.5cqi);
-}
-
-/*
- * Standing at one height (`fill="height"`, in a folder): every unit counts from the sheet's height,
- * as a portrait page's does, so the tag, the numeral and the lines print at one size on every
- * format, and a wide slide does not print larger than the page beside it.
- */
-.tall .face {
-  container-type: size;
-}
-
-.tall .page,
-.tall .numeral {
-  --u: 0.714cqb;
-}
-
-.sm.tall .format {
-  top: 3.5cqb;
-  right: 3.5cqb;
-  padding: 0.7cqb 2.1cqb;
-  font-size: max(0.4375rem, 8cqb);
-}
-
-.sm.tall.folded .format {
-  right: auto;
-  left: 3.5cqb;
 }
 
 /* In forced colours fills go: the outlines carry the page, in system colours. */

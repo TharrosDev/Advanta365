@@ -1,4 +1,5 @@
 import { expect, test } from "@playwright/test";
+import { hydrated, NAVIGATION_TIMEOUT } from "./helpers";
 import { canvases } from "./support/ink";
 
 // With prefers-reduced-motion nothing on the site moves by itself and nothing waits to be shown: a
@@ -14,14 +15,10 @@ const ROUTES = [
   "/",
   "/catalog",
   "/phases/prepare",
-  "/templates/executive-sponsor-kickoff-deck",
-  "/bundles",
-  "/bundles/sponsor-essentials",
-  "/pricing",
+  "/catalog?view=executive-sponsor-kickoff-deck",
+  "/purchase",
   "/about",
   "/sample",
-  "/contact",
-  "/cart",
   "/nope",
 ];
 
@@ -63,7 +60,7 @@ test("the home page shows the hero's still, the figure at 90% and a full tally",
   await expect(heading).toHaveText("Don’t start your M365 rollout from a blank prompt.");
 
   // The picture that stands in for the ink is loaded and is decoration.
-  const still = page.locator('[data-ink-backdrop][data-scene="hero"] img');
+  const still = page.locator('[data-ink-backdrop][data-scene="prompt"] img');
   await expect(still).toHaveAttribute("alt", "");
   await expect
     .poll(() => still.evaluate((image: HTMLImageElement) => image.naturalWidth))
@@ -97,6 +94,7 @@ test("links navigate", async ({ page }) => {
 
 test("the catalog filters work", async ({ page }) => {
   await page.goto("/catalog");
+  await hydrated(page);
 
   // On narrow screens the filters live in a dialog behind a button.
   const open = page.getByRole("button", { name: /^Filters/ });
@@ -107,5 +105,5 @@ test("the catalog filters work", async ({ page }) => {
     .filter({ visible: true })
     .check();
 
-  await expect(page).toHaveURL(/type=training/);
+  await expect(page).toHaveURL(/type=training/, { timeout: NAVIGATION_TIMEOUT });
 });

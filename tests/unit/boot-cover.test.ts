@@ -5,7 +5,9 @@ import { renderToStaticMarkup } from "react-dom/server";
 import { describe, expect, it } from "vitest";
 import { InkBackdrop } from "@/components/ink/ink-backdrop";
 import { IntroCover } from "@/components/intro/intro-cover";
-import { MARK_BAR_D, MARK_LEGS_D, MARK_TAIL_D } from "@/lib/brand/mark";
+import { INTRO_BACKSTOP_MS, INTRO_TAKEOVER_MS } from "@/lib/boot/state";
+import { MARK_BAR_D, MARK_DIGITS, MARK_LEGS_D, MARK_TAIL_D } from "@/lib/brand/mark";
+import { STAGES } from "@/lib/ink/stage";
 import { STILLS, stillPath } from "@/lib/ink/stills";
 import { SITE } from "@/lib/site";
 
@@ -29,12 +31,17 @@ describe("the cover's markup", () => {
     expect(cover).toContain('focusable="false"');
   });
 
-  it("writes the mark as three strokes from the brand's own paths, the tail first", () => {
-    expect(count(cover, "<path")).toBe(3);
-    const order = [MARK_TAIL_D, MARK_LEGS_D, MARK_BAR_D].map((d) => cover.indexOf(`d="${d}"`));
+  it("writes the mark from the brand's own paths: the tail first, three strokes, then the 365", () => {
+    expect(count(cover, "<path")).toBe(6);
+    const order = [MARK_TAIL_D, MARK_LEGS_D, MARK_BAR_D, ...MARK_DIGITS].map((d) =>
+      cover.indexOf(`d="${d}"`),
+    );
     expect(order.every((index) => index > 0)).toBe(true);
     expect([...order].sort((a, b) => a - b)).toEqual(order);
-    expect(count(cover, 'pathLength="1"')).toBe(3);
+    expect(count(cover, 'pathLength="1"')).toBe(6);
+    // The "A" is written with the broad pen, the digits with the fine one.
+    expect(count(cover, 'stroke-width="4.2"')).toBe(3);
+    expect(count(cover, 'stroke-width="1.1"')).toBe(3);
   });
 
   it("carries the name once, and the hint", () => {
@@ -63,9 +70,12 @@ describe("the cover's timeline", () => {
     return Number(match?.[1]);
   };
 
-  it("is gone 1650ms after first paint without ink", () => {
-    expect(ms("leave-at")).toBe(1200);
-    expect(ms("leave-at") + ms("leave")).toBe(1650);
+  it("holds the finished mark from 1000 to 2500ms and is gone 2950ms after first paint without ink", () => {
+    expect(ms("leave-at")).toBe(2500);
+    expect(ms("leave-at") + ms("leave")).toBe(2950);
+    // The mark is complete at 1000ms (the last digit) and stands there for a second and a half.
+    const written = ms("pen-digits-at") + 2 * ms("pen-digit-step") + ms("pen-digit");
+    expect(ms("leave-at") - written).toBe(1500);
   });
 
   it("takes the signature off the paper before the paper clears, so the mark never lies over the page", () => {
@@ -75,20 +85,38 @@ describe("the cover's timeline", () => {
     expect(hold).not.toBeNull();
     const clearsAt = ms("leave-at") + (Number(hold?.[1]) / 100) * ms("leave");
     expect(ms("sign-leave-at") + ms("sign-leave")).toBeLessThanOrEqual(clearsAt);
-    // After the name is complete (900) and after the latest takeover by the ink (1050), so the ink
-    // never finds the signature half gone.
-    expect(ms("sign-leave-at")).toBeGreaterThan(1050);
+    // After the mark is complete (1000) and after the latest takeover by the ink, so the ink never
+    // finds the signature half gone; and at the moment the ink's own state takes it off.
+    expect(ms("sign-leave-at")).toBeGreaterThan(INTRO_TAKEOVER_MS);
+    expect(ms("sign-leave-at")).toBe(ms("ink-sign-at"));
     expect(css).toMatch(
       /:root\[data-intro="play"\]\s+\.signature\s*\{\s*animation:\s*sign-leave\b/,
     );
     expect(css).toMatch(/:root\[data-intro="play"\]\s+\.hint\s*\{[^}]*sign-leave\b/);
   });
 
-  it("is gone 2800ms after the ink took it over, so at most 3850ms in", () => {
-    expect(ms("ink-leave-at")).toBe(2000);
-    expect(ms("ink-leave-at") + ms("ink-leave")).toBe(2800);
-    expect(1050 + ms("ink-leave-at") + ms("ink-leave")).toBe(3850);
-    expect(ms("ink-sign-at") + ms("ink-sign")).toBe(550);
+  it("is gone 3500ms after the ink took it over, so at most 5100ms in, inside the backstop", () => {
+    expect(ms("ink-leave-at")).toBe(2700);
+    expect(ms("ink-leave-at") + ms("ink-leave")).toBe(3500);
+    expect(INTRO_TAKEOVER_MS + ms("ink-leave-at") + ms("ink-leave")).toBe(5100);
+    expect(INTRO_TAKEOVER_MS + ms("ink-leave-at") + ms("ink-leave")).toBeLessThan(
+      INTRO_BACKSTOP_MS,
+    );
+  });
+
+  it("ends the ink's exit with the scene, the cover starting to fade 250ms into the clear", () => {
+    // Both run from the moment of the takeover; the cover is never gone with the ink still opaque.
+    expect(ms("ink-leave-at") + ms("ink-leave")).toBe(STAGES.intro.runMs);
+    expect(ms("ink-leave-at") - 2450).toBe(250);
+  });
+
+  it("takes the signature off at 2500ms of the cover's own clock, whenever the ink came", () => {
+    // The layer writes the time of the takeover as `--taken`; the delay is counted from the state.
+    expect([ms("ink-sign-at"), ms("ink-sign-at") + ms("ink-sign")]).toEqual([2500, 2800]);
+    expect(ms("ink-sign-at")).toBe(ms("leave-at"));
+    expect(css).toMatch(
+      /:root\[data-intro="ink"\]\s+\.signature\s*\{[^}]*calc\(var\(--ink-sign-at\) - var\(--taken, 0ms\)\)/,
+    );
   });
 
   it("is gone 200ms after an input", () => {
@@ -103,6 +131,17 @@ describe("the cover's timeline", () => {
     expect(ms("hint-at")).toBe(600);
   });
 
+  it("writes the 365 last, one digit after another, from 800 to 1000ms", () => {
+    const first = ms("pen-digits-at");
+    const last = first + 2 * ms("pen-digit-step");
+    expect(first).toBe(ms("pen-tail-at") + ms("pen-tail"));
+    expect([first, last + ms("pen-digit")]).toEqual([800, 1000]);
+    // Done before the cover starts to leave.
+    expect(last + ms("pen-digit")).toBeLessThanOrEqual(ms("leave-at"));
+    expect(css).toMatch(/:root\[data-intro\]\s+\.digit\s*\{/);
+    expect(css).not.toMatch(/:root\[data-intro="[a-z]+"\]\s+\.digit\b/);
+  });
+
   it("is displayed only while the root element carries the state", () => {
     expect(css).toMatch(/\.cover\s*\{[^}]*display:\s*none/);
     expect(css).toMatch(/:root\[data-intro\]\s+\.cover\s*\{\s*display:\s*grid/);
@@ -115,15 +154,15 @@ describe("the cover's timeline", () => {
 describe("a backdrop's markup", () => {
   const html = renderToStaticMarkup(
     createElement(InkBackdrop, {
-      scene: "hero",
-      still: { wide: "hero-wide", tall: "hero-tall" },
+      scene: "prompt",
+      still: { wide: "prompt-wide", tall: "prompt-tall" },
       edges: "bottom",
     }),
   );
 
   it("is a hidden layer with a still, a slot, and the holder of the pause button after it", () => {
     expect(html).toMatch(
-      /^<div[^>]*data-ink-backdrop=""[^>]*data-scene="hero"[^>]*data-edges="bottom"[^>]*data-ink-state="idle"[^>]*aria-hidden="true"/,
+      /^<div[^>]*data-ink-backdrop=""[^>]*data-scene="prompt"[^>]*data-edges="bottom"[^>]*data-ink-state="idle"[^>]*aria-hidden="true"/,
     );
     expect(html).toMatch(
       /<div data-ink-slot=""[^>]*><\/div><\/div><div data-ink-control=""[^>]*><\/div>$/,
@@ -132,12 +171,24 @@ describe("a backdrop's markup", () => {
   });
 
   it("serves the wide still from 68em and the tall one below, lazily and without a description", () => {
-    expect(html).toContain('<source media="(min-width: 68em)" srcSet="/ink/hero-wide.webp"/>');
-    expect(html).toMatch(/<img[^>]*src="\/ink\/hero-tall\.webp"/);
+    expect(html).toContain('<source media="(min-width: 68em)" srcSet="/ink/prompt-wide.webp"/>');
+    expect(html).toMatch(/<img[^>]*src="\/ink\/prompt-tall\.webp"/);
     expect(html).toMatch(/<img[^>]*alt=""/);
     expect(html).toMatch(/<img[^>]*loading="lazy"/);
     expect(html).toMatch(/<img[^>]*decoding="async"/);
     expect(html).toMatch(/<img[^>]*fetchPriority="low"/i);
+  });
+
+  it("asks for a first-screen still at high priority, and still lazily", () => {
+    const first = renderToStaticMarkup(
+      createElement(InkBackdrop, {
+        scene: "prompt",
+        still: { wide: "prompt-wide", tall: "prompt-tall" },
+        priority: true,
+      }),
+    );
+    expect(first).toMatch(/<img[^>]*fetchPriority="high"/i);
+    expect(first).toMatch(/<img[^>]*loading="lazy"/);
   });
 
   it("uses one image when a scene has one still", () => {
@@ -150,14 +201,16 @@ describe("a backdrop's markup", () => {
 });
 
 describe("the stills manifest", () => {
-  it("names the eleven stills, each once, with its page and window", () => {
+  it("names the thirteen stills, each once, with its page and window", () => {
     expect(STILLS.map((still) => still.name)).toEqual([
-      "hero-wide",
-      "hero-tall",
+      "prompt-wide",
+      "prompt-tall",
       "ninety-wide",
       "ninety-tall",
       "bloom-wide",
       "bloom-tall",
+      "bloom-purchase-wide",
+      "bloom-purchase-tall",
       "wisps-wide",
       "wisps-tall",
       "title",

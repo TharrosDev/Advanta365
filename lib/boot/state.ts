@@ -27,7 +27,14 @@ export const INTRO_PATH = "/";
 export const INTRO_SKIP_EVENTS = ["pointerdown", "keydown", "wheel", "touchstart"] as const;
 
 /** The cover is taken off this long after the script ran, whatever else happened. */
-export const INTRO_BACKSTOP_MS = 4500;
+export const INTRO_BACKSTOP_MS = 5500;
+
+/**
+ * The latest moment of the cover's own timeline at which the ink may still take it over, in ms:
+ * the cover then needs 3500 more (the length of the `intro` scene), so it is gone by 5100, inside
+ * the backstop.
+ */
+export const INTRO_TAKEOVER_MS = 1600;
 
 /** Live ink that no layer has claimed by then falls back to stills. */
 export const INK_BACKSTOP_MS = 6000;
@@ -49,10 +56,10 @@ export function isSoftwareRenderer(name: string): boolean {
 }
 
 /**
- * The pattern of the calm routes, as source text (the boot script embeds it): the catalog, the
- * cart, and every template and bundle page. The bundles index is not one of them.
+ * The pattern of the calm routes, as source text (the boot script embeds it): the catalog and
+ * whatever lies under it.
  */
-export const CALM_ROUTE_SOURCE = "^/(catalog|cart)(/|$)|^/(templates|bundles)/.";
+export const CALM_ROUTE_SOURCE = "^/catalog(/|$)";
 
 const CALM_ROUTE = new RegExp(CALM_ROUTE_SOURCE);
 

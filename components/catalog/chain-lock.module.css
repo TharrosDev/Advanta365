@@ -1,0 +1,115 @@
+/*
+ * The drawing fills the well of its tile and lies over the cover. Its two shadows are the steel
+ * touching the paper and the steel standing a little off it.
+ */
+.root {
+  position: absolute;
+  inset: 0;
+  display: block;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+  filter: drop-shadow(0 1px 0.8px var(--lock-cast)) drop-shadow(0 4px 5px var(--lock-cast));
+  pointer-events: none;
+}
+
+/* The parts every lock draws from: on the page, and no part of it. */
+.parts {
+  position: absolute;
+  width: 0;
+  height: 0;
+  overflow: hidden;
+}
+
+/* Steel: a dark edge, the metal (painted by a gradient across the wire) and the light on it. */
+.edge {
+  fill: none;
+  stroke: var(--steel-edge);
+  stroke-linecap: round;
+}
+
+.steel {
+  fill: none;
+  stroke-linecap: round;
+}
+
+.glint {
+  fill: none;
+  stroke: var(--steel-light);
+  stroke-linecap: round;
+  opacity: 0.9;
+}
+
+.stopLight {
+  stop-color: var(--steel-light);
+}
+
+.stopSteel {
+  stop-color: var(--steel);
+}
+
+.stopShade {
+  stop-color: var(--steel-shade);
+}
+
+.stopLockLight {
+  stop-color: var(--lock-light);
+}
+
+.stopLock {
+  stop-color: var(--lock);
+}
+
+.stopLockShade {
+  stop-color: var(--ink);
+}
+
+/* The padlock turns about the top of its bow, where it hangs. */
+.lock {
+  transform-box: fill-box;
+  transform-origin: 50% 8%;
+}
+
+.bodyEdge,
+.hole {
+  fill: var(--ink);
+}
+
+.plateEdge {
+  fill: var(--steel-edge);
+}
+
+.bevel {
+  fill: none;
+  stroke: var(--steel-light);
+  stroke-width: 0.7;
+  stroke-linecap: round;
+  opacity: 0.38;
+}
+
+/* In forced colours the gradients go: the chain and the padlock are drawn in the text colour. */
+@media (forced-colors: active) {
+  .root {
+    filter: none;
+  }
+
+  .edge,
+  .steel {
+    stroke: CanvasText;
+  }
+
+  .glint,
+  .bevel {
+    display: none;
+  }
+
+  .padlock rect,
+  .plateEdge,
+  .hole {
+    fill: CanvasText;
+  }
+
+  .plate {
+    fill: Canvas;
+  }
+}

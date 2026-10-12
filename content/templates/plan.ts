@@ -12,7 +12,6 @@ export const planTemplates = sample("plan", [
     audiences: ["change-lead", "it-admin"],
     format: "xlsx",
     adkar: ["awareness"],
-    priceCents: 6900,
     summary:
       "Score how a SharePoint migration affects each group across ten aspects of their work.",
     description:
@@ -33,7 +32,6 @@ export const planTemplates = sample("plan", [
     audiences: ["it-admin", "change-lead"],
     format: "xlsx",
     adkar: ["awareness"],
-    priceCents: 5400,
     summary: "Inventory existing sites, owners and content so nothing is missed in the move.",
     description:
       "A site-by-site inventory with ownership, activity and disposition columns. Flags the sites whose owners need early, direct engagement.",
@@ -48,7 +46,6 @@ export const planTemplates = sample("plan", [
     audiences: ["change-lead"],
     format: "xlsx",
     adkar: ["awareness", "desire"],
-    priceCents: 3900,
     summary: "Identify every stakeholder group, their influence and their current position.",
     description:
       "A structured register for stakeholders with an influence and support grid. Each entry carries an engagement action and an owner.",
@@ -63,7 +60,6 @@ export const planTemplates = sample("plan", [
     audiences: ["change-lead", "manager"],
     format: "docx",
     adkar: ["awareness", "desire"],
-    priceCents: 4400,
     pageCount: 6,
     summary: "A 20-question survey that shows how ready each group is for the change.",
     description:
@@ -79,7 +75,6 @@ export const planTemplates = sample("plan", [
     audiences: ["change-lead", "sponsor"],
     format: "xlsx",
     adkar: ["desire"],
-    priceCents: 3400,
     summary: "See which teams are already absorbing too many changes at once.",
     description:
       "Plots every in-flight initiative against the groups it touches by month. Highlights collisions so launch dates can be adjusted.",
@@ -94,7 +89,6 @@ export const planTemplates = sample("plan", [
     audiences: ["change-lead"],
     format: "xlsx",
     adkar: ["desire"],
-    priceCents: 2900,
     summary: "Log people-side risks and likely sources of resistance before they surface.",
     description:
       "A risk register tuned for adoption risks rather than technical ones. Each risk has a likely root cause and a planned response.",
@@ -109,7 +103,6 @@ export const planTemplates = sample("plan", [
     audiences: ["change-lead", "it-admin"],
     format: "xlsx",
     adkar: ["awareness"],
-    priceCents: 4900,
     summary: "Check whether people, content and governance are ready for Microsoft 365 Copilot.",
     description:
       "Rates readiness across sponsorship, content and permissions, skills and support. Shows where to act before licences are assigned.",
@@ -124,7 +117,6 @@ export const planTemplates = sample("plan", [
     audiences: ["change-lead", "manager"],
     format: "xlsx",
     adkar: ["awareness", "desire"],
-    priceCents: 5400,
     summary: "Score how Microsoft 365 Copilot changes the work of each group, role by role.",
     description:
       "Rates the degree of change for each impacted group across tasks, skills and ways of working. Shows which groups need the most communication and training before Copilot reaches them.",
@@ -141,9 +133,8 @@ export const planTemplates = sample("plan", [
     audiences: ["change-lead", "sponsor"],
     format: "docx",
     adkar: ["awareness", "desire", "knowledge", "ability", "reinforcement"],
-    priceCents: 7900,
     pageCount: 22,
-    featured: true,
+    free: true,
     summary: "The master strategy document for a Microsoft 365 rollout, ready to tailor.",
     description:
       "Covers the nature of the change, the groups affected, the sponsorship model, and the approach to communication, training and resistance. Every section includes guidance and example wording.",
@@ -163,7 +154,6 @@ export const planTemplates = sample("plan", [
     audiences: ["change-lead", "sponsor"],
     format: "docx",
     adkar: ["awareness", "desire", "knowledge", "ability", "reinforcement"],
-    priceCents: 3900,
     summary:
       "A full change management strategy, worked through for the fictional Meridian Group of about 10,000 employees.",
     description:
@@ -179,7 +169,6 @@ export const planTemplates = sample("plan", [
     audiences: ["change-lead"],
     format: "xlsx",
     adkar: ["awareness"],
-    priceCents: 2400,
     summary: "Who is responsible, accountable, consulted and informed for every change activity.",
     description:
       "A pre-filled RACI covering the change activities of a typical rollout. Adjust the roles to match your project team.",
@@ -194,7 +183,6 @@ export const planTemplates = sample("plan", [
     audiences: ["change-lead", "manager"],
     format: "docx",
     adkar: ["desire"],
-    priceCents: 4400,
     pageCount: 10,
     summary: "A plan for anticipating resistance and responding to it at the right level.",
     description:

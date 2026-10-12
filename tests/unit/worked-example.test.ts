@@ -11,13 +11,17 @@ const phases = [
 ];
 
 describe("contentsRows", () => {
-  test("a template section links to the template page under the template's title", () => {
+  test("a template section links to the template in the catalog under the template's title", () => {
     expect(
       contentsRows([{ title: "Kickoff", see: { template: "kickoff-deck" } }], templates, phases),
     ).toEqual([
       {
         title: "Kickoff",
-        link: { kind: "Template", label: "Sponsor Kickoff Deck", href: "/templates/kickoff-deck" },
+        link: {
+          kind: "Template",
+          label: "Sponsor Kickoff Deck",
+          href: "/catalog?view=kickoff-deck",
+        },
       },
     ]);
   });

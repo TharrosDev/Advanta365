@@ -20,9 +20,17 @@ export const SITE = {
   contactEmail: "hello@advanta365.com",
 } as const;
 
+/**
+ * The one thing the site sells. The price is written here once, as integer cents, and printed
+ * everywhere with `formatPrice`.
+ */
+export const OFFER = { name: "The complete toolkit", priceCents: 49999 } as const;
+
+/** The one place to buy: its link leads the primary navigation and has its own place in the bar. */
+export const PURCHASE_LINK = { href: "/purchase", label: "Purchase" } as const;
+
+/** The pages that describe the product, after the purchase link. */
 export const NAV = [
   { href: "/catalog", label: "Catalog" },
-  { href: "/bundles", label: "Bundles" },
-  { href: "/pricing", label: "Pricing" },
   { href: "/about", label: "About" },
 ] as const;

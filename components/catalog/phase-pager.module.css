@@ -67,7 +67,7 @@
   min-width: 0;
 }
 
-/* The phase numeral on a 28px tile, as on the bundle page. Besley's own figures. */
+/* The phase numeral on a 28px tile, in Besley’s own figures. */
 .tile {
   display: grid;
   flex: none;

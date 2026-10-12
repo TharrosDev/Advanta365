@@ -3,32 +3,35 @@ import { Button } from "@/components/ui/button";
 import { PaperSheet } from "@/components/ui/paper-sheet";
 import { PhaseTabs } from "@/components/ui/phase-tabs";
 import { Pagination } from "@/components/ui/pagination";
-import { FACET_KEYS, type CatalogCriteria, type CatalogResult } from "@/lib/catalog/query";
-import { catalogHref } from "@/lib/catalog/search-params";
+import type { CatalogCriteria, CatalogResult } from "@/lib/catalog/query";
+import { catalogHref, hasFilters } from "@/lib/catalog/search-params";
 import { cx } from "@/lib/cx";
 import styles from "./result-list.module.css";
-import { TemplateCard } from "./template-card";
+import { TemplateTile, TileGrid } from "./template-tile";
 
 type ResultListProps = {
   result: CatalogResult;
   criteria: CatalogCriteria;
   phases: { slug: string; name: string }[];
+  /** The slug of a locked template a link named: its tile is rendered already denied. */
+  denied?: string;
 };
 
 /**
- * One page of catalog results as an index: a list whose items are rows (`TemplateCard
- * layout="row"`), and the page navigation under it.
- * Nothing in the list animates in, so a change of filter, sort or search only swaps the rows. With
- * no match it is a blank sheet with an empty field, the message and a link back to the unfiltered
- * catalog. When only a search found nothing, the message quotes the search, the link clears it, and
- * the seven phases follow as index cards, a way in that needs no right word.
+ * One page of catalog results as a grid of tiles (`TemplateTile`), and the page navigation under
+ * it. A free sample's tile links to the same catalog address with `view` set to its slug, which
+ * opens it in the pop-up without moving the page. Nothing in the grid animates in, so a change of
+ * filter, sort or search only swaps the tiles. With no match it is a blank sheet with an empty
+ * field, the message and a link back to the unfiltered catalog. When only a search found nothing,
+ * the message quotes the search, the link clears it, and the seven phases follow as index cards, a
+ * way in that needs no right word.
  */
-export function ResultList({ result, criteria, phases }: ResultListProps) {
+export function ResultList({ result, criteria, phases, denied }: ResultListProps) {
   const phaseNames = new Map(phases.map((phase) => [phase.slug, phase.name]));
   const phaseOrders = new Map(phases.map((phase, position) => [phase.slug, position + 1]));
 
   if (result.total === 0) {
-    const filtered = FACET_KEYS.some((key) => criteria[key].length > 0);
+    const filtered = hasFilters(criteria);
     const searchOnly = !filtered && criteria.q !== "";
     const clearLabel = !filtered
       ? "Clear search"
@@ -69,17 +72,21 @@ export function ResultList({ result, criteria, phases }: ResultListProps) {
 
   return (
     <div className={styles.root}>
-      <ul className={styles.list}>
+      <TileGrid>
         {result.items.map((template) => (
           <li key={template.slug}>
-            <TemplateCard
+            <TemplateTile
               template={template}
               phaseName={phaseNames.get(template.phase)}
               phaseOrder={phaseOrders.get(template.phase)}
+              href={catalogHref(criteria, template.slug)}
+              headingLevel="h2"
+              scroll={false}
+              denied={template.slug === denied}
             />
           </li>
         ))}
-      </ul>
+      </TileGrid>
       <Pagination page={result.page} pageCount={result.pageCount} hrefFor={hrefFor} />
     </div>
   );

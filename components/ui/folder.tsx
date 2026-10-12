@@ -2,20 +2,21 @@ import { ViewTransition, type HTMLAttributes, type ReactNode, type Ref } from "r
 import { cssVars, cx } from "@/lib/cx";
 import styles from "./folder.module.css";
 
-/** The most sheets of the caller's own that stand in a folder. */
-const MAX_INSIDE = 3;
-
 type FolderProps = {
-  /** What the tab says, such as the number of templates inside. */
+  /** What the tab says, such as the name of what is inside. */
   tab?: ReactNode;
-  /** How many blank sheets show above the front panel. */
-  sheets?: number;
   /**
-   * What stands in the folder in place of the blank sheets, the first furthest back: each node
-   * (a small cover, usually) is one sheet. At most three show, the first at the right and each
-   * one after it a step to the left and in front, so the top right corner of every one shows.
+   * How many blank sheets show above the front panel, or the sheets themselves (template covers,
+   * say), the first furthest back. A sheet that is given is laid out by its giver: it stands in a
+   * strip across the top of the back panel and places itself there.
    */
-  inside?: readonly ReactNode[];
+  sheets?: number | readonly ReactNode[];
+  /**
+   * `card` is the folder of a card or a row. `page` is the one a page is built around: every
+   * measure of it is a share of its own width, so it is the same object at 18rem and at 34rem,
+   * with a taller pocket for its sheets, a card stock front and a deeper shadow.
+   */
+  size?: "card" | "page";
   /**
    * Makes the folder a shared object: on a page change it travels to the folder of the same slug
    * on the next page. Use a slug once per page.
@@ -27,48 +28,49 @@ type FolderProps = {
 } & HTMLAttributes<HTMLDivElement>;
 
 /**
- * A folder of paper, the object a bundle is: a back panel with a tab at its top left (which
- * carries `tab`), a few sheets showing above the front panel, and the front panel in the
- * highlighter's wash, which holds the children. The sheets are blank paper, or with `inside` the
- * caller's own sheets (a bundle's first covers), which stand taller out of the folder. Inside the front panel the semantic colours are
+ * A folder of paper, the object the toolkit is sold as: a back panel with a tab at its top left
+ * (which carries `tab`), a few sheets showing above the front panel, and the front panel in the
+ * highlighter's wash, which holds the children. Inside the front panel the semantic colours are
  * those of a light surface. Under the pointer and under keyboard focus the showing sheets rise a
- * little, one after another; where the folder lies in an `article` whose link is stretched over
- * it, the article is what is hovered. Hook: `data-folder`. Every other prop goes to the element.
+ * little, one after another; where the folder lies in an `article` or a `[data-folder-scope]`
+ * that holds a link or a button beside it, focus in there does the same, and the article is also
+ * what is hovered. Hooks: `data-folder`, and `data-folder-scope` on an element around it. Every
+ * other prop goes to the element.
  */
 export function Folder({
   tab,
   sheets = 3,
+  size = "card",
   slug,
-  inside,
   className,
   frontClassName,
   children,
   ref,
   ...rest
 }: FolderProps) {
-  const count = Math.max(0, Math.floor(sheets));
-  const standing = inside?.slice(0, MAX_INSIDE) ?? [];
+  const leaves = typeof sheets === "number" ? null : sheets;
+  const count = typeof sheets === "number" ? Math.max(0, Math.floor(sheets)) : 0;
 
   const folder = (
     <div
       {...rest}
       ref={ref}
       data-folder=""
-      className={cx(styles.root, standing.length > 0 && styles.holding, className)}
+      className={cx(styles.root, size === "page" && styles.page, className)}
     >
       <span aria-hidden="true" className={styles.back} />
       {tab === undefined || tab === null ? null : (
         <span className={cx("type-note", styles.tab)}>{tab}</span>
       )}
-      {standing.length > 0
-        ? standing.map((node, index) => (
+      {leaves
+        ? leaves.map((leaf, index) => (
             <span
               key={index}
               aria-hidden="true"
-              className={styles.standing}
-              style={cssVars({ "--n": index, "--x": standing.length - 1 - index })}
+              className={styles.leaf}
+              style={cssVars({ "--n": index })}
             >
-              {node}
+              {leaf}
             </span>
           ))
         : Array.from({ length: count }, (_, index) => (
@@ -76,7 +78,7 @@ export function Folder({
               key={index}
               aria-hidden="true"
               className={styles.sheet}
-              style={cssVars({ "--n": index, "--x": standing.length - 1 - index })}
+              style={cssVars({ "--n": index })}
             />
           ))}
       <div className={cx(styles.front, frontClassName)}>{children}</div>

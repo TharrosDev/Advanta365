@@ -57,18 +57,18 @@ describe("the choice", () => {
   });
 
   it("is the topmost backdrop while at least 40% of it is in view", () => {
-    // The hero has scrolled half out; the ninety below it shows more area.
-    const hero = band("hero", -400, 800);
+    // The prompt band has scrolled half out; the ninety below it shows more area.
+    const top = band("prompt", -400, 800);
     const ninety = band("ninety", 400, 800);
-    expect(hero.visible / hero.area).toBe(0.5);
-    expect(chooseStage([hero, ninety])).toBe("hero");
-    expect(chooseStage([ninety, hero])).toBe("hero");
+    expect(top.visible / top.area).toBe(0.5);
+    expect(chooseStage([top, ninety])).toBe("prompt");
+    expect(chooseStage([ninety, top])).toBe("prompt");
   });
 
   it("is the largest visible area times weight once the topmost is mostly gone", () => {
-    const hero = band("hero", -600, 800); // a quarter left
+    const top = band("prompt", -600, 800); // a quarter left
     const ninety = band("ninety", 200, 800);
-    expect(chooseStage([hero, ninety])).toBe("ninety");
+    expect(chooseStage([top, ninety])).toBe("ninety");
   });
 
   it("weighs a scene: a strip of bloom beats a larger strip of the footer", () => {
@@ -80,7 +80,7 @@ describe("the choice", () => {
   });
 
   it("keeps the holder unless a challenger beats it by a quarter", () => {
-    const gone = band("hero", -790, 800);
+    const gone = band("prompt", -790, 800);
     // Same weight, visible areas 400 and 450 rows: 12.5% apart.
     const bloom = band("bloom", 10, 400);
     const title = band("title", 450, 800);
@@ -95,14 +95,14 @@ describe("the choice", () => {
   });
 
   it("forgets a holder that has left the screen", () => {
-    const hero = band("hero", -900, 800);
+    const top = band("prompt", -900, 800);
     const ninety = band("ninety", -100, 300); // two thirds in view: the topmost one on screen
     const bloom = band("bloom", 300, 800);
-    expect(chooseStage([hero, ninety, bloom], "hero")).toBe("ninety");
+    expect(chooseStage([top, ninety, bloom], "prompt")).toBe("ninety");
   });
 
   it("gives a short page on a tall window to its title, not to the footer", () => {
-    // /contact at 1440x1200: the title block's ink (the right-hand 42%, 320px tall) under the bar,
+    // /purchase at 1440x1200: the title block's ink (the right-hand 42%, 320px tall) under the bar,
     // and the whole footer in view below it.
     const tall = { width: 1440, height: 1200 };
     const title = candidate("title", { left: 835, top: 110, width: 605, height: 320 }, tall);
@@ -131,7 +131,7 @@ describe("the choice", () => {
   it("gives the window to the cover while the cover is up", () => {
     const cover = candidate("intro", { left: 0, top: 0, width: 1440, height: 900 }, view);
     expect(chooseStage([cover])).toBe("intro");
-    expect(STAGES.intro.weight).toBeGreaterThan(STAGES.hero.weight);
+    expect(STAGES.intro.weight).toBeGreaterThan(STAGES.prompt.weight);
   });
 });
 
@@ -142,13 +142,17 @@ describe("the stages", () => {
     );
     expect(weights).toEqual({
       intro: 9,
-      hero: 3,
+      prompt: 3,
       ninety: 3,
       spill: 3,
       bloom: 2,
       title: 2,
       wisps: 1,
     });
+  });
+
+  it("run the load-in for 3.5 seconds, the length of its scene", () => {
+    expect(STAGES.intro.runMs).toBe(3500);
   });
 
   it("stand on paper, but for the two on the binder", () => {

@@ -12,8 +12,7 @@ export const communicateTemplates = sample("communicate", [
     audiences: ["change-lead"],
     format: "xlsx",
     adkar: ["awareness", "desire"],
-    priceCents: 5900,
-    featured: true,
+    free: true,
     summary: "Every message, audience, sender, channel and date for the rollout in one plan.",
     description:
       "A communications calendar organized by audience, with the preferred sender for each message. Pre-filled with the messages a typical SharePoint rollout needs, from first announcement to post-launch follow-up.",
@@ -33,7 +32,6 @@ export const communicateTemplates = sample("communicate", [
     audiences: ["end-user"],
     format: "docx",
     adkar: ["awareness", "desire"],
-    priceCents: 2900,
     pageCount: 9,
     summary: "Five ready-to-send emails that take staff from first notice to launch day.",
     description:
@@ -49,7 +47,6 @@ export const communicateTemplates = sample("communicate", [
     audiences: ["end-user"],
     format: "docx",
     adkar: ["awareness"],
-    priceCents: 2400,
     pageCount: 8,
     summary: "Six news post drafts for the intranet, with headline and image suggestions.",
     description:
@@ -65,7 +62,6 @@ export const communicateTemplates = sample("communicate", [
     audiences: ["end-user", "manager"],
     format: "docx",
     adkar: ["awareness", "knowledge"],
-    priceCents: 1900,
     pageCount: 5,
     summary: "Forty common rollout questions with draft answers to adapt.",
     description:
@@ -81,7 +77,6 @@ export const communicateTemplates = sample("communicate", [
     audiences: ["end-user"],
     format: "pdf",
     adkar: ["awareness", "knowledge"],
-    priceCents: 1900,
     pageCount: 1,
     summary: "A single page that shows staff what stays the same and what changes.",
     description:
@@ -99,7 +94,6 @@ export const communicateTemplates = sample("communicate", [
     audiences: ["sponsor"],
     format: "docx",
     adkar: ["awareness", "desire"],
-    priceCents: 3400,
     pageCount: 7,
     summary: "Scripts for the sponsor’s key messages: town hall, video and all-staff email.",
     description:
@@ -115,7 +109,6 @@ export const communicateTemplates = sample("communicate", [
     audiences: ["manager"],
     format: "docx",
     adkar: ["awareness", "desire"],
-    priceCents: 2900,
     pageCount: 6,
     summary:
       "What people managers should say to their teams, and how to answer the hard questions.",
@@ -132,7 +125,6 @@ export const communicateTemplates = sample("communicate", [
     audiences: ["manager"],
     format: "docx",
     adkar: ["desire", "ability"],
-    priceCents: 3900,
     pageCount: 12,
     summary: "Helps managers have one-to-one conversations with staff who are struggling.",
     description:

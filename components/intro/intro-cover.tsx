@@ -1,6 +1,8 @@
 import { InkBackdrop } from "@/components/ink/ink-backdrop";
 import {
   MARK_BAR_D,
+  MARK_DIGITS,
+  MARK_DIGITS_STROKE_WIDTH,
   MARK_LEGS_D,
   MARK_STROKE_WIDTH,
   MARK_TAIL_D,
@@ -13,8 +15,9 @@ import styles from "./intro-cover.module.css";
 /**
  * The cover of a first visit, rendered by the home page alone: the signing. On white paper the mark
  * is written in three pen strokes where it stands (both legs of the "A", its crossbar, then the
- * tail of the crossbar in the highlighter) and the name fades in under it. Then the cover fades and
- * the page, already complete and painted underneath, is there.
+ * tail of the crossbar in the highlighter), a finer pen writes "365" on the tail, digit by digit,
+ * and the name fades in under it. Then the cover fades and the page, already complete and painted
+ * underneath, is there.
  *
  * Where the engine is ready in time the ink joins: the layer puts the canvas in the cover's own
  * backdrop and switches the state to `ink`; a black drop falls through the signature, a light-blue
@@ -52,6 +55,18 @@ export function IntroCover() {
           <path className={cx(styles.pen, styles.tail)} d={MARK_TAIL_D} {...stroke} />
           <path className={cx(styles.pen, styles.legs)} d={MARK_LEGS_D} {...stroke} />
           <path className={cx(styles.pen, styles.bar)} d={MARK_BAR_D} {...stroke} />
+          {/* Last, on the tail and in its ink: one stroke a digit, each starting after the last. */}
+          <g>
+            {MARK_DIGITS.map((d) => (
+              <path
+                key={d}
+                className={cx(styles.pen, styles.digit)}
+                d={d}
+                {...stroke}
+                strokeWidth={MARK_DIGITS_STROKE_WIDTH}
+              />
+            ))}
+          </g>
         </svg>
         <span className={styles.name}>{SITE.name}</span>
       </div>

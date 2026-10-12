@@ -2,7 +2,6 @@ import { describe, expect, test } from "vitest";
 import { currentPhase, singleCatalogPhase } from "@/components/layout/nav-links";
 
 const PHASES = ["make-the-case", "prepare", "execute"];
-const TEMPLATE_PHASES = { "kickoff-deck": "make-the-case" };
 
 describe("singleCatalogPhase", () => {
   test("one known phase is the one", () => {
@@ -27,31 +26,24 @@ describe("singleCatalogPhase", () => {
 
 describe("currentPhase", () => {
   test("a phase page is that phase's own page", () => {
-    expect(currentPhase("/phases/prepare", TEMPLATE_PHASES)).toEqual({
-      slug: "prepare",
-      kind: "page",
-    });
+    expect(currentPhase("/phases/prepare")).toEqual({ slug: "prepare", kind: "page" });
   });
 
-  test("a template page belongs to its phase", () => {
-    expect(currentPhase("/templates/kickoff-deck", TEMPLATE_PHASES)).toEqual({
-      slug: "make-the-case",
-      kind: "true",
-    });
-    expect(currentPhase("/templates/unknown", TEMPLATE_PHASES)).toBeUndefined();
+  test("no other page belongs to a phase: there are no template pages", () => {
+    for (const path of ["/", "/about", "/purchase", "/sample", "/phases", "/phases/prepare/x"]) {
+      expect(currentPhase(path), path).toBeUndefined();
+    }
+    expect(currentPhase("/templates/kickoff-deck")).toBeUndefined();
   });
 
   test("the catalog belongs to the one phase it is filtered on", () => {
-    expect(currentPhase("/catalog", TEMPLATE_PHASES, "execute")).toEqual({
-      slug: "execute",
-      kind: "true",
-    });
-    expect(currentPhase("/catalog", TEMPLATE_PHASES)).toBeUndefined();
+    expect(currentPhase("/catalog", "execute")).toEqual({ slug: "execute", kind: "true" });
+    expect(currentPhase("/catalog")).toBeUndefined();
   });
 
   test("the catalog phase applies to the catalog only", () => {
-    expect(currentPhase("/", TEMPLATE_PHASES, "execute")).toBeUndefined();
-    expect(currentPhase("/bundles", TEMPLATE_PHASES, "execute")).toBeUndefined();
-    expect(currentPhase("/phases/prepare", TEMPLATE_PHASES, "execute")?.slug).toBe("prepare");
+    expect(currentPhase("/", "execute")).toBeUndefined();
+    expect(currentPhase("/purchase", "execute")).toBeUndefined();
+    expect(currentPhase("/phases/prepare", "execute")).toEqual({ slug: "prepare", kind: "page" });
   });
 });

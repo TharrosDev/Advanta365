@@ -69,6 +69,26 @@
   --depth-4: 0 0 0 1px rgb(11 13 18 / 0.05), 0 20px 40px -12px rgb(11 13 18 / 0.24);
 
   /*
+   * The folder of a page: the light on its card stock front, and the shade that front casts up
+   * onto the sheets in the pocket behind it.
+   */
+  --card-light: rgb(255 255 255 / 0.62);
+  --pocket-shade: 0 -8px 14px -8px rgb(11 13 18 / 0.22);
+
+  /*
+   * The lock on a template that is not a free sample: a steel chain (the light on it, its body,
+   * its shaded side and its edge), a padlock with a dark body, and the shadow they cast on the
+   * cover under them.
+   */
+  --steel-light: #f8fafd;
+  --steel: #b6bdca;
+  --steel-shade: #6a7182;
+  --steel-edge: #262a35;
+  --lock-light: #515869;
+  --lock: #1e222c;
+  --lock-cast: rgb(11 13 18 / 0.34);
+
+  /*
    * Semantic layer: what components read. Each [data-band] redefines it. The focus ring is ink on
    * the light surfaces, where the mark is too pale to ring anything, and the mark on the binder.
    */

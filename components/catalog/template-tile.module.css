@@ -1,0 +1,184 @@
+/*
+ * The grid. A column is at least 11rem wide, or half the row where the row is narrower than two of
+ * them, so a phone shows two tiles side by side. The rows are 56px apart: a locked tile's line
+ * stands in that gap.
+ */
+.grid {
+  display: grid;
+  grid-template-columns: repeat(
+    auto-fill,
+    minmax(min(11rem, calc((100% - var(--col-gap)) / 2)), 1fr)
+  );
+  gap: var(--s-6) var(--col-gap);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.grid > li {
+  min-width: 0;
+}
+
+/*
+ * The tile: a column, as tall as its row, with no ground and no border of its own. In the document
+ * the title comes first after the cover; on the page the phase and type stand above it. The
+ * outline is always there and takes a colour for keyboard focus and for the denied state.
+ */
+.tile {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  isolation: isolate;
+  border-radius: var(--round-2);
+  outline: 3px solid transparent;
+  outline-offset: 4px;
+  color: var(--text);
+}
+
+/* The well the cover lies in: a square, so every tile of a row starts its words on one line. */
+.well {
+  position: relative;
+  display: grid;
+  place-items: center;
+  aspect-ratio: 1;
+  margin-block-end: var(--s-2);
+  border-radius: var(--round-2);
+  background: var(--tile);
+  overflow: hidden;
+}
+
+/* The cover in its format's proportions: a page, a workbook, a slide. */
+.cover {
+  width: 56%;
+}
+
+.tile[data-format="xlsx"] .cover {
+  width: 74%;
+}
+
+.tile[data-format="pptx"] .cover {
+  width: 82%;
+}
+
+/* The format is a tag under the title; the one printed on the cover is too large for a tile. */
+.coverTag.coverTag {
+  display: none;
+}
+
+/* Locked: the cover is out of focus. Nothing else in the tile ever is. */
+.tile[data-locked] .cover {
+  filter: blur(6px);
+}
+
+.meta {
+  order: 1;
+  color: var(--text-soft);
+}
+
+.title {
+  order: 2;
+  overflow-wrap: break-word;
+  hyphens: auto;
+}
+
+/* The one link: its underline is there from the start and only takes colour on hover and focus. */
+.link {
+  color: inherit;
+  text-decoration: underline transparent;
+  text-decoration-thickness: var(--edge);
+  text-underline-offset: 3px;
+}
+
+/* A compound kept whole is an inline block; it draws the same underline as the rest of the title. */
+.link span {
+  text-decoration-thickness: inherit;
+}
+
+/* Stretched over the tile, so a click anywhere on it follows the link. */
+.link::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+}
+
+.link:focus-visible {
+  outline: none;
+}
+
+.tags {
+  display: flex;
+  order: 3;
+  flex-wrap: wrap;
+  gap: var(--s-1);
+  margin: auto 0 0;
+  padding-block-start: var(--s-2);
+}
+
+/* Keyboard focus is shown on the tile, not on the words of the title. */
+.tile:has(:is(a, button):focus-visible) {
+  outline-color: var(--focus-ring);
+}
+
+.tile:has(.link:focus-visible) .link,
+.tile:active .link {
+  text-decoration-color: currentColor;
+}
+
+/* Denied: the outline is the alert colour for as long as the state lasts (app/motion.css). */
+.tile[data-denied] {
+  outline-color: var(--alert);
+}
+
+.tile[data-denied] .well {
+  background: var(--alert-wash);
+}
+
+@media (hover: hover) {
+  .tile:hover .link {
+    text-decoration-color: currentColor;
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .link {
+    transition: text-decoration-color var(--time-swap) linear;
+  }
+}
+
+/* More contrast: the cover is sharp, the well has an edge, and the lock alone says "locked". */
+@media (prefers-contrast: more) {
+  .tile[data-locked] .cover {
+    filter: none;
+  }
+
+  .well {
+    border: var(--hair) solid var(--ink);
+  }
+}
+
+/* Forced colours give every outline a colour: the tile's is drawn only when it means something. */
+@media (forced-colors: active) {
+  .tile {
+    outline-style: none;
+  }
+
+  .tile:has(:is(a, button):focus-visible) {
+    outline-style: solid;
+    outline-color: Highlight;
+  }
+
+  .tile[data-denied] {
+    outline-style: solid;
+    outline-color: Mark;
+  }
+
+  .tile[data-locked] .cover {
+    filter: none;
+  }
+
+  .well {
+    border: var(--hair) solid CanvasText;
+  }
+}

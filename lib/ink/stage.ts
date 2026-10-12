@@ -18,8 +18,8 @@ export type Stage = {
 };
 
 export const STAGES: Record<SceneName, Stage> = {
-  intro: { weight: 9, runMs: 2800, ground: "paper" },
-  hero: { weight: 3, runMs: 30000, ground: "paper" },
+  intro: { weight: 9, runMs: 3500, ground: "paper" },
+  prompt: { weight: 3, runMs: 30000, ground: "paper" },
   title: { weight: 2, runMs: 14000, ground: "paper" },
   ninety: { weight: 3, runMs: 12000, ground: "binder", trigger: "tenth" },
   bloom: { weight: 2, runMs: 24000, ground: "paper" },

@@ -94,8 +94,8 @@ const clamp = (value: number, low: number, high: number) => Math.min(high, Math.
 /** A point across a lane: 0 is its left end, 1 its right. */
 const across = (lane: Vec2) => (k: number) => lane[0] + (lane[1] - lane[0]) * k;
 
-/** The water of the hero, shared by the title scene. */
-const heroWater = (portrait: boolean): Partial<Sim> => ({
+/** The water of a tank on paper: the title scene's, and the prompt's with a lighter fall. */
+const tankWater = (portrait: boolean): Partial<Sim> => ({
   speed: 0.6,
   gravity: [0.2, 0.16],
   velocityDamping: 1.2,
@@ -111,8 +111,9 @@ const heroWater = (portrait: boolean): Partial<Sim> => ({
 export const SCENES: Record<SceneName, (ctx: SceneContext) => Scene> = {
   /**
    * The load-in. A white field; one black drop falls and rolls into a plume, a light-blue drop
-   * chases it, then the ink turns to mist and the field is clean again. On a tall screen the same
-   * picture is drawn smaller, so the plume fits the width.
+   * chases it half a second later, then the ink turns to mist (from 2.45 s, over 1.05 s) and the
+   * field is clean again at 3.5 s. On a tall screen the same picture is drawn smaller, so the
+   * plume fits the width.
    */
   intro: (ctx) => {
     const k = ctx.portrait ? 0.72 : 1;
@@ -120,7 +121,7 @@ export const SCENES: Record<SceneName, (ctx: SceneContext) => Scene> = {
     const dx = (0.12 * k) / ctx.aspect;
     const base = { y: 0.02, fiber: 0.78, turbulence: 0.35 * k };
     return {
-      duration: 2.8,
+      duration: 3.5,
       still: 96,
       sim: {
         speed: 1.0,
@@ -149,7 +150,7 @@ export const SCENES: Record<SceneName, (ctx: SceneContext) => Scene> = {
             }),
         },
         {
-          at: 0.6,
+          at: 0.5,
           run: (ink) =>
             ink.drop({
               ...base,
@@ -160,87 +161,96 @@ export const SCENES: Record<SceneName, (ctx: SceneContext) => Scene> = {
               velocity: [-0.04 * k, 0.68 * k],
             }),
         },
-        { at: 1.75, run: (ink) => ink.clear({ duration: 1.05 }) },
+        { at: 2.45, run: (ink) => ink.clear({ duration: 1.05 }) },
       ],
     };
   },
 
   /**
-   * The tank beside the headline. Ink arrives from above, over the open water the page marked
-   * (`open`), and keeps arriving, slowly, for as long as the scene runs. On a tall canvas the drops
-   * start under the text, so ink never falls through it.
+   * The band of the home page: a blank prompt that turns into finished work. For 0.7 s nothing
+   * falls: the page's box stands empty. Then a black drop lands left of the middle of the box the
+   * page marked (`open`) and a light-blue one right of it half a second later; they open away
+   * from each other, across the band, and meet in the middle. From 2.6 s the ink turns to mist
+   * and at 3.5 s the water is clean; the page stands its documents where the box was from 3.7 s,
+   * so on a visit that has to fetch the engine, where the ink is up to 0.4 s late, they land on
+   * the last of the mist and never on ink. From 6 s ink keeps arriving, slowly, across the whole width of the band: it falls from
+   * the top of the stage, behind the documents and beside them, for as long as the scene runs.
+   * The page's own sequence is timed to the same clock (app/motion.css, `[data-hero-stage]`).
    */
-  hero: (ctx) => {
+  prompt: (ctx) => {
     const open = ctx.anchors.open;
-    const lane: Vec2 = ctx.portrait
-      ? [0.22, 0.8]
-      : open
-        ? [clamp(open.x, 0.04, 0.9), clamp(open.x + open.width, 0.1, 0.96)]
-        : [0.6, 0.9];
-    const r = ctx.portrait ? 0.058 : 0.08;
-    const at = across(lane);
-    const y = ctx.portrait && open ? clamp(open.y + 0.03, 0.03, 0.9) : 0.03;
-    const base = { y, fiber: 0.7, turbulence: 0.35 };
+    const x = open ? clamp(open.x + open.width / 2, 0.1, 0.9) : 0.5;
+    const y = open ? clamp(open.y + open.height / 2, 0.1, 0.9) : 0.7;
+    // The drip starts near the top of the stage, under the words (lower on a tall canvas, where
+    // the buttons stand right over the stage), and uses the band's whole width.
+    const top = open ? clamp(open.y + open.height * (ctx.portrait ? 0.5 : 0.08), 0.03, 0.9) : 0.5;
+    const at = across(ctx.portrait ? [0.12, 0.88] : [0.05, 0.95]);
+    const r = ctx.portrait ? 0.055 : 0.14;
+    const apart = (r * 1.45) / ctx.aspect;
+    /** The size of a drip: the old hero's drop. */
+    const drop = ctx.portrait ? 0.045 : 0.095;
+    const opening = { y, fiber: 0.72, turbulence: 0.5 };
+    const drip = { y: top, fiber: 0.7, turbulence: 0.35 };
     let beat = 0;
     let slot = 1;
     return {
-      still: 660,
-      sim: heroWater(ctx.portrait),
+      still: 1560,
+      sim: {
+        ...tankWater(ctx.portrait),
+        speed: 0.8,
+        gravity: [0.035, 0.028],
+        velocityDamping: 1.1,
+      },
       look: {},
       timeline: [
         {
-          at: 0.0,
+          at: 0.7,
           run: (ink) =>
             ink.drop({
-              ...base,
-              x: at(0.45),
+              ...opening,
+              x: x - apart,
               ink: "black",
-              amount: 3.1,
+              amount: 4.0,
               radius: r,
-              velocity: [0.0, 0.85],
+              velocity: [-0.46, -0.04],
+              swell: 2.0,
+              swellTime: 1.0,
             }),
         },
         {
-          at: 3.5,
+          at: 1.2,
           run: (ink) =>
             ink.drop({
-              ...base,
-              x: at(0.86),
+              ...opening,
+              x: x + apart,
               ink: "blue",
               amount: 3.0,
-              radius: r * 0.85,
-              velocity: [-0.03, 0.8],
+              radius: r * 0.9,
+              velocity: [0.48, -0.04],
+              swell: 2.0,
+              swellTime: 0.8,
             }),
         },
-        {
-          at: 7.5,
-          run: (ink) =>
-            ink.drop({
-              ...base,
-              x: at(0.12),
-              ink: "black",
-              amount: 2.8,
-              radius: r * 0.8,
-              velocity: [0.03, 0.75],
-            }),
-        },
+        { at: 2.6, run: (ink) => ink.clear({ duration: 0.9 }) },
         {
           every: ctx.portrait ? [7.5, 11.0] : [5.5, 8.5],
-          from: 13.0,
+          from: 6.0,
           run: (ink, rand) => {
-            // Two black drops to each blue one, never the same quarter of the lane twice running,
+            // Two black drops to each blue one, never the same quarter of the band twice running,
             // and every third drop a larger one.
             beat += 1;
             const blue = beat % 3 === 2;
             const large = beat % 3 === 0 ? 1.3 : 1;
             slot = (slot + 1 + Math.floor(rand() * 2)) % 4;
             ink.drop({
-              ...base,
+              ...drip,
               x: at((slot + 0.2 + rand() * 0.6) / 4),
               ink: blue ? "blue" : "black",
               amount: 2.7 + rand() * 0.7,
-              radius: r * (0.75 + rand() * 0.35) * large,
-              velocity: [(rand() - 0.5) * 0.1, 0.7 + rand() * 0.25],
+              radius: drop * (0.75 + rand() * 0.35) * large,
+              velocity: [(rand() - 0.5) * 0.12, 0.26 + rand() * 0.14],
+              swell: 0.7,
+              swellTime: 1.2,
             });
           },
         },
@@ -248,13 +258,13 @@ export const SCENES: Record<SceneName, (ctx: SceneContext) => Scene> = {
     };
   },
 
-  /** The title block of an inner page: the hero's water in a narrow slot, two drops and a slow drip. */
+  /** The title block of an inner page: the tank's water in a narrow slot, two drops and a slow drip. */
   title: () => {
     const base = { y: 0.03, fiber: 0.72, turbulence: 0.35 };
     let beat = 0;
     return {
       still: 420,
-      sim: heroWater(false),
+      sim: tankWater(false),
       look: {},
       timeline: [
         {
@@ -362,7 +372,7 @@ export const SCENES: Record<SceneName, (ctx: SceneContext) => Scene> = {
 
   /**
    * The closing statement: light-blue ink that rises from the foot of the section and opens upward,
-   * cap after cap, slowly. The hero's water, turned over and slowed down.
+   * cap after cap, slowly. The tank's water, turned over and slowed down.
    */
   bloom: (ctx) => {
     const r = ctx.portrait ? 0.062 : 0.1;

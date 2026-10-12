@@ -1,17 +1,8 @@
+/* The grid of tiles and the page navigation, 56px apart: room for the line of a tile in the last row. */
 .root {
   display: flex;
   flex-direction: column;
-  gap: var(--s-5);
-}
-
-/*
- * The index: one column of rows in every width. The rows draw their own hairlines, and their wash
- * stands 14px past both ends, so nothing here may clip.
- */
-.list {
-  margin: 0;
-  padding: 0;
-  list-style: none;
+  gap: var(--s-6);
 }
 
 /* No match: a blank sheet with an empty field, then what happened and the way out. */

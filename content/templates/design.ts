@@ -12,9 +12,8 @@ export const designTemplates = sample("design", [
     audiences: ["it-admin", "im-rep", "site-owner"],
     format: "docx",
     adkar: ["knowledge"],
-    priceCents: 6900,
     pageCount: 28,
-    featured: true,
+    free: true,
     summary: "A complete governance framework for sites, permissions, naming and content.",
     description:
       "Defines who can create what, how sites are named and reviewed, and who decides when rules need to change. Written so that non-technical site owners can follow it.",
@@ -34,7 +33,6 @@ export const designTemplates = sample("design", [
     audiences: ["it-admin", "im-rep"],
     format: "docx",
     adkar: ["knowledge"],
-    priceCents: 5400,
     pageCount: 15,
     summary: "How sites are created, reviewed, archived and deleted over time.",
     description:
@@ -50,7 +48,6 @@ export const designTemplates = sample("design", [
     audiences: ["sponsor", "it-admin"],
     format: "docx",
     adkar: ["reinforcement"],
-    priceCents: 3400,
     pageCount: 6,
     summary:
       "Set up the group that makes decisions about the platform, during the rollout and after.",
@@ -69,7 +66,6 @@ export const designTemplates = sample("design", [
     audiences: ["change-lead"],
     format: "pptx",
     adkar: ["awareness", "knowledge"],
-    priceCents: 4400,
     pageCount: 12,
     summary: "Six editable personas that describe a day of work before and after the rollout.",
     description:
@@ -85,7 +81,6 @@ export const designTemplates = sample("design", [
     audiences: ["change-lead"],
     format: "xlsx",
     adkar: ["knowledge"],
-    priceCents: 4400,
     summary: "Work out who needs to learn what, by role, before building any training.",
     description:
       "Maps roles to the tasks they will perform and the skills each task requires. Produces a prioritized list of training to build.",
@@ -100,7 +95,6 @@ export const designTemplates = sample("design", [
     audiences: ["change-lead", "sponsor"],
     format: "docx",
     adkar: ["awareness", "desire", "knowledge", "ability"],
-    priceCents: 6900,
     summary: "A staged approach to rolling out Microsoft 365 Copilot, from pilot to wider release.",
     description:
       "Sets out how to choose a pilot group, what to communicate and train at each stage, and how to decide when to widen the release. Written for the change lead running the rollout.",

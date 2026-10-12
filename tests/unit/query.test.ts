@@ -14,6 +14,9 @@ const AUDIENCES = ["sponsor", "manager", "end-user"] as const;
 const FORMATS = ["docx", "pptx"] as const;
 const PHASES = ["prepare", "execute", "sustain"] as const;
 
+// Six of the thirty are free.
+const FREE_INDEXES = [5, 9, 12, 17, 20, 27];
+
 // 30 templates: t00..t29, attributes cycle so every combination is predictable.
 const templates: Template[] = Array.from({ length: 30 }, (_, i) => {
   const n = String(i).padStart(2, "0");
@@ -27,8 +30,7 @@ const templates: Template[] = Array.from({ length: 30 }, (_, i) => {
     apps: [APPS[i % 3]!],
     audiences: [AUDIENCES[(i + 1) % 3]!],
     format: FORMATS[i % 2]!,
-    priceCents: 1000 + ((i * 7) % 30) * 100,
-    featured: i === 20 || i === 5,
+    free: FREE_INDEXES.includes(i),
   });
 });
 templates[4] = { ...templates[4]!, title: "Sponsor Kickoff Deck" };
@@ -119,8 +121,32 @@ describe("queryTemplates", () => {
     expect(query({ q: "x".repeat(600) }).total).toBe(0);
   });
 
-  test("the default order is phase order", () => {
-    expect(DEFAULT_CRITERIA.sort).toBe("phase");
+  test("the default order is the free samples first", () => {
+    expect(DEFAULT_CRITERIA.sort).toBe("samples");
+    const slugs = query().items.map((t) => t.slug);
+    expect(slugs.slice(0, 6)).toEqual(["t05", "t09", "t12", "t17", "t20", "t27"]);
+    // Without the phases, each group keeps the order it was given in.
+    expect(slugs.slice(6, 9)).toEqual(["t00", "t01", "t02"]);
+  });
+
+  test("the free samples come first, and each group then goes in phase order", () => {
+    const phases = rawPhases as Phase[];
+    const listed = [
+      makeTemplate({ slug: "train-a", phase: "prepare", step: "train" }),
+      makeTemplate({ slug: "free-train", phase: "prepare", step: "train", free: true }),
+      makeTemplate({ slug: "recruit-a", phase: "prepare", step: "recruit" }),
+      makeTemplate({ slug: "sponsor-a", phase: "make-the-case", step: "sponsor" }),
+      makeTemplate({ slug: "free-sponsor", phase: "make-the-case", step: "sponsor", free: true }),
+      makeTemplate({ slug: "free-recruit", phase: "prepare", step: "recruit", free: true }),
+    ];
+    expect(queryTemplates(listed, DEFAULT_CRITERIA, phases).items.map((t) => t.slug)).toEqual([
+      "free-sponsor",
+      "free-recruit",
+      "free-train",
+      "sponsor-a",
+      "recruit-a",
+      "train-a",
+    ]);
   });
 
   test("sorts by phase, then by step, keeping the given order inside a step", () => {
@@ -128,16 +154,17 @@ describe("queryTemplates", () => {
     const phases = rawPhases as Phase[];
     const listed = [
       makeTemplate({ slug: "train-a", phase: "prepare", step: "train" }),
-      makeTemplate({ slug: "recruit-a", phase: "prepare", step: "recruit" }),
+      makeTemplate({ slug: "recruit-a", phase: "prepare", step: "recruit", free: true }),
       makeTemplate({ slug: "sponsor-a", phase: "make-the-case", step: "sponsor" }),
-      makeTemplate({ slug: "train-b", phase: "prepare", step: "train" }),
+      makeTemplate({ slug: "train-b", phase: "prepare", step: "train", free: true }),
       makeTemplate({ slug: "recruit-b", phase: "prepare", step: "recruit" }),
     ];
     const order = (sort: CatalogCriteria["sort"]) =>
       queryTemplates(listed, { ...DEFAULT_CRITERIA, sort }, phases).items.map((t) => t.slug);
 
+    // The rollout order alone: a free sample stands where its step is.
     expect(order("phase")).toEqual(["sponsor-a", "recruit-a", "recruit-b", "train-a", "train-b"]);
-    // The other orders do not depend on the phases.
+    // The title order does not depend on the phases.
     expect(order("title")).toEqual(
       queryTemplates(listed, { ...DEFAULT_CRITERIA, sort: "title" }).items.map((t) => t.slug),
     );
@@ -147,23 +174,40 @@ describe("queryTemplates", () => {
     const phases = rawPhases as Phase[];
     const listed = [
       makeTemplate({ slug: "stray", phase: "retired", step: "gone" }),
+      makeTemplate({ slug: "stray-too", phase: "also-retired", step: "gone" }),
       makeTemplate({ slug: "odd-step", phase: "prepare", step: "gone" }),
       makeTemplate({ slug: "recruit", phase: "prepare", step: "recruit" }),
       makeTemplate({ slug: "sponsor", phase: "make-the-case", step: "sponsor" }),
     ];
     const slugs = (given: Phase[]) =>
-      queryTemplates(listed, DEFAULT_CRITERIA, given).items.map((t) => t.slug);
+      queryTemplates(listed, { ...DEFAULT_CRITERIA, sort: "phase" }, given).items.map(
+        (t) => t.slug,
+      );
 
-    expect(slugs(phases)).toEqual(["sponsor", "recruit", "odd-step", "stray"]);
-    expect(slugs([])).toEqual(["stray", "odd-step", "recruit", "sponsor"]);
+    expect(slugs(phases)).toEqual(["sponsor", "recruit", "odd-step", "stray", "stray-too"]);
+    expect(slugs([])).toEqual(["stray", "stray-too", "odd-step", "recruit", "sponsor"]);
   });
 
-  test("sorts featured first, then by title", () => {
-    expect(
-      query({ sort: "featured" })
-        .items.slice(0, 3)
-        .map((t) => t.slug),
-    ).toEqual(["t05", "t20", "t04"]);
+  test("free: true keeps only the free templates", () => {
+    expect(DEFAULT_CRITERIA.free).toBe(false);
+    const result = query({ free: true });
+    expect(result.total).toBe(6);
+    expect(result.items.every((t) => t.free)).toBe(true);
+  });
+
+  test("the free filter combines with the facets and the search", () => {
+    expect(query({ free: true, phase: ["sustain"] }).items.map((t) => t.slug)).toEqual(
+      ["t05", "t17", "t20"].filter(
+        (slug) => templates.find((t) => t.slug === slug)?.phase === "sustain",
+      ),
+    );
+    expect(query({ free: true, q: "template 09" }).items.map((t) => t.slug)).toEqual(["t09"]);
+    expect(query({ free: true, q: "kickoff" }).total).toBe(0);
+  });
+
+  test("the facet counts respect the free filter", () => {
+    const counts = query({ free: true }).facets.phase;
+    expect(Object.values(counts).reduce((sum, n) => sum + n, 0)).toBe(6);
   });
 
   test("sorts by title", () => {
@@ -172,15 +216,6 @@ describe("queryTemplates", () => {
         .items.slice(0, 3)
         .map((t) => t.slug),
     ).toEqual(["t04", "t00", "t01"]);
-  });
-
-  test("sorts by price ascending and descending", () => {
-    const asc = query({ sort: "price-asc" }).items.map((t) => t.priceCents);
-    expect(asc).toEqual([...asc].sort((a, b) => a - b));
-    expect(asc[0]).toBe(1000);
-    const desc = query({ sort: "price-desc" }).items.map((t) => t.priceCents);
-    expect(desc).toEqual([...desc].sort((a, b) => b - a));
-    expect(desc[0]).toBe(3900);
   });
 
   test("second page holds the remainder", () => {
@@ -217,7 +252,7 @@ describe("queryTemplates", () => {
 
   test("does not mutate its input", () => {
     const before = templates.map((t) => t.slug);
-    query({ sort: "price-desc" });
+    query({ sort: "title" });
     expect(templates.map((t) => t.slug)).toEqual(before);
   });
 });

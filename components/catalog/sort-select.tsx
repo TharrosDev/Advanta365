@@ -8,11 +8,9 @@ import { serializeCatalogParams } from "@/lib/catalog/search-params";
 import styles from "./sort-select.module.css";
 
 const OPTIONS: { value: SortKey; label: string }[] = [
+  { value: "samples", label: "Free samples first" },
   { value: "phase", label: "Phase order" },
-  { value: "featured", label: "Featured" },
   { value: "title", label: "Title A–Z" },
-  { value: "price-asc", label: "Price low to high" },
-  { value: "price-desc", label: "Price high to low" },
 ];
 
 /**

@@ -1,0 +1,52 @@
+/*
+ * The stage: the portfolio alone on white paper, with 28px over it (the title block is right
+ * above) and the band's own room under it.
+ */
+.stage.stage {
+  padding-block-start: var(--s-4);
+}
+
+/* A count of the ledger, in Besley's own figures (see the display classes in globals.css). */
+.count {
+  margin-inline-end: 0.15em;
+  font-family: var(--face-display);
+  font-size: var(--size-section);
+  line-height: 1;
+  font-weight: 700;
+  font-feature-settings: "tnum" 0;
+}
+
+/* The button, then the address: stacked on a phone, beside each other from 40em. */
+.action {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-3);
+  margin-block-start: var(--s-5);
+}
+
+.contact {
+  max-width: var(--wrap-copy);
+  color: var(--text-soft);
+}
+
+.sample {
+  margin-block-start: var(--s-4);
+}
+
+.provisional {
+  max-width: var(--wrap-copy);
+  margin-block-end: var(--s-3);
+  color: var(--text-soft);
+}
+
+@media (min-width: 40em) {
+  .action {
+    flex-direction: row;
+    align-items: center;
+    gap: var(--s-4);
+  }
+
+  .action > :first-child {
+    flex: none;
+  }
+}

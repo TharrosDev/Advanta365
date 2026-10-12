@@ -13,15 +13,19 @@
  *   120 to 480   the pen writes both legs of the "A"
  *   420 to 600   then the crossbar, up to the right leg
  *   560 to 800   and its tail, in the highlighter
+ *   800 to 1000  a finer pen writes 3, 6 and 5 on the tail, each 100 long and 50 after the last
  *   500 to 900   the name fades in; the hint from 600
  *
- * Then one of three ways out, each started by its state:
+ * The finished mark then stands from 1000 to 2500, a second and a half, before one of three ways
+ * out, each started by its state:
  *
- *   play    1200 to 1650   the cover leaves: the signature fades on the paper by 1380, and only
- *                          then does the paper clear, so the mark never lies over the hero's words
- *   ink     from T (the layer sets it when the engine is ready, 1050 at the latest):
- *           T + 250 to T + 550 the signature fades behind the falling drop,
- *           T + 2000 to T + 2800 the cover fades with the last of the mist
+ *   play    2500 to 2950   the cover leaves: the signature and the hint fade on the paper by
+ *                          2680, and only then does the paper clear, so the mark never lies over
+ *                          the hero's words
+ *   ink     from T (the layer sets it when the engine is ready, 1600 at the latest; the scene
+ *           runs from T, its clear from T + 2450 to T + 3500):
+ *           2500 to 2800 the signature fades, whenever T was (the layer writes T as `--taken`),
+ *           T + 2700 to T + 3500 the cover fades with the last of the mist, as the clear ends
  *   leave   the visitor pressed, typed, scrolled or touched: gone in 200
  */
 .cover {
@@ -31,18 +35,21 @@
   --pen-bar-at: 420ms;
   --pen-tail: 240ms;
   --pen-tail-at: 560ms;
+  --pen-digit: 100ms;
+  --pen-digit-step: 50ms;
+  --pen-digits-at: 800ms;
   --name-in: 400ms;
   --name-at: 500ms;
   --hint-in: 300ms;
   --hint-at: 600ms;
   --leave: 450ms;
-  --leave-at: 1200ms;
+  --leave-at: 2500ms;
   --sign-leave: 180ms;
-  --sign-leave-at: 1200ms;
+  --sign-leave-at: 2500ms;
   --ink-sign: 300ms;
-  --ink-sign-at: 250ms;
+  --ink-sign-at: 2500ms;
   --ink-leave: 800ms;
-  --ink-leave-at: 2000ms;
+  --ink-leave-at: 2700ms;
   --skip: 200ms;
   --pen: var(--curve-pen, var(--curve-settle));
 
@@ -142,7 +149,7 @@
 }
 
 /*
- * The signature leaves before the paper does. The ink takes over by 1050 at the latest, before
+ * The signature leaves before the paper does. The ink takes over by 1600 at the latest, before
  * this fade begins, and starts its own under another name; once the cover is leaving no input
  * changes the state any more.
  */
@@ -150,8 +157,12 @@
   animation: sign-leave var(--sign-leave) linear var(--sign-leave-at) forwards;
 }
 
+/*
+ * The ink's state starts at T, so the delay is what is left of 2500 once T has passed. Without
+ * the property (nothing set it) the signature waits the whole of it.
+ */
 :root[data-intro="ink"] .signature {
-  animation: sign-out var(--ink-sign) linear var(--ink-sign-at) forwards;
+  animation: sign-out var(--ink-sign) linear calc(var(--ink-sign-at) - var(--taken, 0ms)) forwards;
 }
 
 /* 84px high on a phone, 112px from 40em; the width follows the 4:3 view box. */
@@ -178,7 +189,8 @@
   stroke-dasharray: 1;
 }
 
-.tail {
+.tail,
+.digit {
   stroke: var(--mark);
 }
 
@@ -199,6 +211,20 @@
 
 :root[data-intro] .tail {
   animation: pen-stroke var(--pen-tail) var(--pen) var(--pen-tail-at) backwards;
+}
+
+/* The second and third digit start one and two steps after the first. */
+:root[data-intro] .digit {
+  animation: pen-stroke var(--pen-digit) var(--pen)
+    calc(var(--pen-digits-at) + var(--digit, 0) * var(--pen-digit-step)) backwards;
+}
+
+.digit:nth-child(2) {
+  --digit: 1;
+}
+
+.digit:nth-child(3) {
+  --digit: 2;
 }
 
 /* The name, as one word, 21px under the mark. Never larger than this anywhere. */

@@ -1,17 +1,19 @@
-import { TemplateCard } from "@/components/catalog/template-card";
+import { TemplateTile, TileGrid } from "@/components/catalog/template-tile";
 import { Band } from "@/components/ui/band";
 import { Button } from "@/components/ui/button";
 import { ShelfHead } from "@/components/ui/shelf-head";
+import { DEFAULT_CRITERIA } from "@/lib/catalog/query";
 import type { Phase, Template } from "@/lib/catalog/schema";
-import styles from "./home.module.css";
+import { catalogHref } from "@/lib/catalog/search-params";
 
 /**
- * `#featured`: the spread, on the desk. The head stands at the left with the link to the catalog
- * under the title (it names the sample catalog: the toolkit counts sit one section down, and the
- * catalog does not list that many). Under it six templates lie as sheets of paper: from 68em in
- * two rows of the twelve-column grid, five, three and four columns wide and then four, five and
- * three, so no two rows line up; two across from 40em; index rows below that. A cell is as tall
- * as its row, so the prices of a row stand on one line.
+ * `#featured`: the free samples, on the desk, right under the hero that shows the same six as a
+ * hand of documents: here each one is named, with its phase, its type and its format, which is
+ * what the heading says. The head stands at the left with the link to the
+ * catalog under the title (it names the sample catalog: the toolkit counts sit one section down,
+ * and the catalog does not list that many). Under it the six free templates are tiles in one grid:
+ * six across where the band is at its widest, two on a phone. Each links to the catalog, where the
+ * template opens in the pop-up.
  */
 export function FeaturedSection({
   templates,
@@ -26,8 +28,8 @@ export function FeaturedSection({
     <Band id="featured" surface="desk">
       <ShelfHead
         stack
-        eyebrow="Featured"
-        title="Featured templates"
+        eyebrow="Free samples"
+        title="The six free samples, one by one"
         action={
           <Button variant="outline" href="/catalog" arrow>
             Browse the sample catalog
@@ -35,22 +37,21 @@ export function FeaturedSection({
         }
       />
       {templates.length > 0 ? (
-        <ul className={styles.spread}>
-          {templates.map((template, index) => {
+        <TileGrid locks={false}>
+          {templates.map((template) => {
             const phase = phaseOf.get(template.phase);
             return (
-              <li key={template.slug} className={styles.spreadItem}>
-                <TemplateCard
+              <li key={template.slug}>
+                <TemplateTile
                   template={template}
-                  layout="sheet"
-                  index={index + 1}
                   phaseName={phase?.name}
                   phaseOrder={phase?.order}
+                  href={catalogHref(DEFAULT_CRITERIA, template.slug)}
                 />
               </li>
             );
           })}
-        </ul>
+        </TileGrid>
       ) : null}
     </Band>
   );

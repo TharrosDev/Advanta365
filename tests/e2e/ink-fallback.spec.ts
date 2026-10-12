@@ -13,7 +13,7 @@ import { canvases, collectProblems, inkMode, scrollToEnd } from "./support/ink";
 
 const ROUTES = ["/", "/about", "/catalog"];
 
-const HERO = '[data-ink-backdrop][data-scene="hero"]';
+const HERO = '[data-ink-backdrop][data-scene="prompt"]';
 const FOOTER = '[data-ink-backdrop][data-scene="wisps"]';
 
 test.beforeEach(async ({ page }) => {

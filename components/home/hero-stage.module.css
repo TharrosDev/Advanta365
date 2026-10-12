@@ -1,0 +1,181 @@
+/*
+ * The stage of the hero: the prompt box and the hand of documents in one cell, the box in the
+ * middle of the hand. The stage is a size container, so one unit (`cqi`) is 1% of its width for
+ * everything in it, and making the stage narrower makes the whole hand smaller. It is as wide as the page
+ * at most, and never so wide that the hand (`--hand` units tall) outgrows the height the band has
+ * for it (`--hero-room`, set by the band from 68em; without it there is no such limit).
+ */
+.stage {
+  --tall: var(--hand-narrow);
+
+  display: grid;
+  container-type: inline-size;
+  width: 100%;
+  max-width: min(var(--page-max), calc(var(--hero-room, 500rem) * 100 / var(--tall)));
+  min-width: 0;
+}
+
+.stage > * {
+  grid-area: 1 / 1;
+}
+
+.hand {
+  position: relative;
+  height: calc(var(--tall) * 1cqi);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+/*
+ * One document: its left edge, its top and its width in units of the stage, its lean about its
+ * own middle, and the layer it lies on (each over the one before it). Below 40em the measures of
+ * the two short hands apply, from 40em those of the one long hand.
+ */
+.doc {
+  --lean: var(--turn-narrow);
+
+  position: absolute;
+  top: calc(var(--y-narrow) * 1cqi);
+  left: calc(var(--x-narrow) * 1cqi);
+  z-index: var(--z);
+  width: calc(var(--w-narrow) * 1cqi);
+  rotate: var(--lean);
+}
+
+/* Under the keyboard it straightens and comes to the front; under the pointer too (below). */
+.doc:focus-within {
+  z-index: 7;
+  rotate: calc(var(--lean) * 0.3);
+}
+
+.link {
+  display: block;
+  border-radius: var(--round-1);
+  color: inherit;
+  text-decoration: none;
+}
+
+.link:focus-visible {
+  outline: 3px solid var(--focus-ring);
+  outline-offset: 4px;
+}
+
+/* The shadow deepens toward the middle of the hand. */
+.doc[data-depth="1"] [data-cover] {
+  --sheet-rest: var(--depth-1);
+  --sheet-lifted: var(--depth-3);
+}
+
+.doc[data-depth="3"] [data-cover] {
+  --sheet-rest: var(--depth-3);
+  --sheet-lifted: var(--depth-4);
+}
+
+/*
+ * The format tag stands at the cover's top left, over the title, in the margin the page leaves
+ * there: the right-hand side of a cover is where its neighbour lies. It is printed with the page,
+ * so it shrinks with a cover that is a thumbnail's size.
+ */
+.coverTag.coverTag {
+  top: 3cqi;
+  right: auto;
+  left: 7cqi;
+  padding: 0 clamp(2px, 2.4cqi, var(--s-1));
+  font-size: clamp(0.375rem, 5cqi, var(--size-tag));
+}
+
+/*
+ * The prompt box: the outline of a field, drawn on the paper in ink. It has no ground, so ink
+ * behind it is seen inside it. A caret stands where the first word would go; a key for adding
+ * something and the send key, in solid ink, stand on its bottom edge. It never takes the pointer,
+ * so the documents under it can be reached from the first moment they show. Whether it is
+ * displayed at all is decided in app/motion.css.
+ */
+.prompt {
+  z-index: 8;
+  place-self: center;
+  align-content: space-between;
+  width: min(100%, 40rem);
+  height: min(7.5rem, 100%);
+  padding: var(--s-2);
+  border: var(--edge) solid var(--ink);
+  border-radius: var(--round-3);
+  pointer-events: none;
+}
+
+/* The caret of the site's blank: a 2px bar of ink, a line of the lead tall. */
+.caret {
+  display: block;
+  width: var(--edge);
+  height: 1.75rem;
+  margin-inline-start: var(--s-1);
+  background: var(--ink);
+}
+
+.keys {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.chip {
+  display: grid;
+  place-items: center;
+  width: 2.25rem;
+  height: 2.25rem;
+  border: var(--hair) solid var(--line-firm);
+  border-radius: var(--round-2);
+  color: var(--text-soft);
+}
+
+.send {
+  display: grid;
+  place-items: center;
+  width: 2.25rem;
+  height: 2.25rem;
+  border-radius: var(--round-2);
+  background: var(--ink);
+  color: var(--on-ink);
+}
+
+.sendArrow {
+  rotate: -90deg;
+}
+
+@media (min-width: 40em) {
+  .stage {
+    --tall: var(--hand);
+  }
+
+  .doc {
+    --lean: var(--turn);
+
+    top: calc(var(--y) * 1cqi);
+    left: calc(var(--x) * 1cqi);
+    width: calc(var(--w) * 1cqi);
+  }
+}
+
+@media (hover: hover) {
+  .doc:hover {
+    z-index: 7;
+    rotate: calc(var(--lean) * 0.3);
+  }
+}
+
+@media (forced-colors: active) {
+  .prompt {
+    border-color: CanvasText;
+  }
+
+  .caret {
+    background: CanvasText;
+  }
+
+  .send {
+    background: CanvasText;
+    color: Canvas;
+    forced-color-adjust: none;
+  }
+}

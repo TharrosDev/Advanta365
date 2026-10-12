@@ -6,7 +6,13 @@
  *   [data-when="load"]                             that entrance by the clock, at page load
  *   [data-paper], [data-lit]                       a paper object and its light under the pointer
  *   [data-bar]                                     the bar and its shadow
+ *   [data-nav-underline]                           the bar’s underline, which slides to the current link
  *   [data-ninety]                                  the one band whose tally follows the scroll
+ *   [data-price-tag]                               the paper tag on its string, which swings
+ *   [data-tile][data-denied], [data-lock]          a locked tile saying no, and its padlock
+ *   [data-template-dialog][data-enter]             the pop-up of the catalog arriving
+ *   [data-hero-stage], [data-hero-prompt],
+ *   [data-hero-doc], [data-landed]                 the hero: a prompt box that becomes documents
  *
  * Three attributes on the root element, set by the boot script before first paint, are the only
  * switches: `data-motion="on"` (movement is wanted), `data-timeline="on"` (view timelines exist)
@@ -16,9 +22,11 @@
  *
  * Every animation and transition sits inside the no-preference query, with the final state
  * outside it. Keyframes name the starting state only: the end is whatever the element is. Nothing
- * repeats, no custom property is animated and no shadow changes: a shadow that comes or goes is a
- * second shadow on a pseudo-element whose opacity moves. `animation-timeline` and
- * `animation-range` are written after the `animation` shorthand, which would reset them.
+ * repeats, with one exception: the caret of the hero's prompt box blinks three times inside one
+ * run of `hero-caret-blink`, and then stands. No custom property is animated and no shadow
+ * changes: a shadow that comes or goes is a second shadow on a pseudo-element whose opacity moves.
+ * `animation-timeline` and `animation-range` are written after the `animation` shorthand, which
+ * would reset them.
  */
 
 /* The bar's shadow lies on a layer of its own. The bar is sticky, so it is the positioning box. */
@@ -64,6 +72,15 @@
   }
 }
 
+/*
+ * The prompt box of the hero (components/home/hero-stage.tsx) exists for its sequence only, and
+ * the sequence is played to live ink only. Without movement, without a script, or with ink that
+ * is still or paused, the box is not displayed and the documents stand where it would have been.
+ */
+[data-hero-prompt] {
+  display: none;
+}
+
 @media (prefers-reduced-motion: no-preference) {
   /* Anchors glide; the router still jumps on a route change (`data-scroll-behavior` on the root). */
   html {
@@ -107,6 +124,12 @@
   @keyframes bar-shadow-in {
     from {
       opacity: 0;
+    }
+  }
+
+  @keyframes nav-underline-in {
+    from {
+      scale: 0 1;
     }
   }
 
@@ -317,6 +340,16 @@
   }
 
   /*
+   * The bar’s underline. Moving from one link to the other it slides: the primary navigation
+   * writes the new index and the line follows it in the time of a lift. Coming from a page with
+   * no current link it grows from nothing, because it only begins to be displayed then.
+   */
+  [data-nav-underline] {
+    transition: translate var(--time-lift) var(--curve-settle);
+    animation: nav-underline-in var(--time-enter) var(--curve-settle) backwards;
+  }
+
+  /*
    * The ninety. The band is the timeline: over its passage through the viewport the blocks ink in
    * one after another from 20%, each over 3% and 2.6% apart, and the marked block fills between
    * 44% and 47%. The ink layer reads the same progress and drops its ink at 0.47. The figure
@@ -350,6 +383,281 @@
   html[data-io="armed"]:not([data-timeline="on"]) [data-ninety][data-seen] [data-block] {
     animation: ninety-fill var(--time-fill) var(--curve-settle) backwards;
     animation-delay: calc(var(--i, 0) * (var(--time-count) - var(--time-fill)) / 9);
+  }
+
+  /*
+   * The price tag (components/purchase/price-tag.tsx). It hangs from its top centre, turned by
+   * `--tag-turn`, and swings about that point like a weight on a string: from rest out to one
+   * side, back past its rest, and to rest again in a few shorter passes. The box swings once, the
+   * wider swing, when it is first seen (the observer's mark). What hangs in the box swings again,
+   * less far, each time the pointer comes onto the folder the tag is tied to: a second element, so
+   * that the pointer leaving starts nothing over. The tag is deaf to the pointer, so its own
+   * movement never changes what is hovered. A swing is its turning points, so these keyframes name
+   * them; both ends are still the element's own.
+   */
+  @keyframes price-tag-swing {
+    20% {
+      rotate: calc(var(--tag-turn, 0deg) - 8deg);
+    }
+
+    44% {
+      rotate: calc(var(--tag-turn, 0deg) + 5deg);
+    }
+
+    66% {
+      rotate: calc(var(--tag-turn, 0deg) - 2.6deg);
+    }
+
+    84% {
+      rotate: calc(var(--tag-turn, 0deg) + 1deg);
+    }
+  }
+
+  @keyframes price-tag-nudge {
+    22% {
+      rotate: 4.5deg;
+    }
+
+    48% {
+      rotate: -2.6deg;
+    }
+
+    72% {
+      rotate: 1.2deg;
+    }
+
+    90% {
+      rotate: -0.4deg;
+    }
+  }
+
+  html[data-motion="on"] [data-price-tag][data-seen] {
+    animation: price-tag-swing 1700ms ease-in-out 240ms;
+  }
+
+  @media (hover: hover) {
+    html[data-motion="on"] [data-folder]:hover ~ [data-price-tag] > * {
+      animation: price-tag-nudge 1200ms ease-in-out;
+    }
+  }
+
+  /*
+   * A locked tile saying no (components/catalog/locked-tile.tsx sets `data-denied` on the tile for
+   * 600ms). Three things happen at once and are over inside that time. The tile shakes: 6px to the
+   * left and to the right, five swings in 420ms. The padlock rattles about the top of its bow,
+   * sharper and a little longer: 12 degrees each way, dying down. The outline, which is the alert
+   * colour for as long as the state lasts, pulses: it comes, goes and comes back. When the state
+   * goes the outline fades instead of cutting out. Under reduced motion none of this is read, and
+   * the outline simply stands for the 600ms.
+   */
+  @keyframes tile-shake {
+    10%,
+    50%,
+    90% {
+      translate: -6px 0;
+    }
+
+    30%,
+    70% {
+      translate: 6px 0;
+    }
+  }
+
+  @keyframes lock-rattle {
+    8% {
+      rotate: -12deg;
+    }
+
+    20% {
+      rotate: 12deg;
+    }
+
+    32% {
+      rotate: -12deg;
+    }
+
+    44% {
+      rotate: 10deg;
+    }
+
+    56% {
+      rotate: -8deg;
+    }
+
+    68% {
+      rotate: 6deg;
+    }
+
+    80% {
+      rotate: -3deg;
+    }
+
+    92% {
+      rotate: 1.5deg;
+    }
+  }
+
+  @keyframes denied-pulse {
+    0%,
+    50% {
+      outline-color: transparent;
+    }
+
+    25% {
+      outline-color: var(--alert);
+    }
+  }
+
+  [data-tile] {
+    transition: outline-color var(--time-exit) linear;
+  }
+
+  [data-tile][data-denied] {
+    animation:
+      tile-shake 420ms ease-in-out,
+      denied-pulse 560ms ease-in-out;
+  }
+
+  [data-tile][data-denied] [data-lock] {
+    animation: lock-rattle 480ms ease-in-out;
+  }
+
+  /*
+   * The pop-up of the catalog (components/catalog/template-dialog.tsx). One that a link inside the
+   * site opens rises 14px into place as the page dims behind it; one that came with the server's
+   * page is simply there. Closing has no animation: a dialog that is closed is gone.
+   */
+  @keyframes dialog-in {
+    from {
+      opacity: 0;
+      translate: 0 14px;
+      scale: 0.985;
+    }
+  }
+
+  @keyframes scrim-in {
+    from {
+      opacity: 0;
+    }
+  }
+
+  [data-template-dialog][data-enter] {
+    animation: dialog-in 320ms var(--curve-settle);
+  }
+
+  [data-template-dialog][data-enter]::backdrop {
+    animation: scrim-in var(--time-exit) linear;
+  }
+
+  /*
+   * The hero's stage (components/home/hero-stage.tsx): a blank prompt becomes finished work. It
+   * is the page's half of the prompt ink scene (lib/ink/scenes.ts), so it plays only where that
+   * scene does: the root element says `data-ink="live"`, and the stage is not marked
+   * `data-landed`. components/home/hero-landing.tsx sets that mark when the ink is not running as
+   * the stage mounts, or stops running later, and never takes it off. Wherever one of the two
+   * fails, no rule below applies: the box is not displayed and the documents stand, and a
+   * sequence that loses its ink half-way simply has its documents in place.
+   *
+   * One clock, which starts when the root element has no `data-intro`: at load, or when the cover
+   * of a first visit has gone. The scene starts on the same event and is written to the same
+   * times; nothing ties the two together but that.
+   *
+   *      0 to  700ms  the box stands empty, its caret blinking; then the first drop lands in it
+   *   1100 to 2300ms  the box dissolves as the ink opens over it
+   *   3700ms on       the water is clean: the documents land, the middle ones first, 110ms
+   *                   apart and 560ms each, opaque from their first frames, from a little
+   *                   above and a little large, their lifted shadows coming to rest with them
+   *
+   * Under the cover the page is already in its opening state: the box there, its caret solid, the
+   * documents out of sight (and out of reach of the keyboard). Each end state is the element's
+   * own, so the box stays gone and the documents stay.
+   */
+  @keyframes hero-prompt-out {
+    from {
+      visibility: visible;
+      opacity: 1;
+      filter: none;
+      scale: 1;
+    }
+  }
+
+  /* On for 300ms, off for 200, three times: it is on when the box is first seen. */
+  @keyframes hero-caret-blink {
+    0%,
+    33.3%,
+    66.6% {
+      opacity: 1;
+    }
+
+    20%,
+    53.3%,
+    86.6% {
+      opacity: 0;
+    }
+  }
+
+  @keyframes hero-doc-in {
+    from {
+      visibility: hidden;
+      translate: 0 -1.75rem;
+      scale: 1.06;
+    }
+  }
+
+  @keyframes hero-doc-show {
+    from {
+      opacity: 0;
+    }
+  }
+
+  html[data-motion="on"][data-ink="live"] [data-hero-stage]:not([data-landed]) [data-hero-prompt] {
+    display: grid;
+  }
+
+  html[data-motion="on"][data-ink="live"]:not([data-intro])
+    [data-hero-stage]:not([data-landed])
+    [data-hero-prompt] {
+    visibility: hidden;
+    opacity: 0;
+    filter: blur(12px);
+    scale: 1.05;
+    animation: hero-prompt-out 1200ms var(--curve-leave) 1100ms backwards;
+  }
+
+  html[data-motion="on"][data-ink="live"]:not([data-intro])
+    [data-hero-stage]:not([data-landed])
+    [data-hero-prompt]
+    [data-caret] {
+    animation: hero-caret-blink 1500ms steps(1, end);
+  }
+
+  html[data-motion="on"][data-ink="live"][data-intro]
+    [data-hero-stage]:not([data-landed])
+    [data-hero-doc] {
+    visibility: hidden;
+    opacity: 0;
+  }
+
+  html[data-motion="on"][data-ink="live"]:not([data-intro])
+    [data-hero-stage]:not([data-landed])
+    [data-hero-doc] {
+    animation:
+      hero-doc-in var(--time-settle) var(--curve-drop) backwards,
+      hero-doc-show 90ms linear backwards;
+    animation-delay: calc(3700ms + var(--i, 0) * 110ms);
+  }
+
+  html[data-motion="on"][data-ink="live"]:not([data-intro])
+    [data-hero-stage]:not([data-landed])
+    [data-hero-doc]
+    [data-paper]::after {
+    animation: move-shadow var(--time-settle) var(--curve-settle) backwards;
+    animation-delay: calc(3700ms + var(--i, 0) * 110ms);
+  }
+
+  /* A document under the pointer or the keyboard straightens in the time of a lift. */
+  [data-hero-stage] li {
+    transition: rotate var(--time-lift) var(--curve-settle);
   }
 
   /*

@@ -1,4 +1,11 @@
-import { INK_KEY, INK_OFF, INK_PAUSED, INK_TIERS, isCalmRoute } from "@/lib/boot/state";
+import {
+  INK_KEY,
+  INK_OFF,
+  INK_PAUSED,
+  INK_TIERS,
+  INTRO_TAKEOVER_MS,
+  isCalmRoute,
+} from "@/lib/boot/state";
 import { readPigments } from "@/lib/ink/pigments";
 import {
   chooseStage,
@@ -72,21 +79,25 @@ function loadEngine(): Promise<EngineModule> {
   return engine;
 }
 
-// A first visit opens under the cover, and the ink has about a second to join it: the fetch starts
-// as soon as this module is evaluated, before hydration.
-if (typeof document !== "undefined") {
+/**
+ * A first visit opens under the cover, and the ink has a second and a half to join it: the fetch
+ * starts at once, with no wait for an idle moment or for a backdrop to be measured. Where the
+ * boot script has not set `data-intro` and `data-ink="live"`, nothing is fetched.
+ */
+function fetchForCover() {
   const root = document.documentElement;
-  if (root.hasAttribute("data-intro") && root.getAttribute("data-ink") === "live") {
-    loadEngine().catch(() => {
-      engine = null;
-    });
-  }
+  if (!root.hasAttribute("data-intro") || root.getAttribute("data-ink") !== "live") return;
+  loadEngine().catch(() => {
+    engine = null;
+  });
 }
 
-const INTERACTIVE = "a, button, input, select, textarea, label, summary, [role='button']";
+// The earliest point the layer's own code runs: when this module is evaluated, before hydration.
+// The controller asks again as its first act, in case the script of the page came before the boot
+// script; the fetch is made once either way.
+if (typeof document !== "undefined") fetchForCover();
 
-/** The latest moment of the cover's own timeline at which the ink may still take it over, in ms. */
-const TAKE_OVER_BY = 1050;
+const INTERACTIVE = "a, button, input, select, textarea, label, summary, [role='button']";
 
 const isTier = (value: unknown): value is Tier => (INK_TIERS as readonly unknown[]).includes(value);
 
@@ -108,6 +119,7 @@ function writeStore(value: string | null) {
 }
 
 export function createController(onControl: (control: Control) => void): Controller {
+  fetchForCover();
   const root = document.documentElement;
   const cleanups: (() => void)[] = [];
   let destroyed = false;
@@ -435,8 +447,14 @@ export function createController(onControl: (control: Control) => void): Control
   // -------------------------------------------------------------------------------------------
   /**
    * The ink joins the cover only if it is ready in time: the cover's own exit must not have got
-   * past its first second. Then the state `ink` cancels that exit and starts the longer one, and
-   * the drop falls. An engine that is ready later leaves the cover alone.
+   * past its first second and a half (`INTRO_TAKEOVER_MS`). Then the state `ink` cancels that
+   * exit and starts the longer one, and the drop falls. An engine that is ready later leaves the
+   * cover alone.
+   *
+   * The exit of the `ink` state and the scene both run from this moment and both last 3500 ms, so
+   * the cover is gone as the last of the clear is, never before it, and by 5100 ms at the latest.
+   * The signature is told how far into the cover this is (`--taken`), because it leaves at 2500 ms
+   * of the cover's own time, whenever the ink came.
    */
   function takeOver() {
     if (!ink || !canvas || tookOver || scene !== "intro" || !current) return;
@@ -448,8 +466,9 @@ export function createController(onControl: (control: Control) => void): Control
       .getAnimations()
       .find((animation) => (animation.effect as KeyframeEffect | null)?.target === cover);
     const time = exit ? Number(exit.currentTime ?? Infinity) : Infinity;
-    if (!(time <= TAKE_OVER_BY)) return;
+    if (!(time <= INTRO_TAKEOVER_MS)) return;
     tookOver = true;
+    cover.style.setProperty("--taken", `${Math.round(time)}ms`);
     root.setAttribute("data-intro", "ink");
     current.setAttribute("data-ink-state", "live");
     ink.preset("intro");

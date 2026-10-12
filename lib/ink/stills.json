@@ -1,10 +1,24 @@
 [
-  { "name": "hero-wide", "route": "/", "viewport": [1440, 900], "ratio": 1, "scene": "hero" },
-  { "name": "hero-tall", "route": "/", "viewport": [320, 700], "ratio": 2, "scene": "hero" },
+  { "name": "prompt-wide", "route": "/", "viewport": [1440, 900], "ratio": 1, "scene": "prompt" },
+  { "name": "prompt-tall", "route": "/", "viewport": [320, 700], "ratio": 2, "scene": "prompt" },
   { "name": "ninety-wide", "route": "/", "viewport": [1440, 900], "ratio": 1, "scene": "ninety" },
   { "name": "ninety-tall", "route": "/", "viewport": [320, 700], "ratio": 2, "scene": "ninety" },
   { "name": "bloom-wide", "route": "/", "viewport": [1920, 900], "ratio": 1, "scene": "bloom" },
   { "name": "bloom-tall", "route": "/", "viewport": [390, 844], "ratio": 2, "scene": "bloom" },
+  {
+    "name": "bloom-purchase-wide",
+    "route": "/purchase",
+    "viewport": [1088, 900],
+    "ratio": 1,
+    "scene": "bloom"
+  },
+  {
+    "name": "bloom-purchase-tall",
+    "route": "/purchase",
+    "viewport": [320, 700],
+    "ratio": 2,
+    "scene": "bloom"
+  },
   {
     "name": "wisps-wide",
     "route": "/about",

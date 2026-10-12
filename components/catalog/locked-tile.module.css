@@ -1,0 +1,64 @@
+/* The title of a locked tile: the same words as on a free one, in a button. */
+.title {
+  order: 2;
+  overflow-wrap: break-word;
+  hyphens: auto;
+}
+
+.control {
+  display: inline;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: inherit;
+  font: inherit;
+  text-align: start;
+  cursor: pointer;
+  appearance: none;
+}
+
+/* Stretched over the tile, so a press anywhere on it is a press on the button. */
+.control::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+}
+
+/* Keyboard focus is shown on the tile (template-tile.module.css), not on the words. */
+.control:focus-visible {
+  outline: none;
+}
+
+/*
+ * The line the tile answers with. It stands under the tile, in the gap the grid keeps between its
+ * rows, so nothing moves when it arrives; it lies over the stretched button, so its link can be
+ * reached.
+ */
+.line {
+  position: absolute;
+  inset: calc(100% + var(--s-1) * 1.5) 0 auto;
+  z-index: 2;
+  margin: 0;
+  color: var(--text);
+}
+
+/* Below 68em the link's pointer area is 44px tall; the layer is invisible and moves nothing. */
+.way {
+  position: relative;
+  font-weight: 600;
+}
+
+.way::after {
+  content: "";
+  position: absolute;
+  inset-block: calc((1lh - var(--tap)) / 2);
+  inset-inline: 0;
+}
+
+@media (min-width: 68em) {
+  .way::after {
+    content: none;
+  }
+}

@@ -12,12 +12,12 @@ import { Appear } from "@/components/ui/appear";
 import { Band } from "@/components/ui/band";
 import { Eyebrow } from "@/components/ui/eyebrow";
 import { FactList } from "@/components/ui/fact-list";
+import { Icon } from "@/components/ui/icon";
 import { Sentences } from "@/components/ui/sentences";
-import { catalogPriceSpan, type PriceSpan } from "@/lib/catalog/pricing";
-import { getBundles, getPhases, getTemplates, hasSampleContent } from "@/lib/catalog/repository";
+import { Split } from "@/components/ui/split";
 import { cx } from "@/lib/cx";
 import { formatPrice } from "@/lib/format";
-import { SITE, TOOLKIT } from "@/lib/site";
+import { OFFER, SITE, TOOLKIT } from "@/lib/site";
 import styles from "./page.module.css";
 
 // The short mission: the page's h1 and the description a search result shows.
@@ -85,72 +85,55 @@ const COMPARE_TITLE = "Three real alternatives.\nEach one misses something.";
 
 const COMPARE_COLUMNS = ["Build it yourself with AI", "Hire a CM consultant", SITE.name];
 
-const REUSE = "One licence, reused across waves";
-
 /**
- * The toolkit's cost cell: what the catalog asks, from its cheapest template to its full-rollout
- * bundle, then the licence. The figures are read from the catalog, so they follow its prices.
+ * The toolkit's cost cell: the one price, then the licence. The figure is read from `OFFER`, the
+ * only place the price is written, so the cell follows it.
  */
-function costCell(span: PriceSpan | undefined): string {
-  if (!span) return REUSE;
-  const from = formatPrice(span.fromCents);
-  if (span.toCents === undefined) return `From ${from} for a template. ${REUSE}`;
-  return `${from} for a template to ${formatPrice(span.toCents)} for a full rollout. ${REUSE}`;
-}
+const COST = `${formatPrice(OFFER.priceCents)}, one purchase. One licence, reused across waves`;
 
-/**
- * The line under the table: the alternatives' costs are our estimates, and the toolkit's prices are
- * placeholders while the catalog is a sample.
- */
-function compareNote(sample: boolean): string {
-  const estimates = "Cost figures for the alternatives are our estimates, not market data.";
-  return sample
-    ? `${estimates} ${SITE.name} prices are placeholders from the sample catalog.`
-    : estimates;
-}
+/** The line under the table: the alternatives' costs are our estimates; the toolkit's is its price. */
+const COMPARE_NOTE = "Cost figures for the alternatives are our estimates, not market data.";
 
 // One cell per column, in the order of COMPARE_COLUMNS. The toolkit counts are read from TOOLKIT
-// and its cost from the catalog.
-function compareRows(span: PriceSpan | undefined): readonly ComparisonRow[] {
-  return [
-    {
-      label: "Starting point",
-      cells: [
-        "Blank prompt",
-        "Consultant’s own playbook",
-        `${TOOLKIT.playbooks} playbooks, ${TOOLKIT.templates} templates, ${TOOLKIT.fieldGuides} field guides, training for ${TOOLKIT.trainingAudiences} audiences`,
-      ],
-    },
-    {
-      label: "Field-tested?",
-      cells: [
-        "No. Plausible but unproven",
-        "Yes, but you rent it",
-        "Yes, refined across real rollouts",
-      ],
-    },
-    {
-      label: "Cost",
-      cells: [
-        "Low in dollars, high in staff time (8 to 14 person-months to build internally)",
-        "$150K to $400K per rollout",
-        costCell(span),
-      ],
-    },
-    {
-      label: "Who owns the result",
-      cells: ["You", "Often the consultant’s IP", "You keep and adapt the copies"],
-    },
-    {
-      label: "Works with AI",
-      cells: ["It is AI", "Rarely", "Built to be fed into AI tools"],
-    },
-    {
-      label: "Speed to first deliverable",
-      cells: ["Days to draft, weeks to validate", "Weeks to onboard", "Same day"],
-    },
-  ];
-}
+// and its cost from OFFER.
+const COMPARE_ROWS: readonly ComparisonRow[] = [
+  {
+    label: "Starting point",
+    cells: [
+      "Blank prompt",
+      "Consultant’s own playbook",
+      `${TOOLKIT.playbooks} playbooks, ${TOOLKIT.templates} templates, ${TOOLKIT.fieldGuides} field guides, training for ${TOOLKIT.trainingAudiences} audiences`,
+    ],
+  },
+  {
+    label: "Field-tested?",
+    cells: [
+      "No. Plausible but unproven",
+      "Yes, but you rent it",
+      "Yes, refined across real rollouts",
+    ],
+  },
+  {
+    label: "Cost",
+    cells: [
+      "Low in dollars, high in staff time (8 to 14 person-months to build internally)",
+      "$150K to $400K per rollout",
+      COST,
+    ],
+  },
+  {
+    label: "Who owns the result",
+    cells: ["You", "Often the consultant’s IP", "You keep and adapt the copies"],
+  },
+  {
+    label: "Works with AI",
+    cells: ["It is AI", "Rarely", "Built to be fed into AI tools"],
+  },
+  {
+    label: "Speed to first deliverable",
+    cells: ["Days to draft, weeks to validate", "Weeks to onboard", "Same day"],
+  },
+];
 
 const WHO_STATEMENT =
   "Advanta365 works for any organization rolling out M365, from private companies to federal departments and Crown corporations.";
@@ -186,10 +169,20 @@ const BUYERS: readonly Buyer[] = [
 const BEYOND_SHAREPOINT =
   "SharePoint-first out of the box. The change management core (structured planning, resistance management, sponsor coaching, Go/No-Go decisions and sustainment) applies to almost any technology rollout.";
 
+// The contact section's lead: the question people write in with, then the promise.
+const CONTACT_LEAD =
+  "Questions about the toolkit, licensing for your organization, or buying by purchase order? Send an email and you will get a reply from a person.";
+
+/** An address may break after its "@" instead of running out of a narrow column. */
+function addressParts(address: string): [string, string] {
+  const at = address.indexOf("@");
+  return at === -1 ? [address, ""] : [address.slice(0, at + 1), address.slice(at + 1)];
+}
+
 const NEXT = [
   { href: "/catalog", label: "Browse the catalog" },
   { href: "/sample", label: "See a sample" },
-  { href: "/contact", label: "Get in touch" },
+  { href: "#contact", label: "Get in touch" },
 ];
 
 /**
@@ -199,27 +192,22 @@ const NEXT = [
  * Layout: the title block with ink, then bands that alternate desk and paper: the mission, why it
  * exists, the one black band (AI, stated plainly, static), the wash band with the four proof points
  * as a ledger, the comparison on a sheet of paper with the buyer's column raised, the buyers as a
- * ledger, and a closing paper band. Each statement section has its label in the margin; the
- * comparison runs across the whole grid under its own statement. `#compare` is linked from the
- * home page and from the top of `/pricing`.
+ * ledger, the contact section and a closing paper band. Each statement section has its label in
+ * the margin; the comparison runs across the whole grid under its own statement. `#compare` is
+ * linked from the home page, and `#contact` is where the old contact address now lands.
  *
  * Hierarchy: two headlines carry the page at the statement size, the h1 and the black AI band. The
- * comparison's title is one step down (banner), and the mission, why, proof and buyer statements
- * and the closing heading are set at the page size, so the bands read as one argument with two
- * peaks instead of seven headlines of one size.
+ * comparison's title is one step down (banner), and the mission, why, proof and buyer statements,
+ * the contact heading and the closing heading are set at the page size, so the bands read as one
+ * argument with two peaks instead of seven headlines of one size.
+ *
+ * The contact section is the heading, one lead and the one address, set as large as a statement:
+ * it is the thing to act on, not a third headline. The address is a single `mailto:` link with the
+ * arrow after it; on hover and keyboard focus the highlighter fills in behind the address (the
+ * words stay ink) and the arrow moves 6px.
  */
-export default async function AboutPage() {
-  const [templates, bundles, phases, sample] = await Promise.all([
-    getTemplates(),
-    getBundles(),
-    getPhases(),
-    hasSampleContent(),
-  ]);
-  const span = catalogPriceSpan(
-    templates,
-    bundles,
-    phases.map((phase) => phase.slug),
-  );
+export default function AboutPage() {
+  const [local, domain] = addressParts(SITE.contactEmail);
 
   return (
     <>
@@ -263,9 +251,9 @@ export default async function AboutPage() {
           className={styles.compareTable}
           caption={`${SITE.name} compared with the alternatives`}
           columns={COMPARE_COLUMNS}
-          rows={compareRows(span)}
+          rows={COMPARE_ROWS}
           emphasized={COMPARE_COLUMNS.indexOf(SITE.name)}
-          note={compareNote(sample)}
+          note={COMPARE_NOTE}
         />
       </Band>
 
@@ -283,6 +271,26 @@ export default async function AboutPage() {
           items={[{ label: "Beyond SharePoint", value: BEYOND_SHAREPOINT }]}
         />
       </StatementSection>
+
+      <Band id="contact" surface="paper" pad="roomy">
+        <Split>
+          <h2 className={cx("type-page", styles.contactTitle)}>Contact</h2>
+          <p className={cx("type-lead", styles.contactLead)}>{CONTACT_LEAD}</p>
+          <Appear className={styles.contactRow}>
+            <a
+              href={`mailto:${SITE.contactEmail}`}
+              className={cx("type-statement", styles.contactLink)}
+            >
+              <span className={styles.address}>
+                {local}
+                <wbr />
+                {domain}
+              </span>
+              <Icon name="arrow" size={32} className={styles.arrow} />
+            </a>
+          </Appear>
+        </Split>
+      </Band>
 
       <NextSteps title="Find the piece for the phase you are on" links={NEXT}>
         <p className={cx("type-note", styles.parent)}>

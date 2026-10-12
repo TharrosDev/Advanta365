@@ -1,5 +1,5 @@
 import { expect, test, type Page } from "@playwright/test";
-import { introSeen, NAVIGATION_TIMEOUT } from "./helpers";
+import { hydrated, introSeen, NAVIGATION_TIMEOUT } from "./helpers";
 
 // The motion system: entrances that follow the scroll, the ninety that fills as its band goes by,
 // and the change of page that carries a sheet or a folder across. Each of them has two paths, one
@@ -244,6 +244,7 @@ test("a filter change on the catalog starts no view transition", async ({ page, 
   test.skip(browserName === "firefox", "the browser has no view transitions to run");
   await watchTransitions(page);
   await page.goto("/catalog");
+  await hydrated(page);
 
   // On narrow screens the filters live in a dialog behind a button.
   const open = page.getByRole("button", { name: /^Filters/ });
@@ -252,27 +253,24 @@ test("a filter change on the catalog starts no view transition", async ({ page, 
     .getByRole("checkbox", { name: /^Training/ })
     .filter({ visible: true })
     .check();
-  await expect(page).toHaveURL(/type=training/);
+  await expect(page).toHaveURL(/type=training/, { timeout: NAVIGATION_TIMEOUT });
 
   // The results changed under the same address: a view transition would have flown them.
   await expect(page.getByRole("status")).toBeVisible();
   expect((await transitions(page)).calls).toBe(0);
 });
 
-test("a click on a catalog row runs a view transition with a group named for its cover", async ({
+test("opening a free sample in the pop-up is a change inside the page: no view transition", async ({
   page,
-  browserName,
 }) => {
-  test.skip(browserName === "firefox", "the browser has no view transitions to run");
   await watchTransitions(page);
   await page.goto("/catalog");
+  await hydrated(page);
 
-  const row = page.getByRole("article").first();
-  const link = row.getByRole("link");
-  const slug = (await link.getAttribute("href"))?.split("/").pop();
-  expect(slug).toBeTruthy();
-  await link.click();
+  await page.locator("[data-tile][data-free]").first().getByRole("link").click();
+  await expect(page).toHaveURL(/[?&]view=[a-z0-9-]+$/, { timeout: NAVIGATION_TIMEOUT });
+  await expect(page.locator("dialog[open]")).toBeVisible();
 
-  await expect(page).toHaveURL(new RegExp(`/templates/${slug}$`), { timeout: NAVIGATION_TIMEOUT });
-  await expect.poll(async () => (await transitions(page)).groups).toContain(`cover-${slug}`);
+  // The catalog stayed where it was under the dialog: nothing of the page left or arrived.
+  expect((await transitions(page)).calls).toBe(0);
 });

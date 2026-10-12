@@ -1,12 +1,12 @@
 // The stills of the ink layer: capture them, check them, measure the light blue, save contact sheets.
 //
-//   node scripts/ink-stills.mjs                  capture the eleven stills into public/ink/
+//   node scripts/ink-stills.mjs                  capture the thirteen stills into public/ink/
 //   node scripts/ink-stills.mjs --check          caps under every calm zone, at seven widths
-//   node scripts/ink-stills.mjs --blue           the light blue stays light (hero 8s and 30s, intro 1.3s)
+//   node scripts/ink-stills.mjs --blue           the light blue stays light (prompt 2s and 2.5s, intro 1.3s)
 //   node scripts/ink-stills.mjs --sheets         contact sheets of every scene into .qa-shots/final/
 //
 // Options: --base=http://localhost:3100 (a running production server; without one the script starts
-// `next start` on port 3100 from the last build and stops it again), --only=hero-wide,title (capture
+// `next start` on port 3100 from the last build and stops it again), --only=prompt-wide,title (capture
 // only these; with --sheets, scene and viewport names such as spill,phone), --out=<dir> (where
 // --sheets writes).
 //
@@ -51,15 +51,10 @@ const WIDTHS = [320, 390, 768, 1088, 1280, 1440, 1920];
 const CHECK_ROUTES = [
   "/",
   "/about",
-  "/pricing",
-  "/contact",
+  "/purchase",
   "/sample",
-  "/bundles",
   "/phases/prepare",
   "/catalog",
-  "/cart",
-  "/templates/executive-sponsor-kickoff-deck",
-  "/bundles/sponsor-essentials",
   "/nope",
 ];
 const TOLERANCE = 0.02;
@@ -514,8 +509,8 @@ function measureBlue() {
 async function blue(browser) {
   let failures = 0;
   const frames = [
-    { label: "hero 8s", scene: "hero", seconds: 8 },
-    { label: "hero 30s", scene: "hero", seconds: 30 },
+    { label: "prompt 2s", scene: "prompt", seconds: 2 },
+    { label: "prompt 2.5s", scene: "prompt", seconds: 2.5 },
     { label: "intro 1.3s", scene: "intro", seconds: 1.3 },
   ];
   for (const frame of frames) {
@@ -566,8 +561,8 @@ async function blue(browser) {
 // --sheets: contact sheets of every scene
 // ---------------------------------------------------------------------------------------------
 const SHEET_SCENES = [
-  { scene: "hero", route: "/", times: [3, 8, 16, 30] },
-  { scene: "intro", route: "/", times: [0.4, 0.8, 1.3, 1.9, 2.4, 2.8] },
+  { scene: "prompt", route: "/", times: [0.6, 1.1, 1.9, 2.7, 3.7, 12, 20, 30] },
+  { scene: "intro", route: "/", times: [0.4, 0.8, 1.5, 2.4, 3.0, 3.5] },
   { scene: "ninety", route: "/", times: [1, 4, 9] },
   { scene: "bloom", route: "/", times: [3, 8, 16] },
   { scene: "wisps", route: "/about", times: [4, 10, 18] },

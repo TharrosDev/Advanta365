@@ -1,5 +1,5 @@
 import { expect, test } from "@playwright/test";
-import { introSeen, NAVIGATION_TIMEOUT } from "./helpers";
+import { hydrated, introSeen, NAVIGATION_TIMEOUT } from "./helpers";
 
 // The two specs that start on "/" navigate by links at the start of the run, when every worker is
 // loading its first page. They get a navigation budget, so a busy machine fails them on the page and
@@ -10,31 +10,50 @@ test.beforeEach(async ({ page }) => {
   await introSeen(page);
 });
 
-test("home leads to a phase and on to a template", async ({ page }) => {
+test("home leads to a phase and on to its free sample, open in the catalog", async ({ page }) => {
   await page.goto("/");
   await expect(page.getByText("Beta preview — templates shown are samples.")).toBeVisible();
   await expect(page.getByRole("heading", { level: 1 })).toHaveText(
     "Don’t start your M365 rollout from a blank prompt.",
   );
 
+  await hydrated(page);
   await page.getByRole("main").getByRole("link", { name: "Prepare", exact: true }).click();
   await expect(page).toHaveURL(/\/phases\/prepare$/, { timeout: NAVIGATION_TIMEOUT });
   await expect(page.getByRole("heading", { level: 1 })).toHaveText("Prepare");
 
-  const firstCard = page.getByRole("article").first().getByRole("link");
-  const title = (await firstCard.textContent()) ?? "";
-  await firstCard.click();
+  // Every template of the phase is a tile; the one free sample among them is a link.
+  const sample = page.locator("[data-tile][data-free]").getByRole("link");
+  await expect(sample).toHaveCount(1);
+  const title = (await sample.textContent()) ?? "";
+  await sample.click();
 
-  await expect(page).toHaveURL(/\/templates\//, { timeout: NAVIGATION_TIMEOUT });
-  await expect(page.getByRole("heading", { level: 1 })).toHaveText(title);
-  await expect(page.getByRole("button", { name: "Add to cart" })).toBeVisible();
+  await expect(page).toHaveURL(/\/catalog\?view=[a-z0-9-]+$/, { timeout: NAVIGATION_TIMEOUT });
+  await expect(page.getByRole("heading", { level: 1 })).toHaveText("Catalog");
+  await expect(page.getByRole("dialog", { name: title })).toBeVisible();
 });
 
-test("the hero leads to the worked example, which says its file cannot be downloaded yet", async ({
+test("the hero leads to the six free samples in the catalog", async ({ page }) => {
+  await page.goto("/");
+  await page
+    .getByRole("main")
+    .getByRole("link", { name: "See the free samples", exact: true })
+    .click();
+
+  await expect(page).toHaveURL(/\/catalog\?free=1$/, { timeout: NAVIGATION_TIMEOUT });
+  await expect(page.getByRole("heading", { level: 1 })).toHaveText("Catalog");
+  await expect(page.locator("[data-tile][data-free]")).toHaveCount(6);
+  await expect(page.locator("[data-tile][data-locked]")).toHaveCount(0);
+});
+
+test("the home page leads to the worked example, which says its file cannot be downloaded yet", async ({
   page,
 }) => {
   await page.goto("/");
-  await page.getByRole("main").getByRole("link", { name: "See a sample", exact: true }).click();
+  await page
+    .getByRole("main")
+    .getByRole("link", { name: "A complete worked example", exact: true })
+    .click();
 
   await expect(page).toHaveURL(/\/sample$/, { timeout: NAVIGATION_TIMEOUT });
   await expect(page.getByRole("heading", { level: 1 })).toHaveText("A complete worked example");
@@ -46,20 +65,16 @@ test("the hero leads to the worked example, which says its file cannot be downlo
 });
 
 test("every page fits the viewport without sideways scrolling", async ({ page }) => {
-  // Eleven full page loads in one test, at the start of the run: three times the default budget.
+  // Seven full page loads in one test, at the start of the run: three times the default budget.
   test.slow();
   for (const path of [
     "/",
     "/catalog",
     "/phases/make-the-case",
     "/sample",
-    "/bundles",
-    "/pricing",
+    "/purchase",
     "/about",
-    "/contact",
-    "/cart",
-    "/templates/sharepoint-migration-impact-assessment",
-    "/bundles/sharepoint-rollout-complete",
+    "/catalog?view=change-management-strategy",
   ]) {
     await page.goto(path);
     const overflow = await page.evaluate(

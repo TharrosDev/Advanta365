@@ -10,14 +10,10 @@ const ROUTES = [
   "/",
   "/catalog",
   "/phases/prepare",
-  "/templates/executive-sponsor-kickoff-deck",
-  "/bundles",
-  "/bundles/sponsor-essentials",
-  "/pricing",
+  "/catalog?view=executive-sponsor-kickoff-deck",
+  "/purchase",
   "/about",
   "/sample",
-  "/contact",
-  "/cart",
 ];
 
 for (const path of ROUTES) {

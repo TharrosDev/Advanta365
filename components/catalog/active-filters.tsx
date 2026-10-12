@@ -66,7 +66,7 @@ export function ActiveFilters({ criteria, phases, fallbackFocusId }: ActiveFilte
             variant="outline"
             size="sm"
             href={filter.removeHref}
-            aria-label={`Remove ${filter.facet} filter: ${filter.label}`}
+            aria-label={filter.removeLabel}
             className={styles.chip}
             onClick={(event) => go(event, filter.removeHref, index)}
           >

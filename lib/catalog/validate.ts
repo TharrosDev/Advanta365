@@ -1,5 +1,8 @@
 import type { z } from "zod";
-import { BundleSchema, PhaseSchema, TemplateSchema, type Catalog } from "./schema";
+import { PhaseSchema, TemplateSchema, type Catalog } from "./schema";
+
+/** How many templates are given away as samples. */
+export const FREE_SAMPLE_COUNT = 6;
 
 export class CatalogError extends Error {
   constructor(message: string) {
@@ -34,20 +37,14 @@ function assertUniqueSlugs(kind: string, records: { slug: string }[]) {
 const byOrder = (a: { order: number }, b: { order: number }) => a.order - b.order;
 
 /** Parses raw catalog content and checks cross-references. Throws CatalogError naming the record at fault. */
-export function validateCatalog(input: {
-  phases: unknown[];
-  templates: unknown[];
-  bundles: unknown[];
-}): Catalog {
+export function validateCatalog(input: { phases: unknown[]; templates: unknown[] }): Catalog {
   const phases = parseAll("phase", PhaseSchema, input.phases)
     .map((phase) => ({ ...phase, steps: [...phase.steps].sort(byOrder) }))
     .sort(byOrder);
   const templates = parseAll("template", TemplateSchema, input.templates);
-  const bundles = parseAll("bundle", BundleSchema, input.bundles);
 
   assertUniqueSlugs("phase", phases);
   assertUniqueSlugs("template", templates);
-  assertUniqueSlugs("bundle", bundles);
   for (const phase of phases) assertUniqueSlugs(`step in phase "${phase.slug}"`, phase.steps);
 
   const stepsByPhase = new Map(phases.map((p) => [p.slug, new Set(p.steps.map((s) => s.slug))]));
@@ -63,16 +60,12 @@ export function validateCatalog(input: {
     }
   }
 
-  const templateSlugs = new Set(templates.map((t) => t.slug));
-  for (const bundle of bundles) {
-    for (const templateSlug of bundle.templateSlugs) {
-      if (!templateSlugs.has(templateSlug)) {
-        throw new CatalogError(
-          `Bundle "${bundle.slug}" references missing template "${templateSlug}"`,
-        );
-      }
-    }
+  const freeCount = templates.filter((template) => template.free).length;
+  if (freeCount !== FREE_SAMPLE_COUNT) {
+    throw new CatalogError(
+      `Expected exactly ${FREE_SAMPLE_COUNT} free templates, found ${freeCount}`,
+    );
   }
 
-  return { phases, templates, bundles };
+  return { phases, templates };
 }

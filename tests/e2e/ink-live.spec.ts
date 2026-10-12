@@ -1,7 +1,21 @@
 import { expect, test, type Page } from "@playwright/test";
-import { introSeen, NAVIGATION_TIMEOUT } from "./helpers";
+import { hydrated, introSeen, NAVIGATION_TIMEOUT } from "./helpers";
+import { INK_PAUSED } from "../../lib/boot/state";
+import {
+  DOCS,
+  PROMPT,
+  STAGE,
+  recordSequence,
+  recordStage,
+  sequence,
+  settled,
+  stageFrames,
+  stageState,
+  timings,
+} from "./support/hero";
 import {
   BINDER,
+  INK_STORE,
   PAPER,
   backdropState,
   canvasPixel,
@@ -30,12 +44,14 @@ declare global {
     __inkAt?: Record<string, number>;
     /** Every long task of the load: its start and its duration, in milliseconds. */
     __long?: Array<[number, number]>;
+    /** The opacity of the cover's signature on every frame of the load, with the page clock. */
+    __signature?: Array<[number, number]>;
     /** The pause: when the press came and when the loop stopped, on the page clock. */
     __pause?: { pressed: number | null; stopped: number | null };
   }
 }
 
-const HERO = '[data-ink-backdrop][data-scene="hero"]';
+const HERO = '[data-ink-backdrop][data-scene="prompt"]';
 
 /** Notes when a canvas first runs in each scene, and every long task, from before the page's scripts. */
 async function watch(page: Page) {
@@ -119,35 +135,43 @@ async function holdCaps(page: Page, seconds: number) {
   expect(worst?.miss ?? Infinity, worst?.where).toBeLessThanOrEqual(0.02);
 }
 
-test.describe("the hero", () => {
-  test("runs within 2.5 seconds of a repeat visit, in the hero's slot, on exact white", async ({
-    page,
-  }) => {
-    const problems = collectProblems(page);
-    await openLive(page);
+test.describe("the prompt", () => {
+  test.describe("in its first five seconds", () => {
+    // The long-task bound below is about the page's own work, but the browser reports every task
+    // of its main thread, and one that the machine held up is among them: a task of 911ms was
+    // measured 46ms into the page's life, before any code of the ink had run, while other work
+    // had the processor. So this one test may be tried three times; the bound itself stays.
+    test.describe.configure({ retries: 2 });
 
-    await expectRunningIn(page, "hero");
-    const started = await page.evaluate(() => window.__inkAt?.hero ?? null);
-    expect(started).not.toBeNull();
-    expect(started ?? Infinity).toBeLessThan(2500);
+    test("runs within 2.5 seconds of a repeat visit, in the hero's slot, on exact white, with no task longer than 200ms", async ({
+      page,
+    }) => {
+      const problems = collectProblems(page);
+      await openLive(page);
 
-    // Empty water is the ground exactly: the corners of the canvas hold no ink.
-    expect(await canvasPixel(page, "top-left")).toBe(PAPER);
-    expect(await canvasPixel(page, "bottom-left")).toBe(PAPER);
-    expect(await page.locator(`${HERO} [data-ink-slot] canvas`).count()).toBe(1);
+      await expectRunningIn(page, "prompt");
+      const started = await page.evaluate(() => window.__inkAt?.prompt ?? null);
+      expect(started).not.toBeNull();
+      expect(started ?? Infinity).toBeLessThan(2500);
 
-    // No task in the first five seconds is longer than 200ms (the probe, the longest, included).
-    await expect.poll(() => pageClock(page), { timeout: 10_000 }).toBeGreaterThan(5000);
-    const long = await page.evaluate(() => window.__long ?? []);
-    for (const [at, duration] of long) {
-      if (at < 5000) expect(duration, `a task at ${Math.round(at)}ms`).toBeLessThanOrEqual(200);
-    }
-    expect(problems).toEqual([]);
+      // Empty water is the ground exactly: the corners of the canvas hold no ink.
+      expect(await canvasPixel(page, "top-left")).toBe(PAPER);
+      expect(await canvasPixel(page, "bottom-left")).toBe(PAPER);
+      expect(await page.locator(`${HERO} [data-ink-slot] canvas`).count()).toBe(1);
+
+      // No task in the first five seconds is longer than 200ms (the probe, the longest, included).
+      await expect.poll(() => pageClock(page), { timeout: 10_000 }).toBeGreaterThan(5000);
+      const long = await page.evaluate(() => window.__long ?? []);
+      for (const [at, duration] of long.filter(([start]) => start < 5000)) {
+        expect(duration, `a task at ${Math.round(at)}ms`).toBeLessThanOrEqual(200);
+      }
+      expect(problems).toEqual([]);
+    });
   });
 
   test("a frame costs at most 6ms at the high tier", async ({ page }) => {
     await openLive(page);
-    await expectRunningIn(page, "hero");
+    await expectRunningIn(page, "prompt");
     await page.getByRole("button", { name: "Pause ink" }).click();
     const best = await page.evaluate(() => {
       const hook = window.__inkTest;
@@ -163,14 +187,80 @@ test.describe("the hero", () => {
   test("keeps every cap under its calm zones for twenty seconds", async ({ page }) => {
     test.setTimeout(90_000);
     await openLive(page);
-    await expectRunningIn(page, "hero");
+    await expectRunningIn(page, "prompt");
     await holdCaps(page, 20);
+  });
+
+  test("leaves the box empty for 0.7 seconds, opens over it, is clean at 3.5 seconds, and ink arrives again from 6 seconds", async ({
+    page,
+  }) => {
+    test.setTimeout(60_000);
+    await openLive(page);
+    await expectRunningIn(page, "prompt");
+    const clock = () => page.evaluate(() => window.__inkTest?.stats()?.time ?? -1);
+    const kinds = () =>
+      page.evaluate(() => (window.__inkTest?.zoneExtremes() ?? []).map((zone) => zone.kind));
+
+    // The bloom: a great deal of ink on the canvas before the clear begins.
+    await expect.poll(() => inkedPixels(page), { timeout: 5_000 }).toBeGreaterThan(20_000);
+    await expect.poll(clock, { timeout: 10_000 }).toBeGreaterThan(3.6);
+    // The words are the only calm water: the headline with the lead, and the buttons. The stage
+    // is open, so ink lives behind and beside the documents.
+    expect((await kinds()).sort()).toEqual(["text", "veil"]);
+
+    // The script went on after its own clear: from 6 seconds ink arrives again, and it stays.
+    await expect.poll(clock, { timeout: 20_000 }).toBeGreaterThan(6.5);
+    await expect.poll(() => inkedPixels(page), { timeout: 10_000 }).toBeGreaterThan(1000);
+    await expect.poll(clock, { timeout: 20_000 }).toBeGreaterThan(14);
+    expect(await inkedPixels(page)).toBeGreaterThan(3000);
+
+    // The page's sequence and the scene began together: the scene's start is the canvas's first
+    // running frame, the sequence's is the first paint of a page with no cover. On a repeat visit
+    // the engine is fetched and compiled after that paint, so the scene is the later of the two:
+    // by 95 to 603ms as measured on a quiet machine, the high end in a browser that has just
+    // started. 600 would sit on the top of that range, so the bound is 800.
+    const offset = await page.evaluate(() => {
+      const painted = performance.getEntriesByName("first-contentful-paint")[0]?.startTime ?? 0;
+      return (window.__inkAt?.prompt ?? Infinity) - painted;
+    });
+    expect(offset).toBeGreaterThan(-50);
+    expect(offset).toBeLessThan(800);
+
+    // The two moments of the script that a late look would miss are read from the scene stepped
+    // by hand, from its start, in its own backdrop: fixed steps of a sixtieth of a second draw the
+    // same picture every time, so they are read whenever the test gets here.
+    const stepTo = (seconds: number) =>
+      page.evaluate((until) => {
+        const ink = window.__inkTest?.engine();
+        if (!ink) return -1;
+        for (let i = 0; i < 1200 && ink.stats().time < until; i += 1) ink.step(1);
+        return ink.stats().time;
+      }, seconds);
+    expect(await page.evaluate(() => window.__inkTest?.hold("prompt") ?? false)).toBe(true);
+    expect(await clock()).toBe(0);
+
+    // The blank prompt: for the first 0.7 seconds of the scene nothing has fallen.
+    const blank = await stepTo(0.6);
+    expect(blank).toBeGreaterThanOrEqual(0.6);
+    expect(blank).toBeLessThan(0.7);
+    expect(await inkedPixels(page)).toBe(0);
+
+    // Then the drops, and the bloom.
+    expect(await stepTo(2.4)).toBeLessThan(2.6);
+    expect(await inkedPixels(page)).toBeGreaterThan(20_000);
+
+    // The clear ends at 3.5 seconds of the scene's own clock: clean water, exactly the ground.
+    const clean = await stepTo(3.6);
+    expect(clean).toBeGreaterThanOrEqual(3.6);
+    expect(clean).toBeLessThan(5.8);
+    expect(await inkedPixels(page)).toBe(0);
+    expect(await canvasPixel(page, "top-left")).toBe(PAPER);
   });
 
   test("stops by itself within 40 seconds and starts again on a pointer move", async ({ page }) => {
     test.setTimeout(120_000);
     await openLive(page);
-    await expectRunningIn(page, "hero");
+    await expectRunningIn(page, "prompt");
 
     // With no input the water comes to rest and the loop stops.
     await expect.poll(() => running(page), { timeout: 40_000, intervals: [500] }).toBe("false");
@@ -187,12 +277,244 @@ test.describe("the hero", () => {
   });
 });
 
+test.describe("the hero's sequence", () => {
+  // The page's half of the prompt scene (app/motion.css): it plays where the ink is live, which in
+  // this project it is. hero.spec.ts is the spec of the stage where the ink is still.
+
+  /** The six documents that are still waiting to land, and how many frames are recorded so far. */
+  const midway = (page: Page, then: "pause" | "still") =>
+    page.evaluate((act) => {
+      const waiting = document
+        .getAnimations()
+        .filter(
+          (entry) =>
+            entry instanceof CSSAnimation &&
+            entry.animationName === "hero-doc-in" &&
+            Number(entry.currentTime ?? Infinity) <
+              Number(entry.effect?.getComputedTiming().delay ?? 0),
+        ).length;
+      const frames = (window.__heroFrames ?? []).length;
+      if (act === "pause") document.querySelector<HTMLElement>("[data-ink-toggle]")?.click();
+      else document.documentElement.setAttribute("data-ink", "still");
+      return { waiting, frames };
+    }, then);
+
+  /** Waits for a dozen more frames, then returns every frame since `from` that was not at rest. */
+  async function unsettledSince(page: Page, from: number) {
+    await expect
+      .poll(async () => (await stageFrames(page)).length, { timeout: 10_000 })
+      .toBeGreaterThan(from + 12);
+    return (await stageFrames(page))
+      .slice(from)
+      .filter((frame) => frame.box || frame.hidden > 0 || frame.moving > 0);
+  }
+
+  test("plays once: the box stands empty, dissolves from 1100ms to 2300ms, and the documents land from 3700ms", async ({
+    page,
+  }) => {
+    await recordSequence(page);
+    await openLive(page);
+    await expect(page.locator("html")).toHaveAttribute("data-motion", "on");
+    // The box is decoration: a caret and two keys, hidden from assistive technology.
+    await expect(page.locator(PROMPT)).toHaveAttribute("aria-hidden", "true");
+    await expect(page.locator(`${PROMPT} [data-caret]`)).toHaveCount(1);
+    await expect(page.locator(`${PROMPT} a, ${PROMPT} button, ${PROMPT} input`)).toHaveCount(0);
+
+    // When the sequence is over, the box is gone and every document stands.
+    await settled(page);
+    const state = await stageState(page);
+    expect(state.prompt).toMatchObject({ opacity: "0", visibility: "hidden" });
+    expect(state.docs).toHaveLength(6);
+    for (const doc of state.docs)
+      expect(doc).toMatchObject({ opacity: "1", visibility: "visible" });
+    // Nothing of the sequence is left running or repeating, and it ran to its own end.
+    expect(await timings(page, PROMPT, "hero-prompt-out")).toEqual([null]);
+    expect(await timings(page, DOCS, "hero-doc-in")).toEqual(Array(6).fill(null));
+    await expect(page.locator(STAGE)).not.toHaveAttribute("data-landed");
+
+    // What ran: the box once, from 1100ms for 1200ms, so it stood whole for the 700ms before the
+    // first drop and 400ms more; its caret, which is on at the start; the six documents once
+    // each, from 3700ms (the scene's water is clean by 3500ms), 110ms apart, 560ms each, the
+    // middle two first; and with each its showing, which takes 90ms: a document never fades
+    // through ink. All of it was set going at one moment.
+    const ran = await sequence(page);
+    const box = ran.filter(([name]) => name === "hero-prompt-out");
+    const caret = ran.filter(([name]) => name === "hero-caret-blink");
+    const docs = ran.filter(([name]) => name === "hero-doc-in");
+    const shown = ran.filter(([name]) => name === "hero-doc-show");
+    expect(box.map(([, delay, duration]) => [delay, duration])).toEqual([[1100, 1200]]);
+    expect(caret.map(([, delay, duration]) => [delay, duration])).toEqual([[0, 1500]]);
+    expect(docs.map(([, delay, duration]) => [delay, duration])).toEqual(
+      [0, 1, 2, 3, 4, 5].map((index) => [3700 + index * 110, 560]),
+    );
+    expect(shown.map(([, delay, duration]) => [delay, duration])).toEqual(
+      [0, 1, 2, 3, 4, 5].map((index) => [3700 + index * 110, 90]),
+    );
+    const starts = [...box, ...docs].map(([, , , start]) => start);
+    expect(Math.max(...starts) - Math.min(...starts)).toBeLessThanOrEqual(50);
+  });
+
+  test("on a first visit it waits under the cover with its box, and starts its clock when the cover has gone", async ({
+    page,
+  }) => {
+    test.setTimeout(60_000);
+    await recordIntro(page);
+    await recordSequence(page);
+    await recordStage(page);
+    await page.goto("/", { waitUntil: "commit" });
+    await expect(page.locator("[data-intro-cover]")).toBeVisible();
+    const mode = await inkMode(page);
+    test.skip(mode !== "live", `the page is "${mode}", not live`);
+
+    await expect.poll(() => introPhase(page), { timeout: 15_000 }).toBe("gone");
+    const gone = await page.evaluate(() => (window.__introLog ?? []).at(-1)?.[0] ?? Infinity);
+
+    // Under the cover, on every frame: the opening state, with nothing of the sequence running.
+    await settled(page);
+    const frames = (await stageFrames(page)).filter((frame) => frame.docs === 6);
+    const under = frames.filter((frame) => frame.at < gone);
+    expect(under.length).toBeGreaterThan(10);
+    expect(under.filter((frame) => !frame.box || frame.hidden !== 6 || frame.moving > 0)).toEqual(
+      [],
+    );
+
+    // The sequence was set going as the cover went (within a few frames of a busy machine), with
+    // the delays it always has; so no document showed in the 3.6 seconds after that.
+    const ran = await sequence(page);
+    const docs = ran.filter(([name]) => name === "hero-doc-in");
+    expect(docs.map(([, delay]) => delay)).toEqual(
+      [0, 1, 2, 3, 4, 5].map((index) => 3700 + index * 110),
+    );
+    for (const [, , , start] of docs) {
+      expect(start - gone).toBeGreaterThanOrEqual(-20);
+      expect(start - gone).toBeLessThanOrEqual(250);
+    }
+    const early = frames.filter((frame) => frame.at > gone && frame.at < gone + 3600);
+    expect(early.length).toBeGreaterThan(30);
+    expect(early.filter((frame) => frame.hidden !== 6)).toEqual([]);
+
+    // And it ran to its end.
+    const state = await stageState(page);
+    expect(state.prompt).toMatchObject({ opacity: "0" });
+    for (const doc of state.docs)
+      expect(doc).toMatchObject({ opacity: "1", visibility: "visible" });
+  });
+
+  test("a pause half-way lands the documents at once, and playing the ink again leaves them standing", async ({
+    page,
+  }) => {
+    await recordStage(page);
+    await openLive(page);
+    await expectRunningIn(page, "prompt");
+    await expect(page.getByRole("button", { name: "Pause ink" })).toHaveCount(1);
+
+    // The button is pressed in the task that reads how far the sequence is.
+    const { waiting, frames } = await midway(page, "pause");
+    test.skip(waiting !== 6, "the documents had begun to land before the ink could be paused");
+    await expect(page.locator(STAGE)).toHaveAttribute("data-landed", "");
+    expect(await unsettledSince(page, frames)).toEqual([]);
+
+    // Playing the ink again starts the water, not the sequence.
+    const from = (await stageFrames(page)).length;
+    await page.getByRole("button", { name: "Play ink" }).click();
+    await expectRunningIn(page, "prompt");
+    expect(await unsettledSince(page, from)).toEqual([]);
+    for (const doc of await page.locator(DOCS).all()) await expect(doc).toBeVisible();
+    await expect(page.locator(PROMPT)).toBeHidden();
+  });
+
+  test("ink that falls to still half-way lands the documents, and ink that is live again leaves them", async ({
+    page,
+  }) => {
+    await recordStage(page);
+    await openLive(page);
+
+    // What the layer does when the engine fails: the root element says `still`.
+    const { waiting, frames } = await midway(page, "still");
+    test.skip(waiting !== 6, "the documents had begun to land before the ink could be stopped");
+    await expect(page.locator(STAGE)).toHaveAttribute("data-landed", "");
+    expect(await unsettledSince(page, frames)).toEqual([]);
+
+    const from = (await stageFrames(page)).length;
+    await page.evaluate(() => document.documentElement.setAttribute("data-ink", "live"));
+    expect(await unsettledSince(page, from)).toEqual([]);
+    for (const doc of await page.locator(DOCS).all()) await expect(doc).toBeVisible();
+    await expect(page.locator(PROMPT)).toBeHidden();
+  });
+
+  test("ink that a paused session plays again leaves the documents standing", async ({ page }) => {
+    await introSeen(page);
+    await withInkTest(page);
+    await recordStage(page);
+    await page.addInitScript(
+      ([key, paused]) => {
+        // Only on the load: the layer's own later choice is not written over on a reload.
+        if (window.sessionStorage.getItem(key) === null) window.sessionStorage.setItem(key, paused);
+      },
+      [INK_STORE, INK_PAUSED] as const,
+    );
+    await page.goto("/");
+    await expect(page.locator("html")).toHaveAttribute("data-ink", "paused");
+    await hydrated(page);
+    await expect(page.locator(STAGE)).toHaveAttribute("data-landed", "");
+    for (const doc of await page.locator(DOCS).all()) await expect(doc).toBeVisible();
+
+    // The visitor plays the ink: the root element says `live` from that moment.
+    const from = (await stageFrames(page)).length;
+    await page.getByRole("button", { name: "Play ink" }).click();
+    await expect(page.locator("html")).toHaveAttribute("data-ink", "live");
+    const mode = await inkMode(page);
+    test.skip(
+      mode !== "live",
+      `the page is "${mode}", not live: this machine has no graphics card`,
+    );
+    // The scene runs from its start behind documents that never left.
+    await expectRunningIn(page, "prompt");
+    expect(await unsettledSince(page, from)).toEqual([]);
+    expect(await unsettledSince(page, 0)).toEqual([]);
+    await expect(page.locator(PROMPT)).toBeHidden();
+    for (const doc of await page.locator(DOCS).all()) await expect(doc).toBeVisible();
+  });
+
+  test("plays again, with the scene, on a return to the home page inside the site", async ({
+    page,
+  }) => {
+    await recordStage(page);
+    await openLive(page);
+    await settled(page);
+    await page
+      .locator("[data-band]:has(h1)")
+      .getByRole("link", { name: "Get the toolkit", exact: true })
+      .click();
+    await expect(page).toHaveURL(/\/purchase$/, { timeout: NAVIGATION_TIMEOUT });
+    await expect(page.locator(STAGE)).toHaveCount(0);
+    const from = (await stageFrames(page)).length;
+
+    await page.goBack();
+    await expect(page).toHaveURL(/\/$/, { timeout: NAVIGATION_TIMEOUT });
+    // The new stage opens as a load does: the box there, the documents waiting.
+    await expect
+      .poll(
+        async () =>
+          (await stageFrames(page))
+            .slice(from)
+            .some((frame) => frame.box && frame.hidden === 6 && frame.moving > 0),
+        { timeout: 10_000 },
+      )
+      .toBe(true);
+    await expectRunningIn(page, "prompt");
+    await settled(page);
+    await expect(page.locator(STAGE)).not.toHaveAttribute("data-landed");
+    for (const doc of await page.locator(DOCS).all()) await expect(doc).toBeVisible();
+  });
+});
+
 test.describe("the pause button", () => {
   test("is in the hero, reachable by keyboard, stops the loop within 100ms and survives a reload", async ({
     page,
   }) => {
     await openLive(page);
-    await expectRunningIn(page, "hero");
+    await expectRunningIn(page, "prompt");
 
     // The button stands in the hero's control holder.
     const button = page.getByRole("button", { name: "Pause ink" });
@@ -257,13 +579,13 @@ test.describe("the pause button", () => {
 
     // And it starts the ink again.
     await page.getByRole("button", { name: "Play ink" }).click();
-    await expectRunningIn(page, "hero");
+    await expectRunningIn(page, "prompt");
     await expect(page.getByRole("button", { name: "Pause ink" })).toHaveCount(1);
   });
 
   test("a resize while the loop is stopped leaves the ink on the canvas", async ({ page }) => {
     await openLive(page);
-    await expectRunningIn(page, "hero");
+    await expectRunningIn(page, "prompt");
     // Let some ink fall, then stop the loop.
     await expect.poll(() => inkedPixels(page), { timeout: 15_000 }).toBeGreaterThan(500);
     await page.getByRole("button", { name: "Pause ink" }).click();
@@ -281,7 +603,7 @@ test.describe("one canvas, many stages", () => {
     test.setTimeout(90_000);
     const problems = collectProblems(page);
     await openLive(page);
-    await expectRunningIn(page, "hero");
+    await expectRunningIn(page, "prompt");
 
     // Down the page: the ninety (it waits for its tenth block, so the water is clear until then),
     // the closing and the footer. There is one canvas all the way.
@@ -303,7 +625,7 @@ test.describe("one canvas, many stages", () => {
   test("the ninety fires its tenth drop when the band goes by", async ({ page }) => {
     test.setTimeout(60_000);
     await openLive(page);
-    await expectRunningIn(page, "hero");
+    await expectRunningIn(page, "prompt");
     await scrollToElement(page, "#solution", 0);
     // Through the band in small steps, as a hand on the wheel would.
     for (const share of [0.3, 0.45, 0.6, 0.75]) {
@@ -337,7 +659,7 @@ test.describe("one canvas, many stages", () => {
   test("stays one canvas into /about and leaves none on /catalog", async ({ page, isMobile }) => {
     test.skip(isMobile, "the inline navigation is the desktop one");
     await openLive(page);
-    await expectRunningIn(page, "hero");
+    await expectRunningIn(page, "prompt");
 
     await page.getByRole("banner").getByRole("link", { name: "About", exact: true }).click();
     await expect(page).toHaveURL(/\/about$/, { timeout: NAVIGATION_TIMEOUT });
@@ -358,15 +680,15 @@ test.describe("when the graphics card lets go", () => {
     page,
   }) => {
     await openLive(page);
-    await expectRunningIn(page, "hero");
+    await expectRunningIn(page, "prompt");
 
     await page.evaluate(() => window.__inkTest?.loseContext());
-    await expect.poll(() => backdropState(page, "hero"), { timeout: 5_000 }).toBe("rest");
+    await expect.poll(() => backdropState(page, "prompt"), { timeout: 5_000 }).toBe("rest");
     await expect(page.locator(`${HERO} [data-ink-still]`)).not.toHaveCSS("display", "none");
 
     await page.evaluate(() => window.__inkTest?.restoreContext());
-    await expect.poll(() => backdropState(page, "hero"), { timeout: 10_000 }).toBe("live");
-    await expectRunningIn(page, "hero");
+    await expect.poll(() => backdropState(page, "prompt"), { timeout: 10_000 }).toBe("live");
+    await expectRunningIn(page, "prompt");
   });
 });
 
@@ -390,12 +712,25 @@ test.describe("the 404 page", () => {
 });
 
 test.describe("the cover of a first visit", () => {
-  test("is gone within 4.1 seconds and the hero runs 600ms later", async ({ page }) => {
+  test("is taken over within 1.6 seconds, gone 3.5 seconds later, and the hero runs 600ms after that", async ({
+    page,
+  }) => {
     test.setTimeout(60_000);
     const problems = collectProblems(page);
     await withInkTest(page);
     await watch(page);
     await recordIntro(page);
+    // The signature (the mark and the name) on every frame, with the page clock.
+    await page.addInitScript(() => {
+      const frames: Array<[number, number]> = [];
+      window.__signature = frames;
+      const frame = () => {
+        const mark = document.querySelector("[data-intro-cover] svg")?.parentElement;
+        if (mark) frames.push([performance.now(), Number(getComputedStyle(mark).opacity)]);
+        if (frames.length < 700) requestAnimationFrame(frame);
+      };
+      requestAnimationFrame(frame);
+    });
     await page.goto("/", { waitUntil: "commit" });
     await expect(page.locator("[data-intro-cover]")).toBeVisible();
     await expect(page.getByRole("heading", { level: 1 })).toHaveCSS("opacity", "1");
@@ -412,18 +747,32 @@ test.describe("the cover of a first visit", () => {
     );
     const states = await page.evaluate(() => (window.__introLog ?? []).map(([, state]) => state));
     const gone = await page.evaluate(() => (window.__introLog ?? []).at(-1)?.[0] ?? Infinity);
-    // With ink the cover is taken over and leaves later than without it, still inside its budget.
+    // With ink the cover is taken over and leaves later than without it, still inside its budget:
+    // taken over by 1600ms, and gone 3500ms after that, as the clear of the scene ends. A few
+    // frames of a busy machine are allowed on each, and the backstop (5500ms) must not be what
+    // took it off.
     expect(states).toEqual(["play", "ink", null]);
-    expect(gone - painted).toBeLessThanOrEqual(4100);
-    expect(await introAt(page, "ink")).not.toBeNull();
+    const taken = await introAt(page, "ink");
+    expect(taken).not.toBeNull();
+    expect((taken ?? Infinity) - painted).toBeLessThanOrEqual(1700);
+    expect(gone - (taken ?? 0)).toBeGreaterThanOrEqual(3450);
+    expect(gone - (taken ?? 0)).toBeLessThanOrEqual(3900);
+    expect(gone - painted).toBeLessThanOrEqual(5300);
 
-    await expectRunningIn(page, "hero", 10_000);
-    const heroAt = await page.evaluate(() => window.__inkAt?.hero ?? Infinity);
+    // Whenever the ink came, the finished mark stays whole until 2500ms and only then fades.
+    const frames = await page.evaluate(() => window.__signature ?? []);
+    const early = frames.filter(([at]) => at - painted <= 2450);
+    expect(early.length).toBeGreaterThan(20);
+    expect(early.filter(([, opacity]) => opacity < 1)).toEqual([]);
+    expect(Math.min(...frames.map(([, opacity]) => opacity))).toBeLessThan(0.01);
+
+    await expectRunningIn(page, "prompt", 10_000);
+    const heroAt = await page.evaluate(() => window.__inkAt?.prompt ?? Infinity);
     expect(heroAt - gone).toBeLessThanOrEqual(600);
     expect(problems).toEqual([]);
   });
 
-  test("ends within 400ms of a key", async ({ page }) => {
+  test("ends within 500ms of a key", async ({ page }) => {
     await withInkTest(page);
     await recordIntro(page);
     await page.goto("/", { waitUntil: "commit" });
@@ -440,6 +789,7 @@ test.describe("the cover of a first visit", () => {
     const leave = log.find(([, state]) => state === "leave");
     const end = log.at(-1);
     expect(leave).toBeTruthy();
-    expect((end?.[0] ?? Infinity) - (leave?.[0] ?? 0)).toBeLessThan(400);
+    // The skip animation takes 200ms; the bound is that of intro.spec.ts.
+    expect((end?.[0] ?? Infinity) - (leave?.[0] ?? 0)).toBeLessThan(500);
   });
 });

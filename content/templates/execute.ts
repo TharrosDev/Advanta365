@@ -12,8 +12,7 @@ export const executeTemplates = sample("execute", [
     audiences: ["change-lead", "it-admin"],
     format: "xlsx",
     adkar: ["ability"],
-    priceCents: 3400,
-    featured: true,
+    free: true,
     summary: "Confirm people, communication, training and support are ready before you launch.",
     description:
       "A Go/No-Go checklist that covers the people side as well as the technical side. Each item has an owner and evidence required.",
@@ -28,7 +27,6 @@ export const executeTemplates = sample("execute", [
     audiences: ["change-lead", "it-admin"],
     format: "docx",
     adkar: ["ability"],
-    priceCents: 5400,
     summary: "The people side of cutover: who is told what, when, and who is on hand to help.",
     description:
       "Covers the days around cutover, from the content freeze notice through the cutover weekend to the first morning on the new platform. Sits alongside the technical migration plan rather than replacing it.",
@@ -48,7 +46,6 @@ export const executeTemplates = sample("execute", [
     audiences: ["change-lead"],
     format: "xlsx",
     adkar: ["ability"],
-    priceCents: 2400,
     summary: "An hour-by-hour plan for launch day, with owners and contact details.",
     description:
       "Lists every launch-day activity in order, from the first message to the end-of-day review. Includes a contact sheet and an issues log.",
@@ -63,7 +60,6 @@ export const executeTemplates = sample("execute", [
     audiences: ["end-user", "manager"],
     format: "docx",
     adkar: ["awareness", "knowledge"],
-    priceCents: 2400,
     pageCount: 5,
     summary: "Notices for teams whose shared mailboxes are moving or changing.",
     description:
@@ -81,7 +77,6 @@ export const executeTemplates = sample("execute", [
     audiences: ["it-admin", "change-lead"],
     format: "docx",
     adkar: ["ability"],
-    priceCents: 4400,
     pageCount: 9,
     summary: "Define the extra support in place after launch and when it ends.",
     description:
@@ -97,7 +92,6 @@ export const executeTemplates = sample("execute", [
     audiences: ["change-lead", "manager"],
     format: "docx",
     adkar: ["ability"],
-    priceCents: 3900,
     pageCount: 11,
     summary: "Organize in-person and virtual helpers for the first two weeks.",
     description:
@@ -113,7 +107,6 @@ export const executeTemplates = sample("execute", [
     audiences: ["change-lead", "it-admin"],
     format: "xlsx",
     adkar: ["ability", "reinforcement"],
-    priceCents: 1900,
     summary: "Capture feedback from every channel in one place and decide what to act on.",
     description:
       "A log with categories, severity and owner. A summary tab shows the top themes each week.",

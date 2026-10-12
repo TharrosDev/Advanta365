@@ -1,0 +1,120 @@
+/*
+ * The two zones of the pop-up: cover, words, in that order in the document. Below 40em they are
+ * stacked; from 40em the cover's desk takes five parts of twelve at the left, as tall as the words.
+ */
+.root {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+}
+
+/* The desk the cover lies on. Its 28px leave room for the sheets beneath the cover. */
+.stage {
+  display: flex;
+  justify-content: center;
+  padding: var(--s-4) var(--s-4) var(--s-5);
+  background: var(--desk);
+}
+
+/* Held to a width by format while it stands above the words: a page, a workbook, a slide. */
+.cover {
+  width: 100%;
+  max-width: 10.5rem;
+}
+
+.cover[data-format="xlsx"] {
+  max-width: 15rem;
+}
+
+.cover[data-format="pptx"] {
+  max-width: 17.5rem;
+}
+
+.words {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-4);
+  min-width: 0;
+  padding: var(--s-4) var(--s-3) var(--s-5);
+}
+
+.head {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-2);
+}
+
+.kind {
+  display: flex;
+}
+
+.title {
+  overflow-wrap: break-word;
+}
+
+.summary {
+  max-width: var(--wrap-copy);
+  color: var(--text-soft);
+}
+
+.description {
+  max-width: var(--wrap-copy);
+}
+
+.section {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-2);
+}
+
+/*
+ * One thing the template includes: an ink tick with no box, then the words, on the ledger's
+ * hairline. A list of contents, not a set of choices, so nothing in it looks like a control.
+ */
+.included {
+  display: grid;
+  grid-template-columns: var(--s-3) minmax(0, 1fr);
+  gap: var(--s-2);
+  align-items: start;
+}
+
+.tick {
+  display: grid;
+  place-items: center;
+  width: var(--s-3);
+  height: var(--s-3);
+  margin-block-start: calc((1lh - var(--s-3)) / 2);
+  color: var(--text);
+}
+
+.action {
+  display: flex;
+}
+
+@media (min-width: 40em) {
+  .root {
+    grid-template-columns: minmax(0, 5fr) minmax(0, 7fr);
+  }
+
+  .stage {
+    align-items: flex-start;
+    padding: var(--s-6) var(--s-5);
+  }
+
+  /* The cover stays in view while the words scroll past it. */
+  .cover,
+  .cover[data-format] {
+    position: sticky;
+    top: var(--s-6);
+    max-width: 17rem;
+  }
+
+  .words {
+    padding: var(--s-5) var(--s-5) var(--s-6);
+  }
+}
+
+@media (forced-colors: active) {
+  .stage {
+    border-block-end: var(--hair) solid CanvasText;
+  }
+}

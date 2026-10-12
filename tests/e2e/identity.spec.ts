@@ -1,4 +1,6 @@
-import { expect, test, type Page } from "@playwright/test";
+import { createHash } from "node:crypto";
+import { readFile } from "node:fs/promises";
+import { expect, test, type Locator, type Page } from "@playwright/test";
 import { introSeen } from "./helpers";
 import { pageClock } from "./support/ink";
 
@@ -18,18 +20,14 @@ const ROUTES = [
   "/",
   "/catalog",
   "/phases/prepare",
-  "/templates/executive-sponsor-kickoff-deck",
-  "/bundles",
-  "/bundles/sponsor-essentials",
-  "/pricing",
+  "/catalog?view=executive-sponsor-kickoff-deck",
+  "/purchase",
   "/about",
   "/sample",
-  "/contact",
-  "/cart",
 ];
 
 // The 404 pages are built in the browser; their server HTML is checked all the same.
-const MISSING = ["/nope", "/templates/nope", "/phases/nope"];
+const MISSING = ["/nope", "/templates/nope/extra", "/phases/nope"];
 
 // White, black and light blue: the page, the ink and the text on it, the highlighter and its wash,
 // the binder.
@@ -299,16 +297,7 @@ test.describe("home", () => {
       .getByRole("main")
       .locator("[id]")
       .evaluateAll((elements) => elements.map((element) => element.id));
-    const sections = [
-      "featured",
-      "inside",
-      "bundles",
-      "problem",
-      "solution",
-      "practice",
-      "values",
-      "closing",
-    ];
+    const sections = ["featured", "inside", "problem", "solution", "practice", "values", "closing"];
     expect(ids.filter((id) => sections.includes(id))).toEqual(sections);
 
     // The hero comes before the first shelf, and the line about Microsoft 365 sits between the
@@ -333,12 +322,17 @@ test.describe("home", () => {
     await expect(page.locator("#practice")).toHaveCSS("background-color", WASH);
   });
 
-  test("the hero holds no tally and no caret", async ({ page }) => {
+  test("the hero holds no tally, and one caret: the prompt box's, which is decoration", async ({
+    page,
+  }) => {
     await page.goto("/");
     const hero = page.locator("[data-band]").filter({ has: page.locator("h1") });
     await expect(hero).toHaveCount(1);
     await expect(hero.locator("[data-tally]")).toHaveCount(0);
-    await expect(hero.locator("[data-caret]")).toHaveCount(0);
+    await expect(hero.locator("[data-caret]")).toHaveCount(1);
+    await expect(hero.locator('[data-hero-prompt][aria-hidden="true"] [data-caret]')).toHaveCount(
+      1,
+    );
   });
 
   test("states the answer as a figure, a sentence and a tally of nine and one", async ({
@@ -383,7 +377,7 @@ test.describe("home", () => {
 
     const button = page
       .getByRole("main")
-      .getByRole("link", { name: "Browse the catalog", exact: true });
+      .getByRole("link", { name: "Get the toolkit", exact: true });
     await expect(button).toHaveCSS("background-color", INK);
     await expect(button).toHaveCSS("color", ON_INK);
     await expect(button).toHaveCSS("border-top-width", "2px");
@@ -418,7 +412,9 @@ test.describe("home", () => {
     // A key press first, so that focus moved by script counts as keyboard focus.
     await page.keyboard.press("Tab");
 
-    const onPage = page.getByRole("main").getByRole("link", { name: "See a sample", exact: true });
+    const onPage = page
+      .getByRole("main")
+      .getByRole("link", { name: "See the free samples", exact: true });
     await onPage.focus();
     await expect(onPage).toHaveCSS("outline-style", "solid");
     await expect(onPage).toHaveCSS("outline-width", "3px");
@@ -426,7 +422,7 @@ test.describe("home", () => {
 
     const onBinder = page
       .getByRole("contentinfo")
-      .getByRole("link", { name: "Pricing", exact: true });
+      .getByRole("link", { name: "Purchase", exact: true });
     await onBinder.focus();
     await expect(onBinder).toHaveCSS("outline-style", "solid");
     await expect(onBinder).toHaveCSS("outline-width", "3px");
@@ -436,7 +432,7 @@ test.describe("home", () => {
 
 test("every link and button shows the 3px focus ring under the keyboard", async ({ page }) => {
   test.slow();
-  for (const path of ["/", "/catalog", "/pricing"]) {
+  for (const path of ["/", "/catalog", "/purchase"]) {
     await page.goto(path);
     await page.keyboard.press("Tab");
     const missing = await page.evaluate(() => {
@@ -446,6 +442,8 @@ test("every link and button shows the 3px focus ring under the keyboard", async 
       );
       for (const element of targets) {
         if (!(element instanceof HTMLElement)) continue;
+        // A disabled button (Checkout, until it is built) takes no keyboard focus, so it has no ring.
+        if (element.matches(":disabled")) continue;
         const box = element.getBoundingClientRect();
         if (!box.width || !box.height || getComputedStyle(element).visibility === "hidden")
           continue;
@@ -471,7 +469,7 @@ test("every link and button shows the 3px focus ring under the keyboard", async 
 });
 
 test("the footer names the brand once, as plain text no larger than 28px", async ({ page }) => {
-  await page.goto("/pricing");
+  await page.goto("/purchase");
 
   const footer = page.getByRole("contentinfo");
   const largest = await footer.evaluate((element) =>
@@ -494,12 +492,105 @@ test("the footer names the brand once, as plain text no larger than 28px", async
   expect(names).toBe(1);
 });
 
+/**
+ * The digits on a mark as they are inked: whether they are drawn at all, their height in CSS pixels
+ * (the path's own box and its stroke, at the scale the mark is drawn at) and their ink. Null when
+ * the mark has no digits.
+ */
+const digitsOf = (lockup: Locator) =>
+  lockup.evaluate((element) => {
+    const path = element.querySelector<SVGPathElement>("svg path[data-mark-digits]");
+    const svg = path?.ownerSVGElement;
+    if (!path || !svg) return null;
+    const look = getComputedStyle(path);
+    const scale = svg.getBoundingClientRect().height / svg.viewBox.baseVal.height;
+    return {
+      drawn: look.display !== "none",
+      height: (path.getBBox().height + Number.parseFloat(look.strokeWidth)) * scale,
+      ink: look.stroke,
+      fill: look.fill,
+      last: path === svg.lastElementChild,
+    };
+  });
+
+test("the mark carries its 365 wherever the digits are 7px high, and nowhere else", async ({
+  page,
+}) => {
+  await page.setViewportSize({ width: 1440, height: 900 });
+  await page.goto("/purchase");
+
+  // The bar: on the ink tile, last in the mark, stroked in the highlighter and not filled.
+  const brand = page.getByRole("banner").getByRole("link", { name: "Advanta365", exact: true });
+  const onBar = await digitsOf(brand);
+  expect(onBar).not.toBeNull();
+  expect(onBar?.drawn).toBe(true);
+  expect(onBar?.height).toBeGreaterThanOrEqual(7);
+  expect(onBar?.ink).toBe(MARK);
+  expect(onBar?.fill).toBe("none");
+  expect(onBar?.last).toBe(true);
+
+  // The tile holds the whole mark, digits and all, and the bar holds the tile.
+  const fit = await brand.evaluate((link) => {
+    const edges = (element: Element | null | undefined) => element?.getBoundingClientRect();
+    const svg = link.querySelector("svg");
+    const tile = edges(svg?.parentElement);
+    const mark = edges(svg);
+    const bar = edges(link.closest("header"));
+    if (!tile || !mark || !bar) return null;
+    return {
+      square: Math.abs(tile.width - tile.height) < 0.5,
+      inTile: mark.left >= tile.left && mark.right <= tile.right && mark.top >= tile.top,
+      inBar: tile.top >= bar.top + 7 && tile.bottom <= bar.bottom - 7,
+    };
+  });
+  expect(fit).toEqual({ square: true, inTile: true, inBar: true });
+
+  // The link is still named by the word beside the mark, once: the digits are not read out.
+  await expect(brand).toHaveAccessibleName("Advanta365");
+  await expect(brand.locator("svg")).toHaveAttribute("aria-hidden", "true");
+  await expect(brand.locator("svg title, svg text")).toHaveCount(0);
+
+  // The footer: the bare mark, in the highlighter on the binder.
+  const onBinder = await digitsOf(page.getByRole("contentinfo"));
+  expect(onBinder?.drawn).toBe(true);
+  expect(onBinder?.height).toBeGreaterThanOrEqual(7);
+  expect(onBinder?.ink).toBe(MARK);
+
+  // The small tile on the folder of the purchase page is drawn without them.
+  const maker = page
+    .getByRole("main")
+    .locator("svg")
+    .filter({ has: page.locator("path") });
+  expect(await page.getByRole("main").locator("[data-mark-digits]").count()).toBe(0);
+  expect(await maker.count()).toBeGreaterThan(0);
+
+  // Below 68em the bar's tile is 28px, where they would be a smudge: they are not displayed.
+  await page.setViewportSize({ width: 390, height: 844 });
+  const small = await digitsOf(brand);
+  expect(small?.drawn).toBe(false);
+  await expect(brand).toHaveAccessibleName("Advanta365");
+});
+
+test("the site icon is the file it was: the mark without the digits", async ({ request }) => {
+  const response = await request.get("/icon.svg");
+  expect(response.ok()).toBe(true);
+  expect(response.headers()["content-type"]).toContain("image/svg+xml");
+  const served = await response.body();
+  const file = await readFile("app/icon.svg");
+  expect(served.equals(file)).toBe(true);
+  // Line endings aside (a checkout may rewrite them), these are the bytes it has always had.
+  const text = served.toString("utf8").replaceAll(String.fromCharCode(13), "");
+  expect(createHash("sha256").update(text).digest("hex")).toBe(
+    "1cbff59352cb91cac1aa4491ad70b48d0913f00853b3b3128a4b00a943e61ad7",
+  );
+  expect(text.match(/<path/g)).toHaveLength(2);
+  expect(text).not.toContain("data-mark-digits");
+});
+
 test("the menu control stands at the right of the bar", async ({ page, isMobile }) => {
+  test.skip(!isMobile, "the Menu button only shows below 68em");
   await page.goto("/catalog");
-  const bar = page.getByRole("banner");
-  const control = isMobile
-    ? bar.getByRole("button", { name: "Menu", exact: true })
-    : bar.getByRole("link", { name: /^Cart/ });
+  const control = page.getByRole("banner").getByRole("button", { name: "Menu", exact: true });
   const box = await control.boundingBox();
   const width = page.viewportSize()?.width ?? 0;
   expect(box).not.toBeNull();
@@ -507,7 +598,7 @@ test("the menu control stands at the right of the bar", async ({ page, isMobile 
   expect((box?.x ?? 0) + (box?.width ?? 0) / 2).toBeGreaterThan(width / 2);
 });
 
-test("the catalog draws every template as a row with a printed page, in its own format", async ({
+test("the catalog draws every template as a tile with a printed page, in its own format", async ({
   page,
 }) => {
   await page.goto("/catalog");
@@ -516,7 +607,8 @@ test("the catalog draws every template as a row with a printed page, in its own 
   await expect(cards).toHaveCount(24);
   await expect(page.getByRole("status")).toHaveCount(1);
   for (const card of await cards.all()) {
-    await expect(card.getByRole("link")).toHaveCount(1);
+    // One control each: the link of a free sample, or the button of a locked template.
+    await expect(card.locator("a, button")).toHaveCount(1);
     await expect(card.locator("[data-cover]")).toHaveCount(1);
   }
 
@@ -540,8 +632,8 @@ test("the catalog draws every template as a row with a printed page, in its own 
 });
 
 test("wording the site does not use is not on the pages that carried it", async ({ page }) => {
-  await page.goto("/contact");
-  await expect(page.getByRole("heading", { level: 1 })).toHaveText("Contact");
+  await page.goto("/about");
+  await expect(page.locator("#contact").getByRole("heading", { level: 2 })).toHaveText("Contact");
   await expect(page.getByText(RETIRED_CAPTION)).toHaveCount(0);
 
   await page.goto("/nope");
@@ -589,11 +681,8 @@ test("at 320px no page runs past the screen, and the bar's controls and every bu
     });
     expect(outside, path).toEqual([]);
 
-    const controls = page
-      .getByRole("banner")
-      .locator("a[href='/cart'], button")
-      .filter({ visible: true });
-    expect(await controls.count(), path).toBe(2);
+    const controls = page.getByRole("banner").locator("button").filter({ visible: true });
+    expect(await controls.count(), path).toBe(1);
     for (const control of await controls.all()) {
       const box = await control.boundingBox();
       expect(box?.height, path).toBeGreaterThanOrEqual(44);

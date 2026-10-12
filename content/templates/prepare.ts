@@ -12,7 +12,6 @@ export const prepareTemplates = sample("prepare", [
     audiences: ["change-lead"],
     format: "docx",
     adkar: ["desire", "ability"],
-    priceCents: 4400,
     summary: "How to recruit, brief and run a champion network through a SharePoint rollout.",
     description:
       "Sets out how to choose champions, what to ask of them at each stage, and how to keep their meetings worth attending. Includes meeting agendas and a simple activity tracker.",
@@ -27,7 +26,6 @@ export const prepareTemplates = sample("prepare", [
     audiences: ["change-lead", "manager"],
     format: "docx",
     adkar: ["desire", "ability"],
-    priceCents: 3400,
     pageCount: 7,
     summary: "Set up a champion network with a clear purpose, time commitment and recognition.",
     description:
@@ -43,7 +41,6 @@ export const prepareTemplates = sample("prepare", [
     audiences: ["change-lead", "manager"],
     format: "docx",
     adkar: ["knowledge", "ability"],
-    priceCents: 5400,
     pageCount: 18,
     summary: "Prepare internal trainers and champions to deliver sessions with confidence.",
     description:
@@ -61,9 +58,8 @@ export const prepareTemplates = sample("prepare", [
     audiences: ["end-user"],
     format: "pptx",
     adkar: ["knowledge", "ability"],
-    priceCents: 6900,
     pageCount: 42,
-    featured: true,
+    free: true,
     summary:
       "A 60-minute instructor-led session on finding, sharing and co-authoring in SharePoint.",
     description:
@@ -84,7 +80,6 @@ export const prepareTemplates = sample("prepare", [
     audiences: ["site-owner"],
     format: "docx",
     adkar: ["knowledge", "ability"],
-    priceCents: 6400,
     pageCount: 24,
     summary: "A four-module curriculum for the people who will own and manage sites.",
     description:
@@ -100,7 +95,6 @@ export const prepareTemplates = sample("prepare", [
     audiences: ["im-rep"],
     format: "docx",
     adkar: ["knowledge", "ability"],
-    priceCents: 6400,
     summary: "Training for IM Representatives on governance, metadata and keeping sites in order.",
     description:
       "Covers what IM Representatives need to know and do in SharePoint, and the governance rules they help others follow. Comes with a facilitator guide, a learning guide and job aids.",
@@ -115,7 +109,6 @@ export const prepareTemplates = sample("prepare", [
     audiences: ["end-user"],
     format: "pdf",
     adkar: ["knowledge", "ability"],
-    priceCents: 3400,
     pageCount: 10,
     summary: "Ten one-page guides for the most common Teams tasks.",
     description:
@@ -131,7 +124,6 @@ export const prepareTemplates = sample("prepare", [
     audiences: ["end-user"],
     format: "pdf",
     adkar: ["knowledge", "ability"],
-    priceCents: 2900,
     pageCount: 6,
     summary: "Shows staff how to move from a personal network drive to OneDrive.",
     description:
@@ -147,7 +139,6 @@ export const prepareTemplates = sample("prepare", [
     audiences: ["end-user", "manager"],
     format: "pptx",
     adkar: ["desire", "knowledge", "ability"],
-    priceCents: 5900,
     pageCount: 30,
     summary: "A 90-minute workshop that gets staff writing useful Copilot prompts.",
     description:

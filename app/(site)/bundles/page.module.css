@@ -1,9 +1,0 @@
-/*
- * The ledger: one column of folder rows in every width. The rows draw their own hairlines, and
- * their wash stands 14px past both ends, so nothing here may clip.
- */
-.rows {
-  margin: 0;
-  padding: 0;
-  list-style: none;
-}

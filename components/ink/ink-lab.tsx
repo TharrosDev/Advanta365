@@ -1,4 +1,5 @@
 import { IntroCover } from "@/components/intro/intro-cover";
+import { INTRO_BACKSTOP_MS } from "@/lib/boot/state";
 import { cx } from "@/lib/cx";
 import { STAGES } from "@/lib/ink/stage";
 import type { SceneName } from "@/lib/ink/types";
@@ -7,7 +8,15 @@ import styles from "./ink-lab.module.css";
 import { InkLayer } from "./ink-layer";
 
 /** Top to bottom. The load-in comes first: it plays once, clears, and the page below is clean. */
-const ORDER: readonly SceneName[] = ["intro", "hero", "title", "ninety", "bloom", "spill", "wisps"];
+const ORDER: readonly SceneName[] = [
+  "intro",
+  "prompt",
+  "title",
+  "ninety",
+  "bloom",
+  "spill",
+  "wisps",
+];
 
 /**
  * What the boot script does for a first visit of the home page, done here on request (`?cover=1`)
@@ -19,7 +28,7 @@ function own(e){return e.target&&e.target.hasAttribute&&e.target.hasAttribute("d
 function end(e){if(e&&!own(e))return;removeEventListener("animationend",end);r.removeAttribute("data-intro")}
 addEventListener("animationend",end);
 addEventListener("keydown",function(){if(r.hasAttribute("data-intro"))r.setAttribute("data-intro","leave")},{once:true});
-setTimeout(end,4500)})()`;
+setTimeout(end,${INTRO_BACKSTOP_MS})})()`;
 
 function Copy({ title, kind = "text" }: { title: string; kind?: "text" | "display" }) {
   return (
@@ -55,14 +64,16 @@ function Stage({ scene, bare, tall }: { scene: SceneName; bare: boolean; tall: b
   }
 
   switch (scene) {
-    case "hero":
+    case "prompt":
     case "spill":
       return (
         <section data-band={band} data-lab-stage={scene} className={className}>
           <InkBackdrop scene={scene} edges="bottom" />
           <div className={styles.columns}>
             <Copy
-              title={scene === "hero" ? "The tank beside the headline." : "A bottle, knocked over."}
+              title={
+                scene === "prompt" ? "A blank prompt, then the work." : "A bottle, knocked over."
+              }
             />
             <div className={styles.open} data-ink-anchor="open" />
           </div>
@@ -115,7 +126,7 @@ function Stage({ scene, bare, tall }: { scene: SceneName; bare: boolean; tall: b
           <InkBackdrop scene={scene} edges="top" />
           <div className={styles.grid} data-ink-calm="veil">
             <p className="type-item">Advanta365</p>
-            <p className="type-copy">Catalog, bundles, pricing.</p>
+            <p className="type-copy">Catalog, samples, purchase.</p>
             <p className="type-copy">About, contact, sample.</p>
             <p className="type-copy">Prepare, launch, sustain.</p>
           </div>

@@ -3,7 +3,8 @@
  *
  * Pure data and the single source of truth for the mark. `LogoMark` strokes it either as one path
  * or as two (the body, and the tail of the crossbar in a second ink), and `app/icon.svg` repeats the
- * two-path form. `IntroCover` writes it as three: the tail and the two strokes of the body.
+ * two-path form. `IntroCover` writes it as three: the tail and the two strokes of the body. The
+ * "365" on the arm is a fourth part, in a finer pen, for the sizes that can carry it.
  */
 
 export type MarkSegment = {
@@ -45,3 +46,30 @@ export const MARK_BODY_D = `${MARK_LEGS_D}${MARK_BAR_D}`;
  * hidden by the leg and the two paths together cover exactly what `MARK_PATH_D` covers.
  */
 export const MARK_TAIL_D = "M17.5 13.5H28.5";
+
+/**
+ * The "365" that stands on the arm, as the three strokes of a finer pen (round caps and joins, like
+ * the "A"): a 3 in two bowls, a 6 that ends where its bowl began, and a 5 with a flat top. Each
+ * digit is one open stroke, drawn in the order a hand writes it, in lines and curves only.
+ *
+ * They are drawn in the ink of the tail and they are for the eye alone: the name beside the mark
+ * says "Advanta365". `app/icon.svg` does without them, since a favicon is too small to carry them.
+ */
+export const MARK_DIGITS: readonly [string, string, string] = [
+  "M19.56 6.93C19.74 6.51 20.27 6.27 20.79 6.37C21.31 6.48 21.66 6.89 21.6 7.34C21.54 7.79 21.09 8.13 20.55 8.13C21.17 8.13 21.69 8.51 21.75 9C21.8 9.5 21.37 9.95 20.76 10.04C20.15 10.12 19.55 9.82 19.39 9.34",
+  "M25.42 6.35C24.22 6.79 23.6 7.98 23.6 8.96C23.6 9.56 24.14 10.05 24.8 10.05C25.46 10.05 26 9.56 26 8.96C26 8.36 25.46 7.87 24.8 7.87C24.14 7.87 23.6 8.36 23.6 8.96",
+  "M30.05 6.35H28.27L28.12 8.07C28.49 7.68 29.08 7.57 29.57 7.81C30.06 8.04 30.33 8.57 30.23 9.09C30.12 9.61 29.67 10 29.13 10.05C28.58 10.09 28.07 9.77 27.88 9.27",
+];
+
+/** The three digits as one SVG path. */
+export const MARK_DIGITS_D = MARK_DIGITS.join("");
+
+/** The digits' stroke width in viewBox units: about a quarter of the stroke of the "A". */
+export const MARK_DIGITS_STROKE_WIDTH = 1.1;
+
+/**
+ * The box the inked digits fill, in viewBox units. They start clear of the right leg, end where the
+ * arm ends (30.6) and stand 0.8 above its top edge (11.4). At 4.8 high they are a fifth of the
+ * mark's height: a mark has to be 35px high for them to be 7px.
+ */
+export const MARK_DIGITS_BOX = { left: 18.8, right: 30.8, top: 5.8, bottom: 10.6 } as const;

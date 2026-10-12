@@ -5,26 +5,51 @@
  */
 
 /*
- * Hero: the tank. Natural height below 68em: the text, then the open water as a block under it,
- * 56px lower so the first drop forms clear of the buttons. From 68em the band is about as tall as
- * the window (the bar, the rail and the beta strip taken off, at most 52rem), with 56px above and
- * 84px below; the text is centred in columns 1 to 7 and the open water fills columns 8 to 12.
+ * Hero: the first screen. One centred column on paper: the text, the stage, the proof strip as
+ * the band's foot. The band has no padding of its own: the column's box is the band's, edge to
+ * edge and top to bottom (its padding makes up the page's margins and the band's), and it clips
+ * sideways, because the foot's paper is drawn out past the band's sides. Downwards nothing is
+ * clipped: the foot's paper ends at the band's bottom edge by measure (`--hero-under`, the
+ * column's own bottom padding). A clip on the band, or one on the column in both directions,
+ * costs the ink's engine some 170ms when it starts, so there is neither.
+ *
+ * From 68em the whole of it fits the window. The column is as tall as the window leaves (the bar,
+ * the rail and the beta strip taken off, 56rem at most) and the stage stands in the middle of
+ * whatever the rest does not use. On a low window the headline gives first (`--hero-size`: its
+ * own size down to 12svh less 22px, which is its own size from 800px of height up, and never so
+ * large that its longer line, 15.3 of its ems, would not fit the page) and then the
+ * hand: `--hero-room` is what is left for it once the headline's two lines and the 15.5rem of
+ * everything else are taken off, and the stage narrows until its hand is no taller than that. The
+ * band itself is never less than 85.5% of the window; what that adds is padding under the foot
+ * (`--hero-under`).
  */
 .hero.hero {
-  padding-block: var(--s-5) var(--s-4);
+  --hero-above: var(--s-5);
+  --hero-under: var(--s-2);
 }
 
-.heroGrid {
+.heroInner {
   display: grid;
+  max-width: none;
+  padding-block: var(--hero-above) var(--hero-under);
+  padding-inline: max(var(--page-pad), (100% - var(--page-max)) / 2);
+  overflow-x: clip;
   grid-template-columns: minmax(0, 1fr);
+  grid-template-rows: auto 1fr auto;
+  justify-items: center;
+  align-items: center;
+  row-gap: var(--s-5);
 }
 
-.heroText {
+.heroText,
+.heroWords {
+  display: grid;
+  justify-items: center;
   min-width: 0;
+  text-align: center;
 }
 
 .heroTitle {
-  max-width: 11.5em;
   isolation: isolate;
 }
 
@@ -45,116 +70,138 @@
   color: var(--on-mark);
 }
 
+/* Two lines from 68em: the measure is wider than a lead's usual one for that. */
 .heroLead {
-  max-width: 34rem;
-  margin-block-start: var(--s-4);
+  max-width: 58rem;
+  margin-block-start: var(--s-3);
   color: var(--text-soft);
+  text-wrap: balance;
 }
 
 /* Stacked and full width on a phone. */
 .heroActions {
   display: flex;
   flex-direction: column;
+  justify-self: stretch;
   gap: var(--s-2);
-  margin-block-start: var(--s-5);
-}
-
-.heroOpen {
-  height: min(44svh, 22rem);
-  margin-block-start: var(--s-6);
-}
-
-@media (min-width: 40em) {
-  .hero.hero {
-    padding-block: var(--s-6) var(--s-5);
-  }
-
-  .heroActions {
-    flex-flow: row wrap;
-    align-items: flex-start;
-  }
-}
-
-@media (min-width: 68em) {
-  .hero.hero {
-    --hero-above: var(--s-6);
-    --hero-below: var(--s-7);
-    padding-block: var(--hero-above) var(--hero-below);
-  }
-
-  .heroGrid {
-    grid-template-columns: repeat(12, minmax(0, 1fr));
-    column-gap: var(--col-gap);
-    align-items: center;
-    min-height: calc(
-      min(100svh - var(--bar-h) - var(--rail-h) - var(--strip-h, 0px), 52rem) - var(--hero-above) -
-        var(--hero-below)
-    );
-  }
-
-  .heroText {
-    grid-column: 1 / span 7;
-  }
-
-  .heroOpen {
-    grid-column: 8 / span 5;
-    align-self: stretch;
-    height: auto;
-    margin-block-start: 0;
-  }
+  margin-block-start: var(--s-4);
 }
 
 /*
- * The spread. Index rows below 40em; two sheets across from 40em; from 68em two rows of the
- * twelve-column grid, 5, 3 and 4 columns wide and then 4, 5 and 3. A cell is as tall as its row.
+ * The proof strip: a ruled row that is the band's foot. Its paper and the hairline over it run
+ * the whole width of the band (the column clips them at its sides) and down to its bottom edge,
+ * `--hero-under` below the strip, and no further, so the ink
+ * behind the band ends at the foot as it does at the edge of a sheet, and the facts are always
+ * read on paper. Two facts to a row below 40em, four from there, a hairline between them. The
+ * strip leaves the band's bottom right corner to the pause button (44px, and 14px of air): below
+ * 40em by ending short of it, from 40em by standing centred between two such margins, 64rem wide
+ * at most.
  */
-.spread {
+.proof {
+  position: relative;
+  isolation: isolate;
   display: grid;
-  grid-template-columns: minmax(0, 1fr);
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  justify-self: start;
+  width: calc(100% - var(--tap) - var(--s-2));
   margin: 0;
   padding: 0;
   list-style: none;
 }
 
-.spreadItem {
+.proof::before {
+  content: "";
+  position: absolute;
+  inset: 0 -50vw calc(-1 * var(--hero-under));
+  z-index: -1;
+  border-block-start: var(--hair) solid var(--line);
+  background: var(--ground);
+}
+
+.proofItem {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: center;
+  gap: 0 var(--s-1);
   min-width: 0;
+  padding: var(--s-1);
+}
+
+.proofItem:nth-child(even) {
+  border-inline-start: var(--hair) solid var(--line);
+}
+
+.proofItem:nth-child(n + 3) {
+  border-block-start: var(--hair) solid var(--line);
+}
+
+.proofLabel {
+  color: var(--text-soft);
 }
 
 @media (min-width: 40em) {
-  .spread {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: var(--s-6) var(--col-gap);
+  .hero.hero {
+    --hero-above: var(--s-6);
+  }
+
+  .heroActions {
+    flex-flow: row wrap;
+    justify-content: center;
+    justify-self: center;
+  }
+
+  .proof {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    justify-self: center;
+    width: min(64rem, 100% - 2 * (var(--tap) + var(--s-2)));
+  }
+
+  .proofItem:nth-child(n + 2) {
+    border-inline-start: var(--hair) solid var(--line);
+  }
+
+  .proofItem:nth-child(n + 3) {
+    border-block-start: 0;
   }
 }
 
 @media (min-width: 68em) {
-  .spread {
-    grid-template-columns: repeat(12, minmax(0, 1fr));
-    row-gap: var(--s-7);
+  .hero.hero {
+    --hero-above: var(--s-2);
+    --hero-below: var(--s-1);
+    --hero-window: min(100svh - var(--bar-h) - var(--rail-h) - var(--strip-h, 0px), 56rem);
+    --hero-size: min(var(--size-hero), 12svh - 1.375rem, (100vw - 2 * var(--page-pad)) / 15.3);
+    --hero-room: calc(var(--hero-window) - 2.12 * var(--hero-size) - 15.5rem);
+    --hero-under: max(
+      var(--hero-below),
+      min(85.5svh, 56rem) - var(--hero-window) + var(--hero-below)
+    );
   }
 
-  .spreadItem:nth-child(6n + 1) {
-    grid-column: 1 / span 5;
+  .heroInner {
+    row-gap: var(--s-2);
+    min-height: calc(var(--hero-window) - var(--hero-above) - var(--hero-below));
   }
 
-  .spreadItem:nth-child(6n + 2) {
-    grid-column: 6 / span 3;
+  /* Doubled: the type class on the same element sets a size too. */
+  .heroTitle.heroTitle {
+    font-size: var(--hero-size);
   }
 
-  .spreadItem:nth-child(6n + 3) {
-    grid-column: 9 / span 4;
+  .heroLead {
+    margin-block-start: var(--s-2);
   }
 
-  .spreadItem:nth-child(6n + 4) {
-    grid-column: 1 / span 4;
+  .heroActions {
+    margin-block-start: var(--s-3);
   }
+}
 
-  .spreadItem:nth-child(6n + 5) {
-    grid-column: 5 / span 5;
-  }
-
-  .spreadItem:nth-child(6n) {
-    grid-column: 10 / span 3;
+@media (forced-colors: active) {
+  .proof::before,
+  .proofItem {
+    border-color: GrayText;
   }
 }
 
@@ -367,31 +414,52 @@
 }
 
 /*
- * Bundles. The large folder over the ledger; from 68em the folder in columns 1 to 6 and the ledger
- * in columns 7 to 12, top-aligned.
+ * The toolkit. The words, then the portfolio under them; from 68em the words in columns 1 to 5 and
+ * the portfolio in columns 7 to 12, centred on each other.
  */
-.bundles {
+.toolkit {
   display: grid;
   grid-template-columns: minmax(0, 1fr);
-  gap: var(--s-5);
+  gap: var(--s-6);
+  align-items: center;
 }
 
-.bundleFeature {
+.toolkitText,
+.toolkitObject {
   min-width: 0;
 }
 
-.bundleRows {
-  min-width: 0;
-  margin: 0;
-  padding: 0;
-  list-style: none;
+.toolkitLead {
+  max-width: var(--wrap-copy);
+  margin-block-start: var(--s-3);
+  color: var(--text-soft);
+}
+
+/* Full width on a phone, its own width after. */
+.toolkitAction {
+  display: flex;
+  flex-direction: column;
+  margin-block-start: var(--s-5);
+}
+
+@media (min-width: 40em) {
+  .toolkitAction {
+    align-items: flex-start;
+  }
 }
 
 @media (min-width: 68em) {
-  .bundles {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
+  .toolkit {
+    grid-template-columns: repeat(12, minmax(0, 1fr));
     gap: 0 var(--col-gap);
-    align-items: start;
+  }
+
+  .toolkitText {
+    grid-column: 1 / span 5;
+  }
+
+  .toolkitObject {
+    grid-column: 7 / -1;
   }
 }
 
