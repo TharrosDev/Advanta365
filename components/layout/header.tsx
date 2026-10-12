@@ -1,5 +1,5 @@
 import { NavDrawer } from "@/components/layout/nav-drawer";
-import type { PhaseLink, TemplatePhases } from "@/components/layout/nav-links";
+import type { PhaseLink } from "@/components/layout/nav-links";
 import { PrimaryNav } from "@/components/layout/primary-nav";
 import { BrandLockup } from "@/components/ui/brand-lockup";
 import { TransitionLink } from "@/components/ui/transition-link";
@@ -17,13 +17,7 @@ import styles from "./header.module.css";
  * On the narrowest screens the word "Menu" and then the brand name are hidden visually; the
  * accessible names "Menu" and "Advanta365" stay.
  */
-export function Header({
-  phases,
-  templatePhases,
-}: {
-  phases: readonly PhaseLink[];
-  templatePhases: TemplatePhases;
-}) {
+export function Header({ phases }: { phases: readonly PhaseLink[] }) {
   return (
     <header data-bar="" className={styles.root}>
       <Wrap className={styles.inner}>
@@ -34,7 +28,6 @@ export function Header({
         <div className={styles.tools}>
           <NavDrawer
             phases={phases}
-            templatePhases={templatePhases}
             email={SITE.contactEmail}
             toggleClassName={styles.menu}
             wordClassName={styles.menuWord}

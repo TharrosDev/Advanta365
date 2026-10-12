@@ -62,7 +62,9 @@ test.describe("desktop bar", () => {
     await expect(rail(page).locator("[aria-current]")).toHaveCount(0);
   });
 
-  test("the rail marks a phase page and the phase of a template page", async ({ page }) => {
+  test("the rail marks a phase page, and no phase while a template is open in the catalog", async ({
+    page,
+  }) => {
     await page.goto("/phases/prepare");
     await expect(rail(page).getByRole("link", { name: "Prepare", exact: true })).toHaveAttribute(
       "aria-current",
@@ -70,11 +72,9 @@ test.describe("desktop bar", () => {
     );
     await expect(rail(page).locator("[aria-current]")).toHaveCount(1);
 
-    await page.goto("/templates/executive-sponsor-kickoff-deck");
-    await expect(
-      rail(page).getByRole("link", { name: "Make the case", exact: true }),
-    ).toHaveAttribute("aria-current", "true");
-    await expect(rail(page).locator("[aria-current]")).toHaveCount(1);
+    await page.goto("/catalog?view=executive-sponsor-kickoff-deck");
+    await expect(page.locator("dialog[open]")).toHaveCount(1);
+    await expect(rail(page).locator("[aria-current]")).toHaveCount(0);
   });
 
   test("the bar stays at the top after scrolling, and the rail scrolls away", async ({ page }) => {

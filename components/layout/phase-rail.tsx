@@ -1,7 +1,7 @@
 "use client";
 
 import { usePathname } from "next/navigation";
-import { currentPhase, type PhaseLink, type TemplatePhases } from "@/components/layout/nav-links";
+import { currentPhase, type PhaseLink } from "@/components/layout/nav-links";
 import { PhaseTabs } from "@/components/ui/phase-tabs";
 import { Wrap } from "@/components/ui/wrap";
 import styles from "./phase-rail.module.css";
@@ -11,19 +11,12 @@ import styles from "./phase-rail.module.css";
  * and the tabs are sheets of paper on it, standing on its bottom edge. The rail is not sticky: it
  * scrolls away.
  *
- * The tab of the phase being shown is current: `aria-current="page"` on the phase's own page,
- * `aria-current="true"` on the page of a template in that phase. A client component only because
- * it reads the pathname.
+ * The tab of the phase being shown is current: `aria-current="page"` on the phase's own page. A
+ * client component only because it reads the pathname.
  */
-export function PhaseRail({
-  phases,
-  templatePhases,
-}: {
-  phases: readonly PhaseLink[];
-  templatePhases: TemplatePhases;
-}) {
+export function PhaseRail({ phases }: { phases: readonly PhaseLink[] }) {
   const pathname = usePathname();
-  const current = currentPhase(pathname, templatePhases);
+  const current = currentPhase(pathname);
 
   return (
     <nav aria-label="Phases" data-phase-rail="" className={styles.root}>

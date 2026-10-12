@@ -10,7 +10,7 @@ const useBeforePaint = typeof window === "undefined" ? useEffect : useLayoutEffe
 
 /**
  * The script half of the motion system (app/motion.css is the other). It renders nothing and
- * does nothing unless the boot script has set `data-motion="on"` on the root element, so under
+ * moves nothing unless the boot script has set `data-motion="on"` on the root element, so under
  * reduced motion it is inert.
  *
  * On mount and on every change of pathname, before the browser paints, it marks what is already
@@ -21,6 +21,11 @@ const useBeforePaint = typeof window === "undefined" ? useEffect : useLayoutEffe
  * they are missing it serves `[data-move]` and `[data-ninety]` as well.
  *
  * It also owns the light on `[data-lit]` sheets (lib/scroll/pointer.ts).
+ *
+ * One thing it does whatever the motion setting: once its effects run, the client components of
+ * the page have their handlers, and it says so with `data-hydrated` on the root element. Nothing
+ * on the site reads that attribute; it is the one moment a browser test can wait for before it
+ * presses a control a script answers.
  */
 export function MotionRoot() {
   const pathname = usePathname();
@@ -36,6 +41,10 @@ export function MotionRoot() {
     root.setAttribute("data-io", "armed");
     return stop;
   }, [pathname]);
+
+  useEffect(() => {
+    document.documentElement.setAttribute("data-hydrated", "");
+  }, []);
 
   useEffect(() => {
     if (document.documentElement.getAttribute("data-motion") !== "on") return;

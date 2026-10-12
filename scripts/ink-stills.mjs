@@ -55,7 +55,6 @@ const CHECK_ROUTES = [
   "/sample",
   "/phases/prepare",
   "/catalog",
-  "/templates/executive-sponsor-kickoff-deck",
   "/nope",
 ];
 const TOLERANCE = 0.02;

@@ -26,9 +26,9 @@
 }
 
 /*
- * One step. Below 68em: the number beside the step name, the summary under them, then the rows.
+ * One step. Below 68em: the number beside the step name, the summary under them, then the tiles.
  * From 68em it is the margin layout of the page: number and summary in columns 1 to 3, name and
- * rows in columns 4 to 12. The parts are placed by grid line, so in the document the name comes
+ * tiles in columns 4 to 12. The parts are placed by grid line, so in the document the name comes
  * straight after the number and before the summary.
  */
 .step {
@@ -59,12 +59,10 @@
   font-weight: 400;
 }
 
-/* The index rows of the step: one column, each row on its own hairline. */
-.rows {
+/* The tiles of the step, under everything else. */
+.tiles {
   grid-column: 1 / -1;
-  margin: var(--s-3) 0 0;
-  padding: 0;
-  list-style: none;
+  margin-block-start: var(--s-4);
 }
 
 @media (min-width: 68em) {
@@ -88,7 +86,7 @@
     grid-area: 1 / 4 / 2 / -1;
   }
 
-  .rows {
+  .tiles {
     grid-area: 2 / 4 / 3 / -1;
     align-self: start;
     margin-block-start: var(--s-4);

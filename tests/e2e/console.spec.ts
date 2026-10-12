@@ -10,7 +10,7 @@ const ROUTES = [
   "/",
   "/catalog",
   "/phases/prepare",
-  "/templates/executive-sponsor-kickoff-deck",
+  "/catalog?view=executive-sponsor-kickoff-deck",
   "/purchase",
   "/about",
   "/sample",

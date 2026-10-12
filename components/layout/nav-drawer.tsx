@@ -8,7 +8,6 @@ import {
   currentPhase,
   linkCurrent,
   type PhaseLink,
-  type TemplatePhases,
 } from "@/components/layout/nav-links";
 import { BrandLockup } from "@/components/ui/brand-lockup";
 import { Button } from "@/components/ui/button";
@@ -37,13 +36,11 @@ const INLINE_NAV = "(min-width: 68em)";
  */
 export function NavDrawer({
   phases,
-  templatePhases,
   email,
   toggleClassName,
   wordClassName,
 }: {
   phases: readonly PhaseLink[];
-  templatePhases: TemplatePhases;
   email: string;
   /** Lands on the "Menu" button; the bar hides it from 68em. */
   toggleClassName?: string;
@@ -56,7 +53,7 @@ export function NavDrawer({
   const dialogRef = useRef<HTMLDialogElement>(null);
   const [open, setOpen] = useState(false);
   const openedOn = useRef(pathname);
-  const phase = currentPhase(pathname, templatePhases);
+  const phase = currentPhase(pathname);
 
   const show = () => {
     const dialog = dialogRef.current;

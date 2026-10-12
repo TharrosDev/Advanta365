@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { StepNav } from "@/components/catalog/step-nav";
-import { TemplateCard } from "@/components/catalog/template-card";
+import { TemplateTile, TileGrid } from "@/components/catalog/template-tile";
 import { Breadcrumbs } from "@/components/layout/breadcrumbs";
 import { TitleBlock } from "@/components/layout/title-block";
 import { Band } from "@/components/ui/band";
@@ -27,7 +27,8 @@ export async function generateMetadata({ params }: PhasePageProps): Promise<Meta
  * One rollout phase. The title block carries the trail and the links to the steps, over the ink,
  * with the phase numeral, its place among the phases and a tally standing beside them. Each step is
  * then a band of its own, desk and paper in turn: the step number and summary in the margin, the
- * step name and its templates as index rows beside them. The page ends with a link to the phase in
+ * step name and its templates as tiles beside them: a free sample links to the catalog, where it
+ * opens in the pop-up, and every other tile is locked. The page ends with a link to the phase in
  * the catalog.
  */
 export default async function PhasePage({ params }: PhasePageProps) {
@@ -90,18 +91,18 @@ export default async function PhasePage({ params }: PhasePageProps) {
             </p>
             <h2 className={cx("type-page", styles.stepTitle)}>{step.name}</h2>
             <p className={cx("type-ui", styles.stepSummary)}>{step.summary}</p>
-            <ul className={styles.rows}>
-              {inStep.map((template, position) => (
+            <TileGrid className={styles.tiles}>
+              {inStep.map((template) => (
                 <li key={template.slug}>
-                  <TemplateCard
+                  <TemplateTile
                     template={template}
                     phaseName={phase.name}
                     phaseOrder={number}
-                    index={position + 1}
+                    href={`/catalog?view=${template.slug}`}
                   />
                 </li>
               ))}
-            </ul>
+            </TileGrid>
           </Band>
         );
       })}

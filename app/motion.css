@@ -8,6 +8,8 @@
  *   [data-bar]                                     the bar and its shadow
  *   [data-ninety], [data-odometer-wheel]           the one band whose figure follows the scroll
  *   [data-price-tag]                               the paper tag on its string, which swings
+ *   [data-tile][data-denied], [data-lock]          a locked tile saying no, and its padlock
+ *   [data-template-dialog][data-enter]             the pop-up of the catalog arriving
  *
  * Three attributes on the root element, set by the boot script before first paint, are the only
  * switches: `data-motion="on"` (movement is wanted), `data-timeline="on"` (view timelines exist)
@@ -452,6 +454,114 @@
     html[data-motion="on"] [data-folder]:hover ~ [data-price-tag] > * {
       animation: price-tag-nudge 1200ms ease-in-out;
     }
+  }
+
+  /*
+   * A locked tile saying no (components/catalog/locked-tile.tsx sets `data-denied` on the tile for
+   * 600ms). Three things happen at once and are over inside that time. The tile shakes: 6px to the
+   * left and to the right, five swings in 420ms. The padlock rattles about the top of its bow,
+   * sharper and a little longer: 12 degrees each way, dying down. The outline, which is the alert
+   * colour for as long as the state lasts, pulses: it comes, goes and comes back. When the state
+   * goes the outline fades instead of cutting out. Under reduced motion none of this is read, and
+   * the outline simply stands for the 600ms.
+   */
+  @keyframes tile-shake {
+    10%,
+    50%,
+    90% {
+      translate: -6px 0;
+    }
+
+    30%,
+    70% {
+      translate: 6px 0;
+    }
+  }
+
+  @keyframes lock-rattle {
+    8% {
+      rotate: -12deg;
+    }
+
+    20% {
+      rotate: 12deg;
+    }
+
+    32% {
+      rotate: -12deg;
+    }
+
+    44% {
+      rotate: 10deg;
+    }
+
+    56% {
+      rotate: -8deg;
+    }
+
+    68% {
+      rotate: 6deg;
+    }
+
+    80% {
+      rotate: -3deg;
+    }
+
+    92% {
+      rotate: 1.5deg;
+    }
+  }
+
+  @keyframes denied-pulse {
+    0%,
+    50% {
+      outline-color: transparent;
+    }
+
+    25% {
+      outline-color: var(--alert);
+    }
+  }
+
+  [data-tile] {
+    transition: outline-color var(--time-exit) linear;
+  }
+
+  [data-tile][data-denied] {
+    animation:
+      tile-shake 420ms ease-in-out,
+      denied-pulse 560ms ease-in-out;
+  }
+
+  [data-tile][data-denied] [data-lock] {
+    animation: lock-rattle 480ms ease-in-out;
+  }
+
+  /*
+   * The pop-up of the catalog (components/catalog/template-dialog.tsx). One that a link inside the
+   * site opens rises 14px into place as the page dims behind it; one that came with the server's
+   * page is simply there. Closing has no animation: a dialog that is closed is gone.
+   */
+  @keyframes dialog-in {
+    from {
+      opacity: 0;
+      translate: 0 14px;
+      scale: 0.985;
+    }
+  }
+
+  @keyframes scrim-in {
+    from {
+      opacity: 0;
+    }
+  }
+
+  [data-template-dialog][data-enter] {
+    animation: dialog-in 320ms var(--curve-settle);
+  }
+
+  [data-template-dialog][data-enter]::backdrop {
+    animation: scrim-in var(--time-exit) linear;
   }
 
   /*

@@ -18,14 +18,14 @@ const ROUTES = [
   "/",
   "/catalog",
   "/phases/prepare",
-  "/templates/executive-sponsor-kickoff-deck",
+  "/catalog?view=executive-sponsor-kickoff-deck",
   "/purchase",
   "/about",
   "/sample",
 ];
 
 // The 404 pages are built in the browser; their server HTML is checked all the same.
-const MISSING = ["/nope", "/templates/nope", "/phases/nope"];
+const MISSING = ["/nope", "/templates/nope/extra", "/phases/nope"];
 
 // White, black and light blue: the page, the ink and the text on it, the highlighter and its wash,
 // the binder.
@@ -494,7 +494,7 @@ test("the menu control stands at the right of the bar", async ({ page, isMobile 
   expect((box?.x ?? 0) + (box?.width ?? 0) / 2).toBeGreaterThan(width / 2);
 });
 
-test("the catalog draws every template as a row with a printed page, in its own format", async ({
+test("the catalog draws every template as a tile with a printed page, in its own format", async ({
   page,
 }) => {
   await page.goto("/catalog");
@@ -503,7 +503,8 @@ test("the catalog draws every template as a row with a printed page, in its own 
   await expect(cards).toHaveCount(24);
   await expect(page.getByRole("status")).toHaveCount(1);
   for (const card of await cards.all()) {
-    await expect(card.getByRole("link")).toHaveCount(1);
+    // One control each: the link of a free sample, or the button of a locked template.
+    await expect(card.locator("a, button")).toHaveCount(1);
     await expect(card.locator("[data-cover]")).toHaveCount(1);
   }
 

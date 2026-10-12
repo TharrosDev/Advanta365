@@ -1,0 +1,121 @@
+"use client";
+
+import { useRouter } from "next/navigation";
+import { useEffect, useLayoutEffect, useRef, useSyncExternalStore } from "react";
+import type { MouseEvent, ReactNode } from "react";
+import { Button } from "@/components/ui/button";
+import { Icon } from "@/components/ui/icon";
+import styles from "./template-dialog.module.css";
+
+// The server has no layout to measure; there the effect is the ordinary one and never runs.
+const useBeforePaint = typeof window === "undefined" ? useEffect : useLayoutEffect;
+
+const never = () => () => undefined;
+
+/**
+ * The pop-up of the catalog: a native modal `<dialog>` over the dimmed page, a sheet of paper at
+ * the top of the stack with a bar that holds Close and a body that scrolls. The page renders it
+ * only while the address names a free sample (`view`), so being rendered is being open: it is made
+ * modal before the first paint, and it closes by going to `closeHref`, the same address without
+ * `view`, in place of the current entry and without moving the page.
+ *
+ * It closes on Escape, on Close and on a click on the dimmed page (a click whose target is the
+ * dialog itself: the panel covers all of it). The dialog's own `close` event is what leaves the
+ * address, so every way of closing is one handler. Focus goes back to whatever had it when the
+ * dialog opened, the tile that was followed; when the page takes the dialog away instead (Back),
+ * it is closed first so that focus goes back the same way.
+ *
+ * The server sends `<dialog open>`, drawn where the modal one stands and with the page dimmed
+ * around it, so the content shows before the script runs and without it. Close is a link to
+ * `closeHref` for the same reason. A dialog that arrives by a link inside the site enters with a
+ * short movement (`data-enter`, app/motion.css); one that was in the server's page does not.
+ *
+ * `labelledBy` is the id of the heading inside `children` that names it.
+ */
+export function TemplateDialog({
+  closeHref,
+  labelledBy,
+  children,
+}: {
+  closeHref: string;
+  labelledBy: string;
+  children: ReactNode;
+}) {
+  const router = useRouter();
+  const dialogRef = useRef<HTMLDialogElement>(null);
+  // True while the dialog is being closed by this component on its way out: no address to leave.
+  const leaving = useRef(false);
+  // False while the server's page is being taken over, true for a dialog a navigation brought.
+  const arrived = useRef(
+    useSyncExternalStore(
+      never,
+      () => true,
+      () => false,
+    ),
+  );
+
+  useBeforePaint(() => {
+    const dialog = dialogRef.current;
+    if (!dialog) return;
+    const opener = document.activeElement instanceof HTMLElement ? document.activeElement : null;
+
+    if (!dialog.matches(":modal")) {
+      // Open as the server sent it, but not modal: shut without an event, then opened properly.
+      dialog.open = false;
+      if (arrived.current) dialog.setAttribute("data-enter", "");
+      dialog.showModal();
+    }
+
+    return () => {
+      if (dialog.open) {
+        leaving.current = true;
+        dialog.close();
+      }
+      if (opener && opener !== document.body) opener.focus({ preventScroll: true });
+    };
+  }, []);
+
+  const onClose = () => {
+    if (leaving.current) {
+      leaving.current = false;
+      return;
+    }
+    router.replace(closeHref, { scroll: false });
+  };
+
+  // The dimmed page is the dialog's own backdrop: a click there has the dialog as its target.
+  const closeFromScrim = (event: MouseEvent<HTMLDialogElement>) => {
+    if (event.target === event.currentTarget) event.currentTarget.close();
+  };
+
+  // With the script running, Close shuts the dialog and the `close` event does the rest.
+  const closeFromLink = (event: MouseEvent<HTMLElement>) => {
+    const dialog = dialogRef.current;
+    if (!dialog?.open) return;
+    event.preventDefault();
+    dialog.close();
+  };
+
+  return (
+    <dialog
+      ref={dialogRef}
+      open
+      aria-labelledby={labelledBy}
+      data-template-dialog=""
+      className={styles.dialog}
+      onClose={onClose}
+      onClick={closeFromScrim}
+    >
+      {/* The panel covers the whole dialog, so only the dimmed page counts as "outside". */}
+      <div className={styles.panel}>
+        <div className={styles.bar}>
+          <Button variant="outline" size="sm" href={closeHref} onClick={closeFromLink}>
+            <Icon name="close" />
+            Close
+          </Button>
+        </div>
+        <div className={styles.body}>{children}</div>
+      </div>
+    </dialog>
+  );
+}

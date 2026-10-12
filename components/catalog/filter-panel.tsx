@@ -15,7 +15,7 @@ import {
   FORMAT_LABELS,
 } from "@/content/taxonomy";
 import type { CatalogCriteria, CatalogResult, FacetKey } from "@/lib/catalog/query";
-import { serializeCatalogParams } from "@/lib/catalog/search-params";
+import { catalogHref } from "@/lib/catalog/search-params";
 import { cx } from "@/lib/cx";
 import styles from "./filter-panel.module.css";
 
@@ -32,7 +32,8 @@ type FilterPanelProps = {
 };
 
 /**
- * The catalog filters: five groups of check rows with their counts, and a link that clears them.
+ * The catalog filters: "Free samples only", then five groups of check rows with their counts, and a
+ * link that clears them.
  * Every change goes to the URL at once; the box ticks before the server answers.
  *
  * From 68em the groups stand in the rail as an `aside`. Below that they sit behind a "Filters"
@@ -62,22 +63,30 @@ export function FilterPanel({ criteria: committed, facets, phases }: FilterPanel
     { key: "format", title: "File format", options: options(FORMATS, FORMAT_LABELS) },
   ];
 
-  const selectedCount = groups.reduce((sum, group) => sum + criteria[group.key].length, 0);
+  const selectedCount =
+    groups.reduce((sum, group) => sum + criteria[group.key].length, 0) + Number(criteria.free);
+
+  // Any filter change returns to the first page.
+  function apply(nextCriteria: CatalogCriteria) {
+    startTransition(() => {
+      setOptimisticCriteria(nextCriteria);
+      router.replace(catalogHref(nextCriteria), { scroll: false });
+    });
+  }
 
   function toggle(key: FacetKey, value: string, checked: boolean) {
     const current = criteria[key] as string[];
     const next = checked ? [...current, value] : current.filter((v) => v !== value);
-    // Any filter change returns to the first page.
-    const nextCriteria = { ...criteria, [key]: next, page: 1 };
-    const query = serializeCatalogParams(nextCriteria);
-    startTransition(() => {
-      setOptimisticCriteria(nextCriteria);
-      router.replace(query ? `/catalog?${query}` : "/catalog", { scroll: false });
-    });
+    apply({ ...criteria, [key]: next, page: 1 });
   }
 
   const fields = (
     <div className={styles.fields} aria-busy={isPending}>
+      <Checkbox
+        label="Free samples only"
+        checked={criteria.free}
+        onChange={(event) => apply({ ...criteria, free: event.target.checked, page: 1 })}
+      />
       {groups.map((group) => (
         <fieldset key={group.key} className={styles.group}>
           <legend className={cx("type-eyebrow", styles.legend)}>{group.title}</legend>

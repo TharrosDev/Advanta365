@@ -1,4 +1,5 @@
 import { expect, test } from "@playwright/test";
+import { hydrated, NAVIGATION_TIMEOUT } from "./helpers";
 import { canvases } from "./support/ink";
 
 // With prefers-reduced-motion nothing on the site moves by itself and nothing waits to be shown: a
@@ -14,7 +15,7 @@ const ROUTES = [
   "/",
   "/catalog",
   "/phases/prepare",
-  "/templates/executive-sponsor-kickoff-deck",
+  "/catalog?view=executive-sponsor-kickoff-deck",
   "/purchase",
   "/about",
   "/sample",
@@ -103,6 +104,7 @@ test("links navigate", async ({ page }) => {
 
 test("the catalog filters work", async ({ page }) => {
   await page.goto("/catalog");
+  await hydrated(page);
 
   // On narrow screens the filters live in a dialog behind a button.
   const open = page.getByRole("button", { name: /^Filters/ });
@@ -113,5 +115,5 @@ test("the catalog filters work", async ({ page }) => {
     .filter({ visible: true })
     .check();
 
-  await expect(page).toHaveURL(/type=training/);
+  await expect(page).toHaveURL(/type=training/, { timeout: NAVIGATION_TIMEOUT });
 });

@@ -5,9 +5,6 @@ export type NavLink = { href: string; label: string };
 /** A rollout phase as the navigation needs it: where it lives and what it is called. */
 export type PhaseLink = { slug: string; name: string };
 
-/** Which phase each template belongs to: template slug to phase slug. */
-export type TemplatePhases = Readonly<Record<string, string>>;
-
 /** The site's primary destinations, in order: Purchase, Catalog, About. */
 export const PRIMARY_LINKS: readonly NavLink[] = [PURCHASE_LINK, ...NAV];
 
@@ -22,19 +19,11 @@ export function linkCurrent(pathname: string, href: string): "page" | "true" | u
 }
 
 /**
- * The phase the page shown belongs to, and how: `page` on the phase's own page, `true` on the page
- * of a template in that phase. Any other page belongs to no phase.
+ * The phase the page shown belongs to: the phase whose own page it is, marked `page`. Any other
+ * page belongs to no phase.
  */
-export function currentPhase(
-  pathname: string,
-  templatePhases: TemplatePhases,
-): { slug: string; kind: "page" | "true" } | undefined {
+export function currentPhase(pathname: string): { slug: string; kind: "page" } | undefined {
   const [, section, slug, ...deeper] = pathname.split("/");
   if (!slug || deeper.length > 0) return undefined;
-  if (section === "phases") return { slug, kind: "page" };
-  if (section === "templates" && Object.hasOwn(templatePhases, slug)) {
-    const phase = templatePhases[slug];
-    return phase ? { slug: phase, kind: "true" } : undefined;
-  }
-  return undefined;
+  return section === "phases" ? { slug, kind: "page" } : undefined;
 }

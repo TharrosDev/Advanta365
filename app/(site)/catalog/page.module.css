@@ -20,6 +20,26 @@
   overflow-wrap: anywhere;
 }
 
+/* What the locks mean, and the way to the purchase page: there without a script, too. */
+.key {
+  max-width: var(--wrap-copy);
+  margin-block: calc(-1 * var(--s-2)) var(--s-3);
+  color: var(--text-soft);
+}
+
+/* Below 68em the link's pointer area is 44px tall; the layer is invisible and moves nothing. */
+.way {
+  position: relative;
+  font-weight: 600;
+}
+
+.way::after {
+  content: "";
+  position: absolute;
+  inset-block: calc((1lh - var(--tap)) / 2);
+  inset-inline: 0;
+}
+
 .strong {
   color: var(--text);
   font-weight: 700;
@@ -49,6 +69,10 @@
  * ending on a hard edge, and the last row clears the fade once the column is scrolled to its end.
  */
 @media (min-width: 68em) {
+  .way::after {
+    content: none;
+  }
+
   .rail {
     grid-template-columns: minmax(0, 1fr);
     align-items: stretch;
