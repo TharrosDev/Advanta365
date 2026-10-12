@@ -1,6 +1,6 @@
 import { describe, expect, test } from "vitest";
 import { APPS, AUDIENCES, DELIVERABLE_TYPES, FORMATS } from "@/content/taxonomy";
-import { bundleSavingsCents, bundleValueCents } from "@/lib/catalog/pricing";
+import { bundleSavingsCents, bundleValueCents, catalogPriceSpan } from "@/lib/catalog/pricing";
 import { DEFAULT_CRITERIA, queryTemplates } from "@/lib/catalog/query";
 import {
   getBundle,
@@ -12,6 +12,7 @@ import {
   getRelatedTemplates,
   getTemplate,
   getTemplates,
+  getWorkedExampleContents,
   hasSampleContent,
 } from "@/lib/catalog/repository";
 
@@ -220,6 +221,22 @@ describe("sample catalog", () => {
       "change-closeout-report",
     ]);
   });
+
+  test("the comparison's price span runs from the cheapest template to the complete bundle", async () => {
+    const [templates, bundles, phases] = await Promise.all([
+      getTemplates(),
+      getBundles(),
+      getPhases(),
+    ]);
+    const complete = (await getBundle("sharepoint-rollout-complete"))!;
+    expect(
+      catalogPriceSpan(
+        templates,
+        bundles,
+        phases.map((phase) => phase.slug),
+      ),
+    ).toEqual({ fromCents: 1900, toCents: complete.priceCents });
+  });
 });
 
 describe("repository lookups", () => {
@@ -275,5 +292,13 @@ describe("repository lookups", () => {
     expect(slugs).toContain("sponsor-essentials");
     expect(slugs).toContain("case-and-plan-kit");
     expect(await getBundlesContaining("does-not-exist")).toEqual([]);
+  });
+});
+
+describe("the worked example's contents", () => {
+  test("every section links to a page the catalog holds", async () => {
+    const { sections } = await getWorkedExampleContents();
+    expect(sections.length).toBeGreaterThan(0);
+    for (const section of sections) expect(section.link, section.title).toBeDefined();
   });
 });

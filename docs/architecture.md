@@ -33,10 +33,10 @@ Related documents: `design-system.md` covers the visual rules and component usag
 | Path | Source | Rendering | Notes |
 |---|---|---|---|
 | `/` | `app/(site)/page.tsx` | Server, reads phases, templates and bundles | Renders the first-visit cover, then the home sections |
-| `/about` | `app/(site)/about/page.tsx` | Server, no data reads | Title `About`; hosts the `#compare` band |
-| `/pricing` | `app/(site)/pricing/page.tsx` | Server, reads templates and bundles | Title `Pricing` |
+| `/about` | `app/(site)/about/page.tsx` | Server, reads phases, templates and bundles | Title `About`; hosts the `#compare` band, whose cost cell for the toolkit is `catalogPriceSpan` |
+| `/pricing` | `app/(site)/pricing/page.tsx` | Server, reads templates and bundles | Title `Pricing`; links `/about#compare` under the lead |
 | `/contact` | `app/(site)/contact/page.tsx` | Server, no data reads | Title `Contact` |
-| `/sample` | `app/(site)/sample/page.tsx` | Server, reads phases | Title `Sample` |
+| `/sample` | `app/(site)/sample/page.tsx` | Server, reads phases and the worked example's contents | Title `Sample` |
 | `/catalog` | `app/(site)/catalog/page.tsx` | Dynamic (awaits `searchParams`) | Title `Catalog`; filters live in the URL |
 | `/phases/[phase]` | `app/(site)/phases/[phase]/page.tsx` | Static params for the 7 phases | `notFound()` for other slugs |
 | `/templates/[slug]` | `app/(site)/templates/[slug]/page.tsx` | Static params for the 67 templates | `notFound()` for other slugs |
@@ -68,6 +68,11 @@ Page layouts that later work should keep:
   feature folder and the bundle page: the visible note "Covers phases 3–4" (`coverageLabel`), with the phase
   names after it for assistive technology, over a seven-block tally hidden from it. On the bundle page each
   phase group is headed "<Phase>, N templates".
+- `/sample`: after the statement, a paper band "Contents" holds the worked example's table of contents
+  (`getWorkedExampleContents`) as a numbered `BandedList as="ol"` labelled by its heading: each section's
+  title in `type-item`, then its catalog link ("Template: …", "Step: …" or "Phase: …"). While
+  `content/worked-example.ts` sets `placeholder`, a beta note heads the list and every section reads
+  "Placeholder". The phase ledger follows on the desk.
 
 ## 2. Server and client boundaries
 
@@ -115,6 +120,7 @@ content/*.ts  ->  lib/catalog/schema.ts (zod)  ->  lib/catalog/validate.ts
 | `content/templates/sample.ts` | The `sample()` helper |
 | `content/bundles.ts` | The five bundles |
 | `content/taxonomy.ts` | Labels for deliverable types, apps, audiences, formats and ADKAR stages |
+| `content/worked-example.ts` | The worked example's table of contents: placeholder sections (`placeholder: true`, a `TODO(owner)`), each pointing at a template, a step or a phase |
 
 `sample(phase, entries)` adds `phase`, `featured` (default `false`) and `isSample: true` to each entry.
 The per-phase files and `bundles.ts` mark their entries as sample content, so the beta strip shows while
@@ -157,6 +163,7 @@ ESLint enforces this: imports of `@/content/*` are rejected in `app/**` and `com
 | `getBundlesContaining(templateSlug)` | Bundles that include a template |
 | `getRelatedTemplates(slug, limit = 4)` | Templates in the same phase: same step first, then the rest of the phase; excludes the template itself |
 | `hasSampleContent()` | `true` when any template or bundle is marked as sample |
+| `getWorkedExampleContents()` | `{ placeholder, sections }`: the worked example's sections resolved with `contentsRows` |
 
 Helpers used by pages and components:
 
@@ -164,6 +171,8 @@ Helpers used by pages and components:
 |---|---|
 | `bundleValueCents(templates)` | Sum of the template prices |
 | `bundleSavingsCents(bundle, templates)` | Value minus bundle price, never below zero |
+| `catalogPriceSpan(templates, bundles, phaseSlugs)` | `{ fromCents, toCents? }`: the cheapest template, and the dearest bundle whose templates reach every phase (left out when none does); undefined without templates. The toolkit's cost cell on `/about#compare` |
+| `contentsRows(entries, templates, phases)` (`lib/catalog/worked-example.ts`) | Each contents section with its link: a template's page under its title, a step's anchor on its phase page, or a phase page; no link when the catalog lacks the target |
 | `phaseCoverage(phases, templates)` | One entry per phase, sorted by `order`, with `covered` set when any template belongs to it |
 | `coverageLabel(coverage)` | The covered phases in words: "Covers phase 4", "Covers phases 3–4", "Covers phases 1–2, 5"; empty when none |
 | `bundlesForPhase(phaseSlug, bundles, templates)` | Bundles holding at least one template of the phase, each with `inPhase` and `total`, the most focused first (share of the bundle in the phase, then `inPhase`, then the lower price) |
@@ -171,6 +180,7 @@ Helpers used by pages and components:
 | `coverSpec(template, phases)` (`lib/catalog/covers.ts`) | What a small `TemplateCover` needs: `{ slug, type, format, phaseOrder? }`; no `phaseOrder` for an unknown phase |
 | `folderCovers(templates, phases, limit = 3)` | The `coverSpec` of a bundle's first `limit` templates, in the bundle's order: the sheets standing in its folder (bundle rows, the home feature, the bundle page, the cart) |
 | `formatPrice(cents)` (`lib/format.ts`) | en-US dollars; whole amounts drop `.00` |
+| `formatLength(count, format)` (`lib/format.ts`) | A template's Length fact: slides for a `pptx` deck ("16 slides"), pages for every other format |
 
 ### 3.4 Catalog contents
 
@@ -187,7 +197,7 @@ Seven phases, each with two steps (14 steps in total):
 | 7 | `sustain` | Sustain | `measure-adoption`, `reinforce-and-hand-over` | 17 |
 
 There are 67 templates. Their formats are docx (32), xlsx (19), pptx (12) and pdf (4). Prices range from
-$19 to $79. Eight templates are featured. `pageCount` is set on 43 templates.
+$19 to $79. Eight templates are featured. `pageCount` is set on 43 templates; it is printed as slides for a deck and pages otherwise (`formatLength`).
 
 Five bundles, all marked as sample content:
 

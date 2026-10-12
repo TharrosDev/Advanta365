@@ -20,7 +20,7 @@ const VALUES: readonly Value[] = [
   },
   {
     title: "Experience you can borrow",
-    body: "Grounded in Prosci certification and 30+ years of practice.",
+    body: "Built by a Prosci-certified practitioner with 30+ years of practice.",
     drawing: "borrow",
   },
   {

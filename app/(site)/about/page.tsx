@@ -13,7 +13,10 @@ import { Band } from "@/components/ui/band";
 import { Eyebrow } from "@/components/ui/eyebrow";
 import { FactList } from "@/components/ui/fact-list";
 import { Sentences } from "@/components/ui/sentences";
+import { catalogPriceSpan, type PriceSpan } from "@/lib/catalog/pricing";
+import { getBundles, getPhases, getTemplates, hasSampleContent } from "@/lib/catalog/repository";
 import { cx } from "@/lib/cx";
+import { formatPrice } from "@/lib/format";
 import { SITE, TOOLKIT } from "@/lib/site";
 import styles from "./page.module.css";
 
@@ -59,7 +62,7 @@ const PROOF_POINTS = [
   {
     key: "experience",
     title: "Experience, not guesswork",
-    body: `${TOOLKIT.experience} of client delivery and Prosci certification sit behind every template.`,
+    body: `Built by a Prosci-certified practitioner with ${TOOLKIT.experience} of client delivery.`,
   },
   {
     key: "complete",
@@ -82,45 +85,72 @@ const COMPARE_TITLE = "Three real alternatives.\nEach one misses something.";
 
 const COMPARE_COLUMNS = ["Build it yourself with AI", "Hire a CM consultant", SITE.name];
 
-// One cell per column, in the order of COMPARE_COLUMNS. The toolkit counts are read from TOOLKIT.
-const COMPARE_ROWS: readonly ComparisonRow[] = [
-  {
-    label: "Starting point",
-    cells: [
-      "Blank prompt",
-      "Consultant’s own playbook",
-      `${TOOLKIT.playbooks} playbooks, ${TOOLKIT.templates} templates, ${TOOLKIT.fieldGuides} field guides, training for ${TOOLKIT.trainingAudiences} audiences`,
-    ],
-  },
-  {
-    label: "Field-tested?",
-    cells: [
-      "No. Plausible but unproven",
-      "Yes, but you rent it",
-      "Yes, refined across real rollouts",
-    ],
-  },
-  {
-    label: "Cost",
-    cells: [
-      "Low in dollars, high in staff time (8 to 14 person-months to build internally)",
-      "$150K to $400K per rollout",
-      "One licence, reused across waves",
-    ],
-  },
-  {
-    label: "Who owns the result",
-    cells: ["You", "Often the consultant’s IP", "You keep and adapt the copies"],
-  },
-  {
-    label: "Works with AI",
-    cells: ["It is AI", "Rarely", "Built to be fed into AI tools"],
-  },
-  {
-    label: "Speed to first deliverable",
-    cells: ["Days to draft, weeks to validate", "Weeks to onboard", "Same day"],
-  },
-];
+const REUSE = "One licence, reused across waves";
+
+/**
+ * The toolkit's cost cell: what the catalog asks, from its cheapest template to its full-rollout
+ * bundle, then the licence. The figures are read from the catalog, so they follow its prices.
+ */
+function costCell(span: PriceSpan | undefined): string {
+  if (!span) return REUSE;
+  const from = formatPrice(span.fromCents);
+  if (span.toCents === undefined) return `From ${from} for a template. ${REUSE}`;
+  return `${from} for a template to ${formatPrice(span.toCents)} for a full rollout. ${REUSE}`;
+}
+
+/**
+ * The line under the table: the alternatives' costs are our estimates, and the toolkit's prices are
+ * placeholders while the catalog is a sample.
+ */
+function compareNote(sample: boolean): string {
+  const estimates = "Cost figures for the alternatives are our estimates, not market data.";
+  return sample
+    ? `${estimates} ${SITE.name} prices are placeholders from the sample catalog.`
+    : estimates;
+}
+
+// One cell per column, in the order of COMPARE_COLUMNS. The toolkit counts are read from TOOLKIT
+// and its cost from the catalog.
+function compareRows(span: PriceSpan | undefined): readonly ComparisonRow[] {
+  return [
+    {
+      label: "Starting point",
+      cells: [
+        "Blank prompt",
+        "Consultant’s own playbook",
+        `${TOOLKIT.playbooks} playbooks, ${TOOLKIT.templates} templates, ${TOOLKIT.fieldGuides} field guides, training for ${TOOLKIT.trainingAudiences} audiences`,
+      ],
+    },
+    {
+      label: "Field-tested?",
+      cells: [
+        "No. Plausible but unproven",
+        "Yes, but you rent it",
+        "Yes, refined across real rollouts",
+      ],
+    },
+    {
+      label: "Cost",
+      cells: [
+        "Low in dollars, high in staff time (8 to 14 person-months to build internally)",
+        "$150K to $400K per rollout",
+        costCell(span),
+      ],
+    },
+    {
+      label: "Who owns the result",
+      cells: ["You", "Often the consultant’s IP", "You keep and adapt the copies"],
+    },
+    {
+      label: "Works with AI",
+      cells: ["It is AI", "Rarely", "Built to be fed into AI tools"],
+    },
+    {
+      label: "Speed to first deliverable",
+      cells: ["Days to draft, weeks to validate", "Weeks to onboard", "Same day"],
+    },
+  ];
+}
 
 const WHO_STATEMENT =
   "Advanta365 works for any organization rolling out M365, from private companies to federal departments and Crown corporations.";
@@ -171,9 +201,21 @@ const NEXT = [
  * as a ledger, the comparison on a sheet of paper with the buyer's column raised, the buyers as a
  * ledger, and a closing paper band. Each statement section has its label in the margin; the
  * comparison runs across the whole grid under its own statement. `#compare` is linked from the
- * home page.
+ * home page and from the top of `/pricing`.
  */
-export default function AboutPage() {
+export default async function AboutPage() {
+  const [templates, bundles, phases, sample] = await Promise.all([
+    getTemplates(),
+    getBundles(),
+    getPhases(),
+    hasSampleContent(),
+  ]);
+  const span = catalogPriceSpan(
+    templates,
+    bundles,
+    phases.map((phase) => phase.slug),
+  );
+
   return (
     <>
       <TitleBlock form="wide" ink title={MISSION_SHORT} lead={LEAD} />
@@ -209,9 +251,9 @@ export default function AboutPage() {
           className={styles.compareTable}
           caption={`${SITE.name} compared with the alternatives`}
           columns={COMPARE_COLUMNS}
-          rows={COMPARE_ROWS}
+          rows={compareRows(span)}
           emphasized={COMPARE_COLUMNS.indexOf(SITE.name)}
-          note="Cost figures are our estimates, not market data."
+          note={compareNote(sample)}
         />
       </Band>
 

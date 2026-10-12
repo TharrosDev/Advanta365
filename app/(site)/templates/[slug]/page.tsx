@@ -32,7 +32,7 @@ import {
   getTemplates,
 } from "@/lib/catalog/repository";
 import { cx } from "@/lib/cx";
-import { formatPrice } from "@/lib/format";
+import { formatLength, formatPrice } from "@/lib/format";
 import styles from "./page.module.css";
 
 type TemplatePageProps = { params: Promise<{ slug: string }> };
@@ -108,7 +108,7 @@ export default async function TemplatePage({ params }: TemplatePageProps) {
       ? [
           {
             label: "Length",
-            value: `${template.pageCount} ${template.pageCount === 1 ? "page" : "pages"}`,
+            value: formatLength(template.pageCount, template.format),
           },
         ]
       : []),

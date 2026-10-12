@@ -331,4 +331,19 @@ describe("design gate: standing rules", () => {
       "zod",
     ]);
   });
+
+  it("Prosci describes the practitioner, never the product", () => {
+    // Allowed: "a Prosci-certified practitioner" and the footer's non-affiliation and trademark
+    // notice. Anything else ("Prosci certification sits behind…", "Prosci-aligned") ties Prosci to
+    // the content.
+    const allowed = /Prosci-certified practitioner|by Prosci Inc\.|trademark of Prosci/;
+    const ties = STYLES_AND_MARKUP.filter((file) => /\.tsx?$/.test(file)).flatMap((file) =>
+      read(file)
+        .split("\n")
+        .flatMap((line, index) =>
+          /prosci/i.test(line) && !allowed.test(line) ? [`${file}:${index + 1}`] : [],
+        ),
+    );
+    expect(ties).toEqual([]);
+  });
 });

@@ -309,8 +309,8 @@ Each phase has two steps.
 2. **Templates.** Each phase has one file in `content/templates/`: `make-the-case.ts`, `plan.ts`,
    `design.ts`, `prepare.ts`, `communicate.ts`, `execute.ts` and `sustain.ts`. `index.ts` joins them in
    phase order. A template gives its phase and step, deliverable type, apps, audiences, format, ADKAR
-   stages (`adkar`, stored and not shown), price in cents, an optional page count, what it includes, and
-   whether it is featured. Real records are written out in full with `isSample: false`. The `sample()`
+   stages (`adkar`, stored and not shown), price in cents, an optional page count (shown as slides for a
+   PowerPoint deck and pages for every other format), what it includes, and whether it is featured. Real records are written out in full with `isSample: false`. The `sample()`
    helper in `content/templates/sample.ts` adds `isSample: true` and belongs only in the sample files.
 3. **Bundles.** `content/bundles.ts` lists the bundles, each with a slug, title, summary, description,
    `templateSlugs` (at least two), a price in cents, a featured flag and `isSample`.
@@ -323,7 +323,9 @@ Each phase has two steps.
    (`components/home/featured-section.tsx` and `components/home/inside-section.tsx`), the footer's status
    line (`components/layout/footer.tsx`) and the purchase note (`components/product/purchase-panel.tsx`).
    The worked example is the fictional Meridian Group. The name appears in `app/(site)/sample/page.tsx`,
-   `app/(site)/about/page.tsx`, `content/bundles.ts` and `content/templates/plan.ts`. The 10,000 figure also
+   `app/(site)/about/page.tsx`, `content/bundles.ts`, `content/templates/plan.ts` and
+   `content/worked-example.ts`. That last file holds the example's table of contents on `/sample`: placeholder
+   sections, labelled as such on the page, until the real file is published. The 10,000 figure also
    appears on the home page, in `components/home/inside-section.tsx` and `components/home/pitch-spread.tsx`.
    `tests/unit/content.test.ts` and the browser specs in `tests/e2e/` check the sample catalog by name and
    count, so they need updating with the real catalog.
@@ -373,9 +375,10 @@ The last two are about the site itself. None of this is legal advice.
       "Prosci-aligned" or "Prosci-approved content" suggests an endorsement Prosci hasn't given.
       Keep Prosci on the person, not the product, and check Prosci's trademark-use guidance at
       prosci.com.
-  - On the site: Prosci appears only as "built by a Prosci-certified practitioner", "Prosci
-    certification" and the footer's non-affiliation and trademark notice. ADKAR appears in no
-    visible copy; the `adkar` field on a template is data and is not rendered.
+  - On the site: Prosci appears only as "built by a Prosci-certified practitioner" and the
+    footer's non-affiliation and trademark notice; the design gate (`tests/unit/design-gate.test.ts`)
+    fails on any other line that names Prosci. ADKAR appears in no visible copy; the `adkar` field
+    on a template is data and is not rendered.
 - [ ] **Old product branding.** Client references (department names and terms, client platform
       names) were removed from the source material. The earlier product name is now Advanta365
       throughout, and the content for the other earlier product and for the provisioning tool has
@@ -399,7 +402,10 @@ The last two are about the site itself. None of this is legal advice.
   - On the site: the counts are read from `TOOLKIT` in `lib/site.ts`. Recount the folder before
     launch and change them there.
 - [ ] **The worked example's file.** `/sample` describes the Meridian Group worked example and
-      says its file cannot be downloaded in this beta. It needs the real file. The sample catalog
+      says its file cannot be downloaded in this beta. It needs the real file, and its real table of
+      contents: `content/worked-example.ts` lists placeholder sections (the pieces `/sample` names, each
+      linked to its template) that the page marks "Placeholder"; replace them and set `placeholder` to
+      false. The sample catalog
       also lists the worked example with a placeholder price and puts it in two bundles; decide
       whether it is a free sample, a product, or both.
 - [ ] **Pricing answers.** The answers on `/pricing` are provisional and say so on the page.

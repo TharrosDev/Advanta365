@@ -54,14 +54,15 @@ Shared catalog fixtures live in `tests/unit/fixtures/catalog.ts`: `rawPhases`, `
 
 | File | Guards |
 |---|---|
-| `content.test.ts` | The sample catalog as read through `lib/catalog/repository`: seven phases in fixed order with two steps each; minimum template counts per phase and per step; every deliverable type, app, audience and format is used; prices in the expected range; named pieces exist; the featured selection; copy with no banned term, straight quotes or exclamation marks; search by title; five bundles, each priced below its contents; bundle summaries that match their counts; related-template and bundle lookups. |
+| `content.test.ts` | The sample catalog as read through `lib/catalog/repository`: seven phases in fixed order with two steps each; minimum template counts per phase and per step; every deliverable type, app, audience and format is used; prices in the expected range; named pieces exist; the featured selection; copy with no banned term, straight quotes or exclamation marks; search by title; five bundles, each priced below its contents; bundle summaries that match their counts; the comparison's price span (the cheapest template to the complete bundle); every section of the worked example's contents links to a page the catalog holds; related-template and bundle lookups. |
 | `validate.test.ts` | `validateCatalog` sorts phases and steps by order. It rejects a non-positive price, a duplicate template slug, an unknown phase, a step that belongs to another phase, a bundle that names a missing template, an unknown deliverable type and a slug that is not kebab case. A bundle and a template may share a slug. |
 | `query.test.ts` | `queryTemplates` over synthetic templates: page size; facets combine with OR inside a facet and AND across facets; search by terms, case, quotes, literal regex characters and a length limit; the default `phase` sort (phase order, then step order, given order inside a step; unknown phases and steps last; the given order without phases) and the other sorts; page clamping; facet counts that ignore their own selection; the input is not mutated. |
 | `search-params.test.ts` | `parseCatalogParams` and `serializeCatalogParams`: comma lists; unknown values dropped; an invalid page becomes 1; an unknown sort becomes `phase`, which stays out of the URL while any other sort is written; the query is trimmed and capped at 200 characters; fixed key order; defaults omitted; round trip. `catalogHref`, `clearFiltersHref` (keeps only the search term) and `activeFilters` (each selected value facet by facet with its names, and a link without it on page 1). |
 | `covers.test.ts` | `coverSpec`: the kind, format and phase order of a template, no numeral for an unknown phase. `folderCovers`: the first three templates in the bundle's order, all of a shorter bundle, a narrower limit, none for zero or a negative limit. |
 | `coverage.test.ts` | `phaseCoverage`: one entry per phase in order; a phase is covered once a template belongs to it; templates in unknown phases are ignored. `coverageLabel`: singular for one phase, runs joined with an en dash, separate runs with commas, empty for none. `bundlesForPhase`: only bundles holding the phase, the most focused first, then the one holding more, then the cheaper. `adjacentPhases`: neighbours in rollout order, none at the ends or for an unknown slug. |
-| `pricing.test.ts` | `bundleValueCents` sums the contents; `bundleSavingsCents` is the difference, floored at zero. |
-| `format.test.ts` | `formatPrice`: whole dollars drop the cents; other amounts keep them; thousands are separated. |
+| `pricing.test.ts` | `bundleValueCents` sums the contents; `bundleSavingsCents` is the difference, floored at zero. `catalogPriceSpan`: from the cheapest template to the bundle that reaches every phase, the dearest of several, no top end when none does, nothing without templates. |
+| `worked-example.test.ts` | `contentsRows`: a template, step or phase target becomes its link and label; an unknown target leaves the section without a link; the order is kept. |
+| `format.test.ts` | `formatPrice`: whole dollars drop the cents; other amounts keep them; thousands are separated. `formatLength`: slides for a deck, pages for every other format, singular for one. |
 | `compounds.test.ts` | `splitCompounds`: hyphenated compounds become compound parts, a lone hyphen does not, and joining the parts gives back the title. |
 | `cart-store.test.ts` | The storage key; `parseCart` on malformed input, de-duplication and removal of extra fields; `addLine`, `removeLine`, `hasLine`; `pruneLines` against the known slugs; `bundleHolding`, `coveredLines` and `cartSubtotalCents` (a template a bundle in the cart holds is not charged; overlapping bundles are both charged). |
 | `nav-links.test.ts` | `currentPhase`: a phase page, a template's phase, and the catalog while it is filtered on exactly one known phase (`singleCatalogPhase`), on the catalog only. |
@@ -103,6 +104,10 @@ The banned-terms array in `design-gate.test.ts` (line 64) lists banned words and
 - fixed pixel widths of 232, 366, 620, 938 and 502 px, unless the number is part of a longer number;
 - `min-width` or `max-width` queries of 768, 1024 or 2000 px;
 - a negative `letter-spacing`.
+
+It also holds a wording rule over the `.ts` and `.tsx` files of `app/`, `components/` and `lib/`: a line
+that names Prosci must say "Prosci-certified practitioner" or be the footer's notice ("by Prosci Inc.",
+"trademark of Prosci"). Prosci describes the practitioner, never the product.
 
 The gate also requires that the README and every file under `docs/` avoid three banned strings, and it keeps a fixed list of folder names out of the tree.
 

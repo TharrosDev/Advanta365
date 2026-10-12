@@ -16,6 +16,7 @@ import { folderCovers } from "@/lib/catalog/covers";
 import { bundleSavingsCents } from "@/lib/catalog/pricing";
 import { getBundleTemplates, getBundles, getPhases, getTemplates } from "@/lib/catalog/repository";
 import type { Phase, Template } from "@/lib/catalog/schema";
+import { formatLength } from "@/lib/format";
 
 /**
  * The specimen in the margin of `#inside` shows one real template: its title and summary, and the
@@ -40,7 +41,7 @@ function buildSpecimen(template: Template, phases: Phase[]): SpecimenContent | u
         ? [
             {
               label: "Length",
-              value: `${template.pageCount} ${template.pageCount === 1 ? "page" : "pages"}`,
+              value: formatLength(template.pageCount, template.format),
             },
           ]
         : []),
