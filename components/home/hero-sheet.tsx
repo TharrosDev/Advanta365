@@ -9,7 +9,7 @@ import { cx } from "@/lib/cx";
 import styles from "./hero-sheet.module.css";
 
 /**
- * What the specimen shows: one catalog template, written out. `facts` are the template page's own
+ * What the specimen shows: one catalog template, written out. `facts` are the template pop-up's own
  * label and value pairs, in its order (Phase, Step, Type, Format, Length).
  */
 export type SpecimenContent = {

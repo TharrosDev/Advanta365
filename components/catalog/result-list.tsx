@@ -23,8 +23,9 @@ type ResultListProps = {
  * opens it in the pop-up without moving the page. Nothing in the grid animates in, so a change of
  * filter, sort or search only swaps the tiles. With no match it is a blank sheet with an empty
  * field, the message and a link back to the unfiltered catalog. When only a search found nothing,
- * the message quotes the search, the link clears it, and the seven phases follow as index cards, a
- * way in that needs no right word.
+ * the message quotes the search, the link clears it, and from 68em the seven phases follow as index
+ * cards, a way in that needs no right word (below 68em the catalog's own strip of phases is that
+ * way in, right above the sheet).
  */
 export function ResultList({ result, criteria, phases, denied }: ResultListProps) {
   const phaseNames = new Map(phases.map((phase) => [phase.slug, phase.name]));

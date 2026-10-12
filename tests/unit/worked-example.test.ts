@@ -1,7 +1,10 @@
 import { describe, expect, test } from "vitest";
 import { contentsRows } from "@/lib/catalog/worked-example";
 
-const templates = [{ slug: "kickoff-deck", title: "Sponsor Kickoff Deck" }];
+const templates = [
+  { slug: "kickoff-deck", title: "Sponsor Kickoff Deck", free: true },
+  { slug: "cutover-playbook", title: "Cutover Playbook", free: false },
+];
 const phases = [
   {
     slug: "prepare",
@@ -11,7 +14,7 @@ const phases = [
 ];
 
 describe("contentsRows", () => {
-  test("a template section links to the template in the catalog under the template's title", () => {
+  test("a free sample's section links to the template in the catalog under the template's title", () => {
     expect(
       contentsRows([{ title: "Kickoff", see: { template: "kickoff-deck" } }], templates, phases),
     ).toEqual([
@@ -24,6 +27,16 @@ describe("contentsRows", () => {
         },
       },
     ]);
+  });
+
+  test("a locked template's section names the template and links nowhere", () => {
+    expect(
+      contentsRows(
+        [{ title: "Cutover", see: { template: "cutover-playbook" } }],
+        templates,
+        phases,
+      ),
+    ).toEqual([{ title: "Cutover", link: { kind: "Template", label: "Cutover Playbook" } }]);
   });
 
   test("a step section links to the step's anchor on its phase page", () => {

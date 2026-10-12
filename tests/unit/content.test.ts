@@ -228,18 +228,23 @@ describe("repository lookups", () => {
 });
 
 describe("the worked example's contents", () => {
-  test("every section links to a page the catalog holds", async () => {
+  test("every section names a place the catalog holds", async () => {
     const { sections } = await getWorkedExampleContents();
     expect(sections.length).toBeGreaterThan(0);
     for (const section of sections) expect(section.link, section.title).toBeDefined();
   });
 
-  test("a template section links into the catalog, never to a page of its own", async () => {
+  test("only a free sample's section links into the catalog, never to a page of its own", async () => {
     const { sections } = await getWorkedExampleContents();
+    const free = new Set((await getFreeTemplates()).map((template) => template.title));
     const links = sections.flatMap((section) => (section.link ? [section.link] : []));
     const templates = links.filter((link) => link.kind === "Template");
-    expect(templates.length).toBeGreaterThan(0);
-    for (const link of templates) expect(link.href).toMatch(/^\/catalog\?view=[a-z0-9-]+$/);
-    for (const link of links) expect(link.href).not.toMatch(/^\/templates\//);
+    expect(templates.some((link) => link.href)).toBe(true);
+    expect(templates.some((link) => !link.href)).toBe(true);
+    for (const link of templates) {
+      if (free.has(link.label)) expect(link.href).toMatch(/^\/catalog\?view=[a-z0-9-]+$/);
+      else expect(link.href, link.label).toBeUndefined();
+    }
+    for (const link of links) expect(link.href ?? "").not.toMatch(/^\/templates\//);
   });
 });

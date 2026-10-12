@@ -375,8 +375,9 @@ test.describe("home", () => {
   }) => {
     await page.goto("/");
 
+    // The hero's: the closing has a button of the same name.
     const button = page
-      .getByRole("main")
+      .locator("[data-band]:has(h1)")
       .getByRole("link", { name: "Get the toolkit", exact: true });
     await expect(button).toHaveCSS("background-color", INK);
     await expect(button).toHaveCSS("color", ON_INK);
@@ -605,7 +606,7 @@ test("the catalog draws every template as a tile with a printed page, in its own
 
   const cards = page.getByRole("article");
   await expect(cards).toHaveCount(24);
-  await expect(page.getByRole("status")).toHaveCount(1);
+  await expect(page.locator("#results-heading")).toHaveCount(1);
   for (const card of await cards.all()) {
     // One control each: the link of a free sample, or the button of a locked template.
     await expect(card.locator("a, button")).toHaveCount(1);

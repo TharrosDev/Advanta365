@@ -186,13 +186,3 @@ export const timings = (page: Page, selector: string, name: string) =>
       }),
     [selector, name] as const,
   );
-
-/** How many animations of the sequence exist now, waiting or running. */
-export const sequenceAnimations = (page: Page) =>
-  page.evaluate(
-    () =>
-      document
-        .getAnimations()
-        .filter((entry) => entry instanceof CSSAnimation && entry.animationName.startsWith("hero-"))
-        .length,
-  );

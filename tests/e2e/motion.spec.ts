@@ -256,7 +256,7 @@ test("a filter change on the catalog starts no view transition", async ({ page, 
   await expect(page).toHaveURL(/type=training/, { timeout: NAVIGATION_TIMEOUT });
 
   // The results changed under the same address: a view transition would have flown them.
-  await expect(page.getByRole("status")).toBeVisible();
+  await expect(page.locator("#results-heading")).toBeVisible();
   expect((await transitions(page)).calls).toBe(0);
 });
 

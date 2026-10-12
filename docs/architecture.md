@@ -74,9 +74,9 @@ Page layouts:
   size.
 - `/sample`: after the statement, a paper band "Contents" holds the worked example's table of contents
   (`getWorkedExampleContents`) as a numbered `BandedList as="ol"` labelled by its heading: each section's
-  title in `type-item`, then its link ("Template: …", "Step: …" or "Phase: …"). A template's link is
-  `/catalog?view=<slug>`, so a free sample opens in the pop-up and a locked template gets the catalog's answer
-  for a locked one (section 9.3). While `content/worked-example.ts` sets `placeholder`, a beta note heads
+  title in `type-item`, then its place ("Template: …", "Step: …" or "Phase: …"). A free sample's place is a
+  link to `/catalog?view=<slug>`, where it opens in the pop-up; a locked template's is its title in plain
+  text. While `content/worked-example.ts` sets `placeholder`, a beta note heads
   the list and every section reads "Placeholder". The phase ledger follows on the desk.
 - Home `#values` is a ledger (`BandedList`): one row per value, the title and its sentence stacked on a phone,
   side by side from 40em, and in columns 1 to 5 and 6 to 12 from 68em. The line drawings are the manifest's
@@ -101,7 +101,7 @@ Client components (files with `"use client"`):
 | Company | `components/company/faq-list.tsx` | Open and closed state |
 | Not found | `components/not-found/asked-path.tsx`, `late-boot.tsx` | Read `window.location`; add the boot script when needed |
 | UI | `components/ui/motion-root.tsx` | Observers and the `data-hydrated` signal |
-| Catalog | `components/catalog/active-filters.tsx`, `phase-strip.tsx` | The filter chips (the router, and focus after a removal); the phone's phase strip scrolling its lit card into view |
+| Catalog | `components/catalog/active-filters.tsx`, `phase-strip.tsx` | The filter chips (the router, and focus after a removal); the phase strip (below 68em) scrolling its lit card into view |
 | Ink | `components/ink/ink-layer.tsx` | Singleton controller and the pause control |
 | Home | `components/home/hero-landing.tsx` | Marks the hero's stage `data-landed` when the ink is not running, or stops (section 8.7) |
 
@@ -452,7 +452,7 @@ Components built from the primitives for one part of the site. Each has a doc co
 | `ChainLock`, `ChainLockParts` | `components/catalog/chain-lock.tsx` | none | The two crossed steel chains and padlock over a locked cover. The drawing (`ChainLockParts`) is rendered once by `TileGrid`, or once by a page that holds several grids (the phase page, whose grids take `locks={false}`), and each lock draws from it |
 | `TemplateDialog` | `components/catalog/template-dialog.tsx` | `closeHref`, `labelledBy` | The pop-up: a native modal `<dialog>` (section 9.3) |
 | `ActiveFilters` | `components/catalog/active-filters.tsx` | `criteria`, `phases`, `fallbackFocusId` | The filters that are on, as a row of chips above the results (section 9.4) |
-| `PhaseStrip` | `components/catalog/phase-strip.tsx` | `label`, `current`, `className` | The `nav` around the phone catalog's row of phases; scrolls the row to its lit card once drawn, when the fonts arrive and when the phase changes |
+| `PhaseStrip` | `components/catalog/phase-strip.tsx` | `label`, `current`, `className` | The `nav` around the catalog's row of phases below 68em; scrolls the row to its lit card once drawn, when the fonts arrive and when the phase changes |
 | `PhasePager` | `components/catalog/phase-pager.tsx` | `previous`, `next`, `className` | The phase before and the phase after, at the foot of a phase page |
 | `TemplateDetail` | `components/catalog/template-detail.tsx` | `template`, `phase`, `titleId` | The content of the pop-up: large cover, "Free sample" tag, title, summary, description, facts, what is included, and the button to `/purchase` |
 | `Hero`, `HeroStage` | `components/home/hero.tsx`, `hero-stage.tsx` | `samples`, `phases` | The first screen of the home page: headline, lead and two buttons over the `prompt` ink; the stage where an empty prompt box becomes the six free samples as a hand of documents (section 8.7) |
@@ -1176,12 +1176,13 @@ control and no price.
 - `FilterPanel` disables a checkbox whose count is 0 unless it is already checked. Below 68em the panel is a
   native dialog opened from a "Filters" button, with a "Show results" button that closes it. Its `sort` prop
   is drawn at the top of the dialog's body below 40em only.
-- Phone layout of the rail (below 40em): `PhaseStrip`, a navigation "Start from a phase" with the seven phases
-  as large `PhaseTabs` in one row that scrolls sideways (the card is lit, `aria-current="true"`, under the same
-  rule as the phase rail, and scrolled into view by `scrollCurrentIntoView`), then the search and the "Filters"
-  button on one row. The catalog page renders `SortSelect` twice: once in the rail, hidden below 40em, and once
-  as `FilterPanel`'s `sort`, hidden from 40em. Only one is ever displayed. From 40em the strip is not displayed
-  and the rail is the search on its own row with the sort and Filters under it.
+- Layout of the rail below 68em: `PhaseStrip`, a navigation "Start from a phase" with the seven phases as
+  large `PhaseTabs` in one row that scrolls sideways (the card is lit, `aria-current="true"`, under the same
+  rule as the phase rail, and scrolled into view by `scrollCurrentIntoView`). Below 40em the search and the
+  "Filters" button share the row under it; from 40em the search has its own row with the sort and Filters
+  under it. The catalog page renders `SortSelect` twice: once in the rail, hidden below 40em, and once as
+  `FilterPanel`'s `sort`, hidden from 40em. Only one is ever displayed. From 68em the strip is not displayed:
+  the bar's phase rail has the phases.
 - "Clear all filters" links to `/catalog?q=<q>` when a search term exists, or to `/catalog` otherwise. It keeps
   only the search term, so the free filter and the sort also reset (`clearFiltersHref`).
 - `ActiveFilters` (client) lists every filter that is on above the result count as a chip, in a list labelled
@@ -1192,8 +1193,8 @@ control and no price.
   scrolling; focus then moves to the chip now at the removed one's position (or the one before), or to the
   result count (`#results-heading`, `tabIndex=-1`) once no chip is left. Nothing renders without filters.
 - Empty result: with only a search term, the heading is `No templates match “<q>”.`, the link is "Clear search"
-  (the same criteria without `q`), and a navigation labelled "Browse by phase" shows the phases as large
-  `PhaseTabs`. With a filter on (`hasFilters`: a facet value or the free filter) it is "No templates match
+  (the same criteria without `q`), and from 68em a navigation labelled "Browse by phase" shows the phases as large
+  `PhaseTabs` (below 68em it is not displayed: the strip above the sheet is that way in). With a filter on (`hasFilters`: a facet value or the free filter) it is "No templates match
   these filters." with "Clear filters" (or "Clear search and filters" when a term is also set), linking to
   `/catalog`.
 - `Pagination` renders links to `/catalog` with the same criteria and the new page. It renders nothing when

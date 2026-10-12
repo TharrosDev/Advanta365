@@ -34,7 +34,7 @@ function has(node: ReactNode): boolean {
  * 20rem tall from 68em. The title, the lead and `children` are one calm rectangle for it (the words
  * need no more room than that), so the ink thins under them and nowhere else.
  *
- * `flush` is for a page whose products start right under the title (an index, the cart): the block
+ * `flush` is for a page whose products start right under the title (an index, the catalog): the block
  * keeps no padding under its words, and no least height for the ink, so the padding of the band
  * that follows is the one space between the title and the first product. Give that band
  * `pad="tight"`.
