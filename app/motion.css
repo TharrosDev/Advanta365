@@ -12,7 +12,7 @@
  *   [data-tile][data-denied], [data-lock]          a locked tile saying no, and its padlock
  *   [data-template-dialog][data-enter]             the pop-up of the catalog arriving
  *   [data-hero-stage], [data-hero-prompt],
- *   [data-hero-doc]                                the hero: a prompt box that becomes documents
+ *   [data-hero-doc], [data-landed]                 the hero: a prompt box that becomes documents
  *
  * Three attributes on the root element, set by the boot script before first paint, are the only
  * switches: `data-motion="on"` (movement is wanted), `data-timeline="on"` (view timelines exist)
@@ -22,9 +22,11 @@
  *
  * Every animation and transition sits inside the no-preference query, with the final state
  * outside it. Keyframes name the starting state only: the end is whatever the element is. Nothing
- * repeats, no custom property is animated and no shadow changes: a shadow that comes or goes is a
- * second shadow on a pseudo-element whose opacity moves. `animation-timeline` and
- * `animation-range` are written after the `animation` shorthand, which would reset them.
+ * repeats, with one exception: the caret of the hero's prompt box blinks three times inside one
+ * run of `hero-caret-blink`, and then stands. No custom property is animated and no shadow
+ * changes: a shadow that comes or goes is a second shadow on a pseudo-element whose opacity moves.
+ * `animation-timeline` and `animation-range` are written after the `animation` shorthand, which
+ * would reset them.
  */
 
 /* The bar's shadow lies on a layer of its own. The bar is sticky, so it is the positioning box. */
@@ -71,8 +73,9 @@
 }
 
 /*
- * The prompt box of the hero (components/home/hero-stage.tsx) exists for its sequence only.
- * Without movement it is not displayed, and the documents stand where it would have been.
+ * The prompt box of the hero (components/home/hero-stage.tsx) exists for its sequence only, and
+ * the sequence is played to live ink only. Without movement, without a script, or with ink that
+ * is still or paused, the box is not displayed and the documents stand where it would have been.
  */
 [data-hero-prompt] {
   display: none;
@@ -592,10 +595,17 @@
   }
 
   /*
-   * The hero's stage (components/home/hero-stage.tsx): a blank prompt becomes finished work. One
-   * clock, which starts when the root element has no `data-intro`: at load, or when the cover of
-   * a first visit has gone. The prompt ink scene (lib/ink/scenes.ts) starts on the same event and
-   * is written to the same times; nothing ties the two together but that.
+   * The hero's stage (components/home/hero-stage.tsx): a blank prompt becomes finished work. It
+   * is the page's half of the prompt ink scene (lib/ink/scenes.ts), so it plays only where that
+   * scene does: the root element says `data-ink="live"`, and the stage is not marked
+   * `data-landed`. components/home/hero-landing.tsx sets that mark when the ink is not running as
+   * the stage mounts, or stops running later, and never takes it off. Wherever one of the two
+   * fails, no rule below applies: the box is not displayed and the documents stand, and a
+   * sequence that loses its ink half-way simply has its documents in place.
+   *
+   * One clock, which starts when the root element has no `data-intro`: at load, or when the cover
+   * of a first visit has gone. The scene starts on the same event and is written to the same
+   * times; nothing ties the two together but that.
    *
    *      0 to  700ms  the box stands empty, its caret blinking; then the first drop lands in it
    *   1100 to 2300ms  the box dissolves as the ink opens over it
@@ -645,11 +655,13 @@
     }
   }
 
-  html[data-motion="on"] [data-hero-prompt] {
+  html[data-motion="on"][data-ink="live"] [data-hero-stage]:not([data-landed]) [data-hero-prompt] {
     display: grid;
   }
 
-  html[data-motion="on"]:not([data-intro]) [data-hero-prompt] {
+  html[data-motion="on"][data-ink="live"]:not([data-intro])
+    [data-hero-stage]:not([data-landed])
+    [data-hero-prompt] {
     visibility: hidden;
     opacity: 0;
     filter: blur(12px);
@@ -657,23 +669,33 @@
     animation: hero-prompt-out 1200ms var(--curve-leave) 1100ms backwards;
   }
 
-  html[data-motion="on"]:not([data-intro]) [data-hero-prompt] [data-caret] {
+  html[data-motion="on"][data-ink="live"]:not([data-intro])
+    [data-hero-stage]:not([data-landed])
+    [data-hero-prompt]
+    [data-caret] {
     animation: hero-caret-blink 1500ms steps(1, end);
   }
 
-  html[data-motion="on"][data-intro] [data-hero-doc] {
+  html[data-motion="on"][data-ink="live"][data-intro]
+    [data-hero-stage]:not([data-landed])
+    [data-hero-doc] {
     visibility: hidden;
     opacity: 0;
   }
 
-  html[data-motion="on"]:not([data-intro]) [data-hero-doc] {
+  html[data-motion="on"][data-ink="live"]:not([data-intro])
+    [data-hero-stage]:not([data-landed])
+    [data-hero-doc] {
     animation:
       hero-doc-in var(--time-settle) var(--curve-drop) backwards,
       hero-doc-show 90ms linear backwards;
     animation-delay: calc(3700ms + var(--i, 0) * 110ms);
   }
 
-  html[data-motion="on"]:not([data-intro]) [data-hero-doc] [data-paper]::after {
+  html[data-motion="on"][data-ink="live"]:not([data-intro])
+    [data-hero-stage]:not([data-landed])
+    [data-hero-doc]
+    [data-paper]::after {
     animation: move-shadow var(--time-settle) var(--curve-settle) backwards;
     animation-delay: calc(3700ms + var(--i, 0) * 110ms);
   }

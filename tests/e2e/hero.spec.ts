@@ -1,11 +1,22 @@
 import { expect, test, type Page } from "@playwright/test";
 import { hydrated, introSeen, NAVIGATION_TIMEOUT } from "./helpers";
-import { INK_OFF } from "../../lib/boot/state";
-import { INK_STORE, pageClock, recordIntro } from "./support/ink";
+import { INK_OFF, INK_PAUSED } from "../../lib/boot/state";
+import {
+  DOCS,
+  PROMPT,
+  STAGE,
+  recordStage,
+  settled,
+  stageFrames,
+  stageState,
+  unsettledFrames,
+} from "./support/hero";
+import { INK_STORE, recordIntro } from "./support/ink";
 
 // The first screen of the home page: a blank prompt that turns into finished work. The sequence is
-// CSS on one clock, which starts when the root element has no `data-intro`; what a clock decides is
-// read from the animations themselves or polled on the page's own clock, never slept for.
+// the page's half of the prompt ink scene and plays to live ink only. These projects have no
+// graphics card, so the ink here is still: the documents stand from the first frame and there is no
+// box. The sequence itself is the subject of ink-live.spec.ts, in the `gpu` project.
 
 /** The six free samples, by slug, with the title each cover prints and each link is named by. */
 const SAMPLES: Record<string, string> = {
@@ -17,73 +28,19 @@ const SAMPLES: Record<string, string> = {
   "go-live-readiness-checklist": "Go/No-Go Decision Checklist",
 };
 
-declare global {
-  interface Window {
-    /** Each animation of the sequence as it started: its name, delay, length and start time. */
-    __heroSequence?: Array<[string, number, number, number]>;
-  }
-}
-
-/**
- * Waits for the end of the sequence: the cover gone, the box dissolved, and nothing of the stage
- * still moving. It ends 4810ms after it began, on its own clock; a busy machine begins it late,
- * so the page is asked, not a timer.
- */
-async function settled(page: Page): Promise<void> {
-  await expect
-    .poll(
-      () =>
-        page.evaluate(
-          ([prompt, docs]) => {
-            if (document.documentElement.hasAttribute("data-intro")) return "under the cover";
-            const box = document.querySelector(prompt);
-            if (!box || getComputedStyle(box).opacity !== "0") return "the box is there";
-            const moving = [...document.querySelectorAll(`${prompt}, ${prompt} *, ${docs}`)]
-              .flatMap((element) => element.getAnimations({ subtree: true }))
-              .filter((animation) => animation.playState !== "finished").length;
-            return moving ? "moving" : "settled";
-          },
-          [PROMPT, DOCS] as const,
-        ),
-      { timeout: 20_000 },
-    )
-    .toBe("settled");
-}
-
 const HERO = "[data-band]:has(h1)";
-const STAGE = "[data-hero-stage]";
-const PROMPT = "[data-hero-prompt]";
-const DOCS = "[data-hero-doc]";
 
-/** The opacity and visibility of the box and of every document, as computed now. */
-const stageState = (page: Page) =>
-  page.evaluate(
-    ([prompt, docs]) => {
-      const read = (element: Element) => {
-        const style = getComputedStyle(element);
-        return { opacity: style.opacity, visibility: style.visibility, display: style.display };
-      };
-      const box = document.querySelector(prompt);
-      return {
-        prompt: box ? read(box) : null,
-        docs: [...document.querySelectorAll(docs)].map(read),
-      };
+/** Sets the session's ink choice before any script of the page runs. */
+const storeInk = (page: Page, value: string) =>
+  page.addInitScript(
+    ([key, stored]) => {
+      try {
+        window.sessionStorage.setItem(key, stored);
+      } catch {
+        // No storage: the boot script asks the graphics card, and these projects have none.
+      }
     },
-    [PROMPT, DOCS] as const,
-  );
-
-/** The delay and the length of the animation an element runs, by the animation's name. */
-const timings = (page: Page, selector: string, name: string) =>
-  page.evaluate(
-    ([target, wanted]) =>
-      [...document.querySelectorAll(target)].map((element) => {
-        const animation = element
-          .getAnimations()
-          .find((entry) => entry instanceof CSSAnimation && entry.animationName === wanted);
-        const timing = animation?.effect?.getComputedTiming();
-        return timing ? [Number(timing.delay), Number(timing.duration)] : null;
-      }),
-    [selector, name] as const,
+    [INK_STORE, value] as const,
   );
 
 test.describe("the hero", () => {
@@ -245,79 +202,83 @@ test.describe("the hero", () => {
     await expect(page.getByRole("dialog", { name: title })).toBeVisible();
   });
 
-  test("plays its sequence once: the box stands empty, dissolves from 1100ms to 2300ms, and the documents land from 3700ms", async ({
+  test("with still ink the documents stand from the first frame, within reach of the keyboard, and there is no box", async ({
     page,
   }) => {
-    // Every animation of the sequence is noted on the first frame that has them, while all of
-    // them are still waiting or under way, with its own delay and length and the moment on the
-    // document's timeline it was set going: no clock of the machine is in them, and a test that
-    // gets round to looking late still sees them.
-    await page.addInitScript(() => {
-      const seen: Array<[string, number, number, number]> = [];
-      window.__heroSequence = seen;
-      const look = () => {
-        const found = document
-          .getAnimations()
-          .filter(
-            (entry): entry is CSSAnimation =>
-              entry instanceof CSSAnimation && entry.animationName.startsWith("hero-"),
-          );
-        if (!found.length) {
-          requestAnimationFrame(look);
-          return;
-        }
-        for (const animation of found) {
-          const timing = animation.effect?.getComputedTiming();
-          if (!timing) continue;
-          seen.push([
-            animation.animationName,
-            Math.round(Number(timing.delay)),
-            Number(timing.duration),
-            Number(animation.startTime),
-          ]);
-        }
-        seen.sort((a, b) => a[1] - b[1]);
-      };
-      requestAnimationFrame(look);
-    });
+    await recordStage(page);
     await page.goto("/");
+    // Movement is wanted; it is the ink that is still (no graphics card here).
     await expect(page.locator("html")).toHaveAttribute("data-motion", "on");
-    // The box is decoration: a caret and two keys, hidden from assistive technology.
+    await expect(page.locator("html")).toHaveAttribute("data-ink", "still");
+
+    // The box is in the page, as decoration: a caret and two keys, hidden from assistive
+    // technology, and not displayed.
     await expect(page.locator(PROMPT)).toHaveAttribute("aria-hidden", "true");
     await expect(page.locator(`${PROMPT} [data-caret]`)).toHaveCount(1);
     await expect(page.locator(`${PROMPT} a, ${PROMPT} button, ${PROMPT} input`)).toHaveCount(0);
+    await expect(page.locator(PROMPT)).toBeHidden();
 
-    // When the sequence is over, the box is gone and every document stands.
-    await settled(page);
-    const state = await stageState(page);
-    expect(state.prompt).toMatchObject({ opacity: "0", visibility: "hidden" });
-    expect(state.docs).toHaveLength(6);
-    for (const doc of state.docs)
-      expect(doc).toMatchObject({ opacity: "1", visibility: "visible" });
-    // Nothing of the sequence is left running or repeating.
-    expect(await timings(page, PROMPT, "hero-prompt-out")).toEqual([null]);
-    expect(await timings(page, DOCS, "hero-doc-in")).toEqual(Array(6).fill(null));
+    // The documents can be focused at once, and the keyboard goes from one to the next.
+    const docs = page.locator(DOCS);
+    await expect(docs).toHaveCount(6);
+    for (const doc of await docs.all()) await expect(doc).toBeVisible();
+    await docs.first().focus();
+    await expect(docs.first()).toBeFocused();
+    await page.keyboard.press("Tab");
+    await expect(docs.nth(1)).toBeFocused();
 
-    // What ran: the box once, from 1100ms for 1200ms, so it stood whole for the 700ms before the
-    // first drop and 400ms more; its caret, which is on at the start; the six documents once
-    // each, from 3700ms (the scene's water is clean by 3500ms), 110ms apart, 560ms each, the middle two
-    // first; and with each its showing, which takes 90ms: a document never fades through ink.
-    // All of it was set going at one moment.
-    const sequence = await page.evaluate(() => window.__heroSequence ?? []);
-    const box = sequence.filter(([name]) => name === "hero-prompt-out");
-    const caret = sequence.filter(([name]) => name === "hero-caret-blink");
-    const docs = sequence.filter(([name]) => name === "hero-doc-in");
-    const shown = sequence.filter(([name]) => name === "hero-doc-show");
-    expect(box.map(([, delay, duration]) => [delay, duration])).toEqual([[1100, 1200]]);
-    expect(caret.map(([, delay, duration]) => [delay, duration])).toEqual([[0, 1500]]);
-    expect(docs.map(([, delay, duration]) => [delay, duration])).toEqual(
-      [0, 1, 2, 3, 4, 5].map((index) => [3700 + index * 110, 560]),
-    );
-    expect(shown.map(([, delay, duration]) => [delay, duration])).toEqual(
-      [0, 1, 2, 3, 4, 5].map((index) => [3700 + index * 110, 90]),
-    );
-    const starts = [...box, ...docs].map(([, , , start]) => start);
-    expect(Math.max(...starts) - Math.min(...starts)).toBeLessThanOrEqual(50);
+    // The stage is marked as landed once the page's script has run, and stays so.
+    await hydrated(page);
+    await expect(page.locator(STAGE)).toHaveAttribute("data-landed", "");
+
+    // On no frame since the first, from the load into the seconds the sequence would take, was a
+    // document out of sight, the box displayed, or anything of the sequence set going.
+    await expect
+      .poll(async () => (await stageFrames(page)).at(-1)?.at ?? 0, { timeout: 15_000 })
+      .toBeGreaterThan(5000);
+    const frames = await stageFrames(page);
+    expect(frames.length).toBeGreaterThan(20);
+    expect(frames.every((frame) => frame.docs === 6)).toBe(true);
+    expect(await unsettledFrames(page)).toEqual([]);
+  });
+
+  test("in a session whose ink is paused the documents stand from the first frame too", async ({
+    page,
+  }) => {
+    // What playing the ink again does to them is in ink-live.spec.ts: it takes a graphics card.
+    await storeInk(page, INK_PAUSED);
+    await recordStage(page);
+    await page.goto("/");
+    await expect(page.locator("html")).toHaveAttribute("data-ink", "paused");
+    await hydrated(page);
+    await expect(page.locator(STAGE)).toHaveAttribute("data-landed", "");
+    await expect
+      .poll(async () => (await stageFrames(page)).length, { timeout: 10_000 })
+      .toBeGreaterThan(20);
+    expect(await unsettledFrames(page)).toEqual([]);
+    await expect(page.locator(PROMPT)).toBeHidden();
+    for (const doc of await page.locator(DOCS).all()) await expect(doc).toBeVisible();
+  });
+
+  test("a return to the home page inside the site finds the documents standing", async ({
+    page,
+  }) => {
+    await recordStage(page);
+    await page.goto("/");
+    await hydrated(page);
+    await page.locator(HERO).getByRole("link", { name: "Get the toolkit", exact: true }).click();
+    await expect(page).toHaveURL(/\/purchase$/, { timeout: NAVIGATION_TIMEOUT });
+    await expect(page.locator(STAGE)).toHaveCount(0);
+    const from = (await stageFrames(page)).length;
+
+    await page.goBack();
+    await expect(page).toHaveURL(/\/$/, { timeout: NAVIGATION_TIMEOUT });
+    await expect(page.locator(STAGE)).toHaveAttribute("data-landed", "");
+    await expect
+      .poll(async () => (await stageFrames(page)).length, { timeout: 10_000 })
+      .toBeGreaterThan(from + 12);
+    expect(await unsettledFrames(page)).toEqual([]);
+    for (const doc of await page.locator(DOCS).all()) await expect(doc).toBeVisible();
   });
 
   for (const [width, height] of [
@@ -587,16 +548,7 @@ test.describe("the hero", () => {
 
   test("keeps the headline's contrast over the still", async ({ page }) => {
     // The ink is off for the session, so the still is the picture behind the words.
-    await page.addInitScript(
-      ([key, off]) => {
-        try {
-          window.sessionStorage.setItem(key, off);
-        } catch {
-          // No storage: the default projects have no graphics card, so the still shows anyway.
-        }
-      },
-      [INK_STORE, INK_OFF] as const,
-    );
+    await storeInk(page, INK_OFF);
     await page.goto("/");
     await expect(page.locator("html")).toHaveAttribute("data-ink", "still");
     const image = page.locator('[data-ink-backdrop][data-scene="prompt"] img');
@@ -683,52 +635,37 @@ test.describe("the hero without movement", () => {
 });
 
 test.describe("the hero on a first visit", () => {
-  test("waits under the cover with its box, and starts its clock when the cover has gone", async ({
+  test("with still ink the documents already stand under the cover, and nothing starts when it has gone", async ({
     page,
   }) => {
     await recordIntro(page);
+    await recordStage(page);
     await page.goto("/", { waitUntil: "commit" });
     await expect(page.locator("[data-intro-cover]")).toBeVisible();
+    await expect(page.locator("html")).toHaveAttribute("data-ink", "still");
 
-    // Under the cover: the opening state, with nothing of the sequence running.
-    const under = await page.evaluate(
-      ([prompt, docs]) => {
-        if (!document.documentElement.hasAttribute("data-intro")) return null;
-        const box = document.querySelector(prompt);
-        return {
-          box: box ? getComputedStyle(box).opacity : null,
-          docs: [...document.querySelectorAll(docs)].map((doc) => getComputedStyle(doc).visibility),
-          running: [...document.querySelectorAll(`${prompt}, ${docs}`)].flatMap((element) =>
-            element.getAnimations(),
-          ).length,
-        };
-      },
-      [PROMPT, DOCS] as const,
-    );
-    test.skip(under === null, "the cover had already gone when the page was first read");
-    expect(under).toEqual({ box: "1", docs: Array(6).fill("hidden"), running: 0 });
-
-    // When the cover has gone the sequence runs, from that moment, to its end.
+    // The cover plays and leaves.
     await expect
       .poll(
         () =>
           page.evaluate(() => {
-            const last = (window.__introLog ?? []).at(-1);
-            return last ? last[1] === null : false;
+            const log = window.__introLog ?? [];
+            return log.length > 0 && log.at(-1)?.[1] === null;
           }),
         { timeout: 15_000 },
       )
       .toBe(true);
-    const gone = await page.evaluate(() => (window.__introLog ?? []).at(-1)?.[0] ?? 0);
-    const early = await stageState(page);
-    if ((await pageClock(page)) - gone < 3600) {
-      // Still inside the first 3.7 seconds: no document has shown yet.
-      for (const doc of early.docs) expect(doc.opacity).toBe("0");
-    }
-    await settled(page);
-    const state = await stageState(page);
-    expect(state.prompt).toMatchObject({ opacity: "0" });
-    for (const doc of state.docs)
-      expect(doc).toMatchObject({ opacity: "1", visibility: "visible" });
+    const gone = await page.evaluate(() => (window.__introLog ?? []).at(-1)?.[0] ?? Infinity);
+
+    // A second later the stage is as it was on every frame under the cover and since: the
+    // documents in place, no box, nothing of the sequence.
+    await expect
+      .poll(async () => (await stageFrames(page)).at(-1)?.at ?? 0, { timeout: 10_000 })
+      .toBeGreaterThan(gone + 1000);
+    const frames = await stageFrames(page);
+    expect(frames.filter((frame) => frame.at < gone).length).toBeGreaterThan(10);
+    expect(await unsettledFrames(page)).toEqual([]);
+    await expect(page.locator(PROMPT)).toBeHidden();
+    for (const doc of await page.locator(DOCS).all()) await expect(doc).toBeVisible();
   });
 });

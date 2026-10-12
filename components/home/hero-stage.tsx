@@ -5,6 +5,7 @@ import { DEFAULT_CRITERIA } from "@/lib/catalog/query";
 import type { Format, Phase, Template } from "@/lib/catalog/schema";
 import { catalogHref } from "@/lib/catalog/search-params";
 import { cssVars } from "@/lib/cx";
+import { HeroLanding } from "./hero-landing";
 import styles from "./hero-stage.module.css";
 
 /** How wide the cover of each format is drawn, against the others. */
@@ -119,12 +120,14 @@ const fixed = (value: number) => value.toFixed(2);
 /**
  * The stage of the home page's first screen, where the tagline is acted out: an empty prompt box
  * with a caret, and the six free samples as a hand of finished documents standing where the box
- * was. Both are in the page from the start, in the same place. Without movement (no script, or
- * reduced motion) the box is not displayed and the documents simply stand there. With it, the box
- * stands empty for a moment with its caret blinking, dissolves as the ink opens over it, and the
- * documents land one after the other, the middle ones first, once the ink has cleared:
- * app/motion.css, on the hooks below, by the clock that starts when the cover of a first visit
- * has gone.
+ * was. Both are in the page from the start, in the same place. The sequence is the page's half of
+ * the prompt ink scene, so it plays to live ink only. Without it (no script, reduced motion, ink
+ * that is still or paused) the box is not displayed and the documents simply stand there. With
+ * it, the box stands empty for a moment with its caret blinking, dissolves as the ink opens over
+ * it, and the documents land one after the other, the middle ones first, once the ink has
+ * cleared: app/motion.css, on the hooks below, by the clock that starts when the cover of a first
+ * visit has gone. `HeroLanding` marks the stage `data-landed` when the ink is not running, or
+ * stops; from then on the documents stand, and ink that starts later does not take them away.
  *
  * The box is decoration, hidden from assistive technology: the outline of a field drawn on the
  * paper, with a caret, a key for adding something and a send key. It has no ground of its own, so
@@ -142,7 +145,7 @@ const fixed = (value: number) => value.toFixed(2);
  * height there is for it, which narrows the stage, and the hand with it, on a low window. For the
  * ink the stage is the `open` anchor: the opening drops land about its middle. It is not a calm
  * rectangle: the documents are paper, and ink behind paper needs no cap. Hooks:
- * `data-hero-stage`, `data-hero-prompt`, `data-hero-doc`.
+ * `data-hero-stage`, `data-hero-prompt`, `data-hero-doc`, `data-landed`.
  */
 export function HeroStage({
   samples,
@@ -163,6 +166,7 @@ export function HeroStage({
       className={styles.stage}
       style={cssVars({ "--hand": fixed(wide.height), "--hand-narrow": fixed(narrow.height) })}
     >
+      <HeroLanding />
       <div data-hero-prompt="" aria-hidden="true" className={styles.prompt}>
         <span data-caret="" className={styles.caret} />
         <span className={styles.keys}>
