@@ -12,16 +12,16 @@ const DENIED_MS = 600;
 
 /**
  * The one control of a locked tile, and the line it answers with. It renders, in this order: the
- * heading, whose content is a `<button>` named "<title>, locked" (by its label) and stretched over the whole
- * tile; `children` (the tile's facts); and a polite live region that is there, empty, from the
- * first render.
+ * heading, whose content is a `<button>` named "<title>, locked" (by its label) and stretched
+ * over the whole tile; `children` (the tile's facts); and a polite live region that is there,
+ * empty, from the first render.
  *
  * Pressing the button opens nothing. The tile (the nearest `[data-tile]`) carries `data-denied`
  * for 600ms: a red outline that pulses, a shake, and the padlock rattling (app/motion.css; under
  * reduced motion the outline alone). A press while it still carries the state takes it away and
  * puts it back, so the answer starts over. From the first press on, the live region holds one
  * line, "Included with the toolkit.", with a link to the purchase page; the button is described by
- * it.
+ * it. Every press renders that one line anew, so it is announced once per press and never stacked.
  *
  * `initialDenied` is for a link that names this template (`?view=`): the server has already
  * rendered the tile with the state and the line, and here the tile is brought into view and the
@@ -41,7 +41,9 @@ export function LockedTile({
   const lineId = useId();
   const buttonRef = useRef<HTMLButtonElement>(null);
   const timer = useRef<number | undefined>(undefined);
-  const [told, setTold] = useState(initialDenied);
+  // How many times the tile has answered. The line is rendered anew for each, so it is announced
+  // each time; the server's own answer to a link counts as the first.
+  const [answers, setAnswers] = useState(initialDenied ? 1 : 0);
 
   const deny = () => {
     const tile = buttonRef.current?.closest<HTMLElement>("[data-tile]");
@@ -74,21 +76,23 @@ export function LockedTile({
           aria-describedby={lineId}
           onClick={() => {
             deny();
-            setTold(true);
+            setAnswers((count) => count + 1);
           }}
         >
           <KeepCompounds text={title} />
         </button>
       </Heading>
       {children}
-      <p id={lineId} aria-live="polite" className={cx("type-note", styles.line)}>
-        {told ? (
-          <>
+      <p id={lineId} aria-live="polite" aria-atomic="true" className={cx("type-note", styles.line)}>
+        {answers > 0 ? (
+          // Keyed by the count: each press puts a new line in the place of the last one, which is
+          // what a screen reader announces. There is never more than one.
+          <span key={answers} data-answer="">
             Included with the toolkit.{" "}
             <TextLink href={PURCHASE_LINK.href} className={styles.way}>
               {PURCHASE_LINK.label}
             </TextLink>
-          </>
+          </span>
         ) : null}
       </p>
     </>

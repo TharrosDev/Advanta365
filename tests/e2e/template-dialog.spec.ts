@@ -234,3 +234,48 @@ test.describe("without JavaScript", () => {
     await expect(dialog(page)).toHaveCount(0, { timeout: NAVIGATION_TIMEOUT });
   });
 });
+
+test("of a repeated view the first value is the one that counts", async ({ page }) => {
+  // The sample first: it opens, whatever follows it.
+  const first = await openCatalog(page, `/catalog?view=${FREE.slug}&view=junk`);
+  expect(first?.status()).toBe(200);
+  await expect(page.getByRole("dialog", { name: FREE.title })).toBeVisible();
+  await expect(page.locator("dialog[open]")).toHaveCount(1);
+
+  // Junk first: nothing opens, though a sample is named after it.
+  const second = await openCatalog(page, `/catalog?view=junk&view=${FREE.slug}`);
+  expect(second?.status()).toBe(200);
+  await expect(page.getByRole("heading", { level: 1 })).toHaveText("Catalog");
+  await expect(page.locator("dialog[open]")).toHaveCount(0);
+  await expect(dialog(page)).toHaveCount(0);
+  await expect(page.locator("[data-denied]")).toHaveCount(0);
+  await expect(page.getByRole("status")).toHaveText("67 templates");
+});
+
+test("a sample opens over a page of results that does not hold it, and closing keeps the page", async ({
+  page,
+}) => {
+  const response = await openCatalog(page, `/catalog?view=${FREE.slug}&page=3&sort=title`);
+  expect(response?.status()).toBe(200);
+  await expect(page.getByRole("dialog", { name: FREE.title })).toBeVisible();
+  await expect.poll(() => dialog(page).evaluate((element) => element.matches(":modal"))).toBe(true);
+
+  // The third page is the last one: nineteen tiles, and the sample is not among them.
+  await expect(page.locator("[data-tile]")).toHaveCount(19);
+  await expect(tileLink(page)).toHaveCount(0);
+
+  await page.keyboard.press("Escape");
+  await expect(dialog(page)).toHaveCount(0, { timeout: NAVIGATION_TIMEOUT });
+  expect(params(page).has("view")).toBe(false);
+  expect(params(page).get("page")).toBe("3");
+  expect(params(page).get("sort")).toBe("title");
+  await expect(page.locator("[data-tile]")).toHaveCount(19);
+
+  // A page past the end is not kept as it was written: it closes to the last page there is.
+  await openCatalog(page, `/catalog?view=${FREE.slug}&page=99`);
+  await expect(page.getByRole("dialog", { name: FREE.title })).toBeVisible();
+  await dialog(page).getByRole("link", { name: "Close", exact: true }).click();
+  await expect(dialog(page)).toHaveCount(0, { timeout: NAVIGATION_TIMEOUT });
+  expect(params(page).has("view")).toBe(false);
+  expect(params(page).get("page")).toBe("3");
+});

@@ -279,3 +279,44 @@ test.describe("without JavaScript", () => {
     await expect(tile).toHaveCSS("outline-color", ALERT);
   });
 });
+
+test("every press puts the one line there anew, so it is announced each time and never stacked", async ({
+  page,
+}) => {
+  await openCatalog(page);
+  const tile = lockedTiles(page).first();
+  const button = tile.getByRole("button");
+  await expect(message(tile)).toHaveAttribute("aria-atomic", "true");
+
+  // What a screen reader hears is a change inside the live region: count the lines that arrive.
+  await message(tile).evaluate((region) => {
+    const seen = { added: 0, removed: 0 };
+    (window as unknown as { __lines: typeof seen }).__lines = seen;
+    new MutationObserver((records) => {
+      for (const record of records) {
+        seen.added += record.addedNodes.length;
+        seen.removed += record.removedNodes.length;
+      }
+    }).observe(region, { childList: true });
+  });
+  const lines = () =>
+    page.evaluate(
+      () => (window as unknown as { __lines: { added: number; removed: number } }).__lines,
+    );
+
+  const PRESSES = 4;
+  for (let press = 1; press <= PRESSES; press += 1) {
+    await button.click();
+    // One line arrived for this press, and the one before it left.
+    await expect.poll(lines).toEqual({ added: press, removed: press - 1 });
+    await expect(message(tile).locator("[data-answer]")).toHaveCount(1);
+    await expect(message(tile).getByRole("link")).toHaveCount(1);
+    await expect(message(tile)).toHaveText("Included with the toolkit. Purchase");
+  }
+
+  // The keyboard is announced the same way.
+  await button.focus();
+  await page.keyboard.press("Enter");
+  await expect.poll(lines).toEqual({ added: PRESSES + 1, removed: PRESSES });
+  await expect(message(tile).locator("[data-answer]")).toHaveCount(1);
+});
