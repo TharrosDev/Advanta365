@@ -6,6 +6,7 @@
  *   [data-when="load"]                             that entrance by the clock, at page load
  *   [data-paper], [data-lit]                       a paper object and its light under the pointer
  *   [data-bar]                                     the bar and its shadow
+ *   [data-nav-underline]                           the bar’s underline, which slides to the current link
  *   [data-ninety], [data-odometer-wheel]           the one band whose figure follows the scroll
  *   [data-price-tag]                               the paper tag on its string, which swings
  *   [data-tile][data-denied], [data-lock]          a locked tile saying no, and its padlock
@@ -116,6 +117,12 @@
   @keyframes bar-shadow-in {
     from {
       opacity: 0;
+    }
+  }
+
+  @keyframes nav-underline-in {
+    from {
+      scale: 0 1;
     }
   }
 
@@ -346,6 +353,16 @@
     animation: bar-shadow-in linear both;
     animation-timeline: scroll(root block);
     animation-range: 0 5.25rem;
+  }
+
+  /*
+   * The bar’s underline. Moving from one link to the other it slides: the primary navigation
+   * writes the new index and the line follows it in the time of a lift. Coming from a page with
+   * no current link it grows from nothing, because it only begins to be displayed then.
+   */
+  [data-nav-underline] {
+    transition: translate var(--time-lift) var(--curve-settle);
+    animation: nav-underline-in var(--time-enter) var(--curve-settle) backwards;
   }
 
   /*

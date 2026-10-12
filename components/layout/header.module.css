@@ -51,23 +51,42 @@
 }
 
 /*
- * Like the cart beside it, the Menu button is padded 10px below 40em. That makes it a 44px square
- * once its word is hidden.
+ * Below 40em the purchase button and the Menu button are padded 10px, which is what lets the row
+ * hold the brand name, the button and a bare Menu button on a 390px phone. It makes the Menu button
+ * a 44px square once its word is hidden.
  */
+.buy.buy,
 .menu.menu {
   padding-inline: 10px;
 }
 
 @media (min-width: 40em) {
+  .buy.buy,
   .menu.menu {
     padding-inline: var(--s-2);
   }
 }
 
+/*
+ * Three zones from 68em. The side columns are equal, so the middle one (the links) is centred on
+ * the bar, whatever the widths of the brand and the button.
+ */
 @media (min-width: 68em) {
+  .inner {
+    display: grid;
+    grid-template-columns: 1fr auto 1fr;
+  }
+
+  .brand {
+    justify-self: start;
+  }
+
   .nav {
     display: block;
-    margin-inline-start: var(--s-5);
+  }
+
+  .tools {
+    justify-self: end;
   }
 
   .menu.menu {
@@ -79,9 +98,11 @@
  * Two micro-queries for the narrowest screens. They measure the bar, not the window, so a window
  * with a classic scrollbar switches at the width where the row really runs out. Both hide text
  * visually and leave it in the accessibility tree: the button is still named "Menu" and the link
- * "Advanta365".
+ * "Advanta365". They give way in this order, widest bar first: the word "Menu" (the row is then
+ * the brand, the button and a 44px square), and below that the brand name, which leaves the mark
+ * and room to spare at 320px. The button is never shortened.
  */
-@container (max-width: 24.3em) {
+@container (max-width: 27.4em) {
   .menuWord {
     position: absolute;
     width: 1px;
@@ -95,7 +116,7 @@
   }
 }
 
-@container (max-width: 21.2em) {
+@container (max-width: 24.3em) {
   .brandName {
     position: absolute;
     width: 1px;

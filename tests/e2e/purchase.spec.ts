@@ -20,12 +20,13 @@ test("the purchase page has one title, and the price once, on the tag", async ({
   // The folder carries the name of the offer on its tab.
   await expect(page.locator("[data-folder]").getByText("The complete toolkit")).toBeVisible();
 
-  // The price is printed in one place only: the tag that hangs from the folder.
+  // The price is printed in one place only on the page: the tag that hangs from the folder.
   const tag = page.locator("[data-price-tag]");
   await expect(tag).toHaveCount(1);
   await expect(tag).toContainText("$499.99");
   await expect(tag).toContainText("one purchase");
-  await expect(page.getByText("$499.99")).toHaveCount(1);
+  // The bar’s button repeats it from 68em, so the count is of the page itself, not the bar.
+  await expect(page.getByRole("main").getByText("$499.99")).toHaveCount(1);
   const mentions = await page
     .getByRole("main")
     .evaluate((main) => (main.textContent ?? "").split("$499.99").length - 1);

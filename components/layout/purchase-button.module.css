@@ -1,0 +1,30 @@
+/*
+ * Below 68em the price is not drawn, and `display: none` takes it out of the link's name too: one
+ * button, one name, at every width.
+ */
+.price {
+  display: none;
+}
+
+@media (min-width: 68em) {
+  .price {
+    display: inline;
+  }
+}
+
+/*
+ * The purchase page: the button is where the visitor already is, so it is the wash with an ink
+ * edge, the look of a current control, and no longer the solid call to action. Written with a
+ * doubled class and the attribute so that it outranks the solid button's hover, focus and press
+ * (which are all one class and one pseudo-class): the current button does not change under the
+ * pointer, and nothing moves.
+ */
+.button.button[aria-current] {
+  border-color: var(--ink);
+  background: var(--mark-wash);
+  color: var(--ink);
+}
+
+.button.button[aria-current]:active {
+  translate: none;
+}
