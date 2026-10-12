@@ -26,7 +26,7 @@ const INLINE_NAV = "(min-width: 68em)";
  * The site menu below 68em: the "Menu" button of the bar and the panel it opens.
  *
  * The panel is a native modal `<dialog>` on the right edge of the screen, with the page dimmed
- * behind it. Top to bottom: the brand and its own Close button, the five primary links, the seven
+ * behind it. Top to bottom: the brand and its own Close button, the three primary links, the seven
  * phases under a visible label, and the contact address at the foot. The dialog itself keeps focus
  * inside, closes on Escape and hands focus back to the button.
  *

@@ -4,7 +4,7 @@ import { introSeen } from "./helpers";
 // From 68em the bar shows its navigation inline and the phase rail stands under it. This file
 // covers both on the desktop project (1280x800); menu.spec.ts covers the drawer on a phone.
 
-const PRIMARY = ["Catalog", "Bundles", "Pricing", "About", "Contact"];
+const PRIMARY = ["Purchase", "Catalog", "About"];
 const PHASES = ["Make the case", "Plan", "Design", "Prepare", "Communicate", "Execute", "Sustain"];
 
 const banner = (page: Page) => page.getByRole("banner");
@@ -19,7 +19,7 @@ test.describe("desktop bar", () => {
     await introSeen(page);
   });
 
-  test("shows the five primary links inline and no Menu button", async ({ page }) => {
+  test("shows the three primary links inline and no Menu button", async ({ page }) => {
     await page.goto("/");
 
     await expect(primary(page).getByRole("link")).toHaveCount(PRIMARY.length);
@@ -27,23 +27,22 @@ test.describe("desktop bar", () => {
       await expect(primary(page).getByRole("link", { name, exact: true })).toBeVisible();
     }
     await expect(banner(page).getByRole("link", { name: "Advanta365", exact: true })).toBeVisible();
-    await expect(banner(page).getByRole("link", { name: /^Cart/ })).toBeVisible();
+    await expect(banner(page).getByRole("link", { name: /^Cart/ })).toHaveCount(0);
     await expect(banner(page).getByRole("button", { name: "Menu", exact: true })).toBeHidden();
     await expect(page.getByRole("dialog", { name: "Site menu" })).toBeHidden();
   });
 
   test("marks the current page, and the section a page lies under", async ({ page }) => {
-    await page.goto("/pricing");
-    await expect(primary(page).getByRole("link", { name: "Pricing", exact: true })).toHaveAttribute(
-      "aria-current",
-      "page",
-    );
+    await page.goto("/purchase");
+    await expect(
+      primary(page).getByRole("link", { name: "Purchase", exact: true }),
+    ).toHaveAttribute("aria-current", "page");
     await expect(primary(page).locator("[aria-current]")).toHaveCount(1);
 
-    await page.goto("/bundles/sponsor-essentials");
-    await expect(primary(page).getByRole("link", { name: "Bundles", exact: true })).toHaveAttribute(
+    await page.goto("/about");
+    await expect(primary(page).getByRole("link", { name: "About", exact: true })).toHaveAttribute(
       "aria-current",
-      "true",
+      "page",
     );
     await expect(primary(page).locator("[aria-current]")).toHaveCount(1);
 

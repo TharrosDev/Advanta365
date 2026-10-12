@@ -4,7 +4,7 @@ const MISSING = [
   "/templates/nope",
   "/templates/NOPE",
   "/templates/a%20b",
-  "/bundles/nope",
+  "/cart/nope",
   "/phases/nope",
   "/nope",
   "/templates/nope/extra",

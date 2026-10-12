@@ -29,8 +29,8 @@ export function PracticeSection() {
           <Button variant="ink" href="/about#compare">
             See how it compares
           </Button>
-          <Button variant="outline" href="/pricing">
-            How pricing works
+          <Button variant="outline" href="/purchase">
+            Buy the complete toolkit
           </Button>
         </div>
       </Appear>

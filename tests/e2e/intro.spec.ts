@@ -217,8 +217,8 @@ test("an inner page has no cover, and neither has the home page in a session tha
   page,
 }) => {
   await recordIntro(page);
-  await page.goto("/pricing");
-  await expect(headline(page)).toHaveText("Pricing");
+  await page.goto("/purchase");
+  await expect(headline(page)).toHaveText("Purchase");
   await expect(cover(page)).toHaveCount(0);
   await expect(root(page)).not.toHaveAttribute("data-intro");
   expect(await introStates(page)).toEqual([]);

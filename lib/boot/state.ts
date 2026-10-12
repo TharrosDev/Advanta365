@@ -49,10 +49,10 @@ export function isSoftwareRenderer(name: string): boolean {
 }
 
 /**
- * The pattern of the calm routes, as source text (the boot script embeds it): the catalog, the
- * cart, and every template and bundle page. The bundles index is not one of them.
+ * The pattern of the calm routes, as source text (the boot script embeds it): the catalog and
+ * whatever lies under it.
  */
-export const CALM_ROUTE_SOURCE = "^/(catalog|cart)(/|$)|^/(templates|bundles)/.";
+export const CALM_ROUTE_SOURCE = "^/catalog(/|$)";
 
 const CALM_ROUTE = new RegExp(CALM_ROUTE_SOURCE);
 

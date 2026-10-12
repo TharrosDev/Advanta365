@@ -1,4 +1,4 @@
-import { NAV } from "@/lib/site";
+import { NAV, PURCHASE_LINK } from "@/lib/site";
 
 export type NavLink = { href: string; label: string };
 
@@ -8,12 +8,12 @@ export type PhaseLink = { slug: string; name: string };
 /** Which phase each template belongs to: template slug to phase slug. */
 export type TemplatePhases = Readonly<Record<string, string>>;
 
-/** The site's primary destinations, in order: Catalog, Bundles, Pricing, About, Contact. */
-export const PRIMARY_LINKS: readonly NavLink[] = [...NAV, { href: "/contact", label: "Contact" }];
+/** The site's primary destinations, in order: Purchase, Catalog, About. */
+export const PRIMARY_LINKS: readonly NavLink[] = [PURCHASE_LINK, ...NAV];
 
 /**
  * The `aria-current` value of a navigation link: `page` when the page shown is the link's own,
- * `true` when the page lies under it (a bundle page under Bundles), otherwise none.
+ * `true` when the page lies under it (`/catalog/x` under Catalog), otherwise none.
  */
 export function linkCurrent(pathname: string, href: string): "page" | "true" | undefined {
   if (pathname === href) return "page";

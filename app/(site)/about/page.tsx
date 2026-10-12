@@ -12,7 +12,9 @@ import { Appear } from "@/components/ui/appear";
 import { Band } from "@/components/ui/band";
 import { Eyebrow } from "@/components/ui/eyebrow";
 import { FactList } from "@/components/ui/fact-list";
+import { Icon } from "@/components/ui/icon";
 import { Sentences } from "@/components/ui/sentences";
+import { Split } from "@/components/ui/split";
 import { cx } from "@/lib/cx";
 import { SITE, TOOLKIT } from "@/lib/site";
 import styles from "./page.module.css";
@@ -156,10 +158,20 @@ const BUYERS: readonly Buyer[] = [
 const BEYOND_SHAREPOINT =
   "SharePoint-first out of the box. The change management core (structured planning, resistance management, sponsor coaching, Go/No-Go decisions and sustainment) applies to almost any technology rollout.";
 
+// The contact section's lead: the question people write in with, then the promise.
+const CONTACT_LEAD =
+  "Questions about the toolkit, licensing for your organization, or buying by purchase order? Send an email and you will get a reply from a person.";
+
+/** An address may break after its "@" instead of running out of a narrow column. */
+function addressParts(address: string): [string, string] {
+  const at = address.indexOf("@");
+  return at === -1 ? [address, ""] : [address.slice(0, at + 1), address.slice(at + 1)];
+}
+
 const NEXT = [
   { href: "/catalog", label: "Browse the catalog" },
   { href: "/sample", label: "See a sample" },
-  { href: "/contact", label: "Get in touch" },
+  { href: "#contact", label: "Get in touch" },
 ];
 
 /**
@@ -169,11 +181,17 @@ const NEXT = [
  * Layout: the title block with ink, then bands that alternate desk and paper: the mission, why it
  * exists, the one black band (AI, stated plainly, static), the wash band with the four proof points
  * as a ledger, the comparison on a sheet of paper with the buyer's column raised, the buyers as a
- * ledger, and a closing paper band. Each statement section has its label in the margin; the
- * comparison runs across the whole grid under its own statement. `#compare` is linked from the
- * home page.
+ * ledger, the contact section and a closing paper band. Each statement section has its label in
+ * the margin; the comparison runs across the whole grid under its own statement. `#compare` is
+ * linked from the home page, and `#contact` is where the old contact address now lands.
+ *
+ * The contact section is the heading, one lead and the one address, set as large as a statement.
+ * The address is a single `mailto:` link with the arrow after it; on hover and keyboard focus the
+ * highlighter fills in behind the address (the words stay ink) and the arrow moves 6px.
  */
 export default function AboutPage() {
+  const [local, domain] = addressParts(SITE.contactEmail);
+
   return (
     <>
       <TitleBlock form="wide" ink title={MISSION_SHORT} lead={LEAD} />
@@ -229,6 +247,26 @@ export default function AboutPage() {
           items={[{ label: "Beyond SharePoint", value: BEYOND_SHAREPOINT }]}
         />
       </StatementSection>
+
+      <Band id="contact" surface="paper" pad="roomy">
+        <Split>
+          <h2 className={cx("type-page", styles.contactTitle)}>Contact</h2>
+          <p className={cx("type-lead", styles.contactLead)}>{CONTACT_LEAD}</p>
+          <Appear className={styles.contactRow}>
+            <a
+              href={`mailto:${SITE.contactEmail}`}
+              className={cx("type-statement", styles.contactLink)}
+            >
+              <span className={styles.address}>
+                {local}
+                <wbr />
+                {domain}
+              </span>
+              <Icon name="arrow" size={32} className={styles.arrow} />
+            </a>
+          </Appear>
+        </Split>
+      </Band>
 
       <NextSteps title="Find the piece for the phase you are on" links={NEXT}>
         <p className={cx("type-note", styles.parent)}>

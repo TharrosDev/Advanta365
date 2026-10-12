@@ -27,7 +27,6 @@ test("home leads to a phase and on to a template", async ({ page }) => {
 
   await expect(page).toHaveURL(/\/templates\//, { timeout: NAVIGATION_TIMEOUT });
   await expect(page.getByRole("heading", { level: 1 })).toHaveText(title);
-  await expect(page.getByRole("button", { name: "Add to cart" })).toBeVisible();
 });
 
 test("the hero leads to the worked example, which says its file cannot be downloaded yet", async ({
@@ -46,20 +45,16 @@ test("the hero leads to the worked example, which says its file cannot be downlo
 });
 
 test("every page fits the viewport without sideways scrolling", async ({ page }) => {
-  // Eleven full page loads in one test, at the start of the run: three times the default budget.
+  // Seven full page loads in one test, at the start of the run: three times the default budget.
   test.slow();
   for (const path of [
     "/",
     "/catalog",
     "/phases/make-the-case",
     "/sample",
-    "/bundles",
-    "/pricing",
+    "/purchase",
     "/about",
-    "/contact",
-    "/cart",
     "/templates/sharepoint-migration-impact-assessment",
-    "/bundles/sharepoint-rollout-complete",
   ]) {
     await page.goto(path);
     const overflow = await page.evaluate(

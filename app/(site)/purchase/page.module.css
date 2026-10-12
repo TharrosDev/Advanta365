@@ -1,0 +1,18 @@
+.offer {
+  color: var(--text);
+}
+
+.price {
+  margin-block-start: var(--s-3);
+  color: var(--text);
+}
+
+.action {
+  margin-block-start: var(--s-5);
+}
+
+.contact {
+  max-width: var(--wrap-copy);
+  margin-block-start: var(--s-5);
+  color: var(--text-soft);
+}

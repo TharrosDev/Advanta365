@@ -51,15 +51,11 @@ const WIDTHS = [320, 390, 768, 1088, 1280, 1440, 1920];
 const CHECK_ROUTES = [
   "/",
   "/about",
-  "/pricing",
-  "/contact",
+  "/purchase",
   "/sample",
-  "/bundles",
   "/phases/prepare",
   "/catalog",
-  "/cart",
   "/templates/executive-sponsor-kickoff-deck",
-  "/bundles/sponsor-essentials",
   "/nope",
 ];
 const TOLERANCE = 0.02;

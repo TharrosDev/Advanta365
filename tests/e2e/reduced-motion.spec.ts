@@ -15,13 +15,9 @@ const ROUTES = [
   "/catalog",
   "/phases/prepare",
   "/templates/executive-sponsor-kickoff-deck",
-  "/bundles",
-  "/bundles/sponsor-essentials",
-  "/pricing",
+  "/purchase",
   "/about",
   "/sample",
-  "/contact",
-  "/cart",
   "/nope",
 ];
 

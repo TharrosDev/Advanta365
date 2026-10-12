@@ -5,7 +5,7 @@ import { introSeen, NAVIGATION_TIMEOUT } from "./helpers";
 // right edge of the screen. This file covers it on the phone project; header.spec.ts covers the
 // inline navigation of the desktop bar.
 
-const PRIMARY = ["Catalog", "Bundles", "Pricing", "About", "Contact"];
+const PRIMARY = ["Purchase", "Catalog", "About"];
 const PHASES = ["Make the case", "Plan", "Design", "Prepare", "Communicate", "Execute", "Sustain"];
 
 // A caption the menu must not show under the contact address. Written in two parts so that this
@@ -17,15 +17,14 @@ const toggle = (page: Page) =>
 const drawer = (page: Page) => page.getByRole("dialog", { name: "Site menu" });
 
 /**
- * Opens the menu. The button only works once the bar has hydrated, and the cart link beside it tells
- * when that is: its name gains the count ("Cart, 0 items") at that moment.
+ * Opens the menu. The button only works once the bar has hydrated, and nothing on the page says
+ * when that is, so the click is repeated until the menu is open.
  */
 async function openDrawer(page: Page) {
-  await expect(
-    page.getByRole("banner").getByRole("link", { name: /^Cart, \d+ items?$/ }),
-  ).toBeVisible();
-  await toggle(page).click();
-  await expect(drawer(page)).toBeVisible();
+  await expect(async () => {
+    if (!(await drawer(page).isVisible())) await toggle(page).click({ timeout: 1_000 });
+    await expect(drawer(page)).toBeVisible({ timeout: 1_000 });
+  }).toPass();
 }
 
 test.describe("phone menu", () => {
@@ -35,7 +34,7 @@ test.describe("phone menu", () => {
     await introSeen(page);
   });
 
-  test("the Menu button opens the site menu with the five links and the seven phases", async ({
+  test("the Menu button opens the site menu with the three links and the seven phases", async ({
     page,
   }) => {
     await page.goto("/");
@@ -69,10 +68,10 @@ test.describe("phone menu", () => {
   });
 
   test("marks the page being shown", async ({ page }) => {
-    await page.goto("/pricing");
+    await page.goto("/purchase");
     await openDrawer(page);
     const menu = drawer(page).getByRole("navigation", { name: "Menu" });
-    await expect(menu.getByRole("link", { name: "Pricing", exact: true })).toHaveAttribute(
+    await expect(menu.getByRole("link", { name: "Purchase", exact: true })).toHaveAttribute(
       "aria-current",
       "page",
     );
@@ -144,8 +143,8 @@ test.describe("phone menu", () => {
   test("closes when the page changes under it", async ({ page }) => {
     await page.goto("/");
     await openDrawer(page);
-    await drawer(page).getByRole("link", { name: "Pricing", exact: true }).click();
-    await expect(page).toHaveURL(/\/pricing$/, { timeout: NAVIGATION_TIMEOUT });
+    await drawer(page).getByRole("link", { name: "Purchase", exact: true }).click();
+    await expect(page).toHaveURL(/\/purchase$/, { timeout: NAVIGATION_TIMEOUT });
 
     // Back is a change of page that no link in the panel started.
     await openDrawer(page);

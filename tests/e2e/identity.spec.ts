@@ -19,13 +19,9 @@ const ROUTES = [
   "/catalog",
   "/phases/prepare",
   "/templates/executive-sponsor-kickoff-deck",
-  "/bundles",
-  "/bundles/sponsor-essentials",
-  "/pricing",
+  "/purchase",
   "/about",
   "/sample",
-  "/contact",
-  "/cart",
 ];
 
 // The 404 pages are built in the browser; their server HTML is checked all the same.
@@ -299,16 +295,7 @@ test.describe("home", () => {
       .getByRole("main")
       .locator("[id]")
       .evaluateAll((elements) => elements.map((element) => element.id));
-    const sections = [
-      "featured",
-      "inside",
-      "bundles",
-      "problem",
-      "solution",
-      "practice",
-      "values",
-      "closing",
-    ];
+    const sections = ["featured", "inside", "problem", "solution", "practice", "values", "closing"];
     expect(ids.filter((id) => sections.includes(id))).toEqual(sections);
 
     // The hero comes before the first shelf, and the line about Microsoft 365 sits between the
@@ -426,7 +413,7 @@ test.describe("home", () => {
 
     const onBinder = page
       .getByRole("contentinfo")
-      .getByRole("link", { name: "Pricing", exact: true });
+      .getByRole("link", { name: "Purchase", exact: true });
     await onBinder.focus();
     await expect(onBinder).toHaveCSS("outline-style", "solid");
     await expect(onBinder).toHaveCSS("outline-width", "3px");
@@ -436,7 +423,7 @@ test.describe("home", () => {
 
 test("every link and button shows the 3px focus ring under the keyboard", async ({ page }) => {
   test.slow();
-  for (const path of ["/", "/catalog", "/pricing"]) {
+  for (const path of ["/", "/catalog", "/purchase"]) {
     await page.goto(path);
     await page.keyboard.press("Tab");
     const missing = await page.evaluate(() => {
@@ -446,6 +433,8 @@ test("every link and button shows the 3px focus ring under the keyboard", async 
       );
       for (const element of targets) {
         if (!(element instanceof HTMLElement)) continue;
+        // A disabled button (Checkout, until it is built) takes no keyboard focus, so it has no ring.
+        if (element.matches(":disabled")) continue;
         const box = element.getBoundingClientRect();
         if (!box.width || !box.height || getComputedStyle(element).visibility === "hidden")
           continue;
@@ -471,7 +460,7 @@ test("every link and button shows the 3px focus ring under the keyboard", async 
 });
 
 test("the footer names the brand once, as plain text no larger than 28px", async ({ page }) => {
-  await page.goto("/pricing");
+  await page.goto("/purchase");
 
   const footer = page.getByRole("contentinfo");
   const largest = await footer.evaluate((element) =>
@@ -495,11 +484,9 @@ test("the footer names the brand once, as plain text no larger than 28px", async
 });
 
 test("the menu control stands at the right of the bar", async ({ page, isMobile }) => {
+  test.skip(!isMobile, "the Menu button only shows below 68em");
   await page.goto("/catalog");
-  const bar = page.getByRole("banner");
-  const control = isMobile
-    ? bar.getByRole("button", { name: "Menu", exact: true })
-    : bar.getByRole("link", { name: /^Cart/ });
+  const control = page.getByRole("banner").getByRole("button", { name: "Menu", exact: true });
   const box = await control.boundingBox();
   const width = page.viewportSize()?.width ?? 0;
   expect(box).not.toBeNull();
@@ -540,8 +527,8 @@ test("the catalog draws every template as a row with a printed page, in its own 
 });
 
 test("wording the site does not use is not on the pages that carried it", async ({ page }) => {
-  await page.goto("/contact");
-  await expect(page.getByRole("heading", { level: 1 })).toHaveText("Contact");
+  await page.goto("/about");
+  await expect(page.locator("#contact").getByRole("heading", { level: 2 })).toHaveText("Contact");
   await expect(page.getByText(RETIRED_CAPTION)).toHaveCount(0);
 
   await page.goto("/nope");
@@ -581,11 +568,8 @@ test("at 320px no page runs past the screen, and the bar's controls and every bu
     });
     expect(outside, path).toEqual([]);
 
-    const controls = page
-      .getByRole("banner")
-      .locator("a[href='/cart'], button")
-      .filter({ visible: true });
-    expect(await controls.count(), path).toBe(2);
+    const controls = page.getByRole("banner").locator("button").filter({ visible: true });
+    expect(await controls.count(), path).toBe(1);
     for (const control of await controls.all()) {
       const box = await control.boundingBox();
       expect(box?.height, path).toBeGreaterThanOrEqual(44);

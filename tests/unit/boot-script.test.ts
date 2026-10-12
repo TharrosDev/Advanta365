@@ -173,26 +173,22 @@ describe("the names", () => {
 });
 
 describe("calm routes", () => {
-  it("are the catalog, the cart, and every template and bundle page", () => {
-    for (const path of [
-      "/catalog",
-      "/catalog/",
-      "/cart",
-      "/templates/kickoff-deck",
-      "/bundles/launch-kit",
-    ]) {
+  it("are the catalog and the pages under it", () => {
+    for (const path of ["/catalog", "/catalog/", "/catalog/anything"]) {
       expect(isCalmRoute(path), path).toBe(true);
     }
   });
 
-  it("are not the home page, the company pages, the bundles index or a phase", () => {
+  it("are not the home page, the company pages, the purchase page or a phase", () => {
     for (const path of [
       "/",
       "/about",
-      "/pricing",
-      "/bundles",
+      "/purchase",
+      "/cart",
+      "/bundles/launch-kit",
+      "/templates/x",
       "/phases/prepare",
-      "/cartography",
+      "/catalogue",
       "/nope",
     ]) {
       expect(isCalmRoute(path), path).toBe(false);
@@ -200,15 +196,7 @@ describe("calm routes", () => {
   });
 
   it("are marked by the script exactly where the rule says", () => {
-    for (const path of [
-      "/",
-      "/catalog",
-      "/cart",
-      "/bundles",
-      "/bundles/launch-kit",
-      "/templates/x",
-      "/about",
-    ]) {
+    for (const path of ["/", "/catalog", "/catalog/x", "/purchase", "/templates/x", "/about"]) {
       expect(load({ path }).attribute("data-ink-route"), path).toBe(
         isCalmRoute(path) ? "calm" : null,
       );
@@ -252,7 +240,7 @@ describe("the ink", () => {
         for (const gpu of GPUS) {
           for (const saveData of [false, true]) {
             const page = load({
-              path: "/pricing",
+              path: "/purchase",
               media,
               gpu,
               saveData,
@@ -338,7 +326,7 @@ describe("the ink", () => {
 
 describe("the cover", () => {
   it("plays exactly when the pure decision says so", () => {
-    for (const path of ["/", "/pricing", "/catalog", "/phases/prepare"]) {
+    for (const path of ["/", "/purchase", "/catalog", "/phases/prepare"]) {
       for (const seen of [true, false]) {
         for (const reducedMotion of [true, false]) {
           for (const visible of [true, false]) {
@@ -359,7 +347,7 @@ describe("the cover", () => {
   });
 
   it("counts the first load of a session on whichever page it is", () => {
-    const inner = load({ path: "/pricing" });
+    const inner = load({ path: "/purchase" });
     expect(inner.attribute("data-intro")).toBeNull();
     expect(inner.store.get(INTRO_FLAG)).toBe(INTRO_SEEN);
     expect(

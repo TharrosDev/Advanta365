@@ -102,7 +102,7 @@ describe("the choice", () => {
   });
 
   it("gives a short page on a tall window to its title, not to the footer", () => {
-    // /contact at 1440x1200: the title block's ink (the right-hand 42%, 320px tall) under the bar,
+    // /purchase at 1440x1200: the title block's ink (the right-hand 42%, 320px tall) under the bar,
     // and the whole footer in view below it.
     const tall = { width: 1440, height: 1200 };
     const title = candidate("title", { left: 835, top: 110, width: 605, height: 320 }, tall);
