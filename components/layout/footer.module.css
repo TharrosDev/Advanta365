@@ -1,85 +1,24 @@
 /*
- * `--row` is the height of one row of the two lists: a full touch target, then 35px from 68em.
- * `--foot` is the strip under the legal text that the wisps keep to.
+ * The binder, short: one highlighter edge along its top (a line, which the highlighter may be on
+ * this ground), then three rows in a grid with a hairline between them. Padding is the 7px module.
  */
 .root {
-  --row: var(--tap);
-  --foot: var(--s-8);
-  /* The positioning box of the wisps. No z-index and no isolation: it is not a layer. */
-  position: relative;
+  border-block-start: var(--edge) solid var(--mark);
+  padding-block: var(--s-5) var(--s-4);
 }
 
-/*
- * The wisps keep to the strip at the foot, so no ink stands under the words. The still is anchored
- * at the bottom (ink-backdrop.module.css), so the strip shows the foot of the frame, where the
- * wisps rise from; they fade in over the top half of the strip instead of stopping on a line. The
- * class is doubled to outrank the backdrop's own `inset: 0`.
- */
-.wisps.wisps {
-  inset-block-start: auto;
-  block-size: var(--foot);
-  mask-image: linear-gradient(to bottom, transparent, black 50%);
-}
-
-/*
- * The veil for the wisps is the whole footer, edge to edge; the grid stands inside its padding,
- * and the strip of the wisps is its bottom padding, under the legal text.
- */
-.veil {
-  padding-block: var(--s-6) var(--foot);
-}
-
-/*
- * Phone: one column, in reading order. The groups stand 42px apart, so each list and its label
- * read as one thing.
- */
+/* Phone: one column. */
 .grid {
   display: grid;
   grid-template-columns: minmax(0, 1fr);
-  gap: var(--s-5) var(--col-gap);
+  gap: var(--s-4) var(--col-gap);
 }
 
-/* The statement: the lockup, the tagline, then the button and the address. */
-.statement {
+/* The first row: the lockup, then the button across the column. */
+.top {
   display: grid;
-  align-content: start;
   justify-items: start;
   gap: var(--s-3);
-}
-
-/*
- * The tagline is the one line of Besley the footer sets large, and the footer's largest type: 28px.
- * It breaks into two even lines where it has to.
- */
-.tagline {
-  margin: 0;
-  color: var(--text);
-  font-family: var(--face-display);
-  font-size: clamp(1.5rem, 1.2rem + 1.2vw, 1.75rem);
-  line-height: 1.2;
-  font-weight: 600;
-  font-feature-settings: "tnum" 0;
-  text-wrap: balance;
-}
-
-/*
- * The last two words are the ones the first screen sets in the highlighter. On the binder the
- * highlighter is a line, so they stand over one, drawn clear of the descenders and kept together.
- */
-.marked {
-  text-decoration: underline;
-  text-decoration-color: var(--mark);
-  text-decoration-thickness: calc(var(--hair) * 3);
-  text-decoration-skip-ink: none;
-  text-underline-offset: 0.24em;
-  white-space: nowrap;
-}
-
-/* A phone gets the button across the column, with the address under it. */
-.actions {
-  display: grid;
-  gap: var(--s-2);
-  width: 100%;
 }
 
 /*
@@ -88,6 +27,7 @@
  * goes one step deeper. Doubled to outrank the button's own hover, focus and press.
  */
 .buy.buy {
+  justify-self: stretch;
   border-color: var(--mark);
   background: var(--mark);
   color: var(--on-mark);
@@ -110,67 +50,50 @@
   background: var(--mark-deep);
 }
 
-.contact {
-  margin: 0;
-}
-
 /*
- * The address is a block of its own line height, so the stretch below is measured from the line
- * and not from the glyphs: its target is a full 44px.
+ * The second row: the site's links, then the legal ones, on a hairline. Each link is a full touch
+ * target tall, so the rows of a wrapped list never leave a gap between two targets.
  */
-.email {
-  position: relative;
-  display: inline-block;
-  overflow-wrap: anywhere;
-}
-
-.email::after {
-  content: "";
-  position: absolute;
-  inset-block: calc((1lh - var(--tap)) / 2);
-  inset-inline: 0;
-}
-
-/* The label of a list: quiet, and a little clear of the first row. */
-.label.label {
-  margin-block-end: var(--s-2);
-  color: var(--text-soft);
-}
-
-/*
- * Both lists are ledgers on a phone and a tablet: one row to an entry, each on a hairline, the last
- * closed by one. The seven phases become tabs from 68em.
- */
-.ledger,
-.index {
-  margin: 0;
-  padding: 0;
-  list-style: none;
-  border-block-end: var(--hair) solid var(--line);
-}
-
-.entry {
+.nav {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 0 var(--s-5);
+  padding-block-start: var(--s-3);
   border-block-start: var(--hair) solid var(--line);
 }
 
-/*
- * A link is the width of its row and as tall as `--row`: its padding is what is left of the row
- * once the line is in, so a name that wraps grows the row instead of leaving it. The name and a
- * numeral share one baseline.
- */
-.link {
+.list {
   display: flex;
-  align-items: baseline;
-  gap: var(--s-2);
-  padding-block: calc((var(--row) - 1lh) / 2);
+  flex-wrap: wrap;
+  gap: 0 var(--s-3);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.entry {
+  display: flex;
+  min-height: var(--tap);
+}
+
+.link {
+  display: inline-flex;
+  align-items: center;
+  min-height: var(--tap);
   border-radius: var(--round-1);
   color: var(--text);
   text-decoration: none;
 }
 
+/* The legal pages are the quieter group: smaller, in the soft text colour of the binder. */
+.legal .link {
+  color: var(--text-soft);
+}
+
 /*
- * The underline of a hovered or focused link is drawn under the name only, not under a numeral. It
- * is the highlighter, which can be a line here because the binder is dark.
+ * The underline of a hovered or focused link is the highlighter, drawn under the name only. It can
+ * be a line here because the binder is dark.
  */
 .name {
   text-decoration-line: none;
@@ -183,67 +106,26 @@
   text-decoration-line: underline;
 }
 
-/* A fixed column for the numeral, so the seven names share a left edge. Besley's own figures. */
-.numeral {
-  flex: none;
-  width: var(--s-3);
-  color: var(--text-soft);
-  font-family: var(--face-display);
-  font-size: 1.125rem;
-  line-height: 1;
-  font-weight: 700;
-  font-feature-settings: "tnum" 0;
+@media (hover: hover) {
+  .link:hover .name {
+    text-decoration-line: underline;
+  }
+
+  .legal .link:hover {
+    color: var(--text);
+  }
 }
 
-.tab:focus-visible .numeral {
+.legal .link:focus-visible {
   color: var(--text);
 }
 
-/*
- * The fine print. The two status lines are the tally's blocks: the marked one is what is there
- * (the sample catalog) and the open one is what is not yet (checkout).
- */
+/* The third row: the fine print, on a hairline. */
 .fine {
   display: grid;
-  gap: var(--s-4) var(--col-gap);
-}
-
-.status {
-  display: grid;
-  align-content: start;
-  gap: var(--s-1);
-  margin: 0;
-  padding: 0;
-  list-style: none;
-  color: var(--text-soft);
-}
-
-.here,
-.yet {
-  display: flex;
-  gap: var(--s-1);
-}
-
-.here::before,
-.yet::before {
-  --block: calc(var(--s-1) + 2 * var(--hair));
-  content: "";
-  flex: none;
-  width: var(--block);
-  height: var(--block);
-  margin-block-start: calc((1lh - var(--block)) / 2);
-  border: var(--hair) solid var(--line-firm);
-}
-
-.here::before {
-  border-color: var(--line-ink);
-  background: var(--mark);
-}
-
-.legal {
-  display: grid;
-  align-content: start;
-  gap: var(--s-2);
+  gap: var(--s-2) var(--col-gap);
+  padding-block-start: var(--s-3);
+  border-block-start: var(--hair) solid var(--line);
 }
 
 .copyright,
@@ -256,172 +138,66 @@
   max-width: 70ch;
 }
 
-/*
- * Tablet: two columns. The statement and the fine print take the full width, the lists share a
- * row.
- */
+/* Tablet: the lockup and the button share a row, and the two lists share a line. */
 @media (min-width: 40em) {
-  .veil {
-    padding-block-start: var(--s-7);
-  }
-
-  .grid {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    row-gap: var(--s-6);
-  }
-
-  .statement,
-  .fine {
-    grid-column: 1 / -1;
-  }
-
-  .actions {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: center;
-    gap: var(--s-1) var(--s-4);
-    width: auto;
-  }
-
-  .status {
-    grid-auto-flow: column;
-    justify-content: start;
-    gap: var(--s-1) var(--s-4);
-  }
-}
-
-/*
- * Desktop: the twelve-column grid. The statement stands in columns 1 to 7 beside the site list
- * (9 to 12). The phases are seven index tabs across all twelve columns, standing on one hairline
- * like the tabs of the rail under the bar, in the binder's own raised surface. Under them the
- * status lines (1 to 4) and the legal text (5 to 12).
- */
-@media (min-width: 68em) {
   .root {
-    --row: calc(var(--s-1) * 5);
-  }
-
-  .veil {
-    padding-block-start: var(--s-6);
+    padding-block: var(--s-6) var(--s-5);
   }
 
   .grid {
-    grid-template-columns: repeat(12, minmax(0, 1fr));
     row-gap: var(--s-5);
   }
 
-  /*
-   * Beside the site list the statement is as tall as the list: the lockup at the label's line, the
-   * button on the list's last hairline, and the tagline in the room between.
-   */
-  .statement {
-    grid-column: 1 / span 7;
-    align-content: space-between;
+  .top {
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: center;
   }
 
-  .site {
-    grid-column: 9 / -1;
+  .buy.buy {
+    justify-self: end;
   }
 
-  .phases {
-    grid-column: 1 / -1;
+  .nav {
+    align-items: center;
   }
 
-  .index {
-    display: grid;
-    grid-template-columns: repeat(7, minmax(0, 1fr));
-    gap: var(--s-1);
-    border-block-end-color: var(--line-firm);
-  }
-
-  .index .entry {
-    display: grid;
-    border: 0;
-  }
-
-  /*
-   * A tab: the numeral above, the name at the foot. The top and sides are always drawn and only
-   * the top takes the highlighter, so no tab changes size.
-   */
-  .tab {
-    flex-direction: column;
-    align-items: flex-start;
-    justify-content: space-between;
-    gap: var(--s-3);
-    min-height: calc(var(--s-1) * 12);
-    padding: var(--s-2) clamp(0.5rem, 0.1rem + 0.9vw, 0.875rem);
-    border: solid var(--line);
-    border-width: var(--edge) var(--hair) 0;
-    border-radius: var(--round-2) var(--round-2) 0 0;
-    background: var(--surface);
-    transition: border-color var(--time-swap) linear;
-  }
-
-  .tab .numeral {
-    width: auto;
-    font-size: 1.5rem;
-  }
-
-  .tab:focus-visible {
-    position: relative;
-    z-index: 1;
-    border-block-start-color: var(--mark);
-  }
-
-  .fine {
-    grid-column: 1 / -1;
-    grid-template-columns: repeat(12, minmax(0, 1fr));
-  }
-
-  .status {
-    grid-column: 1 / span 4;
-    grid-auto-flow: row;
-  }
-
-  .legal {
-    grid-column: 5 / -1;
+  .list {
+    column-gap: var(--s-4);
   }
 }
 
-@media (hover: hover) {
-  .link:hover .name {
-    text-decoration-line: underline;
+/* Desktop: the copyright in the first four of the twelve columns, the notice in the other eight. */
+@media (min-width: 68em) {
+  .fine {
+    grid-template-columns: repeat(12, minmax(0, 1fr));
+    align-items: start;
   }
 
-  .tab:hover {
-    border-block-start-color: var(--mark);
+  .copyright {
+    grid-column: 1 / span 4;
   }
 
-  .tab:hover .numeral {
-    color: var(--text);
+  .notice {
+    grid-column: 5 / -1;
   }
 }
 
 /* Raised contrast: the hairlines are the firm ones. */
 @media (prefers-contrast: more) {
-  .ledger,
-  .index,
-  .entry,
-  .tab {
+  .nav,
+  .fine {
     border-color: var(--line-firm);
   }
 }
 
-/*
- * The binder's ground is dropped in forced colours: a system edge marks where the footer starts,
- * and the blocks and tabs keep system edges of their own.
- */
+/* The binder's ground is dropped in forced colours: its edge is a system one. */
 @media (forced-colors: active) {
   .root {
-    border-block-start: var(--hair) solid CanvasText;
+    border-block-start-color: CanvasText;
   }
 
-  .here::before {
-    background: CanvasText;
-  }
-
-  .yet::before,
-  .tab {
+  .nav,
+  .fine {
     border-color: CanvasText;
   }
 }

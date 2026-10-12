@@ -12,7 +12,12 @@ const ROUTES = [
   "/phases/prepare",
   "/catalog?view=executive-sponsor-kickoff-deck",
   "/purchase",
-  "/about",
+  "/why-advanta",
+  "/contact",
+  "/privacy",
+  "/terms",
+  "/refunds",
+  "/accessibility",
   "/sample",
 ];
 

@@ -17,8 +17,8 @@ const DENIED_MS = 600;
  * empty, from the first render.
  *
  * Pressing the button opens nothing. The tile (the nearest `[data-tile]`) carries `data-denied`
- * for 600ms: a red outline and wash that hit and fade, the tile vibrating, and the padlock rattling
- * (app/motion.css; under reduced motion the outline and wash, standing). A press while it still
+ * for 600ms: a red outline and wash that hit and fade, and the tile vibrating (app/motion.css; under
+ * reduced motion the outline and wash, standing). A press while it still
  * carries the state takes it away and puts it back, so the answer starts over. From the first
  * press on, the live region holds one line, "Included with the toolkit.", with a link to the
  * purchase page; the button is described by it. Every press renders that one line anew, so it is

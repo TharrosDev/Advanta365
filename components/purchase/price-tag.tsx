@@ -1,12 +1,12 @@
 import { PaperSheet } from "@/components/ui/paper-sheet";
 import { cx } from "@/lib/cx";
-import { formatPrice } from "@/lib/format";
+import { formatPriceParts } from "@/lib/format";
 import { OFFER } from "@/lib/site";
 import styles from "./price-tag.module.css";
 
 /**
- * The price of the one thing the site sells, on a paper tag: the amount (read from `OFFER`, the
- * only place it is written) and the words "one purchase", under an eyelet that a loop of string
+ * The price of the one thing the site sells, on a paper tag: the amount and its currency code
+ * ("$1,499.99" over "CAD", read from `OFFER`, the only place they are written) and the words "one purchase", under an eyelet that a loop of string
  * runs through. The string is tied through a second eyelet, the point the tag hangs from: the
  * box's top centre, which a caller puts on the corner of the object the tag belongs to. The tag is turned about that point by `--tag-turn`
  * (6 degrees unless the caller sets it), and its measures follow the nearest size container, so
@@ -19,13 +19,18 @@ import styles from "./price-tag.module.css";
  * the pointer. Without motion it hangs still.
  */
 export function PriceTag({ className }: { className?: string }) {
+  const price = formatPriceParts(OFFER.priceCents, OFFER.currency);
+
   return (
     <div data-price-tag="" data-watch="" className={cx(styles.root, className)}>
       <div className={styles.hang}>
         <span aria-hidden="true" className={styles.anchor} />
         <PaperSheet size="md" depth={2} className={styles.tag}>
           <span aria-hidden="true" className={styles.eyelet} />
-          <p className={styles.price}>{formatPrice(OFFER.priceCents)}</p>
+          <p className={styles.price}>
+            {price.amount}{" "}
+            <span className={cx("type-note", styles.currency)}>{price.currency}</span>
+          </p>
           <p className={cx("type-note", styles.terms)}>one purchase</p>
         </PaperSheet>
         <svg

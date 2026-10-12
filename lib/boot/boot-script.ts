@@ -3,7 +3,6 @@ import {
   INK_BACKSTOP_MS,
   INK_KEY,
   INK_OFF,
-  INK_PAUSED,
   INK_TIERS,
   INTRO_BACKSTOP_MS,
   INTRO_CLICK_GUARD_MS,
@@ -51,7 +50,6 @@ if(typeof CSS!="undefined"&&CSS.supports&&CSS.supports("animation-timeline: view
 var p=location.pathname,s=get(${q(INK_KEY)}),c=navigator.connection,i="still",g,x;
 if(new RegExp(${q(CALM_ROUTE_SOURCE)}).test(p))S("ink-route","calm");
 if(m("prefers-contrast: more")||m("forced-colors: active")||m("prefers-reduced-data: reduce")||c&&c.saveData||s==${q(INK_OFF)});
-else if(s==${q(INK_PAUSED)})i=s;
 else if(${q(INK_TIERS)}.indexOf(s)>=0)i="live";
 else{try{g=d.createElement("canvas").getContext("webgl2",{failIfMajorPerformanceCaveat:true});if(g){x=g.getExtension("WEBGL_debug_renderer_info");if((g.getExtension("EXT_color_buffer_float")||g.getExtension("EXT_color_buffer_half_float"))&&!new RegExp(${q(SOFTWARE_RENDERER_SOURCE)},"i").test(g.getParameter(x?x.UNMASKED_RENDERER_WEBGL:g.RENDERER)))i="live";x=g.getExtension("WEBGL_lose_context");x&&x.loseContext()}}catch(e){}if(i!="live")put(${q(INK_KEY)},${q(INK_OFF)})}
 S("ink",i);

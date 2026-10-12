@@ -218,8 +218,11 @@ test("a change of page runs a view transition", async ({ page, browserName }) =>
   await page.goto("/catalog");
   expect((await transitions(page)).calls).toBe(0);
 
-  await page.getByRole("contentinfo").getByRole("link", { name: "About", exact: true }).click();
-  await expect(page).toHaveURL(/\/about$/, { timeout: NAVIGATION_TIMEOUT });
+  await page
+    .getByRole("contentinfo")
+    .getByRole("link", { name: "Why Advanta", exact: true })
+    .click();
+  await expect(page).toHaveURL(/\/why-advanta$/, { timeout: NAVIGATION_TIMEOUT });
   await expect(page.getByRole("heading", { level: 1 })).toBeVisible();
   await expect.poll(async () => (await transitions(page)).calls).toBeGreaterThanOrEqual(1);
 });
@@ -235,11 +238,12 @@ test("a change of page still works where the browser has no view transitions", a
   await page.goto("/catalog");
   expect(await page.evaluate(() => typeof document.startViewTransition)).toBe("undefined");
 
-  await page.getByRole("contentinfo").getByRole("link", { name: "About", exact: true }).click();
-  await expect(page).toHaveURL(/\/about$/, { timeout: NAVIGATION_TIMEOUT });
-  await expect(page.getByRole("heading", { level: 1 })).toHaveText(
-    /^Change content that has met real users/,
-  );
+  await page
+    .getByRole("contentinfo")
+    .getByRole("link", { name: "Why Advanta", exact: true })
+    .click();
+  await expect(page).toHaveURL(/\/why-advanta$/, { timeout: NAVIGATION_TIMEOUT });
+  await expect(page.getByRole("heading", { level: 1 })).toBeVisible();
 });
 
 test("a filter change on the catalog starts no view transition", async ({ page, browserName }) => {

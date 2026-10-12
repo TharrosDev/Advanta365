@@ -1,9 +1,10 @@
 /*
- * The stage: the folder and the contents leaf on white paper, with 28px over it (the title block
- * is right above) and the band's own room under it.
+ * The stage: the folder and the contents leaf on white paper. It is the first thing under the bar
+ * (the page has no title block), so it stands 42px under it, and 56px from 68em, where the bar is
+ * taller and the folder's tag hangs off its corner; the band's own room is under it.
  */
 .stage.stage {
-  padding-block-start: var(--s-4);
+  padding-block-start: var(--s-5);
 }
 
 /*
@@ -37,6 +38,10 @@
 }
 
 @media (min-width: 68em) {
+  .stage.stage {
+    padding-block-start: var(--s-6);
+  }
+
   .stage [data-ink-backdrop] {
     mask-image: none;
   }
@@ -73,7 +78,7 @@
     grid-column: 8 / -1;
   }
 
-  /* The folder stands on the page's left edge, under the title, not in the middle of its columns. */
+  /* The folder stands on the page's left edge, under the brand, not in the middle of its columns. */
   .portfolio.portfolio {
     justify-items: start;
   }

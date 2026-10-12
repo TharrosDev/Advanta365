@@ -177,14 +177,13 @@ describe("a backdrop's markup", () => {
     }),
   );
 
-  it("is a hidden layer with a still, a slot, and the holder of the pause button after it", () => {
+  it("is a hidden layer with a still and a slot, and nothing after it", () => {
     expect(html).toMatch(
       /^<div[^>]*data-ink-backdrop=""[^>]*data-scene="prompt"[^>]*data-edges="bottom"[^>]*data-ink-state="idle"[^>]*aria-hidden="true"/,
     );
-    expect(html).toMatch(
-      /<div data-ink-slot=""[^>]*><\/div><\/div><div data-ink-control=""[^>]*><\/div>$/,
-    );
+    expect(html).toMatch(/<div data-ink-slot=""[^>]*><\/div><\/div>$/);
     expect(html).not.toContain("<canvas");
+    expect(html).not.toContain("data-ink-control");
   });
 
   it("serves the wide still from 68em and the tall one below, lazily and without a description", () => {

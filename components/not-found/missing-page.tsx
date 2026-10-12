@@ -13,7 +13,7 @@ import styles from "./missing-page.module.css";
 const NEXT_LINKS = [
   { href: "/catalog", label: "Browse the catalog" },
   { href: "/sample", label: "See a sample" },
-  { href: "/about#contact", label: "Contact" },
+  { href: "/contact", label: "Contact" },
 ] as const;
 
 /**

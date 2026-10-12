@@ -1,5 +1,11 @@
 import { describe, expect, test } from "vitest";
-import { currentPhase, singleCatalogPhase } from "@/components/layout/nav-links";
+import {
+  MENU_LINKS,
+  PRIMARY_LINKS,
+  currentPhase,
+  linkCurrent,
+  singleCatalogPhase,
+} from "@/components/layout/nav-links";
 
 const PHASES = ["make-the-case", "prepare", "execute"];
 
@@ -30,7 +36,14 @@ describe("currentPhase", () => {
   });
 
   test("no other page belongs to a phase: there are no template pages", () => {
-    for (const path of ["/", "/about", "/purchase", "/sample", "/phases", "/phases/prepare/x"]) {
+    for (const path of [
+      "/",
+      "/why-advanta",
+      "/purchase",
+      "/sample",
+      "/phases",
+      "/phases/prepare/x",
+    ]) {
       expect(currentPhase(path), path).toBeUndefined();
     }
     expect(currentPhase("/templates/kickoff-deck")).toBeUndefined();
@@ -45,5 +58,19 @@ describe("currentPhase", () => {
     expect(currentPhase("/", "execute")).toBeUndefined();
     expect(currentPhase("/purchase", "execute")).toBeUndefined();
     expect(currentPhase("/phases/prepare", "execute")).toEqual({ slug: "prepare", kind: "page" });
+  });
+});
+
+describe("the menu's links", () => {
+  test("the menu lists the primary links, then Contact; the bar's row stays Catalog and Why Advanta", () => {
+    expect(MENU_LINKS.map((link) => link.href)).toEqual([
+      "/purchase",
+      "/catalog",
+      "/why-advanta",
+      "/contact",
+    ]);
+    expect(PRIMARY_LINKS.map((link) => link.label)).toEqual(["Purchase", "Catalog", "Why Advanta"]);
+    expect(linkCurrent("/contact", "/contact")).toBe("page");
+    expect(linkCurrent("/contact", "/catalog")).toBeUndefined();
   });
 });

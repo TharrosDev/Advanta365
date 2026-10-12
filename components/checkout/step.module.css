@@ -1,0 +1,255 @@
+/*
+ * One step of the checkout: its content, which is as tall as it needs to be, over a bar of actions
+ * that stays at the foot of the dialog while the content scrolls behind it.
+ */
+.form {
+  --pad: var(--s-3);
+
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.content {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: var(--s-3);
+  padding: var(--s-4) var(--pad) var(--s-5);
+}
+
+/* The heading takes focus from script when the step changes; its ring stands clear of the words. */
+.heading {
+  outline-offset: var(--s-1);
+}
+
+.lead {
+  max-width: var(--wrap-copy);
+  margin-block-start: calc(-1 * var(--s-2));
+  color: var(--text-soft);
+}
+
+.star {
+  color: var(--alert);
+  font-weight: 700;
+}
+
+.notice {
+  max-width: none;
+}
+
+/* The fields: one column; from 40em two, where the country and its region stand side by side. */
+.fields {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--s-3);
+}
+
+.privacy {
+  color: var(--text-soft);
+}
+
+/*
+ * The actions: sticky at the foot, on paper, under a hairline, the main one last. Below 40em each
+ * button takes the full width of the bar and the main one is at the foot, in the thumb's reach;
+ * from 40em they are a row that ends at the right with the main one.
+ */
+.actions {
+  position: sticky;
+  bottom: 0;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-1);
+  padding: var(--s-2) var(--pad);
+  border-block-start: var(--hair) solid var(--line);
+  background: var(--paper);
+}
+
+/*
+ * The rows of the review and of the payment step: a label over its value, ruled apart, with the
+ * way to change it at the end of the row.
+ */
+.rows {
+  display: flex;
+  flex-direction: column;
+  border-block-end: var(--hair) solid var(--line);
+}
+
+.row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  grid-template-areas:
+    "term edit"
+    "value edit";
+  align-items: center;
+  column-gap: var(--s-2);
+  padding-block: var(--s-1);
+  border-block-start: var(--hair) solid var(--line);
+}
+
+.plain {
+  grid-template-columns: minmax(0, 1fr);
+  grid-template-areas:
+    "term"
+    "value";
+  padding-block: var(--s-2);
+}
+
+.term {
+  grid-area: term;
+  color: var(--text-soft);
+}
+
+.value {
+  grid-area: value;
+  overflow-wrap: anywhere;
+  white-space: pre-line;
+}
+
+.empty {
+  color: var(--text-soft);
+}
+
+.edit {
+  grid-area: edit;
+}
+
+/* The agreement: the two pages to read, then the box, on the wash so it is not passed over. */
+.agree {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-1);
+  padding: var(--s-2) var(--s-3);
+  border-radius: var(--round-2);
+  background: var(--mark-wash);
+  color: var(--ink);
+}
+
+.terms {
+  max-width: var(--wrap-copy);
+}
+
+/*
+ * The order's reference, as a ticket: the code in Besley, large, with a highlighter stroke under
+ * it, as under the counts of the contents leaf.
+ */
+.ticket {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-1);
+  padding: var(--s-3);
+  border: var(--edge) solid var(--ink);
+  border-radius: var(--round-2);
+}
+
+.ticketLabel {
+  color: var(--text-soft);
+}
+
+.code {
+  width: fit-content;
+  max-width: 100%;
+  background: linear-gradient(to top, var(--mark) 0.34em, transparent 0.34em);
+  font-family: var(--face-display);
+  font-size: var(--size-section);
+  line-height: 1.2;
+  font-weight: 700;
+  overflow-wrap: anywhere;
+  user-select: all;
+}
+
+.embedded {
+  padding: var(--s-3);
+  border: var(--hair) solid var(--line-firm);
+  border-radius: var(--round-2);
+}
+
+.failed {
+  padding-inline-start: var(--s-1);
+  border-inline-start: 3px solid var(--alert);
+  color: var(--alert);
+}
+
+.copyBox {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-1);
+}
+
+.copyLabel {
+  font-weight: 400;
+}
+
+.status {
+  min-height: 1.43em;
+  margin-block-start: calc(-1 * var(--s-2));
+  color: var(--text-soft);
+}
+
+/* With a provider connected: the order by email, for a buyer who needs an invoice. */
+.invoice {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--s-2) var(--s-3);
+}
+
+/* The two quiet ways out of the payment step. */
+.quiet {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0 var(--s-4);
+}
+
+@media (min-width: 40em) {
+  .form {
+    --pad: var(--s-5);
+  }
+
+  .content {
+    padding-block-start: var(--s-5);
+  }
+
+  .fields {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .wide {
+    grid-column: 1 / -1;
+  }
+
+  .actions {
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+    gap: var(--s-2);
+  }
+
+  .row {
+    grid-template-columns: 12rem minmax(0, 1fr) auto;
+    grid-template-areas: "term value edit";
+    column-gap: var(--s-3);
+  }
+
+  .plain {
+    grid-template-columns: 12rem minmax(0, 1fr);
+    grid-template-areas: "term value";
+  }
+}
+
+@media (forced-colors: active) {
+  .agree,
+  .ticket {
+    border: var(--hair) solid CanvasText;
+  }
+
+  .code {
+    background: none;
+  }
+
+  .failed {
+    border-inline-start-color: CanvasText;
+  }
+}

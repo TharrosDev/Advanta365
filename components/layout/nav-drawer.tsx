@@ -4,7 +4,7 @@ import { usePathname } from "next/navigation";
 import { useEffect, useId, useRef, useState } from "react";
 import type { MouseEvent, PointerEvent } from "react";
 import {
-  PRIMARY_LINKS,
+  MENU_LINKS,
   currentPhase,
   linkCurrent,
   type PhaseLink,
@@ -26,9 +26,10 @@ const INLINE_NAV = "(min-width: 68em)";
  * The site menu below 68em: the "Menu" button of the bar and the panel it opens.
  *
  * The panel is a native modal `<dialog>` on the right edge of the screen, with the page dimmed
- * behind it. Top to bottom: the brand and its own Close button, the three primary links, the seven
- * phases under a visible label, and the contact address at the foot. The dialog itself keeps focus
- * inside, closes on Escape and hands focus back to the button.
+ * behind it. Top to bottom: the brand and its own Close button, the three primary links and the
+ * Contact page (`MENU_LINKS`), the seven phases under a visible label, and the contact address at
+ * the foot. The dialog itself keeps focus inside, closes on Escape and hands focus back to the
+ * button.
  *
  * It enters in 320ms and its links drift in one after another, 40ms apart (the CSS module owns both).
  * It closes on Close, Escape, a click on the dimmed page (one that began there as well: a selection
@@ -131,7 +132,7 @@ export function NavDrawer({
           </div>
           <nav aria-label="Menu" className={styles.nav}>
             <ul className={styles.list}>
-              {PRIMARY_LINKS.map((link, index) => (
+              {MENU_LINKS.map((link, index) => (
                 <li key={link.href} className={styles.item} style={cssVars({ "--order": index })}>
                   <TransitionLink
                     href={link.href}
@@ -153,7 +154,7 @@ export function NavDrawer({
                   <li
                     key={item.slug}
                     className={styles.item}
-                    style={cssVars({ "--order": PRIMARY_LINKS.length + index })}
+                    style={cssVars({ "--order": MENU_LINKS.length + index })}
                   >
                     <TransitionLink
                       href={`/phases/${item.slug}`}
@@ -173,7 +174,7 @@ export function NavDrawer({
           </nav>
           <p
             className={cx("type-ui", styles.contact, styles.item)}
-            style={cssVars({ "--order": PRIMARY_LINKS.length + phases.length })}
+            style={cssVars({ "--order": MENU_LINKS.length + phases.length })}
           >
             <TextLink href={`mailto:${email}`} className={styles.email} onClick={close}>
               {email}

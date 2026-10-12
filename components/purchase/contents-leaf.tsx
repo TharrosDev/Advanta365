@@ -6,8 +6,9 @@ import { Icon } from "@/components/ui/icon";
 import { Note } from "@/components/ui/note";
 import { PaperSheet } from "@/components/ui/paper-sheet";
 import { TextLink } from "@/components/ui/text-link";
+import { checkoutHref } from "@/lib/checkout/steps";
 import { cx } from "@/lib/cx";
-import { SITE, TOOLKIT } from "@/lib/site";
+import { CONTACT_LINK, TOOLKIT } from "@/lib/site";
 import styles from "./contents-leaf.module.css";
 
 /**
@@ -49,9 +50,10 @@ const PARTS: readonly Part[] = [
  * Under the heading, a ruled ledger (a `dl`) of five parts. Each opens with its count as a large
  * figure, printed as it is and never counted up, with a highlighter stroke drawn under it (always
  * under the ink of the digits); the last is the number of audiences the training is for. Each
- * row's term carries an ink tick. Under the ledger the sheet's foot: the Checkout button, which is
- * not built yet (it looks disabled and says so, and stays in the tab order so a keyboard reaches
- * its words), the address to write to until it is, and the note that the catalog is sample content.
+ * row's term carries an ink tick. Under the ledger the sheet's foot: the Checkout button, the
+ * page's main action, a link that opens the checkout in a pop-up over the page (the address gains
+ * `checkout=details` and the page stays where it is); the way to write to us, for a purchase order
+ * or a question; and the note that the catalog is sample content.
  *
  * The leaf is opaque paper, so its words need no calm zone for the ink behind the stage. Every
  * measure follows the sheet's own width (`cqi`), so the leaf is one object from a phone to its
@@ -100,12 +102,12 @@ export function ContentsLeaf({ className }: { className?: string }) {
           </BandedList>
 
           <Appear when="load" order={PARTS.length + 2} className={styles.foot}>
-            <Button size="lg" fullWidth aria-disabled="true">
-              Checkout coming soon
+            <Button size="lg" fullWidth arrow href={checkoutHref("details")} scroll={false}>
+              Checkout
             </Button>
             <p className={cx("type-copy", styles.contact)}>
-              Questions, or want to buy by purchase order? Write to{" "}
-              <TextLink href={`mailto:${SITE.contactEmail}`}>{SITE.contactEmail}</TextLink>.
+              Questions, or want to buy by purchase order?{" "}
+              <TextLink href={CONTACT_LINK.href}>Write to us</TextLink>.
             </p>
             <Note>
               Beta preview: the catalog on this site shows sample content, not the whole toolkit.

@@ -1,12 +1,15 @@
-import { NAV, PURCHASE_LINK } from "@/lib/site";
+import { CONTACT_LINK, NAV, PURCHASE_LINK } from "@/lib/site";
 
 export type NavLink = { href: string; label: string };
 
 /** A rollout phase as the navigation needs it: where it lives and what it is called. */
 export type PhaseLink = { slug: string; name: string };
 
-/** The site's primary destinations, in order: Purchase, Catalog, About. */
+/** The site's primary destinations, in order: Purchase, Catalog, Why Advanta. */
 export const PRIMARY_LINKS: readonly NavLink[] = [PURCHASE_LINK, ...NAV];
+
+/** What the menu below 68em lists: the primary destinations, then the Contact page. */
+export const MENU_LINKS: readonly NavLink[] = [...PRIMARY_LINKS, CONTACT_LINK];
 
 /**
  * The `aria-current` value of a navigation link: `page` when the page shown is the link's own,

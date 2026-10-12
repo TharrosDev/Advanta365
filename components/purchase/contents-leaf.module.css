@@ -151,7 +151,7 @@
   pointer-events: none;
 }
 
-/* The foot of the sheet: the button, the way to write, and the note about the sample catalog. */
+/* The foot of the sheet: Checkout, the way to write to us, and the note about the sample catalog. */
 .foot {
   display: flex;
   flex-direction: column;

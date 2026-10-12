@@ -1,19 +1,19 @@
 import { expect, test, type Locator, type Page } from "@playwright/test";
 import { hydrated, introSeen, NAVIGATION_TIMEOUT } from "./helpers";
 
-// From 68em the bar has three zones (the brand, Catalog and About centred, and the purchase button)
+// From 68em the bar has three zones (the brand, Catalog and Why Advanta centred, and the purchase button)
 // and the phase rail stands under it. This file covers both on the desktop project (1280x800);
 // menu.spec.ts covers the narrow bar and the drawer on a phone.
 
-const INLINE = ["Catalog", "About"];
-const BUTTON = "Get the toolkit · $499.99";
+const INLINE = ["Catalog", "Why Advanta"];
+const BUTTON = "Get the toolkit · $1,499.99 CAD";
 const PHASES = ["Make the case", "Plan", "Design", "Prepare", "Communicate", "Execute", "Sustain"];
 
 const banner = (page: Page) => page.getByRole("banner");
 const primary = (page: Page) => banner(page).getByRole("navigation", { name: "Primary" });
 const buy = (page: Page) => banner(page).getByRole("link", { name: BUTTON, exact: true });
 const underline = (page: Page) => banner(page).locator("[data-nav-underline]");
-// Exact: the footer has a navigation named "Rollout phases".
+// Exact, so that no other navigation named after the phases is taken for the rail.
 const rail = (page: Page) => page.getByRole("navigation", { name: "Phases", exact: true });
 
 /** The horizontal centre of an element's box. */
@@ -30,7 +30,7 @@ test.describe("desktop bar", () => {
     await introSeen(page);
   });
 
-  test("shows Catalog and About inline, the purchase button, and no Menu button", async ({
+  test("shows Catalog and Why Advanta inline, the purchase button, and no Menu button", async ({
     page,
   }) => {
     await page.goto("/");
@@ -49,14 +49,14 @@ test.describe("desktop bar", () => {
     await expect(page.getByRole("dialog", { name: "Site menu" })).toBeHidden();
   });
 
-  test("the bar's links are in order: the brand, Catalog, About, then the purchase button", async ({
+  test("the bar's links are in order: the brand, Catalog, Why Advanta, then the purchase button", async ({
     page,
   }) => {
     await page.goto("/");
     const hrefs = await banner(page)
       .getByRole("link")
       .evaluateAll((links) => links.map((link) => link.getAttribute("href")));
-    expect(hrefs).toEqual(["/", "/catalog", "/about", "/purchase"]);
+    expect(hrefs).toEqual(["/", "/catalog", "/why-advanta", "/purchase"]);
   });
 
   test("marks the current page in the row, and the button on the purchase page", async ({
@@ -70,11 +70,10 @@ test.describe("desktop bar", () => {
     await expect(primary(page).locator("[aria-current]")).toHaveCount(1);
     await expect(buy(page)).not.toHaveAttribute("aria-current");
 
-    await page.goto("/about");
-    await expect(primary(page).getByRole("link", { name: "About", exact: true })).toHaveAttribute(
-      "aria-current",
-      "page",
-    );
+    await page.goto("/why-advanta");
+    await expect(
+      primary(page).getByRole("link", { name: "Why Advanta", exact: true }),
+    ).toHaveAttribute("aria-current", "page");
     await expect(primary(page).locator("[aria-current]")).toHaveCount(1);
 
     // The purchase page: nothing in the row is current, and the button is, still in its place.
@@ -96,7 +95,9 @@ test.describe("desktop bar", () => {
       expect(Math.abs((await centre(primary(page))) - bar), `${width}px`).toBeLessThanOrEqual(2);
 
       // The brand stands to the left of it and the button to the right.
-      expect(await centre(banner(page).getByRole("link", { name: "Advanta365" }))).toBeLessThan(bar);
+      expect(await centre(banner(page).getByRole("link", { name: "Advanta365" }))).toBeLessThan(
+        bar,
+      );
       expect(await centre(buy(page))).toBeGreaterThan(bar);
     }
   });
@@ -131,9 +132,9 @@ test.describe("desktop bar", () => {
 
     // A click on the other link moves it: it ends under the link of the page that opened.
     await hydrated(page);
-    const about = primary(page).getByRole("link", { name: "About", exact: true });
+    const about = primary(page).getByRole("link", { name: "Why Advanta", exact: true });
     await about.click();
-    await expect(page).toHaveURL(/\/about$/, { timeout: NAVIGATION_TIMEOUT });
+    await expect(page).toHaveURL(/\/why-advanta$/, { timeout: NAVIGATION_TIMEOUT });
     await expect
       .poll(async () => Math.abs((await centre(underline(page))) - (await centre(about))))
       .toBeLessThan(1);
@@ -152,7 +153,9 @@ test.describe("desktop bar", () => {
     // millisecond: nothing a person can see.
     await expect
       .poll(() =>
-        underline(page).evaluate((el) => Number.parseFloat(getComputedStyle(el).transitionDuration)),
+        underline(page).evaluate((el) =>
+          Number.parseFloat(getComputedStyle(el).transitionDuration),
+        ),
       )
       .toBeLessThan(0.001);
   });
@@ -197,5 +200,46 @@ test.describe("desktop bar", () => {
     const box = await banner(page).boundingBox();
     expect(box?.y).toBe(0);
     await expect(rail(page)).not.toBeInViewport();
+  });
+
+  test("the brand takes the home page back to its top, with no new history entry", async ({
+    page,
+  }) => {
+    await page.goto("/");
+    await hydrated(page);
+    const brand = banner(page).getByRole("link", { name: "Advanta365", exact: true });
+    await expect(brand).toHaveAttribute("href", "/");
+
+    await page.evaluate(() => window.scrollTo(0, 1200));
+    await expect.poll(() => page.evaluate(() => window.scrollY)).toBeGreaterThan(600);
+    const entries = await page.evaluate(() => window.history.length);
+
+    await brand.click();
+    await expect.poll(() => page.evaluate(() => window.scrollY)).toBe(0);
+    await expect(page).toHaveURL(/\/$/);
+    expect(await page.evaluate(() => window.history.length)).toBe(entries);
+  });
+
+  test("the brand scrolls to the top at once when movement is reduced, and keeps a query", async ({
+    page,
+  }) => {
+    await page.emulateMedia({ reducedMotion: "reduce" });
+    await page.goto("/?from=brand");
+    await hydrated(page);
+
+    await page.evaluate(() => window.scrollTo(0, 1200));
+    await expect.poll(() => page.evaluate(() => window.scrollY)).toBeGreaterThan(600);
+
+    await banner(page).getByRole("link", { name: "Advanta365", exact: true }).click();
+    await expect.poll(() => page.evaluate(() => window.scrollY)).toBe(0);
+    await expect(page).toHaveURL(/\/\?from=brand$/);
+  });
+
+  test("the brand is still a link home from another page", async ({ page }) => {
+    await page.goto("/catalog");
+    await hydrated(page);
+
+    await banner(page).getByRole("link", { name: "Advanta365", exact: true }).click();
+    await expect(page).toHaveURL(/\/$/, { timeout: NAVIGATION_TIMEOUT });
   });
 });

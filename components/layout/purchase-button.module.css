@@ -1,3 +1,8 @@
+/* The bar is one row high: the button never wraps its words onto a second line. */
+.button.button {
+  white-space: nowrap;
+}
+
 /*
  * Below 68em the price is not drawn, and `display: none` takes it out of the link's name too: one
  * button, one name, at every width.

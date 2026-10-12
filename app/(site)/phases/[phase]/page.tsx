@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
-import { ChainLockParts } from "@/components/catalog/chain-lock";
 import { PhasePager } from "@/components/catalog/phase-pager";
 import { StepNav } from "@/components/catalog/step-nav";
 import { TemplateTile, TileGrid } from "@/components/catalog/template-tile";
@@ -34,9 +33,8 @@ export async function generateMetadata({ params }: PhasePageProps): Promise<Meta
  * then a band of its own, desk and paper in turn: the step number and summary in the margin, the
  * step name and its templates as tiles beside them: a free sample links to the catalog, where it
  * opens in the pop-up, and every other tile is locked. Every tile is of this phase, so a tile names
- * only its type. The drawing the locks draw from (`ChainLockParts`) is on the page once, ahead of
- * the steps, for all their grids. The page ends with a link to the phase in the catalog and the
- * links to the phases before and after it, on the band that carries on the alternation.
+ * only its type. The page ends with a link to the phase in the catalog and the links to the phases
+ * before and after it, on the band that carries on the alternation.
  */
 export default async function PhasePage({ params }: PhasePageProps) {
   const [phase, phases, templates] = await Promise.all([
@@ -87,7 +85,6 @@ export default async function PhasePage({ params }: PhasePageProps) {
         <StepNav steps={phase.steps} />
       </TitleBlock>
 
-      {inPhase.some((template) => !template.free) ? <ChainLockParts /> : null}
       {phase.steps.map((step, index) => {
         const inStep = inPhase.filter((t) => t.step === step.slug);
         return (
@@ -102,7 +99,7 @@ export default async function PhasePage({ params }: PhasePageProps) {
             </p>
             <h2 className={cx("type-page", styles.stepTitle)}>{step.name}</h2>
             <p className={cx("type-ui", styles.stepSummary)}>{step.summary}</p>
-            <TileGrid className={styles.tiles} locks={false}>
+            <TileGrid className={styles.tiles}>
               {inStep.map((template) => (
                 <li key={template.slug}>
                   <TemplateTile

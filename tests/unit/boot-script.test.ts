@@ -8,7 +8,6 @@ import {
   INK_BACKSTOP_MS,
   INK_KEY,
   INK_OFF,
-  INK_PAUSED,
   inkMode,
   INTRO_BACKSTOP_MS,
   INTRO_CLICK_GUARD_MS,
@@ -191,7 +190,7 @@ describe("calm routes", () => {
   it("are not the home page, the company pages, the purchase page or a phase", () => {
     for (const path of [
       "/",
-      "/about",
+      "/why-advanta",
       "/purchase",
       "/cart",
       "/bundles/launch-kit",
@@ -205,7 +204,14 @@ describe("calm routes", () => {
   });
 
   it("are marked by the script exactly where the rule says", () => {
-    for (const path of ["/", "/catalog", "/catalog/x", "/purchase", "/templates/x", "/about"]) {
+    for (const path of [
+      "/",
+      "/catalog",
+      "/catalog/x",
+      "/purchase",
+      "/templates/x",
+      "/why-advanta",
+    ]) {
       expect(load({ path }).attribute("data-ink-route"), path).toBe(
         isCalmRoute(path) ? "calm" : null,
       );
@@ -234,13 +240,15 @@ describe("motion", () => {
 });
 
 describe("the ink", () => {
+  const LEGACY_PAUSED = "paused";
   const MEDIA = [
     [],
     ["prefers-contrast: more"],
     ["forced-colors: active"],
     ["prefers-reduced-data: reduce"],
   ];
-  const STORED = [null, INK_OFF, INK_PAUSED, "high", "medium", "low", "something else"];
+  // "paused" is what an earlier version of the site stored when a visitor paused the ink.
+  const STORED = [null, INK_OFF, LEGACY_PAUSED, "high", "medium", "low", "something else"];
   const GPUS = ["able", "none", "no-float", "software", "software-masked", "throws"] as const;
 
   it("starts as the pure decision says, in every combination", () => {
@@ -275,7 +283,7 @@ describe("the ink", () => {
   });
 
   it("asks the GPU only when the session has no choice yet, and gives the context back", () => {
-    const first = load({ path: "/about" });
+    const first = load({ path: "/why-advanta" });
     expect(first.attribute("data-ink")).toBe("live");
     expect(first.contexts).toHaveLength(1);
     expect(first.contexts[0]?.options).toEqual({ failIfMajorPerformanceCaveat: true });
@@ -283,7 +291,7 @@ describe("the ink", () => {
     // A device that can is not stored: the layer stores the tier it settles on.
     expect(first.store.has(INK_KEY)).toBe(false);
 
-    for (const stored of ["high", INK_PAUSED, INK_OFF]) {
+    for (const stored of ["high", INK_OFF]) {
       expect(load({ stored: { [INK_KEY]: stored } }).contexts).toEqual([]);
     }
     expect(load({ media: ["prefers-contrast: more"] }).contexts).toEqual([]);
@@ -291,7 +299,7 @@ describe("the ink", () => {
 
   it("remembers a device that cannot as off", () => {
     for (const gpu of ["none", "no-float", "software", "software-masked", "throws"] as const) {
-      const page = load({ path: "/about", gpu });
+      const page = load({ path: "/why-advanta", gpu });
       expect(page.attribute("data-ink")).toBe("still");
       expect(page.store.get(INK_KEY)).toBe(INK_OFF);
     }
@@ -310,26 +318,43 @@ describe("the ink", () => {
   });
 
   it("falls back to stills when no layer has claimed live ink after six seconds", () => {
-    const unclaimed = load({ path: "/about" });
+    const unclaimed = load({ path: "/why-advanta" });
     expect(unclaimed.timers()).toContain(INK_BACKSTOP_MS);
     unclaimed.runTimer(INK_BACKSTOP_MS);
     expect(unclaimed.attribute("data-ink")).toBe("still");
 
-    const claimed = load({ path: "/about" });
+    const claimed = load({ path: "/why-advanta" });
     claimed.attributes.set("data-ink-layer", "");
     claimed.runTimer(INK_BACKSTOP_MS);
     expect(claimed.attribute("data-ink")).toBe("live");
+  });
 
-    const paused = load({ path: "/about", stored: { [INK_KEY]: INK_PAUSED } });
-    expect(paused.timers()).not.toContain(INK_BACKSTOP_MS);
+  it("treats a stored value from the pause button of an earlier version like no value", () => {
+    // The ink runs live, the device is asked, and the stored word is not mistaken for a choice.
+    const page = load({ path: "/why-advanta", stored: { [INK_KEY]: LEGACY_PAUSED } });
+    expect(page.attribute("data-ink")).toBe("live");
+    expect(page.contexts).toHaveLength(1);
+    expect(page.timers()).toContain(INK_BACKSTOP_MS);
+    // A device that cannot run it is still remembered as off, over the old value.
+    const incapable = load({
+      path: "/why-advanta",
+      gpu: "none",
+      stored: { [INK_KEY]: LEGACY_PAUSED },
+    });
+    expect(incapable.attribute("data-ink")).toBe("still");
+    expect(incapable.store.get(INK_KEY)).toBe(INK_OFF);
+    // The pure decision agrees.
+    const visit = { reducedMotion: false, contrast: false, saveData: false };
+    expect(inkMode({ ...visit, stored: LEGACY_PAUSED, capable: () => true })).toBe("live");
+    expect(inkMode({ ...visit, stored: LEGACY_PAUSED, capable: () => false })).toBe("still");
   });
 
   it("survives storage that throws: the device is asked, nothing is stored", () => {
-    const page = load({ path: "/about", storage: "throws" });
+    const page = load({ path: "/why-advanta", storage: "throws" });
     expect(page.attribute("data-ink")).toBe("live");
-    expect(load({ path: "/about", storage: "throws", gpu: "none" }).attribute("data-ink")).toBe(
-      "still",
-    );
+    expect(
+      load({ path: "/why-advanta", storage: "throws", gpu: "none" }).attribute("data-ink"),
+    ).toBe("still");
   });
 });
 

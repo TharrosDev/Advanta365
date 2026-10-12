@@ -1,6 +1,6 @@
 import { expect, test, type Page } from "@playwright/test";
 import { hydrated, introSeen, NAVIGATION_TIMEOUT } from "./helpers";
-import { INK_OFF, INK_PAUSED } from "../../lib/boot/state";
+import { INK_OFF } from "../../lib/boot/state";
 import {
   DOCS,
   PROMPT,
@@ -240,24 +240,6 @@ test.describe("the hero", () => {
     expect(frames.length).toBeGreaterThan(20);
     expect(frames.every((frame) => frame.docs === 6)).toBe(true);
     expect(await unsettledFrames(page)).toEqual([]);
-  });
-
-  test("in a session whose ink is paused the documents stand from the first frame too", async ({
-    page,
-  }) => {
-    // What playing the ink again does to them is in ink-live.spec.ts: it takes a graphics card.
-    await storeInk(page, INK_PAUSED);
-    await recordStage(page);
-    await page.goto("/");
-    await expect(page.locator("html")).toHaveAttribute("data-ink", "paused");
-    await hydrated(page);
-    await expect(page.locator(STAGE)).toHaveAttribute("data-landed", "");
-    await expect
-      .poll(async () => (await stageFrames(page)).length, { timeout: 10_000 })
-      .toBeGreaterThan(20);
-    expect(await unsettledFrames(page)).toEqual([]);
-    await expect(page.locator(PROMPT)).toBeHidden();
-    for (const doc of await page.locator(DOCS).all()) await expect(doc).toBeVisible();
   });
 
   test("a return to the home page inside the site finds the documents standing", async ({

@@ -21,10 +21,14 @@ export const SITE = {
 } as const;
 
 /**
- * The one thing the site sells. The price is written here once, as integer cents, and printed
- * everywhere with `formatPrice`.
+ * The one thing the site sells. The price is written here once, as integer cents in Canadian
+ * dollars, and printed everywhere with `formatPrice`.
  */
-export const OFFER = { name: "The complete toolkit", priceCents: 49999 } as const;
+export const OFFER = {
+  name: "The complete toolkit",
+  priceCents: 149999,
+  currency: "CAD",
+} as const;
 
 /** The one place to buy: its link leads the primary navigation and has its own place in the bar. */
 export const PURCHASE_LINK = { href: "/purchase", label: "Purchase" } as const;
@@ -32,5 +36,16 @@ export const PURCHASE_LINK = { href: "/purchase", label: "Purchase" } as const;
 /** The pages that describe the product, after the purchase link. */
 export const NAV = [
   { href: "/catalog", label: "Catalog" },
-  { href: "/about", label: "About" },
+  { href: "/why-advanta", label: "Why Advanta" },
+] as const;
+
+/** The page to write to us from. The footer and the menu link to it; the bar does not. */
+export const CONTACT_LINK = { href: "/contact", label: "Contact" } as const;
+
+/** The pages a site that sells owes its visitors, in the order the footer lists them. */
+export const LEGAL_LINKS = [
+  { href: "/privacy", label: "Privacy" },
+  { href: "/terms", label: "Terms" },
+  { href: "/refunds", label: "Refunds" },
+  { href: "/accessibility", label: "Accessibility" },
 ] as const;

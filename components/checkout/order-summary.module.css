@@ -1,0 +1,179 @@
+/*
+ * The order summary is written on the binder: the semantic tokens are set here as the binder band
+ * sets them, so everything inside (text, rules, the focus ring) reads on black.
+ */
+.root {
+  --surface: var(--binder-rise);
+  --text: var(--on-binder);
+  --text-soft: var(--on-binder-soft);
+  --text-faint: var(--on-binder-soft);
+  --line: var(--rule-on-binder);
+  --line-firm: var(--on-binder-soft);
+  --line-ink: var(--on-binder);
+  --focus-ring: var(--mark);
+
+  background: var(--binder);
+  color: var(--text);
+}
+
+.eyebrow {
+  color: var(--text-soft);
+}
+
+/* The panel: the column beside the form. Its content keeps to the top while the form scrolls. */
+.panel {
+  position: sticky;
+  top: 0;
+  padding: var(--s-5) var(--s-4);
+}
+
+.name {
+  margin-block-start: var(--s-1);
+}
+
+/* What is inside: one line each, a highlighter tick before it, ruled apart. */
+.included {
+  display: flex;
+  flex-direction: column;
+  margin: var(--s-4) 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.line {
+  display: flex;
+  align-items: center;
+  gap: var(--s-1);
+  padding-block: var(--s-1);
+  border-block-start: var(--hair) solid var(--line);
+  font-weight: 400;
+}
+
+.tick {
+  color: var(--mark);
+}
+
+/* The amounts: a label and its value on one row, the total under a firm rule in Besley. */
+.amounts {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-1);
+  margin-block-start: var(--s-3);
+  padding-block-start: var(--s-3);
+  border-block-start: var(--hair) solid var(--line-firm);
+}
+
+.amount {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0 var(--s-2);
+}
+
+.amount dt {
+  color: var(--text-soft);
+  font-weight: 400;
+}
+
+.amount dd {
+  text-align: end;
+}
+
+.total {
+  margin-block-start: var(--s-2);
+  padding-block-start: var(--s-2);
+  border-block-start: var(--edge) solid var(--line-ink);
+}
+
+.total dt {
+  color: var(--text);
+  font-weight: 600;
+}
+
+.figure {
+  font-family: var(--face-display);
+  font-size: var(--size-section);
+  line-height: 1.2;
+  font-weight: 700;
+}
+
+.fine {
+  margin-block-start: var(--s-3);
+  color: var(--text-soft);
+}
+
+/*
+ * The disclosure: one row, at least 56px tall, with the offer, its price and a chevron that turns
+ * when it is open. The browser's own marker is taken off; the chevron is the indicator.
+ */
+.toggle {
+  display: flex;
+  align-items: center;
+  gap: var(--s-2);
+  min-height: var(--control-lg);
+  padding: var(--s-1) var(--s-3);
+  list-style: none;
+  cursor: pointer;
+}
+
+.toggle::-webkit-details-marker {
+  display: none;
+}
+
+.toggle:focus-visible {
+  outline-offset: -3px;
+}
+
+.toggleWords {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.toggleName {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.togglePrice {
+  flex: none;
+}
+
+.chevron {
+  color: var(--mark);
+}
+
+.disclosure[open] .chevron {
+  rotate: 180deg;
+}
+
+.more {
+  padding: 0 var(--s-3) var(--s-3);
+}
+
+.more .included {
+  margin-block-start: 0;
+}
+
+@media (min-width: 40em) {
+  .toggle {
+    padding-inline: var(--s-5);
+  }
+
+  .more {
+    padding-inline: var(--s-5);
+  }
+}
+
+@media (forced-colors: active) {
+  .disclosure {
+    border-block-end: var(--hair) solid CanvasText;
+  }
+
+  .panel {
+    border-inline-start: var(--hair) solid CanvasText;
+  }
+}

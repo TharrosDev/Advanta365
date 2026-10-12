@@ -2,13 +2,14 @@
 
 Advanta365 is the storefront for a change management and user adoption toolkit for Microsoft 365 and
 SharePoint Online rollouts. It is an EchoFive product. The toolkit is playbooks, templates, field guides
-and training. The site sells one thing: the complete toolkit, for $499.99, shown in US dollars. Six
+and training. The site sells one thing: the complete toolkit, for $1,499.99 CAD, shown in Canadian dollars. Six
 templates are free samples; every other template in the catalog is shown locked. There is one Purchase page
 and no cart.
 
 The catalog in this repository is sample content. The phases, steps and templates are placeholders, and the
-site labels them as a beta. Checkout is not built: the Checkout button on the Purchase page is disabled and
-says "Checkout coming soon". The bar's "Get the toolkit" button is a link to that page.
+site labels them as a beta. The Checkout button on the Purchase page opens a checkout in a pop-up, which is
+built up to payment: no payment provider is connected, so its last step offers the order by email and nothing
+can be paid for yet. The bar's "Get the toolkit" button is a link to the Purchase page.
 
 ## Stack
 
@@ -87,6 +88,8 @@ app/
     layout.tsx        Skip link, header, phase rail, main, footer, ink layer
     page.tsx          Home: an array of sections, in order
     purchase/ catalog/ phases/[phase]/ about/ sample/
+    privacy/ terms/ refunds/ accessibility/
+                      The four legal pages, each one LegalDocument in the shared LegalPage layout
     [...rest]/        Calls notFound(), so unknown paths keep the site shell
   (lab)/ink-lab/      The ink on a mock stage, in development only
 components/
@@ -94,14 +97,19 @@ components/
   layout/             Header, PrimaryNav, PurchaseButton, NavDrawer, PhaseRail, TitleBlock, Breadcrumbs,
                       Footer
   home/               Home sections: hero (HeroStage, ProofStrip), featured (the six samples), inside, the
-                      portfolio, solution, practice, closing
-  catalog/            Template covers, tiles (TemplateTile, LockedTile, ChainLock), the pop-up
-                      (TemplateDialog, TemplateDetail), filters and their chips, search, sort, result
+                      portfolio, solution
+  catalog/            Template covers, tiles (TemplateTile, LockedTile), the pop-up
+                      (TemplateDialog, a PageDialog from ui/, and TemplateDetail), filters and their chips, search, sort, result
                       list, the phone's phase strip, step nav, the phase pager
   purchase/           Portfolio (the toolkit as a folder), PriceTag and the contents leaf (ContentsLeaf)
-  about/              The About page's sections: promise, how it was made, who it is for, comparison,
-                      state of the site, contact
-  company/            NextSteps (About and Sample), StatementSection and WorkedExample (Sample)
+  checkout/           The checkout over the Purchase page: CheckoutDialog, its three steps, the order
+                      summary and the form fields
+  about/              The Why Advanta page's sections: promise, how it was made, who it is for,
+                      comparison,
+                      state of the site
+  contact/            ContactSection, the whole Contact page as one section
+  legal/              LegalPage, the one layout of the four legal pages: contents, article, policies
+  company/            NextSteps (Why Advanta and Sample), StatementSection and WorkedExample (Sample)
   ink/                InkBackdrop, InkLayer, the controller and the lab
   intro/              The cover of a first visit, and the tag that prints the boot script
   not-found/          MissingPage, AskedPath and LateBoot
@@ -110,15 +118,19 @@ content/              The sample catalog: phases, one template file per phase, t
 lib/
   site.ts             Name, parent company, tagline, contact address, TOOLKIT counts, OFFER (the one
                       price) and NAV
-  format.ts           formatPrice (US dollars from integer cents), formatLength (slides or pages) and
+  format.ts           formatPrice (integer cents and a currency as "$1,499.99 CAD"), formatLength (slides or pages) and
                       countWord
   cx.ts               cx() for class names and cssVars() for custom properties
   compounds.ts        Hyphenated compounds, kept whole in titles
   brand/mark.ts       The logo mark geometry, the single source of truth
   catalog/            Schemas, validation, repository, query, URL state, phase coverage and neighbours,
                       the worked example's contents
+  checkout/           The order's schemas (zod/mini), the draft kept in session storage, the step
+                      machine, the order's code, text and mailto, and provider.ts: the payment seam
   ink/                The engine (engine/), scenes, stage choice, calm zones, pigments, stills, test hook
   boot/               The boot script and the pure decisions it mirrors
+  legal/              The four legal pages as data (privacy, terms, refunds, accessibility), their types,
+                      and facts.ts: LEGAL, the one object of facts and decisions the owner fills in
   scroll/             The observer for entrances, the pointer's light, and a sideways row's current item
                       brought into view
 public/ink/           The thirteen stills (WebP)
@@ -129,7 +141,7 @@ tests/e2e/            Playwright specs, helpers.ts and support/
 tests/budgets/        The baseline that check-budgets compares with
 docs/                 The design system and the architecture
 proxy.ts              Redirects mixed-case paths to lower case
-next.config.ts        Redirects the retired addresses (bundles, pricing, cart, contact, template pages)
+next.config.ts        Redirects the retired addresses (bundles, pricing, cart, about, template pages)
 ```
 
 ## Rules the code relies on
@@ -168,8 +180,8 @@ next.config.ts        Redirects the retired addresses (bundles, pricing, cart, c
   `contentinfo` (the footer).
 - **Storage access is guarded.** Every `localStorage` or `sessionStorage` access is wrapped in try/catch,
   and the page renders without it.
-- **The price is written once.** `OFFER.priceCents` in `lib/site.ts` is integer cents (49999), and
-  `formatPrice` in `lib/format.ts` prints it as $499.99.
+- **The price is written once.** `OFFER.priceCents` in `lib/site.ts` is integer cents (149999) and
+  `OFFER.currency` its currency ("CAD"); `formatPrice` in `lib/format.ts` prints them as $1,499.99 CAD.
 - **Exactly six templates are free.** `free: true` marks them, and validation fails with any other count.
 - **The ink keeps clear of copy it is told about.** Copy marks itself with `data-ink-calm` (`text`,
   `display` or `veil`), and a backdrop's open water is marked with `data-ink-anchor="open"`.
@@ -187,13 +199,13 @@ in `components/ui/`. `docs/design-system.md` describes the system in full.
 `Band` (`components/ui/band.tsx`) is a full-width strip of the page on one surface. Its `surface` sets
 `data-band`, and the stylesheet sets the semantic tokens for that band.
 
-| `surface`        | Ground                   | Used for                                                |
-| ---------------- | ------------------------ | ------------------------------------------------------- |
-| `desk` (default) | `--desk`, a light table  | Sections on which the paper sheets lie                  |
-| `paper`          | `--paper`, white         | Most content sections                                   |
-| `wash`           | `--mark-wash`, pale blue | Highlighted sections                                    |
-| `ink`            | `--binder`, near black   | The solution band on home and the promise band on About |
-| `binder`         | `--binder`, near black   | The footer                                              |
+| `surface`        | Ground                   | Used for                                                      |
+| ---------------- | ------------------------ | ------------------------------------------------------------- |
+| `desk` (default) | `--desk`, a light table  | Sections on which the paper sheets lie                        |
+| `paper`          | `--paper`, white         | Most content sections                                         |
+| `wash`           | `--mark-wash`, pale blue | Highlighted sections                                          |
+| `ink`            | `--binder`, near black   | The solution band on home and the promise band on Why Advanta |
+| `binder`         | `--binder`, near black   | The footer                                                    |
 
 The `ink` and `binder` surfaces share one dark block in the stylesheet, and text on them is `--on-binder`.
 Components read the semantic tokens (`--ground`, `--surface`, `--stripe`, `--tile`, `--text`, `--text-soft`,
@@ -273,26 +285,26 @@ Display and lead sizes are `clamp()` tokens between a phone value and a desktop 
 
 ### Attributes that switch motion
 
-| Attribute                                         | Set by                                                 | Effect                                                                                     |
-| ------------------------------------------------- | ------------------------------------------------------ | ------------------------------------------------------------------------------------------ |
-| `html[data-motion="on"]`                          | Boot script                                            | Switches on the motion rules                                                               |
-| `html[data-timeline="on"]`                        | Boot script, where the browser supports view timelines | Entrances follow the scroll                                                                |
-| `html[data-io="armed"]`                           | `MotionRoot`, once the observer starts                 | Entrances on browsers without view timelines                                               |
-| `html[data-intro]`                                | Boot script and ink controller                         | The cover: `play`, `ink` or `leave`; the attribute is removed at the end                   |
-| `html[data-ink]`                                  | Boot script                                            | `live`, `paused` or `still`                                                                |
-| `data-move` (`drift`, `ink-in`, `settle`, `grow`) | `Appear`, `Sentences`                                  | The entrance of an element; `data-when="load"` plays it on load instead                    |
-| `data-paper`, `data-lit`                          | `PaperSheet` (the `lit` prop)                          | The sheet's shadow, its lift and its tilt toward the pointer                               |
-| `data-bar`                                        | `Header`                                               | The shadow under the sticky bar                                                            |
-| `data-ledger`                                     | `BandedList`                                           | The rule of a ledger draws in                                                              |
-| `data-ninety`                                     | The solution band (`components/home/pitch-spread.tsx`) | The ten blocks fill; the 90% figure never moves                                            |
-| `data-watch`                                      | `Tally` with `animate`, `PriceTag`                     | The blocks fill, or the tag swings, when the element is seen                               |
-| `data-hero-stage`, `-prompt`, `-doc`              | `HeroStage`                                            | With live ink, the hero's prompt box dissolves and the six documents land                  |
-| `data-tile` `data-denied`, `data-lock`            | `TemplateTile`, `LockedTile`, `ChainLock`              | A locked tile says no: it vibrates, its padlock rattles, its outline and wash hit and fade |
-| `data-template-dialog` `data-enter`               | `TemplateDialog`                                       | The pop-up rises as the page dims                                                          |
-| `data-price-tag`                                  | `PriceTag`                                             | The tag swings on its string                                                               |
-| `data-nav-underline`                              | `PrimaryNav`                                           | The bar's underline slides to the current link                                             |
-| `data-ink-calm` (`text`, `display`, `veil`)       | Page copy                                              | Copy the ink keeps clear of                                                                |
-| `data-ink-anchor` (`open`, `tenth`)               | Ink backdrops and the tally                            | Where the open water is, and the block that fires the ninety                               |
+| Attribute                                         | Set by                                                 | Effect                                                                    |
+| ------------------------------------------------- | ------------------------------------------------------ | ------------------------------------------------------------------------- |
+| `html[data-motion="on"]`                          | Boot script                                            | Switches on the motion rules                                              |
+| `html[data-timeline="on"]`                        | Boot script, where the browser supports view timelines | Entrances follow the scroll                                               |
+| `html[data-io="armed"]`                           | `MotionRoot`, once the observer starts                 | Entrances on browsers without view timelines                              |
+| `html[data-intro]`                                | Boot script and ink controller                         | The cover: `play`, `ink` or `leave`; the attribute is removed at the end  |
+| `html[data-ink]`                                  | Boot script                                            | `live` or `still`                                                         |
+| `data-move` (`drift`, `ink-in`, `settle`, `grow`) | `Appear`, `Sentences`                                  | The entrance of an element; `data-when="load"` plays it on load instead   |
+| `data-paper`, `data-lit`                          | `PaperSheet` (the `lit` prop)                          | The sheet's shadow, its lift and its tilt toward the pointer              |
+| `data-bar`                                        | `Header`                                               | The shadow under the sticky bar                                           |
+| `data-ledger`                                     | `BandedList`                                           | The rule of a ledger draws in                                             |
+| `data-ninety`                                     | The solution band (`components/home/pitch-spread.tsx`) | The ten blocks fill; the 90% figure never moves                           |
+| `data-watch`                                      | `Tally` with `animate`, `PriceTag`                     | The blocks fill, or the tag swings, when the element is seen              |
+| `data-hero-stage`, `-prompt`, `-doc`              | `HeroStage`                                            | With live ink, the hero's prompt box dissolves and the six documents land |
+| `data-tile` `data-denied`                         | `TemplateTile`, `LockedTile`                           | A locked tile says no: it vibrates, its outline and wash hit and fade     |
+| `data-page-dialog` `data-enter`                   | `PageDialog` (the catalog's pop-up, the checkout)      | The pop-up rises as the page dims                                         |
+| `data-price-tag`                                  | `PriceTag`                                             | The tag swings on its string                                              |
+| `data-nav-underline`                              | `PrimaryNav`                                           | The bar's underline slides to the current link                            |
+| `data-ink-calm` (`text`, `display`, `veil`)       | Page copy                                              | Copy the ink keeps clear of                                               |
+| `data-ink-anchor` (`open`, `tenth`)               | Ink backdrops and the tally                            | Where the open water is, and the block that fires the ninety              |
 
 Entrances follow the scroll where view timelines exist and fall back to an intersection observer elsewhere.
 Every animation sits behind the no-preference query, and the stylesheet forces durations to 0.01ms under
@@ -304,23 +316,23 @@ A first visit to `/` in a browser session plays a cover. It draws the mark in pe
 the arm of the mark in a finer pen, and shows the site name. The finished mark stands from 1.0 to 2.5
 seconds, and the cover is gone at 2.95 seconds, or 3.5 seconds after the ink took over from it (the ink
 may take over up to 1.6 seconds in). A press, a key, a wheel turn or a touch ends it. Reduced motion
-skips it. When the cover has gone, the hero's sequence starts, where the ink is live; with still or
-paused ink the six documents stand from the first frame and there is no box.
+skips it. When the cover has gone, the hero's sequence starts, where the ink is live; with still ink
+the six documents stand from the first frame and there is no box.
 
 ### Ink
 
 The ink is one canvas that the ink layer moves between backdrops as the page scrolls. The engine loads
 when a backdrop nears the viewport, and it picks a quality tier (high, medium or low) with a short probe,
-then steps down when frames run long. A pause control sits in each live backdrop.
+then steps down when frames run long. It comes to rest by itself after a while without input.
 
 | Scene    | Where it runs                                                                                   |
 | -------- | ----------------------------------------------------------------------------------------------- |
 | `intro`  | The cover                                                                                       |
 | `prompt` | The home page hero: a blank prompt that becomes the six free samples                            |
 | `ninety` | The solution band on the home page, which fires when the tenth block of its tally turns in view |
-| `bloom`  | The closing band on the home page, and the stage of the Purchase page                           |
-| `wisps`  | The footer, on every page                                                                       |
-| `title`  | The title blocks of About, Sample and the phase pages                                           |
+| `bloom`  | The stage of the Purchase page                                                                  |
+| `wisps`  | The ink lab only; the footer has no ink                                                         |
+| `title`  | The title blocks of Why Advanta, Sample and the phase pages                                     |
 | `spill`  | The 404 page                                                                                    |
 
 On the catalog, the backdrops show the stills.
@@ -361,9 +373,8 @@ Each phase has two steps.
    the sample catalog" links on the home page (`components/home/featured-section.tsx` and
    `components/home/inside-section.tsx`), the "Browse the sample catalog by phase" name (`PHASES_LABEL`) of
    the phase links in `components/home/inside-section.tsx`, `components/about/phase-line.tsx` and
-   `app/(site)/sample/page.tsx` (where it is also the visible eyebrow), the footer's status line
-   (`components/layout/footer.tsx`), the sample note on the Purchase page
-   (`components/purchase/contents-leaf.tsx`) and the About page's note on the state of the site
+   `app/(site)/sample/page.tsx` (where it is also the visible eyebrow), the sample note on the Purchase page
+   (`components/purchase/contents-leaf.tsx`) and the Why Advanta page's note on the state of the site
    (`components/about/site-state.tsx`). No page reads `isSample` (only the unit tests
    call `hasSampleContent()`), so nothing changes by itself when the real records arrive: edit each of
    these places by hand.
@@ -377,13 +388,13 @@ Each phase has two steps.
 6. **Toolkit counts.** `TOOLKIT` in `lib/site.ts` holds the counts for the whole toolkit: playbooks,
    templates, field guides, job aids, training audiences and years of experience. Pages read them from
    there. The experience is also set in sentences, built from `TOOLKIT.experience`: the hero lead
-   (`components/home/hero.tsx`), the promise and "How it was made" sections of About
-   (`components/about/promise-band.tsx` and `components/about/making-section.tsx`) and the About page's
+   (`components/home/hero.tsx`), the promise and "How it was made" sections of Why Advanta
+   (`components/about/promise-band.tsx` and `components/about/making-section.tsx`) and the Why Advanta page's
    description. The counts describe the whole
    toolkit, not the number of catalog listings, and no page may imply that the catalog lists that many. The
    Purchase page's "What is inside" ledger and the hero's proof strip read them from there.
 7. **Home page.** The home page is the `sections` array in `app/(site)/page.tsx`, top to bottom: the hero,
-   `#featured`, `#inside`, `#toolkit`, `#solution`, `#practice` and `#closing`.
+   `#featured`, `#inside`, `#toolkit` and `#solution`.
    Reordering the page means reordering that array. The specimen in `#inside` shows the
    first free sample. The hero's documents, `#featured` and the covers in the folder of `#toolkit` are the six
    free samples. The phase coverage in the folder comes from `phaseCoverage()` in
@@ -393,13 +404,13 @@ Each phase has two steps.
 
 The code already has the seams that a production build connects to.
 
-| Concern       | Seam in the code                                                                                                                                                                         |
-| ------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Catalog data  | Files in `content/`, read through `lib/catalog/repository.ts`. Its functions are async, so another source can implement the same functions.                                              |
-| Record shapes | `lib/catalog/schema.ts` defines the phase, step and template records, and `lib/catalog/validate.ts` checks them.                                                                         |
-| The offer     | `OFFER` in `lib/site.ts`: its name and its price in cents. The tag, the bar's button and the Purchase page all print it.                                                                 |
-| Checkout      | The disabled "Checkout coming soon" button on `components/purchase/contents-leaf.tsx`. A payment provider, and whatever unlocks the locked templates, connect there; neither exists yet. |
-| Page metadata | The root `metadata` in `app/layout.tsx`, and each page's metadata export.                                                                                                                |
+| Concern       | Seam in the code                                                                                                                                                                        |
+| ------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Catalog data  | Files in `content/`, read through `lib/catalog/repository.ts`. Its functions are async, so another source can implement the same functions.                                             |
+| Record shapes | `lib/catalog/schema.ts` defines the phase, step and template records, and `lib/catalog/validate.ts` checks them.                                                                        |
+| The offer     | `OFFER` in `lib/site.ts`: its name and its price in cents. The tag, the bar's button and the Purchase page all print it.                                                                |
+| Checkout      | `getPaymentProvider()` in `lib/checkout/provider.ts` returns `null`: a provider is returned from there (`docs/architecture.md`, section 3.7). Nothing unlocks the locked templates yet. |
+| Page metadata | The root `metadata` in `app/layout.tsx`, and each page's metadata export.                                                                                                               |
 
 Items to settle before launch, from content and commercial terms to the worked example's file, are in
 [Before public launch](#before-public-launch) at the end of this file.
@@ -458,14 +469,32 @@ The rest are about the site itself. None of this is legal advice.
       and set `placeholder` to false. The sample catalog
       also lists the worked example as a locked template; decide whether it is a free sample, a
       product, or both.
-- [ ] **About copy and cost estimates.** The costs of the two alternatives on About (8 to 14
+- [ ] **Why Advanta copy and cost estimates.** The costs of the two alternatives on Why Advanta (8 to 14
       person-months, $150K to $400K per rollout) were carried over from the earlier page as the
       owner's estimates and are labelled Estimate; confirm or replace them in
       `components/about/compare-section.tsx`. The four passes under "How it was made"
       (`components/about/making-section.tsx`) restate "built, delivered, revised and re-delivered"
       and name no real revision history; the owner should read them.
-- [ ] **Currency.** The price, $499.99, is shown in US dollars. The owner has not confirmed the
-      currency; confirm it, then change `formatPrice` in `lib/format.ts` if it is not US dollars.
-- [ ] **Checkout.** Build it: connect a payment provider, and decide how a purchase unlocks the
-      locked templates. Until then the Checkout button on the Purchase page reads "Checkout coming
-      soon" and the locked templates stay locked for every visitor.
+- [ ] **Legal pages.** `/privacy`, `/terms`, `/refunds` and `/accessibility` are owner-drafted
+      and written from what the code does today; a lawyer should read all four before the first
+      sale. The facts and decisions they need are the one object `LEGAL` in `lib/legal/facts.ts`,
+      and a page says only what is true without a value that is still `undefined`. Open: the
+      seller's legal name with its suffix (`entity`, now the bare company name) and postal address
+      (`address`); the governing province (`governingProvince`); the refund window in days
+      (`refundWindowDays`) and whether the default policy stands (an order not yet downloaded is
+      refunded, a faulty or misdescribed file is replaced or refunded, otherwise final after
+      download); whether consultants may use the toolkit for clients (`clientWorkAllowed`, now
+      no); a named privacy contact (`privacyContactName`); the host (`hostingProvider`, set from
+      the `.vercel` folder of this working copy, to confirm); the date (`effectiveDate`), to move on
+      every change; and an accessibility audit (`accessibilityAuditDate`). Also to confirm: that
+      the licence is perpetual and for one organization, that sales tax is added before payment,
+      and that liability is capped at the price paid.
+  - On the site: the privacy policy describes what is there now (no cookies, no analytics, three
+    session storage entries, the checkout's draft among them, and contact by email) and keeps what is planned for the checkout under
+    "When checkout opens" without naming a processor. Rewrite that part, and the refund policy's
+    last section, when a payment provider is connected. `tests/unit/legal.test.ts` checks the
+    wording for set and unset facts.
+- [ ] **Checkout.** It is built up to payment. Connect a payment provider (`docs/architecture.md`,
+      section 3.7), and decide how a paid order is fulfilled and how a purchase unlocks the
+      locked templates. Until then the Payment step offers the order by email and the locked
+      templates stay locked for every visitor.

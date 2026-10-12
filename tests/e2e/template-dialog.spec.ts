@@ -150,7 +150,7 @@ test("a selection dragged out of the pop-up onto the dimmed page leaves it open"
 test("closing a pop-up opened from the catalog leaves no entry behind: Back leaves the catalog", async ({
   page,
 }) => {
-  await page.goto("/about");
+  await page.goto("/why-advanta");
   await openCatalog(page);
   await openFromTile(page);
 
@@ -162,7 +162,7 @@ test("closing a pop-up opened from the catalog leaves no entry behind: Back leav
   // The open and the close were one step: the entry before the catalog is the page that came
   // before it, not the catalog twice.
   await page.goBack();
-  await expect(page).toHaveURL(/\/about$/, { timeout: NAVIGATION_TIMEOUT });
+  await expect(page).toHaveURL(/\/why-advanta$/, { timeout: NAVIGATION_TIMEOUT });
 });
 
 test("a pop-up opened from another page closes in place, and Back goes to that page", async ({

@@ -2,9 +2,11 @@ import { expect, test } from "@playwright/test";
 import { introSeen } from "./helpers";
 
 // The one place a sale starts. `/purchase` shows the toolkit as one folder with its price on a paper
-// tag, the phases it reaches, and, on a contents leaf beside it, what is inside (the ledger, a
-// Checkout button that is not built yet and says so, the address to write to and the note that the
-// catalog is sample content). The home page shows the same folder with a way to that page.
+// tag, the phases it reaches, and, on a contents leaf beside it, what is inside (the ledger, the
+// Checkout link, the way to write to us and the note that the catalog is sample content). The page
+// has no title block: it opens on the folder, whose heading is its one h1. The checkout that the
+// link opens is the subject of checkout.spec.ts. The home page shows the same folder with a way to
+// that page.
 
 const PHASES = ["Make the case", "Plan", "Design", "Prepare", "Communicate", "Execute", "Sustain"];
 
@@ -15,8 +17,13 @@ test.beforeEach(async ({ page }) => {
 test("the purchase page has one title, and the price once, on the tag", async ({ page }) => {
   await page.goto("/purchase");
 
+  // There is no title block: the one h1 is the heading on the front of the folder, and the stage
+  // is the first thing under the bar.
   await expect(page.getByRole("heading", { level: 1 })).toHaveCount(1);
-  await expect(page.getByRole("heading", { level: 1 })).toHaveText("Purchase");
+  await expect(page.getByRole("heading", { level: 1 })).toHaveText("Seven phases in one folder.");
+  await expect(page.locator("[data-folder]").getByRole("heading", { level: 1 })).toHaveCount(1);
+  await expect(page).toHaveTitle(/Purchase/);
+  await expect(page.getByRole("main").getByText(/not available yet|coming soon/i)).toHaveCount(0);
 
   // The folder carries the name of the offer on its tab.
   await expect(page.locator("[data-folder]").getByText("The complete toolkit")).toBeVisible();
@@ -24,13 +31,13 @@ test("the purchase page has one title, and the price once, on the tag", async ({
   // The price is printed in one place only on the page: the tag that hangs from the folder.
   const tag = page.locator("[data-price-tag]");
   await expect(tag).toHaveCount(1);
-  await expect(tag).toContainText("$499.99");
+  await expect(tag).toContainText("$1,499.99 CAD");
   await expect(tag).toContainText("one purchase");
   // The bar’s button repeats it from 68em, so the count is of the page itself, not the bar.
-  await expect(page.getByRole("main").getByText("$499.99")).toHaveCount(1);
+  await expect(page.getByRole("main").getByText("$1,499.99")).toHaveCount(1);
   const mentions = await page
     .getByRole("main")
-    .evaluate((main) => (main.textContent ?? "").split("$499.99").length - 1);
+    .evaluate((main) => (main.textContent ?? "").split("$1,499.99").length - 1);
   expect(mentions).toBe(1);
 });
 
@@ -67,27 +74,27 @@ test("the ledger counts what is inside the toolkit", async ({ page }) => {
   await expect(ledger).toContainText("three audiences");
 });
 
-test("checkout is not built: the button says so, can be reached and does nothing", async ({
+test("Checkout is the leaf's main action: an enabled link to the first step of the checkout", async ({
   page,
 }) => {
   await page.goto("/purchase");
 
-  const button = page.getByRole("button", { name: "Checkout coming soon" });
-  await expect(button).toBeDisabled();
-  // It stays in the tab order, so the words reach a keyboard, and it shows the focus ring.
-  await expect(button).toHaveAttribute("aria-disabled", "true");
-  await button.focus();
-  await expect(button).toBeFocused();
-  await expect(button).toHaveCSS("cursor", "not-allowed");
-
-  const before = page.url();
-  await page.keyboard.press("Enter");
-  await page.keyboard.press("Space");
-  expect(page.url()).toBe(before);
-
-  // The address to write to stands beside it, and the page says the catalog is sample content.
   const main = page.getByRole("main");
-  await expect(main.locator('a[href="mailto:hello@advanta365.com"]')).toBeVisible();
+  const checkout = main.getByRole("link", { name: "Checkout", exact: true });
+  await expect(checkout).toHaveCount(1);
+  await expect(checkout).toHaveAttribute("href", "/purchase?checkout=details");
+  await expect(checkout).toHaveCSS("cursor", "pointer");
+  await checkout.focus();
+  await expect(checkout).toBeFocused();
+  expect((await checkout.boundingBox())?.height).toBeGreaterThanOrEqual(44);
+  // Nothing on the page is a disabled button any more, and no checkout is open until it is asked for.
+  await expect(main.locator('[aria-disabled="true"]')).toHaveCount(0);
+  await expect(page.locator("dialog[data-checkout-dialog]")).toHaveCount(0);
+
+  // The way to write to us stands under it, and the page says the catalog is sample content.
+  const write = main.getByRole("link", { name: "Write to us", exact: true });
+  await expect(write).toHaveAttribute("href", "/contact");
+  await expect(main.getByText(/want to buy by purchase order/i)).toBeVisible();
   await expect(main.getByText(/the catalog on this site shows sample content/i)).toBeVisible();
 });
 
@@ -100,7 +107,7 @@ test("there is no questions section, and what is inside sits beside the folder f
   await expect(page.getByRole("heading", { level: 2, name: "Questions" })).toHaveCount(0);
 
   // The folder is on the left, the price tag clear of the leaf, and the leaf holds the ledger, the
-  // button, the address and the note, in that order.
+  // Checkout link, the way to write to us and the note, in that order.
   const folder = await page.locator("[data-folder]").boundingBox();
   const tag = await page.locator("[data-price-tag]").boundingBox();
   const leaf = page.locator("[data-paper][data-lit]").filter({ hasText: "What is inside" });
@@ -117,9 +124,9 @@ test("there is no questions section, and what is inside sits beside the folder f
       !!second &&
       (first.compareDocumentPosition(second) & Node.DOCUMENT_POSITION_FOLLOWING) !== 0;
     const ledger = at("dl");
-    const button = at('[aria-disabled="true"]');
-    const mail = at('a[href^="mailto:"]');
-    return { one: follows(ledger, button), two: follows(button, mail) };
+    const button = at('a[href="/purchase?checkout=details"]');
+    const write = at('a[href="/contact"]');
+    return { one: follows(ledger, button), two: follows(button, write) };
   });
   expect(order).toEqual({ one: true, two: true });
 });
@@ -204,7 +211,7 @@ test("home shows the toolkit as a folder that leads to the purchase page", async
   await expect(section).toHaveCount(1);
   await expect(page.locator("#bundles")).toHaveCount(0);
   await expect(section.locator("[data-folder]")).toHaveCount(1);
-  await expect(section.locator("[data-price-tag]")).toContainText("$499.99");
+  await expect(section.locator("[data-price-tag]")).toContainText("$1,499.99 CAD");
 
   const link = section.getByRole("link", { name: "Purchase the toolkit" });
   await expect(link).toHaveAttribute("href", "/purchase");

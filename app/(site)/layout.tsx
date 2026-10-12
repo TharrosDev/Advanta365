@@ -16,7 +16,7 @@ import styles from "./layout.module.css";
  * shown.
  *
  * The ink layer is mounted once, after the footer, so nothing of it can come before `children`. It
- * renders no element of its own beyond the pause button it hands to a live stage.
+ * renders no element of its own.
  *
  * `children` is rendered directly inside `<main>`. There is deliberately no boundary around it that
  * could flush the shell early: a route that answers "not found" at request time must still be able to
@@ -38,7 +38,7 @@ export default async function SiteLayout({ children }: { children: ReactNode }) 
         <main id="main" className={styles.main}>
           {children}
         </main>
-        <Footer phases={phaseLinks} />
+        <Footer />
         <InkLayer />
       </div>
     </>

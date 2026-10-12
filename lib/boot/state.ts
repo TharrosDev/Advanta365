@@ -12,12 +12,12 @@ export const INTRO_FLAG = "advanta365.intro.v1";
 export const INTRO_SEEN = "1";
 
 /**
- * The session's ink choice: `off` (this device cannot run it, or ran it too slowly), `paused` (the
- * visitor paused it) or the quality tier the engine settled on.
+ * The session's ink choice: `off` (this device cannot run it, or ran it too slowly) or the quality
+ * tier the engine settled on. Any other stored value, such as one an earlier version of the site
+ * wrote, counts as no value.
  */
 export const INK_KEY = "advanta365.ink.v1";
 export const INK_OFF = "off";
-export const INK_PAUSED = "paused";
 export const INK_TIERS = ["high", "medium", "low"] as const;
 
 /** The one page that opens under the cover. */
@@ -46,7 +46,7 @@ export const INTRO_TAKEOVER_MS = 1600;
 /** Live ink that no layer has claimed by then falls back to stills. */
 export const INK_BACKSTOP_MS = 6000;
 
-export type InkMode = "live" | "paused" | "still";
+export type InkMode = "live" | "still";
 
 /**
  * Renderers that draw on the processor, as source text of a pattern matched without regard to
@@ -118,12 +118,11 @@ export type InkVisit = {
 
 /**
  * How the ink starts on a page load: `still` under reduced motion, raised contrast or a data
- * saver, and on a device that cannot run it; `paused` when the visitor paused it earlier in the
- * session; `live` when the session already settled on a tier, or when the device proves able now.
+ * saver, and on a device that cannot run it; `live` when the session already settled on a tier, or
+ * when the device proves able now.
  */
 export function inkMode({ reducedMotion, contrast, saveData, stored, capable }: InkVisit): InkMode {
   if (reducedMotion || contrast || saveData || stored === INK_OFF) return "still";
-  if (stored === INK_PAUSED) return "paused";
   if ((INK_TIERS as readonly string[]).includes(stored ?? "")) return "live";
   return capable() ? "live" : "still";
 }

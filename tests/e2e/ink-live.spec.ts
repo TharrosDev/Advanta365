@@ -1,6 +1,5 @@
 import { expect, test, type Page } from "@playwright/test";
-import { hydrated, introSeen, NAVIGATION_TIMEOUT } from "./helpers";
-import { INK_PAUSED } from "../../lib/boot/state";
+import { introSeen, NAVIGATION_TIMEOUT } from "./helpers";
 import {
   DOCS,
   PROMPT,
@@ -14,8 +13,6 @@ import {
   timings,
 } from "./support/hero";
 import {
-  BINDER,
-  INK_STORE,
   PAPER,
   backdropState,
   canvasPixel,
@@ -46,8 +43,6 @@ declare global {
     __long?: Array<[number, number]>;
     /** The opacity of the cover's signature on every frame of the load, with the page clock. */
     __signature?: Array<[number, number]>;
-    /** The pause: when the press came and when the loop stopped, on the page clock. */
-    __pause?: { pressed: number | null; stopped: number | null };
   }
 }
 
@@ -193,11 +188,12 @@ test.describe("the prompt", () => {
   test("a frame costs at most 6ms at the high tier", async ({ page }) => {
     await openLive(page);
     await expectRunningIn(page, "prompt");
-    await page.getByRole("button", { name: "Pause ink" }).click();
     const best = await page.evaluate(() => {
       const hook = window.__inkTest;
       const ink = hook?.engine();
       if (!hook || !ink) return null;
+      // The loop is stopped, so the frames measured are the only work there is.
+      ink.stop();
       ink.setQuality("high");
       return Math.min(...[1, 2, 3].map(() => hook.cost(30) ?? Infinity));
     });
@@ -303,8 +299,8 @@ test.describe("the hero's sequence", () => {
   // this project it is. hero.spec.ts is the spec of the stage where the ink is still.
 
   /** The six documents that are still waiting to land, and how many frames are recorded so far. */
-  const midway = (page: Page, then: "pause" | "still") =>
-    page.evaluate((act) => {
+  const midway = (page: Page) =>
+    page.evaluate(() => {
       const waiting = document
         .getAnimations()
         .filter(
@@ -315,10 +311,9 @@ test.describe("the hero's sequence", () => {
               Number(entry.effect?.getComputedTiming().delay ?? 0),
         ).length;
       const frames = (window.__heroFrames ?? []).length;
-      if (act === "pause") document.querySelector<HTMLElement>("[data-ink-toggle]")?.click();
-      else document.documentElement.setAttribute("data-ink", "still");
+      document.documentElement.setAttribute("data-ink", "still");
       return { waiting, frames };
-    }, then);
+    });
 
   /** Waits for a dozen more frames, then returns every frame since `from` that was not at rest. */
   async function unsettledSince(page: Page, from: number) {
@@ -439,29 +434,6 @@ test.describe("the hero's sequence", () => {
       expect(doc).toMatchObject({ opacity: "1", visibility: "visible" });
   });
 
-  test("a pause half-way lands the documents at once, and playing the ink again leaves them standing", async ({
-    page,
-  }) => {
-    await recordStage(page);
-    await openLive(page);
-    await expectRunningIn(page, "prompt");
-    await expect(page.getByRole("button", { name: "Pause ink" })).toHaveCount(1);
-
-    // The button is pressed in the task that reads how far the sequence is.
-    const { waiting, frames } = await midway(page, "pause");
-    test.skip(waiting !== 6, "the documents had begun to land before the ink could be paused");
-    await expect(page.locator(STAGE)).toHaveAttribute("data-landed", "");
-    expect(await unsettledSince(page, frames)).toEqual([]);
-
-    // Playing the ink again starts the water, not the sequence.
-    const from = (await stageFrames(page)).length;
-    await page.getByRole("button", { name: "Play ink" }).click();
-    await expectRunningIn(page, "prompt");
-    expect(await unsettledSince(page, from)).toEqual([]);
-    for (const doc of await page.locator(DOCS).all()) await expect(doc).toBeVisible();
-    await expect(page.locator(PROMPT)).toBeHidden();
-  });
-
   test("ink that falls to still half-way lands the documents, and ink that is live again leaves them", async ({
     page,
   }) => {
@@ -469,7 +441,7 @@ test.describe("the hero's sequence", () => {
     await openLive(page);
 
     // What the layer does when the engine fails: the root element says `still`.
-    const { waiting, frames } = await midway(page, "still");
+    const { waiting, frames } = await midway(page);
     test.skip(waiting !== 6, "the documents had begun to land before the ink could be stopped");
     await expect(page.locator(STAGE)).toHaveAttribute("data-landed", "");
     expect(await unsettledSince(page, frames)).toEqual([]);
@@ -479,40 +451,6 @@ test.describe("the hero's sequence", () => {
     expect(await unsettledSince(page, from)).toEqual([]);
     for (const doc of await page.locator(DOCS).all()) await expect(doc).toBeVisible();
     await expect(page.locator(PROMPT)).toBeHidden();
-  });
-
-  test("ink that a paused session plays again leaves the documents standing", async ({ page }) => {
-    await introSeen(page);
-    await withInkTest(page);
-    await recordStage(page);
-    await page.addInitScript(
-      ([key, paused]) => {
-        // Only on the load: the layer's own later choice is not written over on a reload.
-        if (window.sessionStorage.getItem(key) === null) window.sessionStorage.setItem(key, paused);
-      },
-      [INK_STORE, INK_PAUSED] as const,
-    );
-    await page.goto("/");
-    await expect(page.locator("html")).toHaveAttribute("data-ink", "paused");
-    await hydrated(page);
-    await expect(page.locator(STAGE)).toHaveAttribute("data-landed", "");
-    for (const doc of await page.locator(DOCS).all()) await expect(doc).toBeVisible();
-
-    // The visitor plays the ink: the root element says `live` from that moment.
-    const from = (await stageFrames(page)).length;
-    await page.getByRole("button", { name: "Play ink" }).click();
-    await expect(page.locator("html")).toHaveAttribute("data-ink", "live");
-    const mode = await inkMode(page);
-    test.skip(
-      mode !== "live",
-      `the page is "${mode}", not live: this machine has no graphics card`,
-    );
-    // The scene runs from its start behind documents that never left.
-    await expectRunningIn(page, "prompt");
-    expect(await unsettledSince(page, from)).toEqual([]);
-    expect(await unsettledSince(page, 0)).toEqual([]);
-    await expect(page.locator(PROMPT)).toBeHidden();
-    for (const doc of await page.locator(DOCS).all()) await expect(doc).toBeVisible();
   });
 
   test("plays again, with the scene, on a return to the home page inside the site", async ({
@@ -548,87 +486,13 @@ test.describe("the hero's sequence", () => {
   });
 });
 
-test.describe("the pause button", () => {
-  test("is in the hero, reachable by keyboard, stops the loop within 100ms and survives a reload", async ({
-    page,
-  }) => {
-    await openLive(page);
-    await expectRunningIn(page, "prompt");
-
-    // The button stands in the hero's control holder.
-    const button = page.getByRole("button", { name: "Pause ink" });
-    await expect(button).toHaveCount(1);
-    await expect(page.locator(`${HERO} + [data-ink-control]`).getByRole("button")).toHaveCount(1);
-
-    // It is reached with the keyboard, before the words of the stage it belongs to.
-    let reached = false;
-    for (let i = 0; i < 40 && !reached; i += 1) {
-      await page.keyboard.press("Tab");
-      reached = await page.evaluate(
-        () => document.activeElement?.hasAttribute("data-ink-toggle") ?? false,
-      );
-    }
-    expect(reached).toBe(true);
-    await expect(button).toBeFocused();
-    await expect(button).toHaveCSS("outline-width", "3px");
-    await expect(button).toHaveCSS("outline-style", "solid");
-
-    // A press stops the loop within 100ms, by the page's own clock.
-    await page.evaluate(() => {
-      const record: NonNullable<Window["__pause"]> = { pressed: null, stopped: null };
-      window.__pause = record;
-      document.addEventListener(
-        "click",
-        () => {
-          record.pressed ??= performance.now();
-        },
-        { capture: true, once: true },
-      );
-      const canvas = document.querySelector("canvas");
-      if (canvas) {
-        new MutationObserver(() => {
-          if (canvas.getAttribute("data-ink-running") === "false") {
-            record.stopped ??= performance.now();
-          }
-        }).observe(canvas, { attributes: true, attributeFilter: ["data-ink-running"] });
-      }
-    });
-    await page.keyboard.press("Enter");
-    await expect
-      .poll(() => page.evaluate(() => window.__pause?.stopped ?? null), { timeout: 2_000 })
-      .not.toBeNull();
-    const times = await page.evaluate(() => window.__pause);
-    expect((times?.stopped ?? Infinity) - (times?.pressed ?? 0)).toBeLessThan(100);
-
-    // It is renamed, and nothing steps while it is stopped.
-    await expect(page.getByRole("button", { name: "Play ink" })).toHaveCount(1);
-    const before = await page.evaluate(() => window.__inkTest?.stats()?.steps ?? -1);
-    const mark = await pageClock(page);
-    await expect.poll(() => pageClock(page)).toBeGreaterThan(mark + 400);
-    expect(await page.evaluate(() => window.__inkTest?.stats()?.steps ?? -2)).toBe(before);
-
-    // The choice lasts the session: after a reload the page is paused, with stills and no canvas.
-    await page.reload();
-    await expect(page.getByRole("heading", { level: 1 })).toBeVisible();
-    await expect.poll(() => inkMode(page)).toBe("paused");
-    expect((await canvases(page)).count).toBe(0);
-    await expect(page.locator(`${HERO} [data-ink-still]`)).not.toHaveCSS("display", "none");
-    await expect(page.locator(`${HERO} [data-ink-still] img`)).toBeVisible();
-    await expect(page.getByRole("button", { name: "Play ink" })).toHaveCount(1);
-
-    // And it starts the ink again.
-    await page.getByRole("button", { name: "Play ink" }).click();
-    await expectRunningIn(page, "prompt");
-    await expect(page.getByRole("button", { name: "Pause ink" })).toHaveCount(1);
-  });
-
+test.describe("a stopped loop", () => {
   test("a resize while the loop is stopped leaves the ink on the canvas", async ({ page }) => {
     await openLive(page);
     await expectRunningIn(page, "prompt");
-    // Let some ink fall, then stop the loop.
+    // Let some ink fall, then stop the loop, as the engine does when it is off screen.
     await expect.poll(() => inkedPixels(page), { timeout: 15_000 }).toBeGreaterThan(500);
-    await page.getByRole("button", { name: "Pause ink" }).click();
-    await expect.poll(() => running(page)).toBe("false");
+    await page.evaluate(() => window.__inkTest?.engine()?.stop());
 
     await page.setViewportSize({ width: 1200, height: 800 });
     await expect.poll(() => inkedPixels(page), { timeout: 5_000 }).toBeGreaterThan(500);
@@ -636,7 +500,7 @@ test.describe("the pause button", () => {
 });
 
 test.describe("one canvas, many stages", () => {
-  test("moves between the stages of the home page and ends on the footer, on exact ground", async ({
+  test("moves between the stages of the home page on one canvas, to the foot of the page", async ({
     page,
   }) => {
     test.setTimeout(90_000);
@@ -644,20 +508,14 @@ test.describe("one canvas, many stages", () => {
     await openLive(page);
     await expectRunningIn(page, "prompt");
 
-    // Down the page: the ninety (it waits for its tenth block, so the water is clear until then),
-    // the closing and the footer. There is one canvas all the way.
+    // Down the page: the ninety (it waits for its tenth block, so the water is clear until then).
+    // Nothing below it holds ink, and there is one canvas all the way to the foot of the page.
     await scrollToElement(page, "#solution", 0);
     await expect
       .poll(() => canvases(page), { timeout: 10_000 })
       .toMatchObject({ count: 1, inSlot: true, hidden: true, scene: "ninety" });
-    await scrollToElement(page, "#closing", 0);
-    await expectRunningIn(page, "bloom");
     await scrollToEnd(page);
-    await expectRunningIn(page, "wisps");
-
-    // Empty water on the binder is the binder exactly.
-    expect(await canvasPixel(page, "bottom-left")).toBe(BINDER);
-    expect(await backdropState(page, "wisps")).toBe("live");
+    expect((await canvases(page)).count).toBeLessThanOrEqual(1);
     expect(problems).toEqual([]);
   });
 
@@ -684,24 +542,16 @@ test.describe("one canvas, many stages", () => {
     expect(await page.evaluate(() => window.__inkTest?.stats()?.preset ?? null)).toBe("ninety");
   });
 
-  test("keeps its caps in the closing and the footer for twenty seconds each", async ({ page }) => {
-    test.setTimeout(120_000);
-    await openLive(page);
-    await scrollToElement(page, "#closing", 0);
-    await expectRunningIn(page, "bloom");
-    await holdCaps(page, 20);
-    await scrollToEnd(page);
-    await expectRunningIn(page, "wisps");
-    await holdCaps(page, 20);
-  });
-
-  test("stays one canvas into /about and leaves none on /catalog", async ({ page, isMobile }) => {
+  test("stays one canvas into /why-advanta and leaves none on /catalog", async ({
+    page,
+    isMobile,
+  }) => {
     test.skip(isMobile, "the inline navigation is the desktop one");
     await openLive(page);
     await expectRunningIn(page, "prompt");
 
-    await page.getByRole("banner").getByRole("link", { name: "About", exact: true }).click();
-    await expect(page).toHaveURL(/\/about$/, { timeout: NAVIGATION_TIMEOUT });
+    await page.getByRole("banner").getByRole("link", { name: "Why Advanta", exact: true }).click();
+    await expect(page).toHaveURL(/\/why-advanta$/, { timeout: NAVIGATION_TIMEOUT });
     // The title block's ink is the first stage of the page; one canvas serves it.
     await expect.poll(async () => (await canvases(page)).count, { timeout: 10_000 }).toBe(1);
     expect((await canvases(page)).inSlot).toBe(true);
@@ -710,7 +560,6 @@ test.describe("one canvas, many stages", () => {
     await expect(page).toHaveURL(/\/catalog$/, { timeout: NAVIGATION_TIMEOUT });
     await expect.poll(async () => (await canvases(page)).count, { timeout: 10_000 }).toBe(0);
     await expect(page.locator("html")).toHaveAttribute("data-ink-route", "calm");
-    await expect(page.locator("[data-ink-toggle]")).toHaveCount(0);
   });
 });
 

@@ -1,11 +1,4 @@
-import {
-  INK_KEY,
-  INK_OFF,
-  INK_PAUSED,
-  INK_TIERS,
-  INTRO_TAKEOVER_MS,
-  isCalmRoute,
-} from "@/lib/boot/state";
+import { INK_KEY, INK_OFF, INK_TIERS, INTRO_TAKEOVER_MS, isCalmRoute } from "@/lib/boot/state";
 import { readPigments } from "@/lib/ink/pigments";
 import {
   chooseStage,
@@ -33,8 +26,7 @@ import {
 
 /**
  * The ink layer without React: it owns the one canvas of the document, moves it into the backdrop
- * that matters most on screen and runs that backdrop's scene there. `ink-layer.tsx` mounts it and
- * draws the pause button it asks for.
+ * that matters most on screen and runs that backdrop's scene there. `ink-layer.tsx` mounts it.
  *
  * The engine is a chunk of its own, fetched only when a backdrop comes near the viewport of a
  * visitor whose ink is live. Nothing here runs under reduced motion, on a calm route or on a device
@@ -43,14 +35,9 @@ import {
 
 type EngineModule = typeof import("@/lib/ink/engine");
 
-/** Where the pause button goes, and what it offers. Null: there is no button. */
-export type Control = { holder: Element; paused: boolean } | null;
-
 export type Controller = {
   /** The pathname changed (or is told for the first time). */
   route(path: string): void;
-  /** The pause button was pressed. */
-  toggle(): void;
   destroy(): void;
 };
 
@@ -118,7 +105,7 @@ function writeStore(value: string | null) {
   }
 }
 
-export function createController(onControl: (control: Control) => void): Controller {
+export function createController(): Controller {
   fetchForCover();
   const root = document.documentElement;
   const cleanups: (() => void)[] = [];
@@ -137,7 +124,6 @@ export function createController(onControl: (control: Control) => void): Control
   let windowTimer = 0;
   let running = false;
   let resting = false;
-  let paused = false;
   let lostOnce = false;
   /** The engine's context is lost and not yet restored: nothing can be drawn in the meantime. */
   let lost = false;
@@ -157,10 +143,6 @@ export function createController(onControl: (control: Control) => void): Control
     return isScene(name) ? name : null;
   };
   const slotOf = (backdrop: HTMLElement) => backdrop.querySelector<HTMLElement>("[data-ink-slot]");
-  const holderOf = (backdrop: HTMLElement) => {
-    const next = backdrop.nextElementSibling;
-    return next?.hasAttribute("data-ink-control") ? next : null;
-  };
   const viewport = () => ({ width: window.innerWidth, height: window.innerHeight });
 
   function setRunning(value: boolean) {
@@ -168,11 +150,6 @@ export function createController(onControl: (control: Control) => void): Control
     if (!value) resting = false;
     // The attribute says what is true: nothing runs before the engine is ready.
     canvas?.setAttribute("data-ink-running", String(value && root.hasAttribute("data-ink-ready")));
-  }
-
-  function showControl() {
-    const holder = current && scene !== "intro" ? holderOf(current) : null;
-    onControl(holder && !destroyed ? { holder, paused } : null);
   }
 
   // -------------------------------------------------------------------------------------------
@@ -242,16 +219,9 @@ export function createController(onControl: (control: Control) => void): Control
 
   function choose() {
     if (destroyed || calm) return;
-    const state = mode();
-    if (state !== "live" && state !== "paused") return;
+    if (mode() !== "live") return;
     const atEnd = window.scrollY + window.innerHeight >= document.documentElement.scrollHeight - 2;
     const pick = chooseStage(candidates(), moving ?? current, atEnd);
-    if (state === "paused") {
-      // Stills, no engine: the same button, offering to play.
-      const holder = pick ? holderOf(pick) : null;
-      onControl(holder ? { holder, paused: true } : null);
-      return;
-    }
     if (!pick) return;
     if (!loaded) {
       if (!loading) load(true);
@@ -358,7 +328,7 @@ export function createController(onControl: (control: Control) => void): Control
 
   function noteTier(tier: Tier) {
     canvas?.setAttribute("data-ink-tier", tier);
-    if (!paused) writeStore(tier);
+    writeStore(tier);
   }
 
   // -------------------------------------------------------------------------------------------
@@ -402,7 +372,6 @@ export function createController(onControl: (control: Control) => void): Control
     // restored) is aimed at where the anchors are then, not where they were.
     ink.preset(name, { anchors: () => anchorsOf(backdrop) });
     ink.setCalmZone(() => zonesOf(backdrop, name));
-    showControl();
 
     if (name === "intro" && root.hasAttribute("data-intro")) {
       // The cover's own slot: it stays clear until the ink takes the cover over.
@@ -413,10 +382,6 @@ export function createController(onControl: (control: Control) => void): Control
     // scene starts when the context is restored (`onRestored`), not before.
     backdrop.setAttribute("data-ink-state", lost ? "rest" : "live");
     if (holdStill || lost) return;
-    if (paused) {
-      void ink.still(name);
-      return;
-    }
     if (STAGES[name].trigger) {
       // Empty water until the page fires the trigger.
       ink.render();
@@ -442,7 +407,7 @@ export function createController(onControl: (control: Control) => void): Control
 
   /** An input over a stage whose water has come to rest: it moves again, for a shorter while. */
   function wake() {
-    if (!ink || !current || !scene || paused || !live()) return;
+    if (!ink || !current || !scene || !live()) return;
     if (scene === "intro" || (running && !resting)) return;
     if (current.getAttribute("data-ink-state") !== "live") return;
     if (STAGES[scene].trigger && !fired) return;
@@ -508,7 +473,7 @@ export function createController(onControl: (control: Control) => void): Control
   // The ninety: one drop when the tenth block turns
   // -------------------------------------------------------------------------------------------
   function watchNinety() {
-    if (!ink || !current || scene !== "ninety" || paused || !live()) return;
+    if (!ink || !current || scene !== "ninety" || !live()) return;
     const band = current.closest<HTMLElement>("[data-ninety]") ?? current;
     const progress = coverProgress(band.getBoundingClientRect(), window.innerHeight);
     const timed = root.getAttribute("data-timeline") === "on";
@@ -535,7 +500,7 @@ export function createController(onControl: (control: Control) => void): Control
   }
 
   function onAnimationEnd(event: AnimationEvent) {
-    if (scene !== "ninety" || fired || paused || !current) return;
+    if (scene !== "ninety" || fired || !current) return;
     if (root.getAttribute("data-timeline") === "on") return;
     const target = event.target;
     if (!(target instanceof Element) || target.getAttribute("data-ink-anchor") !== "tenth") return;
@@ -560,8 +525,6 @@ export function createController(onControl: (control: Control) => void): Control
     resting = false;
     lost = false;
     root.removeAttribute("data-ink-ready");
-    root.removeAttribute("data-ink-paused");
-    onControl(null);
   }
 
   /** The ink cannot run here: stills for the rest of the session (when `remember` is set). */
@@ -589,42 +552,13 @@ export function createController(onControl: (control: Control) => void): Control
     if (!ink || !current || !scene) return;
     current.setAttribute("data-ink-state", "live");
     fired = false;
-    if (paused) void ink.still(scene);
-    else if (STAGES[scene].trigger) watchNinety();
+    if (STAGES[scene].trigger) watchNinety();
     else run(STAGES[scene].runMs);
   }
 
   // -------------------------------------------------------------------------------------------
   // The visitor
   // -------------------------------------------------------------------------------------------
-  function toggle() {
-    if (destroyed) return;
-    if (mode() === "paused") {
-      // A session that was paused before this page loaded: back to live ink.
-      writeStore(null);
-      root.setAttribute("data-ink", "live");
-      onControl(null);
-      choose();
-      return;
-    }
-    if (!ink || !current || !scene) return;
-    if (!paused) {
-      paused = true;
-      window.clearTimeout(windowTimer);
-      ink.stop();
-      setRunning(false);
-      root.setAttribute("data-ink-paused", "");
-      writeStore(INK_PAUSED);
-    } else {
-      paused = false;
-      root.removeAttribute("data-ink-paused");
-      writeStore(ink.stats().tier);
-      if (STAGES[scene].trigger && !fired) watchNinety();
-      else run(STAGES[scene].runMs);
-    }
-    showControl();
-  }
-
   function inside(backdrop: HTMLElement, x: number, y: number) {
     const rect = backdrop.getBoundingClientRect();
     return x >= rect.left && x <= rect.right && y >= rect.top && y <= rect.bottom;
@@ -643,7 +577,7 @@ export function createController(onControl: (control: Control) => void): Control
   function onPointerUp(event: PointerEvent) {
     const from = press;
     press = null;
-    if (!ink || !current || !scene || scene === "intro" || paused || !live() || !from) return;
+    if (!ink || !current || !scene || scene === "intro" || !live() || !from) return;
     if (current.getAttribute("data-ink-state") !== "live") return;
     const target = event.target;
     if (!(target instanceof Element) || target.closest(INTERACTIVE)) return;
@@ -722,12 +656,7 @@ export function createController(onControl: (control: Control) => void): Control
       if (current.isConnected) current.setAttribute("data-ink-state", "idle");
       current = null;
       scene = null;
-      onControl(null);
     }
-    // A session paused before this page loaded holds no canvas (`current` is null), yet its Play
-    // button stands in a holder of the footer, which outlives the route: a calm route has no ink
-    // to play.
-    if (calm) onControl(null);
     observe();
     choose();
   }
@@ -801,7 +730,6 @@ export function createController(onControl: (control: Control) => void): Control
 
   return {
     route,
-    toggle,
     destroy() {
       if (destroyed) return;
       destroyed = true;

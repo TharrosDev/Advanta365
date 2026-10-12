@@ -174,12 +174,8 @@
   }
 }
 
-/* More contrast: the cover is sharp, the well has an edge, and the lock alone says "locked". */
+/* More contrast: the well has an edge. The blur stays: it is the one mark of a locked tile. */
 @media (prefers-contrast: more) {
-  .tile[data-locked] .cover {
-    filter: none;
-  }
-
   .well {
     border: var(--hair) solid var(--ink);
   }
@@ -199,10 +195,6 @@
   .tile[data-denied] {
     outline-style: solid;
     outline-color: Mark;
-  }
-
-  .tile[data-locked] .cover {
-    filter: none;
   }
 
   .well {

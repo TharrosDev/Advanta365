@@ -40,7 +40,7 @@ export function FeaturedSection({
         }
       />
       {templates.length > 0 ? (
-        <TileGrid locks={false} className={styles.featuredGrid}>
+        <TileGrid className={styles.featuredGrid}>
           {templates.map((template) => {
             const phase = phaseOf.get(template.phase);
             return (

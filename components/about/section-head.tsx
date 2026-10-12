@@ -5,7 +5,7 @@ import { cx } from "@/lib/cx";
 import styles from "./section-head.module.css";
 
 /**
- * The head of an About section: the label, the section's one `<h2>` (a line break in `title` makes
+ * The head of a Why Advanta section: the label, the section's one `<h2>` (a line break in `title` makes
  * two sentences, each inking in as it scrolls in) and an optional paragraph under it. `size` is the
  * heading's step on the type scale: `banner` for a head that has the width of the page, `page` for
  * one that stands in a narrow column or belongs to a quieter section. The two headlines of the page

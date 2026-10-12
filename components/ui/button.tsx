@@ -13,6 +13,8 @@ type ButtonProps = {
   href?: string;
   /** With `href`: opens a new tab. */
   external?: boolean;
+  /** With an internal `href`: `false` keeps the page where it is (a link to a pop-up). */
+  scroll?: boolean;
   linkRef?: Ref<HTMLAnchorElement>;
   className?: string;
   children: ReactNode;
@@ -42,6 +44,7 @@ export function Button({
   arrow = false,
   href,
   external = false,
+  scroll,
   linkRef,
   className,
   children,
@@ -78,7 +81,7 @@ export function Button({
 
     if (!external && href.startsWith("/") && !href.startsWith("//")) {
       return (
-        <TransitionLink ref={linkRef} href={href} {...link}>
+        <TransitionLink ref={linkRef} href={href} scroll={scroll} {...link}>
           {content}
         </TransitionLink>
       );

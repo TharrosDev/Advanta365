@@ -17,7 +17,12 @@ const ROUTES = [
   "/phases/prepare",
   "/catalog?view=executive-sponsor-kickoff-deck",
   "/purchase",
-  "/about",
+  "/why-advanta",
+  "/contact",
+  "/privacy",
+  "/terms",
+  "/refunds",
+  "/accessibility",
   "/sample",
   "/nope",
 ];
@@ -37,7 +42,7 @@ for (const path of ROUTES) {
 
     // No canvas, no button for the ink, and no animation of any kind.
     expect((await canvases(page)).count).toBe(0);
-    await expect(page.locator("[data-ink-toggle]")).toHaveCount(0);
+    await expect(page.getByRole("button", { name: /^(Pause|Play) ink$/ })).toHaveCount(0);
     await expect.poll(() => page.evaluate(() => document.getAnimations().length)).toBe(0);
 
     // Nothing waits to be shown: every entrance stands in its final state.
