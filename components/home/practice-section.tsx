@@ -7,10 +7,9 @@ import { cx } from "@/lib/cx";
 import styles from "./home.module.css";
 
 /**
- * `#practice`: the one wash band of the page, laid out as `#problem` is. The statement stands in
- * columns 1 to 9 and inks in as it scrolls in; its paragraph and the two next steps stand lower, in
- * columns 7 to 12. The solid ink button is the main action here because the band is already the
- * highlighter's diluted colour.
+ * `#practice`: the one wash band of the page. The statement stands in columns 1 to 9 and inks in as
+ * it scrolls in; its paragraph and the two next steps stand lower, in columns 7 to 12. The solid ink
+ * button is the main action here because the band is already the highlighter's diluted colour.
  */
 export function PracticeSection() {
   return (

@@ -1,37 +1,9 @@
 import { InkBackdrop } from "@/components/ink/ink-backdrop";
-import { Appear } from "@/components/ui/appear";
 import { Band } from "@/components/ui/band";
 import { Eyebrow } from "@/components/ui/eyebrow";
-import { Sentences } from "@/components/ui/sentences";
 import { Tally } from "@/components/ui/tally";
 import { cx } from "@/lib/cx";
 import styles from "./home.module.css";
-
-/**
- * `#problem`: a statement on paper. The heading stands in columns 1 to 9, one sentence to a block,
- * each inking in as it scrolls in; its paragraph stands lower, in columns 7 to 12.
- */
-export function ProblemSection() {
-  return (
-    <Band
-      id="problem"
-      surface="paper"
-      pad="roomy"
-      aria-labelledby="problem-title"
-      innerClassName={styles.statement}
-    >
-      <Eyebrow className={styles.statementLabel}>The problem</Eyebrow>
-      <h2 id="problem-title" className={cx("type-statement", styles.statementTitle)}>
-        <Sentences move text={"Most rollouts launch.\nFewer get adopted."} />
-      </h2>
-      <Appear as="p" className={cx("type-copy", styles.statementAside, styles.statementCopy)}>
-        The technology goes live on schedule. Then people keep emailing attachments, saving to their
-        desktops and working around the new tools. The missing piece is almost never the platform.
-        It’s the people side: the case for change, the comms, the training and the follow-through.
-      </Appear>
-    </Band>
-  );
-}
 
 /**
  * `#solution`: the ninety, the one black band of the page, with its own ink behind it. The figure

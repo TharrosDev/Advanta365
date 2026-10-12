@@ -8,7 +8,6 @@ import { SortSelect } from "@/components/catalog/sort-select";
 import { TemplateDetail } from "@/components/catalog/template-detail";
 import { TemplateDialog } from "@/components/catalog/template-dialog";
 import { singleCatalogPhase } from "@/components/layout/nav-links";
-import { TitleBlock } from "@/components/layout/title-block";
 import { Band } from "@/components/ui/band";
 import { KeepCompounds } from "@/components/ui/keep-compounds";
 import { PhaseTabs } from "@/components/ui/phase-tabs";
@@ -23,10 +22,10 @@ import { countWord } from "@/lib/format";
 import { PURCHASE_LINK } from "@/lib/site";
 import styles from "./page.module.css";
 
-// Both sentences write the phase count out ("seven"): change it here if the catalog gains or loses a
-// phase. The listings are sample content (placeholders), so neither sentence says how much the
-// catalog holds or presents them as pieces of the toolkit. Every address of the catalog (a search,
-// a filter, a page of results, a template in `view`) names the plain catalog as its canonical one.
+// The description writes the phase count out ("seven"): change it here if the catalog gains or loses
+// a phase. The listings are sample content (placeholders), so it does not say how much the catalog
+// holds or presents them as pieces of the toolkit. Every address of the catalog (a search, a filter,
+// a page of results, a template in `view`) names the plain catalog as its canonical one.
 export const metadata: Metadata = {
   title: "Catalog",
   description:
@@ -42,12 +41,15 @@ type CatalogPageProps = {
 const DIALOG_TITLE = "template-dialog-title";
 
 /**
- * The catalog. Under the title, 42px below its lead: a rail with the search, the sort order and
- * the filters (grid columns 1 to 3, staying under the bar from 68em) and the results beside it
- * (columns 4 to 12): the chips of the filters that are on, the count, a line that says what the
- * locks mean, then a grid of tiles, one per template. Below 68em the rail is a block above the grid
- * and the filters open as a sheet. Below 40em the rail opens with the seven phases as a strip of
- * index cards (the way in the phase rail gives from 68em), the search shares a row with the Filters
+ * The catalog. The page opens straight into the catalogue, with no title block: its one `h1` is
+ * read out and not shown (from 68em the bar's current link says where the visitor is). On paper,
+ * 42px under the bar (and under the phase rail from 68em): a rail with the search, the sort order
+ * and the filters (grid columns 1 to 3, staying under the bar from 68em) and the results beside it
+ * (columns 4 to 12): the chips of the filters that are on, the count, a line that says the listings
+ * are sample content and what the locks mean (the page has no lead of its own to say the first),
+ * then a grid of tiles, one per template. Below 68em the rail is a block above the grid and the
+ * filters open as a sheet. Below 40em the rail opens with the seven phases as a strip of index
+ * cards (the way in the phase rail gives from 68em), the search shares a row with the Filters
  * button, and the sort order moves into the sheet.
  *
  * `view` in the address names one template. A free sample is shown in the pop-up over the page,
@@ -85,11 +87,8 @@ export default async function CatalogPage({ searchParams }: CatalogPageProps) {
 
   return (
     <>
-      <TitleBlock
-        flush
-        title="Catalog"
-        lead="Organized by the seven phases of a rollout. The listings shown are sample content. Search by name or narrow by phase, deliverable type, app and audience."
-      />
+      {/* Read out, not shown: the page opens on the catalogue. */}
+      <h1 className={cx("type-banner", "visually-hidden")}>Catalog</h1>
       <Band as="div" surface="paper" pad="tight">
         <Split
           sticky
@@ -155,8 +154,8 @@ export default async function CatalogPage({ searchParams }: CatalogPageProps) {
             </p>
             {result.total > 0 ? (
               <p className={cx("type-note", styles.key)}>
-                {countWord(FREE_SAMPLE_COUNT, "capital")} templates are free samples. Locked
-                templates are included with the toolkit.{" "}
+                The listings shown are sample content. {countWord(FREE_SAMPLE_COUNT, "capital")}{" "}
+                templates are free samples. Locked templates are included with the toolkit.{" "}
                 <TextLink href={PURCHASE_LINK.href} className={styles.way}>
                   {PURCHASE_LINK.label}
                 </TextLink>

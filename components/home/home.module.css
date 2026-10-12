@@ -13,15 +13,14 @@
  * column's own bottom padding). A clip on the band, or one on the column in both directions,
  * costs the ink's engine some 170ms when it starts, so there is neither.
  *
- * From 68em the whole of it fits the window. The column is as tall as the window leaves (the bar,
- * the rail and the beta strip taken off, 56rem at most) and the stage stands in the middle of
- * whatever the rest does not use. On a low window the headline gives first (`--hero-size`: its
- * own size down to 12svh less 22px, which is its own size from 800px of height up, and never so
- * large that its longer line, 15.3 of its ems, would not fit the page) and then the
- * hand: `--hero-room` is what is left for it once the headline's two lines and the 15.5rem of
- * everything else are taken off, and the stage narrows until its hand is no taller than that. The
- * band itself is never less than 85.5% of the window; what that adds is padding under the foot
- * (`--hero-under`).
+ * From 68em the whole of it fits the window. The column is as tall as the window leaves (the bar
+ * and the rail taken off, 56rem at most) and the stage stands in the middle of whatever the rest
+ * does not use. On a low window the headline gives first (`--hero-size`: its own size down to 12svh
+ * less 22px, which is its own size from 800px of height up, and never so large that its longer
+ * line, 15.3 of its ems, would not fit the page) and then the hand: `--hero-room` is what is left
+ * for it once the headline's two lines and the 15.5rem of everything else are taken off, and the
+ * stage narrows until its hand is no taller than that. The band itself is never less than 85.5% of
+ * the window; what that adds is padding under the foot (`--hero-under`).
  */
 .hero.hero {
   --hero-above: var(--s-5);
@@ -170,7 +169,7 @@
   .hero.hero {
     --hero-above: var(--s-2);
     --hero-below: var(--s-1);
-    --hero-window: min(100svh - var(--bar-h) - var(--rail-h) - var(--strip-h, 0px), 56rem);
+    --hero-window: min(100svh - var(--bar-h) - var(--rail-h), 56rem);
     --hero-size: min(var(--size-hero), 12svh - 1.375rem, (100vw - 2 * var(--page-pad)) / 15.3);
     --hero-room: calc(var(--hero-window) - 2.12 * var(--hero-size) - 15.5rem);
     --hero-under: max(
@@ -464,8 +463,8 @@
 }
 
 /*
- * A statement band (`#problem`, `#practice`): the label, the statement in columns 1 to 9, and
- * what follows it in columns 7 to 12, 42px lower.
+ * The statement band (`#practice`): the label, the statement in columns 1 to 9, and what follows
+ * it in columns 7 to 12, 42px lower.
  */
 .statement {
   display: grid;
@@ -623,90 +622,6 @@
     height: auto;
     min-height: 16rem;
   }
-}
-
-/*
- * Why Advanta365: a label, a statement, then the four values as a ledger. A row is its title and
- * its sentence, stacked on a phone and side by side from 40em; from 68em the ledger takes the
- * twelve columns, the title 1 to 5 and the sentence 6 to 12.
- */
-.valuesTitle {
-  max-width: var(--wrap-head);
-  margin-block-start: var(--s-2);
-}
-
-/* Doubled to outrank the ledger's own `margin: 0`. */
-.valuesList.valuesList {
-  margin-block-start: var(--s-6);
-}
-
-.value.value {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr);
-  gap: var(--s-1);
-  padding-block: var(--s-3) var(--s-4);
-}
-
-.valueTitle {
-  min-width: 0;
-  color: var(--text);
-}
-
-.valueBody {
-  min-width: 0;
-  max-width: var(--wrap-copy);
-  color: var(--text-soft);
-}
-
-@media (min-width: 40em) {
-  .value.value {
-    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
-    column-gap: var(--col-gap);
-    align-items: baseline;
-  }
-}
-
-@media (min-width: 68em) {
-  .value.value {
-    grid-template-columns: repeat(12, minmax(0, 1fr));
-  }
-
-  .valueTitle {
-    grid-column: 1 / span 5;
-  }
-
-  .valueBody {
-    grid-column: 6 / -1;
-  }
-}
-
-/*
- * Built for Microsoft 365. The band has no padding above (the values band supplies it) and 84px
- * below. The names run on as one wrapping line of large type; a name keeps its slash.
- */
-.builtFor.builtFor {
-  padding-block-end: var(--s-7);
-}
-
-.builtForNames {
-  margin: var(--s-3) 0 0;
-  padding: 0;
-  list-style: none;
-  color: var(--text-soft);
-  font-family: var(--face-display);
-  font-size: var(--size-page);
-  line-height: 1.25;
-  font-weight: 600;
-}
-
-.builtForName {
-  display: inline-block;
-  margin-inline-end: 0.4em;
-}
-
-.builtForSlash {
-  margin-inline-start: 0.4em;
-  color: var(--text-faint);
 }
 
 /*

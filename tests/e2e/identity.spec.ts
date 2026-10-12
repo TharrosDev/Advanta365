@@ -297,26 +297,20 @@ test.describe("home", () => {
       .getByRole("main")
       .locator("[id]")
       .evaluateAll((elements) => elements.map((element) => element.id));
-    const sections = ["featured", "inside", "problem", "solution", "practice", "values", "closing"];
+    const sections = ["featured", "inside", "solution", "practice", "closing"];
     expect(ids.filter((id) => sections.includes(id))).toEqual(sections);
 
-    // The hero comes before the first shelf, and the line about Microsoft 365 sits between the
-    // last two sections.
+    // The hero comes before the first shelf.
     const order = await page.getByRole("main").evaluate((main) => {
       const follows = (first: Element | null, second: Element | null) =>
         !!first &&
         !!second &&
         (first.compareDocumentPosition(second) & Node.DOCUMENT_POSITION_FOLLOWING) !== 0;
-      const builtFor = [...main.querySelectorAll("p")].find(
-        (paragraph) => paragraph.textContent === "Built for Microsoft 365",
-      );
       return {
         heroFirst: follows(main.querySelector("h1"), main.querySelector("#featured")),
-        afterValues: follows(main.querySelector("#values"), builtFor ?? null),
-        beforeClosing: follows(builtFor ?? null, main.querySelector("#closing")),
       };
     });
-    expect(order).toEqual({ heroFirst: true, afterValues: true, beforeClosing: true });
+    expect(order).toEqual({ heroFirst: true });
 
     // The one wash band of the page.
     await expect(page.locator("#practice")).toHaveCSS("background-color", WASH);
@@ -671,6 +665,9 @@ test("at 320px no page runs past the screen, and the bar's controls and every bu
         .filter((element) => {
           const box = element.getBoundingClientRect();
           if (box.width === 0 || box.height === 0) return false;
+          // A visually hidden element is a clipped 1px box whose -1px margin leaves it a pixel
+          // outside the page's left edge; nothing of it is drawn.
+          if (element.closest(".visually-hidden")) return false;
           let parent = element.parentElement;
           while (parent && !scrolls(parent)) parent = parent.parentElement;
           if (parent && parent !== document.documentElement && parent !== document.body)
