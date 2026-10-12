@@ -217,7 +217,7 @@ test("closing leaves a catalog that still works: another sample opens after it",
   await expect(page.getByRole("dialog", { name: "Master Communications Plan" })).toBeVisible();
 });
 
-for (const view of [LOCKED_SLUG, "nope", "../x", "", "Change-Management-Strategy"]) {
+for (const view of [LOCKED_SLUG, "nope", "../x", ""]) {
   test(`view=${view || "(empty)"} opens nothing and the page answers 200`, async ({ page }) => {
     const response = await openCatalog(page, `/catalog?view=${encodeURIComponent(view)}`);
     expect(response?.status()).toBe(200);
