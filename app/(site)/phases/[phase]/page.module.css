@@ -1,9 +1,15 @@
-/* In the aside of the title block: the phase numeral, then its place among the phases. */
+/*
+ * In the aside of the title block: the phase numeral, then its place among the phases. Below 68em
+ * the aside stands under the words, and the numeral stacked over its count would take the rest of
+ * a tablet's first screen with nothing beside it; there the count stands at the numeral's foot,
+ * on its right, and drops under it only where the row is too narrow for both. From 68em the aside
+ * is a column of its own and they are stacked.
+ */
 .place {
   display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  gap: var(--s-2);
+  flex-flow: row wrap;
+  align-items: flex-end;
+  gap: var(--s-2) var(--s-4);
 }
 
 /* The poster face, held to 240px. */
@@ -90,6 +96,13 @@
     grid-area: 2 / 4 / 3 / -1;
     align-self: start;
     margin-block-start: var(--s-4);
+  }
+
+  .place {
+    flex-direction: column;
+    flex-wrap: nowrap;
+    align-items: flex-start;
+    gap: var(--s-2);
   }
 }
 

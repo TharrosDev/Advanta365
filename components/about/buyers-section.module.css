@@ -22,12 +22,15 @@
 
 /*
  * A buyer. Stacked: the numeral tile beside the name, then the concern under both, lined up with
- * the name. From 68em the three stand in one row on the twelve columns, each by the first line of
- * its own text. The row's inline padding is the sheet's margin: its hairline runs across it.
+ * the name. Where the sheet is wide enough for the name (20rem) and the concern (16rem) side by
+ * side, they share the line, which a tablet's sheet is from about 52em (the row wraps by itself;
+ * the concern's margin is the numeral and its gap, so it lines up under the name when it drops).
+ * From 68em the three stand in one row on the twelve columns, each by the first line of its own
+ * text. The row's inline padding is the sheet's margin: its hairline runs across it.
  */
 .row.row {
-  display: grid;
-  grid-template-columns: var(--s-4) minmax(0, 1fr);
+  display: flex;
+  flex-wrap: wrap;
   column-gap: var(--s-2);
   row-gap: var(--s-2);
   align-items: start;
@@ -37,6 +40,7 @@
 /* Besley's own figures: see the note on the display classes in globals.css. */
 .numeral {
   display: grid;
+  flex: none;
   place-items: center;
   width: var(--s-4);
   height: var(--s-4);
@@ -52,13 +56,16 @@
 }
 
 .name {
+  flex: 1 1 min(20rem, calc(100% - 3rem));
   min-width: 0;
   color: var(--text);
 }
 
 .cares {
+  flex: 1 1 min(16rem, calc(100% - 3rem));
   grid-column: 2;
   min-width: 0;
+  margin-inline-start: calc(var(--s-4) + var(--s-2));
 }
 
 .label {
@@ -81,7 +88,7 @@
 }
 
 .tick {
-  margin-block-start: calc((1lh - 20px) / 2);
+  margin-block-start: calc((1lh - 1.25rem) / 2);
 }
 
 .beyond {
@@ -92,9 +99,22 @@
   .row.row {
     padding-inline: var(--s-4);
   }
+
+  /*
+   * From 40em to 68em the sheets beneath the register turn by up to 2 degrees under a tall page,
+   * and with the page margin of 28px their corners reach past the window: the register stands 14px
+   * in from the text, which keeps them inside. From 68em the margin is 42px and the sheet shorter.
+   */
+  .book {
+    margin-inline: var(--s-2);
+  }
 }
 
 @media (min-width: 68em) {
+  .book {
+    margin-inline: 0;
+  }
+
   .head {
     display: grid;
     grid-template-columns: repeat(12, minmax(0, 1fr));
@@ -114,6 +134,7 @@
   }
 
   .row.row {
+    display: grid;
     grid-template-columns: repeat(12, minmax(0, 1fr));
     column-gap: var(--col-gap);
     row-gap: 0;
@@ -144,6 +165,7 @@
 
   .cares {
     grid-column: 8 / -1;
+    margin-inline-start: 0;
     padding-block-start: var(--s-1);
   }
 

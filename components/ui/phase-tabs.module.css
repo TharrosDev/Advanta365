@@ -129,28 +129,22 @@
   grid-column: 1 / -1;
 }
 
+/*
+ * From 40em, one row where the seven names fit, which they do from 42rem of list: each card starts
+ * from the width of its name and takes an equal share of what is left. The names never break, and
+ * the padding gives up a quarter so the row fits the content column of a full page, and a tablet's
+ * from about 730px of window.
+ *
+ * A narrower list (a phone held wide, or the same column on a window just past 68em) keeps four
+ * across. The switch is in the cards' own limits: `(100% - 42rem) * 999` is far below zero on a
+ * list narrower than 42rem and far above it on a wider one, so each clamp lands on one of its ends.
+ * Before 68em the last three of the seven share their row between them, as the last card of the
+ * phone's two across closes its row; from 68em they keep a card's width, a quarter.
+ */
 @media (min-width: 40em) {
   .large {
-    grid-template-columns: repeat(4, minmax(0, 1fr));
-  }
-
-  .large .item:last-child:nth-child(odd) {
-    grid-column: auto;
-  }
-}
-
-/*
- * One row where the seven names fit, which they do from 42rem of list: each card starts from the
- * width of its name and takes an equal share of what is left. The names never break, and the
- * padding gives up a quarter so the row fits the content column of a full page.
- *
- * A narrower list (the same column on a window just past 68em) keeps four across, as from 40em.
- * The switch is in the cards' own limits: `(100% - 42rem) * 999` is far below zero on a list
- * narrower than 42rem and far above it on a wider one, so each clamp lands on one of its ends.
- */
-@media (min-width: 68em) {
-  .large {
     --quarter: calc((100% - 3 * var(--s-1)) / 4 - 0.5px);
+    --narrow-cap: 100%;
     display: flex;
     flex-wrap: wrap;
   }
@@ -158,7 +152,7 @@
   .large .item {
     flex: 1 1 auto;
     min-width: clamp(0px, (42rem - 100%) * 999, var(--quarter));
-    max-width: clamp(var(--quarter), (100% - 42rem) * 999, 100%);
+    max-width: clamp(var(--narrow-cap), (100% - 42rem) * 999, 100%);
   }
 
   .large .tab {
@@ -167,6 +161,12 @@
 
   .large .name {
     white-space: nowrap;
+  }
+}
+
+@media (min-width: 68em) {
+  .large {
+    --narrow-cap: var(--quarter);
   }
 }
 

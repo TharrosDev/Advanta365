@@ -26,13 +26,18 @@
 
 /*
  * The phases below 68em: the index cards in one row that scrolls sideways, each as wide as its name
- * needs and never narrower than 84px, so the card cut off at the edge says there is more. The row
- * runs out to both edges of the screen and starts and stops at the page padding; the 7px above and
- * below, taken back by the margin, is the room a focus ring needs inside a box that clips. The
- * doubled class outranks the two-across grid of the cards' own module.
+ * needs and never narrower than 84px, so the card cut off at the edge says there is more. Where
+ * the seven fit (a tablet) they share what is left equally and the row is full; where they do not,
+ * they keep their own width and the row scrolls. The row runs out to both edges of the screen and
+ * starts and stops at the page padding; the 7px above and below, taken back by the margin, is the
+ * room a focus ring needs inside a box that clips. The doubled class outranks the layout of the
+ * cards' own module (two across, then from 40em a row that wraps), and the rule for its cards is
+ * doubled for the same reason. From 40em the cards' own padding is a quarter smaller, so a 768px
+ * tablet holds the seven in full and the row does not scroll by the width of one name.
  */
 .strip.strip {
   display: flex;
+  flex-wrap: nowrap;
   gap: var(--s-1);
   margin: calc(-1 * var(--s-1)) calc(-1 * var(--page-pad));
   padding: var(--s-1) var(--page-pad);
@@ -44,9 +49,10 @@
   scrollbar-width: thin;
 }
 
-.strip > li {
-  flex: none;
+.strip.strip > li {
+  flex: 1 0 auto;
   min-width: var(--s-7);
+  max-width: none;
   scroll-snap-align: start;
 }
 
@@ -96,8 +102,16 @@
   font-weight: 700;
 }
 
-/* From 40em the sort order comes back into the rail; the phases keep their row above the search. */
+/*
+ * From 40em the sort order comes back into the rail; the phases keep their row above the search,
+ * and their cards may be as narrow as their names (70px, not 84), which brings the seven within a
+ * 768px tablet.
+ */
 @media (min-width: 40em) {
+  .strip.strip > li {
+    min-width: calc(var(--s-1) * 10);
+  }
+
   .rail {
     grid-template-columns: calc(var(--s-9) + var(--s-6)) minmax(0, 1fr);
     align-items: end;

@@ -86,9 +86,12 @@
   display: none;
 }
 
-/* Locked: the cover is out of focus. Nothing else in the tile ever is. */
+/*
+ * Locked: the cover is out of focus. Nothing else in the tile ever is. The blur is 6px at the
+ * root size and grows with it, so a tile on a large monitor hides its cover as well as a small one.
+ */
 .tile[data-locked] .cover {
-  filter: blur(6px);
+  filter: blur(0.375rem);
 }
 
 .meta {

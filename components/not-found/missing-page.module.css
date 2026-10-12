@@ -1,6 +1,13 @@
-/* The band is tall enough for the spill to read as a picture: most of a window, at most 48rem. */
+/*
+ * The band is tall enough for the spill to read as a picture: most of a window, at most 48rem
+ * below 68em, where the open water stands under the words. Beside them the picture is as tall as
+ * 80% of the window on any monitor (the cap is only for a window taller than a monitor is), so the
+ * footer shows the same sliver at the foot of the first screen at 1080px as at 2160px.
+ */
 .band {
-  min-height: min(80svh, 48rem);
+  --band-h: min(80svh, 48rem);
+
+  min-height: var(--band-h);
 }
 
 .root {
@@ -45,10 +52,16 @@
   margin-block-start: var(--s-4);
 }
 
+/*
+ * The ledger is as wide as the words above it, at most 40rem: six columns are narrower than that up
+ * to a window of about 2200px, and past it (or in a tablet's single column) a row of three short
+ * labels does not need to stand a thousand pixels from its arrow.
+ */
 .next {
   display: flex;
   flex-direction: column;
   align-self: stretch;
+  max-width: var(--wrap-lead);
   gap: var(--s-2);
   margin-block-start: var(--s-6);
 }
@@ -58,14 +71,69 @@
   min-height: min(44svh, 22rem);
 }
 
+/*
+ * The still of the spill below 68em is the tall frame, captured at the width of a 320px phone, with
+ * the ink in its lower third. The ink's stylesheet scales every still by the width of its band, and
+ * on anything wider than a small phone the frame is then taller than the band and its ink falls past
+ * the foot: the open water was an empty white block (at 412px nearly so, at 768px entirely). Here
+ * the frame keeps to the size it was captured at, 22rem at most, and rises from the band's foot, so
+ * the spill stands in the open water at any width: on the left of a phone, as drawn, and from 40em
+ * on the right of the band, where it stands beside the words on a desktop. The frame's ink runs to
+ * its left edge, which on a phone is the window's edge. Moved to the right that edge would stand in
+ * the band as a straight cut through the smoke, so from 40em the frame is turned about its middle:
+ * the ink then runs to the window's right edge and pours in from there.
+ */
+.band [data-ink-still] img {
+  inset-block: auto 0;
+  inset-inline: 0 auto;
+  width: min(100%, 22rem);
+}
+
+@media (min-width: 40em) {
+  .band [data-ink-still] img {
+    inset-inline: auto 0;
+    scale: -1 1;
+  }
+
+  /*
+   * A tablet that is wide enough for two columns of 23rem (the figure "404" is a little under 22.5rem
+   * wide) puts the open water beside the words, as a desktop does, so the spill is on the first
+   * screen of a landscape tablet and not under a fold of words with the right half of the window
+   * empty. Narrower than that it is the one column.
+   */
+  .root {
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 23rem), 1fr));
+  }
+}
+
 @media (min-width: 68em) {
+  .band {
+    --band-h: min(80svh, 84rem);
+  }
+
+  /* The wide frame is the ink's own: its top edge, the band's whole width, as the ink sets it. */
+  .band [data-ink-still] img {
+    inset-block: 0 auto;
+    inset-inline: 0;
+    width: 100%;
+    scale: none;
+  }
+
+  /* The columns fill the band's height between its paddings, so the words can stand in its middle. */
   .root {
     grid-template-columns: repeat(12, minmax(0, 1fr));
     align-items: stretch;
+    min-height: calc(var(--band-h) - 2 * var(--pad));
   }
 
+  /*
+   * The words stand in the middle of the band's height: a band that is taller than they are (a
+   * large monitor's 80% of its window) does not leave them at its top with an empty half under.
+   * A band that holds them exactly is the same either way.
+   */
   .text {
     grid-column: 1 / span 6;
+    align-self: center;
   }
 
   .open {

@@ -34,7 +34,10 @@ function has(node: ReactNode): boolean {
  * 20rem tall from 68em. The title, the lead and `children` are one calm rectangle for it (the words
  * need no more room than that), so the ink thins under them and nowhere else.
  *
- * Below 68em every form is one column in the same order: crumbs, meta, h1, lead, children, aside.
+ * Below 68em every form is one column in the same order: crumbs, meta, h1, lead, children, aside;
+ * with an aside, from 40em the words and the aside stand side by side (the aside is 18rem at most,
+ * at the right), so a tablet's first screen is not a column of words over an object with half of
+ * every row empty.
  */
 export function TitleBlock({
   title,
@@ -143,7 +146,9 @@ export function TitleBlock({
           ) : undefined
         }
       >
-        <div className={styles.grid}>
+        <div
+          className={cx(styles.grid, hasAside && styles.paired, form === "index" && styles.measure)}
+        >
           <div
             className={cx(styles.words, styles[form], span)}
             data-ink-calm={ink ? "text" : undefined}

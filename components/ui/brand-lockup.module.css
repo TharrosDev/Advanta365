@@ -8,7 +8,7 @@
   --lockup-name: 1.1875rem;
   display: inline-flex;
   align-items: center;
-  gap: 10px;
+  gap: 0.625rem;
   height: var(--lockup-mark);
   color: var(--text);
 }
@@ -24,7 +24,7 @@
   place-items: center;
   width: var(--lockup-mark);
   height: var(--lockup-mark);
-  border-radius: 7px;
+  border-radius: var(--s-1);
   background: var(--ink);
   color: var(--on-ink);
 }

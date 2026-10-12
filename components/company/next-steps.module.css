@@ -19,7 +19,13 @@
   color: var(--text);
 }
 
+/*
+ * A row is a link from end to end, and on a large monitor the page's nine columns are wider than a
+ * row reads: the label would stand a thousand pixels from its arrow. The ledger stops at 64rem
+ * (it is the column's whole width up to a 2400px window).
+ */
 .list {
+  max-width: 64rem;
   margin-block-start: var(--s-5);
 }
 

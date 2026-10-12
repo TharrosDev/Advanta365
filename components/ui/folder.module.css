@@ -6,8 +6,8 @@
 .root {
   --tab-h: var(--s-4);
   --peek: 1.5rem;
-  --lift: 14px;
-  --lift-step: 4px;
+  --lift: 0.875rem;
+  --lift-step: 0.25rem;
 
   position: relative;
   display: flex;
@@ -35,12 +35,12 @@
   display: flex;
   align-items: center;
   max-width: 100%;
-  height: calc(var(--tab-h) + 2px);
+  height: calc(var(--tab-h) + 0.125rem);
   padding-inline: var(--s-2);
   border-radius: var(--round-2) var(--round-2) 0 0;
   background: var(--mark-wash);
   box-shadow: var(--depth-1);
-  clip-path: inset(-1rem -1rem 2px -1rem);
+  clip-path: inset(-1rem -1rem 0.125rem -1rem);
   color: var(--ink);
   font-weight: 700;
   white-space: nowrap;
@@ -49,9 +49,9 @@
 /* The showing sheets: the first stands highest and furthest back. */
 .sheet {
   position: absolute;
-  top: calc(var(--tab-h) + 5px + var(--n, 0) * 5px);
-  right: calc(var(--s-2) - var(--n, 0) * 3px);
-  left: calc(var(--s-2) - var(--n, 0) * 3px);
+  top: calc(var(--tab-h) + 0.3125rem + var(--n, 0) * 0.3125rem);
+  right: calc(var(--s-2) - var(--n, 0) * 0.1875rem);
+  left: calc(var(--s-2) - var(--n, 0) * 0.1875rem);
   z-index: -2;
   height: var(--s-6);
   border-radius: var(--round-1);

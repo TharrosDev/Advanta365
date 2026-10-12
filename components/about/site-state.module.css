@@ -2,17 +2,23 @@
   margin-block-start: var(--s-5);
 }
 
-/* A thing that is not finished: what it is and its status, then the sentence about it. */
+/*
+ * A thing that is not finished: what it is and its status, then the sentence about it. They share
+ * a line where the row holds both (20rem and 24rem and the gap, which a tablet's row does from
+ * about 50em) and the sentence drops under them where it does not. From 68em the twelve columns.
+ */
 .row.row {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr);
-  gap: var(--s-2);
+  display: flex;
+  flex-wrap: wrap;
+  column-gap: var(--s-4);
+  row-gap: var(--s-2);
   align-items: start;
   padding-block: var(--s-3);
 }
 
 .what {
   display: flex;
+  flex: 0 1 min(20rem, 100%);
   flex-wrap: wrap;
   align-items: center;
   gap: var(--s-2);
@@ -28,6 +34,7 @@
 }
 
 .body {
+  flex: 1 1 min(24rem, 100%);
   min-width: 0;
   max-width: var(--wrap-copy);
   color: var(--text-soft);
@@ -35,6 +42,7 @@
 
 @media (min-width: 68em) {
   .row.row {
+    display: grid;
     grid-template-columns: repeat(12, minmax(0, 1fr));
     column-gap: var(--col-gap);
     padding-block: var(--s-4);

@@ -34,15 +34,18 @@
 
 /*
  * The bottom sheet. A native dialog, so it is modal, traps focus and closes on Escape by itself.
- * It keeps the default `display: none` until it is open.
+ * It keeps the default `display: none` until it is open. It is the width of the window on a phone
+ * and no wider than 40rem past that, centred on the bottom edge: on a tablet in landscape a
+ * single column of check rows runs 1000px across the window otherwise, with its counts a screen
+ * away from their names.
  */
 .sheet {
   position: fixed;
   inset: auto 0 0 0;
-  width: 100%;
+  width: min(100%, 40rem);
   max-width: none;
   max-height: 85dvh;
-  margin: 0;
+  margin: 0 auto;
   padding: 0;
   border: 0;
   border-radius: var(--round-3) var(--round-3) 0 0;

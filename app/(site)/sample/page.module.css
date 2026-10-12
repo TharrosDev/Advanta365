@@ -1,4 +1,13 @@
 /*
+ * A ledger on this page keeps to 64rem: it is the column's whole width up to a 2400px window, and
+ * past it a row would stand its section's title a thousand pixels from the link or the tally at its
+ * other end. The hairlines stop where the rows do.
+ */
+.measure {
+  max-width: 64rem;
+}
+
+/*
  * The phase number: Besley's own figures. Its column is 42px from 40em; on a phone it is 21px, which
  * a single digit fills, so that the longest phase name still fits on a line at 320px.
  */

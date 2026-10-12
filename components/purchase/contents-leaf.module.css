@@ -13,6 +13,17 @@
 }
 
 /*
+ * Beside the folder the leaf stands on the page's right edge, as the folder stands on its left: a
+ * leaf narrower than its columns (the page draws it larger on a big monitor, but never past them)
+ * is not left with a margin the nav and the footer above and below do not have.
+ */
+@media (min-width: 68em) {
+  .scope {
+    margin-inline: auto 0;
+  }
+}
+
+/*
  * The folded corner. The whole sheet (paper, grain, shadow and all that stands on it) is cut along
  * the fold, so the shadow follows the cut and no outline of the missing corner is left behind; the
  * cut reaches `--room` past the other three sides, which is where the shadow falls. The flap that

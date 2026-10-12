@@ -135,7 +135,14 @@
   --s-9: 10.5rem; /* 168 */
 
   /* Page */
-  --page-max: 77rem; /* 1232: twelve 77px columns, eleven 28px gaps */
+  --over: max(0px, calc(100vw - 1600px)); /* how far the window is past a 1600px desktop */
+  /*
+   * 1232 (twelve 77px columns, eleven 28px gaps) up to about 1600px of window; past it the column
+   * takes 72% of the window, to 120rem. The root font size grows past 1600px too (see `html`), so
+   * on a large monitor the type, the spacing and the controls scale with the column and the page
+   * keeps its proportions instead of standing in the middle of a wide empty desk.
+   */
+  --page-max: max(77rem, min(72vw, 120rem));
   --page-pad: 1.3125rem; /* 21 */
   --col-gap: 0.875rem; /* 14 */
   --band-pad: var(--s-6); /* 56 */
@@ -274,6 +281,14 @@
 }
 
 html {
+  /*
+   * The one scale knob for a large monitor. Everything in the site is in rem (the 7px module, the
+   * type, the controls, the caps on a band), so one root size scales the whole page together: 16px
+   * to 1600px of window, then 0.5% of every pixel past it, to 140% (22.4px) at about 2880px. The
+   * em-based media queries do not follow it: they read the browser's own size, so 40em and 68em
+   * stay where they are. A user's own default size is the 100%.
+   */
+  font-size: min(140%, calc(100% + var(--over) * 0.005));
   scrollbar-gutter: stable;
   /* Inherited: the page, the drawer, the filter sheet and the filter rail all draw it this way. */
   scrollbar-color: var(--rule-firm) var(--desk);

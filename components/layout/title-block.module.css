@@ -22,6 +22,14 @@
   row-gap: var(--s-4);
 }
 
+/*
+ * The grid of an index page is the width its title is measured by (`cqi` below): the title stands
+ * in the first three of its twelve columns.
+ */
+.measure {
+  container-type: inline-size;
+}
+
 /* The words are one box, so the ink can keep clear of exactly that and nothing wider. */
 .words {
   display: flex;
@@ -131,6 +139,22 @@
 }
 
 /*
+ * With an aside, the words and the aside stand side by side from 40em instead of one over the
+ * other with the right half of every row empty. The aside's column is 16rem at 40em and 18rem
+ * from 768px of window: the worked example's page is 20rem at most and shrinks to it, the phase
+ * numeral and its count fit it. From 68em the twelve columns below take over, and this changes
+ * nothing there (the gaps are the same).
+ */
+@media (min-width: 40em) {
+  .paired {
+    grid-template-columns: minmax(0, 1fr) minmax(0, clamp(16rem, 25vw + 6rem, 18rem));
+    column-gap: var(--col-gap);
+    row-gap: 0;
+    align-items: start;
+  }
+}
+
+/*
  * The picture of the title stage, live ink or its still, sits in the right 42% from 68em. Below
  * that the words span too much of the block for ink beside them, and a frame captured for the wide
  * layout would run under them.
@@ -138,6 +162,17 @@
 .ink.ink {
   display: none;
   inset: 0 0 0 58%;
+}
+
+/*
+ * The frame is as wide as it was captured, 451px, written in rem: up to 1600px of window the root
+ * is 16px and nothing changes; on a large monitor the root grows, the block grows with it (its
+ * words, its padding and its height are in rem), and the frame follows, so the ink keeps its size
+ * against the title instead of shrinking to a corner. The three classes outrank the rule of the
+ * scene, which sets the frame at its own size.
+ */
+.ink.ink.ink [data-ink-still] img {
+  width: 28.1875rem;
 }
 
 @media (min-width: 68em) {
@@ -236,6 +271,19 @@
   .titleLine > * {
     flex: 1 1 0;
     min-width: 0;
+  }
+
+  /*
+   * An index title is one word set in the three columns of the margin, and a word does not break
+   * to fit them: from 68em to about 1280px of window the banner size is wider than they are (an
+   * 8-letter word is 4.89 times the size wide, and three columns are a quarter of the grid less
+   * three-quarters of a gap), so the title is held to the width they have. From 1280px the banner
+   * size is the smaller of the two and nothing changes. The line beside it takes the same size, so
+   * the two baselines stay one.
+   */
+  .index .title,
+  .index .titleLine::before {
+    font-size: min(var(--size-banner), calc((25cqi - 0.75 * var(--col-gap)) / 4.89));
   }
 }
 

@@ -14,8 +14,10 @@ type IconName = keyof typeof PATHS;
 
 /**
  * The site's line icons: a 1.75 stroke with round caps and joins in `currentColor`, always
- * decorative. `size` is the drawn width and height in pixels; `flip` mirrors the icon left to right
- * (the arrow of "Previous"). The icon never shrinks inside a flex row.
+ * decorative. `size` is the drawn width and height in pixels at the 16px root; the icon is sized in
+ * rem, so on a large monitor, where the root grows (see `html` in globals.css), it grows with the
+ * words and the controls it stands beside. `flip` mirrors the icon left to right (the arrow of
+ * "Previous"). The icon never shrinks inside a flex row.
  */
 export function Icon({
   name,
@@ -39,7 +41,7 @@ export function Icon({
       strokeWidth={1.75}
       strokeLinecap="round"
       strokeLinejoin="round"
-      style={{ flex: "none" }}
+      style={{ flex: "none", width: `${size / 16}rem`, height: `${size / 16}rem` }}
       aria-hidden="true"
       focusable="false"
     >

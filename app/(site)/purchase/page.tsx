@@ -25,8 +25,9 @@ export const metadata: Metadata = {
  * the right (columns 8 to 12, centred on the folder; column 7 is the room the tag hangs into). The
  * leaf holds the `h2` "What is inside", the ledger of counts read from `TOOLKIT`, the Checkout
  * button, which is not built yet, the address to write to until it is, and the note that the catalog
- * is sample content. Below 68em it is one column, the folder first. The price is printed once, on
- * the tag.
+ * is sample content. On a large monitor the pair is drawn larger with the column (see the stylesheet);
+ * from about 1010px of window to 68em the two stand side by side, the tag lying on the folder, and
+ * below that it is one column, the folder first. The price is printed once, on the tag.
  */
 export default async function PurchasePage() {
   const [phases, templates, samples] = await Promise.all([

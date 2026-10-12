@@ -165,17 +165,32 @@
   animation: sign-out var(--ink-sign) linear calc(var(--ink-sign-at) - var(--taken, 0ms)) forwards;
 }
 
-/* 84px high on a phone, 112px from 40em; the width follows the 4:3 view box. */
+/*
+ * 84px high on a phone, 112px from 40em; the width follows the 4:3 view box. On a large monitor
+ * from 68em the signature grows with the window, to an eighth of its height (and no more than 7%
+ * of its width), so that it stands in the paper as it does on a desktop and not as a speck: that
+ * is more than 112px only from about 1700px of window. The name beneath it keeps its proportion.
+ */
+.signature {
+  --mark-h: var(--s-7);
+}
+
 .logo {
   display: block;
   width: auto;
-  height: var(--s-7);
+  height: var(--mark-h);
   aspect-ratio: 4 / 3;
 }
 
 @media (min-width: 40em) {
-  .logo {
-    height: var(--s-8);
+  .signature {
+    --mark-h: var(--s-8);
+  }
+}
+
+@media (min-width: 68em) {
+  .signature {
+    --mark-h: max(var(--s-8), min(12.4svh, 7vw));
   }
 }
 
@@ -227,11 +242,11 @@
   --digit: 2;
 }
 
-/* The name, as one word, 21px under the mark. Never larger than this anywhere. */
+/* The name, as one word, 21px under the mark, a quarter of its height. */
 .name {
-  margin-block-start: var(--s-3);
+  margin-block-start: max(var(--s-3), var(--mark-h) * 0.1875);
   font-family: var(--face-display);
-  font-size: var(--s-4);
+  font-size: max(var(--s-4), var(--mark-h) / 4);
   line-height: 1;
   font-weight: 700;
   letter-spacing: 0;
