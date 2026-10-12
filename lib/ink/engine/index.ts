@@ -49,6 +49,7 @@ import {
   freeTarget,
   makeDouble,
   makeTarget,
+  nextTask,
   pickFormats,
   type DoubleTarget,
   type Formats,
@@ -285,7 +286,9 @@ export function createInk(canvas: HTMLCanvasElement, userOptions: InkOptions): I
   let slowFrames = 0;
   const cleanup: (() => void)[] = [];
 
-  const usable = () => !!gl && !lost && !destroyed && !!targets && !!programs;
+  /** Set while the first probe waits between two tiers: the engine is not to be used yet. */
+  let betweenTiers = false;
+  const usable = () => !!gl && !lost && !destroyed && !!targets && !!programs && !betweenTiers;
   const aspectOf = () => sizes.cssW / (sizes.cssH || 1);
   const sceneClock = () => clock - held;
 
@@ -1157,8 +1160,12 @@ export function createInk(canvas: HTMLCanvasElement, userOptions: InkOptions): I
     return times[Math.floor(times.length / 2)] ?? 0;
   }
 
-  /** The frame-time probe: a few real frames at a tier, a step down while they cost too much. */
-  function runProbe(): number {
+  /**
+   * The frame-time probe: a few real frames at a tier, a step down while they cost too much. One
+   * tier costs about 120ms of the main thread, so it yields before every tier after the first:
+   * whoever can wait gives the page a turn there (`probeInTurns`).
+   */
+  function* probeTiers(): Generator<void, number> {
     const coarse = typeof matchMedia === "function" && matchMedia("(pointer: coarse)").matches;
     let i = coarse ? 1 : 2; // phones and tablets start one tier lower
     const tryTier = (index: number) => {
@@ -1171,13 +1178,18 @@ export function createInk(canvas: HTMLCanvasElement, userOptions: InkOptions): I
     };
     let cost = tryTier(i);
     if (cost > BUDGET[tierName]) {
-      while (i > 0 && cost > BUDGET[tierName]) cost = tryTier(--i);
+      while (i > 0 && cost > BUDGET[tierName]) {
+        yield;
+        cost = tryTier(--i);
+      }
     } else if (i < 2 && cost < BUDGET[tierName] * 0.45) {
+      yield;
       const up = tryTier(i + 1);
       if (up <= BUDGET[tierName]) {
         i += 1;
         cost = up;
       } else {
+        yield;
         cost = tryTier(i);
       }
     }
@@ -1187,6 +1199,31 @@ export function createInk(canvas: HTMLCanvasElement, userOptions: InkOptions): I
     held = 0;
     stepCount = 0;
     return cost;
+  }
+
+  /** The probe in one go, for a caller that needs its answer now. */
+  function runProbe(): number {
+    const tiers = probeTiers();
+    for (;;) {
+      const turn = tiers.next();
+      if (turn.done) return turn.value;
+    }
+  }
+
+  /**
+   * The probe with a task of its own for each tier, so that one that steps down (or, on a phone,
+   * up) is not a single task of a quarter second. Null when the context went in between.
+   */
+  async function probeInTurns(): Promise<number | null> {
+    const tiers = probeTiers();
+    for (;;) {
+      const turn = tiers.next();
+      if (turn.done) return turn.value;
+      betweenTiers = true;
+      await nextTask();
+      betweenTiers = false;
+      if (lost || destroyed) return null;
+    }
   }
 
   function seedProbe() {
@@ -1279,7 +1316,8 @@ export function createInk(canvas: HTMLCanvasElement, userOptions: InkOptions): I
     applyLook();
     let probeMs: number | null = null;
     if (options.quality === "auto") {
-      probeMs = runProbe();
+      probeMs = await probeInTurns();
+      if (probeMs === null) return null;
     } else {
       tierName = isTier(options.quality) ? options.quality : "medium";
       tier = TIERS[tierName];

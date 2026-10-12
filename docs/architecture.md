@@ -685,7 +685,9 @@ tier is sized, seeded with two drops, and timed with the median of up to seven s
 (stopping at 90 ms total). If the cost is over budget, the probe steps down until it is within budget. If
 the starting tier is below `high` and the cost is under 45% of the budget, it tries one tier up. The probe
 then clears the water and resets the clock. The probe runs when `quality` is `auto`, and when the cover ends
-if no tier is stored.
+if no tier is stored. One tier costs about 120 ms of the main thread. At boot (`probeInTurns`) every tier
+after the first is tried in a task of its own, and the engine is not usable in between; the probe at the
+end of the cover (`probe()`) answers in one task.
 
 Adaptive watch: a frame over 24 ms adds one to a slow counter, and a normal frame subtracts two (floor 0).
 At 75, the engine steps one tier down. At the lowest tier it emits `slow` instead, and the controller turns
@@ -1313,8 +1315,10 @@ Projects in `playwright.config.ts`:
 
 - `chromium`: Desktop Chrome at 1280 by 800. Runs every spec except `ink-live`.
 - `mobile`: Pixel 7. Runs every spec except `ink-live`.
+- `quiet` and `quiet-mobile`: the tests tagged `@quiet` (paint times read off the page's clock), in the
+  same two browsers, one at a time after the projects above.
 - `gpu`: runs `ink-live.spec.ts` at 1440 by 900 with `--ignore-gpu-blocklist` and `--enable-gpu`, plus
-  `--use-angle=d3d11` on Windows. Runs after the other two projects.
+  `--use-angle=d3d11` on Windows. Runs after every other project.
 - `firefox`: runs a subset of specs when Firefox starts on the machine (`PW_FIREFOX=1` or a successful
   `--version` check).
 

@@ -108,7 +108,7 @@ function shaderOf(gl: GL, type: number, source: string): WebGLShader {
 }
 
 /** Lets a task end before the next piece of work starts. */
-const nextTask = () => new Promise<void>((resolve) => setTimeout(resolve, 0));
+export const nextTask = () => new Promise<void>((resolve) => setTimeout(resolve, 0));
 
 /**
  * Compiles and links every program. Where the browser can do that off the main thread
