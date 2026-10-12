@@ -76,9 +76,9 @@
   --pocket-shade: 0 -8px 14px -8px rgb(11 13 18 / 0.22);
 
   /*
-   * The lock on a template that is not a free sample: a steel chain (the light on it, its body,
-   * its shaded side and its edge), a padlock with a dark body, and the shadow they cast on the
-   * cover under them.
+   * The lock on a template that is not a free sample: a fine steel chain (the light on it, its
+   * shaded side and its edge), a small padlock with a dark body and a keyhole in --steel, and the
+   * one soft shadow they cast on the cover under them.
    */
   --steel-light: #f8fafd;
   --steel: #b6bdca;
@@ -86,7 +86,7 @@
   --steel-edge: #262a35;
   --lock-light: #515869;
   --lock: #1e222c;
-  --lock-cast: rgb(11 13 18 / 0.34);
+  --lock-cast: rgb(11 13 18 / 0.26);
 
   /*
    * Semantic layer: what components read. Each [data-band] redefines it. The focus ring is ink on
@@ -140,7 +140,6 @@
   --col-gap: 0.875rem; /* 14 */
   --band-pad: var(--s-6); /* 56 */
   --bar-h: 3.5rem; /* 56 */
-  --strip-h: 0px; /* the beta strip sets it while it is shown */
   --rail-h: 2.625rem; /* 42 */
   --wrap-copy: 36rem;
   --wrap-lead: 40rem;

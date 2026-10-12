@@ -24,7 +24,8 @@ import styles from "./template-tile.module.css";
  * Every other template is locked (`data-locked`): its cover is out of focus, and only its cover,
  * under a chain and a padlock (`ChainLock`), and its title is a button that answers with the
  * `data-denied` state and a line under the tile (`LockedTile`). `denied` renders the tile already
- * in that state, for a link that names a locked template. `href` is not used.
+ * in that state, for a link that names a locked template. `href` is not used. The well carries
+ * `data-well`, the hook of the red wash its `::before` lays under the cover of a denied tile.
  *
  * A hyphenated compound in the title ("End-User") is never broken. Lay tiles out in a `TileGrid`.
  */
@@ -70,7 +71,7 @@ export function TemplateTile({
       data-format={template.format}
       className={styles.tile}
     >
-      <div className={styles.well}>
+      <div className={styles.well} data-well="">
         <div className={styles.cover}>
           <TemplateCover
             type={template.deliverableType}
