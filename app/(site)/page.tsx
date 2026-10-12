@@ -1,6 +1,5 @@
 import type { ReactElement } from "react";
 import { BuiltForRow } from "@/components/home/built-for-row";
-import { BundlesSection, type FeaturedBundle } from "@/components/home/bundles-section";
 import { ClosingSection } from "@/components/home/closing-section";
 import { FeaturedSection } from "@/components/home/featured-section";
 import { Hero } from "@/components/home/hero";
@@ -11,9 +10,7 @@ import { PracticeSection } from "@/components/home/practice-section";
 import { ValuesSection } from "@/components/home/values-section";
 import { IntroCover } from "@/components/intro/intro-cover";
 import { DELIVERABLE_TYPE_LABELS, FORMAT_LABELS } from "@/content/taxonomy";
-import { phaseCoverage } from "@/lib/catalog/coverage";
-import { bundleSavingsCents } from "@/lib/catalog/pricing";
-import { getBundleTemplates, getBundles, getPhases, getTemplates } from "@/lib/catalog/repository";
+import { getFreeTemplates, getPhases, getTemplates } from "@/lib/catalog/repository";
 import type { Phase, Template } from "@/lib/catalog/schema";
 
 /**
@@ -50,44 +47,27 @@ function buildSpecimen(template: Template, phases: Phase[]): SpecimenContent | u
 }
 
 /**
- * Home, top to bottom: the hero (the headline beside the ink); the featured templates as a spread
- * of sheets; what is inside the toolkit, with one real template as a specimen; the bundles; the
- * problem; the answer (the one black band); why it is different (the one wash band); why
+ * Home, top to bottom: the hero (the headline beside the ink); the free sample templates as a spread
+ * of sheets; what is inside the toolkit, with one real template as a specimen; the problem; the answer (the one black band); why it is different (the one wash band); why
  * Advanta365; the Microsoft 365 products; the closing statement. Reordering the page is reordering
  * the array below. The cover of a first visit is rendered before all of it.
  */
 export default async function Home() {
-  const [phases, templates, bundles] = await Promise.all([
+  const [phases, templates, freeTemplates] = await Promise.all([
     getPhases(),
     getTemplates(),
-    getBundles(),
+    getFreeTemplates(),
   ]);
-  const featuredTemplates = templates.filter((template) => template.featured).slice(0, 6);
-  const specimenTemplate = featuredTemplates[0] ?? templates[0];
-  const featuredBundles: FeaturedBundle[] = await Promise.all(
-    bundles
-      .filter((bundle) => bundle.featured)
-      .slice(0, 3)
-      .map(async (bundle) => {
-        const contents = await getBundleTemplates(bundle);
-        return {
-          bundle,
-          count: contents.length,
-          savings: bundleSavingsCents(bundle, contents),
-          coverage: phaseCoverage(phases, contents),
-        };
-      }),
-  );
+  const specimenTemplate = freeTemplates[0] ?? templates[0];
 
   const sections: ReactElement[] = [
     <Hero key="hero" />,
-    <FeaturedSection key="featured" templates={featuredTemplates} phases={phases} />,
+    <FeaturedSection key="featured" templates={freeTemplates} phases={phases} />,
     <InsideSection
       key="inside"
       phases={phases}
       specimen={specimenTemplate ? buildSpecimen(specimenTemplate, phases) : undefined}
     />,
-    <BundlesSection key="bundles" items={featuredBundles} />,
     <ProblemSection key="problem" />,
     <SolutionSection key="solution" />,
     <PracticeSection key="practice" />,

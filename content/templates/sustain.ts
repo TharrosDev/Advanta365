@@ -12,8 +12,6 @@ export const sustainTemplates = sample("sustain", [
     audiences: ["sponsor", "change-lead"],
     format: "xlsx",
     adkar: ["reinforcement"],
-    priceCents: 5900,
-    featured: true,
     summary: "Track speed of adoption, utilization and proficiency for the first 90 days.",
     description:
       "A scorecard that turns usage data and survey results into a single view for the sponsor. Targets and thresholds are set once and the charts update as you enter results.",
@@ -33,7 +31,6 @@ export const sustainTemplates = sample("sustain", [
     audiences: ["it-admin", "change-lead"],
     format: "docx",
     adkar: ["reinforcement"],
-    priceCents: 4400,
     pageCount: 14,
     summary: "Which usage reports to pull, how often, and how to read them.",
     description:
@@ -49,7 +46,6 @@ export const sustainTemplates = sample("sustain", [
     audiences: ["end-user", "change-lead"],
     format: "docx",
     adkar: ["ability", "reinforcement"],
-    priceCents: 3400,
     pageCount: 8,
     summary: "Three short surveys for 2, 6 and 12 weeks after launch.",
     description:
@@ -65,7 +61,6 @@ export const sustainTemplates = sample("sustain", [
     audiences: ["end-user", "manager"],
     format: "docx",
     adkar: ["ability"],
-    priceCents: 3900,
     pageCount: 9,
     summary:
       "Check whether staff can actually perform the key tasks, not just that they logged in.",
@@ -82,7 +77,6 @@ export const sustainTemplates = sample("sustain", [
     audiences: ["sponsor"],
     format: "pptx",
     adkar: ["reinforcement"],
-    priceCents: 2900,
     pageCount: 6,
     summary: "A six-slide monthly report that tells the sponsor where adoption stands.",
     description:
@@ -98,7 +92,6 @@ export const sustainTemplates = sample("sustain", [
     audiences: ["sponsor", "change-lead"],
     format: "xlsx",
     adkar: ["reinforcement"],
-    priceCents: 4900,
     summary: "Connect Copilot licences to active use and the time staff say it saves.",
     description:
       "Tracks licence assignment, active use and self-reported time saved by team. Helps decide where to reassign licences and where to add training.",
@@ -113,7 +106,6 @@ export const sustainTemplates = sample("sustain", [
     audiences: ["sponsor"],
     format: "pptx",
     adkar: ["reinforcement"],
-    priceCents: 3900,
     pageCount: 12,
     summary: "Report results against the benefits promised at the start.",
     description:
@@ -131,9 +123,7 @@ export const sustainTemplates = sample("sustain", [
     audiences: ["change-lead", "manager"],
     format: "docx",
     adkar: ["reinforcement"],
-    priceCents: 4400,
     pageCount: 10,
-    featured: true,
     summary: "A plan for keeping the change in place after the project team moves on.",
     description:
       "Sets out how progress will be celebrated, how gaps will be corrected, and who is responsible. Covers the six months after launch, when people most often slip back to old habits.",
@@ -153,7 +143,6 @@ export const sustainTemplates = sample("sustain", [
     audiences: ["end-user"],
     format: "pptx",
     adkar: ["desire", "reinforcement"],
-    priceCents: 1900,
     pageCount: 4,
     summary: "Share short stories of teams getting real value from the new tools.",
     description:
@@ -169,7 +158,6 @@ export const sustainTemplates = sample("sustain", [
     audiences: ["end-user"],
     format: "xlsx",
     adkar: ["knowledge", "reinforcement"],
-    priceCents: 2900,
     summary: "Twenty-six weekly tips, written and scheduled, to keep skills growing.",
     description:
       "A half-year calendar of short tips with the text ready to post. Each tip takes under a minute to read and try.",
@@ -184,7 +172,6 @@ export const sustainTemplates = sample("sustain", [
     audiences: ["manager", "change-lead"],
     format: "docx",
     adkar: ["ability", "reinforcement"],
-    priceCents: 3900,
     pageCount: 11,
     summary: "What to do when a team has gone back to the old way of working.",
     description:
@@ -200,7 +187,6 @@ export const sustainTemplates = sample("sustain", [
     audiences: ["change-lead"],
     format: "pptx",
     adkar: ["reinforcement"],
-    priceCents: 2400,
     pageCount: 8,
     summary: "Thank and recognize champions so the network stays active.",
     description:
@@ -216,7 +202,6 @@ export const sustainTemplates = sample("sustain", [
     audiences: ["end-user"],
     format: "pptx",
     adkar: ["knowledge", "ability", "reinforcement"],
-    priceCents: 4900,
     pageCount: 20,
     summary: "Ten five-minute refreshers on the tasks people most often forget.",
     description:
@@ -232,7 +217,6 @@ export const sustainTemplates = sample("sustain", [
     audiences: ["change-lead", "it-admin"],
     format: "docx",
     adkar: ["reinforcement"],
-    priceCents: 4900,
     pageCount: 12,
     summary: "Move responsibility from the project team to the people who will run it.",
     description:
@@ -248,7 +232,6 @@ export const sustainTemplates = sample("sustain", [
     audiences: ["it-admin", "manager"],
     format: "xlsx",
     adkar: ["reinforcement"],
-    priceCents: 2400,
     summary: "Name an owner for every ongoing adoption activity.",
     description:
       "Lists the activities that must continue after the project, such as training new starters and reviewing usage. Each one gets an owner and a frequency.",
@@ -263,7 +246,6 @@ export const sustainTemplates = sample("sustain", [
     audiences: ["change-lead"],
     format: "pptx",
     adkar: ["reinforcement"],
-    priceCents: 3400,
     pageCount: 14,
     summary: "Run a structured review of what worked and what to change next time.",
     description:
@@ -279,7 +261,6 @@ export const sustainTemplates = sample("sustain", [
     audiences: ["sponsor", "change-lead"],
     format: "docx",
     adkar: ["reinforcement"],
-    priceCents: 2900,
     pageCount: 8,
     summary: "The final report to the sponsor on adoption results and open items.",
     description:

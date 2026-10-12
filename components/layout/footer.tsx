@@ -1,6 +1,6 @@
 import { useId } from "react";
 import { InkBackdrop } from "@/components/ink/ink-backdrop";
-import { PRIMARY_LINKS, type NavLink, type PhaseLink } from "@/components/layout/nav-links";
+import { PRIMARY_LINKS, type PhaseLink } from "@/components/layout/nav-links";
 import { BrandLockup } from "@/components/ui/brand-lockup";
 import { Eyebrow } from "@/components/ui/eyebrow";
 import { TextLink } from "@/components/ui/text-link";
@@ -9,9 +9,6 @@ import { Wrap } from "@/components/ui/wrap";
 import { cx } from "@/lib/cx";
 import { SITE } from "@/lib/site";
 import styles from "./footer.module.css";
-
-/** The footer lists the primary destinations and, after them, the cart. */
-const FOOTER_LINKS: readonly NavLink[] = [...PRIMARY_LINKS, { href: "/cart", label: "Cart" }];
 
 /**
  * The site footer: the binder, the only dark surface of the site. Faint blue wisps drift through it
@@ -45,7 +42,7 @@ export function Footer({ phases }: { phases: readonly PhaseLink[] }) {
           </div>
           <nav aria-label="Footer" className={styles.site}>
             <ul className={styles.list}>
-              {FOOTER_LINKS.map((link) => (
+              {PRIMARY_LINKS.map((link) => (
                 <li key={link.href} className={styles.row}>
                   <TransitionLink href={link.href} className={cx("type-ui", styles.link)}>
                     <span className={styles.name}>{link.label}</span>

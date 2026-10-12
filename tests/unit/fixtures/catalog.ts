@@ -33,29 +33,18 @@ export function rawTemplate(overrides: Record<string, unknown> = {}) {
     audiences: ["sponsor"],
     format: "pptx",
     adkar: ["awareness"],
-    priceCents: 4900,
     includes: ["12 slides"],
-    featured: false,
+    free: false,
     isSample: true,
     ...overrides,
   };
 }
 
-export function rawBundle(overrides: Record<string, unknown> = {}) {
-  return {
-    slug: "starter-kit",
-    title: "Starter Kit",
-    summary: "Two templates.",
-    description: "A small kit.",
-    templateSlugs: ["kickoff-deck", "training-plan"],
-    priceCents: 6900,
-    featured: false,
-    isSample: true,
-    ...overrides,
-  };
-}
-
+/** Two phases' worth of templates, with exactly six of them free (the number the catalog requires). */
 export function rawCatalog() {
+  const extras = Array.from({ length: 6 }, (_, i) =>
+    rawTemplate({ slug: `free-${i + 1}`, title: `Free ${i + 1}`, free: true }),
+  );
   return {
     phases: rawPhases,
     templates: [
@@ -68,8 +57,8 @@ export function rawCatalog() {
         deliverableType: "training",
         format: "docx",
       }),
+      ...extras,
     ],
-    bundles: [rawBundle()],
   };
 }
 

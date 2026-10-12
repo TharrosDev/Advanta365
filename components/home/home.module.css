@@ -367,35 +367,6 @@
 }
 
 /*
- * Bundles. The large folder over the ledger; from 68em the folder in columns 1 to 6 and the ledger
- * in columns 7 to 12, top-aligned.
- */
-.bundles {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr);
-  gap: var(--s-5);
-}
-
-.bundleFeature {
-  min-width: 0;
-}
-
-.bundleRows {
-  min-width: 0;
-  margin: 0;
-  padding: 0;
-  list-style: none;
-}
-
-@media (min-width: 68em) {
-  .bundles {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 0 var(--col-gap);
-    align-items: start;
-  }
-}
-
-/*
  * A statement band (`#problem`, `#practice`): the label, the statement in columns 1 to 9, and
  * what follows it in columns 7 to 12, 42px lower.
  */

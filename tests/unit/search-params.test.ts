@@ -1,6 +1,11 @@
 import { describe, expect, test } from "vitest";
 import { DEFAULT_CRITERIA, type CatalogCriteria } from "@/lib/catalog/query";
-import { parseCatalogParams, serializeCatalogParams } from "@/lib/catalog/search-params";
+import {
+  catalogHref,
+  parseCatalogParams,
+  parseView,
+  serializeCatalogParams,
+} from "@/lib/catalog/search-params";
 
 const PHASES = ["prepare", "execute", "sustain"];
 const parse = (sp: Record<string, string | string[] | undefined>) => parseCatalogParams(sp, PHASES);
@@ -46,9 +51,16 @@ describe("parseCatalogParams", () => {
     expect(parse({ page: ["4", "abc"] }).page).toBe(4);
   });
 
-  test("unknown sort falls back to featured", () => {
-    expect(parse({ sort: "random" }).sort).toBe("featured");
-    expect(parse({ sort: "price-desc" }).sort).toBe("price-desc");
+  test("unknown sort falls back to samples", () => {
+    expect(parse({ sort: "random" }).sort).toBe("samples");
+    expect(parse({ sort: "price-desc" }).sort).toBe("samples");
+    expect(parse({ sort: "title" }).sort).toBe("title");
+  });
+
+  test("free=1 asks for the free templates only; anything else does not", () => {
+    expect(parse({ free: "1" }).free).toBe(true);
+    expect(parse({ free: ["1", "0"] }).free).toBe(true);
+    for (const free of ["0", "true", "", "2", undefined]) expect(parse({ free }).free).toBe(false);
   });
 
   test("trims the search text and caps it at 200 characters", () => {
@@ -80,10 +92,70 @@ describe("serializeCatalogParams", () => {
       app: ["sharepoint"],
       audience: ["manager", "end-user"],
       format: ["pptx"],
-      sort: "price-asc",
+      free: true,
+      sort: "title",
       page: 3,
     };
     const params = new URLSearchParams(serializeCatalogParams(criteria));
     expect(parse(Object.fromEntries(params))).toEqual(criteria);
+  });
+});
+
+describe("serializeCatalogParams and free", () => {
+  test("free is written as free=1 after the facets and before the sort", () => {
+    expect(
+      serializeCatalogParams({ ...DEFAULT_CRITERIA, free: true, sort: "title", page: 2 }),
+    ).toBe("free=1&sort=title&page=2");
+  });
+
+  test("free: false is left out", () => {
+    expect(serializeCatalogParams({ ...DEFAULT_CRITERIA, free: false })).toBe("");
+  });
+});
+
+describe("parseView", () => {
+  test("accepts a template slug", () => {
+    expect(parseView({ view: "change-management-strategy" })).toBe("change-management-strategy");
+  });
+
+  test.each([[""], ["../x"], ["A"], ["a/b"], ["a b"], ["-a"], ["a-"], ["a--b"]])(
+    "rejects %j",
+    (view) => {
+      expect(parseView({ view })).toBeUndefined();
+    },
+  );
+
+  test("is undefined when the parameter is absent", () => {
+    expect(parseView({})).toBeUndefined();
+    expect(parseView({ view: undefined })).toBeUndefined();
+  });
+
+  test("takes the first of a repeated parameter, and only if that one is valid", () => {
+    expect(parseView({ view: ["go-live-readiness-checklist", "other"] })).toBe(
+      "go-live-readiness-checklist",
+    );
+    expect(parseView({ view: ["../x", "go-live-readiness-checklist"] })).toBeUndefined();
+  });
+});
+
+describe("catalogHref", () => {
+  test("is /catalog alone for the defaults", () => {
+    expect(catalogHref(DEFAULT_CRITERIA)).toBe("/catalog");
+  });
+
+  test("appends the query, leaving out defaults", () => {
+    expect(catalogHref({ ...DEFAULT_CRITERIA, free: true })).toBe("/catalog?free=1");
+    expect(catalogHref({ ...DEFAULT_CRITERIA, q: "kick off", page: 2 })).toBe(
+      "/catalog?q=kick+off&page=2",
+    );
+  });
+
+  test("puts view last", () => {
+    expect(
+      catalogHref({ ...DEFAULT_CRITERIA, free: true, page: 2 }, "go-live-readiness-checklist"),
+    ).toBe("/catalog?free=1&page=2&view=go-live-readiness-checklist");
+    expect(catalogHref(DEFAULT_CRITERIA, "go-live-readiness-checklist")).toBe(
+      "/catalog?view=go-live-readiness-checklist",
+    );
   });
 });

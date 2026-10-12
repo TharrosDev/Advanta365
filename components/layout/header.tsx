@@ -1,4 +1,3 @@
-import type { ReactNode } from "react";
 import { NavDrawer } from "@/components/layout/nav-drawer";
 import type { PhaseLink, TemplatePhases } from "@/components/layout/nav-links";
 import { PrimaryNav } from "@/components/layout/primary-nav";
@@ -12,8 +11,8 @@ import styles from "./header.module.css";
  * The bar: a sticky sheet of white paper at the top of every page, set off by a soft shadow and no
  * line under it. `data-bar` is the hook of app/motion.css, which draws that shadow on a layer of its
  * own (so the bar must not use its own `::after`) and lets it arrive over the first 84px of scroll.
- * Left to right, which is also the DOM and tab order: the brand, the primary links (from 68em), the
- * cart, and the Menu button of the drawer (below 68em).
+ * Left to right, which is also the DOM and tab order: the brand, the primary links (from 68em) and
+ * the Menu button of the drawer (below 68em).
  *
  * On the narrowest screens the word "Menu" and then the brand name are hidden visually; the
  * accessible names "Menu" and "Advanta365" stay.
@@ -21,11 +20,9 @@ import styles from "./header.module.css";
 export function Header({
   phases,
   templatePhases,
-  cart,
 }: {
   phases: readonly PhaseLink[];
   templatePhases: TemplatePhases;
-  cart: ReactNode;
 }) {
   return (
     <header data-bar="" className={styles.root}>
@@ -35,7 +32,6 @@ export function Header({
         </TransitionLink>
         <PrimaryNav className={styles.nav} />
         <div className={styles.tools}>
-          {cart}
           <NavDrawer
             phases={phases}
             templatePhases={templatePhases}

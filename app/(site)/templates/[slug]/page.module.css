@@ -1,8 +1,7 @@
 /*
- * The three zones of the page: cover, purchase panel, details, in that order in the document.
- * Below 40em they are stacked. From 40em the cover and the panel stand side by side above the
- * details. From 68em it is the page grid: the cover in columns 1 to 4, the details in columns 5 to
- * 9 and the panel in columns 10 to 12, the cover and the panel staying under the bar.
+ * The two zones of the page: cover, details, in that order in the document. Below 40em they are
+ * stacked. From 40em the cover stands above the details. From 68em it is the page grid: the cover
+ * in columns 1 to 4, staying under the bar, and the details in columns 5 to 9.
  */
 .zones {
   display: grid;
@@ -50,7 +49,7 @@
   gap: var(--s-3);
 }
 
-/* One thing the purchase includes: its tick, then the words, on the ledger's hairline. */
+/* One thing the template includes: its tick, then the words, on the ledger's hairline. */
 .included {
   display: grid;
   grid-template-columns: var(--s-3) minmax(0, 1fr);
@@ -131,11 +130,5 @@
   .details {
     grid-area: 1 / 5 / 2 / span 5;
     margin-block-start: 0;
-  }
-
-  .zones .panel.panel {
-    position: sticky;
-    top: calc(var(--bar-h) + var(--s-3));
-    grid-area: 1 / 10 / 2 / -1;
   }
 }

@@ -5,7 +5,6 @@ import { TransitionLink } from "@/components/ui/transition-link";
 import { DELIVERABLE_TYPE_LABELS } from "@/content/taxonomy";
 import type { Template } from "@/lib/catalog/schema";
 import { cssVars, cx } from "@/lib/cx";
-import { formatPrice } from "@/lib/format";
 import styles from "./template-card.module.css";
 import { TemplateCover } from "./template-cover";
 
@@ -19,14 +18,14 @@ const TURNS = [-0.6, 0.4, -0.3, 0.5, -0.4, 0.3] as const;
  *
  * `layout="row"` is a row of an index: from 68em its position (`index`, from 1, printed as "01"),
  * the cover as a thumbnail, the title with the summary on one line, the phase numeral
- * (`phaseOrder`) with `Phase · Type`, the format tag, the price and an arrow, on a hairline; one
+ * (`phaseOrder`) with `Phase · Type`, the format tag and an arrow, on a hairline; one
  * above the first row too, when the rows are list items. Narrower, the row drops the number and
- * the summary, and below 40em the price and the tag share its last line. A row never animates in.
+ * the summary. A row never animates in.
  *
  * `layout="sheet"` is the template as an object, from 40em: its cover printed with its own title
  * and first line, lit, standing at the foot of a sheet area in its format's proportions and turned
  * a little by its `index`, with a caption under it that is never turned: phase and type, the
- * title, and the price on the card's last line, so the prices of a row of cards share a baseline.
+ * title, and the format tag on the card's last line.
  * The sheet settles as it scrolls into view, later by its `index`. Below 40em it is the row.
  *
  * The cover shares its place with the same template's cover on the next page, so on a page change
@@ -109,7 +108,6 @@ export function TemplateCard({
         </p>
         <Tag className={styles.format}>{template.format.toUpperCase()}</Tag>
       </div>
-      <p className={cx("tabular", styles.price)}>{formatPrice(template.priceCents)}</p>
       {sheet ? null : <Icon name="arrow" className={styles.arrow} />}
     </article>
   );

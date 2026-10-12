@@ -1,6 +1,4 @@
 import type { ReactNode } from "react";
-import { CartButton } from "@/components/cart/cart-button";
-import { CartSync } from "@/components/cart/cart-sync";
 import { InkLayer } from "@/components/ink/ink-layer";
 import { BetaStrip } from "@/components/layout/beta-strip";
 import { Footer } from "@/components/layout/footer";
@@ -8,7 +6,7 @@ import { Header } from "@/components/layout/header";
 import type { PhaseLink, TemplatePhases } from "@/components/layout/nav-links";
 import { PhaseRail } from "@/components/layout/phase-rail";
 import { Button } from "@/components/ui/button";
-import { getBundles, getPhases, getTemplates, hasSampleContent } from "@/lib/catalog/repository";
+import { getPhases, getTemplates, hasSampleContent } from "@/lib/catalog/repository";
 import styles from "./layout.module.css";
 
 /**
@@ -27,11 +25,10 @@ import styles from "./layout.module.css";
  * set the 404 status.
  */
 export default async function SiteLayout({ children }: { children: ReactNode }) {
-  const [phases, isSample, templates, bundles] = await Promise.all([
+  const [phases, isSample, templates] = await Promise.all([
     getPhases(),
     hasSampleContent(),
     getTemplates(),
-    getBundles(),
   ]);
 
   const phaseLinks: PhaseLink[] = phases.map((phase) => ({ slug: phase.slug, name: phase.name }));
@@ -44,10 +41,9 @@ export default async function SiteLayout({ children }: { children: ReactNode }) 
       <Button href="#main" className={styles.skip}>
         Skip to content
       </Button>
-      <CartSync templates={templates.map((t) => t.slug)} bundles={bundles.map((b) => b.slug)} />
       {isSample && <BetaStrip />}
       <div className={styles.frame}>
-        <Header phases={phaseLinks} templatePhases={templatePhases} cart={<CartButton />} />
+        <Header phases={phaseLinks} templatePhases={templatePhases} />
         <PhaseRail phases={phaseLinks} templatePhases={templatePhases} />
         <main id="main" className={styles.main}>
           {children}

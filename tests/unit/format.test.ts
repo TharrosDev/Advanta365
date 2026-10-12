@@ -16,3 +16,7 @@ test("large prices use a thousands separator", () => {
 test("zero is formatted", () => {
   expect(formatPrice(0)).toBe("$0");
 });
+
+test("the toolkit price prints with its cents", () => {
+  expect(formatPrice(49999)).toBe("$499.99");
+});

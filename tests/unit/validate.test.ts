@@ -1,10 +1,20 @@
 import { describe, expect, test } from "vitest";
-import { CatalogError, validateCatalog } from "@/lib/catalog/validate";
-import { rawBundle, rawCatalog, rawTemplate } from "./fixtures/catalog";
+import { CatalogError, FREE_SAMPLE_COUNT, validateCatalog } from "@/lib/catalog/validate";
+import { rawCatalog, rawTemplate } from "./fixtures/catalog";
 
 function withTemplate(overrides: Record<string, unknown>) {
   const catalog = rawCatalog();
   catalog.templates[0] = rawTemplate(overrides);
+  return catalog;
+}
+
+/** The fixture catalog with exactly `count` free templates. */
+function withFreeCount(count: number) {
+  const catalog = rawCatalog();
+  catalog.templates = catalog.templates.map((template, index) => ({
+    ...template,
+    free: index < count,
+  }));
   return catalog;
 }
 
@@ -13,27 +23,29 @@ describe("validateCatalog", () => {
     const catalog = validateCatalog(rawCatalog());
     expect(catalog.phases.map((p) => p.slug)).toEqual(["make-the-case", "prepare"]);
     expect(catalog.phases[1]?.steps.map((s) => s.slug)).toEqual(["recruit", "train"]);
-    expect(catalog.templates).toHaveLength(2);
-    expect(catalog.bundles).toHaveLength(1);
+    expect(catalog.templates).toHaveLength(8);
+    expect(catalog).not.toHaveProperty("bundles");
   });
 
-  test("names the template and field when a price is not positive", () => {
-    expect(() => validateCatalog(withTemplate({ priceCents: 0 }))).toThrow(CatalogError);
-    expect(() => validateCatalog(withTemplate({ priceCents: 0 }))).toThrow(
-      /kickoff-deck.*priceCents/s,
-    );
+  test("requires six free samples", () => {
+    expect(FREE_SAMPLE_COUNT).toBe(6);
+    expect(() => validateCatalog(withFreeCount(6))).not.toThrow();
+  });
+
+  test.each([0, 5, 7, 8])("rejects a catalog with %i free templates", (count) => {
+    expect(() => validateCatalog(withFreeCount(count))).toThrow(CatalogError);
+    expect(() => validateCatalog(withFreeCount(count))).toThrow(/exactly 6.*free/is);
+  });
+
+  test("names the template and field when free is not a boolean", () => {
+    expect(() => validateCatalog(withTemplate({ free: "yes" }))).toThrow(CatalogError);
+    expect(() => validateCatalog(withTemplate({ free: "yes" }))).toThrow(/kickoff-deck.*free/s);
   });
 
   test("rejects duplicate template slugs", () => {
     const catalog = rawCatalog();
     catalog.templates.push(rawTemplate());
     expect(() => validateCatalog(catalog)).toThrow(/duplicate.*kickoff-deck/is);
-  });
-
-  test("allows a bundle and a template to share a slug", () => {
-    const catalog = rawCatalog();
-    catalog.bundles[0] = rawBundle({ slug: "kickoff-deck" });
-    expect(() => validateCatalog(catalog)).not.toThrow();
   });
 
   test("rejects an unknown phase", () => {
@@ -44,12 +56,6 @@ describe("validateCatalog", () => {
     expect(() => validateCatalog(withTemplate({ phase: "make-the-case", step: "train" }))).toThrow(
       CatalogError,
     );
-  });
-
-  test("rejects a bundle that references a missing template", () => {
-    const catalog = rawCatalog();
-    catalog.bundles[0] = rawBundle({ templateSlugs: ["kickoff-deck", "missing-template"] });
-    expect(() => validateCatalog(catalog)).toThrow(/missing-template/);
   });
 
   test("rejects an unknown deliverable type", () => {

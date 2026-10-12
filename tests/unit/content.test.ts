@@ -1,12 +1,8 @@
 import { describe, expect, test } from "vitest";
 import { APPS, AUDIENCES, DELIVERABLE_TYPES, FORMATS } from "@/content/taxonomy";
-import { bundleSavingsCents, bundleValueCents } from "@/lib/catalog/pricing";
 import { DEFAULT_CRITERIA, queryTemplates } from "@/lib/catalog/query";
 import {
-  getBundle,
-  getBundleTemplates,
-  getBundles,
-  getBundlesContaining,
+  getFreeTemplates,
   getPhase,
   getPhases,
   getRelatedTemplates,
@@ -14,6 +10,7 @@ import {
   getTemplates,
   hasSampleContent,
 } from "@/lib/catalog/repository";
+import { FREE_SAMPLE_COUNT } from "@/lib/catalog/validate";
 
 /** The rollout lifecycle: every phase in order, with its steps in order. */
 const LIFECYCLE = [
@@ -26,18 +23,15 @@ const LIFECYCLE = [
   ["sustain", ["measure-adoption", "reinforce-and-hand-over"]],
 ];
 
-const SMALL = [
-  ..."zero one two three four five six seven eight nine ten".split(" "),
-  ..."eleven twelve thirteen fourteen fifteen sixteen seventeen eighteen nineteen".split(" "),
+/** The six templates given away as samples. */
+const FREE_SLUGS = [
+  "executive-sponsor-kickoff-deck",
+  "change-management-strategy",
+  "sharepoint-governance-framework",
+  "sharepoint-end-user-training-deck",
+  "master-communications-plan",
+  "go-live-readiness-checklist",
 ];
-const TENS = ["", "", "twenty", "thirty", "forty", "fifty", "sixty", "seventy", "eighty", "ninety"];
-
-/** 0 to 99 in words, the way a bundle summary writes its template count. */
-function inWords(n: number): string {
-  if (n < 20) return SMALL[n]!;
-  const tens = TENS[Math.floor(n / 10)]!;
-  return n % 10 === 0 ? tens : `${tens}-${SMALL[n % 10]}`;
-}
 
 describe("sample catalog", () => {
   test("has the seven phases in order, each with two steps", async () => {
@@ -99,15 +93,13 @@ describe("sample catalog", () => {
 
   test("every record is flagged as sample content", async () => {
     expect((await getTemplates()).every((t) => t.isSample)).toBe(true);
-    expect((await getBundles()).every((b) => b.isSample)).toBe(true);
     expect(await hasSampleContent()).toBe(true);
   });
 
-  test("template prices run from $19 to $79 in $5 steps", async () => {
+  test("no template carries a price or a featured flag", async () => {
     for (const t of await getTemplates()) {
-      expect(t.priceCents, t.slug).toBeGreaterThanOrEqual(1900);
-      expect(t.priceCents, t.slug).toBeLessThanOrEqual(7900);
-      expect((t.priceCents - 1900) % 500, t.slug).toBe(0);
+      expect(t, t.slug).not.toHaveProperty("priceCents");
+      expect(t, t.slug).not.toHaveProperty("featured");
     }
   });
 
@@ -133,33 +125,28 @@ describe("sample catalog", () => {
     ]);
   });
 
-  test("features at least six templates, at least one in every phase", async () => {
-    const featured = (await getTemplates()).filter((t) => t.featured);
-    expect(featured.length).toBeGreaterThanOrEqual(6);
-    for (const phase of await getPhases()) {
-      expect(
-        featured.some((t) => t.phase === phase.slug),
-        phase.slug,
-      ).toBe(true);
-    }
+  test("exactly 6 templates are free, and they are the named ones", async () => {
+    expect(FREE_SAMPLE_COUNT).toBe(6);
+    const free = (await getTemplates()).filter((t) => t.free);
+    expect(free).toHaveLength(6);
+    expect(free.map((t) => t.slug).sort()).toEqual([...FREE_SLUGS].sort());
+    for (const slug of FREE_SLUGS) expect((await getTemplate(slug))?.free, slug).toBe(true);
   });
 
-  test("the first six featured templates come from six different phases", async () => {
-    // The home page shows the first six featured templates in catalog order.
-    const shown = (await getTemplates()).filter((t) => t.featured).slice(0, 6);
-    expect(new Set(shown.map((t) => t.phase)).size).toBe(6);
+  test("getFreeTemplates lists the six in phase order, from six different phases", async () => {
+    const free = await getFreeTemplates();
+    expect(free.map((t) => t.slug).sort()).toEqual([...FREE_SLUGS].sort());
+    expect(new Set(free.map((t) => t.phase)).size).toBe(6);
+    const order = (await getPhases()).map((p) => p.slug);
+    const positions = free.map((t) => order.indexOf(t.phase));
+    expect(positions).toEqual([...positions].sort((a, b) => a - b));
   });
 
   test("visible copy names no methodology or client, and follows the house typography", async () => {
-    const [phases, templates, bundles] = await Promise.all([
-      getPhases(),
-      getTemplates(),
-      getBundles(),
-    ]);
+    const [phases, templates] = await Promise.all([getPhases(), getTemplates()]);
     const copy = [
       ...phases.flatMap((p) => [p.name, p.summary, ...p.steps.flatMap((s) => [s.name, s.summary])]),
       ...templates.flatMap((t) => [t.title, t.summary, t.description, ...t.includes]),
-      ...bundles.flatMap((b) => [b.title, b.summary, b.description]),
     ];
     const banned =
       /prosci|adkar|\bssc\b|\bdnd\b|gcdocs|docuverse|engage ?365|impact ?365|\b30 years|thirty years|bilingual|french/i;
@@ -173,71 +160,22 @@ describe("sample catalog", () => {
   test("searching for “kickoff deck” finds only the sponsor kickoff deck", async () => {
     const result = queryTemplates(await getTemplates(), { ...DEFAULT_CRITERIA, q: "kickoff deck" });
     expect(result.items.map((t) => t.slug)).toEqual(["executive-sponsor-kickoff-deck"]);
-    expect(result.items[0]?.priceCents).toBe(5900);
-  });
-
-  test("has five bundles, each 30–40% below the value of its contents", async () => {
-    const bundles = await getBundles();
-    expect(bundles.map((b) => b.slug).sort()).toEqual([
-      "case-and-plan-kit",
-      "design-and-prepare-kit",
-      "launch-and-sustain-kit",
-      "sharepoint-rollout-complete",
-      "sponsor-essentials",
-    ]);
-    for (const bundle of bundles) {
-      const templates = await getBundleTemplates(bundle);
-      expect(templates).toHaveLength(bundle.templateSlugs.length);
-      const discount = bundleSavingsCents(bundle, templates) / bundleValueCents(templates);
-      expect(discount, bundle.slug).toBeGreaterThanOrEqual(0.3);
-      expect(discount, bundle.slug).toBeLessThanOrEqual(0.4);
-    }
-  });
-
-  test("every bundle summary states how many templates it holds", async () => {
-    for (const bundle of await getBundles()) {
-      const count = new Set(bundle.templateSlugs).size;
-      expect(count, bundle.slug).toBe(bundle.templateSlugs.length);
-      expect(bundle.summary.toLowerCase(), bundle.slug).toMatch(
-        new RegExp(`^${inWords(count)} templates `),
-      );
-    }
-  });
-
-  test("the complete bundle spans the whole lifecycle and the sponsor set is unchanged", async () => {
-    const complete = (await getBundle("sharepoint-rollout-complete"))!;
-    const covered = new Set((await getBundleTemplates(complete)).map((t) => t.phase));
-    expect([...covered].sort()).toEqual(LIFECYCLE.map(([slug]) => slug).sort());
-
-    const sponsor = (await getBundle("sponsor-essentials"))!;
-    expect(sponsor.priceCents).toBe(13900);
-    expect(sponsor.templateSlugs).toEqual([
-      "executive-sponsor-kickoff-deck",
-      "sponsor-roles-brief",
-      "sponsorship-roadmap",
-      "sponsor-message-scripts",
-      "sponsor-adoption-status-report",
-      "change-closeout-report",
-    ]);
+    expect(result.items[0]?.free).toBe(true);
   });
 });
 
 describe("repository lookups", () => {
   test("unknown slugs return undefined", async () => {
     expect(await getTemplate("does-not-exist")).toBeUndefined();
-    expect(await getBundle("does-not-exist")).toBeUndefined();
     expect(await getPhase("does-not-exist")).toBeUndefined();
     expect(await getPhase("manage")).toBeUndefined();
     expect(await getTemplate("toString")).toBeUndefined();
   });
 
-  test("finds a template and a bundle by slug", async () => {
+  test("finds a template by slug", async () => {
     const kickoff = await getTemplate("executive-sponsor-kickoff-deck");
     expect(kickoff?.phase).toBe("make-the-case");
     expect(kickoff?.step).toBe("secure-sponsorship");
-    expect((await getBundle("sponsor-essentials"))?.templateSlugs).toContain(
-      "executive-sponsor-kickoff-deck",
-    );
   });
 
   test("related templates exclude the template itself and list same-step ones first", async () => {
@@ -268,12 +206,5 @@ describe("repository lookups", () => {
 
   test("related templates of an unknown slug is empty", async () => {
     expect(await getRelatedTemplates("does-not-exist")).toEqual([]);
-  });
-
-  test("finds the bundles that contain a template", async () => {
-    const slugs = (await getBundlesContaining("executive-sponsor-kickoff-deck")).map((b) => b.slug);
-    expect(slugs).toContain("sponsor-essentials");
-    expect(slugs).toContain("case-and-plan-kit");
-    expect(await getBundlesContaining("does-not-exist")).toEqual([]);
   });
 });

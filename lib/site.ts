@@ -20,6 +20,12 @@ export const SITE = {
   contactEmail: "hello@advanta365.com",
 } as const;
 
+/**
+ * The one thing the site sells. The price is written here once, as integer cents, and printed
+ * everywhere with `formatPrice`.
+ */
+export const OFFER = { name: "The complete toolkit", priceCents: 49999 } as const;
+
 export const NAV = [
   { href: "/catalog", label: "Catalog" },
   { href: "/bundles", label: "Bundles" },

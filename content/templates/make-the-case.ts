@@ -12,7 +12,6 @@ export const makeTheCaseTemplates = sample("make-the-case", [
     audiences: ["sponsor"],
     format: "docx",
     adkar: ["awareness"],
-    priceCents: 1900,
     pageCount: 2,
     summary: "A short case for investing in adoption alongside the technical deployment.",
     description:
@@ -28,7 +27,6 @@ export const makeTheCaseTemplates = sample("make-the-case", [
     audiences: ["sponsor", "change-lead"],
     format: "docx",
     adkar: ["awareness"],
-    priceCents: 3900,
     pageCount: 8,
     summary: "A charter that frames the rollout as a people change, not just a technology project.",
     description:
@@ -48,7 +46,6 @@ export const makeTheCaseTemplates = sample("make-the-case", [
     audiences: ["change-lead", "sponsor"],
     format: "pptx",
     adkar: ["awareness", "desire"],
-    priceCents: 2400,
     pageCount: 3,
     summary: "A one-slide canvas for writing a vision people can repeat.",
     description:
@@ -64,7 +61,6 @@ export const makeTheCaseTemplates = sample("make-the-case", [
     audiences: ["sponsor", "change-lead"],
     format: "pptx",
     adkar: ["awareness", "desire"],
-    priceCents: 4900,
     pageCount: 18,
     summary: "A facilitated session to agree how adoption and benefits will be measured.",
     description:
@@ -80,7 +76,6 @@ export const makeTheCaseTemplates = sample("make-the-case", [
     audiences: ["change-lead"],
     format: "xlsx",
     adkar: ["reinforcement"],
-    priceCents: 3400,
     summary: "A register that links each expected benefit to an owner, a measure and a date.",
     description:
       "Tracks benefits from baseline to realization. Feeds directly into post-launch reviews so results are reported against what was promised.",
@@ -97,9 +92,8 @@ export const makeTheCaseTemplates = sample("make-the-case", [
     audiences: ["sponsor"],
     format: "pptx",
     adkar: ["awareness", "desire"],
-    priceCents: 5900,
     pageCount: 16,
-    featured: true,
+    free: true,
     summary: "The deck a sponsor presents to launch a SharePoint rollout with authority.",
     description:
       "Gives the executive sponsor a clear story: why now, what changes, and what they are asking of leaders. Speaker notes are written in plain language so it can be delivered with little preparation.",
@@ -119,7 +113,6 @@ export const makeTheCaseTemplates = sample("make-the-case", [
     audiences: ["sponsor"],
     format: "pdf",
     adkar: ["awareness"],
-    priceCents: 2400,
     pageCount: 4,
     summary: "What an active and visible sponsor is expected to do, phase by phase.",
     description:
@@ -135,7 +128,6 @@ export const makeTheCaseTemplates = sample("make-the-case", [
     audiences: ["sponsor", "change-lead"],
     format: "xlsx",
     adkar: ["awareness", "desire"],
-    priceCents: 3900,
     summary: "A dated plan of what the sponsor says and does through the whole rollout.",
     description:
       "Schedules sponsor activities week by week: messages, meetings and visible appearances. Keeps sponsorship active after kickoff, when it most often fades.",

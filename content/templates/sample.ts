@@ -7,9 +7,8 @@ type SampleInput = {
   audiences: string[];
   format: string;
   adkar: string[];
-  priceCents: number;
   pageCount?: number;
-  featured?: boolean;
+  free?: boolean;
   summary: string;
   description: string;
   includes: string[];
@@ -20,7 +19,7 @@ export function sample(phase: string, entries: SampleInput[]) {
   return entries.map((entry) => ({
     ...entry,
     phase,
-    featured: entry.featured ?? false,
+    free: entry.free ?? false,
     isSample: true,
   }));
 }

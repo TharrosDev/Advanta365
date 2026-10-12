@@ -2,7 +2,8 @@ import type { App, Audience, DeliverableType, Format, Template } from "./schema"
 
 export const PAGE_SIZE = 24;
 
-export type SortKey = "featured" | "title" | "price-asc" | "price-desc";
+/** "samples" puts the free templates first; both orders then go by title. */
+export type SortKey = "samples" | "title";
 export type FacetKey = "phase" | "type" | "app" | "audience" | "format";
 
 export type CatalogCriteria = {
@@ -12,6 +13,8 @@ export type CatalogCriteria = {
   app: App[];
   audience: Audience[];
   format: Format[];
+  /** Keep only the free templates. */
+  free: boolean;
   sort: SortKey;
   page: number;
 };
@@ -23,7 +26,8 @@ export const DEFAULT_CRITERIA: CatalogCriteria = {
   app: [],
   audience: [],
   format: [],
-  sort: "featured",
+  free: false,
+  sort: "samples",
   page: 1,
 };
 
@@ -68,18 +72,20 @@ function matchesSearch(template: Template, terms: string[]) {
 const byTitle = (a: Template, b: Template) => a.title.localeCompare(b.title);
 
 const SORTERS: Record<SortKey, (a: Template, b: Template) => number> = {
-  featured: (a, b) => Number(b.featured) - Number(a.featured) || byTitle(a, b),
+  samples: (a, b) => Number(b.free) - Number(a.free) || byTitle(a, b),
   title: byTitle,
-  "price-asc": (a, b) => a.priceCents - b.priceCents || byTitle(a, b),
-  "price-desc": (a, b) => b.priceCents - a.priceCents || byTitle(a, b),
 };
 
-/** Filters, searches, sorts and paginates. Values within a facet are OR; facets are AND. */
+/**
+ * Filters, searches, sorts and paginates. Values within a facet are OR; facets are AND; the free
+ * filter, when on, narrows everything (the facet counts too).
+ */
 export function queryTemplates(templates: Template[], criteria: CatalogCriteria): CatalogResult {
   const terms = fold(criteria.q).split(/\s+/).filter(Boolean);
   const searched = templates.filter((t) => matchesSearch(t, terms));
 
   const matchesAllExcept = (template: Template, except?: FacetKey) =>
+    (!criteria.free || template.free) &&
     FACET_KEYS.every((key) => key === except || matchesFacet(template, key, criteria[key]));
 
   // Each facet is counted as if its own selection were cleared, so the counts
