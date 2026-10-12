@@ -1,0 +1,51 @@
+.ledger {
+  margin-block-start: var(--s-5);
+}
+
+/* A thing that is not finished: what it is and its status, then the sentence about it. */
+.row.row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--s-2);
+  align-items: start;
+  padding-block: var(--s-3);
+}
+
+.what {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--s-2);
+  min-width: 0;
+}
+
+.name {
+  color: var(--text);
+}
+
+.status {
+  flex: none;
+}
+
+.body {
+  min-width: 0;
+  max-width: var(--wrap-copy);
+  color: var(--text-soft);
+}
+
+@media (min-width: 68em) {
+  .row.row {
+    grid-template-columns: repeat(12, minmax(0, 1fr));
+    column-gap: var(--col-gap);
+    padding-block: var(--s-4);
+  }
+
+  .what {
+    grid-column: 1 / span 4;
+    align-items: baseline;
+  }
+
+  .body {
+    grid-column: 6 / -1;
+  }
+}

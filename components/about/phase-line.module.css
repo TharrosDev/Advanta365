@@ -1,0 +1,104 @@
+.root {
+  min-width: 0;
+}
+
+.head {
+  max-width: var(--wrap-copy);
+}
+
+.body {
+  margin-block-start: var(--s-1);
+  color: var(--text-soft);
+}
+
+.line {
+  margin-block-start: var(--s-4);
+}
+
+/*
+ * The tally belongs to the wide layout: below 68em the list carries its own numerals. Doubled to
+ * outrank the display the tally sets itself.
+ */
+.tally.tally {
+  display: none;
+}
+
+.names {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+/* A numeral tile, then the link: the tile is outside the link, so no underline is drawn on it. */
+.name {
+  display: flex;
+  align-items: center;
+  gap: var(--s-2);
+  min-width: 0;
+}
+
+/* Besley's own figures: see the note on the display classes in globals.css. */
+.numeral {
+  display: grid;
+  flex: none;
+  place-items: center;
+  width: var(--s-4);
+  height: var(--s-4);
+  border-radius: var(--round-1);
+  background: var(--tile);
+  color: var(--text);
+  font-family: var(--face-display);
+  font-size: var(--size-note);
+  line-height: 1;
+  font-weight: 700;
+  font-feature-settings: "tnum" 0;
+}
+
+/* The words are the link, 44px tall; the highlighter is drawn behind them on hover and focus. */
+.link {
+  display: inline-flex;
+  align-items: center;
+  min-height: var(--tap);
+  overflow-wrap: break-word;
+}
+
+@media (min-width: 40em) {
+  .names {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    column-gap: var(--s-5);
+  }
+}
+
+@media (min-width: 68em) {
+  .tally.tally {
+    display: flex;
+  }
+
+  /* The names stand on the seven columns of the tally above them. */
+  .names {
+    grid-template-columns: repeat(var(--count), minmax(0, 1fr));
+    column-gap: var(--s-1);
+    margin-block-start: var(--s-1);
+  }
+
+  .name {
+    display: block;
+  }
+
+  .numeral {
+    display: none;
+  }
+
+  /*
+   * Seven names across the page: from 16px at the narrowest desktop, where "Communicate" fills
+   * its column, up to the 20px of a row title where there is room. Doubled to outrank the type
+   * class.
+   */
+  .link.link {
+    align-items: flex-start;
+    padding-block: var(--s-1);
+    font-size: clamp(1rem, 0.25rem + 1.05vw, 1.25rem);
+  }
+}

@@ -1,0 +1,190 @@
+/*
+ * The sheets. Stacked below 68em, one sheet under another with 28px between them. From 68em three
+ * columns and six shared rows (the head, four criteria and the toolkit's foot); each sheet and
+ * each of its parts is a subgrid, so the first criterion of one sheet is level with the first of
+ * the others. The toolkit's sheet is the one with a sixth row, for its line and its button.
+ */
+.sheets {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--s-4);
+  margin-block-start: var(--s-6);
+}
+
+.slot {
+  min-width: 0;
+}
+
+/* Doubled to outrank the display the sheet sets itself. */
+.sheet.sheet {
+  display: block;
+  height: 100%;
+}
+
+.head {
+  padding: var(--s-4) var(--s-3) var(--s-3);
+  border-radius: var(--round-1) var(--round-1) 0 0;
+  color: var(--text);
+}
+
+/* The toolkit's sheet: the wash all through, the highlighter on its head over an ink line. */
+.ours.ours {
+  --sheet-light: var(--mark-wash);
+}
+
+.ours .head {
+  border-block-end: var(--edge) solid var(--ink);
+  background: var(--mark);
+  color: var(--on-mark);
+}
+
+.facts {
+  margin: 0;
+}
+
+/* A row: the criterion over its answer, a hairline above it (the sheet's own ruling). */
+.fact {
+  display: grid;
+  align-content: start;
+  gap: var(--s-1);
+  padding: var(--s-3);
+  border-block-start: var(--hair) solid var(--line);
+}
+
+.fact:first-child {
+  border-block-start: 0;
+}
+
+.criterion {
+  color: var(--text-faint);
+}
+
+.answer {
+  margin: 0;
+  color: var(--text);
+  text-wrap: pretty;
+}
+
+/* A cost: Besley's own figure over what it is per, which is Atkinson at its quiet size. */
+.figure {
+  display: block;
+  font-weight: 700;
+  font-size: var(--size-section);
+  line-height: 1.24;
+}
+
+.per {
+  display: block;
+  margin-block-start: var(--s-1);
+  color: var(--text-soft);
+}
+
+.estimate {
+  margin-inline-start: var(--s-1);
+  vertical-align: 1px;
+}
+
+.foot {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-2);
+  padding: var(--s-3);
+  border-block-start: var(--hair) solid var(--line);
+}
+
+/* A bare ink tick before the line, never a box: nothing about a statement looks selectable. */
+.footLine {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--s-1);
+  color: var(--text);
+}
+
+.tick {
+  margin-block-start: calc((1lh - 20px) / 2);
+}
+
+.note {
+  margin-block-start: var(--s-4);
+  color: var(--text-soft);
+}
+
+/* Side by side from 40em: the criterion and its answer share a row. */
+@media (min-width: 40em) {
+  .fact {
+    grid-template-columns: minmax(0, 7fr) minmax(0, 12fr);
+    column-gap: var(--s-3);
+    align-items: baseline;
+    padding-inline: var(--s-4);
+  }
+
+  .head {
+    padding-inline: var(--s-4);
+  }
+
+  .foot {
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    padding-inline: var(--s-4);
+  }
+}
+
+@media (min-width: 68em) {
+  .sheets {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    grid-template-rows: repeat(6, auto);
+    gap: 0 var(--col-gap);
+  }
+
+  .slot {
+    display: grid;
+    grid-row: 1 / span 6;
+    grid-template-rows: subgrid;
+  }
+
+  .sheet.sheet {
+    display: grid;
+    grid-row: 1 / span 5;
+    grid-template-rows: subgrid;
+    height: auto;
+  }
+
+  .ours.ours {
+    grid-row: 1 / span 6;
+  }
+
+  .facts {
+    display: grid;
+    grid-row: 2 / span 4;
+    grid-template-rows: subgrid;
+  }
+
+  .foot {
+    grid-row: 6;
+    align-self: end;
+  }
+
+  /* Inside a narrow sheet the criterion stands over its answer again. */
+  .fact {
+    grid-template-columns: minmax(0, 1fr);
+    padding-inline: var(--s-3);
+  }
+
+  .head {
+    padding-inline: var(--s-3);
+  }
+
+  .foot {
+    flex-direction: column;
+    align-items: stretch;
+    justify-content: flex-start;
+    padding-inline: var(--s-3);
+  }
+}
+
+@media (forced-colors: active) {
+  .ours .head {
+    border-block-end-width: var(--edge);
+  }
+}

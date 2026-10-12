@@ -10,8 +10,8 @@ import styles from "./next-steps.module.css";
 /**
  * The closing band of a company page, on paper: a hairline across the page column above it, the
  * "Next" label in the margin, a short heading, and the places to go next as a ledger of rows that
- * are links. `children` follow the list (a line about the parent company, for one). Below 68em the
- * label stacks above the heading.
+ * are links. `children` follow the list, if a page has a line to add. Below 68em the label stacks
+ * above the heading.
  */
 export function NextSteps({
   title,

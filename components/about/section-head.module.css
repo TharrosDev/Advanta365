@@ -1,0 +1,19 @@
+.root {
+  min-width: 0;
+}
+
+/* Balanced and kept to a headline's measure; the label stands 21px over it. */
+.title {
+  max-width: var(--wrap-head);
+  margin-block-start: var(--s-3);
+  color: var(--text);
+}
+
+/* The paragraphs under the heading keep to a reading width, in the soft ink of their band. */
+.body {
+  display: grid;
+  gap: var(--s-2);
+  max-width: var(--wrap-copy);
+  margin-block-start: var(--s-3);
+  color: var(--text-soft);
+}

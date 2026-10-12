@@ -1,0 +1,160 @@
+/* The register lies 56px under the head, with 14px around it for the sheets beneath it. */
+.book {
+  margin-block-start: var(--s-6);
+}
+
+/*
+ * The sheet is ruled paper: the rows run to its edges, so their hairlines are the ruling. The
+ * column labels are the wide layout's; the rows carry their own below it.
+ */
+.head {
+  display: none;
+}
+
+.ledger {
+  border-block-end: 0;
+}
+
+/* The sheet's own top edge is the first rule. */
+.row:first-child::before {
+  display: none;
+}
+
+/*
+ * A buyer. Stacked: the numeral tile beside the name, then the concern under both, lined up with
+ * the name. From 68em the three stand in one row on the twelve columns, each by the first line of
+ * its own text. The row's inline padding is the sheet's margin: its hairline runs across it.
+ */
+.row.row {
+  display: grid;
+  grid-template-columns: var(--s-4) minmax(0, 1fr);
+  column-gap: var(--s-2);
+  row-gap: var(--s-2);
+  align-items: start;
+  padding: var(--s-4) var(--s-2);
+}
+
+/* Besley's own figures: see the note on the display classes in globals.css. */
+.numeral {
+  display: grid;
+  place-items: center;
+  width: var(--s-4);
+  height: var(--s-4);
+  margin-block-start: var(--s-1);
+  border-radius: var(--round-1);
+  background: var(--tile);
+  color: var(--text);
+  font-family: var(--face-display);
+  font-size: var(--size-note);
+  line-height: 1;
+  font-weight: 700;
+  font-feature-settings: "tnum" 0;
+}
+
+.name {
+  min-width: 0;
+  color: var(--text);
+}
+
+.cares {
+  grid-column: 2;
+  min-width: 0;
+}
+
+.label {
+  color: var(--text-faint);
+}
+
+.value {
+  margin-block-start: var(--s-1);
+  color: var(--text-soft);
+  text-wrap: pretty;
+}
+
+/* A bare ink tick, never a box: nothing about a statement of fact looks selectable. */
+.proof {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--s-1);
+  margin-block-start: var(--s-2);
+  color: var(--text);
+}
+
+.tick {
+  margin-block-start: calc((1lh - 20px) / 2);
+}
+
+.beyond {
+  margin-block-start: var(--s-6);
+}
+
+@media (min-width: 40em) {
+  .row.row {
+    padding-inline: var(--s-4);
+  }
+}
+
+@media (min-width: 68em) {
+  .head {
+    display: grid;
+    grid-template-columns: repeat(12, minmax(0, 1fr));
+    column-gap: var(--col-gap);
+    padding: var(--s-2) var(--s-5);
+    border-block-end: var(--hair) solid var(--line);
+    background: var(--stripe);
+    color: var(--text-faint);
+  }
+
+  .headBuyer {
+    grid-column: 2 / span 6;
+  }
+
+  .headCares {
+    grid-column: 8 / -1;
+  }
+
+  .row.row {
+    grid-template-columns: repeat(12, minmax(0, 1fr));
+    column-gap: var(--col-gap);
+    row-gap: 0;
+    padding: var(--s-5);
+  }
+
+  /* The margin line: between the numerals and the names, through the rows into one line. */
+  .row::after {
+    content: "";
+    position: absolute;
+    inset-block: 0;
+    left: calc(
+      var(--s-5) + (100% - 2 * var(--s-5) - 11 * var(--col-gap)) / 12 + var(--col-gap) / 2
+    );
+    width: var(--hair);
+    background: var(--line);
+    pointer-events: none;
+  }
+
+  .numeral {
+    grid-column: 1;
+    margin-block-start: var(--s-1);
+  }
+
+  .name {
+    grid-column: 2 / span 6;
+  }
+
+  .cares {
+    grid-column: 8 / -1;
+    padding-block-start: var(--s-1);
+  }
+
+  /* The head row carries the label: it stays in the page for assistive technology only. */
+  .label {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    margin: -1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+}

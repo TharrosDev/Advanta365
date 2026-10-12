@@ -237,7 +237,9 @@ test("a change of page still works where the browser has no view transitions", a
 
   await page.getByRole("contentinfo").getByRole("link", { name: "About", exact: true }).click();
   await expect(page).toHaveURL(/\/about$/, { timeout: NAVIGATION_TIMEOUT });
-  await expect(page.getByRole("heading", { level: 1 })).toHaveText(/^Proven change content/);
+  await expect(page.getByRole("heading", { level: 1 })).toHaveText(
+    /^Change content that has met real users/,
+  );
 });
 
 test("a filter change on the catalog starts no view transition", async ({ page, browserName }) => {

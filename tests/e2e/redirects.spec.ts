@@ -55,14 +55,14 @@ test("the contact section is on About, and Purchase gives the offer, its price a
 }) => {
   await page.goto("/contact");
   await expect(page.getByRole("heading", { level: 1 })).toHaveText(
-    "Proven change content, so your M365 rollout gets used, not just launched.",
+    "Change content that has met real users.",
   );
   await expect(page.locator("#contact").getByRole("heading", { level: 2 })).toHaveText("Contact");
   await expect(page.locator('#contact a[href^="mailto:"]')).toBeVisible();
 
   await page.goto("/purchase");
   await expect(page.getByRole("heading", { level: 1 })).toHaveText("Purchase");
-  // Exactly: an answer further down the page speaks of "the complete toolkit" in a sentence.
+  // Exactly: the folder's tab is the one place the name of the offer is printed.
   await expect(page.getByText("The complete toolkit", { exact: true })).toBeVisible();
   await expect(page.getByRole("main").getByText("$499.99")).toBeVisible();
   await expect(page.getByRole("button", { name: "Checkout coming soon" })).toBeDisabled();

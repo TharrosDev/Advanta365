@@ -1,56 +1,14 @@
-/* The comparison: label, statement and table stand one under the other across the grid. */
-.compareTitle {
-  margin-block-start: var(--s-3);
+.title {
   color: var(--text);
 }
 
-/* The raised column stands 14px above the sheet, so the sheet starts 14px lower than it looks. */
-.compareTable {
-  margin-block-start: calc(var(--s-6) + var(--s-2));
-  padding-block-end: var(--s-2);
-}
-
-/* The buyers and the line about the public sector are one block; the fact row is the next. */
-.buyers {
-  display: grid;
-  gap: var(--s-3);
-}
-
-/*
- * One short line, balanced; its one hyphenated word stays whole, so that on a phone the line never
- * breaks after "public-" and leaves a stub.
- */
-.proven {
-  max-width: var(--wrap-copy);
-  color: var(--text-soft);
-  text-wrap: balance;
-}
-
-.compound {
-  white-space: nowrap;
-}
-
-.beyond {
-  margin-block-start: var(--s-5);
-}
-
-.parent {
-  color: var(--text-faint);
-}
-
-/* The contact section: heading, lead and the one address. */
-.contactTitle {
-  color: var(--text);
-}
-
-.contactLead {
-  max-width: var(--wrap-head);
-  margin-block-start: var(--s-3);
+.lead {
+  max-width: var(--wrap-lead);
   color: var(--text-soft);
 }
 
 /* The address stands 56px under the lead. */
-.contactRow {
+.row {
   margin-block-start: var(--s-6);
 }
 
@@ -58,7 +16,7 @@
  * The one big link. The words are the target, with the arrow after them; the highlighter is drawn
  * behind the address alone, a little past its ends and on each line when it breaks after the "@".
  */
-.contactLink {
+.link {
   display: inline-flex;
   align-items: center;
   gap: var(--s-3);
@@ -70,7 +28,7 @@
 
 .address {
   min-width: 0;
-  margin-inline: calc(-0.1em);
+  margin-inline: -0.1em;
   padding-inline: 0.1em;
   border-radius: var(--round-2);
   text-decoration: underline;
@@ -86,22 +44,22 @@
 }
 
 /* Hover and keyboard focus look the same: the highlighter behind the address, ink on it. */
-.contactLink:focus-visible .address {
+.link:focus-visible .address {
   background-color: var(--mark);
   color: var(--on-mark);
 }
 
-.contactLink:focus-visible .arrow {
+.link:focus-visible .arrow {
   translate: 6px 0;
 }
 
 @media (hover: hover) {
-  .contactLink:hover .address {
+  .link:hover .address {
     background-color: var(--mark);
     color: var(--on-mark);
   }
 
-  .contactLink:hover .arrow {
+  .link:hover .arrow {
     translate: 6px 0;
   }
 }
@@ -117,7 +75,7 @@
 }
 
 @media (forced-colors: active) {
-  .contactLink:focus-visible .address {
+  .link:focus-visible .address {
     background-color: Highlight;
     color: HighlightText;
   }
