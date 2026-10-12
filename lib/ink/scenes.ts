@@ -111,8 +111,9 @@ const heroWater = (portrait: boolean): Partial<Sim> => ({
 export const SCENES: Record<SceneName, (ctx: SceneContext) => Scene> = {
   /**
    * The load-in. A white field; one black drop falls and rolls into a plume, a light-blue drop
-   * chases it, then the ink turns to mist and the field is clean again. On a tall screen the same
-   * picture is drawn smaller, so the plume fits the width.
+   * chases it half a second later, then the ink turns to mist (from 2.45 s, over 1.05 s) and the
+   * field is clean again at 3.5 s. On a tall screen the same picture is drawn smaller, so the
+   * plume fits the width.
    */
   intro: (ctx) => {
     const k = ctx.portrait ? 0.72 : 1;
@@ -120,7 +121,7 @@ export const SCENES: Record<SceneName, (ctx: SceneContext) => Scene> = {
     const dx = (0.12 * k) / ctx.aspect;
     const base = { y: 0.02, fiber: 0.78, turbulence: 0.35 * k };
     return {
-      duration: 2.8,
+      duration: 3.5,
       still: 96,
       sim: {
         speed: 1.0,
@@ -149,7 +150,7 @@ export const SCENES: Record<SceneName, (ctx: SceneContext) => Scene> = {
             }),
         },
         {
-          at: 0.6,
+          at: 0.5,
           run: (ink) =>
             ink.drop({
               ...base,
@@ -160,7 +161,7 @@ export const SCENES: Record<SceneName, (ctx: SceneContext) => Scene> = {
               velocity: [-0.04 * k, 0.68 * k],
             }),
         },
-        { at: 1.75, run: (ink) => ink.clear({ duration: 1.05 }) },
+        { at: 2.45, run: (ink) => ink.clear({ duration: 1.05 }) },
       ],
     };
   },

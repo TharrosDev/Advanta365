@@ -16,12 +16,14 @@
  *   800 to 1000  a finer pen writes 3, 6 and 5 on the tail, each 100 long and 50 after the last
  *   500 to 900   the name fades in; the hint from 600
  *
- * Then one of three ways out, each started by its state:
+ * The finished mark then stands from 1000 to 2500, a second and a half, before one of three ways
+ * out, each started by its state:
  *
- *   play    1200 to 1650   the cover fades
- *   ink     from T (the layer sets it when the engine is ready, 1050 at the latest):
- *           T + 250 to T + 550 the signature fades behind the falling drop,
- *           T + 2000 to T + 2800 the cover fades with the last of the mist
+ *   play    2500 to 2950   the cover fades
+ *   ink     from T (the layer sets it when the engine is ready, 1600 at the latest; the scene
+ *           runs from T, its clear from T + 2450 to T + 3500):
+ *           2500 to 2800 the signature fades, whenever T was (the layer writes T as `--taken`),
+ *           T + 2700 to T + 3500 the cover fades with the last of the mist, as the clear ends
  *   leave   the visitor pressed, typed, scrolled or touched: gone in 200
  */
 .cover {
@@ -39,11 +41,11 @@
   --hint-in: 300ms;
   --hint-at: 600ms;
   --leave: 450ms;
-  --leave-at: 1200ms;
+  --leave-at: 2500ms;
   --ink-sign: 300ms;
-  --ink-sign-at: 250ms;
+  --ink-sign-at: 2500ms;
   --ink-leave: 800ms;
-  --ink-leave-at: 2000ms;
+  --ink-leave-at: 2700ms;
   --skip: 200ms;
   --pen: var(--curve-pen, var(--curve-settle));
 
@@ -131,8 +133,12 @@
   }
 }
 
+/*
+ * The ink's state starts at T, so the delay is what is left of 2500 once T has passed. Without
+ * the property (nothing set it) the signature waits the whole of it.
+ */
 :root[data-intro="ink"] .signature {
-  animation: sign-out var(--ink-sign) linear var(--ink-sign-at) forwards;
+  animation: sign-out var(--ink-sign) linear calc(var(--ink-sign-at) - var(--taken, 0ms)) forwards;
 }
 
 /* 84px high on a phone, 112px from 40em; the width follows the 4:3 view box. */

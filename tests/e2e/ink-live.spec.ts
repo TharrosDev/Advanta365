@@ -30,6 +30,8 @@ declare global {
     __inkAt?: Record<string, number>;
     /** Every long task of the load: its start and its duration, in milliseconds. */
     __long?: Array<[number, number]>;
+    /** The opacity of the cover's signature on every frame of the load, with the page clock. */
+    __signature?: Array<[number, number]>;
     /** The pause: when the press came and when the loop stopped, on the page clock. */
     __pause?: { pressed: number | null; stopped: number | null };
   }
@@ -390,12 +392,25 @@ test.describe("the 404 page", () => {
 });
 
 test.describe("the cover of a first visit", () => {
-  test("is gone within 4.1 seconds and the hero runs 600ms later", async ({ page }) => {
+  test("is taken over within 1.6 seconds, gone 3.5 seconds later, and the hero runs 600ms after that", async ({
+    page,
+  }) => {
     test.setTimeout(60_000);
     const problems = collectProblems(page);
     await withInkTest(page);
     await watch(page);
     await recordIntro(page);
+    // The signature (the mark and the name) on every frame, with the page clock.
+    await page.addInitScript(() => {
+      const frames: Array<[number, number]> = [];
+      window.__signature = frames;
+      const frame = () => {
+        const mark = document.querySelector("[data-intro-cover] svg")?.parentElement;
+        if (mark) frames.push([performance.now(), Number(getComputedStyle(mark).opacity)]);
+        if (frames.length < 700) requestAnimationFrame(frame);
+      };
+      requestAnimationFrame(frame);
+    });
     await page.goto("/", { waitUntil: "commit" });
     await expect(page.locator("[data-intro-cover]")).toBeVisible();
     await expect(page.getByRole("heading", { level: 1 })).toHaveCSS("opacity", "1");
@@ -412,10 +427,24 @@ test.describe("the cover of a first visit", () => {
     );
     const states = await page.evaluate(() => (window.__introLog ?? []).map(([, state]) => state));
     const gone = await page.evaluate(() => (window.__introLog ?? []).at(-1)?.[0] ?? Infinity);
-    // With ink the cover is taken over and leaves later than without it, still inside its budget.
+    // With ink the cover is taken over and leaves later than without it, still inside its budget:
+    // taken over by 1600ms, and gone 3500ms after that, as the clear of the scene ends. A few
+    // frames of a busy machine are allowed on each, and the backstop (5500ms) must not be what
+    // took it off.
     expect(states).toEqual(["play", "ink", null]);
-    expect(gone - painted).toBeLessThanOrEqual(4100);
-    expect(await introAt(page, "ink")).not.toBeNull();
+    const taken = await introAt(page, "ink");
+    expect(taken).not.toBeNull();
+    expect((taken ?? Infinity) - painted).toBeLessThanOrEqual(1700);
+    expect(gone - (taken ?? 0)).toBeGreaterThanOrEqual(3450);
+    expect(gone - (taken ?? 0)).toBeLessThanOrEqual(3900);
+    expect(gone - painted).toBeLessThanOrEqual(5300);
+
+    // Whenever the ink came, the finished mark stays whole until 2500ms and only then fades.
+    const frames = await page.evaluate(() => window.__signature ?? []);
+    const early = frames.filter(([at]) => at - painted <= 2450);
+    expect(early.length).toBeGreaterThan(20);
+    expect(early.filter(([, opacity]) => opacity < 1)).toEqual([]);
+    expect(Math.min(...frames.map(([, opacity]) => opacity))).toBeLessThan(0.01);
 
     await expectRunningIn(page, "hero", 10_000);
     const heroAt = await page.evaluate(() => window.__inkAt?.hero ?? Infinity);

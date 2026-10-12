@@ -1,4 +1,5 @@
 import { IntroCover } from "@/components/intro/intro-cover";
+import { INTRO_BACKSTOP_MS } from "@/lib/boot/state";
 import { cx } from "@/lib/cx";
 import { STAGES } from "@/lib/ink/stage";
 import type { SceneName } from "@/lib/ink/types";
@@ -19,7 +20,7 @@ function own(e){return e.target&&e.target.hasAttribute&&e.target.hasAttribute("d
 function end(e){if(e&&!own(e))return;removeEventListener("animationend",end);r.removeAttribute("data-intro")}
 addEventListener("animationend",end);
 addEventListener("keydown",function(){if(r.hasAttribute("data-intro"))r.setAttribute("data-intro","leave")},{once:true});
-setTimeout(end,4500)})()`;
+setTimeout(end,${INTRO_BACKSTOP_MS})})()`;
 
 function Copy({ title, kind = "text" }: { title: string; kind?: "text" | "display" }) {
   return (

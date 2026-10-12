@@ -5,7 +5,9 @@ import { renderToStaticMarkup } from "react-dom/server";
 import { describe, expect, it } from "vitest";
 import { InkBackdrop } from "@/components/ink/ink-backdrop";
 import { IntroCover } from "@/components/intro/intro-cover";
+import { INTRO_BACKSTOP_MS, INTRO_TAKEOVER_MS } from "@/lib/boot/state";
 import { MARK_BAR_D, MARK_DIGITS, MARK_LEGS_D, MARK_TAIL_D } from "@/lib/brand/mark";
+import { STAGES } from "@/lib/ink/stage";
 import { STILLS, stillPath } from "@/lib/ink/stills";
 import { SITE } from "@/lib/site";
 
@@ -68,16 +70,36 @@ describe("the cover's timeline", () => {
     return Number(match?.[1]);
   };
 
-  it("is gone 1650ms after first paint without ink", () => {
-    expect(ms("leave-at")).toBe(1200);
-    expect(ms("leave-at") + ms("leave")).toBe(1650);
+  it("holds the finished mark from 1000 to 2500ms and is gone 2950ms after first paint without ink", () => {
+    expect(ms("leave-at")).toBe(2500);
+    expect(ms("leave-at") + ms("leave")).toBe(2950);
+    // The mark is complete at 1000ms (the last digit) and stands there for a second and a half.
+    const written = ms("pen-digits-at") + 2 * ms("pen-digit-step") + ms("pen-digit");
+    expect(ms("leave-at") - written).toBe(1500);
   });
 
-  it("is gone 2800ms after the ink took it over, so at most 3850ms in", () => {
-    expect(ms("ink-leave-at")).toBe(2000);
-    expect(ms("ink-leave-at") + ms("ink-leave")).toBe(2800);
-    expect(1050 + ms("ink-leave-at") + ms("ink-leave")).toBe(3850);
-    expect(ms("ink-sign-at") + ms("ink-sign")).toBe(550);
+  it("is gone 3500ms after the ink took it over, so at most 5100ms in, inside the backstop", () => {
+    expect(ms("ink-leave-at")).toBe(2700);
+    expect(ms("ink-leave-at") + ms("ink-leave")).toBe(3500);
+    expect(INTRO_TAKEOVER_MS + ms("ink-leave-at") + ms("ink-leave")).toBe(5100);
+    expect(INTRO_TAKEOVER_MS + ms("ink-leave-at") + ms("ink-leave")).toBeLessThan(
+      INTRO_BACKSTOP_MS,
+    );
+  });
+
+  it("ends the ink's exit with the scene, the cover starting to fade 250ms into the clear", () => {
+    // Both run from the moment of the takeover; the cover is never gone with the ink still opaque.
+    expect(ms("ink-leave-at") + ms("ink-leave")).toBe(STAGES.intro.runMs);
+    expect(ms("ink-leave-at") - 2450).toBe(250);
+  });
+
+  it("takes the signature off at 2500ms of the cover's own clock, whenever the ink came", () => {
+    // The layer writes the time of the takeover as `--taken`; the delay is counted from the state.
+    expect([ms("ink-sign-at"), ms("ink-sign-at") + ms("ink-sign")]).toEqual([2500, 2800]);
+    expect(ms("ink-sign-at")).toBe(ms("leave-at"));
+    expect(css).toMatch(
+      /:root\[data-intro="ink"\]\s+\.signature\s*\{[^}]*calc\(var\(--ink-sign-at\) - var\(--taken, 0ms\)\)/,
+    );
   });
 
   it("is gone 200ms after an input", () => {

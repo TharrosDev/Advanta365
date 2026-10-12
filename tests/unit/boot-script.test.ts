@@ -14,6 +14,7 @@ import {
   INTRO_FLAG,
   INTRO_SEEN,
   INTRO_SKIP_EVENTS,
+  INTRO_TAKEOVER_MS,
   isCalmRoute,
   isSoftwareRenderer,
   shouldPlayIntro,
@@ -398,8 +399,14 @@ describe("the cover", () => {
     expect(page.timers()).not.toContain(INTRO_BACKSTOP_MS);
   });
 
+  it("leaves the backstop room for the longest cover the ink can take over", () => {
+    // The ink may take the cover over up to 1600ms in, and the cover then needs 3500ms more.
+    expect(INTRO_TAKEOVER_MS).toBe(1600);
+    expect(INTRO_TAKEOVER_MS + 3500).toBeLessThan(INTRO_BACKSTOP_MS);
+  });
+
   it("is taken off by the backstop, whatever else happened", () => {
-    expect(INTRO_BACKSTOP_MS).toBe(4500);
+    expect(INTRO_BACKSTOP_MS).toBe(5500);
     for (const state of ["play", "ink", "leave"]) {
       const page = load();
       page.attributes.set("data-intro", state);

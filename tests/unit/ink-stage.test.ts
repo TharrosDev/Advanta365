@@ -151,6 +151,10 @@ describe("the stages", () => {
     });
   });
 
+  it("run the load-in for 3.5 seconds, the length of its scene", () => {
+    expect(STAGES.intro.runMs).toBe(3500);
+  });
+
   it("stand on paper, but for the two on the binder", () => {
     const dark = Object.entries(STAGES)
       .filter(([, stage]) => stage.ground === "binder")

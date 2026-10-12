@@ -9,7 +9,7 @@ import { introAt, introStates, recordIntro } from "./support/ink";
 // first visit.
 //
 // The default projects render in software, so the ink does not join the cover here and it leaves
-// the way it does for a visitor without a graphics card: by itself, within 1.9 seconds. The cover
+// the way it does for a visitor without a graphics card: by itself, in 2.95 seconds. The cover
 // with ink is in ink-live.spec.ts. Every time below is read from the page's own clock, so a busy
 // machine moves the moment the test asks, not the moment it measures.
 
@@ -21,6 +21,8 @@ declare global {
     introInput?: number;
     /** The largest contentful paint of this page load, once the browser has reported one. */
     introPaint?: number;
+    /** The cover's opacity on every frame of this page load, with the page clock. */
+    introOpacity?: Array<[number, number]>;
   }
 }
 
@@ -55,6 +57,31 @@ async function notePaint(page: Page) {
     }).observe({ type: "largest-contentful-paint", buffered: true });
   });
 }
+
+/** Keeps the cover's opacity on every frame of the load, from before the first script of the page. */
+async function noteOpacity(page: Page) {
+  await page.addInitScript(() => {
+    const samples: Array<[number, number]> = [];
+    window.introOpacity = samples;
+    const frame = () => {
+      const element = document.querySelector("[data-intro-cover]");
+      if (element) samples.push([performance.now(), Number(getComputedStyle(element).opacity)]);
+      if (samples.length < 600) requestAnimationFrame(frame);
+    };
+    requestAnimationFrame(frame);
+  });
+}
+
+/** Resolves once the page clock stands `ms` after the first paint. */
+const afterPaint = (page: Page, ms: number) =>
+  page.waitForFunction(
+    (wanted) => {
+      const painted = performance.getEntriesByName("first-paint")[0]?.startTime;
+      return painted !== undefined && performance.now() - painted >= wanted;
+    },
+    ms,
+    { polling: 20, timeout: 8_000 },
+  );
 
 /**
  * Opens the home page as a first visit and returns as soon as the cover is showing. The page is not
@@ -115,7 +142,10 @@ test("the cover does not hold back the page: its largest paint is under a second
   expect(paint).toBeLessThan(1000);
 });
 
-test("without ink the cover leaves by itself within 1.9 seconds", async ({ page }) => {
+test("without ink the finished mark is held until 2.5 seconds and the cover is gone by 3.4", async ({
+  page,
+}) => {
+  await noteOpacity(page);
   await firstVisit(page);
 
   await expect.poll(() => goneAt(page), { timeout: 8_000 }).not.toBeNull();
@@ -129,7 +159,20 @@ test("without ink the cover leaves by itself within 1.9 seconds", async ({ page 
     () => performance.getEntriesByName("first-paint")[0]?.startTime ?? 0,
   );
   expect(painted).toBeGreaterThan(0);
-  expect((end ?? Infinity) - painted).toBeLessThanOrEqual(1900);
+  // It leaves from 2500 to 2950 after the paint; a frame or two of a busy machine is allowed.
+  expect((end ?? Infinity) - painted).toBeLessThanOrEqual(3400);
+  expect((end ?? 0) - painted).toBeGreaterThanOrEqual(2900);
+
+  // Every frame up to 2450 shows the cover whole: nothing fades before its hour. The frames are
+  // the page's own, so a busy machine thins them out; it must still have drawn one after 2000.
+  const frames = await page.evaluate(() => window.introOpacity ?? []);
+  const held = frames.filter(([at]) => at - painted <= 2450);
+  expect(held.length).toBeGreaterThan(20);
+  expect(held.map(([, opacity]) => opacity).filter((opacity) => opacity < 1)).toEqual([]);
+  expect(Math.max(...held.map(([at]) => at - painted))).toBeGreaterThan(2000);
+  // And the fade happens: the frames after it are lighter.
+  expect(Math.min(...frames.map(([, opacity]) => opacity))).toBeLessThan(0.5);
+
   // The cover is out of the way, and what is under it can be seen and clicked.
   await expect(cover(page)).toBeHidden();
   await headline(page).click();
@@ -190,6 +233,25 @@ test("a key press ends it within 400ms", async ({ page }) => {
   await headline(page).click();
   await expect(page).toHaveURL(/\/$/);
 });
+
+for (const at of [500, 1500]) {
+  test(`a key press ${at}ms in ends it within 400ms`, async ({ page }) => {
+    await noteInput(page);
+    await firstVisit(page);
+
+    // 500 is in the middle of the writing, 1500 in the hold of the finished mark (it runs to 2500).
+    await afterPaint(page, at);
+    expect(await introStates(page)).toEqual(["play"]);
+    await page.keyboard.press("Shift");
+    await expect.poll(() => goneAt(page), { timeout: 4_000 }).not.toBeNull();
+    const pressed = await page.evaluate(() => window.introInput ?? null);
+    expect(pressed).not.toBeNull();
+    expect((await goneAt(page)) ?? Infinity).toBeLessThan((pressed ?? 0) + 400);
+    expect(await introStates(page)).toEqual(["play", "leave", null]);
+    await headline(page).click();
+    await expect(page).toHaveURL(/\/$/);
+  });
+}
 
 test("the wheel ends it and scrolls the page: nothing is locked", async ({ page }) => {
   await firstVisit(page);

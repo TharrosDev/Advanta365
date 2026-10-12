@@ -562,7 +562,7 @@ async function blue(browser) {
 // ---------------------------------------------------------------------------------------------
 const SHEET_SCENES = [
   { scene: "hero", route: "/", times: [3, 8, 16, 30] },
-  { scene: "intro", route: "/", times: [0.4, 0.8, 1.3, 1.9, 2.4, 2.8] },
+  { scene: "intro", route: "/", times: [0.4, 0.8, 1.5, 2.4, 3.0, 3.5] },
   { scene: "ninety", route: "/", times: [1, 4, 9] },
   { scene: "bloom", route: "/", times: [3, 8, 16] },
   { scene: "wisps", route: "/about", times: [4, 10, 18] },

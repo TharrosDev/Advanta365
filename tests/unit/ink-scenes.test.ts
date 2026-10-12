@@ -93,14 +93,14 @@ describe("every scene, wide and tall", () => {
 });
 
 describe("the load-in", () => {
-  it("drops black, then light blue, then clears, and is over at 2.8 seconds", () => {
-    const { scene, events } = play("intro", WIDE, 3);
-    expect(scene.duration).toBe(2.8);
+  it("drops black, then light blue, then clears, and is over at 3.5 seconds", () => {
+    const { scene, events } = play("intro", WIDE, 4);
+    expect(scene.duration).toBe(3.5);
     expect(events.map((e) => e.kind)).toEqual(["drop", "drop", "clear"]);
     const [black, blue, clear] = events;
     near(black?.at, 0);
-    near(blue?.at, 0.6);
-    near(clear?.at, 1.75);
+    near(blue?.at, 0.5);
+    near(clear?.at, 2.45);
     expect(black?.kind === "drop" && black.drop.ink).toBe("black");
     expect(blue?.kind === "drop" && blue.drop.ink).toBe("blue");
     expect(clear?.kind === "clear" && clear.duration).toBe(1.05);
@@ -111,6 +111,15 @@ describe("the load-in", () => {
       near(blue.drop.radius, 0.068, 1e-6);
       expect(black.drop.velocity).toEqual([0, 0.68]);
     }
+  });
+
+  it("is run by the layer for exactly as long as it lasts, the clear ending on its last frame", () => {
+    const { scene, events } = play("intro", WIDE, 4);
+    expect((scene.duration ?? 0) * 1000).toBe(STAGES.intro.runMs);
+    const clear = events.at(-1);
+    expect(clear?.kind).toBe("clear");
+    if (clear?.kind === "clear")
+      near(clear.at + (clear.duration ?? 0), STAGES.intro.runMs / 1000, 0.02);
   });
 
   it("is drawn smaller on a tall screen", () => {
