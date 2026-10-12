@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { ActiveFilters } from "@/components/catalog/active-filters";
 import { FilterPanel } from "@/components/catalog/filter-panel";
+import { PhaseStrip } from "@/components/catalog/phase-strip";
 import { ResultList } from "@/components/catalog/result-list";
 import { SearchBox } from "@/components/catalog/search-box";
 import { SortSelect } from "@/components/catalog/sort-select";
@@ -50,6 +51,11 @@ export default async function CatalogPage({ searchParams }: CatalogPageProps) {
   // Use the clamped page so links and controls never carry an out-of-range value.
   const criteria = { ...parsed, page: result.page };
   const phaseOptions = phases.map(({ slug, name }) => ({ slug, name }));
+  // Lit like the rail's tab when the catalog is filtered on exactly one phase.
+  const litPhase = singleCatalogPhase(
+    criteria.phase,
+    phaseOptions.map((phase) => phase.slug),
+  );
   const sort = <SortSelect criteria={criteria} />;
 
   return (
@@ -65,19 +71,15 @@ export default async function CatalogPage({ searchParams }: CatalogPageProps) {
           marginClassName={styles.rail}
           margin={
             <>
-              {/* Lit like the rail's tab when the catalog is filtered on exactly one phase. */}
-              <nav aria-label="Start from a phase" className={styles.phases}>
+              <PhaseStrip label="Start from a phase" current={litPhase} className={styles.phases}>
                 <PhaseTabs
                   phases={phaseOptions}
                   size="large"
-                  current={singleCatalogPhase(
-                    criteria.phase,
-                    phaseOptions.map((phase) => phase.slug),
-                  )}
+                  current={litPhase}
                   currentKind="true"
                   className={styles.strip}
                 />
-              </nav>
+              </PhaseStrip>
               <div className={styles.search}>
                 <SearchBox criteria={criteria} />
               </div>
