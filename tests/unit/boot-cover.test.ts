@@ -137,15 +137,15 @@ describe("the cover's timeline", () => {
 describe("a backdrop's markup", () => {
   const html = renderToStaticMarkup(
     createElement(InkBackdrop, {
-      scene: "hero",
-      still: { wide: "hero-wide", tall: "hero-tall" },
+      scene: "prompt",
+      still: { wide: "prompt-wide", tall: "prompt-tall" },
       edges: "bottom",
     }),
   );
 
   it("is a hidden layer with a still, a slot, and the holder of the pause button after it", () => {
     expect(html).toMatch(
-      /^<div[^>]*data-ink-backdrop=""[^>]*data-scene="hero"[^>]*data-edges="bottom"[^>]*data-ink-state="idle"[^>]*aria-hidden="true"/,
+      /^<div[^>]*data-ink-backdrop=""[^>]*data-scene="prompt"[^>]*data-edges="bottom"[^>]*data-ink-state="idle"[^>]*aria-hidden="true"/,
     );
     expect(html).toMatch(
       /<div data-ink-slot=""[^>]*><\/div><\/div><div data-ink-control=""[^>]*><\/div>$/,
@@ -154,8 +154,8 @@ describe("a backdrop's markup", () => {
   });
 
   it("serves the wide still from 68em and the tall one below, lazily and without a description", () => {
-    expect(html).toContain('<source media="(min-width: 68em)" srcSet="/ink/hero-wide.webp"/>');
-    expect(html).toMatch(/<img[^>]*src="\/ink\/hero-tall\.webp"/);
+    expect(html).toContain('<source media="(min-width: 68em)" srcSet="/ink/prompt-wide.webp"/>');
+    expect(html).toMatch(/<img[^>]*src="\/ink\/prompt-tall\.webp"/);
     expect(html).toMatch(/<img[^>]*alt=""/);
     expect(html).toMatch(/<img[^>]*loading="lazy"/);
     expect(html).toMatch(/<img[^>]*decoding="async"/);
@@ -174,8 +174,8 @@ describe("a backdrop's markup", () => {
 describe("the stills manifest", () => {
   it("names the eleven stills, each once, with its page and window", () => {
     expect(STILLS.map((still) => still.name)).toEqual([
-      "hero-wide",
-      "hero-tall",
+      "prompt-wide",
+      "prompt-tall",
       "ninety-wide",
       "ninety-tall",
       "bloom-wide",

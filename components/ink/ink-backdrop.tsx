@@ -24,8 +24,8 @@ type InkBackdropProps = {
  * The parent must be positioned. Whatever follows the backdrop in it is lifted above it, and the
  * small holder that comes right after is where the layer puts its pause button, before the stage's
  * content in the tab order. Children of the stage say where ink must keep clear with
- * `data-ink-calm="text" | "display" | "veil"` and what a scene may aim at with
- * `data-ink-anchor="open" | "tenth"`.
+ * `data-ink-calm="text" | "display" | "veil"` (with `data-ink-calm-after="clear"`, only once the
+ * scene has cleared its water) and what a scene may aim at with `data-ink-anchor="open" | "tenth"`.
  *
  * It is decoration: `aria-hidden`, deaf to the pointer, and gone under raised contrast and forced
  * colours. Hooks: `data-ink-backdrop`, `data-scene`, `data-edges`, `data-ink-state`,

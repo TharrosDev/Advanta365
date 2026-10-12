@@ -9,7 +9,7 @@ type Query = { scene?: string; bare?: string; cover?: string };
 
 /**
  * The ink lab: every scene of the ink in a mock stage. A development page, answered "not found"
- * everywhere else. `?scene=hero` shows one scene in a stage as tall as the window, `&bare=1` takes
+ * everywhere else. `?scene=prompt` shows one scene in a stage as tall as the window, `&bare=1` takes
  * the words out of it, `&cover=1` opens under the cover of a first visit.
  */
 export default async function InkLabPage({ searchParams }: { searchParams: Promise<Query> }) {

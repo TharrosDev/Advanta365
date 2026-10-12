@@ -8,7 +8,15 @@ import styles from "./ink-lab.module.css";
 import { InkLayer } from "./ink-layer";
 
 /** Top to bottom. The load-in comes first: it plays once, clears, and the page below is clean. */
-const ORDER: readonly SceneName[] = ["intro", "hero", "title", "ninety", "bloom", "spill", "wisps"];
+const ORDER: readonly SceneName[] = [
+  "intro",
+  "prompt",
+  "title",
+  "ninety",
+  "bloom",
+  "spill",
+  "wisps",
+];
 
 /**
  * What the boot script does for a first visit of the home page, done here on request (`?cover=1`)
@@ -56,14 +64,16 @@ function Stage({ scene, bare, tall }: { scene: SceneName; bare: boolean; tall: b
   }
 
   switch (scene) {
-    case "hero":
+    case "prompt":
     case "spill":
       return (
         <section data-band={band} data-lab-stage={scene} className={className}>
           <InkBackdrop scene={scene} edges="bottom" />
           <div className={styles.columns}>
             <Copy
-              title={scene === "hero" ? "The tank beside the headline." : "A bottle, knocked over."}
+              title={
+                scene === "prompt" ? "A blank prompt, then the work." : "A bottle, knocked over."
+              }
             />
             <div className={styles.open} data-ink-anchor="open" />
           </div>

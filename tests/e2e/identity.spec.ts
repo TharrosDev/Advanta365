@@ -322,12 +322,17 @@ test.describe("home", () => {
     await expect(page.locator("#practice")).toHaveCSS("background-color", WASH);
   });
 
-  test("the hero holds no tally and no caret", async ({ page }) => {
+  test("the hero holds no tally, and one caret: the prompt box's, which is decoration", async ({
+    page,
+  }) => {
     await page.goto("/");
     const hero = page.locator("[data-band]").filter({ has: page.locator("h1") });
     await expect(hero).toHaveCount(1);
     await expect(hero.locator("[data-tally]")).toHaveCount(0);
-    await expect(hero.locator("[data-caret]")).toHaveCount(0);
+    await expect(hero.locator("[data-caret]")).toHaveCount(1);
+    await expect(hero.locator('[data-hero-prompt][aria-hidden="true"] [data-caret]')).toHaveCount(
+      1,
+    );
   });
 
   test("states the answer as a figure, a sentence and a tally of nine and one", async ({
@@ -372,7 +377,7 @@ test.describe("home", () => {
 
     const button = page
       .getByRole("main")
-      .getByRole("link", { name: "Browse the catalog", exact: true });
+      .getByRole("link", { name: "Get the toolkit", exact: true });
     await expect(button).toHaveCSS("background-color", INK);
     await expect(button).toHaveCSS("color", ON_INK);
     await expect(button).toHaveCSS("border-top-width", "2px");
@@ -407,7 +412,9 @@ test.describe("home", () => {
     // A key press first, so that focus moved by script counts as keyboard focus.
     await page.keyboard.press("Tab");
 
-    const onPage = page.getByRole("main").getByRole("link", { name: "See a sample", exact: true });
+    const onPage = page
+      .getByRole("main")
+      .getByRole("link", { name: "See the free samples", exact: true });
     await onPage.focus();
     await expect(onPage).toHaveCSS("outline-style", "solid");
     await expect(onPage).toHaveCSS("outline-width", "3px");

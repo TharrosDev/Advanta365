@@ -37,7 +37,7 @@ declare global {
   }
 }
 
-const HERO = '[data-ink-backdrop][data-scene="hero"]';
+const HERO = '[data-ink-backdrop][data-scene="prompt"]';
 
 /** Notes when a canvas first runs in each scene, and every long task, from before the page's scripts. */
 async function watch(page: Page) {
@@ -121,15 +121,15 @@ async function holdCaps(page: Page, seconds: number) {
   expect(worst?.miss ?? Infinity, worst?.where).toBeLessThanOrEqual(0.02);
 }
 
-test.describe("the hero", () => {
+test.describe("the prompt", () => {
   test("runs within 2.5 seconds of a repeat visit, in the hero's slot, on exact white", async ({
     page,
   }) => {
     const problems = collectProblems(page);
     await openLive(page);
 
-    await expectRunningIn(page, "hero");
-    const started = await page.evaluate(() => window.__inkAt?.hero ?? null);
+    await expectRunningIn(page, "prompt");
+    const started = await page.evaluate(() => window.__inkAt?.prompt ?? null);
     expect(started).not.toBeNull();
     expect(started ?? Infinity).toBeLessThan(2500);
 
@@ -149,7 +149,7 @@ test.describe("the hero", () => {
 
   test("a frame costs at most 6ms at the high tier", async ({ page }) => {
     await openLive(page);
-    await expectRunningIn(page, "hero");
+    await expectRunningIn(page, "prompt");
     await page.getByRole("button", { name: "Pause ink" }).click();
     const best = await page.evaluate(() => {
       const hook = window.__inkTest;
@@ -165,14 +165,50 @@ test.describe("the hero", () => {
   test("keeps every cap under its calm zones for twenty seconds", async ({ page }) => {
     test.setTimeout(90_000);
     await openLive(page);
-    await expectRunningIn(page, "hero");
+    await expectRunningIn(page, "prompt");
     await holdCaps(page, 20);
+  });
+
+  test("opens over the box, clears by 3.4 seconds, calms the stage, and drips again from 9 seconds", async ({
+    page,
+  }) => {
+    test.setTimeout(60_000);
+    await openLive(page);
+    await expectRunningIn(page, "prompt");
+    const clock = () => page.evaluate(() => window.__inkTest?.stats()?.time ?? -1);
+    const kinds = () =>
+      page.evaluate(() => (window.__inkTest?.zoneExtremes() ?? []).map((zone) => zone.kind));
+
+    // The bloom: ink on the canvas inside the first two seconds, and the stage still open water.
+    await expect.poll(() => inkedPixels(page), { timeout: 5_000 }).toBeGreaterThan(2000);
+    if ((await clock()) < 2.2) expect(await kinds()).not.toContain("display");
+
+    // The clear ends at 3.4 seconds of the scene's own clock: clean water, exactly the ground.
+    await expect.poll(clock, { timeout: 10_000 }).toBeGreaterThan(3.5);
+    if ((await clock()) < 8.5) {
+      expect(await inkedPixels(page)).toBe(0);
+      expect(await canvasPixel(page, "top-left")).toBe(PAPER);
+    }
+    // From then on the stage, where the documents stand, is a calm rectangle too.
+    expect(await kinds()).toContain("display");
+
+    // The script went on after its own clear: the drip that starts at 9 seconds is ink again.
+    await expect.poll(clock, { timeout: 20_000 }).toBeGreaterThan(9.2);
+    await expect.poll(() => inkedPixels(page), { timeout: 10_000 }).toBeGreaterThan(0);
+
+    // The page's sequence and the scene began together: the scene's start is the canvas's first
+    // running frame, the sequence's is the first paint of a page with no cover.
+    const offset = await page.evaluate(() => {
+      const painted = performance.getEntriesByName("first-contentful-paint")[0]?.startTime ?? 0;
+      return (window.__inkAt?.prompt ?? Infinity) - painted;
+    });
+    expect(offset).toBeLessThan(2500);
   });
 
   test("stops by itself within 40 seconds and starts again on a pointer move", async ({ page }) => {
     test.setTimeout(120_000);
     await openLive(page);
-    await expectRunningIn(page, "hero");
+    await expectRunningIn(page, "prompt");
 
     // With no input the water comes to rest and the loop stops.
     await expect.poll(() => running(page), { timeout: 40_000, intervals: [500] }).toBe("false");
@@ -194,7 +230,7 @@ test.describe("the pause button", () => {
     page,
   }) => {
     await openLive(page);
-    await expectRunningIn(page, "hero");
+    await expectRunningIn(page, "prompt");
 
     // The button stands in the hero's control holder.
     const button = page.getByRole("button", { name: "Pause ink" });
@@ -259,13 +295,13 @@ test.describe("the pause button", () => {
 
     // And it starts the ink again.
     await page.getByRole("button", { name: "Play ink" }).click();
-    await expectRunningIn(page, "hero");
+    await expectRunningIn(page, "prompt");
     await expect(page.getByRole("button", { name: "Pause ink" })).toHaveCount(1);
   });
 
   test("a resize while the loop is stopped leaves the ink on the canvas", async ({ page }) => {
     await openLive(page);
-    await expectRunningIn(page, "hero");
+    await expectRunningIn(page, "prompt");
     // Let some ink fall, then stop the loop.
     await expect.poll(() => inkedPixels(page), { timeout: 15_000 }).toBeGreaterThan(500);
     await page.getByRole("button", { name: "Pause ink" }).click();
@@ -283,7 +319,7 @@ test.describe("one canvas, many stages", () => {
     test.setTimeout(90_000);
     const problems = collectProblems(page);
     await openLive(page);
-    await expectRunningIn(page, "hero");
+    await expectRunningIn(page, "prompt");
 
     // Down the page: the ninety (it waits for its tenth block, so the water is clear until then),
     // the closing and the footer. There is one canvas all the way.
@@ -305,7 +341,7 @@ test.describe("one canvas, many stages", () => {
   test("the ninety fires its tenth drop when the band goes by", async ({ page }) => {
     test.setTimeout(60_000);
     await openLive(page);
-    await expectRunningIn(page, "hero");
+    await expectRunningIn(page, "prompt");
     await scrollToElement(page, "#solution", 0);
     // Through the band in small steps, as a hand on the wheel would.
     for (const share of [0.3, 0.45, 0.6, 0.75]) {
@@ -339,7 +375,7 @@ test.describe("one canvas, many stages", () => {
   test("stays one canvas into /about and leaves none on /catalog", async ({ page, isMobile }) => {
     test.skip(isMobile, "the inline navigation is the desktop one");
     await openLive(page);
-    await expectRunningIn(page, "hero");
+    await expectRunningIn(page, "prompt");
 
     await page.getByRole("banner").getByRole("link", { name: "About", exact: true }).click();
     await expect(page).toHaveURL(/\/about$/, { timeout: NAVIGATION_TIMEOUT });
@@ -360,15 +396,15 @@ test.describe("when the graphics card lets go", () => {
     page,
   }) => {
     await openLive(page);
-    await expectRunningIn(page, "hero");
+    await expectRunningIn(page, "prompt");
 
     await page.evaluate(() => window.__inkTest?.loseContext());
-    await expect.poll(() => backdropState(page, "hero"), { timeout: 5_000 }).toBe("rest");
+    await expect.poll(() => backdropState(page, "prompt"), { timeout: 5_000 }).toBe("rest");
     await expect(page.locator(`${HERO} [data-ink-still]`)).not.toHaveCSS("display", "none");
 
     await page.evaluate(() => window.__inkTest?.restoreContext());
-    await expect.poll(() => backdropState(page, "hero"), { timeout: 10_000 }).toBe("live");
-    await expectRunningIn(page, "hero");
+    await expect.poll(() => backdropState(page, "prompt"), { timeout: 10_000 }).toBe("live");
+    await expectRunningIn(page, "prompt");
   });
 });
 
@@ -446,8 +482,8 @@ test.describe("the cover of a first visit", () => {
     expect(early.filter(([, opacity]) => opacity < 1)).toEqual([]);
     expect(Math.min(...frames.map(([, opacity]) => opacity))).toBeLessThan(0.01);
 
-    await expectRunningIn(page, "hero", 10_000);
-    const heroAt = await page.evaluate(() => window.__inkAt?.hero ?? Infinity);
+    await expectRunningIn(page, "prompt", 10_000);
+    const heroAt = await page.evaluate(() => window.__inkAt?.prompt ?? Infinity);
     expect(heroAt - gone).toBeLessThanOrEqual(600);
     expect(problems).toEqual([]);
   });

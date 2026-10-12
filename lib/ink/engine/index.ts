@@ -2,6 +2,7 @@ import {
   armTimeline,
   makeRandom,
   runTimeline,
+  type SceneInk,
   SCENES,
   type Armed,
   type Scene,
@@ -617,12 +618,15 @@ export function createInk(canvas: HTMLCanvasElement, userOptions: InkOptions): I
     if (p.u.uCalmCap !== undefined) gl.uniform1fv(p.u.uCalmCap, caps);
   }
 
-  /** Thin the ink away over a duration (seconds), then leave a clean field. */
-  function clear(c: { duration?: number } = {}): Ink {
+  /**
+   * Thin the ink away over a duration (seconds), then leave a clean field. The scene's script ends
+   * with it, unless the script itself asked (`keepScript`): a scene may clear its water and go on.
+   */
+  function clear(c: { duration?: number } = {}, keepScript = false): Ink {
     if (!usable()) return api;
     const duration = c.duration ?? 0;
     streams = [];
-    timeline = [];
+    if (!keepScript) timeline = [];
     fired.clear();
     queued.clear();
     if (duration <= 0) {
@@ -788,7 +792,7 @@ export function createInk(canvas: HTMLCanvasElement, userOptions: InkOptions): I
     const texel: Vec2 = [1 / vel.w, 1 / vel.h];
     const walls = sim.walls;
 
-    if (!resting) runTimeline(timeline, sceneClock(), api, random);
+    if (!resting) runTimeline(timeline, sceneClock(), script, random);
     runStreams(stepDt, tickDt);
     if (mipsDirty) refreshMips();
 
@@ -1373,6 +1377,9 @@ export function createInk(canvas: HTMLCanvasElement, userOptions: InkOptions): I
       pressureIterations: tier.pressure,
     };
   }
+
+  /** What a scene's script is handed: its own clear leaves the rest of the script armed. */
+  const script: SceneInk = { drop, stream, clear: (o) => clear(o, true) };
 
   const api: Mutable<Ink> = {
     supported: false,

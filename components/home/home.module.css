@@ -5,26 +5,33 @@
  */
 
 /*
- * Hero: the tank. Natural height below 68em: the text, then the open water as a block under it,
- * 56px lower so the first drop forms clear of the buttons. From 68em the band is about as tall as
- * the window (the bar, the rail and the beta strip taken off, at most 52rem), with 56px above and
- * 84px below; the text is centred in columns 1 to 7 and the open water fills columns 8 to 12.
+ * Hero: the first screen. One centred column on paper: the text, the stage, the proof strip on
+ * the bottom edge. From 68em the band is about as tall as the window (the bar, the rail and the
+ * beta strip taken off; never less than 85.5% of the window, at most 56rem) and the stage takes
+ * whatever height is left, standing in the middle of it.
  */
 .hero.hero {
-  padding-block: var(--s-5) var(--s-4);
+  padding-block: var(--s-5) var(--s-3);
 }
 
-.heroGrid {
+.heroInner {
   display: grid;
   grid-template-columns: minmax(0, 1fr);
+  grid-template-rows: auto 1fr auto;
+  justify-items: center;
+  align-items: center;
+  row-gap: var(--s-5);
 }
 
-.heroText {
+.heroText,
+.heroWords {
+  display: grid;
+  justify-items: center;
   min-width: 0;
+  text-align: center;
 }
 
 .heroTitle {
-  max-width: 11.5em;
   isolation: isolate;
 }
 
@@ -46,61 +53,103 @@
 }
 
 .heroLead {
-  max-width: 34rem;
-  margin-block-start: var(--s-4);
+  max-width: 50rem;
+  margin-block-start: var(--s-3);
   color: var(--text-soft);
+  text-wrap: balance;
 }
 
 /* Stacked and full width on a phone. */
 .heroActions {
   display: flex;
   flex-direction: column;
+  justify-self: stretch;
   gap: var(--s-2);
-  margin-block-start: var(--s-5);
+  margin-block-start: var(--s-4);
 }
 
-.heroOpen {
-  height: min(44svh, 22rem);
-  margin-block-start: var(--s-6);
+/*
+ * The proof strip: a ruled row across the band's foot. Two facts to a row below 40em, four from
+ * there, a hairline over the strip and between its facts. It is as wide as the stage at most, and
+ * always leaves the band's bottom corners free: the right one is the pause button's (44px, and
+ * 14px of air), the left one is left to match.
+ */
+.proof {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  width: min(64rem, 100% - 2 * (var(--tap) + var(--s-2)));
+  margin: 0;
+  padding: 0;
+  border-block-start: var(--hair) solid var(--line);
+  list-style: none;
+}
+
+.proofItem {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: center;
+  gap: 0 var(--s-1);
+  min-width: 0;
+  padding: var(--s-2) var(--s-1);
+}
+
+.proofItem:nth-child(even) {
+  border-inline-start: var(--hair) solid var(--line);
+}
+
+.proofItem:nth-child(n + 3) {
+  border-block-start: var(--hair) solid var(--line);
+}
+
+.proofLabel {
+  color: var(--text-soft);
 }
 
 @media (min-width: 40em) {
   .hero.hero {
-    padding-block: var(--s-6) var(--s-5);
+    padding-block: var(--s-6) var(--s-3);
   }
 
   .heroActions {
     flex-flow: row wrap;
-    align-items: flex-start;
+    justify-content: center;
+    justify-self: center;
+  }
+
+  .proof {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+
+  .proofItem:nth-child(n + 2) {
+    border-inline-start: var(--hair) solid var(--line);
+  }
+
+  .proofItem:nth-child(n + 3) {
+    border-block-start: 0;
   }
 }
 
 @media (min-width: 68em) {
   .hero.hero {
-    --hero-above: var(--s-6);
-    --hero-below: var(--s-7);
+    --hero-above: var(--s-4);
+    --hero-below: var(--s-3);
     padding-block: var(--hero-above) var(--hero-below);
   }
 
-  .heroGrid {
-    grid-template-columns: repeat(12, minmax(0, 1fr));
-    column-gap: var(--col-gap);
-    align-items: center;
+  .heroInner {
+    row-gap: var(--s-3);
     min-height: calc(
-      min(100svh - var(--bar-h) - var(--rail-h) - var(--strip-h, 0px), 52rem) - var(--hero-above) -
-        var(--hero-below)
+      min(max(100svh - var(--bar-h) - var(--rail-h) - var(--strip-h, 0px), 85.5svh), 56rem) -
+        var(--hero-above) - var(--hero-below)
     );
   }
+}
 
-  .heroText {
-    grid-column: 1 / span 7;
-  }
-
-  .heroOpen {
-    grid-column: 8 / span 5;
-    align-self: stretch;
-    height: auto;
-    margin-block-start: 0;
+@media (forced-colors: active) {
+  .proof,
+  .proofItem {
+    border-color: GrayText;
   }
 }
 

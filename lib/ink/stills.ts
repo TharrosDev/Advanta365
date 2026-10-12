@@ -9,8 +9,8 @@ import type { SceneName } from "./types";
  */
 
 export type StillName =
-  | "hero-wide"
-  | "hero-tall"
+  | "prompt-wide"
+  | "prompt-tall"
   | "ninety-wide"
   | "ninety-tall"
   | "bloom-wide"

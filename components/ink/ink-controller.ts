@@ -141,6 +141,8 @@ export function createController(onControl: (control: Control) => void): Control
   let lostOnce = false;
   let tookOver = false;
   let fired = false;
+  /** The scene on the canvas has cleared its water: zones that wait for that are measured now. */
+  let cleared = false;
   let idle = 0;
   let frame = 0;
   let observer: IntersectionObserver | null = null;
@@ -176,6 +178,11 @@ export function createController(onControl: (control: Control) => void): Control
   // -------------------------------------------------------------------------------------------
   // Measuring a stage: its calm rectangles, its edges, its anchors
   // -------------------------------------------------------------------------------------------
+  /**
+   * A rectangle marked `data-ink-calm-after="clear"` is open water until the scene has cleared
+   * itself, and calm from then on: the home page's stage, where the ink opens first and the
+   * documents stand afterwards.
+   */
   function measured(backdrop: HTMLElement): { origin: DOMRect; calm: Measured[] } {
     const origin = backdrop.getBoundingClientRect();
     const stage = backdrop.parentElement ?? backdrop;
@@ -183,6 +190,7 @@ export function createController(onControl: (control: Control) => void): Control
     for (const element of stage.querySelectorAll("[data-ink-calm]")) {
       const kind = element.getAttribute("data-ink-calm");
       if (!isCalmKind(kind)) continue;
+      if (!cleared && element.getAttribute("data-ink-calm-after") === "clear") continue;
       const rect = element.getBoundingClientRect();
       if (rect.width && rect.height) list.push({ kind, rect: relativeRect(rect, origin) });
     }
@@ -328,6 +336,7 @@ export function createController(onControl: (control: Control) => void): Control
     created.on("slow", () => fail(true));
     created.on("quality", ({ tier }) => noteTier(tier));
     created.on("rest", () => setRunning(false));
+    created.on("cleared", onCleared);
     created.on("end", () => {
       created.stop();
       setRunning(false);
@@ -351,6 +360,15 @@ export function createController(onControl: (control: Control) => void): Control
       }
     });
     activate(backdrop, false);
+  }
+
+  /** The scene cleared its water: the zones that waited for it are asked for. */
+  function onCleared() {
+    if (cleared || !ink || !current || !scene) return;
+    cleared = true;
+    const at = current;
+    const name = scene;
+    ink.setCalmZone(() => zonesOf(at, name));
   }
 
   function noteTier(tier: Tier) {
@@ -391,6 +409,7 @@ export function createController(onControl: (control: Control) => void): Control
     scene = name;
     fired = false;
     tookOver = false;
+    cleared = false;
     if (canvas.parentElement !== slot) slot.append(canvas);
     ink.stop();
     setRunning(false);
@@ -576,6 +595,13 @@ export function createController(onControl: (control: Control) => void): Control
     if (!ink || !current || !scene) return;
     current.setAttribute("data-ink-state", "live");
     fired = false;
+    // The engine has laid the scene out again from its start: so are its zones.
+    if (cleared) {
+      cleared = false;
+      const at = current;
+      const name = scene;
+      ink.setCalmZone(() => zonesOf(at, name));
+    }
     if (paused) void ink.still(scene);
     else if (STAGES[scene].trigger) watchNinety();
     else run(STAGES[scene].runMs);

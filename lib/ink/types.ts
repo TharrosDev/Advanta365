@@ -7,7 +7,7 @@
  */
 
 export type Tier = "high" | "medium" | "low";
-export type SceneName = "intro" | "hero" | "title" | "ninety" | "bloom" | "wisps" | "spill";
+export type SceneName = "intro" | "prompt" | "title" | "ninety" | "bloom" | "wisps" | "spill";
 /** "pale" is the black channel on a dark ground. */
 export type InkName = "black" | "blue" | "pale";
 export type InkAmount = InkName | { black?: number; blue?: number };

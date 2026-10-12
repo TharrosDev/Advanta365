@@ -5,7 +5,9 @@ import { ShelfHead } from "@/components/ui/shelf-head";
 import type { Phase, Template } from "@/lib/catalog/schema";
 
 /**
- * `#featured`: the free samples, on the desk. The head stands at the left with the link to the
+ * `#featured`: the free samples, on the desk, right under the hero that shows the same six as a
+ * hand of documents: here each one is named, with its phase, its type and its format, which is
+ * what the heading says. The head stands at the left with the link to the
  * catalog under the title (it names the sample catalog: the toolkit counts sit one section down,
  * and the catalog does not list that many). Under it the six free templates are tiles in one grid:
  * six across where the band is at its widest, two on a phone. Each links to the catalog, where the
@@ -25,7 +27,7 @@ export function FeaturedSection({
       <ShelfHead
         stack
         eyebrow="Free samples"
-        title="Six free sample templates"
+        title="The six free samples, one by one"
         action={
           <Button variant="outline" href="/catalog" arrow>
             Browse the sample catalog

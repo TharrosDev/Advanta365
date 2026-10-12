@@ -128,61 +128,80 @@ describe("the load-in", () => {
   });
 });
 
-describe("the hero", () => {
-  it("opens with black, light blue, black at 0, 3.5 and 7.5 seconds", () => {
-    const { drops } = play("hero", WIDE, 12);
-    expect(drops.map((d) => d.ink)).toEqual(["black", "blue", "black"]);
-    near(drops[0]?.at, 0);
-    near(drops[1]?.at, 3.5);
-    near(drops[2]?.at, 7.5);
-    // The default lane runs from 0.60 to 0.90.
-    near(drops[0]?.x, 0.6 + 0.3 * 0.45, 1e-6);
-    near(drops[1]?.x, 0.6 + 0.3 * 0.86, 1e-6);
-    near(drops[2]?.x, 0.6 + 0.3 * 0.12, 1e-6);
-    expect(drops[0]?.radius).toBe(0.08);
-    for (const drop of drops) expect(drop.y).toBe(0.03);
+describe("the prompt", () => {
+  const open: Rect = { x: 0.12, y: 0.6, width: 0.76, height: 0.3 };
+
+  it("has replaced the hero: no scene and no stage is called that any more", () => {
+    expect(NAMES).toEqual(["intro", "prompt", "title", "ninety", "bloom", "wisps", "spill"]);
+    expect(Object.keys(STAGES)).not.toContain("hero");
   });
 
-  it("then drips: two black to each blue, 5.5 to 8.5 seconds apart, every third one larger", () => {
-    const drips = play("hero", WIDE, 120).drops.slice(3);
+  it("drops black in the middle of the box, light blue half a second later, then clears", () => {
+    const { scene, events } = play("prompt", { ...WIDE, anchors: { open } }, 8);
+    expect(scene.duration).toBeUndefined();
+    expect(events.map((e) => e.kind)).toEqual(["drop", "drop", "clear"]);
+    const [black, blue, clear] = events;
+    near(black?.at, 0);
+    near(blue?.at, 0.5);
+    near(clear?.at, 2.2);
+    expect(clear?.kind === "clear" && clear.duration).toBe(1.2);
+    if (black?.kind === "drop" && blue?.kind === "drop") {
+      expect(black.drop.ink).toBe("black");
+      expect(blue.drop.ink).toBe("blue");
+      // The centre of the rectangle the page marked.
+      near(black.drop.x, 0.5, 1e-9);
+      near(black.drop.y, 0.75, 1e-9);
+      // The blue one lands beside it, inside the box.
+      expect(blue.drop.x).toBeGreaterThan(0.5);
+      expect(blue.drop.x).toBeLessThan(open.x + open.width);
+      near(blue.drop.y, 0.75, 0.05);
+    }
+  });
+
+  it("without a box aims at the middle of the lower half", () => {
+    const [black] = play("prompt", WIDE, 1).drops;
+    near(black?.x, 0.5, 1e-9);
+    near(black?.y, 0.7, 1e-9);
+  });
+
+  it("leaves the water clean from the end of the clear until the first drip, at 9 seconds", () => {
+    const { drops } = play("prompt", { ...WIDE, anchors: { open } }, 60);
+    expect(drops.filter((drop) => drop.at > 0.6 && drop.at < 9 - STEP)).toEqual([]);
+    near(drops[2]?.at, 9);
+  });
+
+  it("then drips behind the documents: two black to each blue, 5.5 to 8.5 seconds apart", () => {
+    const drips = play("prompt", { ...WIDE, anchors: { open } }, 120).drops.slice(2);
     expect(drips.length).toBeGreaterThan(9);
-    near(drips[0]?.at, 13);
     drips.forEach((drop, index) => {
       expect(drop.ink).toBe(index % 3 === 1 ? "blue" : "black");
-      const large = index % 3 === 2;
-      const size = (drop.radius ?? 0) / 0.08;
-      expect(size).toBeGreaterThanOrEqual(large ? 0.75 * 1.3 : 0.75);
-      expect(size).toBeLessThanOrEqual((large ? 1.1 * 1.3 : 1.1) + 1e-9);
+      expect(drop.x).toBeGreaterThanOrEqual(open.x);
+      expect(drop.x).toBeLessThanOrEqual(open.x + open.width);
+      expect(drop.y).toBeGreaterThanOrEqual(open.y);
+      expect(drop.y).toBeLessThanOrEqual(open.y + open.height);
       const previous = drips[index - 1];
       if (previous) {
         const gap = drop.at - previous.at;
         expect(gap).toBeGreaterThanOrEqual(5.5 - STEP);
         expect(gap).toBeLessThanOrEqual(8.5 + STEP);
-        // Never the same quarter of the lane twice running.
-        const quarter = (x: number | undefined) => Math.floor((((x ?? 0) - 0.6) / 0.3) * 4);
+        // Never the same quarter of the box twice running.
+        const quarter = (x: number | undefined) =>
+          Math.floor((((x ?? 0) - open.x) / open.width) * 4);
         expect(quarter(drop.x)).not.toBe(quarter(previous.x));
       }
     });
   });
 
-  it("aims at the open water the page marked", () => {
-    const open: Rect = { x: 0.57, y: 0.1, width: 0.36, height: 0.6 };
-    const { drops } = play("hero", { ...WIDE, anchors: { open } }, 10);
-    for (const drop of drops) {
-      expect(drop.x).toBeGreaterThanOrEqual(0.57);
-      expect(drop.x).toBeLessThanOrEqual(0.93);
-    }
-  });
-
-  it("starts under the text on a tall canvas, so ink never falls through it", () => {
-    const open: Rect = { x: 0.05, y: 0.55, width: 0.9, height: 0.4 };
-    const { drops } = play("hero", { ...TALL, anchors: { open } }, 10);
-    for (const drop of drops) {
-      near(drop.y, 0.58, 1e-9);
-      expect(drop.x).toBeGreaterThanOrEqual(0.22);
-      expect(drop.x).toBeLessThanOrEqual(0.8);
-    }
-    expect(drops[0]?.radius).toBe(0.058);
+  it("is a smaller picture on a tall canvas, with slower drips", () => {
+    const wide = play("prompt", { ...WIDE, anchors: { open } }, 1).drops[0];
+    const { drops } = play("prompt", { ...TALL, anchors: { open } }, 120);
+    expect(drops[0]?.radius).toBeLessThan(wide?.radius ?? 0);
+    const drips = drops.slice(2);
+    drips.slice(1).forEach((drop, index) => {
+      const gap = drop.at - (drips[index]?.at ?? 0);
+      expect(gap).toBeGreaterThanOrEqual(7.5 - STEP);
+      expect(gap).toBeLessThanOrEqual(11 + STEP);
+    });
   });
 });
 

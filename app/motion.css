@@ -11,6 +11,8 @@
  *   [data-price-tag]                               the paper tag on its string, which swings
  *   [data-tile][data-denied], [data-lock]          a locked tile saying no, and its padlock
  *   [data-template-dialog][data-enter]             the pop-up of the catalog arriving
+ *   [data-hero-stage], [data-hero-prompt],
+ *   [data-hero-doc]                                the hero: a prompt box that becomes documents
  *
  * Three attributes on the root element, set by the boot script before first paint, are the only
  * switches: `data-motion="on"` (movement is wanted), `data-timeline="on"` (view timelines exist)
@@ -66,6 +68,14 @@
   :is(article, [data-lit-scope]):hover [data-lit]::after {
     opacity: 1;
   }
+}
+
+/*
+ * The prompt box of the hero (components/home/hero-stage.tsx) exists for its sequence only.
+ * Without movement it is not displayed, and the documents stand where it would have been.
+ */
+[data-hero-prompt] {
+  display: none;
 }
 
 @media (prefers-reduced-motion: no-preference) {
@@ -579,6 +589,83 @@
 
   [data-template-dialog][data-enter]::backdrop {
     animation: scrim-in var(--time-exit) linear;
+  }
+
+  /*
+   * The hero's stage (components/home/hero-stage.tsx): a blank prompt becomes finished work. One
+   * clock, which starts when the root element has no `data-intro`: at load, or when the cover of
+   * a first visit has gone. The prompt ink scene (lib/ink/scenes.ts) starts on the same event and
+   * is written to the same times; nothing ties the two together but that.
+   *
+   *      0 to  400ms  the box stands, its caret blinking; the first drop lands in it
+   *    400 to 1600ms  the box dissolves as the ink opens over it
+   *   2400ms on       the documents settle, 110ms apart, 560ms each, as the ink clears
+   *
+   * Under the cover the page is already in its opening state: the box there, its caret solid, the
+   * documents out of sight (and out of reach of the keyboard). Each end state is the element's
+   * own, so the box stays gone and the documents stay.
+   */
+  @keyframes hero-prompt-out {
+    from {
+      visibility: visible;
+      opacity: 1;
+      filter: none;
+      scale: 1;
+    }
+  }
+
+  @keyframes hero-caret-blink {
+    0%,
+    36%,
+    72% {
+      opacity: 1;
+    }
+
+    18%,
+    54% {
+      opacity: 0;
+    }
+  }
+
+  @keyframes hero-doc-in {
+    from {
+      visibility: hidden;
+      opacity: 0;
+      filter: blur(6px);
+      translate: 0 1.25rem;
+      scale: 0.94;
+    }
+  }
+
+  html[data-motion="on"] [data-hero-prompt] {
+    display: grid;
+  }
+
+  html[data-motion="on"]:not([data-intro]) [data-hero-prompt] {
+    visibility: hidden;
+    opacity: 0;
+    filter: blur(12px);
+    scale: 1.05;
+    animation: hero-prompt-out 1200ms var(--curve-leave) 400ms backwards;
+  }
+
+  html[data-motion="on"]:not([data-intro]) [data-hero-prompt] [data-caret] {
+    animation: hero-caret-blink 1500ms steps(1, end);
+  }
+
+  html[data-motion="on"][data-intro] [data-hero-doc] {
+    visibility: hidden;
+    opacity: 0;
+  }
+
+  html[data-motion="on"]:not([data-intro]) [data-hero-doc] {
+    animation: hero-doc-in var(--time-settle) var(--curve-settle) backwards;
+    animation-delay: calc(2400ms + var(--i, 0) * 110ms);
+  }
+
+  /* A document under the pointer or the keyboard straightens in the time of a lift. */
+  [data-hero-stage] li {
+    transition: rotate var(--time-lift) var(--curve-settle);
   }
 
   /*

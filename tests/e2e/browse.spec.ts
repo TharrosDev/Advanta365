@@ -33,11 +33,27 @@ test("home leads to a phase and on to its free sample, open in the catalog", asy
   await expect(page.getByRole("dialog", { name: title })).toBeVisible();
 });
 
-test("the hero leads to the worked example, which says its file cannot be downloaded yet", async ({
+test("the hero leads to the six free samples in the catalog", async ({ page }) => {
+  await page.goto("/");
+  await page
+    .getByRole("main")
+    .getByRole("link", { name: "See the free samples", exact: true })
+    .click();
+
+  await expect(page).toHaveURL(/\/catalog\?free=1$/, { timeout: NAVIGATION_TIMEOUT });
+  await expect(page.getByRole("heading", { level: 1 })).toHaveText("Catalog");
+  await expect(page.locator("[data-tile][data-free]")).toHaveCount(6);
+  await expect(page.locator("[data-tile][data-locked]")).toHaveCount(0);
+});
+
+test("the home page leads to the worked example, which says its file cannot be downloaded yet", async ({
   page,
 }) => {
   await page.goto("/");
-  await page.getByRole("main").getByRole("link", { name: "See a sample", exact: true }).click();
+  await page
+    .getByRole("main")
+    .getByRole("link", { name: "A complete worked example", exact: true })
+    .click();
 
   await expect(page).toHaveURL(/\/sample$/, { timeout: NAVIGATION_TIMEOUT });
   await expect(page.getByRole("heading", { level: 1 })).toHaveText("A complete worked example");
