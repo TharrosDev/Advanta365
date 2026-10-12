@@ -42,9 +42,12 @@ Related documents: `design-system.md` covers the visual rules and component usag
 
 Metadata: the root layout (`app/layout.tsx`) sets the title template `%s · Advanta365` and the default
 title `Advanta365 · Don’t start from a blank prompt.` The description is built from the toolkit counts in
-`lib/site.ts`. The home route exports no metadata of its own.
+`lib/site.ts`. The home route exports no metadata of its own. The catalog page sets
+`alternates.canonical` to `/catalog`, so every address of the catalog (a search, a filter, a page of results, a
+template in `view`) names the plain catalog as the canonical one. No `metadataBase` is set and the site has no
+origin of its own in the source, so the link is written as that path.
 
-`next.config.ts` redirects the addresses the site no longer has, each with a permanent redirect (308):
+`next.config.ts` redirects the retired addresses, each with a permanent redirect (308):
 
 | From | To |
 |---|---|
@@ -52,8 +55,9 @@ title `Advanta365 · Don’t start from a blank prompt.` The description is buil
 | `/contact` | `/about#contact` |
 | `/templates/:slug` | `/catalog?view=:slug` |
 
-`view` opens the pop-up only for a free sample. For a locked template nothing opens and its tile says no, and
-for any other value the catalog shows as it is (section 9.3).
+`view` opens the pop-up only for a free sample. For a locked template nothing opens and its tile says no (or,
+where its tile is not on the page of results, a line above them does), and for any other value the catalog
+shows as it is (section 9.3).
 
 `proxy.ts` runs before routing. Any path containing an uppercase letter receives a 308 redirect to the
 lowercase path. Its matcher skips `_next/` and any path containing a dot.
@@ -75,6 +79,7 @@ Client components (files with `"use client"`):
 | Not found | `components/not-found/asked-path.tsx`, `late-boot.tsx` | Read `window.location`; add the boot script when needed |
 | UI | `components/ui/motion-root.tsx`, `count-up.tsx` | Observers, the counter animation and the `data-hydrated` signal |
 | Ink | `components/ink/ink-layer.tsx` | Singleton controller and the pause control |
+| Home | `components/home/hero-landing.tsx` | Marks the hero's stage `data-landed` when the ink is not running, or stops (section 8.7) |
 
 The ink controller itself (`components/ink/ink-controller.ts`) is plain TypeScript created by `InkLayer`.
 `InkBackdrop` (`components/ink/ink-backdrop.tsx`) is server-renderable: it outputs a `<picture>` with the
@@ -149,6 +154,7 @@ Helpers used by pages and components:
 |---|---|
 | `phaseCoverage(phases, templates)` | One entry per phase, sorted by `order`, with `covered` set when any template belongs to it |
 | `formatPrice(cents)` (`lib/format.ts`) | en-US dollars; whole amounts drop `.00` and other amounts keep their cents, so `49999` prints `$499.99` |
+| `countWord(count, form)` (`lib/format.ts`) | A count as copy writes it: a word up to twelve, digits beyond; `"capital"` for the first word of a sentence. The catalog's key line and the home page's toolkit section print `FREE_SAMPLE_COUNT` with it |
 
 ### 3.4 Catalog contents
 
@@ -395,8 +401,9 @@ drops `undefined` values). `lib/brand/mark.ts` holds the logo geometry: `MARK_VI
 strokes, one per digit, each `M`, lines and curves only), `MARK_DIGITS_D` (the three as one path),
 `MARK_DIGITS_STROKE_WIDTH` (1.1) and `MARK_DIGITS_BOX` (x 18.8 to 30.8, y 5.8 to 10.6, inside the viewBox).
 They are drawn last, in the ink of the tail, and only where they are at least 7px high: the bar's tile from
-68em (a 49px tile with the mark 35px high) and the bare footer mark (35px); not on the 28px tile below 68em,
-the drawer, the folder's tile or the favicon. `app/icon.svg` uses the same colours as the tokens: a
+68em (a 49px tile with the mark 35px high), the bare footer mark (36px, so the digits are 7.2px) and the cover
+of a first visit, which writes them on the arm after the mark (section 6); not on the 28px tile below 68em, the
+drawer, the folder's tile or the favicon. `app/icon.svg` uses the same colours as the tokens: a
 #0B0D12 tile, the body in #FFFFFF and the tail in #86C1FF, and has no digits.
 
 ### 5.3 Feature components
@@ -409,10 +416,11 @@ Components built from the primitives for one part of the site. Each has a doc co
 | `PriceTag` | `components/purchase/price-tag.tsx` | `className` | The price from `OFFER` and "one purchase" on a paper tag hung on a string from the corner of the folder. Swings once when first seen and a little when the folder is hovered; still under reduced motion |
 | `TemplateTile`, `TileGrid` | `components/catalog/template-tile.tsx` | `template`, `phaseName`, `phaseOrder`, `href`, `headingLevel`, `scroll`, `denied`; `locks` | One template in a grid, an `<article data-tile>` with exactly one control: a link (free sample) or a button (locked). The grid has as many columns of at least 176px as fit, never fewer than two |
 | `LockedTile` | `components/catalog/locked-tile.tsx` | `title`, `headingLevel`, `initialDenied` | The button of a locked tile, named "<title>, locked", and the line it answers with (section 9.3) |
-| `ChainLock`, `ChainLockParts` | `components/catalog/chain-lock.tsx` | none | The two crossed steel chains and padlock over a locked cover. The drawing is rendered once per grid (`ChainLockParts`) and each lock draws from it |
+| `ChainLock`, `ChainLockParts` | `components/catalog/chain-lock.tsx` | none | The two crossed steel chains and padlock over a locked cover. The drawing (`ChainLockParts`) is rendered once by `TileGrid`, or once by a page that holds several grids (the phase page, whose grids take `locks={false}`), and each lock draws from it |
 | `TemplateDialog` | `components/catalog/template-dialog.tsx` | `closeHref`, `labelledBy` | The pop-up: a native modal `<dialog>` (section 9.3) |
 | `TemplateDetail` | `components/catalog/template-detail.tsx` | `template`, `phase`, `titleId` | The content of the pop-up: large cover, "Free sample" tag, title, summary, description, facts, what is included, and the button to `/purchase` |
 | `Hero`, `HeroStage` | `components/home/hero.tsx`, `hero-stage.tsx` | `samples`, `phases` | The first screen of the home page: headline, lead and two buttons over the `prompt` ink; the stage where an empty prompt box becomes the six free samples as a hand of documents (section 8.7) |
+| `HeroLanding` | `components/home/hero-landing.tsx` | none | Client. Renders nothing; sets `data-landed` on the stage when the ink is not running at mount, or stops running later, which ends the sequence for that stage (section 8.7) |
 | `ProofStrip` | `components/home/proof-strip.tsx` | none | The band's foot: 30+ years, 59 playbooks, 130 templates, one purchase, on opaque paper |
 | `PortfolioSection` | `components/home/portfolio-section.tsx` | `covers`, `phases` | `#toolkit` on the home page: words and the button to `/purchase`, the `Portfolio` at section size |
 | `PurchaseButton` | `components/layout/purchase-button.tsx` | `className` | The bar's call to action (section 4.1) |
@@ -496,8 +504,8 @@ that). The selectors do not name a state, so a change of state never restarts a 
 | 5500 | Backstop: the `data-intro` attribute is unset |
 
 The signature's fade is `calc(var(--ink-sign-at) - var(--taken, 0ms))`: the controller writes `--taken`, the
-cover's own time at the takeover, so the mark stands to 2500 ms on both paths. The hero's sequence starts
-when `data-intro` is gone (section 8.7).
+cover's own time at the takeover, so the mark stands to 2500 ms on both paths. Where the ink is live, the
+hero's sequence starts when `data-intro` is gone (section 8.7).
 
 The mark is drawn with `pathLength={1}` and dash offsets. The pen curve is `--curve-pen`.
 
@@ -668,7 +676,7 @@ Each scene is a function of a context (`aspect`, `portrait` when the aspect is b
 | `spill` | paper | 480 | no end | none | Six black drops at 0, 0.7, 1.5, 2.6, 4.2 and 6.4 s, then repeats from 10 s |
 
 `prompt` and the page's own sequence (`app/motion.css`, section 8.7) are written to one clock but nothing ties
-them together: both start when the cover is gone. After a first visit the ink starts within about 20 ms of it;
+them together: both start when the cover is gone, and the page's sequence plays only where the ink is live. After a first visit the ink starts within about 20 ms of it;
 on a repeat visit the engine has to be fetched and compiled first, so the ink can be up to a few hundred
 milliseconds late, which the documents' arrival at 3.7 s allows for.
 
@@ -752,7 +760,7 @@ Constants: `STILL_QUALITY` 0.86, `STILL_MAX_BYTES` 90 KiB per file, `STILLS_MAX_
 still. The tall still is used at widths below 68em, where the wide one is used from 68em up. A still is scaled
 by the width of its backdrop; `bloom` and `wisps` frames are anchored at the bottom of their band, the others
 at the top. The `prompt` frame stands at 90rem wide, centred, from 68em, scaled only where the band is wider,
-because the hero is centred and no longer scales with the width. The `title` frame stands at its own size in the
+because the hero is centred and does not scale with the width. The `title` frame stands at its own size in the
 corner the ink falls from.
 
 The Purchase page has its own pair of the `bloom` scene. Its text zone (the tally under the folder) stands where
@@ -881,7 +889,7 @@ animated property sits inside `@media (prefers-reduced-motion: no-preference)`. 
 | `data-price-tag` | `PriceTag` | Swings once when first seen (1700 ms, after 240 ms), and its contents again when the folder is hovered (1200 ms) |
 | `data-tile` with `data-denied`, `data-lock` | `TemplateTile`, `LockedTile`, `ChainLock` | A locked tile saying no for 600 ms: `tile-shake` (6px, five swings, 420 ms), `lock-rattle` (12 degrees, 480 ms), `denied-pulse` (outline in `--alert`, 560 ms). Under reduced motion only the outline |
 | `data-template-dialog` with `data-enter` | `TemplateDialog` | The pop-up rises 14px as the page dims (`dialog-in` 320 ms, `scrim-in`) when a link inside the site opened it |
-| `data-hero-stage`, `data-hero-prompt`, `data-hero-doc` | `HeroStage` | The hero's sequence (section 8.7) |
+| `data-hero-stage`, `data-hero-prompt`, `data-hero-doc`, `data-landed` | `HeroStage`, `HeroLanding` | The hero's sequence, played to live ink only (section 8.7) |
 
 ### 8.2 Entrances
 
@@ -1011,8 +1019,10 @@ or format tag lies under a neighbour. Under the pointer or keyboard focus a docu
 front and lifts. Below 40em the six are two hands of three. From 68em the band's height follows the window's,
 so the proof strip is above the fold down to a window 720px tall.
 
-One clock, which starts when the root has no `data-intro` (at load, or when the cover has gone). The `prompt`
-ink scene is written to the same times:
+The sequence is the page's half of the `prompt` ink scene, so it plays only where that scene does. Every rule
+of it in `app/motion.css` asks for `html[data-motion="on"][data-ink="live"]` and for a stage that is not marked
+`data-landed`. One clock, which starts when the root has no `data-intro` (at load, or when the cover has gone).
+The scene is written to the same times:
 
 | Time (ms) | Event |
 |---|---|
@@ -1024,8 +1034,29 @@ ink scene is written to the same times:
 | 6000 on | Ink keeps arriving, slowly, behind and beside the documents |
 
 Under the cover the page is already in its opening state: the box shown, the documents out of sight and out of
-reach of the keyboard. Without movement (no script, reduced motion) the box is not displayed and the documents
-simply stand where it would have been, over the still.
+reach of the keyboard.
+
+Everywhere else the box is not displayed and the documents stand where it would have been from the first
+frame, visible and within reach of the keyboard, over the still (which shows the scene at rest):
+
+| Case | What decides it |
+|---|---|
+| No script | The root has neither `data-motion` nor `data-ink` |
+| Reduced motion | The boot script sets `data-ink="still"` and no `data-motion` |
+| Still ink (no usable GPU or a software renderer, more contrast, forced colours, data saving, `off` stored for the session) | `data-ink="still"` |
+| A session whose ink is paused | `data-ink="paused"` at load; on a later page of the session the root says `live` with `data-ink-paused`, and `HeroLanding` marks the stage before the first paint |
+
+`HeroLanding` (`components/home/hero-landing.tsx`) is the script half. Before the first paint of every mount of
+the stage it reads the root: ink that is not running (`data-ink` is not `live`, or `data-ink-paused` is set)
+marks the stage `data-landed` at once. Ink that is running is watched (a `MutationObserver` on `data-ink` and
+`data-ink-paused`), and the first time it stops the stage is marked. The mark is never taken off, so:
+
+- ink that fails half-way through the sequence (`live` becomes `still`), or that the visitor pauses, lands the
+  documents at once: the rules stop applying and each element is in its own end state;
+- ink that starts later (a paused session played again, a pause released) runs the scene behind documents that
+  stay where they are: the sequence does not start late and take them away;
+- a return to the home page inside the site is a new mount without the mark, so with running ink the sequence
+  plays again with the scene, and with ink that is not running the documents stand.
 
 ## 9. Catalog URL state
 
@@ -1089,8 +1120,11 @@ control and no price.
   `closeHref`, the catalog address without `view` and with the clamped page) and on a click on the dimmed page.
   Every way of closing ends in the dialog's `close` event, which calls `router.replace(closeHref, { scroll: false })`.
   Back closes it, and focus returns to the tile that opened it.
-- `view` naming a locked template opens nothing. If its tile is among the results it is rendered denied
-  (`initialDenied`), with its line, and after hydration it is scrolled into view and denies once.
+- `view` naming a locked template opens nothing. If its tile is on the page of results it is rendered denied
+  (`initialDenied`), with its line, and after hydration it is scrolled into view and denies once. If it is not
+  (the results are 24 to a page, and a filter may leave the template out), the page renders one line above the
+  results, a `role="status"` paragraph (`data-included`): "<title> is included with the toolkit." and a link to
+  `/purchase`.
 - Of a repeated `view` the first value counts. A `view` that is not a slug, or names no template, is ignored and
   the page answers 200.
 
@@ -1169,7 +1203,8 @@ The controller also exposes a layer handle with `ink()`, `canvas()`, `scene()`, 
 | `data-tile`, `data-free`, `data-locked`, `data-denied` | Catalog tiles | Tile and its state: free sample, locked, saying no |
 | `data-lock`, `data-chain-lock` | Locked tile | The padlock and the drawing |
 | `data-template-dialog`, `data-enter` | Pop-up | The dialog, and that a link inside the site opened it |
-| `data-hero-stage`, `data-hero-prompt`, `data-hero-doc`, `data-caret` | Hero | The stage, the box, a document, the box's caret |
+| `data-hero-stage`, `data-hero-prompt`, `data-hero-doc`, `data-caret`, `data-landed` | Hero | The stage, the box, a document, the box's caret, and the mark that ends the sequence for a stage |
+| `data-included` | Catalog | The line above the results for a locked template that has no tile on the page |
 | `data-nav-underline` | Bar | The sliding underline |
 | `data-mark-digits` | Mark | The 365 on the arm |
 | `data-cover`, `data-format` | Template covers | Format ratio |
@@ -1202,7 +1237,7 @@ Each file below is in `tests/unit/`:
 | `query.test.ts` | Filters, the free filter, search, the `samples` and `title` sorts (no price sort), facet counts, pagination |
 | `search-params.test.ts` | URL parsing and serialisation, `free`, `parseView`, `catalogHref` |
 | `validate.test.ts` | Validation errors and sorting; a catalog with 0, 5, 7 or 8 free templates is rejected |
-| `coverage.test.ts`, `format.test.ts` | Helpers; `formatPrice(49999)` is `$499.99` |
+| `coverage.test.ts`, `format.test.ts` | Helpers; `formatPrice(49999)` is `$499.99`; `countWord(6)` is `six` |
 | `compounds.test.ts` | Compound splitting for `KeepCompounds` |
 | `brand-mark.test.ts` | Logo geometry, the 365 (three one-stroke digits in their box, clear of the legs, above the arm, evenly set), `LogoMark` with and without digits, and `app/icon.svg` |
 | `boot-script.test.ts` | Runs `BOOT_SCRIPT` against stand-ins for the document, storage, media queries and WebGL; the calm routes (`/catalog` only); the 5500 ms backstop and the takeover limit |
@@ -1230,18 +1265,18 @@ Specs:
 | Spec | Projects | Covers |
 |---|---|---|
 | `browse.spec.ts` | chromium, mobile, firefox | Home to a phase and on to its free sample; the hero to the six samples; the worked example; no horizontal overflow on 7 routes |
-| `catalog.spec.ts` | chromium, mobile | The grid of tiles; six free first, the rest locked; no price anywhere; "Free samples only"; the sort options; filters, URL restore, search, empty state, malformed parameters, the phone filter dialog |
-| `locked.spec.ts` | chromium, mobile | A locked tile: its button, chain and padlock; the 600 ms denial and its line; Enter and Space; repeated presses; the shake, rattle and pulse; reduced motion; `?view=` a locked template; without JavaScript |
+| `catalog.spec.ts` | chromium, mobile | The grid of tiles; six free first, the rest locked; the canonical address; no price anywhere; "Free samples only"; the sort options; filters, URL restore, search, empty state, malformed parameters, the phone filter dialog |
+| `locked.spec.ts` | chromium, mobile | A locked tile: its button, chain and padlock; the 600 ms denial and its line; Enter and Space; repeated presses; the shake, rattle and pulse; reduced motion; `?view=` a locked template, on the page of results and off it; the locks' drawing once on a phase page; without JavaScript |
 | `template-dialog.spec.ts` | chromium, mobile | The pop-up: opening from a tile, its content, Escape, Close and the dimmed page each closing it and keeping the other parameters, Back, focus, values that open nothing, the home and phase tiles, without JavaScript |
 | `purchase.spec.ts` | chromium, mobile | The Purchase page: one title and the price once on the tag; the folder and the tally; the ledger; the Checkout button; the questions; 320px; the tag's swing; reduced motion; the home folder |
 | `redirects.spec.ts` | chromium, mobile | The retired addresses (bundles, pricing, cart, contact, template pages) end where they should; the 308; the contact section on About |
-| `hero.spec.ts` | chromium, mobile | The hero: structure and copy; the six documents as links; their pop-ups; the sequence's timings; the first screen at several window sizes; no title or tag cut by a neighbour and 44px targets; the band's foot; reduced motion; no JavaScript; a first visit under the cover |
+| `hero.spec.ts` | chromium, mobile | The hero where the ink is still: structure and copy; the six documents as links; their pop-ups; the documents standing and focusable from the first frame with no box (still ink, a paused session, a return inside the site, a first visit under the cover); the first screen at several window sizes; no title or tag cut by a neighbour and 44px targets; the band's foot; reduced motion; no JavaScript |
 | `console.spec.ts` | chromium, mobile, firefox | Seven routes load with no console error and no page error |
 | `header.spec.ts` | chromium only (skips the mobile project) | The banner; Catalog and About and the purchase button; centring; the 68em boundary; the sliding underline; the phase rail; the sticky bar |
 | `identity.spec.ts` | chromium, mobile | Design checks in the browser: landmarks; one `h1` per page; root colours and fonts; band values; the ink hooks; the order of the home sections; focus rings; the 365 on the mark; the tiles' covers; no overflow and minimum touch targets at 320 px |
 | `intro.spec.ts` | chromium, mobile | The cover on a first visit: its states; the mark held to 2.5 s and gone by 3.4 s; skip on a click, key press (at any time) or wheel; no cover on reload or on other routes; no cover with reduced motion, blocked storage or JavaScript off |
 | `ink-fallback.spec.ts` | chromium, mobile, firefox | Without WebGL2, with more contrast, and without JavaScript: still images only, no canvas, no pause control, a clean console. The software-renderer case runs in Chromium only |
-| `ink-live.spec.ts` | gpu | Live ink: the prompt scene (its sequence, first frame, frame cost, long tasks, calm caps), pause, resize, context loss, the not-found scene, the takeover of the cover (within 1.6 s, gone 3.5 s later) |
+| `ink-live.spec.ts` | gpu | Live ink: the prompt scene (its script, first frame, frame cost, long tasks, calm caps); the hero's sequence (its timings, the first visit, a pause or a fall to still half-way, a paused session played again, a return inside the site); pause, resize, context loss, the not-found scene, the takeover of the cover (within 1.6 s, gone 3.5 s later) |
 | `menu.spec.ts` | mobile (in chromium every test skips) | The phone bar and drawer: brand, button and Menu at 390 and 320px; the three links and seven phases; Escape, Close, the dimmed page; navigation closing it |
 | `motion.spec.ts` | chromium, mobile, firefox | Entrances hidden until scrolled into view, with timelines and without; the ninety band; a page change runs a view transition; a filter change or a pop-up starts none |
 | `reduced-motion.spec.ts` | chromium, mobile, firefox | Reduced motion on 8 routes: still ink, no motion attributes, no canvas, no running animations, no cover; the stills load; the odometer and tally show their final state |
@@ -1292,8 +1327,8 @@ from the ink colour at alphas 0, 0.03, 0.06 and 0.09. It fails above 4 KiB.
 | Invalid catalog record | `CatalogError` on first import of `repository.ts`. Every route that imports it fails to render, and the message names the kind, slug and field |
 | Unknown phase slug | `notFound()`. The site 404 page renders with the shell; the root 404 renders without it |
 | Malformed catalog query | Unknown values are dropped; a bad `page` becomes `1`; an out-of-range page is clamped. The response is 200 |
-| `view` that names no template, or a locked one | Nothing opens. A locked template's tile, if it is in the results, is rendered saying no. The response is 200 |
-| Checkout | Not built: the Purchase button is inert and reads "Checkout coming soon"; locked templates stay locked |
+| `view` that names no template, or a locked one | Nothing opens. A locked template's tile, if it is on the page of results, is rendered saying no; if it is not, a line above the results says the template is included with the toolkit. The response is 200 |
+| Checkout | Not built: the Checkout button on the Purchase page is inert and reads "Checkout coming soon"; locked templates stay locked |
 | Cover cannot start | No cover; the page loads as normal |
 | Cover interrupted | Skip, or the 5500 ms backstop unsets `data-intro`. The ink takeover is skipped unless its checks pass |
 | Ink unsupported or failing | Stills show for the page view or the session, as in section 7.12 |

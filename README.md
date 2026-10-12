@@ -7,8 +7,8 @@ templates are free samples; every other template in the catalog is shown locked.
 and no cart.
 
 The catalog in this repository is sample content. The phases, steps and templates are placeholders, and the
-site labels them as a beta. Checkout is not built: the Purchase button is disabled and says "Checkout coming
-soon".
+site labels them as a beta. Checkout is not built: the Checkout button on the Purchase page is disabled and
+says "Checkout coming soon". The bar's "Get the toolkit" button is a link to that page.
 
 ## Stack
 
@@ -268,7 +268,7 @@ Display and lead sizes are `clamp()` tokens between a phone value and a desktop 
 | `data-ledger`                                     | `BandedList`                                           | The rule of a ledger draws in                                             |
 | `data-ninety`                                     | The solution band (`components/home/pitch-spread.tsx`) | The odometer rolls and the ten blocks fill                                |
 | `data-watch`                                      | `Tally` with `animate`, `PriceTag`                     | The blocks fill, or the tag swings, when the element is seen              |
-| `data-hero-stage`, `-prompt`, `-doc`              | `HeroStage`                                            | The hero's prompt box dissolves and the six documents land                |
+| `data-hero-stage`, `-prompt`, `-doc`              | `HeroStage`                                            | With live ink, the hero's prompt box dissolves and the six documents land |
 | `data-tile` `data-denied`, `data-lock`            | `TemplateTile`, `LockedTile`, `ChainLock`              | A locked tile says no: it shakes, its padlock rattles, its outline pulses |
 | `data-template-dialog` `data-enter`               | `TemplateDialog`                                       | The pop-up rises as the page dims                                         |
 | `data-price-tag`                                  | `PriceTag`                                             | The tag swings on its string                                              |
@@ -286,7 +286,8 @@ A first visit to `/` in a browser session plays a cover. It draws the mark in pe
 the arm of the mark in a finer pen, and shows the site name. The finished mark stands from 1.0 to 2.5
 seconds, and the cover is gone at 2.95 seconds, or 3.5 seconds after the ink took over from it (the ink
 may take over up to 1.6 seconds in). A press, a key, a wheel turn or a touch ends it. Reduced motion
-skips it. When the cover has gone, the hero's sequence starts.
+skips it. When the cover has gone, the hero's sequence starts, where the ink is live; with still or
+paused ink the six documents stand from the first frame and there is no box.
 
 ### Ink
 
@@ -430,5 +431,5 @@ The rest are about the site itself. None of this is legal advice.
 - [ ] **Currency.** The price, $499.99, is shown in US dollars. The owner has not confirmed the
       currency; confirm it, then change `formatPrice` in `lib/format.ts` if it is not US dollars.
 - [ ] **Checkout.** Build it: connect a payment provider, and decide how a purchase unlocks the
-      locked templates. Until then the Purchase button reads "Checkout coming soon" and the locked
-      templates stay locked for every visitor.
+      locked templates. Until then the Checkout button on the Purchase page reads "Checkout coming
+      soon" and the locked templates stay locked for every visitor.

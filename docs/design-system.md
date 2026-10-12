@@ -429,7 +429,7 @@ Entrance kinds:
 | `data-nav-underline` | `PrimaryNav` | The bar's ink underline: it stands under the current link and slides to the next. |
 | `data-tile`, `data-free`, `data-locked`, `data-denied` | `TemplateTile`, `LockedTile` | A catalog tile, its kind, and the 600ms state in which a locked tile shakes, pulses its outline in `--alert` and rattles its padlock (`data-lock`). |
 | `data-template-dialog`, `data-enter` | `TemplateDialog` | The pop-up of the catalog; `data-enter` is on one that a link inside the site opened, which rises into place. |
-| `data-hero-stage`, `data-hero-prompt`, `data-hero-doc` | `HeroStage` | The hero's prompt box and the six documents that replace it (section 8.9). |
+| `data-hero-stage`, `data-hero-prompt`, `data-hero-doc`, `data-landed` | `HeroStage`, `HeroLanding` | The hero's prompt box and the six documents that replace it; `data-landed` on the stage ends the sequence for it (section 8.9). |
 | `data-lit-scope` | Read by the pointer tracker | Scope for a group of lit sheets that is not an article; read by `lib/scroll/pointer.ts` and the lit selectors in `app/motion.css`. |
 
 ### 8.6 Sheets and the pointer
@@ -465,11 +465,11 @@ The home page opens with a cover: a full-viewport paper plane (`--layer-cover`) 
 - Any pointer press, key press, wheel or touch ends it early. The skip is quiet: the cover fades over 200ms without moving the page.
 - A backstop ends it after 5500ms regardless of events.
 - When the ink layer is ready on the cover (1600ms in at the latest), ink runs inside the cover (section 10.6). The signature still fades from 2500ms to 2800ms, and the cover's own timeline ends it with the last of the clear, 2700ms to 3500ms after the takeover.
-- The hero's sequence starts when the cover is gone (section 8.9).
+- Where the ink is live, the hero's sequence starts when the cover is gone (section 8.9).
 
 ### 8.9 The hero's sequence
 
-The home page's first screen acts out the tagline: an empty prompt box becomes finished work. Its clock starts when the root has no `data-intro` (at load, or when the cover has gone), and the `prompt` ink scene is written to the same times.
+The home page's first screen acts out the tagline: an empty prompt box becomes finished work. The sequence is the page's half of the `prompt` ink scene and plays to live ink only: the root says `data-motion="on"` and `data-ink="live"`, and the stage is not marked `data-landed`. Its clock starts when the root has no `data-intro` (at load, or when the cover has gone), and the scene is written to the same times.
 
 | Time | What happens |
 | --- | --- |
@@ -480,7 +480,9 @@ The home page's first screen acts out the tagline: an empty prompt box becomes f
 | From 3700ms | The six documents (`data-hero-doc`) land where the box stood: the middle two first, 110ms apart, 560ms each, opaque from their first frames, from a little above and a little large. They never fade in through ink. |
 | From 6000ms | Ink keeps arriving slowly behind and beside them. |
 
-Under the cover the box shows and the documents are out of sight. Without movement (no JavaScript, reduced motion) there is no box and the documents stand from the start, over the still.
+Under the cover the box shows and the documents are out of sight.
+
+Without live ink there is no box and the documents stand from the first frame, visible and focusable, over the still: with no JavaScript, under reduced motion, with still ink (no usable GPU, more contrast, forced colours, data saving, ink switched off for the session) and in a session whose ink is paused. `HeroLanding` marks the stage `data-landed` when the ink is not running as the stage mounts, or stops running later (it fails, or the visitor pauses it), and never takes the mark off. So ink that stops half-way lands the documents at once, and ink that starts later runs behind documents that stay where they are. A return to the home page inside the site is a new stage: with running ink the sequence plays again.
 
 ### 8.10 Counters and tallies
 
@@ -727,7 +729,7 @@ The logo is three strokes on a 32 by 24 grid: two legs meeting at a peak, and a 
 
 ### 11.2 Lockups
 
-`BrandLockup` pairs the mark with the name in Besley. The `tile` variant sets the mark in an ink square. The `bare` variant sets the mark and name on the current ground. Sizes are `sm` and `md`. The `md` tile is 28px, and from 68em 49px with the mark 35px high (72% of the tile, 3px of ink either side), which makes the digits 7px high; the bare `md` mark (the footer) is 35px high. The digits show only there: they would be 3px high on the 28px tile, so the phone bar, the drawer's `sm` lockup and the folder's tile go without them.
+`BrandLockup` pairs the mark with the name in Besley. The `tile` variant sets the mark in an ink square. The `bare` variant sets the mark and name on the current ground. Sizes are `sm` and `md`. The `md` tile is 28px, and from 68em 49px with the mark 35px high (72% of the tile, 3px of ink either side), which makes the digits 7px high; the bare `md` mark (the footer) is 36px high, so its digits are 7.2px. The digits show only there: they would be 3px high on the 28px tile, so the phone bar, the drawer's `sm` lockup and the folder's tile go without them.
 
 ### 11.3 Site icon
 
