@@ -126,7 +126,15 @@ test("a first visit opens under the cover, with the whole page beneath it", asyn
   await expect(page.locator("body")).not.toHaveCSS("overflow-y", "hidden");
 });
 
-test("the cover does not hold back the page: its largest paint is under a second", async ({
+// The largest paint is on the page's clock, which starts at the navigation and runs through every
+// moment the browser waits for the processor. The server is not what it waits for: it answers in 8
+// to 25ms, straight after a build as well. But beside seven other workers the same page painted at
+// 424 to 1648ms (80 loads, 6 of them over the second), against 232 to 552ms with the machine to
+// itself (100 loads of 101; one of 1664ms was not explained and has not come back). So this one
+// runs alone, after the parallel projects (playwright.config.ts).
+const QUIET = { tag: "@quiet" };
+
+test("the cover does not hold back the page: its largest paint is under a second", QUIET, async ({
   page,
 }) => {
   // The first request a server answers after a build is a cold one; the page is asked for once
