@@ -136,28 +136,50 @@ async function holdCaps(page: Page, seconds: number) {
 }
 
 test.describe("the prompt", () => {
+  // The ink starts 837 to 1473ms into a repeat visit with the machine to itself (28 loads: in a
+  // browser that has just started, and as the first test after the parallel projects, 837 to 1120
+  // over six runs). It is the machine that moves it: five of these loads side by side started at
+  // 1401 to 2869ms, and 2780ms was seen once in a full run, when this test began as the eight
+  // workers of the parallel projects closed. The `quiet` projects of the config now run between
+  // the two.
+  test("runs within 2.5 seconds of a repeat visit, in the hero's slot, on exact white, with a clean console", async ({
+    page,
+  }) => {
+    const problems = collectProblems(page);
+    await openLive(page);
+
+    await expectRunningIn(page, "prompt");
+    const started = await page.evaluate(() => window.__inkAt?.prompt ?? null);
+    expect(started).not.toBeNull();
+    expect(started ?? Infinity).toBeLessThan(2500);
+
+    // Empty water is the ground exactly: the corners of the canvas hold no ink.
+    expect(await canvasPixel(page, "top-left")).toBe(PAPER);
+    expect(await canvasPixel(page, "bottom-left")).toBe(PAPER);
+    expect(await page.locator(`${HERO} [data-ink-slot] canvas`).count()).toBe(1);
+
+    // Nothing was reported in the first five seconds.
+    await expect.poll(() => pageClock(page), { timeout: 10_000 }).toBeGreaterThan(5000);
+    expect(problems).toEqual([]);
+  });
+
   test.describe("in its first five seconds", () => {
     // The long-task bound below is about the page's own work, but the browser reports every task
     // of its main thread, and one that the machine held up is among them: a task of 911ms was
     // measured 46ms into the page's life, before any code of the ink had run, while other work
-    // had the processor. So this one test may be tried three times; the bound itself stays.
+    // had the processor. So this one test may be tried three times; the bound itself stays. It
+    // is a test of its own so that nothing else is tried again with it.
+    //
+    // Not every task over the bound was the machine's. The probe tries a tier in about 120ms, and
+    // where it stepped down a tier it used to try the next in the same task: 223ms, once in 40
+    // loads on a quiet machine (179 to 266 when it was made to step down twice). It gives the page
+    // a turn between tiers now (`probeInTurns` in lib/ink/engine): made to step down twice again,
+    // its longest task is 126ms (6 loads). With no step down the longest was 185ms (75 loads).
     test.describe.configure({ retries: 2 });
 
-    test("runs within 2.5 seconds of a repeat visit, in the hero's slot, on exact white, with no task longer than 200ms", async ({
-      page,
-    }) => {
-      const problems = collectProblems(page);
+    test("has no task longer than 200ms", async ({ page }) => {
       await openLive(page);
-
       await expectRunningIn(page, "prompt");
-      const started = await page.evaluate(() => window.__inkAt?.prompt ?? null);
-      expect(started).not.toBeNull();
-      expect(started ?? Infinity).toBeLessThan(2500);
-
-      // Empty water is the ground exactly: the corners of the canvas hold no ink.
-      expect(await canvasPixel(page, "top-left")).toBe(PAPER);
-      expect(await canvasPixel(page, "bottom-left")).toBe(PAPER);
-      expect(await page.locator(`${HERO} [data-ink-slot] canvas`).count()).toBe(1);
 
       // No task in the first five seconds is longer than 200ms (the probe, the longest, included).
       await expect.poll(() => pageClock(page), { timeout: 10_000 }).toBeGreaterThan(5000);
@@ -165,7 +187,6 @@ test.describe("the prompt", () => {
       for (const [at, duration] of long.filter(([start]) => start < 5000)) {
         expect(duration, `a task at ${Math.round(at)}ms`).toBeLessThanOrEqual(200);
       }
-      expect(problems).toEqual([]);
     });
   });
 
@@ -361,6 +382,7 @@ test.describe("the hero's sequence", () => {
     await recordIntro(page);
     await recordSequence(page);
     await recordStage(page);
+    await watch(page);
     await page.goto("/", { waitUntil: "commit" });
     await expect(page.locator("[data-intro-cover]")).toBeVisible();
     const mode = await inkMode(page);
@@ -385,9 +407,26 @@ test.describe("the hero's sequence", () => {
     expect(docs.map(([, delay]) => delay)).toEqual(
       [0, 1, 2, 3, 4, 5].map((index) => 3700 + index * 110),
     );
+    // The cover goes in one task, and that task is not a short one: the ink chooses its tier in it
+    // (the probe). The sequence's clock starts on the frame that follows, so `start - gone` is
+    // the length of that task: 97.4 to 248.2ms over 36 loads on a quiet machine (115 to 132 for
+    // most; the longest in a browser that had just started), which left 1.8ms under a bound of
+    // 250. What is asked is therefore that the clock starts with the frame after that task (it was
+    // 16ms before its end to 1ms after it, as the browser reports the two), wherever the machine
+    // lets the task end; and the task itself gets the room that was measured, and half as much
+    // again.
+    const tasks = await page.evaluate(() => window.__long ?? []);
+    const [taskAt, taskFor] = tasks.find(([at, lasted]) => at <= gone && at + lasted >= gone) ?? [
+      gone,
+      // A task under 50ms is not reported.
+      50,
+    ];
+    const taskEnd = taskAt + taskFor;
     for (const [, , , start] of docs) {
       expect(start - gone).toBeGreaterThanOrEqual(-20);
-      expect(start - gone).toBeLessThanOrEqual(250);
+      // Two frames after the task, at most.
+      expect(start - taskEnd).toBeLessThanOrEqual(34);
+      expect(start - gone).toBeLessThanOrEqual(375);
     }
     const early = frames.filter((frame) => frame.at > gone && frame.at < gone + 3600);
     expect(early.length).toBeGreaterThan(30);

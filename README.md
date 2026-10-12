@@ -59,6 +59,7 @@ already running on port 3100 unless `CI` is set, so stop a stale server first. T
 
 - `chromium`: desktop Chrome at 1280 by 800.
 - `mobile`: Pixel 7.
+- `quiet` and `quiet-mobile`: the tests tagged `@quiet`, one at a time once the two above have finished.
 - `gpu`: the live ink on a graphics card. It runs after the others and sets Chromium's GPU arguments
   (on Windows, `--use-angle=d3d11` with `--ignore-gpu-blocklist` and `--enable-gpu`).
 - `firefox`: registered only where the installed Firefox starts.

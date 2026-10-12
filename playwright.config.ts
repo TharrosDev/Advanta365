@@ -1,8 +1,9 @@
 import { spawnSync } from "node:child_process";
 import { defineConfig, devices, firefox } from "@playwright/test";
 
-// Port 3100 keeps the test server clear of a dev server on 3000.
-const PORT = 3100;
+// Port 3100 keeps the test server clear of a dev server on 3000; `PW_PORT` moves it, for a second
+// checkout that runs at the same time.
+const PORT = Number(process.env.PW_PORT) || 3100;
 
 // The ink runs on the graphics card or not at all: headless Chromium gets a GPU only with these
 // arguments, and on Windows the Direct3D backend.
@@ -34,6 +35,13 @@ if (!withFirefox) {
   console.warn("[playwright] Firefox does not start here: the firefox project is not run.");
 }
 
+// A test that reads a paint time off the page's clock is tagged `@quiet`: that clock runs through
+// every moment the browser waits for the processor, and beside seven other workers a paint takes
+// two to four times as long.
+const QUIET = /@quiet/;
+// The projects whose tests run side by side; the ones after them wait for all of these.
+const PARALLEL = ["chromium", "mobile", ...(withFirefox ? ["firefox"] : [])];
+
 export default defineConfig({
   testDir: "tests/e2e",
   fullyParallel: true,
@@ -47,16 +55,40 @@ export default defineConfig({
     {
       name: "chromium",
       testIgnore: /ink-live\.spec\.ts/,
+      grepInvert: QUIET,
       use: { ...devices["Desktop Chrome"], viewport: { width: 1280, height: 800 } },
     },
-    { name: "mobile", testIgnore: /ink-live\.spec\.ts/, use: { ...devices["Pixel 7"] } },
+    {
+      name: "mobile",
+      testIgnore: /ink-live\.spec\.ts/,
+      grepInvert: QUIET,
+      use: { ...devices["Pixel 7"] },
+    },
+    // The `@quiet` tests, in the same two browsers, once the projects above have finished. Each
+    // project from here down waits for the one before it, so one test runs at a time.
+    {
+      name: "quiet",
+      testIgnore: /ink-live\.spec\.ts/,
+      grep: QUIET,
+      fullyParallel: false,
+      dependencies: PARALLEL,
+      use: { ...devices["Desktop Chrome"], viewport: { width: 1280, height: 800 } },
+    },
+    {
+      name: "quiet-mobile",
+      testIgnore: /ink-live\.spec\.ts/,
+      grep: QUIET,
+      fullyParallel: false,
+      dependencies: ["quiet"],
+      use: { ...devices["Pixel 7"] },
+    },
     // The live ink: one worker and one test at a time, after everything else has finished, so
     // that the frame costs and the clocks it reads are not those of a busy machine.
     {
       name: "gpu",
       testMatch: /ink-live\.spec\.ts/,
       fullyParallel: false,
-      dependencies: ["chromium", "mobile", ...(withFirefox ? ["firefox"] : [])],
+      dependencies: ["quiet-mobile"],
       use: {
         ...devices["Desktop Chrome"],
         viewport: { width: 1440, height: 900 },
