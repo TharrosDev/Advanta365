@@ -6,6 +6,20 @@
   { "name": "bloom-wide", "route": "/", "viewport": [1920, 900], "ratio": 1, "scene": "bloom" },
   { "name": "bloom-tall", "route": "/", "viewport": [390, 844], "ratio": 2, "scene": "bloom" },
   {
+    "name": "bloom-purchase-wide",
+    "route": "/purchase",
+    "viewport": [1088, 900],
+    "ratio": 1,
+    "scene": "bloom"
+  },
+  {
+    "name": "bloom-purchase-tall",
+    "route": "/purchase",
+    "viewport": [320, 700],
+    "ratio": 2,
+    "scene": "bloom"
+  },
+  {
     "name": "wisps-wide",
     "route": "/about",
     "viewport": [1920, 900],

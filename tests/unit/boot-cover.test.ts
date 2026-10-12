@@ -184,7 +184,7 @@ describe("a backdrop's markup", () => {
 });
 
 describe("the stills manifest", () => {
-  it("names the eleven stills, each once, with its page and window", () => {
+  it("names the thirteen stills, each once, with its page and window", () => {
     expect(STILLS.map((still) => still.name)).toEqual([
       "prompt-wide",
       "prompt-tall",
@@ -192,6 +192,8 @@ describe("the stills manifest", () => {
       "ninety-tall",
       "bloom-wide",
       "bloom-tall",
+      "bloom-purchase-wide",
+      "bloom-purchase-tall",
       "wisps-wide",
       "wisps-tall",
       "title",

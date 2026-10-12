@@ -10,8 +10,8 @@ const DIRECTORY = path.join(process.cwd(), "public", "ink");
 const files = readdirSync(DIRECTORY).sort();
 
 describe("the stills", () => {
-  it("are the eleven the manifest names, and nothing else", () => {
-    expect(STILLS).toHaveLength(11);
+  it("are the thirteen the manifest names, and nothing else", () => {
+    expect(STILLS).toHaveLength(13);
     expect(files).toEqual(STILLS.map((still) => `${still.name}.webp`).sort());
     // The hero pair went with the scene it was a frame of; the prompt pair stands in its place.
     expect(files.filter((file) => file.startsWith("hero"))).toEqual([]);

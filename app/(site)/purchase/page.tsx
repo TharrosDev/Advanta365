@@ -96,7 +96,7 @@ export default async function PurchasePage() {
         backdrop={
           <InkBackdrop
             scene="bloom"
-            still={{ wide: "bloom-wide", tall: "bloom-tall" }}
+            still={{ wide: "bloom-purchase-wide", tall: "bloom-purchase-tall" }}
             edges="top"
           />
         }

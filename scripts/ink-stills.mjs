@@ -1,6 +1,6 @@
 // The stills of the ink layer: capture them, check them, measure the light blue, save contact sheets.
 //
-//   node scripts/ink-stills.mjs                  capture the eleven stills into public/ink/
+//   node scripts/ink-stills.mjs                  capture the thirteen stills into public/ink/
 //   node scripts/ink-stills.mjs --check          caps under every calm zone, at seven widths
 //   node scripts/ink-stills.mjs --blue           the light blue stays light (prompt 2s and 2.5s, intro 1.3s)
 //   node scripts/ink-stills.mjs --sheets         contact sheets of every scene into .qa-shots/final/

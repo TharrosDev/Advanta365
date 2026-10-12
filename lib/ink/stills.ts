@@ -15,6 +15,8 @@ export type StillName =
   | "ninety-tall"
   | "bloom-wide"
   | "bloom-tall"
+  | "bloom-purchase-wide"
+  | "bloom-purchase-tall"
   | "wisps-wide"
   | "wisps-tall"
   | "title"
