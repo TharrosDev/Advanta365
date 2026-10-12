@@ -77,14 +77,8 @@
     }
   }
 
+  /* A heading arrives by its ink alone: no blur and no drift, so its words are never smeared. */
   @keyframes move-ink-in {
-    from {
-      opacity: 0;
-      filter: blur(8px);
-    }
-  }
-
-  @keyframes move-ink-in-plain {
     from {
       opacity: 0;
     }
@@ -140,9 +134,13 @@
     animation-range: entry calc(var(--order, 0) * 4%) cover min(22%, 14rem);
   }
 
+  /*
+   * A heading is read as soon as it is seen, so it is inked first and over the shortest passage:
+   * from the moment it enters until it stands 8rem into the window, ahead of the text around it.
+   */
   html[data-motion="on"][data-timeline="on"] [data-move="ink-in"]:not([data-when="load"]) {
-    animation-name: move-ink-in-plain;
-    animation-range: entry calc(10% + var(--order, 0) * 4%) cover min(30%, 18rem);
+    animation-name: move-ink-in;
+    animation-range: entry calc(var(--order, 0) * 4%) cover min(16%, 8rem);
   }
 
   html[data-motion="on"][data-timeline="on"] [data-move="settle"]:not([data-when="load"]) {
@@ -185,12 +183,6 @@
     transform-origin: left center;
   }
 
-  @media (min-width: 68em) {
-    html[data-motion="on"][data-timeline="on"] [data-move="ink-in"]:not([data-when="load"]) {
-      animation-name: move-ink-in;
-    }
-  }
-
   /*
    * Entrances without view timelines. The observer marks each element `data-seen` once; until
    * then it waits in its starting state, and the mark is what carries the transition, so going
@@ -226,13 +218,6 @@
     scale: 0 1;
   }
 
-  @media (min-width: 68em) {
-    html[data-motion="on"][data-io="armed"]:not([data-timeline="on"])
-      [data-move="ink-in"]:not([data-when="load"]):not([data-seen]) {
-      filter: blur(8px);
-    }
-  }
-
   html[data-io="armed"]:not([data-timeline="on"]) [data-move][data-seen] {
     transition:
       opacity 480ms var(--curve-settle),
@@ -241,9 +226,7 @@
   }
 
   html[data-io="armed"]:not([data-timeline="on"]) [data-move="ink-in"][data-seen] {
-    transition:
-      opacity var(--time-ink) var(--curve-ink),
-      filter var(--time-ink) var(--curve-ink);
+    transition: opacity var(--time-ink) var(--curve-ink);
     transition-delay: calc(var(--order, 0) * var(--stagger));
   }
 
@@ -271,7 +254,7 @@
   }
 
   html[data-motion="on"] [data-move="ink-in"][data-when="load"] {
-    animation-name: move-ink-in-plain;
+    animation-name: move-ink-in;
     animation-duration: var(--time-ink);
     animation-timing-function: var(--curve-ink);
   }
@@ -285,12 +268,6 @@
   html[data-motion="on"] [data-move="grow"][data-when="load"] {
     animation-name: move-grow;
     animation-duration: 600ms;
-  }
-
-  @media (min-width: 68em) {
-    html[data-motion="on"] [data-move="ink-in"][data-when="load"] {
-      animation-name: move-ink-in;
-    }
   }
 
   :root[data-intro][data-motion="on"] [data-move][data-when="load"] {
@@ -397,18 +374,12 @@
   }
 
   ::view-transition-new(.page-in) {
-    animation: move-ink-in-plain var(--time-page-in) var(--curve-ink) 80ms both;
+    animation: move-ink-in var(--time-page-in) var(--curve-ink) 80ms both;
   }
 
   ::view-transition-group(.sheet-morph) {
     animation-duration: var(--time-morph);
     animation-timing-function: var(--curve-settle);
-  }
-
-  @media (min-width: 40em) {
-    ::view-transition-new(.page-in) {
-      animation-name: move-ink-in;
-    }
   }
 }
 

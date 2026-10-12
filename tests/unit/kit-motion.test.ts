@@ -96,7 +96,6 @@ describe(FILE, () => {
       expect.arrayContaining([
         "move-drift",
         "move-ink-in",
-        "move-ink-in-plain",
         "move-settle",
         "move-shadow",
         "move-grow",
@@ -163,6 +162,31 @@ describe(FILE, () => {
       if (hides && !block.prelude.includes('html[data-motion="on"]')) hidden.push(block.prelude);
     }
     expect(hidden).toEqual([]);
+  });
+
+  it("never blurs: an entrance that arrives is legible all the way", () => {
+    const blurred = blocks
+      .filter((block) =>
+        block.declarations.some(
+          ({ property, value }) =>
+            (property === "filter" || property === "transition") && /blur|filter/.test(value),
+        ),
+      )
+      .map((block) => block.prelude);
+    expect(blurred).toEqual([]);
+    expect(SOURCE).not.toContain("move-ink-in-plain");
+  });
+
+  it("inks a heading in sooner than the text around it", () => {
+    const range = (selector: string) =>
+      blocks
+        .find((block) => block.prelude.includes(selector) && block.prelude.includes("timeline"))
+        ?.declarations.find(({ property }) => property === "animation-range")?.value;
+    const end = (value?: string) => Number(value?.match(/,\s*([\d.]+)rem\)\s*$/)?.[1]);
+    const heading = range('[data-move="ink-in"]:not([data-when="load"])');
+    const text = range('[data-move]:not([data-when="load"])');
+    expect(heading).toMatch(/^entry calc\(var\(--order, 0\) \* 4%\) cover min\(/);
+    expect(end(heading)).toBeLessThan(end(text));
   });
 
   it("repeats nothing and registers no custom property", () => {

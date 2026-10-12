@@ -226,7 +226,7 @@ Display and lead sizes are `clamp()` tokens between a phone value and a desktop 
 ### Motion tokens
 
 - Durations: `--time-swap` (120ms), `--time-enter` (240ms), `--time-exit` (160ms),
-  `--time-fill` (180ms), `--time-fill-gap` (80ms), `--time-lift` (260ms), `--time-ink` (640ms),
+  `--time-fill` (180ms), `--time-fill-gap` (80ms), `--time-lift` (260ms), `--time-ink` (400ms),
   `--time-settle` (560ms), `--time-count` (1200ms), `--time-morph` (420ms), `--time-page-in` (260ms),
   `--time-page-out` (140ms) and `--stagger` (70ms).
 - Curves: `--curve-settle`, `--curve-leave`, `--curve-ink`, `--curve-drop` and `--curve-pen`.

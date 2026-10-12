@@ -363,7 +363,7 @@ Level 3 and level 4 at 68em are the four-layer forms defined in the same file. S
 | `--time-fill-gap` | 80ms | Delay between tally blocks. |
 | `--time-blink` | 1100ms | The caret cycle of a blank line. |
 | `--time-lift` | 260ms | Lifting a sheet on hover or focus. |
-| `--time-ink` | 640ms | An element arriving with ink-in. |
+| `--time-ink` | 400ms | An element arriving with ink-in. |
 | `--time-settle` | 560ms | An element settling in. |
 | `--time-count` | 1200ms | The spread of the ninety's block fill where view timelines are missing. |
 | `--time-page-out` | 140ms | The outgoing page. |
@@ -394,7 +394,7 @@ Entrance kinds:
 | `move` | What arrives |
 | --- | --- |
 | `drift` | Opacity from 0, and 12px upward movement. |
-| `ink-in` | Opacity from 0, with an 8px blur resolving at 68em. Used for sentences. |
+| `ink-in` | Opacity from 0, with no blur and no movement, over the shortest range (it ends 8rem into the window), so a heading is legible as soon as it is seen. Used for sentences. |
 | `settle` | Opacity from 0, 28px drop from above, and a 1.03 scale easing down. Sheets use this. |
 | `grow` | A scale from 0 along the left edge. Used for ledger rules and tallies. |
 
@@ -426,7 +426,7 @@ The tilt and the light position are written by `lib/scroll/pointer.ts` in one an
 
 ### 8.7 Page transitions
 
-A page change swaps the page at once. The first block of a page, wrapped in `PageShift`, is a view transition: the outgoing block fades out over `--time-page-out`, and the incoming block arrives with `move-ink-in-plain` over `--time-page-in`, after an 80ms delay, and gains blur from 40em. A shared element named `cover-<slug>` or `folder-<slug>` morphs over `--time-morph` (class `sheet-morph`). Under reduced motion, every view transition group has no animation and the outgoing block is not shown.
+A page change swaps the page at once. The first block of a page, wrapped in `PageShift`, is a view transition: the outgoing block fades out over `--time-page-out`, and the incoming block arrives with `move-ink-in` (opacity only) over `--time-page-in`, after an 80ms delay. A shared element named `cover-<slug>` or `folder-<slug>` morphs over `--time-morph` (class `sheet-morph`). Under reduced motion, every view transition group has no animation and the outgoing block is not shown.
 
 ### 8.8 The first-load cover
 
@@ -439,7 +439,8 @@ The home page opens with a cover: a full-viewport paper plane (`--layer-cover`) 
 | Tail | 560ms to 800ms, in the mark colour. |
 | Name | 500ms to 900ms, fading in. |
 | Hint | 600ms to 900ms. |
-| Cover leaves | From 1200ms, 450ms with `--curve-leave`. |
+| Signature and hint leave | 1200ms to 1380ms, fading on the paper while it is still opaque. |
+| Cover leaves | From 1200ms, 450ms with `--curve-leave`. The paper holds until 40% (1380ms) and only then clears, so the logo is gone before the hero shows. |
 
 - It plays once per browser session on the home page, when motion is allowed and the tab is visible. The session flag is `advanta365.intro.v1` in `sessionStorage`.
 - Any pointer press, key press, wheel or touch ends it early. The skip is quiet: the cover fades over 200ms without moving the page.

@@ -453,7 +453,8 @@ live in `lib/boot/state.ts`. The unit tests run the inline script against them, 
 | 500 to 900 | The name (`.name`) fades in |
 | 560 to 800 | Tail is drawn |
 | 600 | Skip hint fades in |
-| 1200 to 1650 | Cover leaves (`cover-leave`, 450 ms, `--curve-leave`) |
+| 1200 to 1380 | The signature and the hint fade on the still opaque paper (`sign-leave`, 180 ms) |
+| 1200 to 1650 | Cover leaves (`cover-leave`, 450 ms, `--curve-leave`): its opacity holds at 1 until 40%, 1380, so the mark never lies over the hero |
 | 2000 to 2800 | Cover ink leave (`cover-ink`, used when the ink took over) |
 | 4500 | Backstop: the `data-intro` attribute is unset |
 
@@ -811,7 +812,7 @@ through `animation-timeline: view()`.
 | Move | Animation | Range |
 |---|---|---|
 | `drift` | `move-drift` (opacity 0 to 1, moves 12px up) | `entry calc(var(--order) * 4%) cover min(22%, 14rem)` |
-| `ink-in` | `move-ink-in-plain` (opacity); `move-ink-in` adds an 8px blur from 68em | `entry calc(10% + order * 4%) cover min(30%, 18rem)` |
+| `ink-in` | `move-ink-in` (opacity 0 to 1; no blur, no movement) | `entry calc(order * 4%) cover min(16%, 8rem)`: the shortest range, so a heading is legible before the text around it |
 | `settle` | `move-settle` (opacity, moves 28px up, scale 1.03). Its paper shadow uses `move-shadow` on the same timeline | `entry calc(order * 4%) cover min(30%, 18rem)` |
 | `grow` | `move-grow` (scale 0 to 1) | `entry calc(10% + order * 4%) cover min(28%, 16rem)` |
 
@@ -823,7 +824,7 @@ and the mark block fills from 44% to 47%.
 Observer path (`html[data-motion="on"][data-io="armed"]`, without the timeline): elements start in their
 hidden state until they carry `data-seen`, then transition. Drift takes 480 ms on
 `--curve-settle`. Settle takes `--time-settle` (560 ms), with `--curve-settle` for opacity and `--curve-drop` for movement and scale; ink-in
-takes `--time-ink` (640 ms) on `--curve-ink`; grow takes 600 ms. The stagger for every move is
+takes `--time-ink` (400 ms, opacity only) on `--curve-ink`; grow takes 600 ms. The stagger for every move is
 `order * --stagger` (70 ms). Without view timelines the ninety band's blocks fill over
 `--time-fill` (180 ms) with delays spread across `--time-count` (1200 ms).
 
@@ -866,7 +867,7 @@ It is used by the home hero, the title block and the not-found page. Shared elem
 - `Folder` on bundle rows, the home bundles section and bundle pages, named `folder-<slug>`.
 
 In `motion.css`, under no-preference: the outgoing page (`.page-out`) fades over 140 ms, the incoming page
-(`.page-in`) runs `move-ink-in-plain` over 260 ms with an 80 ms delay (adding blur from 40em), and the
+(`.page-in`) runs `move-ink-in` (opacity only) over 260 ms with an 80 ms delay, and the
 `.sheet-morph` group takes 420 ms on `--curve-settle`. Outside that query, `::view-transition` ignores
 pointer events and the root snapshot is hidden on exit.
 
@@ -899,7 +900,7 @@ Timing and curve tokens (`app/globals.css`):
 | `--time-fill-gap` | 80ms | Gap between blocks |
 | `--time-blink` | 1100ms | Caret blink cycle |
 | `--time-lift` | 260ms | Sheet lift and hover |
-| `--time-ink` | 640ms | Ink-in entrances |
+| `--time-ink` | 400ms | Ink-in entrances |
 | `--time-settle` | 560ms | Settle entrances |
 | `--time-count` | 1200ms | The spread of the ninety's block fill without view timelines |
 | `--time-page-out`, `--time-page-in` | 140ms, 260ms | Page transitions |
@@ -912,7 +913,7 @@ Timing and curve tokens (`app/globals.css`):
 | `--curve-pen` | `cubic-bezier(0.65,0,0.2,1)` | Pen strokes |
 
 Other keyframes sit in component CSS modules: `caret-blink`, `drawer-in`, `fade-in`, `link-in`, `pen-stroke`,
-`pop` (the cart badge), `scrim-in`, `sheet-up`, `sign-out`, `tally-fill`, `cover-ink`, `cover-leave` and
+`pop` (the cart badge), `scrim-in`, `sheet-up`, `sign-leave`, `sign-out`, `tally-fill`, `cover-ink`, `cover-leave` and
 `cover-skip`.
 
 ## 9. Cart
