@@ -196,7 +196,7 @@ Both are loaded in `app/layout.tsx` with `display: "swap"` and exposed as CSS va
 
 ### 5.2 Size scale
 
-Display sizes are fluid. The minimum and maximum below are the rendered sizes.
+Display sizes are fluid. The minimum and maximum below are the rendered sizes at the 16px root. Every size is in rem, so on a large monitor, where the root grows (section 6.2), each size grows with it by the same factor. The home headline is also held to a sixteenth of `--page-max` from 68em, so on a large monitor its two lines still span the page.
 
 | Token | Min | Max | Used by |
 | --- | --- | --- | --- |
@@ -250,7 +250,7 @@ Writing rules:
 
 ### 6.1 Spacing
 
-The space scale runs on a 7px module.
+The space scale runs on a 7px module. Space, widths and control heights are in rem: the pixels given in this section are those at the 16px root, and past a 1600px window they grow with it (section 6.2). Corner radii, edges and hairlines (section 6.5) stay in pixels.
 
 | Token | Value | Typical use |
 | --- | --- | --- |
@@ -268,18 +268,47 @@ The space scale runs on a 7px module.
 
 | Token | Below 40em | 40em and up | 68em and up |
 | --- | --- | --- | --- |
-| `--page-max` | 1232px (77rem) | same | same |
+| `--page-max` | `max(77rem, min(72vw, 120rem))` | same | same |
 | `--page-pad` | 21px | 28px | 42px |
 | `--col-gap` | 14px | 21px | 28px |
 | `--band-pad` | 56px | 84px | 84px |
 | `--bar-h` | 56px | 56px | 70px |
 
-`--page-max` is twelve 77px columns with eleven 28px gaps. From 68em, the `Split` primitive lays content on a twelve-column grid: the margin takes columns 1 to 3 and the content takes columns 4 to 12.
+`--page-max` is the width of the grid itself, so it limits the content box of `Wrap` and the page padding stands outside it. Its floor, 77rem, is twelve 77px columns with eleven 28px gaps: 1232px at the 16px root. From 68em, the `Split` primitive lays content on a twelve-column grid: the margin takes columns 1 to 3 and the content takes columns 4 to 12.
+
+#### Large monitors
+
+Past a 1600px window the page is drawn larger as one piece, and a wide window is not left as a narrow column on a wide desk. Three rules in `app/globals.css` do it:
+
+- `--over` is how far the window is past 1600px: `max(0px, calc(100vw - 1600px))`.
+- The root size is `html { font-size: min(140%, calc(100% + var(--over) * 0.005)) }`: the browser's own size (16px by default, the 100%) up to a 1600px window, then 0.5% of every pixel past it, up to 140% (22.4px) from about 2880px. The sizes and spaces in the site are in rem (the 7px module, the type, the controls, the icons and the caps on a band), so the root size scales all of it together. The `em` media queries do not follow it (a browser reads them at its own text size), so `40em` and `68em` stay where they are.
+- `--page-max` takes 72% of the window (`72vw`) from about 1840px of window, where that is more than 77rem, and stops at 120rem.
+
+| Window | Root size | `--page-max` |
+| --- | --- | --- |
+| to 1600px | 16px | 77rem, 1232px |
+| 1680px | 16.4px | 77rem, 1263px |
+| 1920px | 17.6px | `72vw`, 1382px |
+| 2560px | 20.8px | `72vw`, 1843px |
+| 2880px | 22.4px | `72vw`, 2074px |
+| 3440px | 22.4px | `72vw`, 2477px |
+| 3840px | 22.4px | 120rem, 2688px |
+
+Where a thing is drawn in rem and the column grows faster than the root does, it follows the column and not the root alone:
+
+- The home hero: `--hero-cap` (`max(56rem, 57vw)`) is the most the first screen is tall, so a 16:9 and a 16:10 monitor are filled to the fold at any size. `--hero-type` is the headline's size: a sixteenth of the column when that is more than `--size-hero`, with the lead at a quarter of it. The prompt box is `max(40rem, --page-max * 0.5195)` wide, just over half of the column, and the proof strip is at most `max(64rem, --page-max * 0.8)` wide. `--stage-bleed` stands the hand of documents past the column on each side (0.2px for every pixel of window past 1920px) so that it keeps the height the window gives it.
+- The toolkit's folder on the home page takes `max(30rem, 79.7%)` of its six columns, and the "what's inside" specimen `max(20rem, 78%)` of its margin.
+- The Purchase page's folder and contents leaf, and the worked example's page, are drawn larger with CSS `zoom` by `--grow`: how many times wider the column is than 77rem at the root size in use (1 up to a 1600px window, 1.15 at 2560, above 1.4 from 3440), held to what the window's height allows (`100svh` over 1150px, so 1.25 at 1440px high, the height of an ultrawide monitor) and never below 1. The ratio of two lengths is made a plain number by the tangent of the arc tangent of the pair (`tan(atan2(...))`).
+- The ink stills: from 68em a wide still stands where the page's grid is and not where the window's edges are, so the ink stays under the same words (section 10.7).
+- The cap on the minimum height of the ninety band (`min(88svh, 46rem)`) and of the closing band (`min(72svh, 40rem)`) grows by 0.25px and 0.15px for every pixel of window past 1600px, so a large monitor gets bands as deep as they are wide.
+
+A few measures stay fixed, so that a row is never a thousand pixels from its arrow: a ledger of rows with a label at one end and a link or a tally at the other (the Sample page's ledgers and the list of next steps) holds to 64rem, the 404's ledger and the statement's aside hold to `--wrap-lead`, and the filter sheet is at most 40rem wide.
 
 Other layout tokens:
 
 | Token | Value | Use |
 | --- | --- | --- |
+| `--over` | `max(0px, 100vw - 1600px)` | How far the window is past a 1600px desktop. The root size, the hero's cap, the stage's bleed and the minimum height of two bands read it. |
 | `--rail-h` | 42px | The phase rail below the bar, from 68em. |
 | `--wrap-copy` | 36rem | Body measure. |
 | `--wrap-lead` | 40rem | Lead measure. |
@@ -288,7 +317,34 @@ Other layout tokens:
 
 ### 6.3 Breakpoints
 
-Two viewport breakpoints exist: `40em` and `68em`. Below 40em is the phone layout. From 68em the site shows the inline navigation, the phase rail, the twelve-column grid, and the four-layer depth. The header and the nav drawer also use container queries at 27.4em and 24.3em (header) and 17em (drawer). The other media queries in use are listed in section 13.4.
+Two viewport breakpoints exist: `40em` and `68em`. Below 40em is the phone layout. From 40em sheets stand two across and rows gain a second column, which is a tablet's layout (640 to 1087px wide). From 68em the site shows the inline navigation, the phase rail, the twelve-column grid, and the four-layer depth. The header and the nav drawer also use container queries at 27.4em and 24.3em (header) and 17em (drawer). The other media queries in use are listed in section 13.4.
+
+A large monitor is not a third breakpoint. The breakpoints are in em, which a browser reads at its own text size and not at the root size that section 6.2 grows past a 1600px window, so they stay at 640px and 1088px, and nothing changes layout at 1600px: the page only grows. The design gate allows no other width query.
+
+A tablet is not a stretched phone or a squeezed desktop, and the layout does not wait for 68em where a pair has room for two columns before it. It does that without a query, with a grid or a flex row that wraps at a stated measure (`repeat(auto-fit, minmax(min(100%, 24rem), 1fr))`, `flex: 1 1 22rem`), so the two columns appear as soon as each has the room and not at a width chosen for a device. These stand beside each other before 68em:
+
+| Surface | Beside each other from | How |
+| --- | --- | --- |
+| A page title and its aside (`TitleBlock` with `aside`: the phase numeral and its count, the worked example's page) | 40em | The `paired` grid: words and a column of `clamp(16rem, 25vw + 6rem, 18rem)`. The numeral and its count stand in a row below 68em and stack from it. |
+| The home page's toolkit: the words and the folder | each has 24rem | An auto-fit grid. |
+| The six free samples on the home page | 40em: three across; 68em: six across | A grid of three and then six equal columns, so no tile is left alone on a second row. |
+| The About page's head and passes of the making; a buyer's name and concern; a thing not finished and its sentence | about 55em; about 52em; about 50em | Wrapping flex rows: the head (22rem) and the passes (28rem); the name (20rem) and the concern (16rem); the thing (20rem) and its sentence (24rem). The phases of the making take the full width under both. |
+| The About comparison | 40em | The two alternatives are two columns on five shared rows (a subgrid), and the toolkit's sheet lies the full width under them. A fact stands as a line where its sheet holds both of its parts. |
+| The Purchase page's folder and contents leaf | about 1010px | An auto-fit grid of two 28rem columns, the tag lying on the folder. |
+| The 404's words and the open water | each has 23rem | An auto-fit grid, so the spill is on the first screen of a landscape tablet. |
+| The catalog's phase row | 40em | The seven cards share the row equally where they fit (a 768px tablet holds them; each card is 70px at least from 40em, 84px below) and scroll sideways where they do not. |
+
+Other tablet details: the filter sheet is the window's width on a phone and at most 40rem, centred, past it; the pop-up's side padding runs from 21px at 640px to 42px from 1088px; the `large` phase cards (a page's index of the phases) stand in one row from 40em where their list is 42rem wide, a window of about 730px, and four across where it is not.
+
+The site is checked at sixteen window sizes by `tests/e2e/viewports.spec.ts`, on seven routes (`/`, `/catalog`, `/phases/plan`, `/purchase`, `/about`, `/sample` and `/nope`). Nothing is drawn past the window's edge at any of them, and from 1280px up the words of a page span more than half of the window (the 404 is the exception):
+
+| Group | Window sizes (width by height) |
+| --- | --- |
+| Phones | 320 by 640, 390 by 844 |
+| Tablets | 768 by 1024, 820 by 1180, 1024 by 768 |
+| Either side of 68em | 1087 by 800, 1088 by 800 |
+| Laptops and monitors | 1280 by 720, 1366 by 768, 1440 by 900, 1536 by 864, 1680 by 1050, 1920 by 1080 |
+| Large monitors | 2560 by 1440, 3440 by 1440 (an ultrawide), 3840 by 2160 |
 
 ### 6.4 Controls
 
@@ -528,7 +584,7 @@ All primitives live in `components/ui/`. Props are shown with their defaults in 
 | `KeepCompounds` | `text` | `<KeepCompounds text="Go/No-Go Decision Checklist" />` |
 | `Tag` | `variant` (format, saving, plain; format), `className`, children | `<Tag variant="saving">Free sample</Tag>` |
 | `FactList` | `items` ({ label, value }[]), `className` | `<FactList items={[{ label: "Type", value: "Plan" }]} />` |
-| `Icon` | `name` (arrow, chevron, plus, minus, close, tick, bars, search), `size` (20), `flip` (false), `className` | `<Icon name="arrow" size={32} />` |
+| `Icon` | `name` (arrow, chevron, plus, minus, close, tick, bars, search), `size` (20, the width and height in pixels at the 16px root, drawn in rem), `flip` (false), `className` | `<Icon name="arrow" size={32} />` |
 | `LogoMark` | `height` ("1.5em"), `className`, `title`, `tone` (one, two; one), `digits` (true) | `<LogoMark tone="two" height="2.5rem" />` (the 365 is drawn only in two inks, and only where the mark is 35px high or more) |
 | `BrandLockup` | `variant` (tile, bare; tile), `size` (sm, md; md), `className`, `nameClassName` | `<BrandLockup variant="bare" size="sm" />` |
 
@@ -586,7 +642,7 @@ Built from the primitives for one part of the site; each has a doc comment that 
 | Component | Props | Usage |
 | --- | --- | --- |
 | `TemplateTile` | `template`, `phaseName`, `phaseOrder`, `href`, `headingLevel`, `scroll` (true), `denied` (false) | `<li><TemplateTile template={t} phaseName="Plan" phaseOrder={2} href={catalogHref(criteria, t.slug)} headingLevel="h2" /></li>` inside a `TileGrid`. A free sample is a link; any other template is locked. |
-| `TileGrid` | `className`, `locks` (true), children | `<TileGrid>{items}</TileGrid>`: a list with as many columns of at least 176px as fit, never fewer than two. It carries the drawing the locks draw from. |
+| `TileGrid` | `className`, `locks` (true), children | `<TileGrid>{items}</TileGrid>`: a list with as many columns of at least 11rem (176px at the 16px root) as fit, never fewer than two. It carries the drawing the locks draw from. A page that holds a set number of tiles gives the grid its own columns by `className` (the home page's six free samples: three across from 40em, six from 68em). |
 | `LockedTile` | `title`, `headingLevel` (h3), `initialDenied` (false), children | Used by `TemplateTile`: the button named "<title>, locked" and its live line, "Included with the toolkit." |
 | `ChainLock` | none | A drawing over a locked cover: two crossed fine steel chains and a small padlock. Decorative, deaf to the pointer. |
 | `TemplateDialog` | `closeHref`, `labelledBy`, children | `<TemplateDialog closeHref="/catalog" labelledBy="title-id"><TemplateDetail ... /></TemplateDialog>`: a native modal dialog; Escape, Close and the dimmed page close it. |
@@ -686,7 +742,7 @@ When the simulation is not running, each backdrop shows a WebP still. Each backd
 
 The manifest is `lib/ink/stills.json`. The stills live in `public/ink/`. A page whose text zones differ from the home page's has a pair of its own, captured on that page: the Purchase page's tally stands in the left columns, under the folder (the contents leaf is opaque and needs no zone), so the `bloom-purchase` pair can be recaptured for that layout. A wide frame is captured at the narrowest window it serves (a zone of fixed size covers more of a frame the narrower the window), a tall one at 320 or 390.
 
-A still is scaled with the width of its backdrop, with three exceptions. From 68em the `prompt` frame stands at the size it was captured at (90rem wide), centred, and is only scaled where the band is wider. Below 68em the `ninety` frame takes the height of its band, centred, so its ink lands in the open water under the tally instead of past the foot of a band shorter than the frame; the margins either side are the frame's own ground. The footer's `wisps` backdrop is a strip 112px tall under the legal line (`--foot` in `footer.module.css`), anchored at the bottom and faded in over its top half, so the footer's words never stand over ink.
+A still is scaled with the width of its backdrop, with these exceptions. From 68em the `prompt`, `ninety`, `bloom` and `wisps` frames stand where the page's grid is and not where the window's edges are, so the ink lies under the same words and columns at any window. Each is as wide as a factor of `--page-max` (`--keep`: 1.157, or 1.378 for the home page's `bloom` and the `wisps`, which were captured at a 1920px window where the page is 1382px), never less than 100rem (a 1600px desktop, which grows with the root size) and never wider than the backdrop, centred; the frame's own edges are the ground of its band, so what it does not reach is the same colour. The `prompt` frame, which was captured at 90rem and is laid out by the window's height as much as its width, is also never taller than its band on a wide and low window, and rests on the band's foot when the band is taller. The `title` strip stands in the corner the ink falls from, which is the window's on a desktop and the page's on a larger one (it keeps the 11.5rem that a 1600px desktop leaves beside the page). Below 68em the `ninety` frame takes the height of its band, centred, so its ink lands in the open water under the tally instead of past the foot of a band shorter than the frame; the margins either side are the frame's own ground. The 404's `spill` keeps the window's width at any size, since it runs off its frame's right and bottom edges. Below 68em its tall frame keeps to the size it was captured at (22rem at most) and rises from the band's foot: at the left on a phone, and from 40em turned about its middle, so that its ink pours in from the window's right edge beside the words. The Purchase page's stage fades its ink, live or still, in over its first 6rem below 68em, where the pair is a short stage and a frame taller than it would end in a straight line. The footer's `wisps` backdrop is a strip 112px tall under the legal line (`--foot` in `footer.module.css`), anchored at the bottom and faded in over its top half, so the footer's words never stand over ink.
 
 ### 10.8 Using the backdrop
 
@@ -741,7 +797,7 @@ The logo is three strokes on a 32 by 24 grid: two legs meeting at a peak, and a 
 
 ### 11.4 Icon set
 
-`Icon` draws eight glyphs on a 20-unit grid with a 1.75 stroke, round caps and joins, and `currentColor`. The names are `arrow`, `chevron`, `plus`, `minus`, `close`, `tick`, `bars` and `search` (the magnifier on the catalog search's submit button). Icons are decorative (`aria-hidden`); pair them with a visible or visually hidden label.
+`Icon` draws eight glyphs on a 20-unit grid with a 1.75 stroke, round caps and joins, and `currentColor`. Its `size` is in pixels at the 16px root and the icon is set in rem (`size / 16`), so on a large monitor it grows with the words and the controls it stands beside (section 6.2). The names are `arrow`, `chevron`, `plus`, `minus`, `close`, `tick`, `bars` and `search` (the magnifier on the catalog search's submit button). Icons are decorative (`aria-hidden`); pair them with a visible or visually hidden label.
 
 ## 12. Do and do not
 
@@ -781,7 +837,7 @@ The logo is three strokes on a 32 by 24 grid: two legs meeting at a peak, and a 
 
 - Interactive targets are at least 44px tall below 68em (`--tap`). The desktop bar uses a 40px control.
 - The smallest text is 12px and only in uppercase tags. Body copy is 16px.
-- Text is sized in rem, so the browser's text size settings apply. The root uses `-webkit-text-size-adjust: 100%`.
+- Text is sized in rem, so the browser's text size settings apply. The root uses `-webkit-text-size-adjust: 100%`. Past a 1600px window the root grows from the browser's own size (section 6.2), so a visitor's chosen size is the base of the scale and not overridden by it.
 
 ### 13.4 Media queries and modes
 
@@ -790,7 +846,7 @@ In stylesheets, the allowed media queries are exactly these, and the design gate
 | Query | Behaviour |
 | --- | --- |
 | `(min-width: 40em)` | The tablet layout. |
-| `(min-width: 68em)` | The desktop layout: inline navigation, rail, four-layer depth, twelve columns. |
+| `(min-width: 68em)` | The desktop layout: inline navigation, rail, four-layer depth, twelve columns. There is no query for a larger monitor: the root size scales it (section 6.2). |
 | `(hover: hover)` | Hover states and the sheet tilt. |
 | `(prefers-reduced-motion: no-preference)` | Every animation and transition. |
 | `(prefers-reduced-motion: reduce)` | The global safety net and the reduced-motion branches. |

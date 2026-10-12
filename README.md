@@ -64,6 +64,12 @@ already running on port 3100 unless `CI` is set, so stop a stale server first. T
   (on Windows, `--use-angle=d3d11` with `--ignore-gpu-blocklist` and `--enable-gpu`).
 - `firefox`: registered only where the installed Firefox starts.
 
+`tests/e2e/viewports.spec.ts` runs in `chromium` and sets its own window sizes: seven routes at sixteen
+sizes, from a 320px phone through the tablets to a 3840px monitor. It checks that nothing is drawn past
+the window's edge and that, from 1280px up, the words of a page span more than half of the window. Run
+only the specs a change touches (see `docs/testing.md`); this one is the guard for any change to layout
+or CSS.
+
 The unit tests cover catalog validation and the six free samples, queries, URL state, phase coverage, price
 formatting, the mark and its 365, the ink's scenes, stages and calm zones, the boot script and the cover's
 timings, the motion stylesheet, the stills and the design gate.
@@ -141,6 +147,10 @@ next.config.ts        Redirects the retired addresses (bundles, pricing, cart, c
   read.
 - **Layout space is the 7px scale**, `--s-1` (7px) to `--s-9` (168px). The only layout breakpoints are
   `40em` and `68em`.
+- **Sizes and spaces are in rem, so a large monitor scales the page as one piece.** Past a 1600px window
+  the root font size grows (`html` in `app/globals.css`: 16px to 1600px, 22.4px from about 2880px), and so
+  do the type, the space, the controls and the icons. The breakpoints are in em, which the root size does
+  not move. What stays in pixels is hairlines, edges, corner radii and shadows.
 - **Media queries come from a fixed list.** The design gate allows `(min-width: 40em)`,
   `(min-width: 68em)`, `(hover: hover)`, `(prefers-reduced-motion: no-preference)`,
   `(prefers-reduced-motion: reduce)`, `(prefers-contrast: more)` and `(forced-colors: active)`. `@container`
@@ -228,8 +238,9 @@ Display and lead sizes are `clamp()` tokens between a phone value and a desktop 
 ### Spacing, layout and shape
 
 - `--s-1` to `--s-9`: the 7px scale, from 7px to 168px.
-- `--page-max` (1232px) and `--page-pad`: the page column and its side padding. `--col-gap` is the gap
-  between columns.
+- `--page-max` and `--page-pad`: the page column and its side padding. The column is 77rem (1232px) up to a
+  1600px window, then 72% of the window to a ceiling of 120rem. `--over` is how far the window is past
+  1600px, which the root size and some caps read. `--col-gap` is the gap between columns.
 - `--bar-h` (56px, 70px from 68em): the sticky header. `--rail-h` (42px): the phase rail.
 - `--control-sm` (40px, on the desktop bar), `--control` (48px) and `--control-lg` (56px): control heights.
   `--tap` (44px) is the minimum target below 68em.

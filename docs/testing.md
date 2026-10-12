@@ -13,6 +13,7 @@ This page covers the checks that run against the repository: the commands, the u
 | Ink | `ink-scenes`, `ink-stage`, `ink-zones`, `stills-files` | `ink-live`, `ink-fallback` | `ink-stills` |
 | Look of the source | `design-gate` | `identity` | |
 | Shell and navigation | `nav-links`, `into-view` | `header`, `menu`, `console` | |
+| Layout at every window size | | `viewports` | |
 | Script weight | | | `check-budgets` |
 | Runner | `smoke` | | |
 
@@ -42,8 +43,15 @@ Suggested checks by kind of change:
 | Change | Run |
 |---|---|
 | Code in `lib/` or catalog content | `test`, `typecheck`, `lint` |
-| Components, styles or pages | `test`, `typecheck`, `lint`, `test:e2e` |
+| Components, styles or pages | `test`, `typecheck`, `lint`, and the e2e specs the change touches (below) |
 | Shipped JavaScript, boot script or ink engine | The two rows above, plus `check-budgets` against a production server |
+
+Run only the e2e specs a change touches, not the whole suite: the full run takes about six
+minutes. Find them by searching `tests/e2e` for the route, component or text the change touches,
+then run those files, for example `corepack pnpm exec playwright test tests/e2e/purchase.spec.ts
+--project=chromium` (add `--project=mobile` for a phone-specific change, and use
+`--project=gpu --no-deps` for `ink-live.spec.ts`). `viewports.spec.ts` is the geometry guard for any
+change to layout or CSS. The full suite runs once, as the last gate before a merge.
 
 ## Unit tests
 
@@ -187,6 +195,7 @@ A spec that is not named by the Firefox pattern runs in `chromium` and `mobile`.
 | `motion.spec.ts` | chromium, mobile, firefox | Entrances hidden until scrolled into view, with timelines and without (Chromium stubs `CSS.supports`); the fill of the ninety band under a 90% figure that reads its value at every step, and the `#inside` counts that never count up; a change of page runs a view transition; a filter change or opening a sample in the pop-up starts none. |
 | `not-found.spec.ts` | chromium, mobile | Missing paths return 404 with the page heading and the phase navigation; mixed-case paths redirect to lower case. |
 | `reduced-motion.spec.ts` | chromium, mobile, firefox | With the reduced-motion preference on eight routes: still ink, no motion attributes, no canvas, no running animations, no cover; the still images load; the 90% figure and the tally show their final state; links and the catalog filters work. |
+| `viewports.spec.ts` | chromium only (skips the mobile project) | The geometry of every page at every window the site is built for: seven routes (`/`, `/catalog`, `/phases/plan`, `/purchase`, `/about`, `/sample` and the 404 at `/nope`) at sixteen sizes, from 320 by 640 and 390 by 844 through tablets (768 by 1024, 820 by 1180, 1024 by 768), the two sides of 68em (1087 and 1088 wide), the laptops and monitors (1280, 1366, 1440, 1536, 1680, 1920) to 2560 by 1440, 3440 by 1440 and 3840 by 2160, 112 tests in all. Each sets its own window size and checks: one `h1`; no element of the header, main or footer past the window's edge (the frame clips sideways, so the elements themselves are measured; a visually hidden box, an ink backdrop, which its band crops on purpose, and a row that scrolls sideways on purpose are not counted); from 1280 up, the words of the page span more than half of the window, so a large monitor is used and the page is not left as a narrow column (the 404, which sets its few words in six columns beside the ink, is left out of this one); and no console or page error. It measures and takes no screenshots. |
 
 ### Helpers and support
 
@@ -320,7 +329,7 @@ test("the phase page is titled with its phase", async ({ page }) => {
 
 - Colour belongs in `app/globals.css` as a token on `:root`. Components read it with `var(--token)`. Raw colour anywhere else fails the design gate.
 - Keyframes and transitions go in `app/motion.css` or in the component's CSS module. Animating rules sit inside `(prefers-reduced-motion: no-preference)`. `kit-motion.test.ts` checks `app/motion.css`.
-- Media queries use only the breakpoints and preference queries in the allow-list. Breakpoints are `40em` and `68em`.
+- Media queries use only the breakpoints and preference queries in the allow-list. Breakpoints are `40em` and `68em`. A large monitor is not a breakpoint: past a 1600px window the root font size grows (`html` in `app/globals.css`) and the page scales with it, so write lengths in rem and read `--over` or `--page-max` where a measure must follow the window. A change to layout or CSS is checked at every window size by `viewports.spec.ts`: run it, and add a size or a route to it when the change is for a window it does not cover.
 - Canvas, shader contexts, animation frames and scroll listeners go in the folders listed under scoped techniques.
 - Words to ban go in the banned-terms array of `design-gate.test.ts` (line 64).
 

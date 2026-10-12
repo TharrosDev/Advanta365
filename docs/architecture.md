@@ -229,7 +229,11 @@ backdrop, holding the `Portfolio` at the left (columns 1 to 6 from 68em: the too
 size, the price on the tag that hangs from it, the tally of all seven phases under it) and the `ContentsLeaf`
 at the right (columns 8 to 12; column 7 is the room the tag hangs into): the h2 "What is inside", a ledger
 read from `TOOLKIT`, the Checkout button, the address to write to and the note that the catalog is sample
-content. Below 68em it is one column, the folder first. Checkout is not built: the button is `aria-disabled` (it looks disabled, stays in the tab order so a keyboard
+content. Below 68em it is one column, the folder first, until a window is about 1010px wide: the grid is then
+two columns of at least 28rem, so a landscape tablet has the two side by side, the tag lying on the folder. From
+68em, on a large monitor, the folder and the leaf are drawn larger together with CSS `zoom` (`--grow`, section
+5.1), and the leaf stands on the page's right edge as the folder stands on the left. Below 68em the stage's
+ink is faded in over its first 6rem. Checkout is not built: the button is `aria-disabled` (it looks disabled, stays in the tab order so a keyboard
 reaches its words, and does nothing) and reads "Checkout coming soon". Locked templates are locked for every
 visitor; there are no accounts.
 
@@ -381,8 +385,8 @@ Display classes reset letter-spacing and turn off tabular figures. Size tokens a
 (for example `--size-hero` runs from 2.5rem to 5rem). `.tabular` and `.visually-hidden` are utilities.
 
 Spacing uses a 7px module: `--s-1` (0.4375rem) through `--s-9` (10.5rem). Page layout uses `--page-max`
-(77rem), `--page-pad`, `--col-gap`, `--band-pad` (`--s-6`, `--s-7` from 40em), `--bar-h` (3.5rem, 4.375rem
-from 68em) and `--rail-h` (2.625rem). Controls use `--tap` (2.75rem, the minimum target below 68em),
+(`max(77rem, min(72vw, 120rem))`, see below), `--over`, `--page-pad`, `--col-gap`, `--band-pad` (`--s-6`,
+`--s-7` from 40em), `--bar-h` (3.5rem, 4.375rem from 68em) and `--rail-h` (2.625rem). Controls use `--tap` (2.75rem, the minimum target below 68em),
 `--control-sm` (2.5rem, desktop bar only), `--control` (3rem) and `--control-lg` (3.5rem). Shapes use
 `--round-1` to `--round-3`, `--edge` (2px) and `--hair` (1px). Layers are
 `--layer-bar` (50), `--layer-skip` (90) and `--layer-cover` (100).
@@ -390,6 +394,26 @@ from 68em) and `--rail-h` (2.625rem). Controls use `--tap` (2.75rem, the minimum
 Media queries in use: `(min-width: 40em)`, `(min-width: 68em)`, `(hover: hover)`,
 `(prefers-reduced-motion: no-preference)`, `(prefers-reduced-motion: reduce)`, `(prefers-contrast: more)`
 and `(forced-colors: active)`. Nothing else is allowed (section 10.4).
+
+A large monitor is scaled, not given a breakpoint. `--over` is `max(0px, 100vw - 1600px)`, and `html` sets
+`font-size: min(140%, calc(100% + var(--over) * 0.005))`: the browser's own size (the 100%) up to a 1600px
+window, then 0.5% of every pixel past it, to 140% (22.4px) from about 2880px. The sizes and spaces in the
+stylesheets are in rem (the module, the type, the controls, the caps on a band, and since this change the
+icons, the lifts of the folder, the blur over a locked cover and the padding of a tag), so one root size
+scales the whole page together. Hairlines (`--hair`), edges (`--edge`), the radii and shadows stay in pixels. The
+em media queries are read at the browser's own size, not at the root size the page sets, so `40em` and `68em`
+do not move, and the design gate's list does not grow. `--page-max` is 77rem up to a 1600px window, so the
+grid is twelve 77px columns and eleven 28px gaps (1232px) as it was; past it the column is 72% of the
+window (from about 1840px, where that is more than 77rem) to a ceiling of 120rem, which is 2688px at the
+largest root size. Surfaces whose sizes are in rem and would stand lost in a wider column read the window or
+the column themselves, in `--page-max` or `--over`: the home hero (`--hero-cap`, `--hero-type`,
+`--stage-bleed`, `--prompt-w` and the proof strip's width), the toolkit's folder and the specimen on the
+home page, the minimum heights of the ninety and the closing bands, and the ink stills (section 7.9). Two
+use CSS `zoom` with a number, `--grow`, which is how many times wider the column is than 77rem at the root
+size in use, held to what the height of the window leaves room for (`tan(atan2(...))` turns a ratio of two
+lengths into a number): the Purchase page's folder and leaf from 68em, and the worked example's page.
+A few measures stay fixed on purpose: the ledgers of the Sample page and the next steps hold to 64rem, the
+404's ledger to `--wrap-lead`, and the filter sheet to 40rem.
 
 Base rules: border-box sizing; `html` with `scroll-padding-top` set to the bar height plus `--s-3`;
 `html:has(dialog[open])` disables page scroll; headings and paragraphs have no margins; headings use
@@ -403,7 +427,7 @@ Primitives are the building blocks for pages. Each one has a CSS module unless n
 | Primitive | Purpose |
 |---|---|
 | `Band` | A full-width section with `surface` (desk, paper, wash, ink, binder), `pad` (none, title, tight, regular, roomy), an optional `backdrop`, and an inner `Wrap` |
-| `Wrap` | Page column: `max-width: var(--page-max)`, centred, with `--page-pad` |
+| `Wrap` | Page column: `max-width: var(--page-max)` on the content box, centred, with `--page-pad` outside it |
 | `Sheet` | A surface with radius and an `edge` (rule or ink) |
 | `PaperSheet` | A sheet of paper with grain, `ratio` (free, portrait 5/7, landscape 4/3, slide 16/9), `size`, `depth`, and `lit` for pointer light |
 | `PaperStack` | Sheets placed behind a top sheet, each with a small offset and turn |
@@ -422,8 +446,8 @@ Primitives are the building blocks for pages. Each one has a CSS module unless n
 | `Note` | A short paragraph on the wash ground |
 | `Input`, `Select`, `Checkbox` | Form controls |
 | `Pagination` | Previous, numbered pages and next |
-| `PhaseTabs` | Phase tabs in `rail` or `large` size |
-| `Icon` | Inline SVG glyphs: arrow, chevron, plus, minus, close, tick, bars |
+| `PhaseTabs` | Phase tabs in `rail` or `large` size. `large` is two across on a phone; from 40em one row where the list is 42rem wide, each card as wide as its name needs, and four across where it is not |
+| `Icon` | Inline SVG glyphs: arrow, chevron, plus, minus, close, tick, bars, search. `size` is pixels at the 16px root and the icon is set in rem, so it grows with the root on a large monitor |
 | `LogoMark`, `BrandLockup` | The mark, as a tile or bare lockup. `LogoMark` draws the 365 on the arm in `tone="two"` unless `digits={false}`; `BrandLockup` shows it on the bar's tile from 68em and on the bare `md` lockup |
 | `KeepCompounds` | Keeps hyphenated compounds from breaking across lines |
 | `Sentences` | Splits text into sentences, optionally animated in one at a time |
@@ -453,7 +477,7 @@ Components built from the primitives for one part of the site. Each has a doc co
 | `PriceTag` | `components/purchase/price-tag.tsx` | `className` | The price from `OFFER` and "one purchase" on a paper tag hung on a string from the corner of the folder. Swings once when first seen and a little when the folder is hovered; still under reduced motion |
 | `ContentsLeaf` | `components/purchase/contents-leaf.tsx` | `className` | The toolkit's contents as a loose paper leaf with a dog-eared corner: a ledger (dl) of counts from `TOOLKIT`, then the Checkout button, contact line and sample note. Opaque, so it needs no calm zone |
 | `PromiseBand`, `MakingSection`, `BuyersSection`, `CompareSection`, `SiteState`, `ContactSection` | `components/about/` | none (`MakingSection` takes `phases`) | The sections of the About page, in page order (section 1); `SectionHead` is the head they share and `PhaseLine` the seven phase links inside `MakingSection` |
-| `TemplateTile`, `TileGrid` | `components/catalog/template-tile.tsx` | `template`, `phaseName`, `phaseOrder`, `href`, `headingLevel`, `scroll`, `denied`; `locks` | One template in a grid, an `<article data-tile>` with exactly one control: a link (free sample) or a button (locked). The grid has as many columns of at least 176px as fit, never fewer than two |
+| `TemplateTile`, `TileGrid` | `components/catalog/template-tile.tsx` | `template`, `phaseName`, `phaseOrder`, `href`, `headingLevel`, `scroll`, `denied`; `locks` | One template in a grid, an `<article data-tile>` with exactly one control: a link (free sample) or a button (locked). The grid has as many columns of at least 11rem (176px at the 16px root) as fit, never fewer than two; the home page's six free samples set their own columns (`featuredGrid`: three across from 40em, six from 68em), so a row is never one tile short |
 | `LockedTile` | `components/catalog/locked-tile.tsx` | `title`, `headingLevel`, `initialDenied` | The button of a locked tile, named "<title>, locked", and the line it answers with (section 9.3) |
 | `ChainLock`, `ChainLockParts` | `components/catalog/chain-lock.tsx` | none | The two crossed fine steel chains and small padlock over a locked cover. The drawing (`ChainLockParts`) is rendered once by `TileGrid`, or once by a page that holds several grids (the phase page, whose grids take `locks={false}`), and each lock draws from it |
 | `TemplateDialog` | `components/catalog/template-dialog.tsx` | `closeHref`, `labelledBy` | The pop-up: a native modal `<dialog>` (section 9.3) |
@@ -466,6 +490,7 @@ Components built from the primitives for one part of the site. Each has a doc co
 | `ProofStrip` | `components/home/proof-strip.tsx` | none | The band's foot: 30+ years, 59 playbooks, 130 templates, one purchase, on opaque paper |
 | `PortfolioSection` | `components/home/portfolio-section.tsx` | `covers`, `phases` | `#toolkit` on the home page: words and the button to `/purchase`, the `Portfolio` at section size |
 | `PurchaseButton` | `components/layout/purchase-button.tsx` | `className` | The bar's call to action (section 4.1) |
+| `TitleBlock` | `components/layout/title-block.tsx` | `title`, `lead`, `form` (`index`, `document`, `wide`), `crumbs`, `meta`, `children`, `ink`, `aside` | The band that opens every inner page but the catalog, holding its one `h1`. One column below 40em. With an `aside` (the phase numeral and its count, the worked example's page), from 40em the words and the aside stand side by side (`.paired`: the aside's column is `clamp(16rem, 25vw + 6rem, 18rem)`), so a tablet's first screen is not a column of words over an object; from 68em the twelve columns take over. The `index` form's grid is a size container (`.measure`), and from 68em its title is held to the three margin columns by `cqi` (the banner size is wider than they are up to about 1280px). The `ink` frame is 28.1875rem wide (451px at the 16px root), so it grows with the root size |
 
 
 
@@ -802,11 +827,26 @@ thirteen stills:
 
 Constants: `STILL_QUALITY` 0.86, `STILL_MAX_BYTES` 90 KiB per file, `STILLS_MAX_BYTES` 600 KiB in total.
 `stillPath(name)` returns `/ink/<name>.webp`. Each `StillPair` has a `wide` still and an optional `tall`
-still. The tall still is used at widths below 68em, where the wide one is used from 68em up. A still is scaled
-by the width of its backdrop; `bloom` and `wisps` frames are anchored at the bottom of their band, the others
-at the top. The `prompt` frame stands at 90rem wide, centred, from 68em, scaled only where the band is wider,
-because the hero is centred and does not scale with the width. The `title` frame stands at its own size in the
-corner the ink falls from.
+still. The tall still is used at widths below 68em, where the wide one is used from 68em up. Below 68em a still
+is scaled by the width of its backdrop; `bloom` and `wisps` frames are anchored at the bottom of their band, the
+others at the top.
+
+From 68em the `prompt`, `ninety`, `bloom` and `wisps` frames stand where the page's own grid is, not where the
+window's edges are, so the ink lies under the same words and columns at any window: each is
+`min(100cqw, max(100rem, var(--keep) * var(--page-max)))` wide, centred, where `cqw` is the backdrop's own width
+(`.still` is a size container from 68em) and `--keep` is how much wider than the page the frame was captured
+(1.157; 1.378 for the home page's `bloom` and for `wisps`, captured at 1920px where the page is 1382px). The
+frame is scaled with the window up to 100rem (a 1600px desktop, more at a larger root size), is never wider than
+the backdrop, and past that stays as wide as the page asks. Its sides are the ground of its band, so what it
+does not reach is the same colour. The `ninety` frame rises from the foot of its band, as `bloom` and `wisps`
+do. The `prompt` frame is laid out by the window's height as much as its width: it is at least 90rem wide, and
+on a wide and low window never taller than the band (`1.851 * 100cqh`), and rests on the band's foot when the
+band is taller. The `title` frame stands at its own size in the corner the ink falls from, which from 68em is
+the page's corner on a larger window (`inset-inline-end` keeps the 11.5rem that a 1600px desktop leaves beside
+the page). The 404's `spill` is not one of these: it runs off the right and the bottom of its frame, so it keeps
+the window's width. Its tall frame, below 68em, stays at the size it was captured at (22rem at most) and rises
+from the band's foot, at the left below 40em and turned about its middle (`scale: -1 1`) at the right from
+40em, so its ink pours in from the window's right edge.
 
 The Purchase page has its own pair of the `bloom` scene. Its one text zone (the tally under the folder, in the
 left columns from 68em) stands where the home page's frame holds ink; the contents leaf at the right is opaque
@@ -843,7 +883,8 @@ The slot is transparent until the backdrop is live. `data-ink-state` is `idle` (
 Backdrops are placed on the home page (`prompt` in the hero, ninety, bloom), on the Purchase page (bloom, with
 its own stills), in the footer (wisps), on title blocks (`title`, through `TitleBlock` with `ink`, on About,
 Sample and the phase pages), on the not-found page (spill) and on the cover (intro, without a still).
-`TitleBlock` shows its backdrop only from 68em.
+`TitleBlock` shows its backdrop only from 68em, with a frame 28.1875rem wide (451px at the 16px root, as captured), so
+that on a large monitor the ink keeps its size against the title.
 
 What on a page stands over ink and is marked as a calm zone: on the home page the headline and lead (`text`),
 the two buttons (`veil`) and, further down, the figures and copy of the ninety and the closing statement
@@ -1059,7 +1100,14 @@ samples as a list of six links (`data-hero-doc`, each named by its template's ti
 `/catalog?view=<slug>`), each a lit `TemplateCover` fanned from -9 to 9 degrees and overlapping so that no title
 or format tag lies under a neighbour. Under the pointer or keyboard focus a document straightens, comes to the
 front and lifts. Below 40em the six are two hands of three. From 68em the band's height follows the window's,
-so the proof strip is above the fold down to a window 720px tall.
+so the proof strip is above the fold down to a window 720px tall. The band is as tall as the window leaves
+(the bar and the rail taken off), at most `--hero-cap`, which is `max(56rem, 57vw)`: 56rem up to a 1600px
+desktop and then 57% of the window's width, so a 16:9 and a 16:10 monitor are filled to the fold at any size.
+On a large monitor the headline grows with the column (`--hero-type` is `max(--size-hero, --page-max / 16.2)`;
+`--hero-size` is that, or what 12svh or the column's own width, in `cqi` of `.heroInner`, a size container, allow
+if less), the lead with it (a quarter of the headline), the prompt box stays just over half of the column
+(`--prompt-w`), the stage stands `--stage-bleed` past the column on each side so the hand keeps the height the
+window gives it, and the proof strip is four fifths of the column where that is more than 64rem.
 
 The sequence is the page's half of the `prompt` ink scene, so it plays only where that scene does. Every rule
 of it in `app/motion.css` asks for `html[data-motion="on"][data-ink="live"]` and for a stage that is not marked
@@ -1352,6 +1400,7 @@ Specs:
 | `motion.spec.ts` | chromium, mobile, firefox | Entrances hidden until scrolled into view, with timelines and without; the ninety band; a page change runs a view transition; a filter change or a pop-up starts none |
 | `reduced-motion.spec.ts` | chromium, mobile, firefox | Reduced motion on 8 routes: still ink, no motion attributes, no canvas, no running animations, no cover; the stills load; the 90% figure and the tally show their final state |
 | `not-found.spec.ts` | chromium, mobile | 404 status and content for missing paths; lowercase redirect |
+| `viewports.spec.ts` | chromium only (skips the mobile project) | The geometry guard: seven routes (`/`, `/catalog`, `/phases/plan`, `/purchase`, `/about`, `/sample`, `/nope`) at sixteen window sizes, 320 by 640 to 3840 by 2160 (112 tests): one `h1`, no element past the window's edge, from 1280 up the words span more than half of the window (not on the 404), no console or page error |
 
 `tests/e2e/support/ink.ts` gives the ink specs helpers for reading pixels, states, timings and console
 problems.
