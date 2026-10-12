@@ -64,6 +64,20 @@
 }
 
 /*
+ * The prompt stage is one centred column, laid out by the window's height as much as its width,
+ * so from 68em its frame stands at the size it was captured at (90rem wide), centred, and is only
+ * scaled where the band is wider than that. Words that are centred stay over the same water.
+ */
+@media (min-width: 68em) {
+  .backdrop[data-scene="prompt"] .still img {
+    inset-inline: 50% auto;
+    width: max(100%, 90rem);
+    max-width: none;
+    translate: -50% 0;
+  }
+}
+
+/*
  * The title stage is a strip beside the words whose height is the words' own, so a frame scaled
  * with the width would drift against the numeral or the heading it keeps clear of. It stands at
  * its own size in the corner the ink falls from.

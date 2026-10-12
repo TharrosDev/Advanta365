@@ -2,7 +2,7 @@
 //
 //   node scripts/ink-stills.mjs                  capture the eleven stills into public/ink/
 //   node scripts/ink-stills.mjs --check          caps under every calm zone, at seven widths
-//   node scripts/ink-stills.mjs --blue           the light blue stays light (prompt 1.3s and 2s, intro 1.3s)
+//   node scripts/ink-stills.mjs --blue           the light blue stays light (prompt 2s and 2.5s, intro 1.3s)
 //   node scripts/ink-stills.mjs --sheets         contact sheets of every scene into .qa-shots/final/
 //
 // Options: --base=http://localhost:3100 (a running production server; without one the script starts
@@ -509,8 +509,8 @@ function measureBlue() {
 async function blue(browser) {
   let failures = 0;
   const frames = [
-    { label: "prompt 1.3s", scene: "prompt", seconds: 1.3 },
     { label: "prompt 2s", scene: "prompt", seconds: 2 },
+    { label: "prompt 2.5s", scene: "prompt", seconds: 2.5 },
     { label: "intro 1.3s", scene: "intro", seconds: 1.3 },
   ];
   for (const frame of frames) {
@@ -561,7 +561,7 @@ async function blue(browser) {
 // --sheets: contact sheets of every scene
 // ---------------------------------------------------------------------------------------------
 const SHEET_SCENES = [
-  { scene: "prompt", route: "/", times: [0.4, 1.0, 1.8, 2.6, 3.4, 12, 20, 30] },
+  { scene: "prompt", route: "/", times: [0.6, 1.1, 1.9, 2.7, 3.7, 12, 20, 30] },
   { scene: "intro", route: "/", times: [0.4, 0.8, 1.5, 2.4, 3.0, 3.5] },
   { scene: "ninety", route: "/", times: [1, 4, 9] },
   { scene: "bloom", route: "/", times: [3, 8, 16] },

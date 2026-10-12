@@ -24,6 +24,32 @@ declare global {
   }
 }
 
+/**
+ * Waits for the end of the sequence: the cover gone, the box dissolved, and nothing of the stage
+ * still moving. It ends 4810ms after it began, on its own clock; a busy machine begins it late,
+ * so the page is asked, not a timer.
+ */
+async function settled(page: Page): Promise<void> {
+  await expect
+    .poll(
+      () =>
+        page.evaluate(
+          ([prompt, docs]) => {
+            if (document.documentElement.hasAttribute("data-intro")) return "under the cover";
+            const box = document.querySelector(prompt);
+            if (!box || getComputedStyle(box).opacity !== "0") return "the box is there";
+            const moving = [...document.querySelectorAll(`${prompt}, ${prompt} *, ${docs}`)]
+              .flatMap((element) => element.getAnimations({ subtree: true }))
+              .filter((animation) => animation.playState !== "finished").length;
+            return moving ? "moving" : "settled";
+          },
+          [PROMPT, DOCS] as const,
+        ),
+      { timeout: 20_000 },
+    )
+    .toBe("settled");
+}
+
 const HERO = "[data-band]:has(h1)";
 const STAGE = "[data-hero-stage]";
 const PROMPT = "[data-hero-prompt]";
@@ -80,6 +106,7 @@ test.describe("the hero", () => {
     // The lead keeps what the offer rests on.
     const lead = hero.locator("p").first();
     for (const words of [
+      "change management and user adoption toolkit",
       "real SharePoint Online rollouts",
       "30+ years",
       "Prosci-certified practitioner",
@@ -105,12 +132,15 @@ test.describe("the hero", () => {
     // The old right-hand column of open water is gone: the stage is the ink's anchor now.
     await expect(hero.locator("[data-ink-anchor]")).toHaveCount(1);
     await expect(hero.locator(STAGE)).toHaveAttribute("data-ink-anchor", "open");
-    await expect(hero.locator(STAGE)).toHaveAttribute("data-ink-calm", "display");
+    // The documents are paper: the stage asks for no calm water behind them.
+    await expect(hero.locator(STAGE)).not.toHaveAttribute("data-ink-calm");
+    await expect(hero.locator("[data-ink-calm]")).toHaveCount(2);
     await expect(hero.locator('[data-ink-backdrop][data-scene="prompt"]')).toHaveCount(1);
   });
 
   test("holds the six free samples as six links, named by their titles, left to right", async ({
     page,
+    isMobile,
   }) => {
     await page.goto("/");
     const docs = page.locator(`${STAGE} ${DOCS}`);
@@ -135,6 +165,9 @@ test.describe("the hero", () => {
       expect(doc.printed, doc.name ?? "").toBe(true);
       expect(doc.lit, doc.name ?? "").toBe(true);
     }
+    // What follows is the one long hand of a window from 40em.
+    if (isMobile) return;
+
     // The order in the document, which is the tab order, is the order on the page.
     const centres = found.map((doc) => doc.centre);
     expect(centres).toEqual([...centres].sort((a, b) => a - b));
@@ -200,7 +233,7 @@ test.describe("the hero", () => {
     await page.keyboard.press("Tab");
     await docs.first().focus();
     const first = page.locator(`${STAGE} li`).first();
-    await expect(first).toHaveCSS("z-index", "6");
+    await expect(first).toHaveCSS("z-index", "7");
     await expect(docs.first()).toHaveCSS("outline-style", "solid");
     await expect(docs.first()).toHaveCSS("outline-width", "3px");
 
@@ -210,36 +243,40 @@ test.describe("the hero", () => {
     await expect(page.getByRole("dialog", { name: title })).toBeVisible();
   });
 
-  test("plays its sequence once: the box holds 400ms and dissolves by 1600ms, the documents settle from 2400ms", async ({
+  test("plays its sequence once: the box stands empty, dissolves from 1100ms to 2300ms, and the documents land from 3700ms", async ({
     page,
   }) => {
-    // Every animation of the sequence is noted as it starts, with its own delay and length and
-    // the moment on the document's timeline it was set going: no clock of the machine is in them,
-    // and a test that gets round to looking late still sees them.
+    // Every animation of the sequence is noted on the first frame that has them, while all of
+    // them are still waiting or under way, with its own delay and length and the moment on the
+    // document's timeline it was set going: no clock of the machine is in them, and a test that
+    // gets round to looking late still sees them.
     await page.addInitScript(() => {
       const seen: Array<[string, number, number, number]> = [];
       window.__heroSequence = seen;
-      document.addEventListener(
-        "animationstart",
-        (event) => {
-          if (!(event.target instanceof Element)) return;
-          const animation = event.target
-            .getAnimations()
-            .find(
-              (entry) =>
-                entry instanceof CSSAnimation && entry.animationName === event.animationName,
-            );
-          const timing = animation?.effect?.getComputedTiming();
-          if (!animation || !timing) return;
+      const look = () => {
+        const found = document
+          .getAnimations()
+          .filter(
+            (entry): entry is CSSAnimation =>
+              entry instanceof CSSAnimation && entry.animationName.startsWith("hero-"),
+          );
+        if (!found.length) {
+          requestAnimationFrame(look);
+          return;
+        }
+        for (const animation of found) {
+          const timing = animation.effect?.getComputedTiming();
+          if (!timing) continue;
           seen.push([
-            event.animationName,
-            Number(timing.delay),
+            animation.animationName,
+            Math.round(Number(timing.delay)),
             Number(timing.duration),
             Number(animation.startTime),
           ]);
-        },
-        true,
-      );
+        }
+        seen.sort((a, b) => a[1] - b[1]);
+      };
+      requestAnimationFrame(look);
     });
     await page.goto("/");
     await expect(page.locator("html")).toHaveAttribute("data-motion", "on");
@@ -248,8 +285,8 @@ test.describe("the hero", () => {
     await expect(page.locator(`${PROMPT} [data-caret]`)).toHaveCount(1);
     await expect(page.locator(`${PROMPT} a, ${PROMPT} button, ${PROMPT} input`)).toHaveCount(0);
 
-    // 4500ms after the page began, the box is gone and every document stands.
-    await expect.poll(() => pageClock(page), { timeout: 15_000 }).toBeGreaterThan(4500);
+    // When the sequence is over, the box is gone and every document stands.
+    await settled(page);
     const state = await stageState(page);
     expect(state.prompt).toMatchObject({ opacity: "0", visibility: "hidden" });
     expect(state.docs).toHaveLength(6);
@@ -259,17 +296,177 @@ test.describe("the hero", () => {
     expect(await timings(page, PROMPT, "hero-prompt-out")).toEqual([null]);
     expect(await timings(page, DOCS, "hero-doc-in")).toEqual(Array(6).fill(null));
 
-    // What ran: the box once, from 400ms for 1200ms; the six documents once each, from 2400ms,
-    // 110ms apart, 560ms each. All of it was set going at one moment.
+    // What ran: the box once, from 1100ms for 1200ms, so it stood whole for the 700ms before the
+    // first drop and 400ms more; its caret, which is on at the start; the six documents once
+    // each, from 3700ms (the scene's water is clean by 3500ms), 110ms apart, 560ms each, the middle two
+    // first; and with each its showing, which takes 90ms: a document never fades through ink.
+    // All of it was set going at one moment.
     const sequence = await page.evaluate(() => window.__heroSequence ?? []);
     const box = sequence.filter(([name]) => name === "hero-prompt-out");
+    const caret = sequence.filter(([name]) => name === "hero-caret-blink");
     const docs = sequence.filter(([name]) => name === "hero-doc-in");
-    expect(box.map(([, delay, duration]) => [delay, duration])).toEqual([[400, 1200]]);
+    const shown = sequence.filter(([name]) => name === "hero-doc-show");
+    expect(box.map(([, delay, duration]) => [delay, duration])).toEqual([[1100, 1200]]);
+    expect(caret.map(([, delay, duration]) => [delay, duration])).toEqual([[0, 1500]]);
     expect(docs.map(([, delay, duration]) => [delay, duration])).toEqual(
-      [0, 1, 2, 3, 4, 5].map((index) => [2400 + index * 110, 560]),
+      [0, 1, 2, 3, 4, 5].map((index) => [3700 + index * 110, 560]),
+    );
+    expect(shown.map(([, delay, duration]) => [delay, duration])).toEqual(
+      [0, 1, 2, 3, 4, 5].map((index) => [3700 + index * 110, 90]),
     );
     const starts = [...box, ...docs].map(([, , , start]) => start);
     expect(Math.max(...starts) - Math.min(...starts)).toBeLessThanOrEqual(50);
+  });
+
+  for (const [width, height] of [
+    [1366, 768],
+    [1280, 720],
+    [1536, 864],
+    [1440, 770],
+    [1920, 1080],
+  ] as const) {
+    test(`the whole first screen fits a window of ${width} by ${height}`, async ({
+      page,
+      isMobile,
+    }) => {
+      test.skip(isMobile, "a desktop window");
+      await page.setViewportSize({ width, height });
+      await page.goto("/");
+      await settled(page);
+      const fit = await page.evaluate((selector) => {
+        const band = document.querySelector(selector);
+        const box = (element: Element | null | undefined) => element?.getBoundingClientRect();
+        const heading = band?.querySelector("h1");
+        const docs = [...(band?.querySelectorAll("[data-hero-doc]") ?? [])].map(box);
+        return {
+          window: window.innerHeight,
+          bandTop: box(band)?.top ?? -1,
+          headingLines:
+            (box(heading)?.height ?? 0) /
+            Number.parseFloat(heading ? getComputedStyle(heading).lineHeight : "1"),
+          leadBottom: box(band?.querySelector("p"))?.bottom ?? Infinity,
+          buttonsTop: box(band?.querySelector("a[href='/purchase']"))?.top ?? -Infinity,
+          buttonsBottom: box(band?.querySelector("a[href='/purchase']"))?.bottom ?? Infinity,
+          docsTop: Math.min(...docs.map((doc) => doc?.top ?? -Infinity)),
+          docsBottom: Math.max(...docs.map((doc) => doc?.bottom ?? Infinity)),
+          stripTop: box(band?.querySelector("ul[aria-label]"))?.top ?? -Infinity,
+          stripBottom: box(band?.querySelector("ul[aria-label]"))?.bottom ?? Infinity,
+        };
+      }, HERO);
+      // The headline keeps to two lines, and each part stands clear of the next, in order.
+      expect(fit.headingLines).toBeLessThan(2.3);
+      expect(fit.bandTop).toBeGreaterThanOrEqual(0);
+      expect(fit.buttonsTop).toBeGreaterThanOrEqual(fit.leadBottom);
+      expect(fit.docsTop).toBeGreaterThanOrEqual(fit.buttonsBottom);
+      expect(fit.stripTop).toBeGreaterThanOrEqual(fit.docsBottom);
+      // And the last of them, the proof strip, ends above the fold.
+      expect(fit.stripBottom).toBeLessThanOrEqual(fit.window);
+    });
+  }
+
+  for (const [width, height] of [
+    [1440, 900],
+    [390, 844],
+    [320, 640],
+  ] as const) {
+    test(`at ${width}px no title and no tag is cut by a neighbour, and each document keeps 44px of its own`, async ({
+      page,
+    }) => {
+      await page.setViewportSize({ width, height });
+      await page.goto("/");
+      await settled(page);
+      await page.locator(STAGE).scrollIntoViewIfNeeded();
+      await page.evaluate(() => {
+        const stage = document.querySelector("[data-hero-stage]");
+        stage?.scrollIntoView({ block: "center", behavior: "instant" });
+      });
+      const report = await page.locator(DOCS).evaluateAll((links) => {
+        const owner = (x: number, y: number) =>
+          document.elementFromPoint(x, y)?.closest("[data-hero-doc]") ?? null;
+        return links.map((link) => {
+          const name = link.getAttribute("aria-label") ?? "";
+          // The words as they are drawn: every line box of the title, and the tag.
+          const title = [...link.querySelectorAll("[data-cover] span")].find(
+            (span) => span.textContent === name && span.children.length === 0,
+          );
+          const tag = [...link.querySelectorAll("[data-cover] span")].find((span) =>
+            /^(DOCX|PPTX|XLSX|PDF)$/.test(span.textContent ?? ""),
+          );
+          const range = document.createRange();
+          const covered: string[] = [];
+          const probe = (label: string, rects: Iterable<DOMRect>) => {
+            for (const rect of rects) {
+              if (rect.width < 1 || rect.height < 1) continue;
+              for (const [fx, fy] of [
+                [0.02, 0.5],
+                [0.5, 0.5],
+                [0.98, 0.5],
+                [0.5, 0.1],
+                [0.5, 0.9],
+              ] as const) {
+                const x = rect.left + rect.width * fx;
+                const y = rect.top + rect.height * fy;
+                if (owner(x, y) !== link)
+                  covered.push(`${label} at ${Math.round(x)},${Math.round(y)}`);
+              }
+            }
+          };
+          if (title?.firstChild) {
+            range.selectNodeContents(title);
+            probe("title", range.getClientRects());
+            // And the title is not cut by its own box either: every word of it is laid out.
+            const line = Number.parseFloat(getComputedStyle(title).fontSize);
+            if (title.scrollHeight > title.clientHeight + line / 2) covered.push("title clamped");
+          } else covered.push("no title");
+          if (tag && getComputedStyle(tag).display !== "none")
+            probe("tag", [tag.getBoundingClientRect()]);
+
+          // The widest run of points, along any of five lines across the document, that are the
+          // document's own: what a finger has to aim at.
+          const box = link.getBoundingClientRect();
+          let own = 0;
+          for (const fy of [0.15, 0.3, 0.5, 0.7, 0.85]) {
+            let run = 0;
+            for (let x = box.left; x <= box.right; x += 1) {
+              run = owner(x, box.top + box.height * fy) === link ? run + 1 : 0;
+              own = Math.max(own, run);
+            }
+          }
+          return { name, covered, own, height: box.height };
+        });
+      });
+      expect(report).toHaveLength(6);
+      for (const doc of report) {
+        expect(doc.covered, doc.name).toEqual([]);
+        expect(doc.own, doc.name).toBeGreaterThanOrEqual(44);
+        expect(doc.height, doc.name).toBeGreaterThanOrEqual(44);
+      }
+    });
+  }
+
+  test("below 40em the six are two hands of three, one under the other", async ({ page }) => {
+    await page.setViewportSize({ width: 390, height: 844 });
+    await page.goto("/");
+    const boxes = await page.locator(DOCS).evaluateAll((links) =>
+      links.map((link) => {
+        const box = link.getBoundingClientRect();
+        return {
+          left: box.left,
+          middle: box.top + box.height / 2,
+          bottom: box.bottom,
+          top: box.top,
+        };
+      }),
+    );
+    const first = boxes.slice(0, 3);
+    const second = boxes.slice(3);
+    expect(Math.max(...first.map((box) => box.bottom))).toBeLessThanOrEqual(
+      Math.min(...second.map((box) => box.top)) + 1,
+    );
+    for (const row of [first, second]) {
+      const lefts = row.map((box) => box.left);
+      expect(lefts).toEqual([...lefts].sort((a, b) => a - b));
+    }
   });
 
   test("fills the first screen at 1440 by 900, with the proof strip above the fold", async ({
@@ -279,7 +476,7 @@ test.describe("the hero", () => {
     test.skip(isMobile, "a desktop window");
     await page.setViewportSize({ width: 1440, height: 900 });
     await page.goto("/");
-    await expect.poll(() => pageClock(page), { timeout: 15_000 }).toBeGreaterThan(4500);
+    await settled(page);
     const measured = await page.evaluate((selector) => {
       const band = document.querySelector(selector);
       const strip = band?.querySelector("ul[aria-label]");
@@ -304,13 +501,13 @@ test.describe("the hero", () => {
     expect(measured.stripBottom).toBeLessThanOrEqual(measured.window);
     // The titles on the covers are large enough to read.
     expect(measured.titles).toHaveLength(6);
-    for (const size of measured.titles) expect(size).toBeGreaterThanOrEqual(11);
+    for (const size of measured.titles) expect(size).toBeGreaterThanOrEqual(13);
   });
 
   test("at 320px nothing in it runs past the screen", async ({ page }) => {
     await page.setViewportSize({ width: 320, height: 640 });
     await page.goto("/");
-    await expect.poll(() => pageClock(page), { timeout: 15_000 }).toBeGreaterThan(4500);
+    await settled(page);
     const outside = await page.evaluate((selector) => {
       const band = document.querySelector(selector);
       const width = document.documentElement.clientWidth;
@@ -329,14 +526,6 @@ test.describe("the hero", () => {
         () => document.documentElement.scrollWidth - document.documentElement.clientWidth,
       ),
     ).toBeLessThanOrEqual(0);
-    // Each document is still a target of 44px and more.
-    const sizes = await page.locator(DOCS).evaluateAll((links) =>
-      links.map((link) => {
-        const box = link.getBoundingClientRect();
-        return Math.min(box.width, box.height);
-      }),
-    );
-    for (const size of sizes) expect(size).toBeGreaterThanOrEqual(44);
   });
 
   test("keeps the headline's contrast over the still", async ({ page }) => {
@@ -462,7 +651,7 @@ test.describe("the hero on a first visit", () => {
     test.skip(under === null, "the cover had already gone when the page was first read");
     expect(under).toEqual({ box: "1", docs: Array(6).fill("hidden"), running: 0 });
 
-    // When the cover has gone the sequence runs, from that moment: 4500ms later it is over.
+    // When the cover has gone the sequence runs, from that moment, to its end.
     await expect
       .poll(
         () =>
@@ -475,11 +664,11 @@ test.describe("the hero on a first visit", () => {
       .toBe(true);
     const gone = await page.evaluate(() => (window.__introLog ?? []).at(-1)?.[0] ?? 0);
     const early = await stageState(page);
-    if ((await pageClock(page)) - gone < 2300) {
-      // Still inside the first 2.4 seconds: no document has shown yet.
+    if ((await pageClock(page)) - gone < 3600) {
+      // Still inside the first 3.7 seconds: no document has shown yet.
       for (const doc of early.docs) expect(doc.opacity).toBe("0");
     }
-    await expect.poll(() => pageClock(page), { timeout: 15_000 }).toBeGreaterThan(gone + 4500);
+    await settled(page);
     const state = await stageState(page);
     expect(state.prompt).toMatchObject({ opacity: "0" });
     for (const doc of state.docs)

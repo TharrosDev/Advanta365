@@ -167,89 +167,90 @@ export const SCENES: Record<SceneName, (ctx: SceneContext) => Scene> = {
   },
 
   /**
-   * The band of the home page: a blank prompt that turns into finished work. One black drop lands
-   * in the middle of the box the page marked (`open`), a light-blue one beside it half a second
-   * later, and the two open across the band; from 2.2 s the ink turns to mist and at 3.4 s the
-   * water is clean, which is when the page has its documents standing where the box was. From 9 s
-   * a slow drip falls behind them for as long as the scene runs; each drip is small and is gone
-   * within a few seconds, so between two of them the water holds only wisps. The page's own
-   * sequence is timed to the same clock (app/motion.css, `[data-hero-stage]`).
+   * The band of the home page: a blank prompt that turns into finished work. For 0.7 s nothing
+   * falls: the page's box stands empty. Then a black drop lands left of the middle of the box the
+   * page marked (`open`) and a light-blue one right of it half a second later; they open away
+   * from each other, across the band, and meet in the middle. From 2.6 s the ink turns to mist
+   * and at 3.5 s the water is clean; the page stands its documents where the box was from 3.7 s,
+   * so on a visit that has to fetch the engine, where the ink is up to 0.4 s late, they land on
+   * the last of the mist and never on ink. From 6 s ink keeps arriving, slowly, across the whole width of the band: it falls from
+   * the top of the stage, behind the documents and beside them, for as long as the scene runs.
+   * The page's own sequence is timed to the same clock (app/motion.css, `[data-hero-stage]`).
    */
   prompt: (ctx) => {
     const open = ctx.anchors.open;
     const x = open ? clamp(open.x + open.width / 2, 0.1, 0.9) : 0.5;
     const y = open ? clamp(open.y + open.height / 2, 0.1, 0.9) : 0.7;
-    const lane: Vec2 = open
-      ? [clamp(open.x, 0.04, 0.9), clamp(open.x + open.width, 0.1, 0.96)]
-      : [0.2, 0.8];
-    // The drip starts a third of the way down the box: behind the documents, never above them.
-    const top = open ? clamp(open.y + open.height * 0.3, 0.03, 0.9) : 0.6;
-    const r = ctx.portrait ? 0.05 : 0.11;
-    const at = across(lane);
-    const base = { fiber: 0.72, turbulence: 0.5 };
+    // The drip starts near the top of the stage, under the words (lower on a tall canvas, where
+    // the buttons stand right over the stage), and uses the band's whole width.
+    const top = open ? clamp(open.y + open.height * (ctx.portrait ? 0.5 : 0.08), 0.03, 0.9) : 0.5;
+    const at = across(ctx.portrait ? [0.12, 0.88] : [0.05, 0.95]);
+    const r = ctx.portrait ? 0.055 : 0.14;
+    const apart = (r * 1.45) / ctx.aspect;
+    /** The size of a drip: the old hero's drop. */
+    const drop = ctx.portrait ? 0.045 : 0.095;
+    const opening = { y, fiber: 0.72, turbulence: 0.5 };
+    const drip = { y: top, fiber: 0.7, turbulence: 0.35 };
     let beat = 0;
     let slot = 1;
     return {
-      // The settled frame is the water at rest: the moment before a drip falls (the third on a
-      // wide canvas, the fourth on a tall one), when all it holds is the faint wisps of the drips
-      // before. The frame is shown at widths whose words stand elsewhere, so it must be that pale.
-      still: ctx.portrait ? 1560 : 1398,
+      still: 1560,
       sim: {
         ...tankWater(ctx.portrait),
-        speed: 0.9,
-        gravity: [-0.02, -0.015],
-        velocityDamping: 1.0,
-        dyeDecay: [0.15, 0.15, 0.2, 0.2],
+        speed: 0.8,
+        gravity: [0.035, 0.028],
+        velocityDamping: 1.1,
       },
-      look: { blueGain: 0.5, farDensity: 0.35 },
+      look: {},
       timeline: [
         {
-          at: 0.0,
+          at: 0.7,
           run: (ink) =>
             ink.drop({
-              ...base,
-              x,
-              y,
+              ...opening,
+              x: x - apart,
               ink: "black",
-              amount: 4.2,
+              amount: 4.0,
               radius: r,
-              velocity: [-0.34, -0.07],
-              swell: 1.5,
-              swellTime: 1.1,
+              velocity: [-0.46, -0.04],
+              swell: 2.0,
+              swellTime: 1.0,
             }),
         },
         {
-          at: 0.5,
+          at: 1.2,
           run: (ink) =>
             ink.drop({
-              ...base,
-              x: x + (r * 3.4) / ctx.aspect,
-              y: y - r * 0.2,
+              ...opening,
+              x: x + apart,
               ink: "blue",
-              amount: 3.2,
-              radius: r * 0.85,
-              velocity: [0.36, -0.02],
-              swell: 1.7,
+              amount: 3.0,
+              radius: r * 0.9,
+              velocity: [0.48, -0.04],
+              swell: 2.0,
               swellTime: 0.8,
             }),
         },
-        { at: 2.2, run: (ink) => ink.clear({ duration: 1.2 }) },
+        { at: 2.6, run: (ink) => ink.clear({ duration: 0.9 }) },
         {
           every: ctx.portrait ? [7.5, 11.0] : [5.5, 8.5],
-          from: 9.0,
+          from: 6.0,
           run: (ink, rand) => {
-            // Two black drops to each blue one, never the same quarter of the box twice running.
+            // Two black drops to each blue one, never the same quarter of the band twice running,
+            // and every third drop a larger one.
             beat += 1;
+            const blue = beat % 3 === 2;
+            const large = beat % 3 === 0 ? 1.3 : 1;
             slot = (slot + 1 + Math.floor(rand() * 2)) % 4;
             ink.drop({
-              fiber: 0.8,
-              turbulence: 0.3,
+              ...drip,
               x: at((slot + 0.2 + rand() * 0.6) / 4),
-              y: top,
-              ink: beat % 3 === 2 ? "blue" : "black",
-              amount: 1.5 + rand() * 0.4,
-              radius: r * (0.5 + rand() * 0.2),
-              velocity: [(rand() - 0.5) * 0.1, 0.4 + rand() * 0.2],
+              ink: blue ? "blue" : "black",
+              amount: 2.7 + rand() * 0.7,
+              radius: drop * (0.75 + rand() * 0.35) * large,
+              velocity: [(rand() - 0.5) * 0.12, 0.26 + rand() * 0.14],
+              swell: 0.7,
+              swellTime: 1.2,
             });
           },
         },
@@ -273,7 +274,7 @@ export const SCENES: Record<SceneName, (ctx: SceneContext) => Scene> = {
               ...base,
               x: 0.5,
               ink: "black",
-              amount: 3.2,
+              amount: 2.8,
               radius: 0.1,
               velocity: [0.0, 0.8],
             }),
@@ -285,7 +286,7 @@ export const SCENES: Record<SceneName, (ctx: SceneContext) => Scene> = {
               ...base,
               x: 0.74,
               ink: "blue",
-              amount: 3.2,
+              amount: 2.8,
               radius: 0.08,
               velocity: [-0.03, 0.75],
             }),
@@ -405,7 +406,7 @@ export const SCENES: Record<SceneName, (ctx: SceneContext) => Scene> = {
             ink.drop({
               ...base,
               x: at(0.1),
-              amount: 3.2,
+              amount: 2.8,
               radius: r * 0.8,
               velocity: [0.03, -0.85],
             }),
@@ -416,7 +417,7 @@ export const SCENES: Record<SceneName, (ctx: SceneContext) => Scene> = {
             ink.drop({
               ...base,
               x: at(0.9),
-              amount: 3.2,
+              amount: 2.8,
               radius: r * 0.8,
               velocity: [-0.03, -0.85],
             }),

@@ -15,7 +15,7 @@ import { ProofStrip } from "./proof-strip";
 const HEADLINE = "Don’t start your M365 rollout from a";
 const HEADLINE_MARKED = "blank prompt.";
 
-const LEAD = `The change management toolkit behind real SharePoint Online rollouts: field-tested over ${TOOLKIT.experience}, built by a Prosci-certified practitioner, ready to use as is or tailor with AI.`;
+const LEAD = `The change management and user adoption toolkit behind real SharePoint Online rollouts: field-tested over ${TOOLKIT.experience}, built by a Prosci-certified practitioner, ready to use as is or tailor with AI.`;
 
 /** The buttons follow the lead by 80ms: the stagger step is 70ms, so their turn is 8/7 of one. */
 const ACTIONS_TURN = 8 / 7;
@@ -26,7 +26,8 @@ const ACTIONS_TURN = 8 / 7;
  * rectangle that keeps the ink out) and the two buttons (ink may pass behind them, capped, so the
  * water right under them stays open); the stage, where an empty prompt box becomes the six free
  * samples (`samples`, with `phases` for the numeral on each cover) as a hand of finished
- * documents; and the proof strip on the band's bottom edge. The headline never animates; the lead
+ * documents, with the ink behind and beside them; and the proof strip as the band's foot. From
+ * 68em all of it fits the window, down to a window 720px tall. The headline never animates; the lead
  * and the buttons drift in at load; the stage plays its sequence once (`HeroStage`). The lead
  * never breaks inside a hyphenated word.
  */

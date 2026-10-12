@@ -169,7 +169,7 @@ test.describe("the prompt", () => {
     await holdCaps(page, 20);
   });
 
-  test("opens over the box, clears by 3.4 seconds, calms the stage, and drips again from 9 seconds", async ({
+  test("leaves the box empty for 0.7 seconds, opens over it, is clean at 3.5 seconds, and ink arrives again from 6 seconds", async ({
     page,
   }) => {
     test.setTimeout(60_000);
@@ -179,22 +179,27 @@ test.describe("the prompt", () => {
     const kinds = () =>
       page.evaluate(() => (window.__inkTest?.zoneExtremes() ?? []).map((zone) => zone.kind));
 
-    // The bloom: ink on the canvas inside the first two seconds, and the stage still open water.
-    await expect.poll(() => inkedPixels(page), { timeout: 5_000 }).toBeGreaterThan(2000);
-    if ((await clock()) < 2.2) expect(await kinds()).not.toContain("display");
+    // The blank prompt: for the first 0.7 seconds of the scene nothing has fallen.
+    if ((await clock()) < 0.6) expect(await inkedPixels(page)).toBe(0);
 
-    // The clear ends at 3.4 seconds of the scene's own clock: clean water, exactly the ground.
-    await expect.poll(clock, { timeout: 10_000 }).toBeGreaterThan(3.5);
-    if ((await clock()) < 8.5) {
+    // The bloom: a great deal of ink on the canvas before the clear begins.
+    await expect.poll(() => inkedPixels(page), { timeout: 5_000 }).toBeGreaterThan(20_000);
+
+    // The clear ends at 3.5 seconds of the scene's own clock: clean water, exactly the ground.
+    await expect.poll(clock, { timeout: 10_000 }).toBeGreaterThan(3.6);
+    if ((await clock()) < 5.8) {
       expect(await inkedPixels(page)).toBe(0);
       expect(await canvasPixel(page, "top-left")).toBe(PAPER);
     }
-    // From then on the stage, where the documents stand, is a calm rectangle too.
-    expect(await kinds()).toContain("display");
+    // The words are the only calm water: the headline with the lead, and the buttons. The stage
+    // is open, so ink lives behind and beside the documents.
+    expect((await kinds()).sort()).toEqual(["text", "veil"]);
 
-    // The script went on after its own clear: the drip that starts at 9 seconds is ink again.
-    await expect.poll(clock, { timeout: 20_000 }).toBeGreaterThan(9.2);
-    await expect.poll(() => inkedPixels(page), { timeout: 10_000 }).toBeGreaterThan(0);
+    // The script went on after its own clear: from 6 seconds ink arrives again, and it stays.
+    await expect.poll(clock, { timeout: 20_000 }).toBeGreaterThan(6.5);
+    await expect.poll(() => inkedPixels(page), { timeout: 10_000 }).toBeGreaterThan(1000);
+    await expect.poll(clock, { timeout: 20_000 }).toBeGreaterThan(14);
+    expect(await inkedPixels(page)).toBeGreaterThan(3000);
 
     // The page's sequence and the scene began together: the scene's start is the canvas's first
     // running frame, the sequence's is the first paint of a page with no cover.
