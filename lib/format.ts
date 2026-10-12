@@ -1,10 +1,24 @@
-const wholeDollars = new Intl.NumberFormat("en-US", {
-  style: "currency",
-  currency: "USD",
-  maximumFractionDigits: 0,
-});
+/**
+ * Number formats for prices, one per currency and per shape, made when first needed. The locale is
+ * Canadian English and the symbol the narrow one, so every dollar currency prints a bare "$": the
+ * currency is said by its code after the amount (see `formatPriceParts`), never by the symbol.
+ */
+const priceFormats = new Map<string, Intl.NumberFormat>();
 
-const withCents = new Intl.NumberFormat("en-US", { style: "currency", currency: "USD" });
+function priceFormat(currency: string, whole: boolean): Intl.NumberFormat {
+  const key = `${currency}:${whole}`;
+  let format = priceFormats.get(key);
+  if (!format) {
+    format = new Intl.NumberFormat("en-CA", {
+      style: "currency",
+      currency,
+      currencyDisplay: "narrowSymbol",
+      ...(whole ? { maximumFractionDigits: 0 } : {}),
+    });
+    priceFormats.set(key, format);
+  }
+  return format;
+}
 
 const COUNT_WORDS = [
   "zero",
@@ -31,9 +45,25 @@ export function countWord(count: number, form: "lower" | "capital" = "lower"): s
   return form === "capital" ? word.charAt(0).toUpperCase() + word.slice(1) : word;
 }
 
-/** Formats integer cents as US dollars, dropping ".00" on whole amounts. */
-export function formatPrice(cents: number): string {
-  return (cents % 100 === 0 ? wholeDollars : withCents).format(cents / 100);
+/**
+ * A price as its amount and its currency code, for a place that sets the code smaller than the
+ * amount: integer cents become "$1,499.99" and "CAD". Whole amounts drop ".00" ("$49").
+ */
+export function formatPriceParts(
+  cents: number,
+  currency: string,
+): { amount: string; currency: string } {
+  return { amount: priceFormat(currency, cents % 100 === 0).format(cents / 100), currency };
+}
+
+/**
+ * Integer cents as a price that cannot be misread: the amount, then the currency code, joined by a
+ * no-break space so the code never lands alone on the next line ("$1,499.99 CAD"). The currency is
+ * always passed in (`OFFER.currency`), never assumed.
+ */
+export function formatPrice(cents: number, currency: string): string {
+  const parts = formatPriceParts(cents, currency);
+  return `${parts.amount} ${parts.currency}`;
 }
 
 /**

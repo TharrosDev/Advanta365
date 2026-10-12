@@ -50,7 +50,7 @@ const QUALITY_STEP = 0.04;
 const WIDTHS = [320, 390, 768, 1088, 1280, 1440, 1920];
 const CHECK_ROUTES = [
   "/",
-  "/about",
+  "/why-advanta",
   "/purchase",
   "/sample",
   "/phases/prepare",
@@ -565,8 +565,8 @@ const SHEET_SCENES = [
   { scene: "intro", route: "/", times: [0.4, 0.8, 1.5, 2.4, 3.0, 3.5] },
   { scene: "ninety", route: "/", times: [1, 4, 9] },
   { scene: "bloom", route: "/", times: [3, 8, 16] },
-  { scene: "wisps", route: "/about", times: [4, 10, 18] },
-  { scene: "title", route: "/about", times: [3, 8, 14] },
+  { scene: "wisps", route: "/why-advanta", times: [4, 10, 18] },
+  { scene: "title", route: "/why-advanta", times: [3, 8, 14] },
   { scene: "spill", route: "/nope", times: [2, 4, 9] },
 ];
 const SHEET_VIEWPORTS = [

@@ -3,8 +3,8 @@ import type { SceneName } from "./types";
 
 /**
  * The stills: settled frames of the real engine, captured on the real pages and served from
- * `public/ink/`. They stand in for the live ink without JavaScript, under reduced motion, when the
- * visitor paused it, on calm routes and after a failure. `stills.json` is the one list of them: the
+ * `public/ink/`. They stand in for the live ink without JavaScript, under reduced motion, on calm
+ * routes and after a failure. `stills.json` is the one list of them: the
  * capture script, the file test and `InkBackdrop` all read it.
  */
 

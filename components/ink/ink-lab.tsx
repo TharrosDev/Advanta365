@@ -127,7 +127,7 @@ function Stage({ scene, bare, tall }: { scene: SceneName; bare: boolean; tall: b
           <div className={styles.grid} data-ink-calm="veil">
             <p className="type-item">Advanta365</p>
             <p className="type-copy">Catalog, samples, purchase.</p>
-            <p className="type-copy">About, contact, sample.</p>
+            <p className="type-copy">Why Advanta, contact, sample.</p>
             <p className="type-copy">Prepare, launch, sustain.</p>
           </div>
           {label}

@@ -9,9 +9,9 @@
  *   [data-nav-underline]                           the bar’s underline, which slides to the current link
  *   [data-ninety]                                  the one band whose tally follows the scroll
  *   [data-price-tag]                               the paper tag on its string, which swings
- *   [data-tile][data-denied], [data-lock],
- *   [data-well]                                    a locked tile saying no, its padlock and wash
- *   [data-template-dialog][data-enter]             the pop-up of the catalog arriving
+ *   [data-tile][data-denied], [data-well]          a locked tile saying no, its vibration and wash
+ *   [data-page-dialog][data-enter]                 a pop-up (a free sample, the checkout) arriving
+ *   [data-checkout-step], [data-checkout-progress] a step of the checkout arriving, and its line
  *   [data-hero-stage], [data-hero-prompt],
  *   [data-hero-doc], [data-landed]                 the hero: a prompt box that becomes documents
  *
@@ -76,7 +76,7 @@
 /*
  * The prompt box of the hero (components/home/hero-stage.tsx) exists for its sequence only, and
  * the sequence is played to live ink only. Without movement, without a script, or with ink that
- * is still or paused, the box is not displayed and the documents stand where it would have been.
+ * is still, the box is not displayed and the documents stand where it would have been.
  */
 [data-hero-prompt] {
   display: none;
@@ -448,11 +448,7 @@
    * stop every 33ms (two frames at 60fps), and each swing is a sixth smaller than the one before:
    * 3px at the first, rest at 467ms. Every stop also carries a little up and down (1px at most) and
    * a little turn (0.3 degrees at most), out of step with the sideways swing, so that the tile
-   * shivers and does not slide. The timing is linear, so nothing dwells at the end of a swing. The
-   * padlock rattles about the crossing it hangs on at the same pace, 3 degrees to start, and rings
-   * a little longer (500ms). It turns by `transform` and not by `rotate`: the browser runs the turn
-   * of an SVG element on the compositor only through `transform`, and so the rattle costs the page
-   * no work per frame (the tile's own `translate` and `rotate` are on an HTML element and are fine).
+   * shivers and does not slide. The timing is linear, so nothing dwells at the end of a swing.
    * The red comes with a hit and goes with a fade: the outline is the alert colour within two
    * frames and thins away to nothing, and the wash under the cover (a pseudo-element whose opacity
    * moves; the well's own ground never changes) rises in 100ms and falls away by 560ms. All of it
@@ -530,64 +526,6 @@
     }
   }
 
-  @keyframes lock-rattle {
-    6.667% {
-      transform: rotate(-3deg);
-    }
-
-    13.333% {
-      transform: rotate(2.52deg);
-    }
-
-    20% {
-      transform: rotate(-2.12deg);
-    }
-
-    26.667% {
-      transform: rotate(1.78deg);
-    }
-
-    33.333% {
-      transform: rotate(-1.49deg);
-    }
-
-    40% {
-      transform: rotate(1.25deg);
-    }
-
-    46.667% {
-      transform: rotate(-1.05deg);
-    }
-
-    53.333% {
-      transform: rotate(0.89deg);
-    }
-
-    60% {
-      transform: rotate(-0.74deg);
-    }
-
-    66.667% {
-      transform: rotate(0.62deg);
-    }
-
-    73.333% {
-      transform: rotate(-0.52deg);
-    }
-
-    80% {
-      transform: rotate(0.44deg);
-    }
-
-    86.667% {
-      transform: rotate(-0.37deg);
-    }
-
-    93.333% {
-      transform: rotate(0.31deg);
-    }
-  }
-
   @keyframes denied-pulse {
     0%,
     100% {
@@ -625,15 +563,11 @@
   /*
    * A tile that holds keyboard focus keeps its focus ring: the tile's outline is the only mark of
    * focus on a locked tile, and a running animation of `outline-color` (which ends on transparent
-   * and holds it) would take that ring away for the length of the denial. The shake, the wash and
-   * the padlock still say no. `tile-shake` keeps its place in the list, so it does not restart.
+   * and holds it) would take that ring away for the length of the denial. The shake and the wash
+   * still say no. `tile-shake` keeps its place in the list, so it does not restart.
    */
   html[data-motion="on"] [data-tile][data-denied]:has(:focus-visible) {
     animation: tile-shake 467ms linear;
-  }
-
-  html[data-motion="on"] [data-tile][data-denied] [data-lock] {
-    animation: lock-rattle 500ms linear;
   }
 
   html[data-motion="on"] [data-tile][data-denied] [data-well]::before {
@@ -641,9 +575,10 @@
   }
 
   /*
-   * The pop-up of the catalog (components/catalog/template-dialog.tsx). One that a link inside the
-   * site opens rises 14px into place as the page dims behind it; one that came with the server's
-   * page is simply there. Closing has no animation: a dialog that is closed is gone.
+   * A page dialog (components/ui/page-dialog.tsx): the pop-up of the catalog and the checkout. One
+   * that a link inside the site opens rises 14px into place as the page dims behind it; one that
+   * came with the server's page is simply there. Closing has no animation: a dialog that is closed
+   * is gone.
    */
   @keyframes dialog-in {
     from {
@@ -659,12 +594,32 @@
     }
   }
 
-  [data-template-dialog][data-enter] {
+  [data-page-dialog][data-enter] {
     animation: dialog-in 320ms var(--curve-settle);
   }
 
-  [data-template-dialog][data-enter]::backdrop {
+  [data-page-dialog][data-enter]::backdrop {
     animation: scrim-in var(--time-exit) linear;
+  }
+
+  /*
+   * A step of the checkout (components/checkout/checkout-dialog.tsx). The step a visitor moves to
+   * settles 10px into place; the one the dialog opened on is simply there. The line under the
+   * steps in the bar grows to the current one.
+   */
+  @keyframes checkout-step-in {
+    from {
+      opacity: 0;
+      translate: 0 10px;
+    }
+  }
+
+  [data-checkout-step][data-enter] {
+    animation: checkout-step-in var(--time-enter) var(--curve-settle);
+  }
+
+  [data-checkout-progress] {
+    transition: scale var(--time-settle) var(--curve-settle);
   }
 
   /*

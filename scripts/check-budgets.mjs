@@ -25,7 +25,7 @@ const KB = 1024;
 const MAX_GROWTH_BYTES = 12 * KB;
 const MAX_SHADER_BYTES = 40 * KB;
 const SHADER_MARKER = "#version 300 es";
-const DEFAULT_PAGES = ["/", "/about", "/catalog"];
+const DEFAULT_PAGES = ["/", "/why-advanta", "/catalog"];
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const BASELINE = join(ROOT, "tests", "budgets", "baseline.json");
@@ -37,7 +37,7 @@ const kb = (bytes) => `${(bytes / KB).toFixed(1)}KB`;
 function usage(message) {
   if (message) console.error(message);
   console.error(
-    "usage: node scripts/check-budgets.mjs <baseUrl> [--record] [--pages=/,/about,/catalog]",
+    "usage: node scripts/check-budgets.mjs <baseUrl> [--record] [--pages=/,/why-advanta,/catalog]",
   );
   process.exit(2);
 }

@@ -96,18 +96,16 @@
  * the whole width of the band (the column clips them at its sides) and down to its bottom edge,
  * `--hero-under` below the strip, and no further, so the ink
  * behind the band ends at the foot as it does at the edge of a sheet, and the facts are always
- * read on paper. Two facts to a row below 40em, four from there, a hairline between them. The
- * strip leaves the band's bottom right corner to the pause button (44px, and 14px of air): below
- * 40em by ending short of it, from 40em by standing centred between two such margins, 64rem wide
- * at most (four fifths of the column on a large monitor, where that is more).
+ * read on paper. Two facts to a row below 40em, four from there, a hairline between them. Below
+ * 40em the strip is the width of the column; from 40em it stands centred, 64rem wide at most (four
+ * fifths of the column on a large monitor, where that is more).
  */
 .proof {
   position: relative;
   isolation: isolate;
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  justify-self: start;
-  width: calc(100% - var(--tap) - var(--s-2));
+  width: 100%;
   margin: 0;
   padding: 0;
   list-style: none;
@@ -158,7 +156,7 @@
   .proof {
     grid-template-columns: repeat(4, minmax(0, 1fr));
     justify-self: center;
-    width: min(max(64rem, var(--page-max) * 0.8), 100% - 2 * (var(--tap) + var(--s-2)));
+    width: min(max(64rem, var(--page-max) * 0.8), 100%);
   }
 
   .proofItem:nth-child(n + 2) {
@@ -517,68 +515,6 @@
 }
 
 /*
- * The statement band (`#practice`): the label, the statement in columns 1 to 9, and what follows
- * it in columns 7 to 12, 42px lower.
- */
-.statement {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr);
-}
-
-.statementLabel {
-  margin-block-end: var(--s-3);
-}
-
-.statementTitle {
-  min-width: 0;
-}
-
-.statementAside {
-  min-width: 0;
-  max-width: var(--wrap-lead);
-  margin-block-start: var(--s-5);
-}
-
-.statementCopy {
-  color: var(--text-soft);
-}
-
-.practiceActions {
-  display: flex;
-  flex-direction: column;
-  gap: var(--s-2);
-  margin-block-start: var(--s-4);
-}
-
-@media (min-width: 40em) {
-  .practiceActions {
-    flex-flow: row wrap;
-    align-items: flex-start;
-  }
-}
-
-@media (min-width: 68em) {
-  .statement {
-    grid-template-columns: repeat(12, minmax(0, 1fr));
-    column-gap: var(--col-gap);
-  }
-
-  .statementLabel {
-    grid-column: 1 / -1;
-  }
-
-  .statementTitle {
-    grid-column: 1 / span 9;
-  }
-
-  /* Its six columns, and no wider than a lead's reading width, which they are not at a desktop. */
-  .statementAside {
-    grid-column: 7 / -1;
-    max-width: var(--wrap-lead);
-  }
-}
-
-/*
  * The ninety. `--figure` is the size of "90%": the poster size, never more than 30% of the
  * window's height and, from 68em, never so large that the figure (2.45em wide) leaves its six
  * columns: the grid measures itself for that. Stacked in document order below 68em, the open water
@@ -678,71 +614,5 @@
     grid-area: 4 / 7 / auto / -1;
     height: auto;
     min-height: 16rem;
-  }
-}
-
-/*
- * Closing. The band is at least min(72svh, 40rem) tall (and 0.15px for every pixel of window past
- * a 1600px desktop): the statement in columns 1 to 9, the button 42px under it, and the thin tally
- * across the grid at the foot.
- */
-.closing {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr);
-  grid-template-rows: auto auto 1fr;
-  justify-items: start;
-  min-height: calc(min(72svh, 40rem + var(--over) * 0.15) - 2 * var(--pad));
-}
-
-.closingTitle {
-  min-width: 0;
-}
-
-/* Full width on a phone, its own width after. */
-.closingAction {
-  display: flex;
-  flex-direction: column;
-  justify-self: stretch;
-  margin-block-start: var(--s-5);
-}
-
-.closingTally {
-  align-self: end;
-  margin-block-start: var(--s-6);
-}
-
-@media (min-width: 40em) {
-  .closingAction {
-    align-items: flex-start;
-  }
-}
-
-@media (min-width: 68em) {
-  .closing {
-    container-type: inline-size;
-    grid-template-columns: repeat(12, minmax(0, 1fr));
-    column-gap: var(--col-gap);
-  }
-
-  .closingTitle {
-    grid-column: 1 / span 9;
-  }
-
-  /*
-   * The statement is two lines, one to a sentence, and its longer one ("Finish the rest your way.")
-   * is 12.96 ems wide. Its nine columns are that wide for the size only at 1280 to 1366px of
-   * window and from 1920px on; between them (1440 to 1900px, where the size has stopped growing
-   * with the window and the page has not yet started to) the sentence broke in two and the
-   * statement stood in three lines. So the size is never more than those nine columns over 13
-   * ems: `cqi` is the page's width here, the container being the band's own column.
-   * (Doubled: the type class on the same element sets a size too.)
-   */
-  .closingTitle.closingTitle {
-    font-size: min(var(--size-statement), calc((75cqi - 0.25 * var(--col-gap)) / 13));
-  }
-
-  .closingAction,
-  .closingTally {
-    grid-column: 1 / -1;
   }
 }

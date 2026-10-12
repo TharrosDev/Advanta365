@@ -14,8 +14,8 @@ type Item = { name: string; status: string; body: ReactNode };
 
 /**
  * What is and is not built, in the plain words of PRODUCT.md. It does the job the banner used to
- * do: the catalog is sample content, checkout does not exist and the worked example cannot be
- * downloaded yet.
+ * do: the catalog is sample content, an order can be started but payment is not connected, and the
+ * worked example cannot be downloaded yet.
  */
 const ITEMS: readonly Item[] = [
   {
@@ -31,12 +31,12 @@ const ITEMS: readonly Item[] = [
   },
   {
     name: "Checkout",
-    status: "Not built yet",
+    status: "No payment yet",
     body: (
       <>
-        The Checkout button on the Purchase page is switched off. Nothing can be bought yet, there
-        are no accounts, and locked templates stay locked for every visitor.{" "}
-        <TextLink href="/purchase">See the Purchase page</TextLink>.
+        An order can be started on the Purchase page, but taking payment online is not connected
+        yet, so nothing can be paid for on this site. There are no accounts, and locked templates
+        stay locked for every visitor. <TextLink href="/purchase">See the Purchase page</TextLink>.
       </>
     ),
   },

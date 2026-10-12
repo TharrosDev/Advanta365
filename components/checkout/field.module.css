@@ -1,0 +1,92 @@
+/* A field: the label over its hint, the control, then the error, 7px apart. */
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-1);
+  min-width: 0;
+}
+
+.label {
+  color: var(--text);
+}
+
+.star {
+  color: var(--alert);
+}
+
+.optional {
+  color: var(--text-soft);
+  font-weight: 400;
+}
+
+.hint {
+  color: var(--text-soft);
+}
+
+/*
+ * A field with something wrong: the control's border and the line under it are the alert colour,
+ * and the line stands behind a heavy rule, so the state does not rest on colour alone.
+ */
+.invalid :is(input, select, textarea) {
+  border-color: var(--alert);
+}
+
+.error {
+  padding-inline-start: var(--s-1);
+  border-inline-start: 3px solid var(--alert);
+  color: var(--alert);
+  font-weight: 600;
+}
+
+/* The summary of a form sent with something wrong, on the alert wash, edged in the alert colour. */
+.summary {
+  padding: var(--s-2) var(--s-3);
+  border: var(--edge) solid var(--alert);
+  border-radius: var(--round-2);
+  background: var(--alert-wash);
+  color: var(--ink);
+}
+
+.summaryTitle {
+  color: var(--alert);
+}
+
+.problems {
+  display: flex;
+  flex-direction: column;
+  margin: var(--s-1) 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+/* Each problem is a link at least 44px tall, underlined, in ink on the wash. */
+.problem {
+  display: inline-flex;
+  align-items: center;
+  min-height: var(--tap);
+  color: var(--ink);
+  font-weight: 400;
+  text-decoration: underline;
+  text-decoration-thickness: var(--hair);
+  text-underline-offset: 3px;
+}
+
+.problem:focus-visible {
+  text-decoration-thickness: var(--edge);
+}
+
+@media (hover: hover) {
+  .problem:hover {
+    text-decoration-thickness: var(--edge);
+  }
+}
+
+@media (forced-colors: active) {
+  .error {
+    border-inline-start-color: CanvasText;
+  }
+
+  .summary {
+    border-color: CanvasText;
+  }
+}

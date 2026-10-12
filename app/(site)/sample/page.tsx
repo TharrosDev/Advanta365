@@ -46,7 +46,7 @@ const PHASES_LABEL = "Browse the sample catalog by phase";
 
 const NEXT = [
   { href: "/catalog", label: "Browse the catalog" },
-  { href: "/about#contact", label: "Get in touch" },
+  { href: "/contact", label: "Get in touch" },
 ];
 
 /**

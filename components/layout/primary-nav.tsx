@@ -8,8 +8,8 @@ import { NAV } from "@/lib/site";
 import styles from "./primary-nav.module.css";
 
 /**
- * The bar's inline navigation, from 68em: Catalog and About in one row. The link of the page being
- * shown carries `aria-current="page"`; on a page underneath it, `aria-current="true"`.
+ * The bar's inline navigation, from 68em: Catalog and Why Advanta in one row. The link of the page
+ * being shown carries `aria-current="page"`; on a page underneath it, `aria-current="true"`.
  *
  * One ink underline (`data-nav-underline`, decoration only) sits under the row and stands under
  * the current link. The row is a grid of equal columns, so the underline is positioned from the

@@ -1,0 +1,228 @@
+/*
+ * The page is this one band: the title stands where a title block puts it (56px under the bar, 84px
+ * from 40em), and the band ends on the roomy padding before the footer. Doubled, because the band
+ * sets its own block padding with one class.
+ */
+.band.band {
+  padding-block: var(--s-6) var(--s-7);
+}
+
+@media (min-width: 40em) {
+  .band.band {
+    padding-block: var(--s-7) var(--s-8);
+  }
+}
+
+/*
+ * One column below 68em; from 68em the twelve columns. The grid is the width the title is measured
+ * by (`cqi` below): the title stands in the first three of its twelve columns.
+ */
+.grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  row-gap: var(--s-6);
+  container-type: inline-size;
+}
+
+.top {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  row-gap: var(--s-2);
+  min-width: 0;
+}
+
+.margin,
+.intro,
+.topics {
+  min-width: 0;
+}
+
+.title {
+  color: var(--text);
+  overflow-wrap: break-word;
+}
+
+.lead {
+  max-width: var(--wrap-lead);
+  color: var(--text-soft);
+}
+
+/*
+ * The address stands 42px under the lead. The row is the container the address measures itself
+ * against (the font size of the link below).
+ */
+.row {
+  container-type: inline-size;
+  margin-block-start: var(--s-5);
+}
+
+/*
+ * The one big link. The words are the target, with the arrow after them; the highlighter is drawn
+ * behind the address alone, a little past its ends and on each line when it breaks after the "@".
+ */
+.link.link {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--s-3);
+  max-width: 100%;
+  min-height: var(--control);
+  /*
+   * The statement size, but never larger than what lets the domain (8.2em wide) stand whole under
+   * the "@" beside the arrow and its gap (2rem and 21px): on a narrow phone it steps down instead
+   * of breaking after "advanta365.".
+   */
+  font-size: min(var(--size-statement), calc((100cqi - 3.3125rem) / 8.4));
+  border-radius: var(--round-2);
+  color: var(--text);
+  text-decoration: none;
+}
+
+.address {
+  min-width: 0;
+  margin-inline: -0.1em;
+  padding-inline: 0.1em;
+  border-radius: var(--round-2);
+  text-decoration: underline;
+  text-decoration-thickness: var(--edge);
+  text-underline-offset: 0.12em;
+  overflow-wrap: anywhere;
+  box-decoration-break: clone;
+  -webkit-box-decoration-break: clone;
+}
+
+.arrow {
+  flex: none;
+}
+
+/* Hover and keyboard focus look the same: the highlighter behind the address, ink on it. */
+.link:focus-visible .address {
+  background-color: var(--mark);
+  color: var(--on-mark);
+}
+
+.link:focus-visible .arrow {
+  translate: 6px 0;
+}
+
+@media (hover: hover) {
+  .link:hover .address {
+    background-color: var(--mark);
+    color: var(--on-mark);
+  }
+
+  .link:hover .arrow {
+    translate: 6px 0;
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .address {
+    transition: background-color var(--time-swap) linear;
+  }
+
+  .arrow {
+    transition: translate var(--time-swap) var(--curve-settle);
+  }
+}
+
+@media (forced-colors: active) {
+  .link:focus-visible .address {
+    background-color: Highlight;
+    color: HighlightText;
+  }
+}
+
+/* What to expect: one quiet sentence, 28px under the address. */
+.expect {
+  max-width: var(--wrap-copy);
+  margin-block-start: var(--s-4);
+  color: var(--text-soft);
+}
+
+.topicsTitle {
+  color: var(--text);
+}
+
+.topicsNote {
+  max-width: var(--wrap-copy);
+  margin-block-start: var(--s-1);
+  color: var(--text-soft);
+}
+
+/*
+ * A row is a link from end to end, and on a large monitor the page's nine columns are wider than a
+ * row reads: the ledger stops at 72rem, as the closing rows of the other pages do.
+ */
+.list {
+  max-width: 72rem;
+  margin-block-start: var(--s-4);
+}
+
+/*
+ * From 40em the whole address (11.8em with the arrow and its gap beside it) fits on one line, and
+ * the break after the "@" stays only as the last resort.
+ */
+@media (min-width: 40em) {
+  .link.link {
+    font-size: min(var(--size-statement), calc((100cqi - 3.3125rem) / 11.9));
+  }
+}
+
+@media (min-width: 68em) {
+  .grid {
+    grid-template-columns: repeat(12, minmax(0, 1fr));
+    column-gap: var(--col-gap);
+    row-gap: var(--s-7);
+  }
+
+  .top {
+    grid-column: 1 / -1;
+    grid-template-columns: subgrid;
+    row-gap: 0;
+  }
+
+  .margin {
+    grid-column: 1 / span 3;
+  }
+
+  .intro,
+  .topics {
+    grid-column: 4 / -1;
+  }
+
+  /*
+   * The lead stands on the title's baseline. The pseudo-element is an empty line set in the
+   * title's type; the lead is aligned to that line's baseline, so the two columns agree whatever
+   * the fonts measure.
+   */
+  .titleLine {
+    display: flex;
+    align-items: baseline;
+  }
+
+  .titleLine::before {
+    content: "\200B";
+    flex: none;
+    width: 0;
+    font-family: var(--face-display);
+    font-size: var(--size-banner);
+    line-height: 1.12;
+    font-weight: 600;
+  }
+
+  .titleLine > * {
+    flex: 1 1 0;
+    min-width: 0;
+  }
+
+  /*
+   * The title is one word in the three columns of the margin, and a word does not break to fit
+   * them: from 68em to about 1280px of window the banner size is wider than they are, so the title
+   * is held to the width they have, by the measure the index pages use for theirs. The line beside
+   * it takes the same size, so the two baselines stay one.
+   */
+  .margin .title,
+  .titleLine::before {
+    font-size: min(var(--size-banner), calc((25cqi - 0.75 * var(--col-gap)) / 4.89));
+  }
+}

@@ -11,7 +11,20 @@ import { hydrated, introSeen } from "./helpers";
 // A visually hidden element is a clipped 1px box and a row that scrolls sideways on purpose (the
 // phones' phase strip) is measured as the row, not by what scrolls inside it.
 
-const ROUTES = ["/", "/catalog", "/phases/plan", "/purchase", "/about", "/sample", "/nope"];
+const ROUTES = [
+  "/",
+  "/catalog",
+  "/phases/plan",
+  "/purchase",
+  "/why-advanta",
+  "/contact",
+  "/privacy",
+  "/terms",
+  "/refunds",
+  "/accessibility",
+  "/sample",
+  "/nope",
+];
 
 const SIZES: ReadonlyArray<readonly [number, number]> = [
   [320, 640],

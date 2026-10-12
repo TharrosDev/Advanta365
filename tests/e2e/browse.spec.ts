@@ -64,7 +64,7 @@ test("the home page leads to the worked example, which says its file cannot be d
 });
 
 test("every page fits the viewport without sideways scrolling", async ({ page }) => {
-  // Seven full page loads in one test, at the start of the run: three times the default budget.
+  // Eight full page loads in one test, at the start of the run: three times the default budget.
   test.slow();
   for (const path of [
     "/",
@@ -72,7 +72,8 @@ test("every page fits the viewport without sideways scrolling", async ({ page })
     "/phases/make-the-case",
     "/sample",
     "/purchase",
-    "/about",
+    "/why-advanta",
+    "/contact",
     "/catalog?view=change-management-strategy",
   ]) {
     await page.goto(path);

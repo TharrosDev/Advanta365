@@ -1,11 +1,11 @@
 import { expect, test, type Locator, type Page } from "@playwright/test";
 import { hydrated, NAVIGATION_TIMEOUT } from "./helpers";
 
-// Every template that is not a free sample is locked: its cover is out of focus under a chain and
-// a padlock, and the tile is a button. Pressing it does not open anything. The tile says no: for
-// 600ms it carries `data-denied` (a red outline that pulses, a shake, the padlock rattling), and a
-// line under it says where the template is to be had. Under reduced motion the outline and the
-// line are all of it.
+// Every template that is not a free sample is locked: its cover is out of focus, and the tile is a
+// button. Nothing is drawn over the cover. Pressing the tile does not open anything. The tile says
+// no: for 600ms it carries `data-denied` (a red outline that pulses, a shake, a red wash), and a
+// line under it says where the template is to be had. Under reduced motion the outline, the wash
+// and the line are all of it.
 
 const ALERT = "rgb(163, 43, 29)";
 const LOCKED_SLUG = "sharepoint-migration-impact-assessment";
@@ -47,7 +47,7 @@ async function watchDenied(tile: Locator) {
 const deniedStates = (page: Page) =>
   page.evaluate(() => (window.__denied ?? []).map((entry) => entry.state));
 
-test("a locked tile is a button named for its template, under a chain and a padlock", async ({
+test("a locked tile is a button named for its template, with its cover out of focus", async ({
   page,
 }) => {
   await openCatalog(page);
@@ -59,12 +59,10 @@ test("a locked tile is a button named for its template, under a chain and a padl
   await expect(button).toHaveAccessibleName(/\S, locked$/);
   await expect(tile.getByRole("link")).toHaveCount(0);
 
-  // The chain and the padlock are a drawing, kept from assistive technology.
-  const drawing = tile.locator("svg[data-chain-lock]");
-  await expect(drawing).toHaveCount(1);
-  await expect(drawing).toHaveAttribute("aria-hidden", "true");
-  await expect(drawing.locator("[data-lock]")).toHaveCount(1);
-  await expect(drawing).toBeVisible();
+  // Nothing is drawn over the cover: the well holds the cover and nothing else.
+  await expect(tile.locator("[data-well] > *")).toHaveCount(1);
+  await expect(tile.locator("[data-well] > * [data-cover]")).toHaveCount(1);
+  await expect(tile.locator("[data-lock], [data-chain-lock]")).toHaveCount(0);
 
   // Only the cover is out of focus: the title and the facts under it are sharp.
   const blurred = await tile.evaluate((element) =>
@@ -77,9 +75,8 @@ test("a locked tile is a button named for its template, under a chain and a padl
   );
   expect(blurred).toEqual([{ holdsCover: true, holdsTitle: false }]);
 
-  // A free tile has neither.
+  // A free tile has no blur.
   const free = page.locator("[data-tile][data-free]").first();
-  await expect(free.locator("svg[data-chain-lock]")).toHaveCount(0);
   expect(
     await free.evaluate(
       (element) =>
@@ -162,9 +159,7 @@ test("five fast presses start the denial over each time and leave one line", asy
   await expect(message(tile)).toHaveText(/^Included with the toolkit\.\s*Purchase$/);
 });
 
-test("while it denies, the tile shakes, the padlock rattles and the outline pulses red", async ({
-  page,
-}) => {
+test("while it denies, the tile shakes and the outline and wash pulse red", async ({ page }) => {
   await openCatalog(page);
   const tile = lockedTiles(page).first();
   // The state is set by hand and everything is read in the same breath, before any of it is over.
@@ -173,7 +168,8 @@ test("while it denies, the tile shakes, the padlock rattles and the outline puls
     return {
       names: {
         tile: getComputedStyle(element).animationName,
-        lock: getComputedStyle(element.querySelector("[data-lock]") as Element).animationName,
+        wash: getComputedStyle(element.querySelector("[data-well]") as Element, "::before")
+          .animationName,
       },
       outline: getComputedStyle(element).outlineStyle,
       timing: element.getAnimations({ subtree: true }).map((animation) => {
@@ -184,11 +180,11 @@ test("while it denies, the tile shakes, the padlock rattles and the outline puls
   });
   expect(names.tile).toContain("tile-shake");
   expect(names.tile).toContain("denied-pulse");
-  expect(names.lock).toBe("lock-rattle");
+  expect(names.wash).toBe("denied-wash");
   expect(outline).toBe("solid");
 
   // Nothing of it goes on: every animation of the tile ends, well inside the 600ms.
-  expect(timing.length).toBeGreaterThanOrEqual(3);
+  expect(timing.length).toBeGreaterThanOrEqual(2);
   for (const { end, iterations } of timing) {
     expect(end).toBeLessThanOrEqual(600);
     expect(iterations).toBe(1);
@@ -208,16 +204,16 @@ test("under reduced motion the denial is the red outline and the line, and nothi
   await tile.evaluate((element) => element.setAttribute("data-denied", ""));
   await expect(tile).toHaveCSS("outline-color", ALERT);
   const look = await tile.evaluate((element) => {
-    const lock = element.querySelector("[data-lock]") as Element;
+    const well = element.querySelector("[data-well]") as Element;
     return {
       tile: getComputedStyle(element).animationName,
-      lock: getComputedStyle(lock).animationName,
+      wash: getComputedStyle(well, "::before").animationName,
       style: getComputedStyle(element).outlineStyle,
       colour: getComputedStyle(element).outlineColor,
       running: element.getAnimations({ subtree: true }).length,
     };
   });
-  expect(look).toEqual({ tile: "none", lock: "none", style: "solid", colour: ALERT, running: 0 });
+  expect(look).toEqual({ tile: "none", wash: "none", style: "solid", colour: ALERT, running: 0 });
   await tile.evaluate((element) => element.removeAttribute("data-denied"));
 
   // The press itself works as it does with motion.
@@ -299,7 +295,7 @@ test("a link to a locked template whose tile is not on the page of results is an
   }
 });
 
-test("a phase page carries the drawing of the locks once, for all its grids", async ({ page }) => {
+test("a phase page draws nothing over its locked tiles, in any of its grids", async ({ page }) => {
   await page.goto("/phases/plan");
   // Several steps, each with a grid of its own, and locked tiles in more than one of them.
   const grids = page.getByRole("main").locator("ul:has([data-tile])");
@@ -310,18 +306,15 @@ test("a phase page carries the drawing of the locks once, for all its grids", as
     ),
   ).toBeGreaterThan(1);
 
-  // No id is on the page twice, and every lock finds the paint it asks for.
+  // A locked tile is a button named for its template, and the well of every tile holds its cover
+  // and nothing drawn over it. No id is on the page twice.
+  const locked = page.locator("[data-tile][data-locked]");
+  await expect(locked.first().getByRole("button")).toHaveAccessibleName(/\S, locked$/);
+  const tiles = await page.locator("[data-tile]").count();
+  await expect(page.locator("[data-tile] [data-well] > *")).toHaveCount(tiles);
+  await expect(page.locator("[data-chain-lock], [data-lock]")).toHaveCount(0);
   const ids = await page.evaluate(() => [...document.querySelectorAll("[id]")].map((el) => el.id));
   expect(ids.filter((id, index) => ids.indexOf(id) !== index)).toEqual([]);
-  const broken = await page.evaluate(() =>
-    [...document.querySelectorAll("svg[data-chain-lock] use")]
-      .map((use) => use.getAttribute("href") ?? "")
-      .filter((href) => !href.startsWith("#") || !document.getElementById(href.slice(1))),
-  );
-  expect(broken).toEqual([]);
-  for (const lock of await page.locator("svg[data-chain-lock]").all()) {
-    await expect(lock).toBeVisible();
-  }
 });
 
 test.describe("without JavaScript", () => {
@@ -344,7 +337,7 @@ test.describe("without JavaScript", () => {
     await page.goto("/catalog");
     const tile = lockedTiles(page).first();
     await expect(tile.getByRole("button")).toHaveAccessibleName(/\S, locked$/);
-    await expect(tile.locator("svg[data-chain-lock]")).toBeVisible();
+    await expect(tile.locator("[data-well] > *")).toHaveCount(1);
 
     // The button answers to nothing here, so the way to the purchase page is on the page itself.
     const way = page.getByRole("main").getByRole("link", { name: "Purchase", exact: true });

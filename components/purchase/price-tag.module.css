@@ -77,15 +77,25 @@
 
 /*
  * Besley's own figures: its tabular zero is drawn at one weight only. The size is the tag's, not
- * the page's: the amount fills the width of the paper it is printed on.
+ * the page's: the amount ("$1,499.99", nine characters) fills the width of the paper it is
+ * printed on, and the currency code stands under it, small, so the figure reads as Canadian
+ * dollars without the amount having to shrink to make room for three more letters.
  */
 .price {
   font-family: var(--face-display);
-  font-size: clamp(1.1875rem, 6.3cqi, 2.125rem);
+  font-size: clamp(0.9375rem, 4.9cqi, 1.6875rem);
   line-height: 1.1;
   font-weight: 700;
   font-feature-settings: "tnum" 0;
   white-space: nowrap;
+}
+
+/* The code under the amount: the tag's quiet size, tracked, in the soft ink. */
+.currency {
+  display: block;
+  margin-block-start: 0.125rem;
+  color: var(--text-soft);
+  letter-spacing: 0.08em;
 }
 
 .terms {

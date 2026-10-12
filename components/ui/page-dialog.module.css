@@ -44,13 +44,22 @@
   min-height: 0;
 }
 
-/* The bar keeps its place while the body scrolls under it. */
+/*
+ * The bar keeps its place while the body scrolls under it. Close stands at its end, whatever
+ * stands before it.
+ */
 .bar {
   display: flex;
   flex: none;
-  justify-content: flex-end;
+  align-items: center;
+  gap: var(--s-2);
   padding: var(--s-2) var(--s-3);
   border-block-end: var(--hair) solid var(--line);
+}
+
+.close {
+  flex: none;
+  margin-inline-start: auto;
 }
 
 .body {
@@ -60,10 +69,29 @@
   overscroll-behavior: contain;
 }
 
+/*
+ * A dialog that fills: below 40em it is the whole window, a page of its own with square corners
+ * and no dimmed page around it (its width is the window's own, without a scrollbar's gutter); from
+ * 40em it keeps one height (46rem, or what the window leaves) and is 64rem wide at most, so
+ * content that changes inside it does not move its edges.
+ */
+.fill {
+  width: 100%;
+  height: 100dvh;
+  max-height: none;
+  border-radius: 0;
+}
+
 @media (min-width: 40em) {
   .dialog {
     width: min(100vw - 2 * var(--s-4), 60rem);
     max-height: calc(100dvh - 2 * var(--s-4));
+  }
+
+  .fill {
+    width: min(100vw - 2 * var(--s-4), 64rem);
+    height: min(46rem, 100dvh - 2 * var(--s-4));
+    border-radius: var(--round-3);
   }
 }
 

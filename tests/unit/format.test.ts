@@ -1,25 +1,36 @@
 import { expect, test } from "vitest";
 import { FREE_SAMPLE_COUNT } from "@/lib/catalog/validate";
-import { countWord, formatLength, formatPrice } from "@/lib/format";
+import { countWord, formatLength, formatPrice, formatPriceParts } from "@/lib/format";
+import { OFFER } from "@/lib/site";
+
+const NB = " ";
 
 test("whole-dollar prices have no decimals", () => {
-  expect(formatPrice(4900)).toBe("$49");
+  expect(formatPrice(4900, "CAD")).toBe(`$49${NB}CAD`);
 });
 
 test("prices with cents show two decimals", () => {
-  expect(formatPrice(4950)).toBe("$49.50");
+  expect(formatPrice(4950, "CAD")).toBe(`$49.50${NB}CAD`);
 });
 
 test("large prices use a thousands separator", () => {
-  expect(formatPrice(120000)).toBe("$1,200");
+  expect(formatPrice(120000, "CAD")).toBe(`$1,200${NB}CAD`);
 });
 
 test("zero is formatted", () => {
-  expect(formatPrice(0)).toBe("$0");
+  expect(formatPrice(0, "CAD")).toBe(`$0${NB}CAD`);
 });
 
-test("the toolkit price prints with its cents", () => {
-  expect(formatPrice(49999)).toBe("$499.99");
+test("the toolkit price prints with its cents and its currency code", () => {
+  expect(formatPrice(OFFER.priceCents, OFFER.currency)).toBe(`$1,499.99${NB}CAD`);
+});
+
+test("the code follows the currency passed in, and the symbol stays a bare dollar sign", () => {
+  expect(formatPrice(49999, "USD")).toBe(`$499.99${NB}USD`);
+});
+
+test("a price splits into its amount and its code", () => {
+  expect(formatPriceParts(149999, "CAD")).toEqual({ amount: "$1,499.99", currency: "CAD" });
 });
 
 test("a count up to twelve is written as a word, and in digits beyond", () => {

@@ -122,7 +122,7 @@ const fixed = (value: number) => value.toFixed(2);
  * with a caret, and the six free samples as a hand of finished documents standing where the box
  * was. Both are in the page from the start, in the same place. The sequence is the page's half of
  * the prompt ink scene, so it plays to live ink only. Without it (no script, reduced motion, ink
- * that is still or paused) the box is not displayed and the documents simply stand there. With
+ * that is still) the box is not displayed and the documents simply stand there. With
  * it, the box stands empty for a moment with its caret blinking, dissolves as the ink opens over
  * it, and the documents land one after the other, the middle ones first, once the ink has
  * cleared: app/motion.css, on the hooks below, by the clock that starts when the cover of a first

@@ -9,7 +9,7 @@ for (const path of MISSING) {
     expect(response?.status()).toBe(404);
     await expect(page.getByRole("heading", { level: 1 })).toHaveText("Page not found");
     // The 404 keeps the site header so visitors can carry on.
-    await expect(page.getByRole("navigation", { name: "Rollout phases" })).toBeVisible();
+    await expect(page.getByRole("banner")).toBeVisible();
   });
 }
 

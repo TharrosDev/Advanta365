@@ -115,7 +115,7 @@ describe("the choice", () => {
   });
 
   it("gives the foot of a page to the footer once it is in view whole", () => {
-    // The home page scrolled to its end at 1440x900: the tail of the closing band, half of it, is
+    // The Purchase page scrolled to its end at 1440x900: the tail of its bloom stage, half of it, is
     // the topmost backdrop, and the whole footer stands under it.
     const bloom = band("bloom", -380, 760);
     const wisps = band("wisps", 380, 520);
@@ -129,7 +129,7 @@ describe("the choice", () => {
   });
 
   it("gives the very end of the page to a footer taller than the band above it shows", () => {
-    // A tall footer: only a third of the closing band's tail is left, which is below the share
+    // A tall footer: only a third of the bloom stage's tail is left, which is below the share
     // that makes the topmost win, and by weight and area the band would hold the canvas.
     const bloom = band("bloom", -429, 640);
     const wisps = band("wisps", 788, 112);

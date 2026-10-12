@@ -4,7 +4,7 @@ This document describes the visual system of the Advanta365 site: the concept, t
 
 ## 1. Concept
 
-Advanta365 sells one thing: the complete change management and user adoption toolkit for Microsoft 365 rollouts, for $499.99. Six templates are free samples and the rest are shown locked. Each template arrives mostly written, so the buyer's work is the last part. The site is drawn as a working copy: white sheets on a cool grey desk, set in near-black type, with a light-blue highlighter that marks the parts that belong to the buyer. The ink layer is the only moving material on the page. It behaves like wet ink on water, sits under the text, and never competes with it.
+Advanta365 sells one thing: the complete change management and user adoption toolkit for Microsoft 365 rollouts, for $1,499.99 CAD. Six templates are free samples and the rest are shown locked. Each template arrives mostly written, so the buyer's work is the last part. The site is drawn as a working copy: white sheets on a cool grey desk, set in near-black type, with a light-blue highlighter that marks the parts that belong to the buyer. The ink layer is the only moving material on the page. It behaves like wet ink on water, sits under the text, and never competes with it.
 
 Six principles guide every decision:
 
@@ -20,12 +20,12 @@ Six principles guide every decision:
 | Path | What it holds |
 | --- | --- |
 | `app/globals.css` | Every colour, type, space, depth, shape, layer and motion token; the band definitions; base element rules; the type classes; the reduced-motion safety net; the forced-colours rules. |
-| `app/motion.css` | Entrances, view transitions, paper and lift behaviour, the sticky bar's shadow, the bar's sliding underline, the ninety-percent scroll sequence, the price tag's swing, a locked tile saying no (a vibration, a rattle and a wash), the pop-up's arrival and the hero's sequence. Imported first by `globals.css`. |
+| `app/motion.css` | Entrances, view transitions, paper and lift behaviour, the sticky bar's shadow, the bar's sliding underline, the ninety-percent scroll sequence, the price tag's swing, a locked tile saying no (a vibration and a wash), the arrival of a pop-up, a step of the checkout settling in and the hero's sequence. Imported first by `globals.css`. |
 | `app/layout.tsx` | Font loading (Besley and Atkinson Hyperlegible Next as CSS variables), root attributes, the boot script, and `MotionRoot`. |
 | `app/icon.svg` | The site icon: the logo mark on an ink tile. |
 | `lib/brand/mark.ts` | The logo geometry, the single source for the mark path data. |
 | `components/ui/` | The UI primitives described in section 9. |
-| `components/catalog/`, `components/purchase/`, `components/about/`, `components/home/`, `components/layout/` | Feature components built from the primitives (section 9.8): the template tiles, locks and pop-up, the portfolio, its price tag and the contents leaf, the sections of the About page, the hero, the bar's purchase button and the footer. |
+| `components/catalog/`, `components/purchase/`, `components/checkout/`, `components/about/`, `components/home/`, `components/layout/` | Feature components built from the primitives (section 9.8): the template tiles, locks and pop-up, the portfolio, its price tag and the contents leaf, the checkout, the sections of the Why Advanta page, the hero, the bar's purchase button and the footer. |
 | `components/ink/`, `lib/ink/` | The ink layer: the backdrop component, the controller, the engine, scenes, zones and stills. |
 | `lib/boot/` | The inline boot script and the pure functions it mirrors. |
 | `lib/scroll/` | The scroll-seen observer and the pointer light tracker. |
@@ -66,13 +66,6 @@ Defined on `:root` in `app/globals.css`.
 | `--paper-shade` | `#f1f3f7` | The far corners of a sheet. |
 | `--card-light` | `rgb(255 255 255 / 0.62)` | The light on the card stock front of a page-size folder. |
 | `--pocket-shade` | `0 -8px 14px -8px rgb(11 13 18 / 0.22)` | The shade that front casts up onto the sheets in its pocket. |
-| `--steel-light` | `#f8fafd` | The light along the top of a link and a hairline glint. |
-| `--steel` | `#b6bdca` | Now only the keyhole of the padlock. |
-| `--steel-shade` | `#6a7182` | The shaded side of a link and of the bow. |
-| `--steel-edge` | `#262a35` | The dark line around every piece of steel. |
-| `--lock-light` | `#515869` | The hairline of light along the top of the padlock body (no longer a gradient stop). |
-| `--lock` | `#1e222c` | The padlock's body. |
-| `--lock-cast` | `rgb(11 13 18 / 0.26)` | The one soft shadow the chains and padlock cast on the cover under them. |
 | `--grain` | `url("/paper/grain.png")` | A pre-rendered 128-pixel paper tooth, used by medium and large sheets. |
 
 ### 3.2 Semantic layer
@@ -128,7 +121,7 @@ Measured as WCAG 2.x contrast ratios from the token values.
 - Text on a mark fill is `--on-mark` (ink). Text on an ink fill is `--on-ink` (white).
 - The mark is the colour of the highlighter behind words (`::selection`, `[data-mark]` headline spans, the link highlight on focus). It is a background, never a text colour on paper.
 - The logo tail is the mark colour. Under forced colours it uses `currentColor`.
-- On the binder, where the mark measures 10.11 : 1, it may be a line: the focus ring, the underline of a hovered or focused link, and in the footer the underline of the tagline's last two words and the top edge of a hovered or focused phase tab. The footer's one button is a mark fill with ink text, which dilutes to `--mark-wash` under the pointer or focus and goes to `--mark-deep` when held down.
+- On the binder, where the mark measures 10.11 : 1, it may be a line: the focus ring, the underline of a hovered or focused link, and in the footer the 2px edge along its top and the underline of a hovered or focused link. The footer's one button is a mark fill with ink text, which dilutes to `--mark-wash` under the pointer or focus and goes to `--mark-deep` when held down.
 
 ### 3.5 Binder and ink surfaces
 
@@ -300,7 +293,7 @@ Where a thing is drawn in rem and the column grows faster than the root does, it
 - The toolkit's folder on the home page takes `max(30rem, 79.7%)` of its six columns, and the "what's inside" specimen `max(20rem, 78%)` of its margin.
 - The Purchase page's folder and contents leaf, and the worked example's page, are drawn larger with CSS `zoom` by `--grow`: how many times wider the column is than 77rem at the root size in use (1 up to a 1600px window, 1.15 at 2560, above 1.4 from 3440), held to what the window's height allows (`100svh` over 1150px, so 1.25 at 1440px high, the height of an ultrawide monitor) and never below 1. The ratio of two lengths is made a plain number by the tangent of the arc tangent of the pair (`tan(atan2(...))`).
 - The ink stills: from 68em a wide still stands where the page's grid is and not where the window's edges are, so the ink stays under the same words (section 10.7).
-- The cap on the minimum height of the ninety band (`min(88svh, 46rem)`) and of the closing band (`min(72svh, 40rem)`) grows by 0.25px and 0.15px for every pixel of window past 1600px, so a large monitor gets bands as deep as they are wide.
+- The cap on the minimum height of the ninety band (`min(88svh, 46rem)`) grows by 0.25px for every pixel of window past 1600px, so a large monitor gets a band as deep as it is wide.
 
 A few measures stay fixed, so that a row is never a thousand pixels from its arrow: a ledger of rows with a label at one end and a link or a tally at the other (the Sample page's ledgers and the list of next steps) holds to 64rem, the 404's ledger and the statement's aside hold to `--wrap-lead`, and the filter sheet is at most 40rem wide.
 
@@ -328,15 +321,15 @@ A tablet is not a stretched phone or a squeezed desktop, and the layout does not
 | A page title and its aside (`TitleBlock` with `aside`: the phase numeral and its count, the worked example's page) | 40em | The `paired` grid: words and a column of `clamp(16rem, 25vw + 6rem, 18rem)`. The numeral and its count stand in a row below 68em and stack from it. |
 | The home page's toolkit: the words and the folder | each has 24rem | An auto-fit grid. |
 | The six free samples on the home page | 40em: three across; 68em: six across | A grid of three and then six equal columns, so no tile is left alone on a second row. |
-| The About page's head and passes of the making; a buyer's name and concern; a thing not finished and its sentence | about 55em; about 52em; about 50em | Wrapping flex rows: the head (22rem) and the passes (28rem); the name (20rem) and the concern (16rem); the thing (20rem) and its sentence (24rem). The phases of the making take the full width under both. |
-| The About comparison | 40em | The two alternatives are two columns on five shared rows (a subgrid), and the toolkit's sheet lies the full width under them. A fact stands as a line where its sheet holds both of its parts. |
+| The Why Advanta page's head and passes of the making; a buyer's name and concern; a thing not finished and its sentence | about 55em; about 52em; about 50em | Wrapping flex rows: the head (22rem) and the passes (28rem); the name (20rem) and the concern (16rem); the thing (20rem) and its sentence (24rem). The phases of the making take the full width under both. |
+| The Why Advanta comparison | 40em | The two alternatives are two columns on five shared rows (a subgrid), and the toolkit's sheet lies the full width under them. A fact stands as a line where its sheet holds both of its parts. |
 | The Purchase page's folder and contents leaf | about 1010px | An auto-fit grid of two 28rem columns, the tag lying on the folder. |
 | The 404's words and the open water | each has 23rem | An auto-fit grid, so the spill is on the first screen of a landscape tablet. |
 | The catalog's phase row | 40em | The seven cards share the row equally where they fit (a 768px tablet holds them; each card is 70px at least from 40em, 84px below) and scroll sideways where they do not. |
 
 Other tablet details: the filter sheet is the window's width on a phone and at most 40rem, centred, past it; the pop-up's side padding runs from 21px at 640px to 42px from 1088px; the `large` phase cards (a page's index of the phases) stand in one row from 40em where their list is 42rem wide, a window of about 730px, and four across where it is not.
 
-The site is checked at sixteen window sizes by `tests/e2e/viewports.spec.ts`, on seven routes (`/`, `/catalog`, `/phases/plan`, `/purchase`, `/about`, `/sample` and `/nope`). Nothing is drawn past the window's edge at any of them, and from 1280px up the words of a page span more than half of the window (the 404 is the exception):
+The site is checked at sixteen window sizes by `tests/e2e/viewports.spec.ts`, on twelve routes (`/`, `/catalog`, `/phases/plan`, `/purchase`, `/why-advanta`, `/contact`, `/privacy`, `/terms`, `/refunds`, `/accessibility`, `/sample` and `/nope`). Nothing is drawn past the window's edge at any of them, and from 1280px up the words of a page span more than half of the window (the 404 is the exception):
 
 | Group | Window sizes (width by height) |
 | --- | --- |
@@ -383,7 +376,7 @@ Depth is a shadow scale. Level 0 is a hairline ring, and higher levels lift obje
 | `--depth-1` | Thumbnail or tab | Phase tabs and small covers. |
 | `--depth-2` | At rest | Sheets at rest. The default for `PaperSheet`. |
 | `--depth-3` | Lifted or panel | Lifted sheets, the toolkit's sheet in the comparison, the front of a page-size folder. |
-| `--depth-4` | Top of a stack | The menu drawer, the filter sheet and the pop-up of the catalog. |
+| `--depth-4` | Top of a stack | The menu drawer, the filter sheet, the pop-up of the catalog and the checkout. |
 
 Values, as written in `globals.css`:
 
@@ -414,7 +407,7 @@ Level 3 and level 4 at 68em are the four-layer forms defined in the same file. S
 | `data-timeline="on"` on `<html>` | The boot script | The browser supports `animation-timeline: view()`. |
 | `data-io="armed"` on `<html>` | `MotionRoot`, before paint | The scroll-seen observer is running for the current page. |
 | `data-intro` | The boot script, then the ink controller | The cover is playing: `play`, `ink`, or `leave`. The attribute is gone when the cover ends. |
-| `data-ink` | The boot script, and the ink layer (to `still`, when the ink cannot run) | `live`, `paused` or `still`. |
+| `data-ink` | The boot script, and the ink layer (to `still`, when the ink cannot run) | `live` or `still`. |
 | `data-hydrated` | `MotionRoot`, in an effect | The client components of the page have their handlers. Nothing on the site reads it; browser tests wait for it. |
 
 `MotionRoot` runs in a layout effect on each route change, so the observer is armed before the first paint of the incoming page. The reduced-motion check happens once, when the boot script runs.
@@ -446,7 +439,7 @@ Level 3 and level 4 at 68em are the four-layer forms defined in the same file. S
 | `--curve-drop` | `cubic-bezier(0.3, 1.25, 0.5, 1)` | A small overshoot, used for settling sheets. |
 | `--curve-pen` | `cubic-bezier(0.65, 0, 0.2, 1)` | Pen strokes on the cover. |
 
-`motion.css` also uses a few literal values: 480ms for drift entrances, 600ms for grow entrances, 420ms for the paper shade and tilt transitions, 1ms while the cover is up (so content behind it is already finished), the price tag's swing (1700ms, and 1200ms when its folder is hovered), a locked tile's denial (a state of 600ms: a 467ms vibration, a 500ms rattle, a 560ms outline hit-and-fade and a 560ms wash), the pop-up's arrival (320ms) and the hero's sequence (section 8.9).
+`motion.css` also uses a few literal values: 480ms for drift entrances, 600ms for grow entrances, 420ms for the paper shade and tilt transitions, 1ms while the cover is up (so content behind it is already finished), the price tag's swing (1700ms, and 1200ms when its folder is hovered), a locked tile's denial (a state of 600ms: a 467ms vibration, a 560ms outline hit-and-fade and a 560ms wash), the pop-up's arrival (320ms) and the hero's sequence (section 8.9).
 
 ### 8.4 Entrances
 
@@ -482,11 +475,12 @@ Entrance kinds:
 | `data-folder`, `data-folder-scope` | `Folder`, and an element around one | The folder whose sheets rise under the pointer; the scope in which keyboard focus raises them too. |
 | `data-price-tag` | `PriceTag` | The paper tag on its string: it swings once when it is first seen, and a little when its folder comes under the pointer. |
 | `data-nav-underline` | `PrimaryNav` | The bar's ink underline: it stands under the current link and slides to the next. |
-| `data-tile`, `data-free`, `data-locked`, `data-denied` | `TemplateTile`, `LockedTile` | A catalog tile, its kind, and the 600ms state in which a locked tile vibrates, hits and fades its outline and wash in `--alert` and rattles its padlock (`data-lock`). |
+| `data-tile`, `data-free`, `data-locked`, `data-denied` | `TemplateTile`, `LockedTile` | A catalog tile, its kind, and the 600ms state in which a locked tile vibrates, hits and fades its outline and wash in `--alert`. |
 | `data-well` | `TemplateTile` | The well of a tile: its `::before` is the red wash of a denied tile, animated by opacity. |
-| `data-template-dialog`, `data-enter` | `TemplateDialog` | The pop-up of the catalog; `data-enter` is on one that a link inside the site opened, which rises into place. |
+| `data-page-dialog`, `data-enter` | `PageDialog` | A pop-up: the catalog's (`data-template-dialog`) or the checkout (`data-checkout-dialog`); `data-enter` is on one that a link inside the site opened, which rises into place. |
+| `data-checkout-step`, `data-checkout-progress` | `CheckoutDialog` | A step of the checkout, which settles 10px into place when the visitor moves to it (`data-enter`), and the line under the bar, which grows to the current step. |
 | `data-hero-stage`, `data-hero-prompt`, `data-hero-doc`, `data-landed` | `HeroStage`, `HeroLanding` | The hero's prompt box and the six documents that replace it; `data-landed` on the stage ends the sequence for it (section 8.9). |
-| `data-lit-scope` | Read by the pointer tracker | Scope for a group of lit sheets that is not an article (the Purchase page's contents leaf, the About page's toolkit sheet and the pop-up's cover each stand in one, and so does each of the hero's documents); the scope stands where the sheet rests, so a lifted sheet does not drop and lift again under a pointer at its lower edge; read by `lib/scroll/pointer.ts` and the lit selectors in `app/motion.css`. |
+| `data-lit-scope` | Read by the pointer tracker | Scope for a group of lit sheets that is not an article (the Purchase page's contents leaf, the Why Advanta page's toolkit sheet and the pop-up's cover each stand in one, and so does each of the hero's documents); the scope stands where the sheet rests, so a lifted sheet does not drop and lift again under a pointer at its lower edge; read by `lib/scroll/pointer.ts` and the lit selectors in `app/motion.css`. |
 
 ### 8.6 Sheets and the pointer
 
@@ -539,7 +533,7 @@ The home page's first screen acts out the tagline: an empty prompt box becomes f
 
 Under the cover the box shows and the documents are out of sight.
 
-Without live ink there is no box and the documents stand from the first frame, visible and focusable, over the still: with no JavaScript, under reduced motion, with still ink (no usable GPU, more contrast, forced colours, data saving, ink switched off for the session) and in a session whose ink is paused. `HeroLanding` marks the stage `data-landed` when the ink is not running as the stage mounts, or stops running later (it fails, or the visitor pauses it), and never takes the mark off. So ink that stops half-way lands the documents at once, and ink that starts later runs behind documents that stay where they are. A return to the home page inside the site is a new stage: with running ink the sequence plays again.
+Without live ink there is no box and the documents stand from the first frame, visible and focusable, over the still: with no JavaScript, under reduced motion, with still ink (no usable GPU, more contrast, forced colours, data saving, ink switched off for the session). `HeroLanding` marks the stage `data-landed` when the ink is not running as the stage mounts, or stops running later (it fails), and never takes the mark off. So ink that stops half-way lands the documents at once, and ink that starts later runs behind documents that stay where they are. A return to the home page inside the site is a new stage: with running ink the sequence plays again.
 
 ### 8.10 Figures and tallies
 
@@ -563,7 +557,7 @@ All primitives live in `components/ui/`. Props are shown with their defaults in 
 | Primitive | Props | Usage |
 | --- | --- | --- |
 | `Wrap` | `as` (div, section, header, footer, nav; div), `ref`, `className` | `<Wrap as="section" className={styles.inner}>...</Wrap>` |
-| `Band` | `as` (section, div, header, footer, aside; section), `surface` (desk, paper, wash, ink, binder; desk), `pad` (regular, none, title, tight, roomy; regular), `backdrop`, `innerClassName`, `ref`, `className` | `<Band id="practice" surface="wash">...</Band>` |
+| `Band` | `as` (section, div, header, footer, aside; section), `surface` (desk, paper, wash, ink, binder; desk), `pad` (regular, none, title, tight, roomy; regular), `backdrop`, `innerClassName`, `ref`, `className` | `<Band id="state" surface="wash">...</Band>` |
 | `Split` | `margin` (ReactNode), `sticky` (false), `rule` (false), `className`, `marginClassName`, `contentClassName` | `<Split margin={<h2 className="type-banner">Plan</h2>} rule>...</Split>` |
 | `PaperSheet` | `as` (div, section, aside, span, li; div), `ratio` (free, portrait, landscape, slide; free), `size` (sm, md, lg; md), `depth` (0 to 4; 2), `lit` (false), `turn` (degrees), `className`, `style`, `ref` | `<PaperSheet ratio="portrait" depth={3} lit>...</PaperSheet>` |
 | `PaperStack` | `under` (2), `className`, `ref` | `<PaperStack under={3}><PaperSheet ratio="portrait" /></PaperStack>` |
@@ -580,7 +574,7 @@ All primitives live in `components/ui/`. Props are shown with their defaults in 
 | --- | --- | --- |
 | `Eyebrow` | `as` (p, span, div; p), `marker` (true), `id`, `className` | `<Eyebrow>The answer</Eyebrow>` |
 | `Note` | `className`, children | `<Note>These are samples.</Note>` |
-| `Sentences` | `text` (string, split on line breaks), `move` (false) | `<Sentences text="Proven experience at a template price." move />` |
+| `Sentences` | `text` (string, split on line breaks), `move` (false) | `<Sentences text="First sentence.\nSecond sentence." move />` |
 | `KeepCompounds` | `text` | `<KeepCompounds text="Go/No-Go Decision Checklist" />` |
 | `Tag` | `variant` (format, saving, plain; format), `className`, children | `<Tag variant="saving">Free sample</Tag>` |
 | `FactList` | `items` ({ label, value }[]), `className` | `<FactList items={[{ label: "Type", value: "Plan" }]} />` |
@@ -608,9 +602,10 @@ All primitives live in `components/ui/`. Props are shown with their defaults in 
 | `Checkbox` | `label` (string), `count`, `disabled`, `className`, input attributes except `type` | `<Checkbox label="Sharepoint" count={12} checked={on} onChange={...} />` |
 | `Input` | `className`, input attributes | `<Input id="catalog-search" name="q" maxLength={200} />` |
 | `Select` | `className`, select attributes, children (options) | `<Select aria-label="Sort by">...</Select>` |
+| `Textarea` | `rows` (3), `className`, textarea attributes | `<Textarea id="checkout-note" maxLength={600} />`: a few lines of text, drawn as `Input` is, and resizable downwards |
 | `Blank` | `caret` (blink, steady, none; steady), `size` (sm, md, lg; md), `className` | `<Blank caret="blink" size="lg" />` |
-| `Button` in `href` form | Forwards only `id`, `title`, `tabIndex`, `aria-label`, `aria-describedby`, `aria-current`, `onClick` | `<Button href="/purchase">Purchase</Button>` |
-| `Button` with `aria-disabled="true"` | Looks like a `:disabled` button and stays focusable, so a keyboard reaches its words. It does nothing | `<Button size="lg" aria-disabled="true">Checkout coming soon</Button>` |
+| `Button` in `href` form | Forwards only `id`, `title`, `tabIndex`, `aria-label`, `aria-describedby`, `aria-current`, `onClick`. `scroll={false}` keeps the page where it is, for a link that opens a pop-up | `<Button href="/purchase?checkout=details" scroll={false}>Checkout</Button>` |
+| `Button` with `aria-disabled="true"` | Looks like a `:disabled` button and stays focusable, so a keyboard reaches its words. It does nothing | `<Button size="lg" aria-disabled="true">Opening payment…</Button>` |
 
 Button sizes: `sm` is 44px below 68em and 40px from 68em; `md` is 48px; `lg` is 56px. Buttons always carry `type-ui`. The `text` variant underlines its words and shows a mark highlight behind them on hover and focus.
 
@@ -642,21 +637,31 @@ Built from the primitives for one part of the site; each has a doc comment that 
 | Component | Props | Usage |
 | --- | --- | --- |
 | `TemplateTile` | `template`, `phaseName`, `phaseOrder`, `href`, `headingLevel`, `scroll` (true), `denied` (false) | `<li><TemplateTile template={t} phaseName="Plan" phaseOrder={2} href={catalogHref(criteria, t.slug)} headingLevel="h2" /></li>` inside a `TileGrid`. A free sample is a link; any other template is locked. |
-| `TileGrid` | `className`, `locks` (true), children | `<TileGrid>{items}</TileGrid>`: a list with as many columns of at least 11rem (176px at the 16px root) as fit, never fewer than two. It carries the drawing the locks draw from. A page that holds a set number of tiles gives the grid its own columns by `className` (the home page's six free samples: three across from 40em, six from 68em). |
+| `TileGrid` | `className`, children | `<TileGrid>{items}</TileGrid>`: a list with as many columns of at least 11rem (176px at the 16px root) as fit, never fewer than two. A page that holds a set number of tiles gives the grid its own columns by `className` (the home page's six free samples: three across from 40em, six from 68em). |
 | `LockedTile` | `title`, `headingLevel` (h3), `initialDenied` (false), children | Used by `TemplateTile`: the button named "<title>, locked" and its live line, "Included with the toolkit." |
-| `ChainLock` | none | A drawing over a locked cover: two crossed fine steel chains and a small padlock. Decorative, deaf to the pointer. |
-| `TemplateDialog` | `closeHref`, `labelledBy`, children | `<TemplateDialog closeHref="/catalog" labelledBy="title-id"><TemplateDetail ... /></TemplateDialog>`: a native modal dialog; Escape, Close and the dimmed page close it. |
+| `PageDialog` (`components/ui`) | `name` (template, checkout), `closeHref`, `labelledBy`, `bar`, `fill` (false), children | The pop-up both features share: a native modal dialog at depth 4 with a bar that holds Close; Escape, Close and the dimmed page close it. `bar` is what stands before Close. `fill` is for content that changes while it is open: the whole window below 40em (square corners, no dimmed page), and one height (46rem, or what the window leaves) and at most 64rem wide from there. |
+| `TemplateDialog` | `closeHref`, `labelledBy`, children | `<TemplateDialog closeHref="/catalog" labelledBy="title-id"><TemplateDetail ... /></TemplateDialog>`: `PageDialog` for a free sample. |
+| `CheckoutDialog` | `panel`, `disclosure` | The checkout over the Purchase page: `PageDialog` with `fill`, its bar holding the title and the three steps (a numeral tile each: ink for the current one, a tick on the highlighter for one that is done, an outline for one ahead; below 40em the bar says "Step 1 of 3" instead), a 3px line that grows to the current step, the step, and the order summary. |
+| `OrderSummary` | `variant` (panel, disclosure) | What is being bought, on the binder (white on black, highlighter ticks, the total in Besley): a column beside the form from 68em, a native `<details>` row above it below 68em. |
+| `Field`, `FieldError`, `ErrorSummary` | `id`, `label`, `required`, `hint`, `error`, children (a function that draws the control) | One field of a form: a real label, an asterisk for a needed field and "(optional)" in words for the others, a hint, the control, and an error line in the alert colour behind a 3px rule that opens with a hidden "Error:". The summary stands at the head of a form sent with something wrong, on the alert wash, takes focus and links to each field. |
 | `TemplateDetail` | `template`, `phase`, `titleId` | The pop-up's content: a large lit cover, the "Free sample" tag, the title, facts, what is included, and a button to `/purchase`. |
 | `Portfolio` | `size` (page, section), `covers`, `phases`, `className` | `<Portfolio size="page" covers={samples} phases={phaseCoverage(phases, templates)} />`: the toolkit as a folder with its price tag and a tally of the phases. |
-| `PriceTag` | `className` | The price from `OFFER` on a paper tag on a string. Used by `Portfolio`. |
-| `ContentsLeaf` | `className` | The Purchase page's contents leaf: a lit, dog-eared `PaperSheet` (cut as a whole along the fold, with a flap over the cut) holding a ledger (`dl`) of counts from `TOOLKIT`, each a large Besley figure with a drawn highlighter stroke, then the Checkout button, contact line and sample note. |
+| `PriceTag` | `className` | The price from `OFFER` on a paper tag on a string: the amount in Besley with its currency code (`CAD`) small under it. Used by `Portfolio`. |
+| `ContentsLeaf` | `className` | The Purchase page's contents leaf: a lit, dog-eared `PaperSheet` (cut as a whole along the fold, with a flap over the cut) holding a ledger (`dl`) of counts from `TOOLKIT`, each a large Besley figure with a drawn highlighter stroke, then the Checkout link (the page's main action, which opens the checkout), the line that leads to the contact page and the sample note. |
 | `Hero`, `HeroStage` | `samples`, `phases` | The home page's first screen and its stage (section 8.9). |
 | `ProofStrip` | none | The hero's foot: four facts in a ruled row, on opaque paper. |
-| `PurchaseButton` | `className` | The bar's one call to action; quiet on `/purchase` itself. |
+| `PurchaseButton` | `className` | The bar's one call to action, with the full price ("$1,499.99 CAD") from 68em; quiet on `/purchase` itself. |
+| `BrandLink` | the props of `TransitionLink` | The bar's brand link. A plain link to `/` everywhere but the home page, where a plain click scrolls to the top instead (smooth, instant under reduced motion; no history entry, query and hash kept). |
 
 Rules for them: a catalog tile has exactly one control; a price is printed from `OFFER` and never typed; text over a backdrop is marked with `data-ink-calm`, and an object on paper (the folder, the tag, the contents leaf, the proof strip) needs no zone because no ink is behind its words.
 
-`components/about/` holds the sections of the About page: `PromiseBand`, `MakingSection`, `PhaseLine`, `BuyersSection`, `CompareSection`, `SiteState`, `ContactSection` and `SectionHead`; each file's doc comment says what it does.
+`components/about/` holds the sections of the Why Advanta page: `PromiseBand`, `MakingSection`, `PhaseLine`, `BuyersSection`, `CompareSection`, `SiteState` and `SectionHead`; each file's doc comment says what it does.
+
+`components/checkout/` holds the checkout: `CheckoutDialog`, its three steps (`DetailsStep`, `ReviewStep`, `PaymentStep`), `OrderSummary` and the form parts (`Field`, `FieldError`, `ErrorSummary`), built from the kit (`PageDialog`, `Button`, `Input`, `Select`, `Textarea`, `Checkbox`, `Note`, `TextLink`, `Icon`). A step is its content over a bar of actions that is sticky at the foot of the dialog; the main action is the last one, at the right of the row from 40em and at the foot of the column below it, where each button is the bar's full width. Fields are one column below 40em and two from there (the country beside its region). The colours are the page's own: white paper for the form, the binder for the summary, the highlighter for progress and ticks, and the alert colour for errors only. Under reduced motion nothing in it moves.
+
+`components/contact/` holds `ContactSection`, the whole Contact page as one paper band, built from the kit alone (`Band`, `PageShift`, `Appear`, `BandedList`, `RowLink`, `Icon`). From 68em the `h1` stands in the margin (columns 1 to 3) at the banner size, held to the width of its three columns by the measure the index title blocks use, and the lead stands on its baseline in columns 4 to 12; under the lead the address is a `mailto:` link at the statement size with a 32px arrow (the highlighter fills in behind it on hover and focus, and its size steps down on a phone so the domain never breaks), then one sentence on what to expect; under those, an `h2` and a ledger of four `RowLink`s, each the same address with a subject, held to 64rem. Below 68em it is one column in the same order. It has no ink, no wash and no script.
+
+`components/legal/` holds `LegalPage`, the one layout of the four legal pages (`/privacy`, `/terms`, `/refunds`, `/accessibility`), built from the kit (`TitleBlock`, `Band`, `Eyebrow`, `BandedList`, `RowLink`, `TextLink`, `Icon`) and the type classes. The title block is the `document` form: the date the page last changed stands in the margin under a "Last updated" eyebrow, the `h1` and the summary beside it. Under it one paper band opens on a 2px ink rule, the head rule of a document, and holds three parts. The contents ("On this page") are a ledger of anchors on hairlines, each a number in the faint text colour and the section's heading; hover, focus and press give an entry the wash, ink words and an underline. The article keeps every line to 40rem (`--wrap-lead`, about 68 characters of the copy size): first the page in a few points on the wash ("In short", each point behind a tick), then the numbered sections 56px apart, each `h2` in `.type-section` behind its number in a 28px ruled tile (1px ink, 3px corner, the store's face at weight 700). The tile takes the highlighter with ink on it while its section is the `:target` of the address, so a reader who followed a link sees where it led. Paragraphs and lists are `.type-copy` 21px apart, lists carry square markers in the faint colour, named things (the browser storage entries, what is collected) are a `dl` of rows on hairlines, and a subsection is an `h3` in `.type-item`. The aside ("Policies") lists the four pages as `RowLink`s in a `BandedList`, the current one marked with `aria-current`, over a line with the contact address. From 68em the contents take columns 1 to 3 and the aside columns 10 to 12, both sticky 21px under the bar (contents taller than the window scroll inside themselves), and the article columns 4 to 9; from 40em the contents run in two columns across the top; below 68em the aside stands beside the article where 30rem and 14rem both fit and under it where they do not. Below 68em every entry of the contents is at least 44px tall. Nothing on these pages moves but the 120ms colour changes, there is no ink behind them, and at raised contrast and in forced colours the wash keeps an edge. There are no print styles: the design gate allows no `print` query.
 
 ## 10. The ink layer
 
@@ -672,10 +677,10 @@ Each scene is a short composition of drops, streams and clears. Designers choose
 | --- | --- | --- | --- |
 | `intro` | The first-load cover | Paper | A black drop, then a blue drop, then the ink clears over about a second. |
 | `prompt` | The home first screen, behind the headline and the documents | Paper | The page's prompt box stands empty for a moment. A black drop lands in it, a blue drop follows, the ink opens across the band and then turns to mist; the six documents land where the box stood. Slow drops then keep arriving across the band. |
-| `title` | Wide title blocks (About, Sample and the phase pages) | Paper | A black and a blue drop, then occasional drops in the open half. |
+| `title` | Wide title blocks (Why Advanta, Sample and the phase pages) | Paper | A black and a blue drop, then occasional drops in the open half. |
 | `ninety` | The home solution section (ink surface) | Binder | Waits. When the ninety-percent tally reaches its tenth block, blue ink drops onto it. |
-| `bloom` | The home closing section, and the stage of the Purchase page | Paper | Blue ink rises from the bottom edge in slow, staggered drops. |
-| `wisps` | The footer | Binder | Pale and blue wisps drift upward from the bottom. |
+| `bloom` | The stage of the Purchase page | Paper | Blue ink rises from the bottom edge in slow, staggered drops. |
+| `wisps` | The ink lab only (the footer no longer has ink) | Binder | Pale and blue wisps drift upward from the bottom. |
 | `spill` | The 404 page | Paper | Black drops spill to the left over several seconds. |
 
 Scenes run for a set time (3.5 seconds for the cover) or until a trigger fires. Scenes without a fixed duration keep running while their backdrop is on screen and rest once it leaves.
@@ -734,9 +739,9 @@ When the simulation is not running, each backdrop shows a WebP still. Each backd
 | `bloom-tall` | `/` | 390 x 844, 2x | bloom |
 | `bloom-purchase-wide` | `/purchase` | 1088 x 900, 1x | bloom |
 | `bloom-purchase-tall` | `/purchase` | 320 x 700, 2x | bloom |
-| `wisps-wide` | `/about` | 1920 x 900, 1x | wisps |
-| `wisps-tall` | `/about` | 390 x 844, 2x | wisps |
-| `title` | `/about` | 1088 x 900, 1x | title |
+| `wisps-wide` | `/why-advanta` | 1920 x 900, 1x | wisps |
+| `wisps-tall` | `/why-advanta` | 390 x 844, 2x | wisps |
+| `title` | `/why-advanta` | 1088 x 900, 1x | title |
 | `spill-wide` | `/nope` | 1440 x 900, 1x | spill |
 | `spill-tall` | `/nope` | 320 x 700, 2x | spill |
 
@@ -758,13 +763,13 @@ Rules for contributors:
 
 - Use one backdrop per section, and no more than one canvas on a page.
 - Mark every text block that sits over ink with `data-ink-calm`.
-- Use `veil` for a footer or panel that should stay clean. Use `text` for copy and `display` for large figures.
+- Use `veil` for a panel that should stay clean (the footer carries no ink and needs none). Use `text` for copy and `display` for large figures.
 - Place ink on a band's ground. Do not place it on a sheet or inside a panel.
-- Keep the pause control visible: the layer renders it in the backdrop's bottom-right corner, 44px square.
+- Do not add a control for the ink to a backdrop. It is decoration; it comes to rest by itself, and the reduce-motion setting is the way to stop it (the accessibility statement lists that as a known limit).
 
-### 10.9 Pause and fallbacks
+### 10.9 Rest and fallbacks
 
-The ink shows a pause control. Paused ink stays on its still image and remembers the choice for the session. Ink falls back to stills when any of these holds:
+The ink has no control on the page. Each scene runs for 12 to 30 seconds and comes to rest; a pointer move over the backdrop, a scroll or a click wakes it for up to 12 seconds, and it does not run while the tab is hidden or the canvas is off screen. Ink falls back to stills when any of these holds:
 
 - Reduced motion is on.
 - Contrast is set to more, or forced colours are active.
@@ -859,10 +864,11 @@ Scripts also query `(pointer: coarse)` and `(prefers-reduced-data: reduce)`. Sty
 ### 13.5 Semantics
 
 - Site pages have one `header` (the banner), one `main` with `id="main"`, and one `footer` (the contentinfo landmark).
-- Navigation is labelled: `Primary` for the header, `Phases` for the rail, `Footer` for the footer's site links, `Rollout phases` for its phase links, `Breadcrumb` on section pages, `Pagination` on catalog pages, `Start from a phase` for the phone catalog's strip, `Browse by phase` in the catalog's empty search, `Previous and next phase` at the foot of a phase page, and `Menu` for the site drawer.
+- Navigation is labelled: `Primary` for the header, `Phases` for the rail, `Footer` for the footer's site and legal links, `Breadcrumb` on section pages, `Pagination` on catalog pages, `Start from a phase` for the phone catalog's strip, `Browse by phase` in the catalog's empty search, `Previous and next phase` at the foot of a phase page, and `Menu` for the site drawer.
 - The current page is marked with `aria-current="page"`, and the current section with `aria-current="true"`.
-- Decorative elements are hidden from assistive technology: the ink backdrop, the 90% figure (its heading says it in words), unlabelled tallies, numerals on phase tabs, the specimen sheet, the hero's prompt box and the chain and padlock over a locked cover (the tile's button says "locked").
+- Decorative elements are hidden from assistive technology: the ink backdrop, the 90% figure (its heading says it in words), unlabelled tallies, numerals on phase tabs, the specimen sheet, the hero's prompt box (a locked cover has nothing drawn over it; the tile's button says "locked").
 - Each `Tally` or count with a meaning carries a `label`.
+- A form field has a real `<label>`, an `autocomplete` token, `required` where it is needed and "(optional)" in words where it is not. An error is tied to its control with `aria-invalid` and `aria-describedby` and never rests on colour alone; a form sent with errors moves focus to a summary that links to each field. A change of step in the checkout moves focus to the step's heading and is announced by a polite status line.
 
 ### 13.6 Motion and ink
 

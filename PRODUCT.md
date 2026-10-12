@@ -54,8 +54,8 @@ SharePoint Online. It is a product of EchoFive. This repository is its storefron
   that is used, not just launched.
 - **Success for the storefront (inferred):** a visitor understands what the toolkit holds, believes
   it comes from real delivery, tries the free samples for the phase they are on, and buys the
-  complete toolkit or gets in touch. Until checkout exists, getting in touch is the only completed
-  outcome the site can produce.
+  complete toolkit or gets in touch. Until a payment provider is connected, an order sent by email
+  from the checkout, or getting in touch, is the only completed outcome the site can produce.
 
 ## Positioning
 
@@ -85,9 +85,9 @@ Tagline: "Don't start from a blank prompt."
 - **Files:** templates are editable Word, PowerPoint and Excel files, with a few print-ready PDFs.
   Buyers edit them by hand or feed them to their AI tools.
 - **Microsoft 365 products covered:** SharePoint, Teams, OneDrive, Outlook and Copilot.
-- **Ways to buy:** one: the complete toolkit, $499.99, a single purchase. The price is the owner's
-  decision. It is shown in US dollars, which was chosen on his behalf (inferred) and is waiting for
-  his confirmation. Six templates, one for each of the first six phases, are free samples. Every
+- **Ways to buy:** one: the complete toolkit, $1,499.99 CAD, a single purchase. The price is the owner's
+  decision. It is set and shown in Canadian dollars, and always printed with its code ("CAD") so it
+  cannot be read as US dollars. Six templates, one for each of the first six phases, are free samples. Every
   other template is listed in the catalog and locked until the toolkit is bought. Templates are not
   sold one at a time and there are no bundles.
 - **The worked example:** a full change management strategy for the fictional Meridian Group, an
@@ -111,13 +111,26 @@ What the storefront does today:
   page); every other template shows a locked cover and answers a press with "Included with the
   toolkit."
 - One Purchase page (`/purchase`): the toolkit as a folder with its price on a tag and, beside it from
-  68em (under it below), a contents leaf: what is inside, the disabled Checkout button, the contact
-  address and the note that the catalog is sample content. There are no questions on the page. There
-  is no cart, no pricing page and no contact page. The old addresses of those pages, of the bundle
+  68em (under it below), a contents leaf: what is inside, the Checkout button, the way to write to us
+  (for a purchase order, or a question) and the note that the catalog is sample content. The page has
+  no title block: it opens on the folder. There are no questions on the page. There is no cart and no
+  pricing page. The old addresses of those pages, of the bundle
   pages and of the template pages redirect.
-- An about page: the 90 percent promise, how the toolkit was made, the five buyers, the comparison of
-  alternatives (`#compare`), a plain note on the state of the site (`#state`) and, in its `#contact`
-  section, the one email address (`hello@advanta365.com`). And a sample page with the worked example's
+- A checkout, in a pop-up over the Purchase page (`/purchase?checkout=details`), in three steps beside
+  an order summary that is always in view (the toolkit, what it holds, the price in Canadian dollars,
+  tax "calculated at payment", the total before tax): the buyer's details (name, work email,
+  organization, country, region, an optional purchase order number and note), a review with agreement
+  to the Terms and the Refund policy, and payment. No payment provider is connected, so the last step
+  says so, shows the order with its reference, and offers to send the order by email (so the owner
+  can invoice) or to copy it.
+- A Why Advanta page (`/why-advanta`; it was About, and `/about` redirects to it): the 90 percent
+  promise, how the toolkit was made, the five buyers, the comparison of
+  alternatives (`#compare`) and a plain note on the state of the site (`#state`).
+- A Contact page (`/contact`): one section with the one email address (`hello@advanta365.com`) as a
+  link that starts an email, and what to write about (questions before buying, purchase orders and
+  invoices, licence questions, accessibility feedback). It has no form, promises no reply time and
+  names no other channel.
+- A sample page with the worked example's
   table of contents (placeholder sections, labelled as placeholders, until its file is published).
 
 Constraints future work must respect:
@@ -125,11 +138,15 @@ Constraints future work must respect:
 - **The catalog is sample content.** Phases, steps and templates are placeholders, and the site says
   so in plain words where a visitor meets them, not in a banner: the footer's status line, the note
   on the Purchase page, the "Free sample" tags, the line under the catalog's result count and the
-  note on the state of the site on About (`#state`). No page may imply that the catalog lists the
+  note on the state of the site on Why Advanta (`#state`). No page may imply that the catalog lists the
   full toolkit. The price is written once, in `lib/site.ts`, and printed from there.
-- **Checkout is not built.** It is a disabled "Checkout coming soon" button on the Purchase page.
-  Nothing can be purchased yet, locked templates stay locked for every visitor, and there are no
-  accounts.
+- **Checkout stops at payment.** No payment provider is connected: the checkout takes an order as far
+  as the Payment step, which says so and offers the order by email. Nothing can be paid for on the
+  site yet, locked templates stay locked for every visitor, and there are no accounts. The seam a
+  provider plugs into is `lib/checkout/provider.ts` (docs/architecture.md, section 3.7).
+- **An order never leaves the browser on its own.** There is no backend. The checkout keeps the order
+  in the tab's session storage, never writes it into an address, sends it nowhere, and asks for no
+  card details of any kind.
 - **The worked example's file cannot be downloaded yet.**
 - **English only.** The job aids are English only today. No bilingual or French claim.
 - **Runtime dependencies are fixed** at `next`, `react`, `react-dom` and `zod`; the design gate in
@@ -140,11 +157,10 @@ Terminology: "playbooks", "templates", "field guides", "job aids", "phases" and 
 complete toolkit"; "free samples"; "Site Owners" and "IM Representatives" (IM Reps); "user adoption";
 "M365" as the short form of Microsoft 365; "30+ years".
 
-Decided: the toolkit is sold as one purchase at $499.99.
+Decided: the toolkit is sold as one purchase at $1,499.99 CAD.
 
 Explicitly undecided:
 
-- The currency. The price is shown in US dollars; the owner has not confirmed it.
 - Licence terms. The stated intent is one licence per organization, reused across every wave.
 - Whether buyers receive updates, and how.
 - Purchase orders and invoicing for government buyers (planned, not available).
@@ -152,7 +168,8 @@ Explicitly undecided:
   template for each of the first six phases; the worked example is not among them.)
 - Which source files are the owner's to sell (rebuilt from his own know-how, as opposed to client
   deliverables under contract). This decides which real entries may replace the sample catalog.
-- The checkout and payment provider.
+- The payment provider, and how a paid order is fulfilled (where orders are recorded, how the files
+  are delivered).
 
 ## Brand Commitments
 
@@ -195,7 +212,7 @@ Real and usable:
 - The worked example (Meridian Group, fictional, about 10,000 employees), described on `/sample`.
 - Copilot readiness material: Copilot readiness, a Copilot rollout playbook and a Copilot change
   impact assessment.
-- The comparison of alternatives on `/about#compare`, with the owner's cost estimates for the
+- The comparison of alternatives on `/why-advanta#compare`, with the owner's cost estimates for the
   alternatives and the toolkit's one price.
 - The messaging already written into the pages under `app/(site)/` and `components/home/` and
   `components/about/`.
@@ -218,7 +235,8 @@ Derived from the answers above (inferred as a set; each rests on a stated fact).
 2. **Honest about its state.** Sample content is labelled as sample, the beta as a beta, estimates as
    estimates, and what is not built as not built. The labels are plain words in the place a visitor
    meets the thing (the footer's status line, the Purchase page's note, the "Free sample" tags, the
-   note under the catalog's result count and the About page's note on the state of the site), not a
+   note under the catalog's result count and the Why Advanta page's note on the state of the site),
+   not a
    banner above the page.
 3. **Meet the buyer at the phase they are on.** People arrive with one deliverable in mind. The
    rollout phases are the map, and the way to the right piece should be short.
@@ -236,7 +254,8 @@ Derived from the answers above (inferred as a set; each rests on a stated fact).
   read.
 - The ink and all motion are optional. Under reduced motion, raised contrast, forced colours, no
   JavaScript or no WebGL2, the site stays complete and still images stand in for the ink. The live
-  ink has a pause control.
+  ink has no control on the page: it comes to rest by itself, and the reduce-motion setting of the
+  system is the way to stop it (listed as a known limit on the accessibility page).
 - Keyboard use, visible focus, a skip link, one `h1` per page, labelled navigation, and targets of at
   least 44px on phones are the floor the site already keeps (`docs/design-system.md`, section 13).
 - English only today.

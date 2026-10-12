@@ -1,20 +1,20 @@
 import { expect, test, type Page } from "@playwright/test";
 import { introSeen } from "./helpers";
-import { canvases, collectProblems, inkMode, scrollToEnd } from "./support/ink";
+import { canvases, collectProblems, inkMode } from "./support/ink";
 
 // Everything that stands in for the live ink. Without WebGL2, on a software renderer, under raised
-// contrast and without JavaScript the page has no canvas and shows the stills; under raised
-// contrast it shows no ink at all. In each of them the console stays clean: a still that is
-// missing, a chunk that fails or a context that cannot be made is an error, not a fallback.
+// contrast and without JavaScript the page has no canvas and shows the stills (the footer has no
+// ink of its own); under raised contrast it shows no ink at all. In each of them the console stays
+// clean: a still that is missing, a chunk that fails or a context that cannot be made is an error,
+// not a fallback.
 //
 // The default projects render in software, so the last scenario is the one every visitor without a
 // graphics card gets. Firefox may well have WebGL2 in headless mode, which makes the live ink the
 // right thing there: that scenario is for Chromium.
 
-const ROUTES = ["/", "/about", "/catalog"];
+const ROUTES = ["/", "/why-advanta", "/catalog"];
 
 const HERO = '[data-ink-backdrop][data-scene="prompt"]';
-const FOOTER = '[data-ink-backdrop][data-scene="wisps"]';
 
 test.beforeEach(async ({ page }) => {
   await introSeen(page);
@@ -38,15 +38,12 @@ async function expectStill(page: Page, backdrop: string) {
 /** What every scenario asks of a page, whatever the reason there is no live ink. */
 async function expectNoCanvas(page: Page, path: string) {
   expect((await canvases(page)).count, path).toBe(0);
-  await expect(page.locator("[data-ink-toggle]")).toHaveCount(0);
+  await expect(page.getByRole("button", { name: /^(Pause|Play) ink$/ })).toHaveCount(0);
 }
 
 async function expectStills(page: Page, path: string) {
   await expectNoCanvas(page, path);
   if (path === "/") await expectStill(page, HERO);
-  // The footer's wisps are on every page.
-  await scrollToEnd(page);
-  await expectStill(page, FOOTER);
 }
 
 test.describe("without WebGL2", () => {

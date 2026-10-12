@@ -22,7 +22,12 @@ const ROUTES = [
   "/phases/prepare",
   "/catalog?view=executive-sponsor-kickoff-deck",
   "/purchase",
-  "/about",
+  "/why-advanta",
+  "/contact",
+  "/privacy",
+  "/terms",
+  "/refunds",
+  "/accessibility",
   "/sample",
 ];
 
@@ -35,7 +40,6 @@ const PAPER = "rgb(255, 255, 255)";
 const INK = "rgb(11, 13, 18)";
 const ON_INK = "rgb(255, 255, 255)";
 const MARK = "rgb(134, 193, 255)";
-const WASH = "rgb(234, 244, 255)";
 const BINDER = "rgb(13, 15, 21)";
 
 const BANDS = ["desk", "paper", "wash", "ink", "binder"];
@@ -72,14 +76,12 @@ for (const path of ROUTES) {
   test(`${path} has the grounds, the faces and the landmarks of the design`, async ({ page }) => {
     await page.goto(path);
 
-    // One of each landmark, one h1, and the one navigation that lists the phases by that name.
+    // One of each landmark, one h1, and the footer's one navigation.
     await expect(page.getByRole("banner")).toHaveCount(1);
     await expect(page.getByRole("main")).toHaveCount(1);
     await expect(page.getByRole("contentinfo")).toHaveCount(1);
     await expect(page.getByRole("heading", { level: 1 })).toHaveCount(1);
-    await expect(page.getByRole("navigation", { name: "Rollout phases", exact: true })).toHaveCount(
-      1,
-    );
+    await expect(page.getByRole("navigation", { name: "Footer", exact: true })).toHaveCount(1);
 
     // The page is white paper and the text on it is ink.
     const body = await computed(page, "body", [
@@ -130,7 +132,7 @@ for (const path of ROUTES) {
     expect(bands.filter((band) => band.endsWith(":wash")).length).toBeLessThanOrEqual(1);
     const black = bands.filter((band) => band.endsWith(":ink")).length;
     expect(black).toBeLessThanOrEqual(1);
-    if (black) expect(["/", "/about"]).toContain(path);
+    if (black) expect(["/", "/why-advanta"]).toContain(path);
 
     // Light blue and black are only ever read one way round: the highlighter is never the colour
     // of text, and whatever is written on it is ink.
@@ -224,7 +226,7 @@ for (const path of [...ROUTES, ...MISSING]) {
 }
 
 test("band grounds read the same wherever the page is scrolled to", async ({ page }) => {
-  // The home page has the most bands: desk, paper, wash, black and the binder.
+  // The home page has the most bands; between them they stand on three grounds.
   await page.goto("/");
   const readGrounds = () =>
     page
@@ -234,7 +236,7 @@ test("band grounds read the same wherever the page is scrolled to", async ({ pag
       );
 
   const first = await readGrounds();
-  expect(new Set(first).size).toBeGreaterThanOrEqual(4);
+  expect(new Set(first).size).toBeGreaterThanOrEqual(3);
   for (const share of [0.25, 0.5, 0.75, 1]) {
     await page.evaluate((at) => {
       const room = document.documentElement.scrollHeight - window.innerHeight;
@@ -245,7 +247,7 @@ test("band grounds read the same wherever the page is scrolled to", async ({ pag
   }
 });
 
-for (const path of ["/", "/about", "/catalog"]) {
+for (const path of ["/", "/why-advanta", "/catalog"]) {
   test(`${path} is at rest five and a half seconds after it loads`, async ({ page }) => {
     await page.goto(path);
     // The clock is the page's own, from the start of the navigation, and nothing is touched.
@@ -290,14 +292,14 @@ test.describe("home", () => {
     await expect(mark).toHaveCSS("color", INK);
   });
 
-  test("runs product first: hero, shelves, the pitch, then the closing", async ({ page }) => {
+  test("runs product first: hero, shelves, the folder, then the pitch", async ({ page }) => {
     await page.goto("/");
 
     const ids = await page
       .getByRole("main")
       .locator("[id]")
       .evaluateAll((elements) => elements.map((element) => element.id));
-    const sections = ["featured", "inside", "solution", "practice", "closing"];
+    const sections = ["featured", "inside", "toolkit", "solution"];
     expect(ids.filter((id) => sections.includes(id))).toEqual(sections);
 
     // The hero comes before the first shelf.
@@ -311,9 +313,6 @@ test.describe("home", () => {
       };
     });
     expect(order).toEqual({ heroFirst: true });
-
-    // The one wash band of the page.
-    await expect(page.locator("#practice")).toHaveCSS("background-color", WASH);
   });
 
   test("the hero holds no tally, and one caret: the prompt box's, which is decoration", async ({
@@ -369,7 +368,7 @@ test.describe("home", () => {
   }) => {
     await page.goto("/");
 
-    // The hero's: the closing has a button of the same name.
+    // The hero's: the header and the footer have a button of the same name.
     const button = page
       .locator("[data-band]:has(h1)")
       .getByRole("link", { name: "Get the toolkit", exact: true });
@@ -417,7 +416,7 @@ test.describe("home", () => {
 
     const onBinder = page
       .getByRole("contentinfo")
-      .getByRole("link", { name: "Purchase", exact: true });
+      .getByRole("link", { name: "Get the toolkit", exact: true });
     await onBinder.focus();
     await expect(onBinder).toHaveCSS("outline-style", "solid");
     await expect(onBinder).toHaveCSS("outline-width", "3px");
@@ -437,7 +436,7 @@ test("every link and button shows the 3px focus ring under the keyboard", async 
       );
       for (const element of targets) {
         if (!(element instanceof HTMLElement)) continue;
-        // A disabled button (Checkout, until it is built) takes no keyboard focus, so it has no ring.
+        // A disabled button takes no keyboard focus, so it has no ring.
         if (element.matches(":disabled")) continue;
         const box = element.getBoundingClientRect();
         if (!box.width || !box.height || getComputedStyle(element).visibility === "hidden")
@@ -627,8 +626,8 @@ test("the catalog draws every template as a tile with a printed page, in its own
 });
 
 test("wording the site does not use is not on the pages that carried it", async ({ page }) => {
-  await page.goto("/about");
-  await expect(page.locator("#contact").getByRole("heading", { level: 2 })).toHaveText("Contact");
+  await page.goto("/contact");
+  await expect(page.getByRole("heading", { level: 1 })).toHaveText("Contact");
   await expect(page.getByText(RETIRED_CAPTION)).toHaveCount(0);
 
   await page.goto("/nope");
@@ -687,7 +686,7 @@ test("at 320px no page runs past the screen, and the bar's controls and every bu
     }
 
     // Every button, and every link that is not a phrase in a sentence, is a 44px target. The
-    // footer's links are rows of that height whose words are smaller.
+    // footer's links stand in a wrapping row of items of that height whose words are smaller.
     const rows = await page
       .locator("footer nav li")
       .evaluateAll((items) => items.map((item) => item.getBoundingClientRect().height));

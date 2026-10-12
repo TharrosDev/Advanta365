@@ -5,7 +5,7 @@ import { introSeen, NAVIGATION_TIMEOUT } from "./helpers";
 // that opens the site menu: a native modal dialog on the right edge of the screen. This file covers
 // both on the phone project; header.spec.ts covers the three zones of the desktop bar.
 
-const PRIMARY = ["Purchase", "Catalog", "About"];
+const PRIMARY = ["Purchase", "Catalog", "Why Advanta", "Contact"];
 const PHASES = ["Make the case", "Plan", "Design", "Prepare", "Communicate", "Execute", "Sustain"];
 
 // A caption the menu must not show under the contact address. Written in two parts so that this
@@ -45,7 +45,7 @@ test.describe("phone menu", () => {
     // One button with one name; the price is not read out as it is on the desktop bar.
     await expect(buy(page)).toBeVisible();
     await expect(buy(page)).toHaveAttribute("href", "/purchase");
-    await expect(page.getByRole("banner").getByText("$499.99")).toBeHidden();
+    await expect(page.getByRole("banner").getByText("$1,499.99")).toBeHidden();
     await expect(page.getByRole("banner").getByRole("link", { name: /\$/ })).toHaveCount(0);
     await expect(
       page.getByRole("banner").getByRole("navigation", { name: "Primary" }),
@@ -100,7 +100,7 @@ test.describe("phone menu", () => {
     }
   });
 
-  test("the Menu button opens the site menu with the three links and the seven phases", async ({
+  test("the Menu button opens the site menu with its four pages and the seven phases", async ({
     page,
   }) => {
     await page.goto("/");

@@ -76,8 +76,8 @@ const FORMATS = ["DOCX", "PPTX", "XLSX", "PDF"] as const;
  *
  * `size="page"` is the folder of the purchase page: 34rem wide at most, centred in what holds it
  * (the page stands it at the start of its columns from 68em, beside the contents leaf, through
- * `className`), its front headed by an `h2`; from 68em the tag hangs outwards, off the folder's
- * edge. `size="section"` is the same object as part of a section that has a heading of its own
+ * `className`), its front headed by the page's one `h1` (that page has no title block); from 68em
+ * the tag hangs outwards, off the folder's edge. `size="section"` is the same object as part of a section that has a heading of its own
  * (so the front is headed by an `h3`), 30rem at most, the tag always lying on the front.
  * Everything in and on the folder is measured from the folder's own width, so it is one object at
  * every size.
@@ -98,7 +98,7 @@ export function Portfolio({
   phases: readonly PhaseCoverage[];
   className?: string;
 }) {
-  const Title = size === "page" ? "h2" : "h3";
+  const Title = size === "page" ? "h1" : "h3";
   const orderOf = new Map(phases.map((phase) => [phase.slug, phase.order]));
   const reached = phases.filter((phase) => phase.covered);
   const first = phases[0];

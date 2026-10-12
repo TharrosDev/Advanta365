@@ -5,7 +5,6 @@ import { TransitionLink } from "@/components/ui/transition-link";
 import { DELIVERABLE_TYPE_LABELS } from "@/content/taxonomy";
 import type { Template } from "@/lib/catalog/schema";
 import { cx } from "@/lib/cx";
-import { ChainLock, ChainLockParts } from "./chain-lock";
 import { LockedTile } from "./locked-tile";
 import { TemplateCover } from "./template-cover";
 import styles from "./template-tile.module.css";
@@ -22,8 +21,8 @@ import styles from "./template-tile.module.css";
  * link is not fetched ahead: its page is the whole catalog again, once for every sample in view.
  *
  * Every other template is locked (`data-locked`): its cover is out of focus, and only its cover,
- * under a chain and a padlock (`ChainLock`), and its title is a button that answers with the
- * `data-denied` state and a line under the tile (`LockedTile`). `denied` renders the tile already
+ * and its title is a button that answers with the `data-denied` state and a line under the tile
+ * (`LockedTile`). Nothing is drawn over the cover. `denied` renders the tile already
  * in that state, for a link that names a locked template. `href` is not used. The well carries
  * `data-well`, the hook of the red wash its `::before` lays under the cover of a denied tile.
  *
@@ -84,7 +83,6 @@ export function TemplateTile({
             tagClassName={styles.coverTag}
           />
         </div>
-        {free ? null : <ChainLock />}
       </div>
       {free ? (
         <>
@@ -107,23 +105,8 @@ export function TemplateTile({
 /**
  * The grid tiles lie in: a list with as many columns of at least 176px as its width holds, and
  * never fewer than two. Its children are `<li>` elements, one tile each. The gap between its rows
- * is where a locked tile's line stands. It carries the drawing every lock in it draws from
- * (`ChainLockParts`); pass `locks={false}` for a grid that holds free samples only, and for each
- * grid of a page that holds several and renders the drawing once itself.
+ * is where a locked tile's line stands.
  */
-export function TileGrid({
-  className,
-  locks = true,
-  children,
-}: {
-  className?: string;
-  locks?: boolean;
-  children: ReactNode;
-}) {
-  return (
-    <>
-      {locks ? <ChainLockParts /> : null}
-      <ul className={cx(styles.grid, className)}>{children}</ul>
-    </>
-  );
+export function TileGrid({ className, children }: { className?: string; children: ReactNode }) {
+  return <ul className={cx(styles.grid, className)}>{children}</ul>;
 }

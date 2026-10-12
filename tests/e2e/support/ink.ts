@@ -15,7 +15,7 @@ export const BINDER = "rgb(13, 15, 21)";
 export const INK = "rgb(11, 13, 18)";
 export const MARK = "rgb(134, 193, 255)";
 
-/** The session key the layer keeps its choice in (`off`, `paused` or a tier). */
+/** The session key the layer keeps its choice in (`off` or a tier). */
 export const INK_STORE = INK_KEY;
 
 declare global {
@@ -59,7 +59,7 @@ export const introAt = (page: Page, value: string | null) =>
     return found ? found[0] : null;
   }, value);
 
-/** The mode the boot script chose: `live`, `paused` or `still` (null before it ran). */
+/** The mode the boot script chose: `live` or `still` (null before it ran). */
 export const inkMode = (page: Page) =>
   page.evaluate(() => document.documentElement.getAttribute("data-ink"));
 

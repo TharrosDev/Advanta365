@@ -83,7 +83,11 @@ const OPTIONS: readonly Option[] = [
     cells: [
       `${TOOLKIT.playbooks} playbooks, ${TOOLKIT.templates} templates, ${TOOLKIT.fieldGuides} field guides and training for ${TOOLKIT.trainingAudiences} audiences`,
       "Yes. Refined across real rollouts",
-      <Cost key="cost" figure={formatPrice(OFFER.priceCents)} per="one purchase." />,
+      <Cost
+        key="cost"
+        figure={formatPrice(OFFER.priceCents, OFFER.currency)}
+        per="one purchase."
+      />,
       "You keep the files and adapt them",
     ],
   },

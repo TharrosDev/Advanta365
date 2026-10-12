@@ -21,15 +21,21 @@
   },
   {
     "name": "wisps-wide",
-    "route": "/about",
+    "route": "/why-advanta",
     "viewport": [1920, 900],
     "ratio": 1,
     "scene": "wisps"
   },
-  { "name": "wisps-tall", "route": "/about", "viewport": [390, 844], "ratio": 2, "scene": "wisps" },
+  {
+    "name": "wisps-tall",
+    "route": "/why-advanta",
+    "viewport": [390, 844],
+    "ratio": 2,
+    "scene": "wisps"
+  },
   {
     "name": "title",
-    "route": "/about",
+    "route": "/why-advanta",
     "viewport": [1088, 900],
     "ratio": 1,
     "scene": "title",

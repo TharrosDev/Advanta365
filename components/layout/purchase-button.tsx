@@ -9,7 +9,7 @@ import { OFFER, PURCHASE_LINK } from "@/lib/site";
 import styles from "./purchase-button.module.css";
 
 /**
- * The bar's one call to action, at its right: "Get the toolkit · $499.99" from 68em, "Get the
+ * The bar's one call to action, at its right: "Get the toolkit · $1,499.99 CAD" from 68em, "Get the
  * toolkit" below it, where the bar has no room for the price. It is one link with one accessible
  * name at every width: below 68em the price is `display: none`, which takes it out of the name as
  * well as out of sight.
@@ -31,7 +31,10 @@ export function PurchaseButton({ className }: { className?: string }) {
     >
       <span>
         Get the toolkit
-        <span className={cx("tabular", styles.price)}> · {formatPrice(OFFER.priceCents)}</span>
+        <span className={cx("tabular", styles.price)}>
+          {" · "}
+          {formatPrice(OFFER.priceCents, OFFER.currency)}
+        </span>
       </span>
     </Button>
   );

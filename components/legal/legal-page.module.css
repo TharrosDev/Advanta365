@@ -1,0 +1,356 @@
+/*
+ * The band under the title block: paper, flush under the title's own padding, with the band's pad
+ * below. Doubled, because the band sets its own block padding with one class.
+ */
+.body.body {
+  padding-block: 0 var(--band-pad);
+}
+
+/*
+ * The three parts under one ink rule, the head rule of a document. Below 68em they are a wrapping
+ * row: the contents take a whole line, and the policies stand beside the article where 30rem and
+ * 14rem both fit and under it where they do not.
+ */
+.layout {
+  --measure: var(--wrap-lead);
+  --under-bar: calc(var(--bar-h) + var(--s-3));
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  gap: var(--s-5) var(--col-gap);
+  padding-block-start: var(--s-5);
+  border-block-start: var(--edge) solid var(--line-ink);
+}
+
+/* Doubled, so the label's colour holds over the eyebrow's own, whichever sheet loads last. */
+.label.label {
+  margin-block-end: var(--s-2);
+  color: var(--text-faint);
+}
+
+/* The contents: a ledger of anchors, each a full touch target. */
+.toc {
+  flex: 1 1 100%;
+  min-width: 0;
+}
+
+.entries {
+  margin: 0;
+  padding: 0;
+  border-block-start: var(--hair) solid var(--line);
+  list-style: none;
+}
+
+.entry {
+  border-block-end: var(--hair) solid var(--line);
+  break-inside: avoid;
+}
+
+/*
+ * The number and the heading share a baseline. The block padding makes a one-line entry 44px tall,
+ * and a heading that wraps keeps 7px above and below.
+ */
+.jump {
+  display: flex;
+  align-items: baseline;
+  gap: var(--s-2);
+  padding: max(var(--s-1), calc((var(--tap) - 1lh) / 2)) var(--s-1);
+  border-radius: var(--round-1);
+  color: var(--text-soft);
+  font-size: var(--size-ui);
+  line-height: 1.43;
+  text-decoration: none;
+}
+
+.count {
+  flex: none;
+  min-width: 1.25rem;
+  color: var(--text-faint);
+  font-weight: 700;
+}
+
+.heading {
+  min-width: 0;
+  text-decoration: underline transparent;
+  text-decoration-thickness: var(--hair);
+  text-underline-offset: 3px;
+  overflow-wrap: break-word;
+}
+
+/* Hover, keyboard focus and a press look the same: the wash, ink words, an underline. */
+.jump:focus-visible {
+  background: var(--mark-wash);
+  color: var(--ink);
+  /* Inside the entry, so the list's scrolling box never cuts the ring. */
+  outline-offset: calc(-1 * var(--round-1));
+}
+
+.jump:active {
+  background: var(--mark-wash);
+  color: var(--ink);
+}
+
+.jump:focus-visible .heading,
+.jump:active .heading {
+  text-decoration-color: currentColor;
+}
+
+.jump:focus-visible .count,
+.jump:active .count {
+  color: var(--ink);
+}
+
+@media (hover: hover) {
+  .jump:hover {
+    background: var(--mark-wash);
+    color: var(--ink);
+  }
+
+  .jump:hover .heading {
+    text-decoration-color: currentColor;
+  }
+
+  .jump:hover .count {
+    color: var(--ink);
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .jump {
+    transition: background-color var(--time-swap) linear;
+  }
+
+  .heading {
+    transition: text-decoration-color var(--time-swap) linear;
+  }
+
+  .number {
+    transition: background-color var(--time-swap) linear;
+  }
+}
+
+/* The article. Every line of it keeps to the measure, whatever the column is given. */
+.prose {
+  flex: 1 1 30rem;
+  min-width: 0;
+}
+
+.prose > * {
+  max-width: var(--measure);
+}
+
+/* The page in a few points, on the wash: light on every band, so its text is always the ink. */
+.brief {
+  padding: var(--s-3);
+  border-radius: var(--round-2);
+  background: var(--mark-wash);
+  color: var(--ink);
+}
+
+.brief .label.label {
+  color: var(--ink);
+}
+
+.points {
+  display: grid;
+  gap: var(--s-1);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.point {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--s-2);
+}
+
+/* The tick is centred in the first line of its point. */
+.tick {
+  margin-block-start: calc((1lh - 1.25rem) / 2);
+}
+
+/* Sections stand 56px apart; the first stands as far under the points. */
+.section {
+  margin-block-start: var(--s-6);
+  /* A section that is jumped to stops clear of the bar, with the room a heading has above it. */
+  scroll-margin-block-start: var(--s-2);
+}
+
+.title {
+  display: flex;
+  align-items: baseline;
+  gap: var(--s-2);
+  color: var(--text);
+}
+
+/*
+ * The section's number: a ruled tile in the store's face, as high as the capitals of the heading
+ * need. It takes the highlighter while its section is the target of the address, so a reader who
+ * followed a link sees where it led.
+ */
+.number {
+  flex: none;
+  display: inline-grid;
+  place-items: center;
+  min-width: 1.75rem;
+  height: 1.75rem;
+  padding-inline: var(--s-1);
+  border: var(--hair) solid var(--line-ink);
+  border-radius: var(--round-1);
+  font-family: var(--face-text);
+  font-size: var(--size-note);
+  line-height: 1;
+  font-weight: 700;
+}
+
+.section:target .number {
+  background: var(--mark);
+  color: var(--on-mark);
+}
+
+.blocks {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--s-3);
+  margin-block-start: var(--s-3);
+  color: var(--text);
+}
+
+.sub {
+  margin-block-start: var(--s-3);
+  scroll-margin-block-start: var(--s-2);
+}
+
+.list {
+  display: grid;
+  gap: var(--s-1);
+  margin: 0;
+  padding-inline-start: var(--s-3);
+  list-style: square;
+}
+
+.list > li::marker {
+  color: var(--text-faint);
+}
+
+/* Named things and what is said of each: rows on hairlines, the name over its text. */
+.terms {
+  border-block-end: var(--hair) solid var(--line);
+}
+
+.term {
+  display: grid;
+  gap: var(--s-1);
+  padding-block: var(--s-2);
+  border-block-start: var(--hair) solid var(--line);
+}
+
+.name {
+  overflow-wrap: anywhere;
+}
+
+.said {
+  color: var(--text-soft);
+}
+
+/* The four policies and the address to write to. */
+.record {
+  flex: 1 1 14rem;
+  min-width: 0;
+}
+
+.ask {
+  margin-block-start: var(--s-3);
+  color: var(--text-soft);
+}
+
+.dateline {
+  display: grid;
+  gap: var(--s-1);
+}
+
+.date {
+  color: var(--text);
+}
+
+/* From 40em the contents run in two columns, down the first and then the second. */
+@media (min-width: 40em) {
+  .entries {
+    columns: 2;
+    column-gap: var(--col-gap);
+  }
+
+  .record {
+    position: sticky;
+    top: var(--under-bar);
+  }
+}
+
+/*
+ * From 68em the twelve columns: the contents in the margin, the article in columns 4 to 9, the
+ * policies in columns 10 to 12. The two at the sides are held under the bar while the article
+ * scrolls; contents taller than the window scroll inside themselves.
+ */
+@media (min-width: 68em) {
+  .layout {
+    display: grid;
+    grid-template-columns: repeat(12, minmax(0, 1fr));
+    gap: 0 var(--col-gap);
+    align-items: start;
+  }
+
+  .toc {
+    position: sticky;
+    top: var(--under-bar);
+    grid-column: 1 / span 3;
+    max-height: calc(100svh - var(--under-bar) - var(--s-3));
+    overflow-y: auto;
+    scrollbar-width: thin;
+  }
+
+  .entries {
+    columns: auto;
+  }
+
+  .jump {
+    padding-block: var(--s-1);
+    font-size: var(--size-note);
+  }
+
+  .prose {
+    grid-column: 4 / span 6;
+  }
+
+  .record {
+    grid-column: 10 / -1;
+  }
+}
+
+/* Without the wash, the points and the lit number keep an edge. */
+@media (forced-colors: active) {
+  .brief {
+    border: var(--hair) solid CanvasText;
+  }
+
+  .section:target .number {
+    background: Highlight;
+    color: HighlightText;
+  }
+
+  .jump:focus-visible {
+    background: none;
+  }
+}
+
+@media (prefers-contrast: more) {
+  .brief {
+    border: var(--hair) solid var(--line-ink);
+  }
+
+  .jump,
+  .said,
+  .ask {
+    color: var(--text);
+  }
+}
