@@ -6,9 +6,10 @@ This page covers the checks that run against the repository: the commands, the u
 
 | Area | Unit tests | Browser specs | Scripts |
 |---|---|---|---|
-| Catalog, search and cart | `content`, `validate`, `query`, `search-params`, `coverage`, `pricing`, `format`, `compounds`, `cart-store` | `browse`, `catalog`, `cart`, `cart-keyboard`, `not-found` | |
+| Catalog, search and the free samples | `content`, `validate`, `query`, `search-params`, `coverage`, `format`, `compounds` | `browse`, `catalog`, `locked`, `template-dialog`, `redirects`, `not-found` | |
+| Purchase page and hero | | `purchase`, `hero` | |
 | Brand and static assets | `brand-mark`, `kit-grain`, `stills-files` | `identity` | `paper-grain` |
-| Boot, cover and motion | `boot-script`, `boot-cover`, `intro`, `kit-motion` | `intro`, `motion`, `reduced-motion` | |
+| Boot, cover and motion | `boot-script`, `boot-cover`, `kit-motion` | `intro`, `motion`, `reduced-motion` | |
 | Ink | `ink-scenes`, `ink-stage`, `ink-zones`, `stills-files` | `ink-live`, `ink-fallback` | `ink-stills` |
 | Look of the source | `design-gate` | `identity` | |
 | Shell and navigation | | `header`, `menu`, `console` | |
@@ -48,43 +49,41 @@ Suggested checks by kind of change:
 
 Vitest runs every `tests/unit/**/*.test.ts` file in the Node environment. The config (`vitest.config.mts`) maps the `@/` import alias to the repository root, so a test imports source with the same paths the app uses. Put browser specs in `tests/e2e`; Vitest reads only `tests/unit`.
 
-Shared catalog fixtures live in `tests/unit/fixtures/catalog.ts`: `rawPhases`, `rawTemplate(overrides)`, `rawBundle`, `rawCatalog()` and `makeTemplate()`.
+Shared catalog fixtures live in `tests/unit/fixtures/catalog.ts`: `rawPhases`, `rawTemplate(overrides)`, `rawCatalog()` (carrying exactly six free templates) and `makeTemplate()`.
 
-### Catalog, search and cart
+### Catalog and search
 
 | File | Guards |
 |---|---|
-| `content.test.ts` | The sample catalog as read through `lib/catalog/repository`: seven phases in fixed order with two steps each; minimum template counts per phase and per step; every deliverable type, app, audience and format is used; prices in the expected range; named pieces exist; the featured selection; copy with no banned term, straight quotes or exclamation marks; search by title; five bundles, each priced below its contents; bundle summaries that match their counts; related-template and bundle lookups. |
-| `validate.test.ts` | `validateCatalog` sorts phases and steps by order. It rejects a non-positive price, a duplicate template slug, an unknown phase, a step that belongs to another phase, a bundle that names a missing template, an unknown deliverable type and a slug that is not kebab case. A bundle and a template may share a slug. |
-| `query.test.ts` | `queryTemplates` over synthetic templates: page size; facets combine with OR inside a facet and AND across facets; search by terms, case, quotes, literal regex characters and a length limit; the default `featured` sort and the other sorts; page clamping; facet counts that ignore their own selection; the input is not mutated. |
-| `search-params.test.ts` | `parseCatalogParams` and `serializeCatalogParams`: comma lists; unknown values dropped; an invalid page becomes 1; an unknown sort becomes `featured`; the query is trimmed and capped at 200 characters; fixed key order; defaults omitted; round trip. |
+| `content.test.ts` | The sample catalog as read through `lib/catalog/repository`: seven phases in fixed order with two steps each; minimum template counts per phase and per step; every deliverable type, app, audience and format is used; every record flagged as sample; no template carries a price or a featured flag; the pieces the pitch names exist; exactly six free templates, the six named, one in each of six phases, listed in phase order by `getFreeTemplates`; copy with no banned term, straight quotes or exclamation marks; search by title; slug and related-template lookups. |
+| `validate.test.ts` | `validateCatalog` sorts phases and steps by order. It requires exactly six free templates (a catalog with 0, 5, 7 or 8 is rejected, naming the count), names the template and field when `free` is not a boolean, and rejects a duplicate template slug, an unknown phase, a step that belongs to another phase, an unknown deliverable type and a slug that is not kebab case. |
+| `query.test.ts` | `queryTemplates` over synthetic templates: page size; facets combine with OR inside a facet and AND across facets; search by terms, case, quotes, literal regex characters and a length limit; the default `samples` sort (free first, then title) and the `title` sort; the `free` filter alone, with facets and search, and in the facet counts; page clamping; facet counts that ignore their own selection; the input is not mutated. |
+| `search-params.test.ts` | `parseCatalogParams` and `serializeCatalogParams`: comma lists; unknown values dropped; an invalid page becomes 1; an unknown sort becomes `samples`; `free=1`; the query is trimmed and capped at 200 characters; fixed key order (`free` after the facets, before `sort`); defaults omitted; round trip. `parseView` accepts a slug and rejects anything else, taking the first of a repeated value; `catalogHref` puts `view` last. |
 | `coverage.test.ts` | `phaseCoverage`: one entry per phase in order; a phase is covered once a template belongs to it; templates in unknown phases are ignored. |
-| `pricing.test.ts` | `bundleValueCents` sums the contents; `bundleSavingsCents` is the difference, floored at zero. |
-| `format.test.ts` | `formatPrice`: whole dollars drop the cents; other amounts keep them; thousands are separated. |
+| `format.test.ts` | `formatPrice`: whole dollars drop the cents; other amounts keep them, so `49999` is `$499.99`; thousands are separated. |
 | `compounds.test.ts` | `splitCompounds`: hyphenated compounds become compound parts, a lone hyphen does not, and joining the parts gives back the title. |
-| `cart-store.test.ts` | The storage key; `parseCart` on malformed input, de-duplication and removal of extra fields; `addLine`, `removeLine`, `hasLine`; `pruneLines` against the known slugs. |
 
 ### Brand and static assets
 
 | File | Guards |
 |---|---|
-| `brand-mark.test.ts` | The mark geometry in `lib/brand/mark.ts` (three strokes, viewBox, stroke width and path data); `LogoMark` markup (current colour stroke, hidden from assistive technology by default, `role="img"` with a title, the two-tone tail); the contents of `app/icon.svg`. |
+| `brand-mark.test.ts` | The mark geometry in `lib/brand/mark.ts` (three strokes, viewBox, stroke width and path data); the 365 on the arm (three digits of one stroke each, read 3, 6, 5 with air between them, filling `MARK_DIGITS_BOX` inside the viewBox, clear of the legs and above the arm, the 6 keeping its eye); `LogoMark` markup (current colour stroke, hidden from assistive technology by default, `role="img"` with a title, the two-tone tail, the digits drawn last in two inks and never in one or with `digits={false}`); the contents of `app/icon.svg`. |
 | `kit-grain.test.ts` | `public/paper/grain.png` is an indexed 128 by 128 PNG with four palette entries, a transparent first entry, a bounded maximum alpha and at most 4096 bytes. `app/globals.css` declares the `--grain` URL. |
-| `stills-files.test.ts` | `public/ink` holds exactly the files named in `lib/ink/stills.json`, each a WebP within the per-file and total byte budgets, with viewport, ratio and route values in range. |
+| `stills-files.test.ts` | `public/ink` holds exactly the thirteen files named in `lib/ink/stills.json`, each a WebP within the per-file and total byte budgets, with viewport, ratio and route values in range; no `hero` still remains and the `prompt` pair is there. |
 
 ### Boot, cover and motion
 
 | File | Guards |
 |---|---|
-| `boot-script.test.ts` | Runs `BOOT_SCRIPT` against stand-ins for the document, session storage, media queries, navigator, canvas and WebGL. It checks the decisions against the pure functions in `lib/boot/state.ts`: the reduced-motion early return, `data-motion` and `data-timeline`, ink mode, GPU probing and software renderers, the backstop timers, the cover flag and skip events, and the size limits (at most 1536 bytes gzipped, no `</script` or `<!--`). It also checks that `IntroScript` prints the script once inside a hidden wrapper. |
-| `boot-cover.test.ts` | The markup of `IntroCover` and `InkBackdrop`: one cover element hidden from assistive technology, no focusable control, three pen paths with unit path length, no image or canvas in the cover; the cover animation timings in `intro-cover.module.css`. |
+| `boot-script.test.ts` | Runs `BOOT_SCRIPT` against stand-ins for the document, session storage, media queries, navigator, canvas and WebGL. It checks the decisions against the pure functions in `lib/boot/state.ts`: the reduced-motion early return, `data-motion` and `data-timeline`, ink mode, GPU probing and software renderers, the calm routes (the catalog and what lies under it, and no other), the backstop timers (5500 ms for the cover, and room for a takeover at `INTRO_TAKEOVER_MS`), the cover flag and skip events, and the size limits (at most 1536 bytes gzipped, no `</script` or `<!--`). It also checks that `IntroScript` prints the script once inside a hidden wrapper. |
+| `boot-cover.test.ts` | The markup of `IntroCover` and `InkBackdrop`: one cover element hidden from assistive technology, no focusable control, six pen paths (the tail and the two strokes of the "A" at 4.2, the three digits at 1.1) with unit path length, no image or canvas in the cover; the cover animation timings in `intro-cover.module.css` (the digits 800 to 1000, the leave at 2500, the ink exit starting 250 ms into the clear and ending with the scene, the signature fading at 2500); the `fetchpriority` of a backdrop with `priority`; the stills manifest (the thirteen names, each once, with page and window). |
 | `kit-motion.test.ts` | Reads `app/motion.css` as text. Every `@keyframes` block and every animating declaration sits inside `(prefers-reduced-motion: no-preference)`. Inside one rule, `animation-timeline` and `animation-range` follow the `animation` shorthand. Hidden starting states appear only under `html[data-motion="on"]`. No infinite animation, `@property` or iteration count. The six move keyframes (`move-drift`, `move-ink-in`, `move-ink-in-plain`, `move-settle`, `move-shadow`, `move-grow`) must exist. |
 
 ### Ink
 
 | File | Guards |
 |---|---|
-| `ink-scenes.test.ts` | Each of the seven scenes in `lib/ink/scenes.ts` runs against a recorder at 60 Hz with a fixed seed, on a wide and a tall canvas. Drops stay near the canvas and have positive radius and amount; the same seed gives the same events; the timing and placement rules of each scene hold; `STAGES[name].runMs` is positive and at most 30 seconds. |
+| `ink-scenes.test.ts` | Each of the seven scenes in `lib/ink/scenes.ts` runs against a recorder at 60 Hz with a fixed seed, on a wide and a tall canvas. Drops stay near the canvas and have positive radius and amount; the same seed gives the same events; the timing and placement rules of each scene hold (the `intro` timeline of 3.5 seconds; the `prompt` scene's empty first 0.7 seconds, its two drops either side of the `open` anchor, its clear and its slow drips; there is no `hero` scene); `STAGES[name].runMs` is positive and at most 30 seconds. |
 | `ink-stage.test.ts` | `chooseStage`, `visibleArea` and `coverProgress` in `lib/ink/stage.ts`: stage weights, which grounds are dark, which scene has the `tenth` trigger, the topmost-candidate rule, the challenger margin, and the fire and rearm thresholds for the ninety band. |
 | `ink-zones.test.ts` | `calmZone` for the text, display and veil kinds (padding, feather, floor, hold, fade and cap values, and the narrow-window text variant); the dark-ground caps; `edgeZone`; `parseEdges`; `buildZones` order and limits; `mergeNearest`; `anchorRect` and `relativeRect`. |
 
@@ -156,20 +155,23 @@ A spec that is not named by the Firefox pattern runs in `chromium` and `mobile`.
 
 | Spec | Projects | Guards |
 |---|---|---|
-| `browse.spec.ts` | chromium, mobile, firefox | Home to a phase to a template; the hero's link to the worked example; no horizontal overflow on eleven routes. |
-| `cart.spec.ts` | chromium, mobile | Adding and removing lines; the subtotal; the disabled checkout control; persistence across a reload; corrupted saved data; removal of unknown slugs; a cart that still works when storage is blocked. |
-| `cart-keyboard.spec.ts` | chromium, mobile | Focus after adding, removing and emptying the cart; the status message; a stale saved cart is cleared. |
-| `catalog.spec.ts` | chromium, mobile | The result count and paging; facet filters; restoring filters from the URL; search that keeps the filters; the empty state and its clear link; malformed parameters; an out-of-range page; the filter dialog on a phone. |
-| `console.spec.ts` | chromium, mobile, firefox | Eleven routes load with no console error and no page error. |
-| `header.spec.ts` | chromium only (skips the mobile project) | The banner; the primary navigation and its current-page marks; the phase rail; the sticky bar; the rail leaving the viewport on scroll. |
-| `identity.spec.ts` | chromium, mobile | Design checks in the browser: landmarks; one `h1` per page; root colours and fonts; band values; the ink hooks on the page; the order and ids of the home sections; focus rings; catalog card ratios; no overflow and minimum touch targets at 320 px. |
-| `intro.spec.ts` | chromium, mobile | The cover on a first visit: its states; its end on a click, key press or wheel; the time limit; no cover on reload or on other routes; no cover with reduced motion, blocked storage or JavaScript off. |
+| `browse.spec.ts` | chromium, mobile, firefox | Home to a phase and on to its free sample, open in the catalog; the hero to the six free samples; the worked example; no horizontal overflow on seven routes. |
+| `catalog.spec.ts` | chromium, mobile | The results as a grid of tiles, several to a row; six free first and every other tile locked; no price on the page; "Free samples only" and the URL; the sort options (samples first or titles, never a price); filters, restoring from the URL, search that keeps the filters, the empty state, malformed parameters and the phone filter dialog. |
+| `locked.spec.ts` | chromium, mobile | A locked tile: a button named for its template under a chain and a padlock; the blur on the cover only; a press denies for 600 ms and says "Included with the toolkit."; Enter and Space; five fast presses and one line per press; the shake, the rattle and the red outline; reduced motion (the outline and the line, nothing moves); `?view=` a locked template; without JavaScript. |
+| `template-dialog.spec.ts` | chromium, mobile | The pop-up: a free tile opens it over the grid and the address names the template; its content; Escape, Close and the dimmed page close it, drop `view`, keep the search and filters and hand focus back; Back; another sample opens after a close; `view` values that open nothing; a link that opens it on load; the home and phase tiles; the first of a repeated `view`; a page that does not hold the sample; without JavaScript. |
+| `purchase.spec.ts` | chromium, mobile | The Purchase page: one title and the price once, on the tag; the folder with the six sample covers and a tally of seven phases; the ledger; the Checkout button that says it is not built, can be reached and does nothing; the questions and their provisional line; 320px; the tag's swing and its stillness under reduced motion; the home page's folder leading here. |
+| `redirects.spec.ts` | chromium, mobile | The retired addresses (bundles, bundle pages, pricing, cart, contact, template pages) end on the right page, hash and query; the 308 and its `Location`; the contact section on About; the offer on Purchase; a template's old address opens its pop-up. |
+| `hero.spec.ts` | chromium, mobile | The hero: its structure, copy, buttons and proof strip; the six documents as links named by their titles, in order, lit and overlapping; each opens its pop-up; the sequence's timings read from the animations; the first screen fits windows from 1280 by 720 to 1920 by 1080; no title or tag cut by a neighbour and 44px of each document its own; the band ends at its own bottom edge; two hands of three on a phone; the headline's contrast over the still; reduced motion and no JavaScript (no box, documents from the start); a first visit under the cover. |
+| `console.spec.ts` | chromium, mobile, firefox | Seven routes load with no console error and no page error. |
+| `header.spec.ts` | chromium only (skips the mobile project) | The banner; Catalog and About in the row and the purchase button (no cart); their order; `aria-current` on the row and on the button at `/purchase`; the row centred on the bar at 1280 and 1440; the button's name with and without its price across 68em; the sliding underline; the phase rail; the sticky bar. |
+| `identity.spec.ts` | chromium, mobile | Design checks in the browser: landmarks; one `h1` per page; root colours and fonts; band values; the ink hooks on the page; the order and ids of the home sections; the headline's size and mark; focus rings; the 365 on the mark where the digits are 7px high and nowhere else, and the favicon unchanged; the catalog's tiles each with a printed page in its own format; wording the site no longer uses is absent; no overflow and minimum touch targets at 320 px. |
+| `intro.spec.ts` | chromium, mobile | The cover on a first visit: its states; its largest paint under a second; the finished mark held to 2.5 seconds and the cover gone by 3.4; its end on a click, key press (also at 0.5 and 1.5 seconds in) or wheel; no cover on reload or on other routes; no cover with reduced motion, blocked storage or JavaScript off. |
 | `ink-fallback.spec.ts` | chromium, mobile, firefox | Without WebGL2, with more contrast, and without JavaScript: still images only, no canvas, no pause control, a clean console. The software-renderer case runs in Chromium only. |
-| `ink-live.spec.ts` | gpu | Live ink on a GPU: the first frame; frame cost; calm caps; the stop when idle; pause and resume; resize; one canvas across scenes; context loss and restore; the not-found scene; the handover from the cover. Skips when the page is not live. |
-| `menu.spec.ts` | mobile (in chromium every test skips) | The phone drawer: the dialog, its links and phases, Escape, a click on the scrim, the Close button, and navigation or back navigation closing it. |
-| `motion.spec.ts` | chromium, mobile, firefox | Entrances hidden until scrolled into view, with timelines and without (Chromium stubs `CSS.supports`); the fill and counter of the ninety band; view transitions and the shared cover name. |
+| `ink-live.spec.ts` | gpu | Live ink on a GPU: the prompt scene (it runs within 2.5 seconds of a repeat visit, a frame costs at most 6 ms, no task is longer than 200 ms, the caps hold for twenty seconds, it leaves the box empty, opens over it, is clean at 3.5 seconds and drips again from 6); the stop when idle; pause and resume; resize; one canvas across scenes; context loss and restore; the not-found scene; the takeover of the cover (within 1.6 seconds, gone 3.5 seconds later). Skips when the page is not live. |
+| `menu.spec.ts` | mobile (in chromium every test skips) | The phone bar and drawer: the brand, the button without its price and Menu at 390 and 320px, each a 44px target; the dialog, its three links and seven phases, Escape, a click on the scrim, the Close button, and navigation or back navigation closing it. |
+| `motion.spec.ts` | chromium, mobile, firefox | Entrances hidden until scrolled into view, with timelines and without (Chromium stubs `CSS.supports`); the fill and counter of the ninety band; a change of page runs a view transition; a filter change or opening a sample in the pop-up starts none. |
 | `not-found.spec.ts` | chromium, mobile | Missing paths return 404 with the page heading and the phase navigation; mixed-case paths redirect to lower case. |
-| `reduced-motion.spec.ts` | chromium, mobile, firefox | With the reduced-motion preference on twelve routes: still ink, no motion attributes, no canvas, no running animations, no cover; the still images load; the odometer and tally show their final state. |
+| `reduced-motion.spec.ts` | chromium, mobile, firefox | With the reduced-motion preference on eight routes: still ink, no motion attributes, no canvas, no running animations, no cover; the still images load; the odometer and tally show their final state; links and the catalog filters work. |
 
 ### Helpers and support
 
@@ -177,6 +179,7 @@ A spec that is not named by the Firefox pattern runs in `chromium` and `mobile`.
 
 - `NAVIGATION_TIMEOUT`, 15 seconds, for client-side navigations.
 - `introSeen(page)`, which sets the session flag for the cover before any script runs, so the page is not under the cover.
+- `hydrated(page)`, which waits for `data-hydrated` on the root element: the client components of the page have their handlers. Wait for it before pressing a control that a script answers, on a page you have just loaded.
 
 `tests/e2e/support/ink.ts` holds helpers for the ink specs: `withInkTest` sets the test flag before the page mounts; `recordIntro` logs changes to `data-intro`; `introStates` and `introAt` read them back; `inkMode`, `canvases`, `backdropState`, `canvasPixel` and `inkedPixels` read the layer; `scrollToElement` and `scrollToEnd` scroll; `pageClock` reads the page clock; `collectProblems` collects console errors and page errors.
 
@@ -223,17 +226,17 @@ Exit codes: 0 when every budget holds, 1 when one is broken, 2 for a usage error
 
 | Mode | What it does | Fails when |
 |---|---|---|
-| Capture (default) | Renders each still on its route and viewport, at the device pixel ratio in the manifest, and writes WebP files to `public/ink/`. Quality starts at 0.86 and steps down by 0.04 to a floor of 0.70 until the file is at most 90 KiB. | The eleven files together exceed 600 KiB. |
-| `--check` | Renders the routes at seven widths (320 to 1920 px) with ink off. Reads the still pixels under each calm zone and compares them with the zone cap. | On a light ground, the darkest pixel falls below the cap minus 0.02. On a dark ground, the lightest pixel rises above the cap plus 0.02. |
-| `--blue` | Measures the light blue at 1440 by 900: the hero at 8 and 30 seconds, and the intro at 1.3 seconds. It takes the darkest 1 percent of saturated blue pixels. | Fewer than 100 such pixels exist, or their luminance is below 0.25, or their hue is outside 205 to 216 degrees. |
+| Capture (default) | Renders each still on its route and viewport, at the device pixel ratio in the manifest, and writes WebP files to `public/ink/`. Quality starts at 0.86 and steps down by 0.04 to a floor of 0.70 until the file is at most 90 KiB. | The thirteen files together exceed 600 KiB. |
+| `--check` | Renders the routes (`/`, `/about`, `/purchase`, `/sample`, `/phases/prepare`, `/catalog`, `/nope`) at seven widths (320 to 1920 px) with ink off. Reads the still pixels under each calm zone and compares them with the zone cap. | On a light ground, the darkest pixel falls below the cap minus 0.02. On a dark ground, the lightest pixel rises above the cap plus 0.02. |
+| `--blue` | Measures the light blue at 1440 by 900: the prompt scene at 2 and 2.5 seconds, and the intro at 1.3 seconds. It takes the darkest 1 percent of saturated blue pixels. | Fewer than 100 such pixels exist, or their luminance is below 0.25, or their hue is outside 205 to 216 degrees. |
 | `--sheets` | Writes contact sheets of each scene at fixed times, for a desktop viewport (1440 by 900 at 1x) and a phone viewport (390 by 844 at 2x), as `sheet-<viewport>-<scene>.png`. | Not applicable. |
 
 Options:
 
 - `--base=URL` sets the server. The default is `http://localhost:3100`. If nothing answers there and `--base` was not passed, the script starts `next start -p 3100` from the existing `.next` build and stops it afterwards. Without `.next/BUILD_ID` it prints a request for a production build and exits with 2.
-- `--only=name,name` limits the capture to the named stills. With `--sheets`, scene names and viewport names (for example `spill,phone`) are accepted.
+- `--only=name,name` limits the capture to the named stills (for example `bloom-purchase-wide,bloom-purchase-tall`). With `--sheets`, scene names and viewport names (for example `spill,phone`) are accepted.
 - `--out=DIR` sets the output directory for `--sheets`. The default is `.qa-shots/final`, which is gitignored.
-- `--widths=` and `--routes=` are read by `--check`.
+- `--widths=` and `--routes=` are read by `--check` (a route is given as `--routes=/purchase`; a shell that rewrites a leading slash into a path, such as Git Bash, needs `MSYS_NO_PATHCONV=1`).
 
 Chromium runs with `--use-angle=d3d11`, `--ignore-gpu-blocklist` and `--enable-gpu` for capture, `--blue` and `--sheets`, on every platform. `--check` runs without them. The engine needs a GPU. Without one the script exits with 2.
 
@@ -253,7 +256,7 @@ The script copies the byte budgets and the quality start from `lib/ink/stills.ts
 
 **TypeScript** (`tsconfig.json`) is strict and sets `noUncheckedIndexedAccess`. It resolves modules with the `bundler` strategy and maps `@/*` to the repository root. Type checking covers the `.ts` and `.tsx` files, test files and `playwright.config.ts` included, plus the generated Next.js types.
 
-**Next.js** (`next.config.ts`) enables `reactStrictMode` and disables the `X-Powered-By` header.
+**Next.js** (`next.config.ts`) enables `reactStrictMode`, disables the `X-Powered-By` header and redirects the retired addresses (`/bundles`, `/bundles/:slug`, `/pricing`, `/cart` to `/purchase`; `/contact` to `/about#contact`; `/templates/:slug` to `/catalog?view=:slug`), all permanent.
 
 **Proxy** (`proxy.ts`) answers a path that contains upper-case letters with a 308 redirect to the lower-case path. Its matcher skips `_next` and paths with a file extension.
 
@@ -306,4 +309,4 @@ test("the phase page is titled with its phase", async ({ page }) => {
 
 ### A change to catalog content
 
-Records under `content/` are checked by `validateCatalog` when the repository module loads. An invalid record throws a `CatalogError` that names the kind, the slug and the field. `content.test.ts` pins facts about the sample catalog: phase order, step counts, bundle sums and the wording of bundle summaries. Update those expectations in the same change as the data.
+Records under `content/` are checked by `validateCatalog` when the repository module loads. An invalid record throws a `CatalogError` that names the kind, the slug and the field. `content.test.ts` pins facts about the sample catalog: phase order, step counts and the six free templates by name. Update those expectations in the same change as the data. Exactly six templates must have `free: true`; `validateCatalog` rejects any other number.

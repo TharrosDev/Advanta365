@@ -1,6 +1,6 @@
 {
   "schemaVersion": 2,
-  "generatedAt": "2026-10-11T21:24:04.755Z",
+  "generatedAt": "2026-10-12T08:29:48.151Z",
   "title": "Design System: Advanta365",
   "extensions": {
     "colorMeta": {
@@ -82,6 +82,102 @@
           "oklch(74.0% 0.020 37)",
           "oklch(85.0% 0.020 37)",
           "oklch(95.0% 0.020 37)"
+        ]
+      },
+      "steel-light": {
+        "role": "neutral",
+        "displayName": "Steel Light",
+        "canonical": "#f8fafd",
+        "oklch": "oklch(98.4% 0.005 258)",
+        "tonalRamp": [
+          "oklch(15.0% 0.005 258)",
+          "oklch(26.0% 0.005 258)",
+          "oklch(38.0% 0.005 258)",
+          "oklch(50.0% 0.005 258)",
+          "oklch(62.0% 0.005 258)",
+          "oklch(74.0% 0.005 258)",
+          "oklch(85.0% 0.005 258)",
+          "oklch(95.0% 0.005 258)"
+        ]
+      },
+      "steel": {
+        "role": "neutral",
+        "displayName": "Steel",
+        "canonical": "#b6bdca",
+        "oklch": "oklch(79.7% 0.020 263)",
+        "tonalRamp": [
+          "oklch(15.0% 0.020 263)",
+          "oklch(26.0% 0.020 263)",
+          "oklch(38.0% 0.020 263)",
+          "oklch(50.0% 0.020 263)",
+          "oklch(62.0% 0.020 263)",
+          "oklch(74.0% 0.020 263)",
+          "oklch(85.0% 0.020 263)",
+          "oklch(95.0% 0.020 263)"
+        ]
+      },
+      "steel-shade": {
+        "role": "neutral",
+        "displayName": "Steel Shade",
+        "canonical": "#6a7182",
+        "oklch": "oklch(54.9% 0.028 268)",
+        "tonalRamp": [
+          "oklch(15.0% 0.028 268)",
+          "oklch(26.0% 0.028 268)",
+          "oklch(38.0% 0.028 268)",
+          "oklch(50.0% 0.028 268)",
+          "oklch(62.0% 0.028 268)",
+          "oklch(74.0% 0.028 268)",
+          "oklch(85.0% 0.028 268)",
+          "oklch(95.0% 0.028 268)"
+        ]
+      },
+      "steel-edge": {
+        "role": "neutral",
+        "displayName": "Steel Edge",
+        "canonical": "#262a35",
+        "oklch": "oklch(28.6% 0.021 269)",
+        "tonalRamp": [
+          "oklch(15.0% 0.021 269)",
+          "oklch(26.0% 0.021 269)",
+          "oklch(38.0% 0.021 269)",
+          "oklch(50.0% 0.021 269)",
+          "oklch(62.0% 0.021 269)",
+          "oklch(74.0% 0.021 269)",
+          "oklch(85.0% 0.021 269)",
+          "oklch(95.0% 0.021 269)"
+        ]
+      },
+      "lock-light": {
+        "role": "neutral",
+        "displayName": "Lock Light",
+        "canonical": "#515869",
+        "oklch": "oklch(46.1% 0.029 268)",
+        "tonalRamp": [
+          "oklch(15.0% 0.029 268)",
+          "oklch(26.0% 0.029 268)",
+          "oklch(38.0% 0.029 268)",
+          "oklch(50.0% 0.029 268)",
+          "oklch(62.0% 0.029 268)",
+          "oklch(74.0% 0.029 268)",
+          "oklch(85.0% 0.029 268)",
+          "oklch(95.0% 0.029 268)"
+        ]
+      },
+      "lock": {
+        "role": "neutral",
+        "displayName": "Lock",
+        "canonical": "#1e222c",
+        "oklch": "oklch(25.2% 0.020 268)",
+        "tonalRamp": [
+          "oklch(15.0% 0.020 268)",
+          "oklch(26.0% 0.020 268)",
+          "oklch(38.0% 0.020 268)",
+          "oklch(50.0% 0.020 268)",
+          "oklch(62.0% 0.020 268)",
+          "oklch(74.0% 0.020 268)",
+          "oklch(85.0% 0.020 268)",
+          "oklch(95.0% 0.020 268)"
         ]
       },
       "paper": {
@@ -380,7 +476,7 @@
       },
       "hero": {
         "displayName": "Hero",
-        "purpose": "The home headline only."
+        "purpose": "The home headline only; from 68em two lines across the page, never taller than the window lets them be."
       },
       "statement": {
         "displayName": "Statement",
@@ -404,7 +500,7 @@
       },
       "amount": {
         "displayName": "Amount",
-        "purpose": "Prices and totals."
+        "purpose": "Prices."
       },
       "lead": {
         "displayName": "Lead",
@@ -450,7 +546,7 @@
       {
         "name": "depth-3",
         "value": "0 0 0 1px rgb(11 13 18 / 0.05), 0 12px 24px -8px rgb(11 13 18 / 0.18)",
-        "purpose": "Lifted, or a panel, below 68em: the purchase panel, the cart summary, a lifted sheet."
+        "purpose": "Lifted, or a panel, below 68em: the raised column of the comparison, the front of a page-size folder, a lifted sheet."
       },
       {
         "name": "depth-3-wide",
@@ -460,7 +556,7 @@
       {
         "name": "depth-4",
         "value": "0 0 0 1px rgb(11 13 18 / 0.05), 0 20px 40px -12px rgb(11 13 18 / 0.24)",
-        "purpose": "The top of a stack below 68em: the navigation drawer and the filter sheet."
+        "purpose": "The top of a stack below 68em: the navigation drawer, the filter sheet and the pop-up of the catalog."
       },
       {
         "name": "depth-4-wide",
@@ -487,7 +583,7 @@
       {
         "name": "time-exit",
         "value": "160ms",
-        "purpose": "The scrim behind the drawer fading in."
+        "purpose": "The scrim behind the drawer and the pop-up fading in."
       },
       {
         "name": "time-fill",
@@ -507,7 +603,7 @@
       {
         "name": "time-lift",
         "value": "260ms",
-        "purpose": "A sheet lifting under the pointer or focus; folder sheets rising."
+        "purpose": "A sheet lifting under the pointer or focus; folder sheets rising; the bar's underline sliding."
       },
       {
         "name": "time-ink",
@@ -537,7 +633,7 @@
       {
         "name": "time-morph",
         "value": "420ms",
-        "purpose": "A cover or folder travelling between two pages."
+        "purpose": "A cover or folder given a slug travelling between two pages."
       },
       {
         "name": "stagger",
@@ -552,7 +648,7 @@
       {
         "name": "curve-leave",
         "value": "cubic-bezier(0.55, 0.06, 0.68, 0.19)",
-        "purpose": "The first-load cover leaving."
+        "purpose": "The first-load cover leaving; the hero's box dissolving."
       },
       {
         "name": "curve-ink",
@@ -562,7 +658,7 @@
       {
         "name": "curve-drop",
         "value": "cubic-bezier(0.3, 1.25, 0.5, 1)",
-        "purpose": "The small overshoot of a settling sheet."
+        "purpose": "The small overshoot of a settling sheet and of the hero's documents landing."
       },
       {
         "name": "curve-pen",
@@ -626,17 +722,17 @@
       "name": "Tags",
       "kind": "chip",
       "refersTo": "tag-format",
-      "description": "The format tag (paper, a 1px ink border, uppercase 12px) and the saving tag (the highlighter with its ink ring, 14px at weight 700).",
-      "html": "<span class=\"ds-tag ds-tag-format\">Word</span> <span class=\"ds-tag ds-tag-format\">PDF</span> <span class=\"ds-tag ds-tag-saving\">Save $36</span>",
+      "description": "The format tag (paper, a 1px ink border, uppercase 12px) and the saving tag (the highlighter with its ink ring, 14px at weight 700), which reads \"Free sample\" on a free template.",
+      "html": "<span class=\"ds-tag ds-tag-format\">Word</span> <span class=\"ds-tag ds-tag-format\">PDF</span> <span class=\"ds-tag ds-tag-saving\">Free sample</span>",
       "css": ".ds-tag { display: inline-flex; align-items: center; padding: 2px var(--s-1); border-radius: var(--round-1); font-family: var(--face-text); white-space: nowrap; } .ds-tag-format { border: var(--hair) solid var(--ink); background: var(--paper); color: var(--ink); font-size: var(--size-tag); line-height: 1.333; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; } .ds-tag-saving { background: var(--mark); box-shadow: inset 0 0 0 var(--hair) var(--ink); color: var(--ink); font-size: var(--size-note); line-height: 1.43; font-weight: 700; }"
     },
     {
       "name": "Primary Navigation",
       "kind": "nav",
       "refersTo": "nav-link",
-      "description": "The links of the desktop bar: a wash on hover and focus; the current page is the highlighter with an inset 2px ink ring and a heavier weight.",
-      "html": "<nav class=\"ds-nav\" aria-label=\"Primary\"><a class=\"ds-nav-link\" href=\"#\" aria-current=\"page\">Catalog</a><a class=\"ds-nav-link\" href=\"#\">Bundles</a><a class=\"ds-nav-link\" href=\"#\">Pricing</a><a class=\"ds-nav-link\" href=\"#\">About</a></nav>",
-      "css": ".ds-nav { display: flex; gap: var(--s-1); padding: var(--s-2); background: var(--paper); } .ds-nav-link { display: flex; align-items: center; height: var(--control-sm); padding-inline: var(--s-2); border-radius: var(--round-2); color: var(--ink); font-family: var(--face-text); font-size: var(--size-ui); line-height: 1.375; font-weight: 600; text-decoration: none; white-space: nowrap; transition: background-color var(--time-swap) linear; } .ds-nav-link:hover:not([aria-current]), .ds-nav-link:focus-visible, .ds-nav-link:active:not([aria-current]) { background: var(--mark-wash); } .ds-nav-link[aria-current] { background: var(--mark); box-shadow: inset 0 0 0 var(--edge) var(--ink); font-weight: 700; } .ds-nav-link:focus-visible { outline: 3px solid var(--ink); outline-offset: 3px; }"
+      "description": "Catalog and About in the desktop bar, set wide apart: soft-ink text, a wash on hover and focus, and the current page in ink under one 2px ink line that slides from link to link.",
+      "html": "<nav class=\"ds-nav\" aria-label=\"Primary\"><ul class=\"ds-nav-list\"><li><a class=\"ds-nav-link\" href=\"#\" aria-current=\"page\">Catalog</a></li><li><a class=\"ds-nav-link\" href=\"#\">About</a></li></ul><span class=\"ds-nav-underline\" aria-hidden=\"true\"></span></nav>",
+      "css": ".ds-nav { --gap: var(--s-5); position: relative; display: inline-block; padding: var(--s-2); background: var(--paper); } .ds-nav-list { display: grid; grid-auto-flow: column; grid-auto-columns: 1fr; gap: var(--gap); margin: 0; padding: 0; list-style: none; } .ds-nav-link { display: flex; align-items: center; justify-content: center; height: var(--control-sm); padding-inline: var(--s-2); border-radius: var(--round-2); color: var(--ink-soft); font-family: var(--face-text); font-size: var(--size-ui); line-height: 1.375; font-weight: 600; text-decoration: none; white-space: nowrap; transition: background-color var(--time-swap) linear, color var(--time-swap) linear; } .ds-nav-link:hover:not([aria-current]), .ds-nav-link:focus-visible, .ds-nav-link:active:not([aria-current]) { background: var(--mark-wash); color: var(--ink); } .ds-nav-link[aria-current] { color: var(--ink); } .ds-nav-link:focus-visible { outline: 3px solid var(--ink); outline-offset: 3px; } .ds-nav-underline { position: absolute; inset-block-end: var(--s-2); inset-inline-start: var(--s-2); width: calc((100% - 2 * var(--s-2) - var(--gap)) / 2); height: var(--edge); border-radius: var(--edge); background: var(--ink); pointer-events: none; }"
     },
     {
       "name": "Phase Rail",
@@ -658,9 +754,33 @@
       "name": "Folder",
       "kind": "card",
       "refersTo": "folder-front",
-      "description": "A bundle: a wash tab, white sheets standing in a back panel, and a wash front panel. The sheets rise 14, 10 and 6px under the pointer.",
-      "html": "<div class=\"ds-folder\"><span class=\"ds-folder-back\"></span><span class=\"ds-folder-tab\">4 templates</span><span class=\"ds-folder-sheet\" style=\"--n:0\"></span><span class=\"ds-folder-sheet\" style=\"--n:1\"></span><span class=\"ds-folder-sheet\" style=\"--n:2\"></span><div class=\"ds-folder-front\"><p class=\"ds-folder-title\">Sponsor Essentials</p><p class=\"ds-folder-price\">$149</p></div></div>",
+      "description": "The toolkit as a folder: a wash tab, white sheets standing in a back panel, and a wash front panel. The sheets rise 14, 10 and 6px under the pointer. At page size it holds the covers of the six free samples, has a card-stock front that casts a shade onto them, and carries the price on a paper tag hung from its corner.",
+      "html": "<div class=\"ds-folder\"><span class=\"ds-folder-back\"></span><span class=\"ds-folder-tab\">The complete toolkit</span><span class=\"ds-folder-sheet\" style=\"--n:0\"></span><span class=\"ds-folder-sheet\" style=\"--n:1\"></span><span class=\"ds-folder-sheet\" style=\"--n:2\"></span><div class=\"ds-folder-front\"><p class=\"ds-folder-title\">Seven phases in one folder.</p><p class=\"ds-folder-price\">One purchase</p></div></div>",
       "css": ".ds-folder { --tab-h: var(--s-4); position: relative; isolation: isolate; display: flex; flex-direction: column; max-width: 20rem; padding-block-start: calc(var(--tab-h) + 1.5rem); } .ds-folder-back { position: absolute; inset: var(--tab-h) 0 0; z-index: -3; border-radius: 0 var(--round-2) var(--round-2); background: var(--mark-wash); box-shadow: var(--depth-1); } .ds-folder-tab { position: absolute; top: 0; left: 0; z-index: -3; display: flex; align-items: center; height: calc(var(--tab-h) + 2px); padding-inline: var(--s-2); border-radius: var(--round-2) var(--round-2) 0 0; background: var(--mark-wash); box-shadow: var(--depth-1); clip-path: inset(-1rem -1rem 2px -1rem); color: var(--ink); font-family: var(--face-text); font-size: var(--size-note); font-weight: 700; white-space: nowrap; } .ds-folder-sheet { position: absolute; top: calc(var(--tab-h) + 5px + var(--n, 0) * 5px); right: calc(var(--s-2) - var(--n, 0) * 3px); left: calc(var(--s-2) - var(--n, 0) * 3px); z-index: -2; height: var(--s-6); border-radius: var(--round-1); background: var(--paper); box-shadow: var(--depth-1); transition: translate var(--time-lift) var(--curve-settle) calc(var(--n, 0) * 40ms); } .ds-folder:hover .ds-folder-sheet { translate: 0 calc(-14px + var(--n, 0) * 4px); } .ds-folder-front { position: relative; padding: var(--s-3); border-radius: var(--round-2); background: var(--mark-wash); box-shadow: var(--depth-2); color: var(--ink); } .ds-folder-title { margin: 0; font-family: var(--face-display); font-size: var(--size-item); line-height: 1.3; font-weight: 600; } .ds-folder-price { margin: var(--s-2) 0 0; font-family: var(--face-display); font-size: var(--size-amount); line-height: 1.1; font-weight: 700; font-feature-settings: \"tnum\" 0; }"
+    },
+    {
+      "name": "Template Tile",
+      "kind": "card",
+      "refersTo": "paper-sheet",
+      "description": "A template in the catalog grid: its cover in a square well, then phase, title and format. A free sample is a link with a \"Free sample\" tag; every other template is locked, its cover blurred under two steel chains and a padlock, and pressing it outlines the tile in the alert red, shakes it and says \"Included with the toolkit.\"",
+      "html": "<div class=\"ds-tile ds-tile-locked\"><div class=\"ds-tile-well\"><span class=\"ds-tile-cover\"></span><span class=\"ds-tile-chain\"></span><span class=\"ds-tile-lock\"></span></div><p class=\"ds-tile-meta\">Plan · Plans</p><p class=\"ds-tile-title\">Stakeholder Communications Plan</p></div>",
+      "css": ".ds-tile { display: grid; gap: var(--s-1); max-width: 11rem; color: var(--ink); } .ds-tile-well { position: relative; display: grid; place-items: center; aspect-ratio: 1; overflow: hidden; border-radius: var(--round-1); background: var(--desk-deep); } .ds-tile-cover { width: 62%; aspect-ratio: 5 / 7; border-radius: var(--round-1); background: var(--paper); box-shadow: var(--depth-1); filter: blur(3px); } .ds-tile-chain { position: absolute; inset-inline: -10%; top: 46%; height: 6px; border-radius: 3px; background: var(--steel); box-shadow: 0 0 0 1px var(--steel-edge), 0 3px 4px var(--lock-cast); rotate: 33deg; } .ds-tile-lock { position: absolute; top: 50%; left: 50%; width: 22px; height: 18px; translate: -50% -50%; border-radius: 3px; background: var(--lock); box-shadow: inset 0 1px 0 var(--lock-light), 0 3px 4px var(--lock-cast); } .ds-tile-meta { margin: 0; font-family: var(--face-text); font-size: var(--size-note); line-height: 1.43; color: var(--ink-soft); } .ds-tile-title { margin: 0; font-family: var(--face-display); font-size: var(--size-item); line-height: 1.3; font-weight: 600; }"
+    },
+    {
+      "name": "Price Tag",
+      "kind": "card",
+      "refersTo": "price-tag",
+      "description": "The one price, on a paper tag with rounded shoulders and an eyelet, hung by a two-strand string from the corner of the folder. It swings once when first seen, and a little when the folder is hovered.",
+      "html": "<div class=\"ds-price-tag\"><span class=\"ds-price-string\"></span><div class=\"ds-price-sheet\"><span class=\"ds-price-eyelet\"></span><p class=\"ds-price-amount\">$499.99</p><p class=\"ds-price-terms\">one purchase</p></div></div>",
+      "css": ".ds-price-tag { position: relative; display: inline-grid; justify-items: center; padding-block-start: var(--s-4); rotate: 6deg; transform-origin: 50% 0; } .ds-price-string { position: absolute; top: 0; left: 50%; width: 1px; height: var(--s-4); background: var(--rule-firm); } .ds-price-sheet { position: relative; display: grid; justify-items: center; gap: 2px; padding: var(--s-3) var(--s-3) var(--s-2); border-radius: var(--round-2) var(--round-2) var(--round-1) var(--round-1); background: var(--paper); box-shadow: var(--depth-2); color: var(--ink); } .ds-price-eyelet { width: 9px; height: 9px; margin-block-end: var(--s-1); border-radius: 50%; background: var(--desk-deep); box-shadow: inset 0 0 0 1px var(--rule-firm); } .ds-price-amount { margin: 0; font-family: var(--face-display); font-size: var(--size-amount); line-height: 1.1; font-weight: 700; font-feature-settings: \"tnum\" 0; } .ds-price-terms { margin: 0; font-family: var(--face-text); font-size: var(--size-note); line-height: 1.43; color: var(--ink-soft); }"
+    },
+    {
+      "name": "Pop-up",
+      "kind": "card",
+      "refersTo": "template-dialog",
+      "description": "A free sample opened over the catalog: a native modal dialog, a paper sheet at depth 4 with a 10px corner, the large lit cover at the left and the words at the right. Escape, Close and a click on the dimmed page close it.",
+      "html": "<div class=\"ds-pop\"><div class=\"ds-pop-bar\"><span class=\"ds-pop-close\">Close</span></div><div class=\"ds-pop-body\"><span class=\"ds-pop-cover\"></span><div><p class=\"ds-pop-tag\">Free sample</p><p class=\"ds-pop-title\">Change Management Strategy</p><p class=\"ds-pop-copy\">The strategy that frames the rollout as a change in how people work.</p></div></div></div>",
+      "css": ".ds-pop { max-width: 34rem; border-radius: var(--round-3); background: var(--paper); box-shadow: var(--depth-4); color: var(--ink); overflow: hidden; } .ds-pop-bar { display: flex; justify-content: flex-end; padding: var(--s-2); border-block-end: var(--hair) solid var(--rule); } .ds-pop-close { display: inline-flex; align-items: center; height: var(--control-sm); padding-inline: var(--s-2); border: var(--edge) solid var(--ink); border-radius: var(--round-2); font-family: var(--face-text); font-size: var(--size-ui); font-weight: 600; } .ds-pop-body { display: grid; grid-template-columns: 9rem 1fr; gap: var(--s-3); padding: var(--s-3); } .ds-pop-cover { aspect-ratio: 5 / 7; border-radius: var(--round-1); background: var(--paper); box-shadow: var(--depth-2); } .ds-pop-tag { display: inline-block; margin: 0; padding: 2px var(--s-1); border-radius: var(--round-1); background: var(--mark); box-shadow: inset 0 0 0 var(--hair) var(--ink); font-family: var(--face-text); font-size: var(--size-note); font-weight: 700; } .ds-pop-title { margin: var(--s-1) 0 0; font-family: var(--face-display); font-size: var(--size-section); line-height: 1.24; font-weight: 600; } .ds-pop-copy { margin: var(--s-1) 0 0; font-family: var(--face-text); font-size: var(--size-copy); line-height: 1.58; }"
     },
     {
       "name": "Ledger Row",
@@ -673,7 +793,7 @@
   ],
   "narrative": {
     "northStar": "The Working Copy",
-    "overview": "The site is a desk with documents on it. White sheets of paper lie on a cool grey desk, set in near-black type, and one light-blue highlighter marks the parts that belong to the buyer: the blank still to fill, the tenth block of ten, the page they are on. Everything the system draws is an object from that desk. A sheet has a tooth, a light on it and a layered shadow. A folder has a tab and sheets standing in it. Phases are index tabs, lists are ledgers ruled with hairlines, and progress is a tally of blocks.\n\nInk is the one material that moves. A real-time simulation of ink in water runs behind the first screen, the 90% statement, the closing band, wide page titles, the 404 and the footer. It lies on the ground of a band and never on a sheet, it is held back around every block of text, and its strength is capped against the ground the copy is read on. The rest of the motion is small and physical: a sheet settles as it scrolls into view, rises 6px and tilts up to 1.2 degrees toward the pointer, a rule is drawn from the left, and a first visit opens on a blank page where the logo is signed stroke by stroke.\n\nThe density is that of a document, not of a dashboard: reading-width columns, a twelve-column grid from 68em, bands 56 to 112px deep, and type that carries the hierarchy before colour or depth add anything. The system has a light scheme only. Under reduced motion, raised contrast, forced colours, no JavaScript or no WebGL2 the page is complete: still images stand in for the ink, shadows give way to ink lines, and nothing waits hidden.",
+    "overview": "The site is a desk with documents on it. White sheets of paper lie on a cool grey desk, set in near-black type, and one light-blue highlighter marks the parts that belong to the buyer: the blank still to fill, the tenth block of ten, the phase they are on. Everything the system draws is an object from that desk. A sheet has a tooth, a light on it and a layered shadow. A folder has a tab and sheets standing in it. Phases are index tabs, lists are ledgers ruled with hairlines, and progress is a tally of blocks. The site sells one thing, the complete toolkit, and it is the folder on the desk with its price on a paper tag: six sample templates lie open on the desk, and every other template hangs behind a steel chain and a padlock.\n\nInk is the one material that moves. A real-time simulation of ink in water runs behind the first screen, the 90% statement, the closing band, the Purchase page, wide page titles, the 404 and the footer. It lies on the ground of a band and never on a sheet, it is held back around every block of text, and its strength is capped against the ground the copy is read on. The rest of the motion is small and physical: a sheet settles as it scrolls into view, rises 6px and tilts up to 1.2 degrees toward the pointer, a rule is drawn from the left, and a first visit opens on a blank page where the logo is signed stroke by stroke, the small 365 on its arm last. The first screen then acts out the tagline: an empty prompt box, a black drop and a blue one, and the six free samples standing where the box was.\n\nThe density is that of a document, not of a dashboard: reading-width columns, a twelve-column grid from 68em, bands 56 to 112px deep, and type that carries the hierarchy before colour or depth add anything. The system has a light scheme only. Under reduced motion, raised contrast, forced colours, no JavaScript or no WebGL2 the page is complete: still images stand in for the ink, shadows give way to ink lines, and nothing waits hidden.",
     "keyCharacteristics": [
       "Paper objects on a desk: sheets, stacks, folders, index tabs and ledgers, each with a real edge and a real shadow.",
       "Three inks: near-black for what is written, light blue for what is the buyer's, and a dark binder ground for the footer and the statement bands.",
@@ -754,7 +874,7 @@
     ],
     "donts": [
       "Don't use the highlighter as a text, icon or line colour on a light ground, or as a fill with no ink beside it.",
-      "Don't introduce another accent. The palette is white, near-black and one light blue; the red is for errors only.",
+      "Don't introduce another accent. The palette is white, near-black and one light blue; the red is for errors and a locked tile's refusal only.",
       "Don't build a boxed card with a border and a large radius. Corners are 3px on paper and 6px on controls.",
       "Don't fade, slide or blend a band or a surface. Grounds change with a hard edge.",
       "Don't animate a shadow, a layout property or a custom property, and don't loop an animation.",

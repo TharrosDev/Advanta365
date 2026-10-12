@@ -7,6 +7,12 @@ colors:
   mark-wash: "#eaf4ff"
   alert: "#a32b1d"
   alert-wash: "#fbeae5"
+  steel-light: "#f8fafd"
+  steel: "#b6bdca"
+  steel-shade: "#6a7182"
+  steel-edge: "#262a35"
+  lock-light: "#515869"
+  lock: "#1e222c"
   paper: "#ffffff"
   paper-shade: "#f1f3f7"
   desk: "#f4f5f8"
@@ -212,6 +218,15 @@ components:
     textColor: "{colors.ink}"
     rounded: "{rounded.round-2}"
     padding: "1.3125rem"
+  price-tag:
+    backgroundColor: "{colors.paper}"
+    textColor: "{colors.ink}"
+    typography: "{typography.amount}"
+    rounded: "{rounded.round-1}"
+  template-dialog:
+    backgroundColor: "{colors.paper}"
+    textColor: "{colors.ink}"
+    rounded: "{rounded.round-3}"
   nav-link:
     backgroundColor: "transparent"
     textColor: "{colors.ink}"
@@ -222,7 +237,7 @@ components:
   nav-link-hover:
     backgroundColor: "{colors.mark-wash}"
   nav-link-current:
-    backgroundColor: "{colors.mark}"
+    backgroundColor: "transparent"
     textColor: "{colors.ink}"
   phase-tab:
     backgroundColor: "{colors.paper}"
@@ -275,9 +290,9 @@ components:
 
 **Creative North Star: "The Working Copy"**
 
-The site is a desk with documents on it. White sheets of paper lie on a cool grey desk, set in near-black type, and one light-blue highlighter marks the parts that belong to the buyer: the blank still to fill, the tenth block of ten, the page they are on. Everything the system draws is an object from that desk. A sheet has a tooth, a light on it and a layered shadow. A folder has a tab and sheets standing in it. Phases are index tabs, lists are ledgers ruled with hairlines, and progress is a tally of blocks.
+The site is a desk with documents on it. White sheets of paper lie on a cool grey desk, set in near-black type, and one light-blue highlighter marks the parts that belong to the buyer: the blank still to fill, the tenth block of ten, the phase they are on. Everything the system draws is an object from that desk. A sheet has a tooth, a light on it and a layered shadow. A folder has a tab and sheets standing in it. Phases are index tabs, lists are ledgers ruled with hairlines, and progress is a tally of blocks. The site sells one thing, the complete toolkit, and it is the folder on the desk with its price on a paper tag: six sample templates lie open on the desk, and every other template hangs behind a steel chain and a padlock.
 
-Ink is the one material that moves. A real-time simulation of ink in water runs behind the first screen, the 90% statement, the closing band, wide page titles, the 404 and the footer. It lies on the ground of a band and never on a sheet, it is held back around every block of text, and its strength is capped against the ground the copy is read on. The rest of the motion is small and physical: a sheet settles as it scrolls into view, rises 6px and tilts up to 1.2 degrees toward the pointer, a rule is drawn from the left, and a first visit opens on a blank page where the logo is signed stroke by stroke.
+Ink is the one material that moves. A real-time simulation of ink in water runs behind the first screen, the 90% statement, the closing band, the Purchase page, wide page titles, the 404 and the footer. It lies on the ground of a band and never on a sheet, it is held back around every block of text, and its strength is capped against the ground the copy is read on. The rest of the motion is small and physical: a sheet settles as it scrolls into view, rises 6px and tilts up to 1.2 degrees toward the pointer, a rule is drawn from the left, and a first visit opens on a blank page where the logo is signed stroke by stroke, the small 365 on its arm last. The first screen then acts out the tagline: an empty prompt box, a black drop and a blue one, and the six free samples standing where the box was.
 
 The density is that of a document, not of a dashboard: reading-width columns, a twelve-column grid from 68em, bands 56 to 112px deep, and type that carries the hierarchy before colour or depth add anything. The system has a light scheme only. Under reduced motion, raised contrast, forced colours, no JavaScript or no WebGL2 the page is complete: still images stand in for the ink, shadows give way to ink lines, and nothing waits hidden.
 
@@ -297,13 +312,13 @@ White, near-black and one light blue, on cool greys that lean a few degrees towa
 
 ### Primary
 
-- **Highlighter Blue** (`mark`, #86c1ff): the buyer's colour. It fills the blank on a template cover, the marked block of a tally, a checked box, the current page in the navigation, the current phase tab, a saving tag, the square before an eyebrow, the tail of the logo and the text selection. Under the pointer or keyboard focus it comes up inside solid buttons and behind the words of a link.
+- **Highlighter Blue** (`mark`, #86c1ff): the buyer's colour. It fills the blank on a template cover, the marked block of a tally, a checked box, the current phase tab, a saving tag (the "Free sample" tag among them), the square before an eyebrow, the tail of the logo and the 365 on it, the headline's last words and the text selection. Under the pointer or keyboard focus it comes up inside solid buttons and behind the words of a link.
 - **Pressed Highlighter** (`mark-deep`, #5fa8f5): the highlighter one step deeper. A solid button while it is held down, a checked box under the pointer, and the blue pigment of the ink on light grounds.
-- **Highlighter Wash** (`mark-wash`, #eaf4ff): the highlighter diluted to a ground. The wash band, the front and tab of a folder, a note, the beta strip, and the hover and focus fill of rows, outline buttons, navigation links and tabs.
+- **Highlighter Wash** (`mark-wash`, #eaf4ff): the highlighter diluted to a ground. The wash band, the front and tab of a folder (the front of a page-size folder lies under a light, `card-light`), a note, the beta strip, the bar's button when it is the current page, and the hover and focus fill of rows, outline buttons, navigation links and tabs.
 
 ### Secondary
 
-- **Correction Red** (`alert`, #a32b1d) on **Correction Wash** (`alert-wash`, #fbeae5): reserved for errors and for nothing else. No component draws an error state today; the pair exists so that the first one has its colour.
+- **Correction Red** (`alert`, #a32b1d) on **Correction Wash** (`alert-wash`, #fbeae5): reserved for errors and for a locked tile's refusal, whose outline pulses in the red. No component draws an error state today; the wash exists so that the first one has its ground.
 
 ### Neutral
 
@@ -322,7 +337,8 @@ White, near-black and one light blue, on cool greys that lean a few degrees towa
 - **On Binder** (`on-binder`, #f4f5f8) and **Soft On Binder** (`on-binder-soft`, #b4b9c7): primary and secondary text on the binder.
 - **Binder Rule** (`rule-on-binder`, #343947): hairlines on the binder.
 - **Black Pigment** (`pigment-black`, #10131a) and **Pale Pigment** (`pigment-pale`, #c3cedf): the ink simulation's black on paper and its pale ink on the binder. Its two blues are the highlighter pair.
-- **Scrim** (`scrim`, ink at 50%): the dimmed page behind the navigation drawer and the filter sheet.
+- **Steel** (`steel-light` #f8fafd, `steel` #b6bdca, `steel-shade` #6a7182, `steel-edge` #262a35) and **Lock** (`lock-light` #515869, `lock` #1e222c, and `lock-cast`, ink at 34%): the chains and padlock over the cover of a locked template, and the shadow they cast. They are drawn there and nowhere else.
+- **Scrim** (`scrim`, ink at 50%): the dimmed page behind the navigation drawer, the filter sheet and the pop-up of the catalog.
 
 ### Named Rules
 
@@ -344,13 +360,13 @@ White, near-black and one light blue, on cool greys that lean a few degrees towa
 ### Hierarchy
 
 - **Display** (`poster`, 800, 112 to 320px, 0.86): one figure per page at most. The 90% of the home statement band, the phase numeral, the 404.
-- **Display** (`hero`, 600, 40 to 80px, 1.04): the home headline only, at most 11.5em wide.
+- **Display** (`hero`, 600, 40 to 80px, 1.04): the home headline only. From 68em it is two lines across the page and never taller than the window lets them be, so the first screen fits.
 - **Headline** (`statement`, 600, 34 to 72px, 1.06): large statements, and the wide form of a page title.
 - **Headline** (`banner`, 600, 34 to 56px, 1.12): standard page titles and the one-sentence statement of a section.
 - **Title** (`page`, 600, 28 to 40px, 1.16): the heading of a shelf of content.
 - **Title** (`section`, 600, 22 to 26px, 1.24): section headings and large row labels.
 - **Title** (`item`, 600, 18 to 20px, 1.3): row and card titles.
-- **Title** (`amount`, 700, 30 to 40px, 1.1): prices and totals.
+- **Title** (`amount`, 700, 30 to 40px, 1.1): prices.
 - **Body** (`lead`, 400, 18 to 20px, 1.5): lead paragraphs, at most 40rem wide, in soft ink.
 - **Body** (`copy`, 400, 16 to 17px, 1.58): body copy and the body default, at most 36rem wide.
 - **Label** (`ui`, 600, 16px, 1.375): buttons, links in the bar and field labels. Typed values, notes and plain tags use the same size at weight 400.
@@ -376,7 +392,7 @@ The page is a stack of full-width bands. A band paints its own ground, sets the 
 
 All space comes from a 7px module: 7, 14, 21, 28, 42, 56, 84, 112 and 168px. A band is padded 56px above and below on a phone and 84px from 40em. A roomy band takes 84 and 112px, a tight one 42px, a title band 28 and 42px.
 
-There are two breakpoints and no others. Below 40em is the phone layout: one column, full-width stacked buttons, index rows in place of sheets. From 40em sheets stand two across and rows gain a second column. From 68em the twelve-column grid applies: a margin in columns 1 to 3 with content in 4 to 12, the home first screen with its text in columns 1 to 7 and open water for the ink in 8 to 12, the inline navigation, the phase rail and the deeper shadows. Three container queries hide the brand name or the word Menu visually when the bar or the drawer is too narrow for them; the text stays readable to assistive technology.
+There are two breakpoints and no others. Below 40em is the phone layout: one column, full-width stacked buttons, index rows in place of sheets. From 40em sheets stand two across and rows gain a second column. From 68em the twelve-column grid applies: a margin in columns 1 to 3 with content in 4 to 12, the home first screen centred across the whole band, the inline navigation, the phase rail and the deeper shadows. Three container queries hide the brand name or the word Menu visually when the bar or the drawer is too narrow for them; the text stays readable to assistive technology.
 
 A sticky white bar tops every page, 56px tall and 70px from 68em. From 68em a 42px strip of the desk under it holds the seven phases as tabs. A beta strip in the wash sits above the bar and scrolls away with the page. Anchors and focused elements stop 21px clear of the bar.
 
@@ -391,8 +407,8 @@ Depth is layered and physical. Every paper object casts a soft shadow in the ink
 - **Depth 0, a hairline ring** (`box-shadow: 0 0 0 1px rgb(11 13 18 / 0.06)`): a sheet lying flat.
 - **Depth 1, a thumbnail or a tab** (`box-shadow: 0 0 0 1px rgb(11 13 18 / 0.05), 0 1px 2px rgb(11 13 18 / 0.06), 0 3px 6px -2px rgb(11 13 18 / 0.06)`): cover thumbnails, phase tabs on the rail, the sheets under a stack, the back, tab and inner sheets of a folder, and the round of the ink's pause button.
 - **Depth 2, an object at rest** (`box-shadow: 0 0 0 1px rgb(11 13 18 / 0.05), 0 2px 4px -1px rgb(11 13 18 / 0.06), 0 10px 20px -8px rgb(11 13 18 / 0.12), 0 28px 44px -24px rgb(11 13 18 / 0.14)`): the default sheet and the front of a folder.
-- **Depth 3, lifted or a panel** (`box-shadow: 0 0 0 1px rgb(11 13 18 / 0.05), 0 12px 24px -8px rgb(11 13 18 / 0.18)`; from 68em `0 0 0 1px rgb(11 13 18 / 0.05), 0 4px 8px -2px rgb(11 13 18 / 0.07), 0 20px 36px -12px rgb(11 13 18 / 0.16), 0 48px 72px -32px rgb(11 13 18 / 0.2)`): the purchase panel, the cart summary, the raised column of the comparison, and the shadow a resting sheet takes when it is lifted.
-- **Depth 4, the top of a stack** (`box-shadow: 0 0 0 1px rgb(11 13 18 / 0.05), 0 20px 40px -12px rgb(11 13 18 / 0.24)`; from 68em `0 0 0 1px rgb(11 13 18 / 0.05), 0 8px 14px -4px rgb(11 13 18 / 0.08), 0 32px 56px -16px rgb(11 13 18 / 0.2), 0 84px 112px -42px rgb(11 13 18 / 0.26)`): the navigation drawer and the filter sheet.
+- **Depth 3, lifted or a panel** (`box-shadow: 0 0 0 1px rgb(11 13 18 / 0.05), 0 12px 24px -8px rgb(11 13 18 / 0.18)`; from 68em `0 0 0 1px rgb(11 13 18 / 0.05), 0 4px 8px -2px rgb(11 13 18 / 0.07), 0 20px 36px -12px rgb(11 13 18 / 0.16), 0 48px 72px -32px rgb(11 13 18 / 0.2)`): the raised column of the comparison, the front of a page-size folder, the middle documents of the hero's hand, and the shadow a resting sheet takes when it is lifted.
+- **Depth 4, the top of a stack** (`box-shadow: 0 0 0 1px rgb(11 13 18 / 0.05), 0 20px 40px -12px rgb(11 13 18 / 0.24)`; from 68em `0 0 0 1px rgb(11 13 18 / 0.05), 0 8px 14px -4px rgb(11 13 18 / 0.08), 0 32px 56px -16px rgb(11 13 18 / 0.2), 0 84px 112px -42px rgb(11 13 18 / 0.26)`): the navigation drawer, the filter sheet and the pop-up of the catalog.
 - **Bar shadow** (`box-shadow: 0 10px 21px -14px rgb(11 13 18 / 0.4)`): under the sticky bar. It is absent at the top of a page and arrives over the first 84px of scroll.
 
 ### Named Rules
@@ -405,11 +421,11 @@ Depth is layered and physical. Every paper object casts a soft shadow in the ink
 
 ## Shapes
 
-Corners are small, as on cut paper. Sheets, tags, checkboxes, tally blocks and numeral tiles take 3px. Controls, tabs, rows, notes, page numbers and the panels of a folder take 6px. The 10px radius appears once, on the top corners of the filter sheet that rises from the bottom of a phone. The only circle is the 32px round of the ink's pause button, and the logo tile has its own 7px corner.
+Corners are small, as on cut paper. Sheets, tags, checkboxes, tally blocks and numeral tiles take 3px. Controls, tabs, rows, notes, page numbers and the panels of a folder take 6px. The 10px radius appears on the top corners of the filter sheet that rises from the bottom of a phone, on the pop-up of the catalog, on the panels of a page-size folder and on the hero's prompt box. The only circle is the 32px round of the ink's pause button, and the logo tile has its own 7px corner.
 
 Edges come in two weights: a 1px hairline for rules and quiet borders, and a 2px ink edge for control borders, inset rings and thick underlines. A ring is drawn inside the box, so a state change never alters a size.
 
-Sheets keep the proportions of what they stand for: 5 : 7 for a Word document or a PDF, 4 : 3 for a workbook, 16 : 9 for a slide. A PDF has its top-right corner cut and folded over. A sheet may rest turned by a degree or two, and the sheets under a stack are offset and turned behind it. Icons and the logo are monoline with round caps and joins: icons at a 1.75 stroke on a 20-unit grid, the logo at 4.2 on a 32 by 24 grid.
+Sheets keep the proportions of what they stand for: 5 : 7 for a Word document or a PDF, 4 : 3 for a workbook, 16 : 9 for a slide. A PDF has its top-right corner cut and folded over. A sheet may rest turned by a degree or two, and the sheets under a stack are offset and turned behind it. Icons and the logo are monoline with round caps and joins: icons at a 1.75 stroke on a 20-unit grid, the logo at 4.2 on a 32 by 24 grid, and the 365 on its arm at 1.1 in the ink of the tail. The 365 is drawn only where it is 7px high (the bar's tile from 68em, the footer's mark, the cover), never on the favicon.
 
 ## Components
 
@@ -422,12 +438,13 @@ Plain and certain. A button answers the pointer by taking the highlighter, and i
 - **Secondary (`outline`):** transparent with a 2px border in the text colour of its band. Hover, focus and press fill it with the wash, or with paper on the wash band.
 - **Text:** no box. Underlined ink words with a 44px hit height; on hover and focus the underline thickens to 2px and the highlighter is drawn behind the words and 2px past their ends.
 - **Motion:** colour changes take 120ms, linear. An arrow after the label moves 3px to the right on hover and focus. A press moves the button down 1px.
-- **Disabled:** deep-desk fill, rule border, faint text, a not-allowed cursor, and no movement.
+- **Disabled:** deep-desk fill, rule border, faint text, a not-allowed cursor, and no movement. The Checkout button on the Purchase page is drawn this way and says "Checkout coming soon"; it stays in the tab order so a keyboard reaches its words.
+- **In the bar:** "Get the toolkit · $499.99" in the small size, solid ink with the price from 68em and without it below. On the Purchase page, where the visitor already is, it is the wash with an ink edge and does not change under the pointer.
 
 ### Chips
 
 - **Format tag:** a paper chip with a 1px ink border and uppercase 12px text, naming a file format on a cover or a row.
-- **Saving tag:** the highlighter with an inset 1px ink ring and 14px ink text at weight 700, in sentence case.
+- **Saving tag:** the highlighter with an inset 1px ink ring and 14px ink text at weight 700, in sentence case. It reads "Free sample" on a free template.
 - **Plain tag:** paper with a 1px firm rule border, roomier (7px by 14px), in 16px text at weight 400.
 - **Count badge:** a 21px deep-desk tile with a faint numeral; holding something, it takes the highlighter with an ink ring. A change in the count pops it once to 1.3 times its size.
 
@@ -437,8 +454,10 @@ There are no boxed cards. A thing in a list is either a row on a hairline or a p
 
 - **Paper sheet:** a 3px corner, paper lit from its top-left corner and a shade darker at the far ones, a pre-rendered grain on medium and large sheets, depth 2 at rest. It has no padding of its own; a panel made from it is padded 21px, and 28px from 40em. Inside a sheet the colours are those of paper whatever band it lies on.
 - **Paper stack:** two or more blank sheets under the top one, at depth 1, offset and turned from 40em and only slightly turned below it.
-- **Folder:** a bundle. A wash-coloured tab 28px tall names it, a back panel holds up to three white sheets standing 5px lower each, and a wash front panel at depth 2 carries the content. Under the pointer or focus the sheets rise 14, 10 and 6px, 40ms apart.
-- **Template card:** below 40em, and in list view at every width, a row on a hairline with a cover thumbnail; its hover wash stands 14px past both ends and the thumbnail lifts and turns 1.5 degrees. From 40em in sheet view, the cover itself at the foot of a 17rem area (20rem from 68em) with the phase, the title and the price as a caption. The title is the one link and covers the whole article, and the focus ring is drawn on the article.
+- **Folder:** the toolkit. A wash-coloured tab 28px tall names it, a back panel holds up to three white sheets standing 5px lower each, and a wash front panel at depth 2 carries the content. Under the pointer or focus the sheets rise 14, 10 and 6px, 40ms apart. At page size (the Purchase page and the home portfolio) it measures itself against its own width: the pocket is taller and holds the real covers of the six free samples in two ranks, the front is card stock (the wash under a light, with the paper's grain) at depth 3 that casts a shade up onto the sheets, and a price tag hangs from its corner.
+- **Price tag:** a sheet of paper with rounded shoulders and an eyelet, hung by a two-strand string tied through a second eyelet. It carries the price in Besley (`$499.99`) and "one purchase" under it, set at a slight turn. It swings once, like a weight on a string, when it is first seen, and a little each time the pointer comes onto the folder.
+- **Template tile:** a small article in a grid of at least 176px columns, two across on a phone. The cover, printed with its own title and first line, stands in a square well in its format's proportions, with the phase and type, the title and the format tag under it. There is no price. A free sample carries a "Free sample" tag, its title is the one link and covers the whole tile, and the cover rises under the pointer. A locked template has its cover out of focus under two crossed steel chains with a padlock at the centre (the title and summary stay readable); its one control is a button named "<title>, locked". Pressing it opens nothing: for 600ms the tile is outlined in the alert red, shakes 6px and its padlock rattles, and a line under it says "Included with the toolkit." with a link to the Purchase page. Under reduced motion only the outline and the line remain.
+- **Pop-up:** a native modal dialog over the dimmed page, a sheet of paper at depth 4 with a 10px corner and a bar that holds Close. A free sample opens in it: its cover large and lit on a desk of its own at the left, and at the right the tag, the title, the summary, the facts as a ledger, what is included and a button to the Purchase page; below 40em the cover stands above the words. It closes on Escape, on Close and on a click on the dimmed page, and rises 14px into place when a link inside the site opened it.
 - **Note:** a short sentence on the wash (6px corner, 14px by 21px, 16px text at weight 400), no wider than a lead; on the wash band it takes paper.
 
 ### Inputs / Fields
@@ -451,8 +470,8 @@ There are no boxed cards. A thing in a list is either a row on a hairline or a p
 
 ### Navigation
 
-- **Bar:** white and sticky, with no border and no shadow at the top of the page. It holds the brand lockup (the logo in an ink tile, the name in Besley 700), the primary links from 68em, the cart and, below 68em, a Menu button.
-- **Primary links:** 40px tall, a 6px corner, ink text. Hover and focus fill with the wash. The current page is the highlighter with an inset 2px ink ring and weight 700.
+- **Bar:** white and sticky, with no border and no shadow at the top of the page. It holds the brand lockup (the logo in an ink tile, with the 365 on its tail from 68em, and the name in Besley 700), the primary links from 68em, the purchase button and, below 68em, a Menu button. From 68em the row is three zones: the brand at the left, the links centred on the bar itself, the button at the right.
+- **Primary links:** Catalog and About, 40px tall, a 6px corner, soft-ink text, set wide apart. Hover and focus fill with the wash. The current page is ink text under one 2px ink line that slides from link to link; with no current page the line is not drawn.
 - **Phase rail (from 68em):** seven equal tabs standing on the bottom edge of a desk strip, white with rounded top corners at depth 1, each a Besley numeral and a name. The current phase is the highlighter inside a 2px ink edge.
 - **Phase cards:** the same seven as index cards 56px tall, two across on a phone, four from 40em and one row where they fit, with the numeral over the name.
 - **Drawer (below 68em):** a paper panel on the right edge, at most 378px wide, at depth 4 over the scrim. It slides in over 320ms and its links drift in 40ms apart; closing has no animation. Rows are 49px, and the current one is highlighted with its ink ring.
@@ -473,11 +492,11 @@ The signature object: a miniature first page of a template, printed on a paper s
 
 ### Ink Backdrop
 
-The showpiece. One canvas serves the whole page, and the backdrop most in view holds it; every other backdrop shows a still image of its scene. Seven scenes exist: drops beside the home headline, a drop onto the tenth block of the 90% tally when the scroll reaches it, blue ink rising from the foot of the closing band, pale wisps in the footer, a strip beside wide page titles, a spill on the 404, and the drop under the first-load cover. Text over ink marks itself as a calm zone and the ink is thinned and capped around it. A 44px pause button with a 32px round sits at the foot of the stage. The ink gives way to its stills under reduced motion, raised contrast, forced colours, data saving, without WebGL2, and on a device that cannot keep up.
+The showpiece. One canvas serves the whole page, and the backdrop most in view holds it; every other backdrop shows a still image of its scene. Seven scenes exist: a black drop and a blue one landing in the hero's empty prompt box and opening across the first screen before they clear (slow drops then keep arriving), a drop onto the tenth block of the 90% tally when the scroll reaches it, blue ink rising from the foot of the closing band and of the Purchase page's stage, pale wisps in the footer, a strip beside wide page titles, a spill on the 404, and the drop under the first-load cover. Text over ink marks itself as a calm zone and the ink is thinned and capped around it. A 44px pause button with a 32px round sits at the foot of the stage. The ink gives way to its stills under reduced motion, raised contrast, forced colours, data saving, without WebGL2, and on a device that cannot keep up.
 
 ### Entrances and Page Changes
 
-Content arrives in one of four ways: a drift (12px up, fading in), ink-in (fading in, with an 8px blur resolving from 68em), a settle (a sheet dropping 28px from 1.03 times its size, with a small overshoot) and a grow (a rule drawn from its left end). Where the browser supports view timelines an entrance follows the scroll; elsewhere it plays once when the element is seen, 70ms apart for siblings. On a page change only the first block of the page leaves and arrives, and a cover or a folder that exists on both pages travels between them over 420ms. On a first visit to the home page a paper cover fills the window, the logo is written on it in three strokes within 800ms, and the cover is gone by 1650ms, by 2800ms when the ink runs under it, or within 200ms of any press, key, scroll or touch.
+Content arrives in one of four ways: a drift (12px up, fading in), ink-in (fading in, with an 8px blur resolving from 68em), a settle (a sheet dropping 28px from 1.03 times its size, with a small overshoot) and a grow (a rule drawn from its left end). Where the browser supports view timelines an entrance follows the scroll; elsewhere it plays once when the element is seen, 70ms apart for siblings. On a page change only the first block of the page leaves and arrives, and a cover or a folder given a `slug` that exists on both pages travels between them over 420ms (no page does today). On a first visit to the home page a paper cover fills the window, the logo is written on it in three strokes within 800ms and the 365 on its arm within 200ms more, the finished mark stands until 2500ms, and the cover is gone by 2950ms, by 3500ms after the ink took over when the ink runs under it, or within 200ms of any press, key, scroll or touch. The hero's sequence starts when the cover is gone: the empty box stands for 700ms, dissolves from 1100ms to 2300ms as the ink opens, and from 3700ms the six documents land, the middle two first, 110ms apart.
 
 ## Do's and Don'ts
 
@@ -497,7 +516,7 @@ Content arrives in one of four ways: a drift (12px up, fading in), ink-in (fadin
 ### Don't:
 
 - **Don't** use the highlighter as a text, icon or line colour on a light ground, or as a fill with no ink beside it.
-- **Don't** introduce another accent. The palette is white, near-black and one light blue; the red is for errors only.
+- **Don't** introduce another accent. The palette is white, near-black and one light blue; the red is for errors and a locked tile's refusal only.
 - **Don't** build a boxed card with a border and a large radius. Corners are 3px on paper and 6px on controls.
 - **Don't** fade, slide or blend a band or a surface. Grounds change with a hard edge.
 - **Don't** animate a shadow, a layout property or a custom property, and don't loop an animation.
