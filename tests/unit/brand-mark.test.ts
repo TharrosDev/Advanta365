@@ -8,6 +8,10 @@ import {
   MARK_ASPECT,
   MARK_BAR_D,
   MARK_BODY_D,
+  MARK_DIGITS,
+  MARK_DIGITS_BOX,
+  MARK_DIGITS_D,
+  MARK_DIGITS_STROKE_WIDTH,
   MARK_LEGS_D,
   MARK_PATH_D,
   MARK_SEGMENTS,
@@ -23,6 +27,57 @@ const n = (value: number) => String(value);
 function xAt(stroke: (typeof MARK_SEGMENTS)[number], y: number): number {
   const t = (y - stroke.a[1]) / (stroke.b[1] - stroke.a[1]);
   return stroke.a[0] + t * (stroke.b[0] - stroke.a[0]);
+}
+
+type Point = readonly [number, number];
+
+/**
+ * The centre line of a path as points: `M`, `L`, `H` and `C` with absolute coordinates, which is
+ * all the mark is written in. A curve is walked in 48 steps.
+ */
+function trace(d: string): Point[] {
+  const points: Point[] = [];
+  let at: Point = [0, 0];
+  for (const [, command = "", rest = ""] of d.matchAll(/([A-Za-z])([^A-Za-z]*)/g)) {
+    const v = rest.trim()
+      ? rest
+          .trim()
+          .split(/[\s,]+/)
+          .map(Number)
+      : [];
+    const [a = NaN, b = NaN, c = NaN, e = NaN, f = NaN, g = NaN] = v;
+    if (v.some(Number.isNaN)) throw new Error(`not a number in "${command}${rest}"`);
+    if ((command === "M" || command === "L") && v.length === 2) {
+      at = [a, b];
+      points.push(at);
+    } else if (command === "H" && v.length === 1) {
+      at = [a, at[1]];
+      points.push(at);
+    } else if (command === "C" && v.length === 6) {
+      const from = at;
+      for (let step = 1; step <= 48; step++) {
+        const t = step / 48;
+        const u = 1 - t;
+        const mix = (p0: number, p1: number, p2: number, p3: number) =>
+          u * u * u * p0 + 3 * u * u * t * p1 + 3 * u * t * t * p2 + t * t * t * p3;
+        points.push([mix(from[0], a, c, f), mix(from[1], b, e, g)]);
+      }
+      at = [f, g];
+    } else {
+      throw new Error(`cannot read "${command}${rest}"`);
+    }
+  }
+  return points;
+}
+
+/** The distance from a point to the centre line of a stroke of the "A". */
+function distance(point: Point, stroke: (typeof MARK_SEGMENTS)[number]): number {
+  const [ax, ay] = stroke.a;
+  const [bx, by] = stroke.b;
+  const length = (bx - ax) ** 2 + (by - ay) ** 2;
+  const along = ((point[0] - ax) * (bx - ax) + (point[1] - ay) * (by - ay)) / length;
+  const t = Math.max(0, Math.min(1, along));
+  return Math.hypot(point[0] - (ax + t * (bx - ax)), point[1] - (ay + t * (by - ay)));
 }
 
 describe("brand mark geometry", () => {
@@ -94,6 +149,91 @@ describe("the mark in two inks", () => {
   });
 });
 
+describe("the 365 on the arm", () => {
+  const half = MARK_DIGITS_STROKE_WIDTH / 2;
+  const line = trace(MARK_DIGITS_D);
+  // Round caps and joins: the inked outline is the centre line grown by half the stroke all round.
+  const inked = {
+    left: Math.min(...line.map(([x]) => x)) - half,
+    right: Math.max(...line.map(([x]) => x)) + half,
+    top: Math.min(...line.map(([, y]) => y)) - half,
+    bottom: Math.max(...line.map(([, y]) => y)) + half,
+  };
+
+  it("is three digits, each one stroke of a lighter pen, and the three as one path", () => {
+    expect(MARK_DIGITS_STROKE_WIDTH).toBe(1.1);
+    expect(MARK_DIGITS).toHaveLength(3);
+    for (const digit of MARK_DIGITS) {
+      expect(digit.match(/M/g)).toHaveLength(1);
+      expect(digit.startsWith("M")).toBe(true);
+      // Lines and curves only, in absolute coordinates: an open path, never closed or filled.
+      expect(digit).toMatch(/^[MLHC\d. ]+$/);
+      expect(trace(digit).length).toBeGreaterThan(48);
+    }
+    expect(MARK_DIGITS_D).toBe(MARK_DIGITS.join(""));
+  });
+
+  it("reads from left to right: 3, then 6, then 5, evenly set with air between them", () => {
+    const spans = MARK_DIGITS.map((digit) => {
+      const xs = trace(digit).map(([x]) => x);
+      return [Math.min(...xs) - half, Math.max(...xs) + half] as const;
+    });
+    const [three, six, five] = spans;
+    if (!three || !six || !five) throw new Error("three digits");
+    expect(six[0] - three[1]).toBeGreaterThanOrEqual(0.7);
+    expect(five[0] - six[1]).toBeGreaterThanOrEqual(0.7);
+    expect(Math.abs(six[0] - three[1] - (five[0] - six[1]))).toBeLessThanOrEqual(0.1);
+    const widths = spans.map(([from, to]) => to - from);
+    expect(Math.max(...widths) - Math.min(...widths)).toBeLessThanOrEqual(0.2);
+
+    // The 6 is the one digit with a closed bowl: its pen ends where the bowl began.
+    const bowl = trace(MARK_DIGITS[1]);
+    const end = bowl[bowl.length - 1] ?? [0, 0];
+    const met = bowl.filter((point) => Math.hypot(point[0] - end[0], point[1] - end[1]) < 0.01);
+    expect(met).toHaveLength(2);
+    // And its bowl keeps an eye: wider inside than nothing, at the size of the bar.
+    const start = bowl.findIndex((point) => point === met[0]);
+    const ring = bowl.slice(start);
+    const width = Math.max(...ring.map(([x]) => x)) - Math.min(...ring.map(([x]) => x));
+    const height = Math.max(...ring.map(([, y]) => y)) - Math.min(...ring.map(([, y]) => y));
+    expect(width - MARK_DIGITS_STROKE_WIDTH).toBeGreaterThanOrEqual(1);
+    expect(height - MARK_DIGITS_STROKE_WIDTH).toBeGreaterThanOrEqual(1);
+  });
+
+  it("fills its box, inside the view box", () => {
+    expect(MARK_DIGITS_BOX).toEqual({ left: 18.8, right: 30.8, top: 5.8, bottom: 10.6 });
+    for (const side of ["left", "top"] as const) {
+      expect(inked[side]).toBeGreaterThanOrEqual(MARK_DIGITS_BOX[side] - 0.005);
+      expect(inked[side]).toBeLessThanOrEqual(MARK_DIGITS_BOX[side] + 0.1);
+    }
+    for (const side of ["right", "bottom"] as const) {
+      expect(inked[side]).toBeLessThanOrEqual(MARK_DIGITS_BOX[side] + 0.005);
+      expect(inked[side]).toBeGreaterThanOrEqual(MARK_DIGITS_BOX[side] - 0.1);
+    }
+    expect(inked.left).toBeGreaterThan(0);
+    expect(inked.top).toBeGreaterThan(0);
+    expect(inked.right).toBeLessThan(MARK_VIEWBOX.width);
+    expect(inked.bottom).toBeLessThan(MARK_VIEWBOX.height);
+  });
+
+  it("stands clear of the legs and above the arm, with a gap", () => {
+    const [legOne, legTwo, bar] = MARK_SEGMENTS;
+    const reach = MARK_STROKE_WIDTH / 2 + half;
+    for (const point of line) {
+      // Half a unit of ground between the ink of a digit and the ink of the "A".
+      expect(distance(point, legOne) - reach).toBeGreaterThanOrEqual(0.5);
+      expect(distance(point, legTwo) - reach).toBeGreaterThanOrEqual(0.5);
+      expect(distance(point, bar) - reach).toBeGreaterThanOrEqual(0.5);
+    }
+    // The digits stand on the arm: a little above its top edge, and they end where it ends.
+    const top = bar.a[1] - MARK_STROKE_WIDTH / 2;
+    expect(top - inked.bottom).toBeGreaterThanOrEqual(0.5);
+    expect(top - inked.bottom).toBeLessThanOrEqual(1);
+    expect(inked.left).toBeGreaterThan(xAt(legTwo, inked.bottom) + MARK_STROKE_WIDTH / 2);
+    expect(Math.abs(inked.right - (bar.b[0] + MARK_STROKE_WIDTH / 2))).toBeLessThanOrEqual(0.3);
+  });
+});
+
 describe("the mark as drawn", () => {
   it("LogoMark strokes the shared path in currentColor and is decorative by default", () => {
     const html = renderToStaticMarkup(createElement(LogoMark));
@@ -115,8 +255,32 @@ describe("the mark as drawn", () => {
     expect(html).not.toContain("aria-hidden");
   });
 
-  it("LogoMark in two inks draws the tail first and the body over it", () => {
+  it("LogoMark in one ink never draws the digits", () => {
+    const html = renderToStaticMarkup(createElement(LogoMark, { digits: true }));
+    expect(html.match(/<path/g)).toHaveLength(1);
+    expect(html).not.toContain("data-mark-digits");
+  });
+
+  it("LogoMark in two inks draws the 365 last, in the ink of the tail, with its own pen", () => {
     const html = renderToStaticMarkup(createElement(LogoMark, { tone: "two" }));
+    expect(html.match(/<path/g)).toHaveLength(3);
+    expect(html.match(/data-mark-digits=""/g)).toHaveLength(1);
+    const digits = html.slice(html.lastIndexOf("<path"));
+    expect(digits).toContain('data-mark-digits=""');
+    expect(digits).toContain(`d="${MARK_DIGITS_D}"`);
+    expect(digits).toContain('stroke="var(--logo-tail, currentColor)"');
+    expect(digits).toContain('stroke-width="1.1"');
+    expect(digits).toContain('stroke-linecap="round"');
+    expect(digits).toContain('stroke-linejoin="round"');
+    // Sighted decoration: the digits are strokes, not text, and bring no name of their own.
+    expect(html).not.toContain("<title");
+    expect(html).not.toContain("<text");
+    expect(html).toContain('aria-hidden="true"');
+  });
+
+  it("LogoMark in two inks draws the tail first and the body over it", () => {
+    const html = renderToStaticMarkup(createElement(LogoMark, { tone: "two", digits: false }));
+    expect(html).not.toContain("data-mark-digits");
     expect(html.match(/<path/g)).toHaveLength(2);
     expect(html).not.toContain(`d="${MARK_PATH_D}"`);
 

@@ -1,4 +1,6 @@
-import { expect, test, type Page } from "@playwright/test";
+import { createHash } from "node:crypto";
+import { readFile } from "node:fs/promises";
+import { expect, test, type Locator, type Page } from "@playwright/test";
 import { introSeen } from "./helpers";
 import { pageClock } from "./support/ink";
 
@@ -481,6 +483,101 @@ test("the footer names the brand once, as plain text no larger than 28px", async
           .length,
     );
   expect(names).toBe(1);
+});
+
+/**
+ * The digits on a mark as they are inked: whether they are drawn at all, their height in CSS pixels
+ * (the path's own box and its stroke, at the scale the mark is drawn at) and their ink. Null when
+ * the mark has no digits.
+ */
+const digitsOf = (lockup: Locator) =>
+  lockup.evaluate((element) => {
+    const path = element.querySelector<SVGPathElement>("svg path[data-mark-digits]");
+    const svg = path?.ownerSVGElement;
+    if (!path || !svg) return null;
+    const look = getComputedStyle(path);
+    const scale = svg.getBoundingClientRect().height / svg.viewBox.baseVal.height;
+    return {
+      drawn: look.display !== "none",
+      height: (path.getBBox().height + Number.parseFloat(look.strokeWidth)) * scale,
+      ink: look.stroke,
+      fill: look.fill,
+      last: path === svg.lastElementChild,
+    };
+  });
+
+test("the mark carries its 365 wherever the digits are 7px high, and nowhere else", async ({
+  page,
+}) => {
+  await page.setViewportSize({ width: 1440, height: 900 });
+  await page.goto("/purchase");
+
+  // The bar: on the ink tile, last in the mark, stroked in the highlighter and not filled.
+  const brand = page.getByRole("banner").getByRole("link", { name: "Advanta365", exact: true });
+  const onBar = await digitsOf(brand);
+  expect(onBar).not.toBeNull();
+  expect(onBar?.drawn).toBe(true);
+  expect(onBar?.height).toBeGreaterThanOrEqual(7);
+  expect(onBar?.ink).toBe(MARK);
+  expect(onBar?.fill).toBe("none");
+  expect(onBar?.last).toBe(true);
+
+  // The tile holds the whole mark, digits and all, and the bar holds the tile.
+  const fit = await brand.evaluate((link) => {
+    const edges = (element: Element | null | undefined) => element?.getBoundingClientRect();
+    const svg = link.querySelector("svg");
+    const tile = edges(svg?.parentElement);
+    const mark = edges(svg);
+    const bar = edges(link.closest("header"));
+    if (!tile || !mark || !bar) return null;
+    return {
+      square: Math.abs(tile.width - tile.height) < 0.5,
+      inTile: mark.left >= tile.left && mark.right <= tile.right && mark.top >= tile.top,
+      inBar: tile.top >= bar.top + 7 && tile.bottom <= bar.bottom - 7,
+    };
+  });
+  expect(fit).toEqual({ square: true, inTile: true, inBar: true });
+
+  // The link is still named by the word beside the mark, once: the digits are not read out.
+  await expect(brand).toHaveAccessibleName("Advanta365");
+  await expect(brand.locator("svg")).toHaveAttribute("aria-hidden", "true");
+  await expect(brand.locator("svg title, svg text")).toHaveCount(0);
+
+  // The footer: the bare mark, in the highlighter on the binder.
+  const onBinder = await digitsOf(page.getByRole("contentinfo"));
+  expect(onBinder?.drawn).toBe(true);
+  expect(onBinder?.height).toBeGreaterThanOrEqual(7);
+  expect(onBinder?.ink).toBe(MARK);
+
+  // The small tile on the folder of the purchase page is drawn without them.
+  const maker = page
+    .getByRole("main")
+    .locator("svg")
+    .filter({ has: page.locator("path") });
+  expect(await page.getByRole("main").locator("[data-mark-digits]").count()).toBe(0);
+  expect(await maker.count()).toBeGreaterThan(0);
+
+  // Below 68em the bar's tile is 28px, where they would be a smudge: they are not displayed.
+  await page.setViewportSize({ width: 390, height: 844 });
+  const small = await digitsOf(brand);
+  expect(small?.drawn).toBe(false);
+  await expect(brand).toHaveAccessibleName("Advanta365");
+});
+
+test("the site icon is the file it was: the mark without the digits", async ({ request }) => {
+  const response = await request.get("/icon.svg");
+  expect(response.ok()).toBe(true);
+  expect(response.headers()["content-type"]).toContain("image/svg+xml");
+  const served = await response.body();
+  const file = await readFile("app/icon.svg");
+  expect(served.equals(file)).toBe(true);
+  // Line endings aside (a checkout may rewrite them), these are the bytes it has always had.
+  const text = served.toString("utf8").replaceAll(String.fromCharCode(13), "");
+  expect(createHash("sha256").update(text).digest("hex")).toBe(
+    "1cbff59352cb91cac1aa4491ad70b48d0913f00853b3b3128a4b00a943e61ad7",
+  );
+  expect(text.match(/<path/g)).toHaveLength(2);
+  expect(text).not.toContain("data-mark-digits");
 });
 
 test("the menu control stands at the right of the bar", async ({ page, isMobile }) => {

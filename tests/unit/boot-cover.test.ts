@@ -5,7 +5,7 @@ import { renderToStaticMarkup } from "react-dom/server";
 import { describe, expect, it } from "vitest";
 import { InkBackdrop } from "@/components/ink/ink-backdrop";
 import { IntroCover } from "@/components/intro/intro-cover";
-import { MARK_BAR_D, MARK_LEGS_D, MARK_TAIL_D } from "@/lib/brand/mark";
+import { MARK_BAR_D, MARK_DIGITS, MARK_LEGS_D, MARK_TAIL_D } from "@/lib/brand/mark";
 import { STILLS, stillPath } from "@/lib/ink/stills";
 import { SITE } from "@/lib/site";
 
@@ -29,12 +29,17 @@ describe("the cover's markup", () => {
     expect(cover).toContain('focusable="false"');
   });
 
-  it("writes the mark as three strokes from the brand's own paths, the tail first", () => {
-    expect(count(cover, "<path")).toBe(3);
-    const order = [MARK_TAIL_D, MARK_LEGS_D, MARK_BAR_D].map((d) => cover.indexOf(`d="${d}"`));
+  it("writes the mark from the brand's own paths: the tail first, three strokes, then the 365", () => {
+    expect(count(cover, "<path")).toBe(6);
+    const order = [MARK_TAIL_D, MARK_LEGS_D, MARK_BAR_D, ...MARK_DIGITS].map((d) =>
+      cover.indexOf(`d="${d}"`),
+    );
     expect(order.every((index) => index > 0)).toBe(true);
     expect([...order].sort((a, b) => a - b)).toEqual(order);
-    expect(count(cover, 'pathLength="1"')).toBe(3);
+    expect(count(cover, 'pathLength="1"')).toBe(6);
+    // The "A" is written with the broad pen, the digits with the fine one.
+    expect(count(cover, 'stroke-width="4.2"')).toBe(3);
+    expect(count(cover, 'stroke-width="1.1"')).toBe(3);
   });
 
   it("carries the name once, and the hint", () => {
@@ -85,6 +90,17 @@ describe("the cover's timeline", () => {
     expect([ms("pen-tail-at"), ms("pen-tail-at") + ms("pen-tail")]).toEqual([560, 800]);
     expect([ms("name-at"), ms("name-at") + ms("name-in")]).toEqual([500, 900]);
     expect(ms("hint-at")).toBe(600);
+  });
+
+  it("writes the 365 last, one digit after another, from 800 to 1000ms", () => {
+    const first = ms("pen-digits-at");
+    const last = first + 2 * ms("pen-digit-step");
+    expect(first).toBe(ms("pen-tail-at") + ms("pen-tail"));
+    expect([first, last + ms("pen-digit")]).toEqual([800, 1000]);
+    // Done before the cover starts to leave.
+    expect(last + ms("pen-digit")).toBeLessThanOrEqual(ms("leave-at"));
+    expect(css).toMatch(/:root\[data-intro\]\s+\.digit\s*\{/);
+    expect(css).not.toMatch(/:root\[data-intro="[a-z]+"\]\s+\.digit\b/);
   });
 
   it("is displayed only while the root element carries the state", () => {

@@ -13,6 +13,7 @@
  *   120 to 480   the pen writes both legs of the "A"
  *   420 to 600   then the crossbar, up to the right leg
  *   560 to 800   and its tail, in the highlighter
+ *   800 to 1000  a finer pen writes 3, 6 and 5 on the tail, each 100 long and 50 after the last
  *   500 to 900   the name fades in; the hint from 600
  *
  * Then one of three ways out, each started by its state:
@@ -30,6 +31,9 @@
   --pen-bar-at: 420ms;
   --pen-tail: 240ms;
   --pen-tail-at: 560ms;
+  --pen-digit: 100ms;
+  --pen-digit-step: 50ms;
+  --pen-digits-at: 800ms;
   --name-in: 400ms;
   --name-at: 500ms;
   --hint-in: 300ms;
@@ -155,7 +159,8 @@
   stroke-dasharray: 1;
 }
 
-.tail {
+.tail,
+.digit {
   stroke: var(--mark);
 }
 
@@ -176,6 +181,20 @@
 
 :root[data-intro] .tail {
   animation: pen-stroke var(--pen-tail) var(--pen) var(--pen-tail-at) backwards;
+}
+
+/* The second and third digit start one and two steps after the first. */
+:root[data-intro] .digit {
+  animation: pen-stroke var(--pen-digit) var(--pen)
+    calc(var(--pen-digits-at) + var(--digit, 0) * var(--pen-digit-step)) backwards;
+}
+
+.digit:nth-child(2) {
+  --digit: 1;
+}
+
+.digit:nth-child(3) {
+  --digit: 2;
 }
 
 /* The name, as one word, 21px under the mark. Never larger than this anywhere. */
