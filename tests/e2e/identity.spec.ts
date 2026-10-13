@@ -499,7 +499,9 @@ const digitsOf = (lockup: Locator) =>
     const look = getComputedStyle(path);
     const scale = svg.getBoundingClientRect().height / svg.viewBox.baseVal.height;
     return {
-      drawn: look.display !== "none",
+      // The bar's tile holds both forms of the mark and shows one: a form that is not shown has no
+      // boxes at all, whatever its path says.
+      drawn: svg.getClientRects().length > 0 && look.display !== "none",
       height: (path.getBBox().height + Number.parseFloat(look.strokeWidth)) * scale,
       ink: look.stroke,
       fill: look.fill,
@@ -523,10 +525,10 @@ test("the mark carries its 365 wherever the digits are 7px high, and nowhere els
   expect(onBar?.fill).toBe("none");
   expect(onBar?.last).toBe(true);
 
-  // The tile holds the whole mark, digits and all, and the bar holds the tile.
+  // The tile holds the whole mark, digits and all (the one form it shows), and the bar holds the tile.
   const fit = await brand.evaluate((link) => {
     const edges = (element: Element | null | undefined) => element?.getBoundingClientRect();
-    const svg = link.querySelector("svg");
+    const svg = [...link.querySelectorAll("svg")].find((form) => form.getClientRects().length > 0);
     const tile = edges(svg?.parentElement);
     const mark = edges(svg);
     const bar = edges(link.closest("header"));
@@ -558,24 +560,26 @@ test("the mark carries its 365 wherever the digits are 7px high, and nowhere els
   expect(await page.getByRole("main").locator("[data-mark-digits]").count()).toBe(0);
   expect(await maker.count()).toBeGreaterThan(0);
 
-  // Below 68em the bar's tile is 28px, where they would be a smudge: they are not displayed.
+  // Below 68em the bar's tile is 28px, where they would be a smudge: it shows the compact form.
   await page.setViewportSize({ width: 390, height: 844 });
   const small = await digitsOf(brand);
   expect(small?.drawn).toBe(false);
   await expect(brand).toHaveAccessibleName("Advanta365");
 });
 
-test("the site icon is the file it was: the mark without the digits", async ({ request }) => {
+test("the site icon is the file the script writes: the mark without the digits", async ({
+  request,
+}) => {
   const response = await request.get("/icon.svg");
   expect(response.ok()).toBe(true);
   expect(response.headers()["content-type"]).toContain("image/svg+xml");
   const served = await response.body();
   const file = await readFile("app/icon.svg");
   expect(served.equals(file)).toBe(true);
-  // Line endings aside (a checkout may rewrite them), these are the bytes it has always had.
+  // Line endings aside (a checkout may rewrite them), these are the bytes `scripts/gen-icon.mjs` writes.
   const text = served.toString("utf8").replaceAll(String.fromCharCode(13), "");
   expect(createHash("sha256").update(text).digest("hex")).toBe(
-    "1cbff59352cb91cac1aa4491ad70b48d0913f00853b3b3128a4b00a943e61ad7",
+    "46c50e59252ff328f4830d45b1c77b2f5bb49dd81e80df00003b91060d77a7a8",
   );
   expect(text.match(/<path/g)).toHaveLength(2);
   expect(text).not.toContain("data-mark-digits");

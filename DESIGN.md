@@ -435,7 +435,7 @@ Corners are small, as on cut paper. Sheets, tags, checkboxes, tally blocks and n
 
 Edges come in two weights: a 1px hairline for rules and quiet borders, and a 2px ink edge for control borders, inset rings and thick underlines. A ring is drawn inside the box, so a state change never alters a size.
 
-Sheets keep the proportions of what they stand for: 5 : 7 for a Word document or a PDF, 4 : 3 for a workbook, 16 : 9 for a slide. A PDF has its top-right corner cut and folded over. A sheet may rest turned by a degree or two, and the sheets under a stack are offset and turned behind it. Icons and the logo are monoline with round caps and joins: icons at a 1.75 stroke on a 20-unit grid, the logo at 4.2 on a 32 by 24 grid, and the 365 on its arm at 1.1 in the ink of the tail. The 365 is drawn only where it is 7px high (the bar's tile from 68em, the footer's mark, the cover), never on the favicon.
+Sheets keep the proportions of what they stand for: 5 : 7 for a Word document or a PDF, 4 : 3 for a workbook, 16 : 9 for a slide. A PDF has its top-right corner cut and folded over. A sheet may rest turned by a degree or two, and the sheets under a stack are offset and turned behind it. Icons and the logo are monoline with round caps and joins: icons at a 1.75 stroke on a 20-unit grid, the logo at 3.8 on a grid 24 units high (36 wide with the 365 on its arm, 30 without), and the 365 at 1.4 in the ink of the tail, flush with its end. The 365 is drawn only where it is 7px high (the bar's tile from 68em, the footer's mark, the cover), never on the favicon; below that the logo is drawn without it and with a shorter tail.
 
 ## Components
 

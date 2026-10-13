@@ -557,16 +557,18 @@ Primitives are the building blocks for pages. Each one has a CSS module unless n
 | `MotionRoot` | Client component that sets up the scroll observer (renders nothing) |
 
 Helpers: `lib/cx.ts` exports `cx` (joins truthy class names) and `cssVars` (builds a style object and
-drops `undefined` values). `lib/brand/mark.ts` holds the logo geometry: `MARK_VIEWBOX` (32 by 24),
-`MARK_STROKE_WIDTH` (4.2), the three segments, and the path strings `MARK_PATH_D`, `MARK_LEGS_D`,
-`MARK_BAR_D`, `MARK_BODY_D` and `MARK_TAIL_D`. The 365 on the crossbar's arm is `MARK_DIGITS` (three open
-strokes, one per digit, each `M`, lines and curves only), `MARK_DIGITS_D` (the three as one path),
-`MARK_DIGITS_STROKE_WIDTH` (1.1) and `MARK_DIGITS_BOX` (x 18.8 to 30.8, y 5.8 to 10.6, inside the viewBox).
-They are drawn last, in the ink of the tail, and only where they are at least 7px high: the bar's tile from
-68em (a 49px tile with the mark 35px high), the bare footer mark (36px, so the digits are 7.2px) and the cover
-of a first visit, which writes them on the arm after the mark (section 6); not on the 28px tile below 68em, the
-drawer, the folder's tile or the favicon. `app/icon.svg` uses the same colours as the tokens: a
-#0B0D12 tile, the body in #FFFFFF and the tail in #86C1FF, and has no digits.
+drops `undefined` values). `lib/brand/mark.ts` holds the logo geometry in two forms: the full one, `MARK_VIEWBOX` (36 by 24) with the long
+tail `MARK_TAIL_D`, and the compact one, `MARK_VIEWBOX_COMPACT` (30 by 24) with the short tail
+`MARK_TAIL_COMPACT_D` and no digits. Both share `MARK_STROKE_WIDTH` (3.8), the three segments, and the path
+strings `MARK_LEGS_D`, `MARK_BAR_D` and `MARK_BODY_D`; `MARK_PATH_D` is the compact form as one path. The 365 on
+the crossbar's arm is `MARK_DIGITS` (three open strokes, one per digit, each `M`, lines and curves only),
+`MARK_DIGITS_D` (the three as one path), `MARK_DIGITS_STROKE_WIDTH` (1.4) and `MARK_DIGITS_BOX` (x 19.37 to
+34.3, y 3.48 to 9.5, inside the viewBox). They are drawn last, in the ink of the tail, and only where they are
+at least 7px high, which takes a mark 28px high: the bar's tile from 68em (a 49px tile with the full mark 28.4px
+high), the bare footer mark (36px, so the digits are 9px) and the cover of a first visit, which writes them on
+the arm after the mark (section 6). The 28px tile below 68em, the drawer, the folder's tile and the favicon
+draw the compact form. `app/icon.svg` is generated from this file by `scripts/gen-icon.mjs` and uses the same
+colours as the tokens: a #0B0D12 tile, the body in #FFFFFF and the tail in #86C1FF, and has no digits.
 
 ### 5.3 Feature components
 
@@ -1501,7 +1503,7 @@ Each file below is in `tests/unit/`:
 | `validate.test.ts` | Validation errors and sorting; a catalog with 0, 5, 7 or 8 free templates is rejected |
 | `coverage.test.ts`, `format.test.ts` | Helpers; `adjacentPhases`; `formatPrice(149999, "CAD")` is `$1,499.99 CAD`; `countWord(6)` is `six`; `formatLength(16, "pptx")` is `16 slides` |
 | `compounds.test.ts` | Compound splitting for `KeepCompounds` |
-| `brand-mark.test.ts` | Logo geometry, the 365 (three one-stroke digits in their box, clear of the legs, above the arm, evenly set), `LogoMark` with and without digits, and `app/icon.svg` |
+| `brand-mark.test.ts` | Logo geometry, the 365 (three one-stroke digits in their box, clear of the legs, above the arm, evenly set), `LogoMark` with and without digits (the full and the compact form), and `app/icon.svg` against `scripts/gen-icon.mjs` |
 | `boot-script.test.ts` | Runs `BOOT_SCRIPT` against stand-ins for the document, storage, media queries and WebGL; the calm routes (`/catalog` only); the 5500 ms backstop and the takeover limit |
 | `boot-cover.test.ts` | Cover markup and timings (six pen paths, the digits 800 to 1000, leave at 2500 with the signature gone before the paper clears, ink leave ending with the scene); `InkBackdrop` markup and priority; stills manifest |
 | `kit-motion.test.ts` | `motion.css` rules: keyframes and animations inside `no-preference`, timeline ordering, hidden states only under `data-motion="on"`, no blurred entrance, the heading's range ending first |

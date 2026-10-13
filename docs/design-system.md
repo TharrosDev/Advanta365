@@ -579,7 +579,7 @@ All primitives live in `components/ui/`. Props are shown with their defaults in 
 | `Tag` | `variant` (format, saving, plain; format), `className`, children | `<Tag variant="saving">Free sample</Tag>` |
 | `FactList` | `items` ({ label, value }[]), `className` | `<FactList items={[{ label: "Type", value: "Plan" }]} />` |
 | `Icon` | `name` (arrow, chevron, plus, minus, close, tick, bars, search), `size` (20, the width and height in pixels at the 16px root, drawn in rem), `flip` (false), `className` | `<Icon name="arrow" size={32} />` |
-| `LogoMark` | `height` ("1.5em"), `className`, `title`, `tone` (one, two; one), `digits` (true) | `<LogoMark tone="two" height="2.5rem" />` (the 365 is drawn only in two inks, and only where the mark is 35px high or more) |
+| `LogoMark` | `height` ("1.5em"), `className`, `title`, `tone` (one, two; one), `digits` (true) | `<LogoMark tone="two" height="2.5rem" />` (the 365 and the long tail are drawn only in two inks, and only where the mark is 28px high or more; without digits it is the compact form) |
 | `BrandLockup` | `variant` (tile, bare; tile), `size` (sm, md; md), `className`, `nameClassName` | `<BrandLockup variant="bare" size="sm" />` |
 
 ### 9.3 Links
@@ -781,24 +781,28 @@ The ink has no control on the page. Each scene runs for 12 to 30 seconds and com
 
 ### 11.1 The mark
 
-The logo is three strokes on a 32 by 24 grid: two legs meeting at a peak, and a crossbar that continues to the right as the tail. Stroke width is 4.2, with round caps and joins. A small blue "365" stands on the tail, in a finer pen. The geometry lives in `lib/brand/mark.ts`:
+The logo is three strokes on a grid 24 units high: two legs meeting at a peak, leaning 1 across for 2 down, and a crossbar set a little past their middle that continues to the right as the tail. Stroke width is 3.8, with round caps and joins. A blue "365" stands on the tail, in a finer pen, and ends flush with it. The geometry lives in `lib/brand/mark.ts`, and the mark has two forms:
+
+- **Full**, 36 by 24 (`MARK_VIEWBOX`): the long tail (`MARK_TAIL_D`) with the digits on it.
+- **Compact**, 30 by 24 (`MARK_VIEWBOX_COMPACT`): the same "A" with a short tail (`MARK_TAIL_COMPACT_D`) and no digits. It is the form for any mark under 28px high and for the icon, so the "A" keeps its size where the digits would be a smudge.
+
+The ink of both forms is centred in its box. The parts:
 
 - `MARK_LEGS_D`: the legs.
 - `MARK_BAR_D`: the short crossbar inside the legs.
-- `MARK_TAIL_D`: the tail, drawn in the mark colour.
 - `MARK_BODY_D`: the legs and the crossbar together.
-- `MARK_VIEWBOX`: 32 by 24.
-- `MARK_DIGITS`: the 3, the 6 and the 5, each one open pen stroke; `MARK_DIGITS_D` joins them, `MARK_DIGITS_STROKE_WIDTH` is 1.1, and `MARK_DIGITS_BOX` is x 18.8 to 30.8, y 5.8 to 10.6, inside the view box, clear of the legs and above the arm.
+- `MARK_PATH_D`: the compact form as one path, for one ink.
+- `MARK_DIGITS`: the 3, the 6 and the 5, each one open pen stroke; `MARK_DIGITS_D` joins them, `MARK_DIGITS_STROKE_WIDTH` is 1.4, and `MARK_DIGITS_BOX` is x 19.37 to 34.3, y 3.48 to 9.5, inside the view box, 1.4 clear of the right leg and 1.2 above the tail.
 
-`BrandLockup` renders the mark in tone `two`: the body takes `currentColor` and the tail and the digits take `--logo-tail`, which is the mark colour. `LogoMark` defaults to tone `one`, which draws the whole mark in `currentColor` and never draws the digits.
+`BrandLockup` renders the mark in tone `two`: the body takes `currentColor` and the tail and the digits take `--logo-tail`, which is the mark colour. `LogoMark` defaults to tone `one`, which draws the whole mark in `currentColor`, in the compact form, and never draws the digits.
 
 ### 11.2 Lockups
 
-`BrandLockup` pairs the mark with the name in Besley. The `tile` variant sets the mark in an ink square. The `bare` variant sets the mark and name on the current ground. Sizes are `sm` and `md`. The `md` tile is 28px, and from 68em 49px with the mark 35px high (72% of the tile, 3px of ink either side), which makes the digits 7px high; the bare `md` mark (the footer) is 36px high, so its digits are 7.2px. The digits show only there: they would be 3px high on the 28px tile, so the phone bar, the drawer's `sm` lockup and the folder's tile go without them.
+`BrandLockup` pairs the mark with the name in Besley. The `tile` variant sets the mark in an ink square. The `bare` variant sets the mark and name on the current ground. Sizes are `sm` and `md`. The `md` tile is 28px, and from 68em 49px with the full mark 28.4px high and 42.6px wide (58% of the tile's height, 3px of ink either side), which makes the digits 7px high; the bare `md` mark (the footer) is 36px high, so its digits are 9px. The digits show only there: they would be 4px high on the 28px tile, so the phone bar, the drawer's `sm` lockup and the folder's tile draw the compact form (62% of the tile's height). The bar's tile holds both forms and the stylesheet shows one, so the mark's shape changes at 68em and nowhere else.
 
 ### 11.3 Site icon
 
-`app/icon.svg` is the site icon: a 32 by 32 ink tile with a 7-unit corner radius, the white body and the blue tail, without the digits (a 365 there would be about 3px high). Its values match the mark and the tokens above.
+`app/icon.svg` is the site icon: a 32 by 32 ink tile with a 7-unit corner radius, and the compact mark in white and blue at 84% of its width, centred, with no digits. It is generated: `node scripts/gen-icon.mjs` writes it from `lib/brand/mark.ts`, and `brand-mark.test.ts` fails when the file is not what the script writes. Its colours are the tokens' values, written out because an icon file cannot read tokens.
 
 ### 11.4 Icon set
 

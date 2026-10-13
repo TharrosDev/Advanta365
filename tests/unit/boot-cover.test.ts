@@ -40,8 +40,8 @@ describe("the cover's markup", () => {
     expect([...order].sort((a, b) => a - b)).toEqual(order);
     expect(count(cover, 'pathLength="1"')).toBe(6);
     // The "A" is written with the broad pen, the digits with the fine one.
-    expect(count(cover, 'stroke-width="4.2"')).toBe(3);
-    expect(count(cover, 'stroke-width="1.1"')).toBe(3);
+    expect(count(cover, 'stroke-width="3.8"')).toBe(3);
+    expect(count(cover, 'stroke-width="1.4"')).toBe(3);
   });
 
   it("carries the name once, and the hint", () => {
