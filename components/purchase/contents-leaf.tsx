@@ -55,11 +55,10 @@ const PARTS: readonly Part[] = [
  * `checkout=details` and the page stays where it is); the way to write to us, for a purchase order
  * or a question; and the note that the catalog is sample content.
  *
- * The leaf is opaque paper, so its words need no calm zone for the ink behind the stage. Every
- * measure follows the sheet's own width (`cqi`), so the leaf is one object from a phone to its
- * 34rem. The entrance is the sheet settling, the rows after it, each figure's stroke last; the
- * wrapper around the sheet is its scope for the light, so the sheet does not flicker where it has
- * lifted away from the pointer. Hook: `data-count` on each figure.
+ * The leaf is opaque paper. Every measure follows the sheet's own width (`cqi`), so the leaf is one
+ * object from a phone to its 34rem. The entrance is the sheet settling, the rows after it, each
+ * figure's stroke last; the wrapper around the sheet is its scope for the light, so the sheet does
+ * not flicker where it has lifted away from the pointer. Hook: `data-count` on each figure.
  */
 export function ContentsLeaf({ className }: { className?: string }) {
   return (

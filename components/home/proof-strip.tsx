@@ -17,7 +17,7 @@ const FACTS = [
  * The proof strip on the bottom edge of the hero: four facts about the toolkit in one ruled row
  * (two by two below 40em), each a figure in the display face and its word as a label. It is a
  * list, named for assistive technology. It is the band's foot: its paper runs the width of the
- * band, so the ink ends behind it and the facts are read on paper, with no calm zone needed.
+ * band, so the facts are read on paper.
  */
 export function ProofStrip() {
   return (

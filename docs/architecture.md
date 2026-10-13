@@ -1035,7 +1035,7 @@ The design gate (`tests/unit/design-gate.test.ts`) scans every file under `app/`
 - `<canvas`, `getContext(` and `webgl` (in any case) appear nowhere.
 - `requestAnimationFrame` calls are allowed only in `lib/scroll/`, `lib/boot/` and `components/intro/`. The
   scroll string literal is allowed only in `lib/scroll/`.
-- The retired folders, `lib/ink/`, `components/ink/` and `public/ink/` among them, do not exist.
+- The retired folders do not exist.
 
 ### 9.4 Unit tests (Vitest)
 

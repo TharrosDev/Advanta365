@@ -195,8 +195,7 @@ visual decisions belong to later design work, not this file.
 
 - Palette: white, black and light blue. He rejected yellow. He rejected royal blue because black text
   on it is hard to read.
-- He first asked for real-time ink in water as the showpiece, then had it removed (October 2026)
-  because it distracted from the words.
+- He does not want motion behind the words: it distracts from them.
 - He likes the load-in animation.
 - The bar: "ultra realistic, high polished", "engineered to be amazing". Not "standard cards", and not
   "a simple coded site anybody could make". When offered choices: "decide and go big".

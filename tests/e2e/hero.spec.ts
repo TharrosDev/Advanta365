@@ -73,10 +73,10 @@ test.describe("the hero", () => {
       "One purchase",
     ]);
 
-    // Nothing lies behind the words: no backdrop and no canvas. The stage holds one prompt box.
+    // Nothing lies behind the words: no canvas. The stage holds one prompt box.
     await expect(hero.locator(STAGE)).toHaveCount(1);
     await expect(hero.locator(PROMPT)).toHaveCount(1);
-    await expect(hero.locator("[data-ink-backdrop], canvas")).toHaveCount(0);
+    await expect(hero.locator("canvas")).toHaveCount(0);
   });
 
   test("holds the six free samples as six links, named by their titles, left to right", async ({
