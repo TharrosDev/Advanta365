@@ -22,6 +22,16 @@ export const communicateTemplates = sample("communicate", [
       "Pre-filled message list",
       "Status tracker",
     ],
+    // Test fixture files (tests/fixtures/files), not real downloads.
+    files: [
+      {
+        id: "plan",
+        name: "Master Communications Plan.xlsx",
+        key: "communicate/master-communications-plan/master-communications-plan.xlsx",
+        bytes: 57,
+        sha256: "6a02b86c2c95c89b00445bdfc32c92245e8bbce54b9e549e90b0927f355897eb",
+      },
+    ],
   },
   {
     slug: "launch-announcement-email-series",

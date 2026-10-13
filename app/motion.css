@@ -353,8 +353,7 @@
   /*
    * The ninety. The band is the timeline: over its passage through the viewport the blocks ink in
    * one after another from 20%, each over 3% and 2.6% apart, and the marked block fills between
-   * 44% and 47%. The ink layer reads the same progress and drops its ink at 0.47. The figure
-   * itself never moves: it reads 90% from the start.
+   * 44% and 47%. The figure itself never moves: it reads 90% from the start.
    */
   html[data-motion="on"][data-timeline="on"] [data-ninety] {
     view-timeline-name: --ninety;

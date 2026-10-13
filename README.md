@@ -44,12 +44,13 @@ Install with `pnpm install`. If `pnpm` is not on the PATH, run `corepack enable`
 
 The scripts in `scripts/` have no package script. Run them by path from the repository root.
 
-| Command                                                | What it does                                                                                                                                        |
-| ------------------------------------------------------ | --------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `node scripts/gen-icon.mjs`                            | Writes `app/icon.svg` from the mark in `lib/brand/mark.ts` (run it after any change to the mark)                                                    |
-| `node scripts/check-budgets.mjs http://localhost:3100` | Checks the home page's scripts against `tests/budgets/baseline.json`, and that no WebGL shader chunk comes back (needs a running production server) |
-| `node scripts/paper-grain.mjs`                         | Writes `public/paper/grain.png`                                                                                                                     |
-| `node video/render.mjs`                                | Renders the 45 second launch video to `video/out/advanta365-launch.mp4` (`--stills 3,12` renders single frames; see `VIDEO.md`)                     |
+| Command                                                | What it does                                                                                                                                                       |
+| ------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `node scripts/gen-icon.mjs`                            | Writes `app/icon.svg` from the mark in `lib/brand/mark.ts` (run it after any change to the mark)                                                                   |
+| `node scripts/check-budgets.mjs http://localhost:3100` | Checks the home page's scripts against `tests/budgets/baseline.json`, and that no WebGL shader chunk comes back (needs a running production server)                |
+| `node scripts/paper-grain.mjs`                         | Writes `public/paper/grain.png`                                                                                                                                    |
+| `node scripts/mint-licence.mjs <order code>`           | Prints the licence link for a paid order (needs `LICENCE_SECRET`; `SITE_ORIGIN` defaults to https://advanta365.com). See [Files and licences](#files-and-licences) |
+| `node video/render.mjs`                                | Renders the 45 second launch video to `video/out/advanta365-launch.mp4` (`--stills 3,12` renders single frames; see `VIDEO.md`)                                    |
 
 The browser tests need Chromium once, from `pnpm exec playwright install chromium`. They reuse a server
 already running on port 3100 unless `CI` is set, so stop a stale server first. The Playwright projects are:
@@ -124,14 +125,22 @@ lib/
                       and facts.ts: LEGAL, the one object of facts and decisions the owner fills in
   scroll/             The observer for entrances, the pointer's light, and a sideways row's current item
                       brought into view
+  files/              The file store (FileStore, the local-disk driver), the allowed file types and the
+                      download responses
+  licence/            Signed licences and the cookie they live in
+  http/               The in-memory rate limiter
+app/licence/          The licence link: checks it, sets the cookie, goes on to the unlocked catalog
+app/api/              The file downloads: samples/ (free samples, for anyone) and library/ (with a licence)
 public/paper/         The paper grain
-scripts/              gen-icon, check-budgets and paper-grain
+scripts/              gen-icon, check-budgets, paper-grain and mint-licence
 tests/unit/           Vitest, including the design gate
 tests/e2e/            Playwright specs, helpers.ts and support/
+tests/fixtures/files/ Small fixture files the tests serve in place of real templates
 tests/budgets/        The baseline that check-budgets compares with
 docs/                 The design system and the architecture
 proxy.ts              Redirects mixed-case paths to lower case
-next.config.ts        Redirects the retired addresses (bundles, pricing, cart, about, template pages)
+next.config.ts        Redirects the retired addresses (bundles, pricing, cart, about, template pages) and
+                      sets the security headers
 ```
 
 ## Rules the code relies on
@@ -364,16 +373,61 @@ Each phase has two steps.
 
 The code already has the seams that a production build connects to.
 
-| Concern       | Seam in the code                                                                                                                                                                        |
-| ------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Catalog data  | Files in `content/`, read through `lib/catalog/repository.ts`. Its functions are async, so another source can implement the same functions.                                             |
-| Record shapes | `lib/catalog/schema.ts` defines the phase, step and template records, and `lib/catalog/validate.ts` checks them.                                                                        |
-| The offer     | `OFFER` in `lib/site.ts`: its name and its price in cents. The tag, the bar's button and the Purchase page all print it.                                                                |
-| Checkout      | `getPaymentProvider()` in `lib/checkout/provider.ts` returns `null`: a provider is returned from there (`docs/architecture.md`, section 3.7). Nothing unlocks the locked templates yet. |
-| Page metadata | The root `metadata` in `app/layout.tsx`, and each page's metadata export.                                                                                                               |
+| Concern       | Seam in the code                                                                                                                                            |
+| ------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Catalog data  | Files in `content/`, read through `lib/catalog/repository.ts`. Its functions are async, so another source can implement the same functions.                 |
+| Record shapes | `lib/catalog/schema.ts` defines the phase, step and template records, and `lib/catalog/validate.ts` checks them.                                            |
+| The offer     | `OFFER` in `lib/site.ts`: its name and its price in cents. The tag, the bar's button and the Purchase page all print it.                                    |
+| Checkout      | `getPaymentProvider()` in `lib/checkout/provider.ts` returns `null`: a provider is returned from there (`docs/architecture.md`, section 3.7).               |
+| Files         | `getFileStore()` in `lib/files/store.ts`: a `FileStore` driver for the real files (section 3.8 of `docs/architecture.md`). Only a local-disk driver exists. |
+| Licences      | `signLicence()` in `lib/licence/token.ts`: the owner mints one by hand today; a payment webhook calls the same function.                                    |
+| Page metadata | The root `metadata` in `app/layout.tsx`, and each page's metadata export.                                                                                   |
 
 Items to settle before launch, from content and commercial terms to the worked example's file, are in
 [Before public launch](#before-public-launch) at the end of this file.
+
+## Files and licences
+
+Each template lists the files it is delivered as (`files` on the record: an id, the name the buyer saves,
+the key where the store keeps it, its size and its SHA-256). Validation fails on an unsafe key, an
+extension outside `lib/files/types.ts`, a repeated key or id, and a real record (`isSample: false`) with no
+files.
+
+- **Free samples** download from their pop-up, from `/api/samples/<slug>/<file id>`. Any other template's
+  file answers 404 there, the same as a file that does not exist.
+- **Everything else** needs a licence. The owner turns an order code into a link with
+  `node scripts/mint-licence.mjs A365-YYMMDD-XXXXXX` and sends it. Opening `/licence?t=…` once puts the
+  licence in an `HttpOnly` cookie (`__Host-a365-licence`, 400 days) and lands on the catalog. In that browser
+  every tile of the catalog and the phase pages is unlocked, and any template opens in the pop-up with its
+  files to download. `/api/library/<slug>/<file id>` serves a file to a browser holding a valid licence and
+  answers 404 otherwise, so a tile unlocked by hand in the page never unlocks a file.
+- A licence holds the order code and the time it was issued, signed with HMAC-SHA256, and nothing
+  personal. It does not expire. To withdraw one, add its order code to `LICENCE_REVOKED`.
+- With no store configured, download buttons are hidden and the file routes answer 503.
+
+| Variable                  | Meaning                                                                                     |
+| ------------------------- | ------------------------------------------------------------------------------------------- |
+| `FILE_STORE`              | `local` for the local-disk driver; unset turns downloads off                                |
+| `FILE_STORE_DIR`          | The folder the local driver serves, relative to the working directory or absolute           |
+| `LICENCE_SECRET`          | Signs and verifies licences; at least 32 characters; server only; never committed           |
+| `LICENCE_SECRET_PREVIOUS` | The secret before a rotation; verifies only, so links sent before the rotation keep working |
+| `LICENCE_REVOKED`         | Order codes, comma separated, whose licences no longer work                                 |
+
+**On Vercel.** A function's response body is limited to 4.5 MB, so the local driver cannot serve real
+decks there. Production needs a driver whose `signedUrl` returns a short-lived address from an object store
+(R2 or S3, for example); the routes already redirect to it when a driver has one. Before launch, check the
+real files against the catalog with
+`FILE_STORE=local FILE_STORE_DIR=<folder> pnpm vitest run tests/unit/stored-files.test.ts`.
+
+**Rate limits.** `/licence` allows 10 requests a minute per client and each file route 60. The counter is
+in memory, per server instance, and resets on a cold start, so it only slows one client on one instance.
+Set a Vercel Firewall rate-limit rule on `/licence` and `/api/` (per IP) for real enforcement.
+
+**Security headers.** `next.config.ts` sends a content security policy on every route (the site's own
+origin only; no plugins, no framing, no foreign form posts), `nosniff`, a referrer policy,
+`X-Frame-Options: DENY`, a permissions policy and HSTS. Inline scripts stay allowed so pages can be static,
+so the policy does not stop an injected inline script. Preview deployments also allow Vercel's toolbar
+sources. A payment provider will need its own origins added (section 3.7 of `docs/architecture.md`).
 
 ## Documentation
 
@@ -455,6 +509,14 @@ The rest are about the site itself. None of this is legal advice.
     last section, when a payment provider is connected. `tests/unit/legal.test.ts` checks the
     wording for set and unset facts.
 - [ ] **Checkout.** It is built up to payment. Connect a payment provider (`docs/architecture.md`,
-      section 3.7), and decide how a paid order is fulfilled and how a purchase unlocks the
-      locked templates. Until then the Payment step offers the order by email and the locked
-      templates stay locked for every visitor.
+      section 3.7), and have its webhook mint the licence (`signLicence`) and email the link.
+      Until then the Payment step offers the order by email, and the owner mints each link by hand
+      with `scripts/mint-licence.mjs`.
+- [ ] **A production file store.** Only the local-disk driver exists, and on Vercel a function
+      cannot answer with more than 4.5 MB. Add a driver that signs short-lived addresses (R2 or S3),
+      set `LICENCE_SECRET` in the host's settings, and run the stored-files check against the real
+      files ([Files and licences](#files-and-licences)).
+- [ ] **"Not downloaded" in the refund policy.** The site keeps no record of downloads, so it
+      cannot tell whether an order's files were downloaded, which is the test the refund policy uses.
+      Decide whether to keep a download log or change the policy's wording.
+- [ ] **Firewall rule.** Add a Vercel Firewall rate-limit rule on `/licence` and `/api/`.

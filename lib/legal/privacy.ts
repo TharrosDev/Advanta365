@@ -1,14 +1,16 @@
 import { INTRO_FLAG } from "@/lib/boot/state";
 import { DRAFT_KEY } from "@/lib/checkout/draft";
+import { LICENCE_COOKIE } from "@/lib/licence/cookie";
 import { CONTACT_LINK, SITE } from "@/lib/site";
 import type { LegalFacts } from "./facts";
 import { heading, link, list, p, terms, type LegalDocument } from "./types";
 
 /**
- * `/privacy`. Written from what the code does: the site sets no cookie, runs no analytics and has
- * no account or form that sends anything to us; the only things it keeps are two entries in the
- * browser's session storage (one preference, `lib/boot/state.ts`, and the checkout's draft,
- * `lib/checkout/draft.ts`), and the fonts are served from the site itself. The checkout has no
+ * `/privacy`. Written from what the code does: the site runs no analytics and has no account or form
+ * that sends anything to us; it keeps two entries in the browser's session storage (one preference,
+ * `lib/boot/state.ts`, and the checkout's draft, `lib/checkout/draft.ts`) and sets one cookie, only
+ * for a buyer who opens their licence link (`lib/licence/cookie.ts`); the fonts are served from the
+ * site itself. The checkout has no
  * payment provider yet: it writes the order into an email the buyer sends themselves. What changes
  * when a provider is connected stands in a part of its own, so the rest stays true today.
  */
@@ -25,12 +27,12 @@ export function privacy(facts: LegalFacts): LegalDocument {
   return {
     href: "/privacy",
     title: "Privacy policy",
-    description: `What ${SITE.name} collects, what it keeps in your browser and what it does not do: no cookies, no analytics, no accounts.`,
+    description: `What ${SITE.name} collects, what it keeps in your browser and what it does not do: no tracking cookies, no analytics, no accounts.`,
     summary: `${SITE.name} is built to work without knowing who you are. This page says what the site handles, what it keeps in your browser, and what changes when a checkout opens.`,
     points: [
-      "The site sets no cookies and runs no analytics, advertising or tracking scripts.",
+      "The site sets no tracking cookies and runs no analytics, advertising or tracking scripts.",
       "There are no accounts and no forms that send us anything. We hear from you only when you email us.",
-      "What the site keeps in your browser stays in your browser, and is gone when you close the tab.",
+      "What the site keeps in your browser's session storage stays there, and is gone when you close the tab. The one cookie is set only for buyers, to download their files.",
       "No payment is taken on the site today, so no payment details are collected.",
     ],
     sections: [
@@ -77,10 +79,10 @@ export function privacy(facts: LegalFacts): LegalDocument {
         title: "Cookies and browser storage",
         blocks: [
           p(
-            "The site sets no cookies, so there is no cookie banner and nothing to accept or decline.",
+            "The site sets no tracking cookies. It sets one cookie, and only for a buyer: when you open the link from your order email, it keeps your licence so this browser can download the files you bought. The cookie is strictly necessary for that, so there is no cookie banner and nothing to accept or decline.",
           ),
           p(
-            "It keeps up to two entries in your browser’s session storage. The site never sends them to us or to anyone else, and your browser deletes them when you close the tab. The first holds no personal information.",
+            "The site also keeps up to two entries in your browser’s session storage. The site never sends them to us or to anyone else, and your browser deletes them when you close the tab. The first holds no personal information.",
           ),
           terms(
             [
@@ -90,6 +92,10 @@ export function privacy(facts: LegalFacts): LegalDocument {
             [
               DRAFT_KEY,
               "Exists only if you start the checkout. Holds the order details you type there (your name, email address, organization, country and region, and a purchase order number or a note if you add one), so that a refresh or a look at another page does not lose them.",
+            ],
+            [
+              LICENCE_COOKIE,
+              "The cookie. Exists only if you open the link from your order email. Holds your licence: your order code and a signature, and no name or email address. Your browser sends it to the site when you open the catalog or download a file, so the site can check the purchase. It lasts 400 days, and opening the link again renews it.",
             ],
           ),
           p(

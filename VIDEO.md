@@ -2,10 +2,9 @@
 
 How Advanta365 videos are made. A fresh session should be able to plan, build, check and deliver a
 new video from this file alone. The launch video, "Blank Prompt" (45 seconds), was made this way.
-Its code is in `video/`. Its designs are in `docs/superpowers/specs/`: v1
-(`2026-10-13-launch-video-design.md`) and the rebuilt v2 (`2026-10-13-launch-video-v2-design.md`),
-which is the current one, except that its ink has since been removed: the transitions are now
-plain sheets of paper and binder (see "Transitions" below).
+Its code is in `video/`; this file describes how it is built, and its scenes are timed in
+`video/timeline.mjs`. Its transitions are plain sheets of paper and binder (see "Transitions"
+below).
 
 ## How it works
 
@@ -45,8 +44,8 @@ Nothing in `video/` is served by the site. Next.js serves only `app/` and `publi
 | `node video/sound.mjs`                     | Writes only the raw sound to `video/out/sound.wav`                           |
 
 Timings in the cloud container (4 cores, no GPU): a still takes a second or two and the sound
-about ten seconds. The full picture, 2,700 frames at 60 fps, took about 20 minutes with the old
-ink plates; it has not been timed without them.
+about ten seconds. The full picture, 2,700 frames at 60 fps, has not been timed in its current
+form.
 
 ## The process
 
@@ -112,8 +111,8 @@ Rules that keep frames deterministic and on the beat:
 
 ### 4. Transitions
 
-The video has no ink and no background motion: grounds are plain paper or plain binder, and the
-words do the moving. Scenes change with a cut or with a sheet that slides over the last one, in
+The video has no background motion: grounds are plain paper or plain binder, and the words do the
+moving. Scenes change with a cut or with a sheet that slides over the last one, in
 step with a sound from the timeline.
 
 - **The clear** (`SCENES.clear`, bar 4). Into the downbeat, the faded prompt and the generic reply
@@ -191,9 +190,8 @@ From v2:
 
 After v2:
 
-- **Background motion competes with the words.** v2 laid the site's fluid ink under and over the
-  scenes; the user found it distracting and it was removed from the site and the video. Keep the
-  grounds plain and let the type, the documents and the highlighter move.
+- **Background motion competes with the words.** Keep the grounds plain and let the type, the
+  documents and the highlighter move.
 
 ## Checklist
 

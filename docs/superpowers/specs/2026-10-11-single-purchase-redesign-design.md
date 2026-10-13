@@ -18,7 +18,7 @@ that everything else is locked behind one purchase, and reaches the one Purchase
 - Home hero: option 4, "blank prompt to finished work".
 - Six templates are free samples. All others are visible but locked.
 - Pricing, Contact and Cart pages are deleted. Contact merges into About.
-- The load-in ink arrives sooner and the logo holds longer.
+- The logo holds longer on the load-in cover.
 - The logo gains a small blue "365" on the crossbar's arm.
 
 Decisions made on the owner's behalf (he may overrule any):
@@ -59,12 +59,11 @@ Decisions made on the owner's behalf (he may overrule any):
 | `/contact` | Deleted. Permanent redirect to `/about#contact` |
 | `/templates/[slug]` | Deleted. Permanent redirect to `/catalog?view=<slug>` |
 
-Redirects live in `next.config.ts`. `CALM_ROUTE_SOURCE` becomes `^/catalog(/|$)` and the boot
-script and its tests follow.
+Redirects live in `next.config.ts`.
 
 ## 3. Purchase page
 
-One `Folder` at page scale, centred on a paper band with the `wisps`-style ink faint behind it.
+One `Folder` at page scale, centred on a paper band.
 
 - Tab: "The complete toolkit". Sheets (real template covers) stand out of the top.
 - A paper price tag hangs from the folder's corner on a string: `$499.99`, "one purchase". It
@@ -102,23 +101,19 @@ One `Folder` at page scale, centred on a paper band with the `wisps`-style ink f
 
 ## 5. Home hero: blank prompt to finished work
 
-A full-width paper band about as tall as the window. Ink runs behind all of it; the old empty
-right-hand "open water" column is removed.
+A full-width paper band about as tall as the window; the old empty right-hand column is removed.
 
 - Headline (unchanged words, `h1`), lead and two buttons, centred: "Get the toolkit" (to
   `/purchase`) and "See the free samples" (to `/catalog?free=1`).
 - Under them, the stage: an empty prompt box with a blinking caret.
 - Sequence, once per page view, starting when the cover is gone:
-  1. 0 ms: a black drop lands in the box; a blue one follows.
-  2. The ink blooms across the band while the box's outline dissolves.
-  3. The ink clears; where the box stood, the six sample documents stand fanned and lit, their own
-     titles on their covers, settling one after another.
-  4. The water rests, then keeps the slow ambient drips of the current hero scene.
+  1. The box stands empty for a moment, its caret blinking.
+  2. The box dissolves.
+  3. Where the box stood, the six sample documents stand fanned and lit, their own titles on their
+     covers, settling one after another.
 - Each document opens its pop-up (links to `/catalog?view=<slug>`).
 - A proof strip on the band's bottom edge: 30+ years, 59 playbooks, 130 templates, one purchase.
-- Ink: a new `prompt` scene replaces `hero` (drop at the `open` anchor, which is now the box; calm
-  zones on the text). New stills `prompt-wide` and `prompt-tall` show the finished state.
-- Reduced motion, still ink, no JavaScript: the fanned documents show from the start; no box.
+- Reduced motion or no JavaScript: the fanned documents show from the start; no box.
 - Below 40em the documents are a short overlapping row; the box is narrower.
 
 Rest of home: the featured section lists the six samples; `BundlesSection` becomes one portfolio
@@ -152,12 +147,9 @@ Today the mark finishes drawing at 800 ms and the cover starts leaving at 1200 m
 
 | | Now | New |
 |---|---|---|
-| First ink drop | When the engine is ready, takeover allowed up to 1050 ms | Engine prefetched from the boot script; first drop as early as 200 ms; takeover allowed up to 1600 ms |
 | Mark drawn | 120 to 800 ms | 120 to 800 ms, digits 800 to 1000 ms |
 | Mark held, fully drawn | about 400 ms | about 1500 ms |
 | Cover leaves | 1200 to 1650 ms | 2500 to 2950 ms |
-| Cover leaves (ink took over) | 2000 to 2800 ms | 2700 to 3500 ms |
-| Intro scene length | 2.8 s | 3.5 s; clear starts at 2.45 s |
 | Backstop | 4500 ms | 5500 ms |
 
 Skip on any input stays. The hero sequence starts when the cover is gone.
@@ -168,7 +160,7 @@ Skip on any input stays. The hero sequence starts when the cover is gone.
   `docs/testing.md` updated to the single-purchase model. The owner's memory note on the business
   is updated too.
 - Unit: content (six free, no prices), validation, query (free filter, no price sort), format,
-  boot script and calm routes, ink scenes and stills (`prompt`), brand mark, design gate.
+  boot script, brand mark, design gate.
 - E2E: cart specs deleted; new specs for redirects, the locked card (state, message, keyboard,
   reduced motion), the pop-up (open, three ways to close, URL, Back), the nav bar, the hero's rest
   state, the cover timings.

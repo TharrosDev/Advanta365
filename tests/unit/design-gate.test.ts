@@ -189,9 +189,6 @@ describe("design gate: retired vocabulary", () => {
       "components/motion",
       "lib/motion",
       "lib/gl",
-      "lib/ink",
-      "components/ink",
-      "public/ink",
     ]) {
       expect(existsSync(join(ROOT, folder)), folder).toBe(false);
     }

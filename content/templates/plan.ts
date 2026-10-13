@@ -22,6 +22,23 @@ export const planTemplates = sample("plan", [
       "Interview question set",
       "Summary slide",
     ],
+    // Test fixture files (tests/fixtures/files), not real downloads.
+    files: [
+      {
+        id: "workbook",
+        name: "Impact Scoring Workbook.xlsx",
+        key: "plan/sharepoint-migration-impact-assessment/impact-scoring-workbook.xlsx",
+        bytes: 54,
+        sha256: "9d09c48bd1463082babd6e17641d27daa1c667e30026c30d4f2a720d688002c3",
+      },
+      {
+        id: "summary-slide",
+        name: "Impact Assessment Summary Slide.pptx",
+        key: "plan/sharepoint-migration-impact-assessment/summary-slide.pptx",
+        bytes: 62,
+        sha256: "4735f34b54537a203a3da4008e89aba6a813752358d128f37bc20d1eee17620b",
+      },
+    ],
   },
   {
     slug: "current-state-site-audit",
@@ -143,6 +160,16 @@ export const planTemplates = sample("plan", [
       "Section-by-section guidance",
       "Example wording",
       "Executive summary slide",
+    ],
+    // Test fixture files (tests/fixtures/files), not real downloads.
+    files: [
+      {
+        id: "strategy",
+        name: "Change Management Strategy.docx",
+        key: "plan/change-management-strategy/change-management-strategy.docx",
+        bytes: 57,
+        sha256: "05de3d26cc85a0df9b37305ca5199733735fe6224f33ff8cd2e68b0403586bd7",
+      },
     ],
   },
   {

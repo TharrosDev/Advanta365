@@ -70,6 +70,16 @@ export const prepareTemplates = sample("prepare", [
       "Five hands-on exercises",
       "Participant handout",
     ],
+    // Test fixture files (tests/fixtures/files), not real downloads.
+    files: [
+      {
+        id: "training-deck",
+        name: "SharePoint End-User Training Deck.pptx",
+        key: "prepare/sharepoint-end-user-training-deck/sharepoint-end-user-training-deck.pptx",
+        bytes: 64,
+        sha256: "af3bbd7f000d458a160dcdc6249f0f5b87b60d0ff39fb7f393e58370ee56bd10",
+      },
+    ],
   },
   {
     slug: "site-owner-training-curriculum",

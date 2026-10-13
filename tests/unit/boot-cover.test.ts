@@ -46,7 +46,6 @@ describe("the cover's markup", () => {
   });
 
   it("holds no picture and no canvas", () => {
-    expect(cover).not.toContain("data-ink");
     expect(cover).not.toContain("<img");
     expect(cover).not.toContain("<canvas");
   });

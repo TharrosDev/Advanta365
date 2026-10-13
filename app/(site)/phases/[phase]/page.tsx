@@ -14,6 +14,7 @@ import { DEFAULT_CRITERIA } from "@/lib/catalog/query";
 import { getPhase, getPhases, getTemplates } from "@/lib/catalog/repository";
 import { catalogHref } from "@/lib/catalog/search-params";
 import { cx } from "@/lib/cx";
+import { hasLicence } from "@/lib/licence/session";
 import styles from "./page.module.css";
 
 type PhasePageProps = { params: Promise<{ phase: string }> };
@@ -32,15 +33,17 @@ export async function generateMetadata({ params }: PhasePageProps): Promise<Meta
  * with the phase numeral, its place among the phases and a tally standing beside them. Each step is
  * then a band of its own, desk and paper in turn: the step number and summary in the margin, the
  * step name and its templates as tiles beside them: a free sample links to the catalog, where it
- * opens in the pop-up, and every other tile is locked. Every tile is of this phase, so a tile names
+ * opens in the pop-up, and every other tile is locked, unless the browser holds a licence
+ * (`hasLicence`, which makes the page render on every request): then every tile opens. Every tile is of this phase, so a tile names
  * only its type. The page ends with a link to the phase in the catalog and the links to the phases
  * before and after it, on the band that carries on the alternation.
  */
 export default async function PhasePage({ params }: PhasePageProps) {
-  const [phase, phases, templates] = await Promise.all([
+  const [phase, phases, templates, licensed] = await Promise.all([
     getPhase((await params).phase),
     getPhases(),
     getTemplates(),
+    hasLicence(),
   ]);
   if (!phase) notFound();
 
@@ -101,6 +104,7 @@ export default async function PhasePage({ params }: PhasePageProps) {
                     template={template}
                     phaseOrder={number}
                     href={catalogHref(DEFAULT_CRITERIA, template.slug)}
+                    unlocked={licensed}
                   />
                 </li>
               ))}

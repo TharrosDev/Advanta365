@@ -132,21 +132,23 @@ test("a first visit opens under the cover, with the whole page beneath it", asyn
 // runs alone, after the parallel projects (playwright.config.ts).
 const QUIET = { tag: "@quiet" };
 
-test("the cover does not hold back the page: its largest paint is under a second", QUIET, async ({
-  page,
-}) => {
-  // The first request a server answers after a build is a cold one; the page is asked for once
-  // first, so that the number below is the page's and not the server's warming up.
-  await page.request.get("/");
-  await notePaint(page);
-  await firstVisit(page);
+test(
+  "the cover does not hold back the page: its largest paint is under a second",
+  QUIET,
+  async ({ page }) => {
+    // The first request a server answers after a build is a cold one; the page is asked for once
+    // first, so that the number below is the page's and not the server's warming up.
+    await page.request.get("/");
+    await notePaint(page);
+    await firstVisit(page);
 
-  // The browser reports the largest paint once it has one; the headline is painted under the
-  // cover, so it is the cover that has to wait for it, not the other way round.
-  await expect.poll(() => page.evaluate(() => window.introPaint ?? null)).not.toBeNull();
-  const paint = await page.evaluate(() => window.introPaint ?? Infinity);
-  expect(paint).toBeLessThan(1000);
-});
+    // The browser reports the largest paint once it has one; the headline is painted under the
+    // cover, so it is the cover that has to wait for it, not the other way round.
+    await expect.poll(() => page.evaluate(() => window.introPaint ?? null)).not.toBeNull();
+    const paint = await page.evaluate(() => window.introPaint ?? Infinity);
+    expect(paint).toBeLessThan(1000);
+  },
+);
 
 test("the finished mark is held until 2.5 seconds and the cover is gone by 3.4", async ({
   page,

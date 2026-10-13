@@ -103,6 +103,16 @@ export const makeTheCaseTemplates = sample("make-the-case", [
       "One-page leave-behind",
       "Customization checklist",
     ],
+    // Test fixture files (tests/fixtures/files), not real downloads.
+    files: [
+      {
+        id: "deck",
+        name: "Executive Sponsor Kickoff Deck.pptx",
+        key: "make-the-case/executive-sponsor-kickoff-deck/executive-sponsor-kickoff-deck.pptx",
+        bytes: 61,
+        sha256: "8f411c3d7b2973b96950ae019b197f9148be2be5752c109a8fba4e6e903de303",
+      },
+    ],
   },
   {
     slug: "sponsor-roles-brief",

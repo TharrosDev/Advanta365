@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { INTRO_FLAG } from "@/lib/boot/state";
 import { DRAFT_KEY } from "@/lib/checkout/draft";
+import { LICENCE_COOKIE } from "@/lib/licence/cookie";
 import {
   LEGAL,
   LEGAL_DOCUMENTS,
@@ -220,12 +221,21 @@ describe("the facts the legal pages are written around", () => {
 describe("the privacy policy against the code", () => {
   const document = privacy(LEGAL);
 
-  it("names the two entries the site keeps in session storage", () => {
+  it("names the two session storage entries and the one cookie the site keeps", () => {
     const cookies = document.sections.find((section) => section.id === "cookies");
     const named = cookies?.blocks.flatMap((block) =>
       block.kind === "terms" ? block.rows.map((row) => row.term) : [],
     );
-    expect(named).toEqual([INTRO_FLAG, DRAFT_KEY]);
+    expect(named).toEqual([INTRO_FLAG, DRAFT_KEY, LICENCE_COOKIE]);
+  });
+
+  it("describes the licence cookie as strictly necessary, for buyers only, for 400 days", () => {
+    const text = words(document);
+    expect(text).not.toMatch(/sets no cookies/i);
+    expect(text).not.toContain("What the site keeps in your browser stays in your browser");
+    expect(text).toContain("strictly necessary");
+    expect(text).toContain("400 days");
+    expect(text).toContain("no tracking cookies");
   });
 
   it("keeps what is planned for the checkout in a part of its own", () => {

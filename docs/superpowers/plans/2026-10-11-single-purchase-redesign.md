@@ -42,7 +42,7 @@
 - Modify: `lib/site.ts`, `lib/format.ts` (no change expected; keep its test), `lib/catalog/schema.ts`, `lib/catalog/validate.ts`, `lib/catalog/repository.ts`, `lib/catalog/query.ts`, `lib/catalog/search-params.ts`, `content/templates/*.ts`, `content/templates/sample.ts`
 - Delete: `content/bundles.ts`, `lib/catalog/pricing.ts`, `lib/cart/`, `components/cart/`, `components/product/`, `components/catalog/bundle-card.*`, `components/company/bundle-price-table.*`, `components/company/ways-to-buy.*`, `components/home/bundles-section.tsx`, `app/(site)/bundles/`, `app/(site)/cart/`, `app/(site)/pricing/` (move its FAQ data first, see below), `tests/unit/cart-store.test.ts`, `tests/unit/pricing.test.ts`, `tests/e2e/cart.spec.ts`, `tests/e2e/cart-keyboard.spec.ts`
 - Create: `lib/purchase/questions.ts` holding the pricing page's questions, rewritten for one purchase (in `lib/`, because pages may not import `content/`)
-- Modify consumers so the build passes: `app/(site)/layout.tsx` (no cart), `app/(site)/page.tsx` (no bundles), `app/(site)/templates/[slug]/page.tsx` (no purchase panel, no bundles), `components/catalog/template-card.tsx` (no price), `components/catalog/sort-select.tsx`, `components/layout/header.tsx` (no `cart` prop), `components/layout/footer.tsx`, `components/not-found/missing-page.tsx`, `components/ink/ink-lab.tsx`, `tests/unit/fixtures/catalog.ts`
+- Modify consumers so the build passes: `app/(site)/layout.tsx` (no cart), `app/(site)/page.tsx` (no bundles), `app/(site)/templates/[slug]/page.tsx` (no purchase panel, no bundles), `components/catalog/template-card.tsx` (no price), `components/catalog/sort-select.tsx`, `components/layout/header.tsx` (no `cart` prop), `components/layout/footer.tsx`, `components/not-found/missing-page.tsx`, `tests/unit/fixtures/catalog.ts`
 - Test: `tests/unit/content.test.ts`, `validate.test.ts`, `query.test.ts`, `search-params.test.ts`, `format.test.ts`
 
 **Interfaces — Produces:**
@@ -87,7 +87,7 @@
 - Modify: `app/(site)/purchase/page.tsx` + new `page.module.css`, `components/ui/folder.tsx` + module (a `size="page"` variant and real covers as sheets, if the existing `sheets` cannot carry them), `app/(site)/page.tsx`, `components/home/home.module.css`, `app/motion.css` (tag swing, hook `data-price-tag`)
 - Test: create `tests/e2e/purchase.spec.ts`
 
-**Interfaces — Consumes:** `OFFER`, `TOOLKIT`, `PURCHASE_QUESTIONS`, `getFreeTemplates`, `phaseCoverage`, `Folder`, `Tally`, `FactList`, `FaqList`, `InkBackdrop scene="wisps"`.
+**Interfaces — Consumes:** `OFFER`, `TOOLKIT`, `PURCHASE_QUESTIONS`, `getFreeTemplates`, `phaseCoverage`, `Folder`, `Tally`, `FactList`, `FaqList`.
 **Produces:** `Portfolio({ size: "page" | "section", covers: Template[], phases: PhaseCoverage[] })` rendering the folder with tab "The complete toolkit", the `PriceTag`, and the tally; `PriceTag()` printing `formatPrice(OFFER.priceCents)` and "one purchase"; `PortfolioSection()` for home (`id="toolkit"`, replaces `#bundles`) with a button to `/purchase`.
 
 Page order (spec section 3): title (`h1` "Purchase"), the portfolio centred, the "what is inside" ledger from `TOOLKIT`, the disabled button "Checkout coming soon" with the `mailto:` address, a note that the catalog shown is sample content, then the questions.
@@ -153,35 +153,33 @@ Page order (spec section 3): title (`h1` "Purchase"), the portfolio centred, the
 ### Task 7: Load-in timing
 
 **Files:**
-- Modify: `lib/boot/state.ts` (`INTRO_BACKSTOP_MS = 5500`), `lib/boot/boot-script.ts` (a `<link rel="modulepreload">` is not possible for a hashed chunk; instead start the engine import as the controller's first act when `data-intro` is set, before any other work), `components/ink/ink-controller.ts` (takeover limit 1050 → 1600; intro run 2800 → 3500), `lib/ink/scenes.ts` (`intro`: black at 0 s, blue at 0.5 s, clear at 2.45 s over 1.05 s, duration 3.5 s), `lib/ink/stage.ts` (`intro` run 3500), `components/intro/intro-cover.module.css`, `app/motion.css` if the cover keyframes live there
-- Test: `tests/unit/boot-cover.test.ts`, `boot-script.test.ts`, `ink-scenes.test.ts`, `ink-stage.test.ts`, `tests/e2e/intro.spec.ts`
+- Modify: `lib/boot/state.ts` (`INTRO_BACKSTOP_MS = 5500`), `components/intro/intro-cover.module.css`, `app/motion.css` if the cover keyframes live there
+- Test: `tests/unit/boot-cover.test.ts`, `boot-script.test.ts`, `tests/e2e/intro.spec.ts`
 
-**Produces (spec section 8):** mark drawn 120–800 ms, digits 800–1000 ms; `cover-leave` 2500–2950 ms; `cover-ink` 2700–3500 ms; backstop 5500 ms. Skip unchanged.
+**Produces (spec section 8):** mark drawn 120–800 ms, digits 800–1000 ms; `cover-leave` 2500–2950 ms; backstop 5500 ms. Skip unchanged.
 
-- [ ] **Step 1:** Change the expected numbers in the tests; add an e2e check that the cover is still fully opaque at 2300 ms and gone by 4000 ms without ink, and that a key press at 500 ms removes it within 400 ms.
+- [ ] **Step 1:** Change the expected numbers in the tests; add an e2e check that the cover is still fully opaque at 2300 ms and gone by 4000 ms, and that a key press at 500 ms removes it within 400 ms.
 - [ ] **Step 2:** Run and see them fail.
 - [ ] **Step 3:** Implement.
 - [ ] **Step 4:** All tests pass.
-- [ ] **Step 5:** Commit: `feat: earlier ink and a longer hold on the cover`.
+- [ ] **Step 5:** Commit: `feat: a longer hold on the cover`.
 
 ### Task 8: Hero, blank prompt to finished work
 
 **Files:**
 - Create: `components/home/hero-stage.tsx` + module (server), `components/home/proof-strip.tsx`
-- Modify: `components/home/hero.tsx`, `components/home/home.module.css`, `app/(site)/page.tsx`, `lib/ink/scenes.ts` (`prompt` replaces `hero`), `lib/ink/stage.ts`, `lib/ink/types.ts`, `lib/ink/stills.json`, `lib/ink/stills.ts`, `scripts/ink-stills.mjs`, `public/ink/` (`prompt-wide.webp`, `prompt-tall.webp` replace the hero pair), `components/ink/ink-lab.tsx`, `app/motion.css` (hook `data-hero-stage`)
-- Test: `tests/unit/ink-scenes.test.ts`, `ink-stage.test.ts`, `stills-files.test.ts`, `tests/e2e/ink-live.spec.ts`, `ink-fallback.spec.ts`, `motion.spec.ts`, `reduced-motion.spec.ts`; create `tests/e2e/hero.spec.ts`
+- Modify: `components/home/hero.tsx`, `components/home/home.module.css`, `app/(site)/page.tsx`, `app/motion.css` (hook `data-hero-stage`)
+- Test: `motion.spec.ts`, `reduced-motion.spec.ts`; create `tests/e2e/hero.spec.ts`
 
 **Interfaces — Consumes:** `getFreeTemplates`, `catalogHref`, `TemplateCover`, `TOOLKIT`, `OFFER`.
 **Produces:**
 - `Hero({ samples: Template[], phases: Phase[] })`: full-width band; centred `h1` (same words), lead, buttons "Get the toolkit" (`/purchase`) and "See the free samples" (`/catalog?free=1`); then `HeroStage`; then `ProofStrip` (30+ years, 59 playbooks, 130 templates, one purchase).
-- `HeroStage({ samples })`: `<div data-hero-stage>` holding the prompt box (`data-hero-prompt`, `aria-hidden`, a `Blank` caret) and a list of six links (`data-hero-doc`, each to `catalogHref(DEFAULT_CRITERIA, slug)`, each a lit `TemplateCover` with its title), fanned: turns −9, −5, −2, 2, 5, 9 degrees, overlapping, the middle two highest. `data-ink-anchor="open"` is on the stage.
+- `HeroStage({ samples })`: `<div data-hero-stage>` holding the prompt box (`data-hero-prompt`, `aria-hidden`, a `Blank` caret) and a list of six links (`data-hero-doc`, each to `catalogHref(DEFAULT_CRITERIA, slug)`, each a lit `TemplateCover` with its title), fanned: turns −9, −5, −2, 2, 5, 9 degrees, overlapping, the middle two highest.
 - Sequence, CSS only, under `html[data-motion="on"]:not([data-intro])`: box holds 0–400 ms, dissolves 400–1600 ms; documents settle from 2400 ms, 110 ms apart, 560 ms each. Without `data-motion` (reduced motion, no JavaScript) the box is `display: none` and the documents are in place.
-- Ink scene `prompt` (paper, no end): black drop at the `open` anchor's centre at 0 s, blue at 0.5 s, clear at 2.2 s over 1.2 s, ambient drips from 9 s as the old `hero` had. Stage weight 3, run 30000. The text block keeps `data-ink-calm="text"`; the stage has `data-ink-calm="display"` after the sequence so the documents stay readable.
-- Stills: `prompt-wide` (1440×900, DPR 1) and `prompt-tall` (320×700, DPR 2) at the scene's rest, generated with `node scripts/ink-stills.mjs`; within `STILL_MAX_BYTES`.
 
-- [ ] **Step 1:** Write the tests: scene determinism and timeline for `prompt`; no `hero` scene or stills remain; `hero.spec.ts`: six `[data-hero-doc]` links with the six free titles, each opening its dialog; after 4500 ms the prompt box has `opacity: 0` and every document `opacity: 1`; under reduced motion the documents are visible at load and the box is not rendered visible; the hero band's height is at least 85% of the viewport at 1440×900; no element in the hero overflows at 320px; headline contrast holds over the still.
+- [ ] **Step 1:** Write the tests: `hero.spec.ts`: six `[data-hero-doc]` links with the six free titles, each opening its dialog; after 4500 ms the prompt box has `opacity: 0` and every document `opacity: 1`; under reduced motion the documents are visible at load and the box is not rendered visible; the hero band's height is at least 85% of the viewport at 1440×900; no element in the hero overflows at 320px; headline contrast holds over the still.
 - [ ] **Step 2:** Run and see them fail.
-- [ ] **Step 3:** Implement the scene and the markup, regenerate the stills, tune in `/ink-lab` and on `/`.
+- [ ] **Step 3:** Implement the markup and tune it on `/`.
 - [ ] **Step 4:** All unit and e2e pass; `node scripts/check-budgets.mjs` passes (update `tests/budgets/baseline.json` only for the measured new values, and say so in the commit).
 - [ ] **Step 5:** Commit: `feat: the hero turns a blank prompt into finished work`.
 
@@ -190,7 +188,7 @@ Page order (spec section 3): title (`h1` "Purchase"), the portfolio centred, the
 **Files:**
 - Modify: `PRODUCT.md`, `DESIGN.md`, `.impeccable/design.json` if it lists removed components, `README.md`, `docs/architecture.md`, `docs/design-system.md`, `docs/testing.md`
 
-- [ ] **Step 1:** Rewrite every statement the change made false: routes table, section 9 (Cart) removed, catalog URL state (`free`, `view`), the header, the cover timeline, scenes and stills tables, "Ways to buy", capabilities, the undecided list (price is now decided at $499.99; currency still shown as US dollars pending confirmation).
+- [ ] **Step 1:** Rewrite every statement the change made false: routes table, section 9 (Cart) removed, catalog URL state (`free`, `view`), the header, the cover timeline, "Ways to buy", capabilities, the undecided list (price is now decided at $499.99; currency still shown as US dollars pending confirmation).
 - [ ] **Step 2:** `grep -rniE "bundle|cart|/pricing|/contact|priceCents" app components lib docs *.md` returns only intended mentions (redirects, history).
 - [ ] **Step 3:** `pnpm format && pnpm lint && pnpm typecheck && pnpm test && pnpm build && pnpm test:e2e` all pass.
 - [ ] **Step 4:** Commit: `docs: records follow the single-purchase site`.

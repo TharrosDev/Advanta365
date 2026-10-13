@@ -63,7 +63,7 @@ for (const [width, height] of SIZES) {
       page.on("console", (message) => {
         if (message.type() !== "error") return;
         // The 404's own document answers 404, and the browser logs that.
-        if (NARROW_BY_DESIGN.has(route) && /status of 404/.test(message.text())) return;
+        if (route === "/nope" && /status of 404/.test(message.text())) return;
         problems.push(message.text());
       });
 

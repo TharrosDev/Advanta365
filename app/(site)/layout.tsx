@@ -14,9 +14,6 @@ import styles from "./layout.module.css";
  * The bar and the drawer inside it, and the rail, list the phases and mark the one whose page is
  * shown.
  *
- * The ink layer is mounted once, after the footer, so nothing of it can come before `children`. It
- * renders no element of its own.
- *
  * `children` is rendered directly inside `<main>`. There is deliberately no boundary around it that
  * could flush the shell early: a route that answers "not found" at request time must still be able to
  * set the 404 status.
