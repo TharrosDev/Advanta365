@@ -1,90 +1,68 @@
 /**
- * Renders the launch video: serves the repository, screenshots each frame of `launch.html` in
- * Chromium and pipes the frames to ffmpeg, then muxes the sound from `sound.mjs`.
+ * Renders the launch video: brings the ink plates up to date (`plates.mjs`), screenshots each frame
+ * of `launch.html` in Chromium, pipes the frames to ffmpeg, synthesizes the sound (`sound.mjs`),
+ * normalizes its loudness and muxes the two.
  *
  *   node video/render.mjs                    the full video, to video/out/advanta365-launch.mp4
  *   node video/render.mjs --stills 3,12,20   single frames at those seconds, to video/out/stills/
+ *   node video/render.mjs --sound            the sound only, muxed onto the last picture
  *
  * Set CHROMIUM_PATH to use a Chromium other than Playwright's own.
  */
-import { createServer } from "node:http";
-import { readFile, mkdir } from "node:fs/promises";
+import { mkdir, writeFile } from "node:fs/promises";
 import { spawn } from "node:child_process";
-import { extname, join, normalize, resolve } from "node:path";
-import { fileURLToPath } from "node:url";
+import { join } from "node:path";
 import { chromium } from "@playwright/test";
 import { FPS, WIDTH, HEIGHT, DURATION } from "./timeline.mjs";
-import { writeSound } from "./sound.mjs";
+import { renderPlates } from "./plates.mjs";
+import { serve, root } from "./serve.mjs";
 
-const root = resolve(fileURLToPath(new URL("..", import.meta.url)));
 const out = join(root, "video", "out");
-const TYPES = {
-  ".html": "text/html",
-  ".mjs": "text/javascript",
-  ".js": "text/javascript",
-  ".webp": "image/webp",
-  ".png": "image/png",
-};
 
-function serve() {
-  const server = createServer(async (req, res) => {
-    const path = normalize(decodeURIComponent(new URL(req.url, "http://x").pathname));
-    const file = join(root, path);
-    if (!file.startsWith(root)) return res.writeHead(403).end();
-    try {
-      const body = await readFile(file);
-      res.writeHead(200, { "content-type": TYPES[extname(file)] ?? "application/octet-stream" });
-      res.end(body);
-    } catch {
-      res.writeHead(404).end();
-    }
-  });
-  return new Promise((ok) => server.listen(0, "127.0.0.1", () => ok(server)));
-}
+/** Loudness the finished sound is normalized to, in LUFS, and its true-peak ceiling in dBTP. */
+const LOUDNESS = -16;
+const TRUE_PEAK = -1.5;
 
-function run(cmd, args, input) {
+function run(cmd, args, { input, capture = false } = {}) {
   return new Promise((ok, fail) => {
-    const p = spawn(cmd, args, { stdio: [input ? "pipe" : "ignore", "inherit", "inherit"] });
+    const p = spawn(cmd, args, {
+      stdio: [input ? "pipe" : "ignore", "inherit", capture ? "pipe" : "inherit"],
+    });
+    let err = "";
+    if (capture) p.stderr.on("data", (d) => (err += d));
     p.on("error", fail);
-    p.on("close", (code) => (code === 0 ? ok() : fail(new Error(`${cmd} exited ${code}`))));
+    p.on("close", (code) =>
+      code === 0 ? ok(err) : fail(new Error(`${cmd} exited ${code}\n${err}`)),
+    );
     if (input) input(p.stdin);
   });
 }
 
-async function main() {
-  const stillsArg = process.argv.indexOf("--stills");
-  const stills = stillsArg > 0 ? process.argv[stillsArg + 1].split(",").map(Number) : null;
-
-  await mkdir(join(out, "stills"), { recursive: true });
+async function openPage() {
   const server = await serve();
-  const url = `http://127.0.0.1:${server.address().port}/video/launch.html`;
   const browser = await chromium.launch({ executablePath: process.env.CHROMIUM_PATH || undefined });
   const page = await browser.newPage({
     viewport: { width: WIDTH, height: HEIGHT },
     deviceScaleFactor: 1,
   });
   page.on("pageerror", (e) => console.error("page error:", e.message));
-  await page.goto(url);
+  await page.goto(`${server.base}/video/launch.html`);
   await page.evaluate(() => window.videoReady);
-
-  const frameAt = async (t) => {
+  const frameAt = async (t, type = "png") => {
     await page.evaluate((s) => window.renderAt(s), t);
-    return page.screenshot({ type: "png" });
+    return page.screenshot({ type, timeout: 120000 });
   };
+  const close = async () => {
+    await browser.close();
+    await server.close();
+  };
+  return { frameAt, close };
+}
 
+async function renderPicture(path) {
+  const { frameAt, close } = await openPage();
+  const frames = Math.round(DURATION * FPS);
   try {
-    if (stills) {
-      for (const t of stills) {
-        const png = await frameAt(t);
-        const { writeFile } = await import("node:fs/promises");
-        await writeFile(join(out, "stills", `t${String(t).padStart(5, "0")}.png`), png);
-        console.log(`still at ${t}s`);
-      }
-      return;
-    }
-
-    const silent = join(out, "picture.mp4");
-    const frames = Math.round(DURATION * FPS);
     await run(
       "ffmpeg",
       [
@@ -107,48 +85,111 @@ async function main() {
         "16",
         "-pix_fmt",
         "yuv420p",
+        "-color_primaries",
+        "bt709",
+        "-color_trc",
+        "bt709",
+        "-colorspace",
+        "bt709",
         "-movflags",
         "+faststart",
-        silent,
+        path,
       ],
-      async (stdin) => {
-        for (let i = 0; i < frames; i++) {
-          const png = await frameAt(i / FPS);
-          if (!stdin.write(png)) await new Promise((ok) => stdin.once("drain", ok));
-          if (i % FPS === 0) process.stdout.write(`\rframe ${i}/${frames}`);
-        }
-        stdin.end();
-        process.stdout.write(`\rframe ${frames}/${frames}\n`);
+      {
+        input: async (stdin) => {
+          for (let i = 0; i < frames; i++) {
+            const png = await frameAt(i / FPS);
+            if (!stdin.write(png)) await new Promise((ok) => stdin.once("drain", ok));
+            if (i % FPS === 0) process.stdout.write(`\rframe ${i}/${frames}`);
+          }
+          stdin.end();
+          process.stdout.write(`\rframe ${frames}/${frames}\n`);
+        },
       },
     );
-
-    const wav = join(out, "sound.wav");
-    await writeSound(wav);
-    const final = join(out, "advanta365-launch.mp4");
-    await run("ffmpeg", [
-      "-y",
-      "-loglevel",
-      "error",
-      "-i",
-      silent,
-      "-i",
-      wav,
-      "-c:v",
-      "copy",
-      "-c:a",
-      "aac",
-      "-b:a",
-      "192k",
-      "-shortest",
-      "-movflags",
-      "+faststart",
-      final,
-    ]);
-    console.log(`wrote ${final}`);
   } finally {
-    await browser.close();
-    server.close();
+    await close();
   }
+}
+
+/** Two-pass loudness normalization of the WAV to an AAC track. */
+async function renderSound(path) {
+  const wav = join(out, "sound.wav");
+  const { writeSound } = await import("./sound.mjs");
+  await writeSound(wav);
+  const target = `I=${LOUDNESS}:TP=${TRUE_PEAK}:LRA=11`;
+  const log = await run(
+    "ffmpeg",
+    ["-hide_banner", "-i", wav, "-af", `loudnorm=${target}:print_format=json`, "-f", "null", "-"],
+    { capture: true },
+  );
+  const m = JSON.parse(log.slice(log.lastIndexOf("{"), log.lastIndexOf("}") + 1));
+  const second = `loudnorm=${target}:measured_I=${m.input_i}:measured_TP=${m.input_tp}:measured_LRA=${m.input_lra}:measured_thresh=${m.input_thresh}:offset=${m.target_offset}:linear=true`;
+  await run("ffmpeg", [
+    "-y",
+    "-loglevel",
+    "error",
+    "-i",
+    wav,
+    "-af",
+    second,
+    "-ar",
+    "48000",
+    "-c:a",
+    "aac",
+    "-b:a",
+    "256k",
+    path,
+  ]);
+}
+
+async function main() {
+  await mkdir(join(out, "stills"), { recursive: true });
+  const stillsArg = process.argv.indexOf("--stills");
+  if (stillsArg > 0) {
+    const { frameAt, close } = await openPage();
+    try {
+      for (const t of process.argv[stillsArg + 1].split(",").map(Number)) {
+        await writeFile(
+          join(out, "stills", `t${t.toFixed(2).padStart(6, "0")}.png`),
+          await frameAt(t),
+        );
+        console.log(`still at ${t}s`);
+      }
+    } finally {
+      await close();
+    }
+    return;
+  }
+
+  const picture = join(out, "picture.mp4");
+  if (!process.argv.includes("--sound")) {
+    await renderPlates();
+    await renderPicture(picture);
+  }
+  const sound = join(out, "sound.m4a");
+  await renderSound(sound);
+  const final = join(out, "advanta365-launch.mp4");
+  await run("ffmpeg", [
+    "-y",
+    "-loglevel",
+    "error",
+    "-i",
+    picture,
+    "-i",
+    sound,
+    "-map",
+    "0:v",
+    "-map",
+    "1:a",
+    "-c",
+    "copy",
+    "-shortest",
+    "-movflags",
+    "+faststart",
+    final,
+  ]);
+  console.log(`wrote ${final}`);
 }
 
 await main();
