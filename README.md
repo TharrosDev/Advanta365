@@ -55,6 +55,7 @@ The scripts in `scripts/` have no package script. Run them by path from the repo
 | `node scripts/ink-stills.mjs --sheets`                 | Saves contact sheets of every scene into `.qa-shots/final/`                                                                        |
 | `node scripts/check-budgets.mjs http://localhost:3100` | Checks the home page's scripts and the ink shader chunks against `tests/budgets/baseline.json` (needs a running production server) |
 | `node scripts/paper-grain.mjs`                         | Writes `public/paper/grain.png`                                                                                                    |
+| `node video/render.mjs`                                | Renders the 45 second launch video to `video/out/advanta365-launch.mp4` (`--stills 3,12` renders single frames; see `video/`)      |
 
 The browser tests need Chromium once, from `pnpm exec playwright install chromium`. They reuse a server
 already running on port 3100 unless `CI` is set, so stop a stale server first. The Playwright projects are:
