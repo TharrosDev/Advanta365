@@ -95,7 +95,7 @@ export function privacy(facts: LegalFacts): LegalDocument {
             ],
             [
               LICENCE_COOKIE,
-              "The cookie. Exists only if you open the link from your order email. Holds your licence: your order code and a signature, and no name or email address. Your browser sends it to the site when you open your library or download a file, so the site can check the purchase. It lasts 400 days, and opening the link again renews it.",
+              "The cookie. Exists only if you open the link from your order email. Holds your licence: your order code and a signature, and no name or email address. Your browser sends it to the site when you open the catalog or download a file, so the site can check the purchase. It lasts 400 days, and opening the link again renews it.",
             ],
           ),
           p(

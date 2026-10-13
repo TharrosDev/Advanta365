@@ -6,7 +6,6 @@ import { ResultList } from "@/components/catalog/result-list";
 import { SearchBox } from "@/components/catalog/search-box";
 import { SortSelect } from "@/components/catalog/sort-select";
 import { TemplateDetail } from "@/components/catalog/template-detail";
-import { getFileStore } from "@/lib/files/store";
 import { TemplateDialog } from "@/components/catalog/template-dialog";
 import { singleCatalogPhase } from "@/components/layout/nav-links";
 import { Band } from "@/components/ui/band";
@@ -19,8 +18,10 @@ import { getPhases, getTemplate, getTemplates } from "@/lib/catalog/repository";
 import { catalogHref, parseCatalogParams, parseView } from "@/lib/catalog/search-params";
 import { FREE_SAMPLE_COUNT } from "@/lib/catalog/validate";
 import { cx } from "@/lib/cx";
+import { getFileStore } from "@/lib/files/store";
 import { countWord } from "@/lib/format";
-import { PURCHASE_LINK } from "@/lib/site";
+import { hasLicence } from "@/lib/licence/session";
+import { PURCHASE_LINK, SITE } from "@/lib/site";
 import styles from "./page.module.css";
 
 // The description writes the phase count out ("seven"): change it here if the catalog gains or loses
@@ -53,16 +54,21 @@ const DIALOG_TITLE = "template-dialog-title";
  * cards (the way in the phase rail gives from 68em), the search shares a row with the Filters
  * button, and the sort order moves into the sheet.
  *
+ * A browser holding a licence (`hasLicence`, the cookie of the licence link) sees every tile open and
+ * any template in the pop-up, with its files to download; the line under the count says so. After a
+ * licence link that failed (`link=invalid`), a line above the results says so and how to get help.
+ *
  * `view` in the address names one template. A free sample is shown in the pop-up over the page,
  * which closes to the same address without `view`; a locked template opens nothing, and its tile,
  * if it is on this page of the results, is rendered saying no; where it is not, one line above the
  * results gives the tile's answer with the template's title. Anything else is ignored.
  */
 export default async function CatalogPage({ searchParams }: CatalogPageProps) {
-  const [params, phases, templates] = await Promise.all([
+  const [params, phases, templates, licensed] = await Promise.all([
     searchParams,
     getPhases(),
     getTemplates(),
+    hasLicence(),
   ]);
   const parsed = parseCatalogParams(
     params,
@@ -81,8 +87,9 @@ export default async function CatalogPage({ searchParams }: CatalogPageProps) {
 
   const view = parseView(params);
   const viewed = view ? await getTemplate(view) : undefined;
-  const opened = viewed?.free ? viewed : undefined;
-  const denied = viewed && !viewed.free ? viewed : undefined;
+  const opened = viewed && (viewed.free || licensed) ? viewed : undefined;
+  const denied = viewed && !opened ? viewed : undefined;
+  const linkFailed = !licensed && params.link === "invalid";
   const deniedOffPage =
     denied && !result.items.some((item) => item.slug === denied.slug) ? denied : undefined;
 
@@ -121,6 +128,15 @@ export default async function CatalogPage({ searchParams }: CatalogPageProps) {
           }
         >
           <section aria-labelledby="results-heading">
+            {linkFailed ? (
+              <p role="status" data-link-failed="" className={cx("type-note", styles.included)}>
+                <span className={styles.strong}>That link did not work.</span> Write to{" "}
+                <TextLink href={`mailto:${SITE.contactEmail}`} className={styles.way}>
+                  {SITE.contactEmail}
+                </TextLink>{" "}
+                with your order code.
+              </p>
+            ) : null}
             {deniedOffPage ? (
               <p role="status" data-included="" className={cx("type-note", styles.included)}>
                 <span className={styles.strong}>
@@ -155,11 +171,18 @@ export default async function CatalogPage({ searchParams }: CatalogPageProps) {
             </p>
             {result.total > 0 ? (
               <p className={cx("type-note", styles.key)}>
-                The listings shown are sample content. {countWord(FREE_SAMPLE_COUNT, "capital")}{" "}
-                templates are free samples. Locked templates are included with the toolkit.{" "}
-                <TextLink href={PURCHASE_LINK.href} className={styles.way}>
-                  {PURCHASE_LINK.label}
-                </TextLink>
+                The listings shown are sample content.{" "}
+                {licensed ? (
+                  "Your toolkit is unlocked in this browser."
+                ) : (
+                  <>
+                    {countWord(FREE_SAMPLE_COUNT, "capital")} templates are free samples. Locked
+                    templates are included with the toolkit.{" "}
+                    <TextLink href={PURCHASE_LINK.href} className={styles.way}>
+                      {PURCHASE_LINK.label}
+                    </TextLink>
+                  </>
+                )}
               </p>
             ) : null}
             <ResultList
@@ -167,6 +190,7 @@ export default async function CatalogPage({ searchParams }: CatalogPageProps) {
               criteria={criteria}
               phases={phaseOptions}
               denied={denied?.slug}
+              unlocked={licensed}
             />
           </section>
         </Split>
@@ -177,6 +201,7 @@ export default async function CatalogPage({ searchParams }: CatalogPageProps) {
             template={opened}
             phase={phases.find((phase) => phase.slug === opened.phase)}
             titleId={DIALOG_TITLE}
+            licensed={licensed}
             downloadable={getFileStore() !== null && opened.files.length > 0}
           />
         </TemplateDialog>

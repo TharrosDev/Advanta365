@@ -24,7 +24,6 @@ const ROUTES = [
   "/refunds",
   "/accessibility",
   "/sample",
-  "/library",
   "/nope",
 ];
 
@@ -50,11 +49,8 @@ const SIZES: ReadonlyArray<readonly [number, number]> = [
 /** The least share of the window the words of a page span, from 1280 up. */
 const MIN_SPAN = 0.5;
 
-/**
- * The 404 sets its few words in six columns on purpose, so it has no span to hold. So does the
- * Library without a licence, which is the title and two lines on how to get one.
- */
-const NARROW_BY_DESIGN = new Set(["/nope", "/library"]);
+/** The 404 sets its few words in six columns on purpose, so it has no span to hold. */
+const NARROW_BY_DESIGN = new Set(["/nope"]);
 
 for (const [width, height] of SIZES) {
   for (const route of ROUTES) {

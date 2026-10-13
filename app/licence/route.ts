@@ -10,8 +10,9 @@ const limiter = createRateLimiter({ limit: 10, windowMs: 60_000 });
 
 /**
  * `/licence?t=<licence>`: the link a buyer is sent. A good licence goes into an HttpOnly cookie and
- * the browser moves on to /library, so the licence leaves the address bar and is never sent on as a
- * referrer. Anything else lands on /library saying the link did not work, and sets nothing.
+ * the browser moves on to the catalog, unlocked, so the licence leaves the address bar and is never
+ * sent on as a referrer. Anything else lands on the catalog saying the link did not work, and sets
+ * nothing.
  */
 export async function GET(request: Request): Promise<Response> {
   const limited = limiter.check(clientKey(request));
@@ -21,7 +22,7 @@ export async function GET(request: Request): Promise<Response> {
   const licence = verifyLicence(token, licenceEnv());
 
   const response = NextResponse.redirect(
-    new URL(licence ? "/library" : "/library?link=invalid", request.url),
+    new URL(licence ? "/catalog" : "/catalog?link=invalid", request.url),
     303,
   );
   response.headers.set("Cache-Control", "no-store");

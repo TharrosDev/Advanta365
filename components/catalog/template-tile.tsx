@@ -36,6 +36,7 @@ export function TemplateTile({
   headingLevel = "h3",
   scroll = true,
   denied = false,
+  unlocked = false,
 }: {
   template: Template;
   phaseName?: string;
@@ -44,10 +45,14 @@ export function TemplateTile({
   headingLevel?: "h2" | "h3";
   scroll?: boolean;
   denied?: boolean;
+  /** The browser holds a licence: every tile opens, as a free sample's does. */
+  unlocked?: boolean;
 }) {
   const Heading = headingLevel;
   const typeLabel = DELIVERABLE_TYPE_LABELS[template.deliverableType];
   const free = template.free;
+  // A tile that opens its pop-up: a free sample's, or any tile for a buyer.
+  const open = free || unlocked;
 
   const facts = (
     <>
@@ -56,7 +61,7 @@ export function TemplateTile({
       </p>
       <p className={styles.tags}>
         <Tag>{template.format.toUpperCase()}</Tag>
-        {free ? <Tag variant="saving">Free sample</Tag> : null}
+        {free && !unlocked ? <Tag variant="saving">Free sample</Tag> : null}
       </p>
     </>
   );
@@ -65,8 +70,8 @@ export function TemplateTile({
     <article
       data-tile=""
       data-free={free ? "" : undefined}
-      data-locked={free ? undefined : ""}
-      data-denied={!free && denied ? "" : undefined}
+      data-locked={open ? undefined : ""}
+      data-denied={!open && denied ? "" : undefined}
       data-format={template.format}
       className={styles.tile}
     >
@@ -76,7 +81,7 @@ export function TemplateTile({
             type={template.deliverableType}
             format={template.format}
             size="md"
-            lit={free}
+            lit={open}
             title={template.title}
             summary={template.summary}
             phaseOrder={phaseOrder}
@@ -84,7 +89,7 @@ export function TemplateTile({
           />
         </div>
       </div>
-      {free ? (
+      {open ? (
         <>
           <Heading className={cx("type-ui", styles.title)}>
             <TransitionLink className={styles.link} href={href} scroll={scroll} prefetch={false}>

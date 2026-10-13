@@ -26,14 +26,10 @@ test("every page sends the security headers and the content security policy", as
   expect(headers["strict-transport-security"]).toBe("max-age=63072000");
 });
 
-test("the library and the licence link send no referrer and are not indexed", async ({
-  request,
-}) => {
-  for (const path of ["/library", "/licence?t=x"]) {
-    const headers = (await request.get(path, { maxRedirects: 0 })).headers();
-    expect(headers["referrer-policy"], path).toBe("no-referrer");
-    expect(headers["x-robots-tag"], path).toBe("noindex");
-  }
+test("the licence link sends no referrer and is not indexed", async ({ request }) => {
+  const headers = (await request.get("/licence?t=x", { maxRedirects: 0 })).headers();
+  expect(headers["referrer-policy"]).toBe("no-referrer");
+  expect(headers["x-robots-tag"]).toBe("noindex");
 });
 
 test("file addresses are not indexed", async ({ request }) => {

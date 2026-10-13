@@ -15,6 +15,8 @@ type ResultListProps = {
   phases: { slug: string; name: string }[];
   /** The slug of a locked template a link named: its tile is rendered already denied. */
   denied?: string;
+  /** The browser holds a licence: every tile opens. */
+  unlocked?: boolean;
 };
 
 /**
@@ -27,7 +29,7 @@ type ResultListProps = {
  * cards, a way in that needs no right word (below 68em the catalog's own strip of phases is that
  * way in, right above the sheet).
  */
-export function ResultList({ result, criteria, phases, denied }: ResultListProps) {
+export function ResultList({ result, criteria, phases, denied, unlocked }: ResultListProps) {
   const phaseNames = new Map(phases.map((phase) => [phase.slug, phase.name]));
   const phaseOrders = new Map(phases.map((phase, position) => [phase.slug, position + 1]));
 
@@ -84,6 +86,7 @@ export function ResultList({ result, criteria, phases, denied }: ResultListProps
               headingLevel="h2"
               scroll={false}
               denied={template.slug === denied}
+              unlocked={unlocked}
             />
           </li>
         ))}

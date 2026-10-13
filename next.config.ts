@@ -52,7 +52,7 @@ const SECURITY_HEADERS = [
   { key: "Strict-Transport-Security", value: "max-age=63072000" },
 ];
 
-/** The licence link and the library: the licence never travels on as a referrer, and nothing is indexed. */
+/** The licence link: the licence never travels on as a referrer, and the address is not indexed. */
 const PRIVATE_HEADERS = [
   { key: "Referrer-Policy", value: "no-referrer" },
   { key: "X-Robots-Tag", value: "noindex" },
@@ -64,7 +64,6 @@ const config: NextConfig = {
   async headers() {
     return [
       { source: "/:path*", headers: SECURITY_HEADERS },
-      { source: "/library", headers: PRIVATE_HEADERS },
       { source: "/licence", headers: PRIVATE_HEADERS },
       { source: "/api/:path*", headers: [{ key: "X-Robots-Tag", value: "noindex" }] },
     ];

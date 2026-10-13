@@ -19,7 +19,6 @@ const ROUTES = [
   "/refunds",
   "/accessibility",
   "/sample",
-  "/library",
 ];
 
 for (const path of ROUTES) {

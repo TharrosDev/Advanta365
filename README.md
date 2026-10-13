@@ -129,7 +129,7 @@ lib/
                       download responses
   licence/            Signed licences and the cookie they live in
   http/               The in-memory rate limiter
-app/licence/          The licence link: checks it, sets the cookie, goes on to /library
+app/licence/          The licence link: checks it, sets the cookie, goes on to the unlocked catalog
 app/api/              The file downloads: samples/ (free samples, for anyone) and library/ (with a licence)
 public/paper/         The paper grain
 scripts/              gen-icon, check-budgets, paper-grain and mint-licence
@@ -397,9 +397,10 @@ files.
   file answers 404 there, the same as a file that does not exist.
 - **Everything else** needs a licence. The owner turns an order code into a link with
   `node scripts/mint-licence.mjs A365-YYMMDD-XXXXXX` and sends it. Opening `/licence?t=…` once puts the
-  licence in an `HttpOnly` cookie (`__Host-a365-licence`, 400 days) and lands on `/library`, which lists every
-  file. `/api/library/<slug>/<file id>` serves a file to a browser holding a valid licence and answers 404
-  otherwise.
+  licence in an `HttpOnly` cookie (`__Host-a365-licence`, 400 days) and lands on the catalog. In that browser
+  every tile of the catalog and the phase pages is unlocked, and any template opens in the pop-up with its
+  files to download. `/api/library/<slug>/<file id>` serves a file to a browser holding a valid licence and
+  answers 404 otherwise, so a tile unlocked by hand in the page never unlocks a file.
 - A licence holds the order code and the time it was issued, signed with HMAC-SHA256, and nothing
   personal. It does not expire. To withdraw one, add its order code to `LICENCE_REVOKED`.
 - With no store configured, download buttons are hidden and the file routes answer 503.

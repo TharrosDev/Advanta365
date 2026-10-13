@@ -35,9 +35,8 @@ Related documents: `design-system.md` covers the visual rules and component usag
 | `/contact` | `app/(site)/contact/page.tsx` | Server, static | Title `Contact`; one section (`ContactSection`) and nothing else: the `h1`, the address `SITE.contactEmail` as a `mailto:` link, and four subjects to write about, each the same address with `?subject=`. No form and no endpoint |
 | `/privacy`, `/terms`, `/refunds`, `/accessibility` | `app/(site)/<name>/page.tsx` | Server, static | The four legal pages, the routes of `LEGAL_LINKS` in `lib/site.ts`: the privacy policy (with the cookies and browser storage as its section `#cookies`, and what is planned for the checkout under `#when-checkout-opens`), the terms of use and licence, the refund policy and the accessibility statement. Each page renders `LegalPage` with one `LegalDocument` from `lib/legal` and takes its title and description from it (section 5.3) |
 | `/sample` | `app/(site)/sample/page.tsx` | Server, reads phases and the worked example's contents | Title `Sample` |
-| `/phases/[phase]` | `app/(site)/phases/[phase]/page.tsx` | Static params for the 7 phases | `notFound()` for other slugs |
-| `/library` | `app/(site)/library/page.tsx` | Dynamic (reads the licence cookie and `searchParams`) | Title `Your toolkit`; not in the navigation, `noindex`. With a licence, every file by phase; without one, how to get one (section 3.8) |
-| `/licence` | `app/licence/route.ts` | Route handler (`GET`) | Checks `t`, sets the licence cookie, 303 to `/library` (or `/library?link=invalid`) |
+| `/phases/[phase]` | `app/(site)/phases/[phase]/page.tsx` | Params for the 7 phases; dynamic, because it reads the licence cookie | `notFound()` for other slugs; every tile opens for a browser holding a licence (section 3.8) |
+| `/licence` | `app/licence/route.ts` | Route handler (`GET`) | Checks `t`, sets the licence cookie, 303 to `/catalog` (or `/catalog?link=invalid`, which the catalog answers with a line above the results) |
 | `/api/samples/[slug]/[fileId]` | `app/api/samples/[slug]/[fileId]/route.ts` | Route handler (`GET`) | A free sample's file; 404 for any other |
 | `/api/library/[slug]/[fileId]` | `app/api/library/[slug]/[fileId]/route.ts` | Route handler (`GET`) | Any file, with a valid licence cookie; 404 without |
 | Unmatched paths | `app/(site)/[...rest]/page.tsx`, `app/(site)/not-found.tsx`, `app/not-found.tsx` | 404 | Site 404 keeps the shell; the root 404 renders `MissingPage` without it |
@@ -350,6 +349,7 @@ submitting it closes the pop-up and puts nothing in the address.
 | `lib/files/local-store.ts` | `createLocalStore(root)`: resolves a key with `realpath` and refuses anything outside the root, symbolic links included |
 | `lib/files/respond.ts` | `serveFile` (a 302 to `signedUrl` when the store has one, else the stream with `Content-Disposition: attachment`, `nosniff`, `noindex`, and `public, max-age=3600` for a free file or `private, no-store` for a licensed one), `notFound`, `tooMany`, `unavailable`, `contentDisposition` |
 | `lib/licence/token.ts` | `signLicence`, `verifyLicence`, `licenceEnv`, `ORDER_CODE`. Imports only `node:crypto`, so `scripts/mint-licence.mjs` runs it directly |
+| `lib/licence/session.ts` | `hasLicence()`: whether the request's cookie holds a valid licence (`next/headers`); the catalog and the phase pages call it |
 | `lib/licence/cookie.ts` | `LICENCE_COOKIE` (`__Host-a365-licence`), `LICENCE_COOKIE_MAX_AGE` (400 days), `readCookie` |
 | `lib/http/rate-limit.ts` | `createRateLimiter` (a fixed window per client, in memory, capped) and `clientKey` |
 
@@ -360,8 +360,11 @@ failure is the same `null`. It holds no name or email address, because it travel
 it does not expire.
 
 **The flow.** The buyer opens `/licence?t=<licence>`. A good licence is set as an `HttpOnly; Secure;
-SameSite=Lax` cookie on the whole host and the answer is a 303 to `/library`, so the licence leaves the address
-bar; both answers carry `Referrer-Policy: no-referrer`. `/library` reads the cookie on each request. A file
+SameSite=Lax` cookie on the whole host and the answer is a 303 to `/catalog`, so the licence leaves the address
+bar; both answers carry `Referrer-Policy: no-referrer`. The catalog and the phase pages read the cookie on
+each request (`hasLicence`, `lib/licence/session.ts`): with a licence every tile opens (`unlocked` on
+`TemplateTile`), `view` opens any template, and the pop-up (`licensed` on `TemplateDetail`) drops the sample
+tag and the purchase button and links its files to `/api/library`. That only decides what the page shows. A file
 route checks, in order: the rate limit (429), the licence for `/api/library` (404), the store (503), the
 template and file (404, and for `/api/samples` a template that is not free is 404 too), then serves the file.
 

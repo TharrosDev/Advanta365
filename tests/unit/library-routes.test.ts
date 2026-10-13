@@ -25,10 +25,10 @@ function download(slug: string, fileId: string, cookie?: string) {
 afterEach(() => vi.unstubAllEnvs());
 
 describe("GET /licence", () => {
-  test("a good link puts the licence in a cookie and goes to the library", async () => {
+  test("a good link puts the licence in a cookie and goes to the catalog", async () => {
     const response = await claimWith(`?t=${token()}`);
     expect(response.status).toBe(303);
-    expect(new URL(response.headers.get("location")!).pathname).toBe("/library");
+    expect(new URL(response.headers.get("location")!).pathname).toBe("/catalog");
     expect(new URL(response.headers.get("location")!).search).toBe("");
 
     const cookie = response.headers.get("set-cookie") ?? "";
@@ -46,11 +46,11 @@ describe("GET /licence", () => {
     ["a token that is not a licence", "?t=garbage"],
     ["no token", ""],
     ["an empty token", "?t="],
-  ])("%s goes to the library saying the link did not work, and sets nothing", async (_, query) => {
+  ])("%s goes to the catalog saying the link did not work, and sets nothing", async (_, query) => {
     const response = await claimWith(query);
     expect(response.status).toBe(303);
     const location = new URL(response.headers.get("location")!);
-    expect(location.pathname).toBe("/library");
+    expect(location.pathname).toBe("/catalog");
     expect(location.searchParams.get("link")).toBe("invalid");
     expect(response.headers.get("set-cookie")).toBeNull();
   });
