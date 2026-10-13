@@ -270,23 +270,23 @@ Display and lead sizes are `clamp()` tokens between a phone value and a desktop 
 
 ### Attributes that switch motion
 
-| Attribute                                         | Set by                                                 | Effect                                                                  |
-| ------------------------------------------------- | ------------------------------------------------------ | ----------------------------------------------------------------------- |
-| `html[data-motion="on"]`                          | Boot script                                            | Switches on the motion rules                                            |
-| `html[data-timeline="on"]`                        | Boot script, where the browser supports view timelines | Entrances follow the scroll                                             |
-| `html[data-io="armed"]`                           | `MotionRoot`, once the observer starts                 | Entrances on browsers without view timelines                            |
-| `html[data-intro]`                                | Boot script                                            | The cover: `play` or `leave`; the attribute is removed at the end       |
-| `data-move` (`drift`, `ink-in`, `settle`, `grow`) | `Appear`, `Sentences`                                  | The entrance of an element; `data-when="load"` plays it on load instead |
-| `data-paper`, `data-lit`                          | `PaperSheet` (the `lit` prop)                          | The sheet's shadow, its lift and its tilt toward the pointer            |
-| `data-bar`                                        | `Header`                                               | The shadow under the sticky bar                                         |
-| `data-ledger`                                     | `BandedList`                                           | The rule of a ledger draws in                                           |
-| `data-ninety`                                     | The solution band (`components/home/pitch-spread.tsx`) | The ten blocks fill; the 90% figure never moves                         |
-| `data-watch`                                      | `Tally` with `animate`, `PriceTag`                     | The blocks fill, or the tag swings, when the element is seen            |
-| `data-hero-stage`, `data-hero-doc`                | `HeroStage`                                            | A document under the pointer or the keyboard straightens                |
-| `data-tile` `data-denied`                         | `TemplateTile`, `LockedTile`                           | A locked tile says no: it vibrates, its outline and wash hit and fade   |
-| `data-page-dialog` `data-enter`                   | `PageDialog` (the catalog's pop-up, the checkout)      | The pop-up rises as the page dims                                       |
-| `data-price-tag`                                  | `PriceTag`                                             | The tag swings on its string                                            |
-| `data-nav-underline`                              | `PrimaryNav`                                           | The bar's underline slides to the current link                          |
+| Attribute                                              | Set by                                                 | Effect                                                                                             |
+| ------------------------------------------------------ | ------------------------------------------------------ | -------------------------------------------------------------------------------------------------- |
+| `html[data-motion="on"]`                               | Boot script                                            | Switches on the motion rules                                                                       |
+| `html[data-timeline="on"]`                             | Boot script, where the browser supports view timelines | Entrances follow the scroll                                                                        |
+| `html[data-io="armed"]`                                | `MotionRoot`, once the observer starts                 | Entrances on browsers without view timelines                                                       |
+| `html[data-intro]`                                     | Boot script                                            | The cover: `play` or `leave`; the attribute is removed at the end                                  |
+| `data-move` (`drift`, `ink-in`, `settle`, `grow`)      | `Appear`, `Sentences`                                  | The entrance of an element; `data-when="load"` plays it on load instead                            |
+| `data-paper`, `data-lit`                               | `PaperSheet` (the `lit` prop)                          | The sheet's shadow, its lift and its tilt toward the pointer                                       |
+| `data-bar`                                             | `Header`                                               | The shadow under the sticky bar                                                                    |
+| `data-ledger`                                          | `BandedList`                                           | The rule of a ledger draws in                                                                      |
+| `data-ninety`                                          | The solution band (`components/home/pitch-spread.tsx`) | The ten blocks fill; the 90% figure never moves                                                    |
+| `data-watch`                                           | `Tally` with `animate`, `PriceTag`                     | The blocks fill, or the tag swings, when the element is seen                                       |
+| `data-hero-stage`, `data-hero-prompt`, `data-hero-doc` | `HeroStage`                                            | The prompt box dissolves and the documents land; one under the pointer or the keyboard straightens |
+| `data-tile` `data-denied`                              | `TemplateTile`, `LockedTile`                           | A locked tile says no: it vibrates, its outline and wash hit and fade                              |
+| `data-page-dialog` `data-enter`                        | `PageDialog` (the catalog's pop-up, the checkout)      | The pop-up rises as the page dims                                                                  |
+| `data-price-tag`                                       | `PriceTag`                                             | The tag swings on its string                                                                       |
+| `data-nav-underline`                                   | `PrimaryNav`                                           | The bar's underline slides to the current link                                                     |
 
 Entrances follow the scroll where view timelines exist and fall back to an intersection observer elsewhere.
 Every animation sits behind the no-preference query, and the stylesheet forces durations to 0.01ms under
@@ -297,7 +297,9 @@ reduced motion.
 A first visit to `/` in a browser session plays a cover. It draws the mark in pen strokes, then the 365 on
 the arm of the mark in a finer pen, and shows the site name. The finished mark stands from 1.0 to 2.5
 seconds, and the cover is gone at 2.95 seconds. A press, a key, a wheel turn or a touch ends it. Reduced
-motion skips it. The hero has no sequence of its own: its six documents stand from the first frame.
+motion skips it. The hero then plays its sequence: an empty prompt box blinks, dissolves, and the six
+documents land by 2.4 seconds. Under reduced motion or without a script there is no box and the documents
+stand from the start.
 
 ## Replacing the sample content
 

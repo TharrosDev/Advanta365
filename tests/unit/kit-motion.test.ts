@@ -173,7 +173,11 @@ describe(FILE, () => {
         ),
       )
       .map((block) => block.prelude);
-    expect(blurred).toEqual([]);
+    // The one blur of the sheet is not an entrance and has no words in it: the hero's empty prompt
+    // box, which dissolves as it leaves. Its rule names the box and nothing else.
+    const leaving = blurred.filter((prelude) => prelude.endsWith("[data-hero-prompt]"));
+    expect(leaving).toHaveLength(1);
+    expect(blurred.filter((prelude) => !leaving.includes(prelude))).toEqual([]);
     // Nothing with a `data-move` entrance is ever blurred, in a rule or in its keyframes.
     const entranceFrames = blocks.filter(
       (block) =>

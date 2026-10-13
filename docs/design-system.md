@@ -457,7 +457,7 @@ Entrance kinds:
 | `data-well` | `TemplateTile` | The well of a tile: its `::before` is the red wash of a denied tile, animated by opacity. |
 | `data-page-dialog`, `data-enter` | `PageDialog` | A pop-up: the catalog's (`data-template-dialog`) or the checkout (`data-checkout-dialog`); `data-enter` is on one that a link inside the site opened, which rises into place. |
 | `data-checkout-step`, `data-checkout-progress` | `CheckoutDialog` | A step of the checkout, which settles 10px into place when the visitor moves to it (`data-enter`), and the line under the bar, which grows to the current step. |
-| `data-hero-stage`, `data-hero-doc` | `HeroStage` | The hero's hand of six documents; one under the pointer or the keyboard straightens over `--time-lift`. They stand from the first frame. |
+| `data-hero-stage`, `data-hero-prompt`, `data-hero-doc` | `HeroStage` | The hero's prompt box and hand of six documents. Where movement is wanted the box blinks for 700ms, dissolves by 1500ms, and the documents land from 1300ms, 110ms apart; under reduced motion or without a script there is no box. One under the pointer or the keyboard straightens over `--time-lift`. |
 | `data-lit-scope` | Read by the pointer tracker | Scope for a group of lit sheets that is not an article (the Purchase page's contents leaf, the Why Advanta page's toolkit sheet and the pop-up's cover each stand in one, and so does each of the hero's documents); the scope stands where the sheet rests, so a lifted sheet does not drop and lift again under a pointer at its lower edge; read by `lib/scroll/pointer.ts` and the lit selectors in `app/motion.css`. |
 
 ### 8.6 Sheets and the pointer

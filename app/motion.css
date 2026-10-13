@@ -12,7 +12,8 @@
  *   [data-tile][data-denied], [data-well]          a locked tile saying no, its vibration and wash
  *   [data-page-dialog][data-enter]                 a pop-up (a free sample, the checkout) arriving
  *   [data-checkout-step], [data-checkout-progress] a step of the checkout arriving, and its line
- *   [data-hero-stage]                              the hero: its documents straighten under the pointer
+ *   [data-hero-stage], [data-hero-prompt],
+ *   [data-hero-doc]                                the hero: a prompt box that becomes documents
  *
  * Three attributes on the root element, set by the boot script before first paint, are the only
  * switches: `data-motion="on"` (movement is wanted), `data-timeline="on"` (view timelines exist)
@@ -22,7 +23,8 @@
  *
  * Every animation and transition sits inside the no-preference query, with the final state
  * outside it. Keyframes name the starting state only: the end is whatever the element is. Nothing
- * repeats. No custom property is animated and no shadow
+ * repeats, with one exception: the caret of the hero's prompt box blinks three times inside one
+ * run of `hero-caret-blink`, and then stands. No custom property is animated and no shadow
  * changes: a shadow that comes or goes is a second shadow on a pseudo-element whose opacity moves.
  * `animation-timeline` and `animation-range` are written after the `animation` shorthand, which
  * would reset them.
@@ -69,6 +71,15 @@
   :is(article, [data-lit-scope]):hover [data-lit]::after {
     opacity: 1;
   }
+}
+
+/*
+ * The prompt box of the hero (components/home/hero-stage.tsx) exists for its sequence only.
+ * Without movement or without a script the box is not displayed and the documents stand where it
+ * would have been.
+ */
+[data-hero-prompt] {
+  display: none;
 }
 
 @media (prefers-reduced-motion: no-preference) {
@@ -609,6 +620,95 @@
 
   [data-checkout-progress] {
     transition: scale var(--time-settle) var(--curve-settle);
+  }
+
+  /*
+   * The hero's stage (components/home/hero-stage.tsx): a blank prompt becomes finished work. It
+   * plays wherever movement is wanted (`data-motion="on"`), once per mount of the stage: a load,
+   * or a return to the home page inside the site.
+   *
+   * One clock, which starts when the root element has no `data-intro`: at load, or when the cover
+   * of a first visit has gone.
+   *
+   *      0 to  700ms  the box stands empty, its caret blinking
+   *    700 to 1500ms  the box dissolves
+   *   1300ms on       the documents land, the middle ones first, 110ms apart and 560ms each,
+   *                   opaque from their first frames, from a little above and a little large,
+   *                   their lifted shadows coming to rest with them; the last is down at 2410ms
+   *
+   * Under the cover the page is already in its opening state: the box there, its caret solid, the
+   * documents out of sight (and out of reach of the keyboard). Each end state is the element's
+   * own, so the box stays gone and the documents stay.
+   */
+  @keyframes hero-prompt-out {
+    from {
+      visibility: visible;
+      opacity: 1;
+      filter: none;
+      scale: 1;
+    }
+  }
+
+  /* On for 300ms, off for 200, three times: it is on when the box is first seen. */
+  @keyframes hero-caret-blink {
+    0%,
+    33.3%,
+    66.6% {
+      opacity: 1;
+    }
+
+    20%,
+    53.3%,
+    86.6% {
+      opacity: 0;
+    }
+  }
+
+  @keyframes hero-doc-in {
+    from {
+      visibility: hidden;
+      translate: 0 -1.75rem;
+      scale: 1.06;
+    }
+  }
+
+  @keyframes hero-doc-show {
+    from {
+      opacity: 0;
+    }
+  }
+
+  html[data-motion="on"] [data-hero-prompt] {
+    display: grid;
+  }
+
+  html[data-motion="on"]:not([data-intro]) [data-hero-prompt] {
+    visibility: hidden;
+    opacity: 0;
+    filter: blur(12px);
+    scale: 1.05;
+    animation: hero-prompt-out 800ms var(--curve-leave) 700ms backwards;
+  }
+
+  html[data-motion="on"]:not([data-intro]) [data-hero-prompt] [data-caret] {
+    animation: hero-caret-blink 1500ms steps(1, end);
+  }
+
+  html[data-motion="on"][data-intro] [data-hero-doc] {
+    visibility: hidden;
+    opacity: 0;
+  }
+
+  html[data-motion="on"]:not([data-intro]) [data-hero-doc] {
+    animation:
+      hero-doc-in var(--time-settle) var(--curve-drop) backwards,
+      hero-doc-show 90ms linear backwards;
+    animation-delay: calc(1300ms + var(--i, 0) * 110ms);
+  }
+
+  html[data-motion="on"]:not([data-intro]) [data-hero-doc] [data-paper]::after {
+    animation: move-shadow var(--time-settle) var(--curve-settle) backwards;
+    animation-delay: calc(1300ms + var(--i, 0) * 110ms);
   }
 
   /* A document under the pointer or the keyboard straightens in the time of a lift. */
