@@ -23,6 +23,16 @@ export const designTemplates = sample("design", [
       "Naming convention examples",
       "Policy summary for site owners",
     ],
+    // Test fixture files (tests/fixtures/files), not real downloads.
+    files: [
+      {
+        id: "framework",
+        name: "SharePoint Governance Framework.docx",
+        key: "design/sharepoint-governance-framework/sharepoint-governance-framework.docx",
+        bytes: 62,
+        sha256: "bf1a91a890e5daf64db43694f2d6d66b800b4cd9ac9162627c2fa18dfbf6d415",
+      },
+    ],
   },
   {
     slug: "site-lifecycle-and-retention-policy",

@@ -74,3 +74,17 @@ export function formatLength(count: number, format: string): string {
   const unit = format === "pptx" ? "slide" : "page";
   return `${count} ${unit}${count === 1 ? "" : "s"}`;
 }
+
+const KIB = 1024;
+const MIB = 1024 * 1024;
+
+/**
+ * A file's size as a download list shows it: whole KB, rounded up and never below 1 KB, under a
+ * megabyte; MB from there, with one decimal under 10 MB ("2.3 MB") and whole above ("15 MB").
+ */
+export function formatBytes(bytes: number): string {
+  if (bytes < MIB) return `${Math.max(1, Math.ceil(bytes / KIB))} KB`;
+  const megabytes = bytes / MIB;
+  if (megabytes >= 10) return `${Math.round(megabytes)} MB`;
+  return `${Number(megabytes.toFixed(1))} MB`;
+}

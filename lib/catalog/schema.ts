@@ -1,5 +1,6 @@
 import { z } from "zod";
 import { ADKAR, APPS, AUDIENCES, DELIVERABLE_TYPES, FORMATS } from "@/content/taxonomy";
+import { extensionOf } from "@/lib/files/types";
 
 const slug = z.string().regex(/^[a-z0-9]+(-[a-z0-9]+)*$/, "must be lower-case kebab");
 const text = z.string().trim().min(1);
@@ -19,6 +20,28 @@ export const PhaseSchema = z.object({
   steps: z.array(StepSchema).min(1),
 });
 
+/**
+ * One file a template is delivered as. `key` is where the file store keeps it and is never shown;
+ * `name` is the file name the buyer saves; `id` names the file in its download address.
+ */
+export const TemplateFileSchema = z.object({
+  id: slug,
+  name: z
+    .string()
+    .max(120)
+    .regex(/^[A-Za-z0-9][A-Za-z0-9 ._()-]*$/, "must be letters, digits, spaces and . _ ( ) -")
+    .refine((name) => extensionOf(name) !== undefined, "must end in an allowed extension"),
+  key: z
+    .string()
+    .regex(/^[a-z0-9._-]+(\/[a-z0-9._-]+)*$/, "must be lower-case segments joined by /")
+    .refine(
+      (key) => key.split("/").every((segment) => segment !== "." && segment !== ".."),
+      "must not contain . or .. segments",
+    ),
+  bytes: z.number().int().positive(),
+  sha256: z.string().regex(/^[0-9a-f]{64}$/, "must be 64 lower-case hex characters"),
+});
+
 export const TemplateSchema = z.object({
   slug,
   title: text,
@@ -36,11 +59,14 @@ export const TemplateSchema = z.object({
   /** One of the six samples given away; every other template is part of the toolkit. */
   free: z.boolean(),
   isSample: z.boolean(),
+  /** The files a buyer downloads. A real record has at least one; a sample may have none. */
+  files: z.array(TemplateFileSchema).default([]),
 });
 
 export type Step = z.infer<typeof StepSchema>;
 export type Phase = z.infer<typeof PhaseSchema>;
 export type Template = z.infer<typeof TemplateSchema>;
+export type TemplateFile = z.infer<typeof TemplateFileSchema>;
 export type DeliverableType = Template["deliverableType"];
 export type App = Template["apps"][number];
 export type Audience = Template["audiences"][number];

@@ -17,6 +17,16 @@ export const executeTemplates = sample("execute", [
     description:
       "A Go/No-Go checklist that covers the people side as well as the technical side. Each item has an owner and evidence required.",
     includes: ["Readiness checklist", "Go/No-Go decision summary", "Evidence log"],
+    // Test fixture files (tests/fixtures/files), not real downloads.
+    files: [
+      {
+        id: "checklist",
+        name: "Go-No-Go Decision Checklist.xlsx",
+        key: "execute/go-live-readiness-checklist/go-live-readiness-checklist.xlsx",
+        bytes: 58,
+        sha256: "f04da623d76f6c8e25f0cad127cf5cf2c4e53ab2f42b02d914e89190c9fcf390",
+      },
+    ],
   },
   {
     slug: "sharepoint-cutover-playbook",

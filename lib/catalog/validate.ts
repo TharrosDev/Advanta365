@@ -60,6 +60,22 @@ export function validateCatalog(input: { phases: unknown[]; templates: unknown[]
     }
   }
 
+  const keys = new Set<string>();
+  for (const template of templates) {
+    if (!template.isSample && template.files.length === 0) {
+      throw new CatalogError(`Template "${template.slug}" is not a sample and has no files`);
+    }
+    const ids = new Set<string>();
+    for (const file of template.files) {
+      if (ids.has(file.id)) {
+        throw new CatalogError(`Duplicate file id "${file.id}" in template "${template.slug}"`);
+      }
+      ids.add(file.id);
+      if (keys.has(file.key)) throw new CatalogError(`Duplicate file key "${file.key}"`);
+      keys.add(file.key);
+    }
+  }
+
   const freeCount = templates.filter((template) => template.free).length;
   if (freeCount !== FREE_SAMPLE_COUNT) {
     throw new CatalogError(

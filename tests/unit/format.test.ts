@@ -1,6 +1,6 @@
 import { expect, test } from "vitest";
 import { FREE_SAMPLE_COUNT } from "@/lib/catalog/validate";
-import { countWord, formatLength, formatPrice, formatPriceParts } from "@/lib/format";
+import { countWord, formatBytes, formatLength, formatPrice, formatPriceParts } from "@/lib/format";
 import { OFFER } from "@/lib/site";
 
 const NB = " ";
@@ -59,4 +59,17 @@ test("a deck's length is counted in slides", () => {
 test("every other format's length is counted in pages", () => {
   expect(formatLength(22, "docx")).toBe("22 pages");
   expect(formatLength(1, "pdf")).toBe("1 page");
+});
+
+test("file sizes read in KB below a megabyte, rounded up and never below 1 KB", () => {
+  expect(formatBytes(1)).toBe("1 KB");
+  expect(formatBytes(512)).toBe("1 KB");
+  expect(formatBytes(24_576)).toBe("24 KB");
+  expect(formatBytes(24_577)).toBe("25 KB");
+});
+
+test("file sizes read in MB from a megabyte, with one decimal under 10 MB", () => {
+  expect(formatBytes(1_048_576)).toBe("1 MB");
+  expect(formatBytes(2_400_000)).toBe("2.3 MB");
+  expect(formatBytes(15_728_640)).toBe("15 MB");
 });

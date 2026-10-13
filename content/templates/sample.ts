@@ -1,3 +1,5 @@
+import type { TemplateFile } from "@/lib/catalog/schema";
+
 type SampleInput = {
   slug: string;
   title: string;
@@ -12,6 +14,7 @@ type SampleInput = {
   summary: string;
   description: string;
   includes: string[];
+  files?: TemplateFile[];
 };
 
 /** Marks a phase's entries as sample content. Real catalog entries should not use this helper. */

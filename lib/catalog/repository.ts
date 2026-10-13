@@ -1,7 +1,7 @@
 import { phases as rawPhases } from "@/content/phases";
 import { templates as rawTemplates } from "@/content/templates";
 import { workedExampleContents } from "@/content/worked-example";
-import type { Phase, Template } from "./schema";
+import type { Phase, Template, TemplateFile } from "./schema";
 import { validateCatalog } from "./validate";
 import { contentsRows, type ContentsRow } from "./worked-example";
 
@@ -45,6 +45,21 @@ export async function getRelatedTemplates(slug: string, limit = 4): Promise<Temp
     ...samePhase.filter((t) => t.step === source.step),
     ...samePhase.filter((t) => t.step !== source.step),
   ].slice(0, limit);
+}
+
+/** A template and one of its files, by the template's slug and the file's id. */
+export async function getTemplateFile(
+  slug: string,
+  fileId: string,
+): Promise<{ template: Template; file: TemplateFile } | undefined> {
+  const template = templatesBySlug.get(slug);
+  const file = template?.files.find((candidate) => candidate.id === fileId);
+  return template && file ? { template, file } : undefined;
+}
+
+/** Every template that has files to download, in catalog order. */
+export async function getTemplatesWithFiles(): Promise<Template[]> {
+  return catalog.templates.filter((t) => t.files.length > 0);
 }
 
 export async function hasSampleContent(): Promise<boolean> {
