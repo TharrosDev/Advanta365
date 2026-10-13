@@ -169,7 +169,7 @@
 }
 
 /*
- * 84px high on a phone, 112px from 40em; the width follows the 4:3 view box. On a large monitor
+ * 84px high on a phone, 112px from 40em; the width follows the 3:2 view box. On a large monitor
  * from 68em the signature grows with the window, to an eighth of its height (and no more than 7%
  * of its width), so that it stands in the paper as it does on a desktop and not as a speck: that
  * is more than 112px only from about 1700px of window. The name beneath it keeps its proportion.
@@ -182,7 +182,7 @@
   display: block;
   width: auto;
   height: var(--mark-h);
-  aspect-ratio: 4 / 3;
+  aspect-ratio: 3 / 2;
 }
 
 @media (min-width: 40em) {

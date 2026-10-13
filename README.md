@@ -48,6 +48,7 @@ The scripts in `scripts/` have no package script. Run them by path from the repo
 
 | Command                                                | What it does                                                                                                                       |
 | ------------------------------------------------------ | ---------------------------------------------------------------------------------------------------------------------------------- |
+| `node scripts/gen-icon.mjs`                            | Writes `app/icon.svg` from the mark in `lib/brand/mark.ts` (run it after any change to the mark)                                   |
 | `node scripts/ink-stills.mjs`                          | Captures the thirteen stills into `public/ink/` (needs a production build and a graphics card)                                     |
 | `node scripts/ink-stills.mjs --check`                  | Checks that each still keeps its contrast caps under the calm zones, at seven widths                                               |
 | `node scripts/ink-stills.mjs --blue`                   | Checks that the light blue of the ink stays light                                                                                  |
@@ -82,7 +83,7 @@ app/
   layout.tsx          Root html and body: the two fonts, the boot script and MotionRoot
   globals.css         Design tokens, the data-band surfaces, base rules and the type classes
   motion.css          Motion: entrances, the ninety, page changes and the pointer's light
-  icon.svg            The site icon
+  icon.svg            The site icon (generated: `node scripts/gen-icon.mjs`)
   not-found.tsx       The 404 page outside the site group, with the ink layer
   (site)/             Public pages inside the site shell
     layout.tsx        Skip link, header, phase rail, main, footer, ink layer
