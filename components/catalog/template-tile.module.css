@@ -22,7 +22,7 @@
 /*
  * The tile: a column, as tall as its row, with no ground and no border of its own. In the document
  * the title comes first after the cover; on the page the phase and type stand above it. The
- * outline is always there and takes a colour for keyboard focus and for the denied state.
+ * outline is always there and takes a colour for keyboard focus.
  */
 .tile {
   position: relative;
@@ -54,16 +54,17 @@
 }
 
 /*
- * The red of a denied tile: a wash over the well's ground and under its cover, kept as a layer of
- * its own so that it can fade in and out by its opacity (app/motion.css) and the ground never has
- * to change.
+ * The red of a denied tile: a thin ring on the edge of the well, under its cover, kept as a layer
+ * of its own so that it can fade in and out by its opacity (app/motion.css). The well's ground
+ * never changes.
  */
 .well::before {
   content: "";
   position: absolute;
   inset: 0;
   z-index: -1;
-  background: var(--alert-wash);
+  border: var(--edge) solid var(--alert);
+  border-radius: inherit;
   opacity: 0;
   pointer-events: none;
 }
@@ -87,11 +88,13 @@
 }
 
 /*
- * Locked: the cover is out of focus. Nothing else in the tile ever is. The blur is 6px at the
- * root size and grows with it, so a tile on a large monitor hides its cover as well as a small one.
+ * Locked: the cover is out of focus and drained of most of its colour, so it reads as a sheet set
+ * back on the desk rather than a smeared picture. Nothing else in the tile ever is. The blur is
+ * 4px at the root size and grows with it, so a tile on a large monitor hides its cover as well as
+ * a small one.
  */
 .tile[data-locked] .cover {
-  filter: blur(0.375rem);
+  filter: blur(0.25rem) saturate(0.35) opacity(0.75);
 }
 
 .meta {
@@ -150,14 +153,10 @@
 }
 
 /*
- * Denied: the outline is the alert colour and the well is washed with it for as long as the state
- * lasts. Where movement is on, app/motion.css plays the denial over this and it ends at rest; this
- * is what stands under reduced motion and without a script.
+ * Denied: the well is ringed in the alert colour for as long as the state lasts. Where movement is
+ * on, app/motion.css plays the denial over this and it ends at rest; this is what stands under
+ * reduced motion and without a script.
  */
-.tile[data-denied] {
-  outline-color: var(--alert);
-}
-
 .tile[data-denied] .well::before {
   opacity: 1;
 }

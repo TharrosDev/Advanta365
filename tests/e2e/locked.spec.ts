@@ -3,9 +3,9 @@ import { hydrated, NAVIGATION_TIMEOUT } from "./helpers";
 
 // Every template that is not a free sample is locked: its cover is out of focus, and the tile is a
 // button. Nothing is drawn over the cover. Pressing the tile does not open anything. The tile says
-// no: for 600ms it carries `data-denied` (a red outline that pulses, a shake, a red wash), and a
-// line under it says where the template is to be had. Under reduced motion the outline, the wash
-// and the line are all of it.
+// no: for 600ms it carries `data-denied` (a sideways shake and a thin red ring on its cover well
+// that hits and fades), and a line under it says where the template is to be had. Under reduced
+// motion the ring and the line are all of it.
 
 const ALERT = "rgb(163, 43, 29)";
 const LOCKED_SLUG = "sharepoint-migration-impact-assessment";
@@ -159,29 +159,26 @@ test("five fast presses start the denial over each time and leave one line", asy
   await expect(message(tile)).toHaveText(/^Included with the toolkit\.\s*Purchase$/);
 });
 
-test("while it denies, the tile shakes and the outline and wash pulse red", async ({ page }) => {
+test("while it denies, the tile shakes and its well's ring pulses red", async ({ page }) => {
   await openCatalog(page);
   const tile = lockedTiles(page).first();
   // The state is set by hand and everything is read in the same breath, before any of it is over.
-  const { names, outline, timing } = await tile.evaluate((element) => {
+  const { names, timing } = await tile.evaluate((element) => {
     element.setAttribute("data-denied", "");
     return {
       names: {
         tile: getComputedStyle(element).animationName,
-        wash: getComputedStyle(element.querySelector("[data-well]") as Element, "::before")
+        ring: getComputedStyle(element.querySelector("[data-well]") as Element, "::before")
           .animationName,
       },
-      outline: getComputedStyle(element).outlineStyle,
       timing: element.getAnimations({ subtree: true }).map((animation) => {
         const computed = animation.effect?.getComputedTiming();
         return { end: Number(computed?.endTime ?? 0), iterations: computed?.iterations };
       }),
     };
   });
-  expect(names.tile).toContain("tile-shake");
-  expect(names.tile).toContain("denied-pulse");
-  expect(names.wash).toBe("denied-wash");
-  expect(outline).toBe("solid");
+  expect(names.tile).toBe("tile-shake");
+  expect(names.ring).toBe("denied-ring");
 
   // Nothing of it goes on: every animation of the tile ends, well inside the 600ms.
   expect(timing.length).toBeGreaterThanOrEqual(2);
@@ -191,29 +188,35 @@ test("while it denies, the tile shakes and the outline and wash pulse red", asyn
   }
 });
 
-test("under reduced motion the denial is the red outline and the line, and nothing moves", async ({
+test("under reduced motion the denial is the red ring and the line, and nothing moves", async ({
   page,
 }) => {
   await page.emulateMedia({ reducedMotion: "reduce" });
   await openCatalog(page);
   const tile = lockedTiles(page).first();
 
-  // The state is set by hand, so that it holds while the styles are read. Under reduced motion a
-  // change of colour still takes the hundredth of a millisecond the safety net leaves it, so the
-  // reading waits a moment for the colour to have arrived.
+  // The state is set by hand, so that it holds while the styles are read. The ring is on the
+  // well, not the tile: the tile's outline stays its focus ring.
   await tile.evaluate((element) => element.setAttribute("data-denied", ""));
-  await expect(tile).toHaveCSS("outline-color", ALERT);
   const look = await tile.evaluate((element) => {
-    const well = element.querySelector("[data-well]") as Element;
+    const ring = getComputedStyle(element.querySelector("[data-well]") as Element, "::before");
     return {
       tile: getComputedStyle(element).animationName,
-      wash: getComputedStyle(well, "::before").animationName,
-      style: getComputedStyle(element).outlineStyle,
-      colour: getComputedStyle(element).outlineColor,
+      ring: ring.animationName,
+      opacity: ring.opacity,
+      colour: ring.borderTopColor,
+      outline: getComputedStyle(element).outlineColor,
       running: element.getAnimations({ subtree: true }).length,
     };
   });
-  expect(look).toEqual({ tile: "none", wash: "none", style: "solid", colour: ALERT, running: 0 });
+  expect(look).toEqual({
+    tile: "none",
+    ring: "none",
+    opacity: "1",
+    colour: ALERT,
+    outline: "rgba(0, 0, 0, 0)",
+    running: 0,
+  });
   await tile.evaluate((element) => element.removeAttribute("data-denied"));
 
   // The press itself works as it does with motion.
@@ -356,7 +359,11 @@ test.describe("without JavaScript", () => {
     await expect(tile.getByRole("button")).toHaveAccessibleName(LOCKED_NAME);
     await expect(message(tile)).toContainText("Included with the toolkit.");
     await expect(message(tile).getByRole("link")).toHaveAttribute("href", "/purchase");
-    await expect(tile).toHaveCSS("outline-color", ALERT);
+    const ring = await tile.evaluate((element) => {
+      const style = getComputedStyle(element.querySelector("[data-well]") as Element, "::before");
+      return { opacity: style.opacity, colour: style.borderTopColor };
+    });
+    expect(ring).toEqual({ opacity: "1", colour: ALERT });
   });
 });
 

@@ -431,7 +431,7 @@ Tokens live in `app/globals.css` under `:root`. The file also imports `app/motio
 | Paper and ink | `--desk`, `--paper`, `--desk-deep`, `--rule`, `--rule-firm`, `--ink`, `--ink-soft`, `--ink-faint` |
 | Mark | `--mark` (#86c1ff), `--mark-deep` (#5fa8f5), `--mark-wash` (#eaf4ff), `--on-mark` (ink), `--on-ink` |
 | Binder (footer) | `--binder`, `--binder-rise`, `--on-binder`, `--on-binder-soft`, `--rule-on-binder` |
-| Errors | `--alert`, `--alert-wash` (also the outline and the wash over the well of a locked tile that says no) |
+| Errors | `--alert`, `--alert-wash` (`--alert` is also the ring on the well of a locked tile that says no) |
 | Page-size folder | `--card-light`, `--pocket-shade` |
 | Overlays | `--scrim`, `--bar-shadow` |
 | Elevation | `--depth-0` to `--depth-4` |
@@ -682,7 +682,7 @@ animated property sits inside `@media (prefers-reduced-motion: no-preference)`. 
 | `data-folder`, `data-folder-scope` | `Folder`, an element around one | The folder whose sheets rise under the pointer; the scope in which keyboard focus raises them too |
 | `data-nav-underline` | `PrimaryNav` | The bar's underline slides to the current link (`translate`, `--time-lift`), and grows when it first appears |
 | `data-price-tag` | `PriceTag` | Swings once when first seen (1700 ms, after 240 ms), and its contents again when the folder is hovered (1200 ms) |
-| `data-tile` with `data-denied` | `TemplateTile`, `LockedTile` | A locked tile saying no for 600 ms: `tile-shake` (3px decaying to rest, 13 keyframes 33 ms apart on a linear timing, 467 ms, with 1px or less of Y and 0.3 degrees or less of rotate), `denied-pulse` (the outline hits `--alert` and fades, 560 ms, fill forwards), `denied-wash` (opacity of the well's `::before`, 560 ms). They play only where `html[data-motion="on"]`; under reduced motion and without a script the static outline and wash stand for as long as the state does |
+| `data-tile` with `data-denied` | `TemplateTile`, `LockedTile` | A locked tile saying no for 600 ms: `tile-shake` (sideways only, five swings from 6px to rest on `ease-in-out`, 440 ms), `denied-ring` (opacity of the well's `::before`, a 2px `--alert` border, 560 ms, fill forwards). They play only where `html[data-motion="on"]`; under reduced motion and without a script the static ring stands for as long as the state does. The tile's outline is never animated, so it stays the focus ring |
 | `data-page-dialog` with `data-enter` | `PageDialog` (the pop-up of the catalog and the checkout) | The pop-up rises 14px as the page dims (`dialog-in` 320 ms, `scrim-in`) when a link inside the site opened it |
 | `data-checkout-step` with `data-enter`, `data-checkout-progress` | `CheckoutDialog` | A step the visitor moved to settles 10px into place (`checkout-step-in`, `--time-enter`); the line under the bar grows to the current step |
 | `data-hero-stage`, `data-hero-prompt`, `data-hero-doc` | `HeroStage` | The prompt box dissolves and the documents land (section 7.7); a document under the pointer or keyboard straightens over `--time-lift` |
@@ -874,14 +874,14 @@ control and no price.
 - A free tile (`data-free`) has a "Free sample" tag and its title is a link to `catalogHref(criteria, slug)`,
   stretched over the tile, with `scroll={false}` and `prefetch={false}`. The tiles of the six samples on the
   home page and of a free template on a phase page link to `/catalog?view=<slug>`.
-- A locked tile (`data-locked`) has a blurred cover with nothing drawn over it; only the cover is
+- A locked tile (`data-locked`) has a blurred, desaturated cover with nothing drawn over it; only the cover is
   blurred, the title and summary stay readable. Its control is a `<button>` named "<title>, locked" (`LockedTile`).
   Pressing it sets `data-denied` on the tile for 600 ms (a press while it is set takes it away and puts it
   back) and puts one line in a polite live region under the tile: "Included with the toolkit." with a link to
   `/purchase`. Each press renders that line anew, so it is announced once per press and never stacked. The line
-  stands in the row gap (56px), so nothing moves when it arrives. A tile that holds keyboard focus keeps its
-  focus ring in place of the red pulse (the tile's outline is its only focus mark). Under reduced motion the red
-  outline (the focus ring, on a focused tile), the wash over the well and the line remain and nothing moves; under `prefers-contrast: more` and forced colours the blur stays (it is the one mark of a locked tile) and the
+  stands in the row gap (56px), so nothing moves when it arrives. The red is a ring on the cover well, not
+  the tile's outline, so a tile that holds keyboard focus keeps its focus ring. Under reduced motion the
+  ring and the line remain and nothing moves; under `prefers-contrast: more` and forced colours the blur stays (it is the one mark of a locked tile) and the
   well gets an edge.
 - `view` naming a free sample renders `TemplateDialog` with `TemplateDetail`. The server sends `<dialog open>`,
   drawn where the modal one stands and with the page dimmed around it, so the content shows before the script
@@ -1042,7 +1042,7 @@ Specs:
 |---|---|---|
 | `browse.spec.ts` | chromium, mobile, firefox | Home to a phase and on to its free sample; the hero to the six samples; the worked example; no horizontal overflow on 8 routes |
 | `catalog.spec.ts` | chromium, mobile | The grid of tiles; six free first, the rest locked; the canonical address; no price anywhere; "Free samples only"; the sort options; filters, chips, URL restore, search, phase order and the lit phase, empty states, malformed parameters, the sort select keeping the picked option while the server answers, Clear all filters clearing in place with focus kept, the phone's rail and filter dialog, the sheet closing when the window grows to 68em |
-| `locked.spec.ts` | chromium, mobile | A locked tile: its button and its blurred cover with nothing drawn over it; the 600 ms denial and its line; Enter and Space; repeated presses; the vibration, red outline and wash; reduced motion; `?view=` a locked template, on the page of results and off it; a phase page's locked tiles; without JavaScript |
+| `locked.spec.ts` | chromium, mobile | A locked tile: its button and its blurred cover with nothing drawn over it; the 600 ms denial and its line; Enter and Space; repeated presses; the shake and the red ring; reduced motion; `?view=` a locked template, on the page of results and off it; a phase page's locked tiles; without JavaScript |
 | `template-dialog.spec.ts` | chromium, mobile | The pop-up: opening from a tile, its content, Escape, Close and the dimmed page each closing it and keeping the other parameters, Back, focus, a selection dragged out of the pop-up not closing it, a close after an open from the catalog leaving no entry behind (Back leaves the catalog) and one after an open from another page staying on the catalog, values that open nothing, the home and phase tiles, without JavaScript |
 | `purchase.spec.ts` | chromium, mobile | The Purchase page: no title block, one `h1` on the folder, and the price once on the tag; the folder and the tally; the ledger; the Checkout link; no questions section, and the contents leaf beside the folder from 68em; 320px; the tag's swing; reduced motion; the home folder |
 | `checkout.spec.ts` | chromium, mobile | The checkout: opening from the link and from the address, the summary, Escape, Close, the dimmed page and Back with focus returned, one history entry for all steps, labels and autocomplete tokens, the region control, validation on blur and on submit, the whole walk to the Payment step, no order data in any address or request, the draft surviving a reload, Start over, the phone and 320px layouts, the step's movement, the catalog's pop-up unchanged, and no JavaScript |

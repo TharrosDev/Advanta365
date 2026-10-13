@@ -20,7 +20,7 @@ Six principles guide every decision:
 | Path | What it holds |
 | --- | --- |
 | `app/globals.css` | Every colour, type, space, depth, shape, layer and motion token; the band definitions; base element rules; the type classes; the reduced-motion safety net; the forced-colours rules. |
-| `app/motion.css` | Entrances, view transitions, paper and lift behaviour, the sticky bar's shadow, the bar's sliding underline, the ninety-percent scroll sequence, the price tag's swing, a locked tile saying no (a vibration and a wash), the arrival of a pop-up, a step of the checkout settling in and a hero document straightening. Imported first by `globals.css`. |
+| `app/motion.css` | Entrances, view transitions, paper and lift behaviour, the sticky bar's shadow, the bar's sliding underline, the ninety-percent scroll sequence, the price tag's swing, a locked tile saying no (a shake and a ring), the arrival of a pop-up, a step of the checkout settling in and a hero document straightening. Imported first by `globals.css`. |
 | `app/layout.tsx` | Font loading (Besley and Atkinson Hyperlegible Next as CSS variables), root attributes, the boot script, and `MotionRoot`. |
 | `app/icon.svg` | The site icon: the logo mark on an ink tile. |
 | `lib/brand/mark.ts` | The logo geometry, the single source for the mark path data. |
@@ -58,8 +58,8 @@ Defined on `:root` in `app/globals.css`.
 | `--on-binder` | `#f4f5f8` | Text on the binder. |
 | `--on-binder-soft` | `#b4b9c7` | Secondary text on the binder. |
 | `--rule-on-binder` | `#343947` | Hairlines on the binder. |
-| `--alert` | `#a32b1d` | Errors, and the outline of a locked tile that says no. |
-| `--alert-wash` | `#fbeae5` | The ground behind an error, and the wash over the cover well of a locked tile that says no. |
+| `--alert` | `#a32b1d` | Errors, and the ring on the cover well of a locked tile that says no. |
+| `--alert-wash` | `#fbeae5` | The ground behind an error. |
 | `--scrim` | `rgb(11 13 18 / 0.5)` | The backdrop behind the menu drawer and dialogs. |
 | `--bar-shadow` | `0 10px 21px -14px rgb(11 13 18 / 0.4)` | The shadow under the sticky bar once it is scrolled. |
 | `--paper-shade` | `#f1f3f7` | The far corners of a sheet. |
@@ -418,7 +418,7 @@ Level 3 and level 4 at 68em are the four-layer forms defined in the same file. S
 | `--curve-drop` | `cubic-bezier(0.3, 1.25, 0.5, 1)` | A small overshoot, used for settling sheets. |
 | `--curve-pen` | `cubic-bezier(0.65, 0, 0.2, 1)` | Pen strokes on the cover. |
 
-`motion.css` also uses a few literal values: 480ms for drift entrances, 600ms for grow entrances, 420ms for the paper shade and tilt transitions, 1ms while the cover is up (so content behind it is already finished), the price tag's swing (1700ms, and 1200ms when its folder is hovered), a locked tile's denial (a state of 600ms: a 467ms vibration, a 560ms outline hit-and-fade and a 560ms wash), and the pop-up's arrival (320ms).
+`motion.css` also uses a few literal values: 480ms for drift entrances, 600ms for grow entrances, 420ms for the paper shade and tilt transitions, 1ms while the cover is up (so content behind it is already finished), the price tag's swing (1700ms, and 1200ms when its folder is hovered), a locked tile's denial (a state of 600ms: a 440ms shake and a 560ms ring hit-and-fade), and the pop-up's arrival (320ms).
 
 ### 8.4 Entrances
 
@@ -453,7 +453,7 @@ Entrance kinds:
 | `data-folder`, `data-folder-scope` | `Folder`, and an element around one | The folder whose sheets rise under the pointer; the scope in which keyboard focus raises them too. |
 | `data-price-tag` | `PriceTag` | The paper tag on its string: it swings once when it is first seen, and a little when its folder comes under the pointer. |
 | `data-nav-underline` | `PrimaryNav` | The bar's ink underline: it stands under the current link and slides to the next. |
-| `data-tile`, `data-free`, `data-locked`, `data-denied` | `TemplateTile`, `LockedTile` | A catalog tile, its kind, and the 600ms state in which a locked tile vibrates, hits and fades its outline and wash in `--alert`. |
+| `data-tile`, `data-free`, `data-locked`, `data-denied` | `TemplateTile`, `LockedTile` | A catalog tile, its kind, and the 600ms state in which a locked tile shakes and hits and fades a ring on its well in `--alert`. |
 | `data-well` | `TemplateTile` | The well of a tile: its `::before` is the red wash of a denied tile, animated by opacity. |
 | `data-page-dialog`, `data-enter` | `PageDialog` | A pop-up: the catalog's (`data-template-dialog`) or the checkout (`data-checkout-dialog`); `data-enter` is on one that a link inside the site opened, which rises into place. |
 | `data-checkout-step`, `data-checkout-progress` | `CheckoutDialog` | A step of the checkout, which settles 10px into place when the visitor moves to it (`data-enter`), and the line under the bar, which grows to the current step. |
