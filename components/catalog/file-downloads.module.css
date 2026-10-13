@@ -1,0 +1,26 @@
+.root {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--s-2);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+/* A long file name wraps inside its button instead of pushing past the column. */
+.button {
+  max-width: 100%;
+  height: auto;
+  min-height: var(--control);
+  flex-wrap: wrap;
+  justify-content: flex-start;
+  text-align: start;
+}
+
+.name {
+  overflow-wrap: anywhere;
+}
+
+.facts {
+  color: var(--text-soft);
+}

@@ -85,6 +85,13 @@ export default defineConfig({
     command: `npm run build && npm run start -- -p ${PORT}`,
     url: `http://localhost:${PORT}`,
     reuseExistingServer: !process.env.CI,
+    // The fixture file store and a test licence secret (the same as vitest.config.mts), so the
+    // download specs have files to serve. A server started by hand needs the same three.
+    env: {
+      FILE_STORE: "local",
+      FILE_STORE_DIR: "tests/fixtures/files",
+      LICENCE_SECRET: "test-secret-test-secret-test-secret-0",
+    },
     timeout: 180_000,
   },
 });

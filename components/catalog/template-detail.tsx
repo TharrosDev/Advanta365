@@ -9,6 +9,7 @@ import type { Phase, Template } from "@/lib/catalog/schema";
 import { cx } from "@/lib/cx";
 import { formatLength } from "@/lib/format";
 import { PURCHASE_LINK } from "@/lib/site";
+import { FileDownloads } from "./file-downloads";
 import { TemplateCover } from "./template-cover";
 import styles from "./template-detail.module.css";
 
@@ -17,17 +18,21 @@ import styles from "./template-detail.module.css";
  * the cover, large and lit, on its stack, on a desk of its own at the left, which stays in view
  * while the words scroll; and the words at the right: the "Free sample" tag, the title (an `h2`
  * with the id `titleId`, which names the dialog), the summary, the description, the facts (phase,
- * step, type, format and length) as a ledger, what is included, and the one button, which leads to
- * the purchase page. Below 40em the cover stands above the words.
+ * step, type, format and length) as a ledger, what is included, its files to download when the
+ * server can serve them (`downloadable`), and the one button, which leads to the purchase page.
+ * Below 40em the cover stands above the words.
  */
 export function TemplateDetail({
   template,
   phase,
   titleId,
+  downloadable = false,
 }: {
   template: Template;
   phase?: Phase;
   titleId: string;
+  /** The server has a file store and the template has files: its downloads are shown. */
+  downloadable?: boolean;
 }) {
   const step = phase?.steps.find((candidate) => candidate.slug === template.step);
 
@@ -94,6 +99,18 @@ export function TemplateDetail({
             ))}
           </BandedList>
         </section>
+
+        {downloadable ? (
+          <section className={styles.section} aria-labelledby={`${titleId}-download`}>
+            <h3 id={`${titleId}-download`} className="type-section">
+              Download
+            </h3>
+            <FileDownloads
+              files={template.files}
+              hrefFor={(file) => `/api/samples/${template.slug}/${file.id}`}
+            />
+          </section>
+        ) : null}
 
         <div className={styles.action}>
           <Button variant="mark" size="lg" href={PURCHASE_LINK.href} arrow>

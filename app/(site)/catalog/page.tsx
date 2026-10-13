@@ -6,6 +6,7 @@ import { ResultList } from "@/components/catalog/result-list";
 import { SearchBox } from "@/components/catalog/search-box";
 import { SortSelect } from "@/components/catalog/sort-select";
 import { TemplateDetail } from "@/components/catalog/template-detail";
+import { getFileStore } from "@/lib/files/store";
 import { TemplateDialog } from "@/components/catalog/template-dialog";
 import { singleCatalogPhase } from "@/components/layout/nav-links";
 import { Band } from "@/components/ui/band";
@@ -176,6 +177,7 @@ export default async function CatalogPage({ searchParams }: CatalogPageProps) {
             template={opened}
             phase={phases.find((phase) => phase.slug === opened.phase)}
             titleId={DIALOG_TITLE}
+            downloadable={getFileStore() !== null && opened.files.length > 0}
           />
         </TemplateDialog>
       ) : null}

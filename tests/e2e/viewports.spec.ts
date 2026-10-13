@@ -24,6 +24,7 @@ const ROUTES = [
   "/refunds",
   "/accessibility",
   "/sample",
+  "/library",
   "/nope",
 ];
 
@@ -49,8 +50,11 @@ const SIZES: ReadonlyArray<readonly [number, number]> = [
 /** The least share of the window the words of a page span, from 1280 up. */
 const MIN_SPAN = 0.5;
 
-/** The 404 sets its few words in six columns on purpose, so it has no span to hold. */
-const NARROW_BY_DESIGN = new Set(["/nope"]);
+/**
+ * The 404 sets its few words in six columns on purpose, so it has no span to hold. So does the
+ * Library without a licence, which is the title and two lines on how to get one.
+ */
+const NARROW_BY_DESIGN = new Set(["/nope", "/library"]);
 
 for (const [width, height] of SIZES) {
   for (const route of ROUTES) {
@@ -63,7 +67,7 @@ for (const [width, height] of SIZES) {
       page.on("console", (message) => {
         if (message.type() !== "error") return;
         // The 404's own document answers 404, and the browser logs that.
-        if (NARROW_BY_DESIGN.has(route) && /status of 404/.test(message.text())) return;
+        if (route === "/nope" && /status of 404/.test(message.text())) return;
         problems.push(message.text());
       });
 

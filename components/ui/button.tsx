@@ -13,6 +13,8 @@ type ButtonProps = {
   href?: string;
   /** With `href`: opens a new tab. */
   external?: boolean;
+  /** With `href`: the link downloads a file, as a plain anchor the router leaves alone. */
+  download?: boolean;
   /** With an internal `href`: `false` keeps the page where it is (a link to a pop-up). */
   scroll?: boolean;
   linkRef?: Ref<HTMLAnchorElement>;
@@ -44,6 +46,7 @@ export function Button({
   arrow = false,
   href,
   external = false,
+  download = false,
   scroll,
   linkRef,
   className,
@@ -79,7 +82,7 @@ export function Button({
       className: classes,
     };
 
-    if (!external && href.startsWith("/") && !href.startsWith("//")) {
+    if (!external && !download && href.startsWith("/") && !href.startsWith("//")) {
       return (
         <TransitionLink ref={linkRef} href={href} scroll={scroll} {...link}>
           {content}
@@ -93,6 +96,7 @@ export function Button({
         href={href}
         {...link}
         {...(external ? { target: "_blank", rel: "noopener noreferrer" } : null)}
+        {...(download ? { download: "" } : null)}
       >
         {content}
       </a>
