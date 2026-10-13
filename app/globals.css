@@ -41,14 +41,6 @@
   --scrim: rgb(11 13 18 / 0.5);
   --bar-shadow: 0 10px 21px -14px rgb(11 13 18 / 0.4);
 
-  /* Ink pigments, read by lib/ink/pigments.ts */
-  --pigment-paper: var(--paper);
-  --pigment-binder: var(--binder);
-  --pigment-black: #10131a;
-  --pigment-blue: var(--mark-deep); /* light grounds */
-  --pigment-blue-dark: var(--mark); /* dark grounds */
-  --pigment-pale: #c3cedf;
-
   /* Paper: white at the light, a shade darker at its far corners, with a pre-rendered tooth */
   --paper-shade: #f1f3f7;
   --grain: url("/paper/grain.png");

@@ -4,7 +4,7 @@ import { link, list, p, type LegalDocument } from "./types";
 
 /**
  * `/accessibility`: the accessibility statement. Every line under "What the site does" is a rule
- * the code keeps and a test checks (docs/design-system.md, section 13, and docs/testing.md); the
+ * the code keeps and a test checks (docs/design-system.md, section 12, and docs/testing.md); the
  * limits are the ones known today. It claims a target, not a certificate.
  */
 export function accessibility(facts: LegalFacts): LegalDocument {
@@ -21,7 +21,7 @@ export function accessibility(facts: LegalFacts): LegalDocument {
     points: [
       "The site aims to meet WCAG 2.2 at level AA.",
       "Everything works with a keyboard, and nothing depends on animation.",
-      "The ink animation is decoration behind the text. It comes to rest by itself, and it is a still picture if you ask your system for less motion.",
+      "Motion is small and short, and nothing moves by itself if you ask your system for less motion.",
       "If something gets in your way, tell us and we will fix it or get you the content another way.",
     ],
     sections: [
@@ -47,7 +47,7 @@ export function accessibility(facts: LegalFacts): LegalDocument {
             "Contrast: body and heading text is at least 4.5 to 1 against its ground, and the borders of controls at least 3 to 1. The light blue is never the only sign of a state; it always carries ink as well.",
             "Text size: sizes are set relative to your browser’s own text size, so your setting is respected, and pages reflow to a 320-pixel-wide window without scrolling sideways.",
             "Targets: on phones and tablets, buttons and stand-alone links are at least 44 pixels tall.",
-            "Colour modes: when you ask your system for more contrast, or use forced colours, shadows become solid lines and the ink pictures behind text are removed.",
+            "Colour modes: when you ask your system for more contrast, or use forced colours, shadows become solid lines.",
             "Without JavaScript: pages are sent complete from the server, so their content can be read, their links work and the free samples open.",
             "Language: pages are marked as English so screen readers pronounce them correctly.",
           ),
@@ -55,19 +55,13 @@ export function accessibility(facts: LegalFacts): LegalDocument {
       },
       {
         id: "motion",
-        title: "Motion and the ink animation",
+        title: "Motion",
         blocks: [
-          p(
-            "The moving ink behind some bands is decoration. It carries no information and is hidden from assistive technology.",
-          ),
           list(
-            "Where the ink is running, it comes to rest by itself within half a minute of its start. It moves again, for up to twelve seconds at a time, when you move the pointer over it, scroll past it or click on it. It also stops while the tab is hidden or the ink is off screen.",
-            "If your system is set to reduce motion, nothing on the site moves by itself: the ink is a still picture, the opening animation does not play and content does not animate in.",
-            "The ink is also replaced by a still picture when your browser asks to save data, when the device cannot draw it, and when it would run too slowly.",
+            "If your system is set to reduce motion, nothing on the site moves by itself: the opening animation does not play and content does not animate in.",
             "The first visit to the home page opens with a short animation of the logo, about three seconds long. Any key, press, tap or turn of the wheel ends it at once.",
             "A locked template in the catalog shakes for about half a second when it is pressed, to say it is locked. With reduced motion it does not move, and a line of text says the same thing.",
             "No animation on the site loops without end, and none flashes.",
-            "The catalog page never runs the live ink, so nothing moves while you search and filter.",
           ),
         ],
       },
@@ -82,7 +76,6 @@ export function accessibility(facts: LegalFacts): LegalDocument {
             "The covers of templates in the catalog are small pictures of a page. Their content is decoration; each template’s title, description and details are given as text beside the cover.",
             "On phones, the row of rollout phases in the catalog scrolls sideways. Every phase in it can be reached by touch and with the keyboard, but it is one place where content runs past the edge of the screen on purpose.",
             "Without JavaScript, controls that open a panel, such as the phone menu and the catalog’s filter sheet, may not respond. The pages and their links still work.",
-            "There is no control on the page to stop the ink. Besides coming to rest by itself, the only way to stop it is the reduce-motion setting of your operating system or browser, which replaces it with a still picture. That falls short of what WCAG 2.2 success criterion 2.2.2, Pause, Stop, Hide, asks of moving content that starts by itself, and we count it as a known gap.",
             "The site is in English only.",
             "The checkout does not take payment yet. The payment step that a processor will add is not built, and will be held to the same standard and covered by this statement when it is.",
           ),

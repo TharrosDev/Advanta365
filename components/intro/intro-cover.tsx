@@ -1,4 +1,3 @@
-import { InkBackdrop } from "@/components/ink/ink-backdrop";
 import {
   MARK_BAR_D,
   MARK_DIGITS,
@@ -19,10 +18,8 @@ import styles from "./intro-cover.module.css";
  * and the name fades in under it. Then the cover fades and the page, already complete and painted
  * underneath, is there.
  *
- * Where the engine is ready in time the ink joins: the layer puts the canvas in the cover's own
- * backdrop and switches the state to `ink`; a black drop falls through the signature, a light-blue
- * one chases it, the ink turns to mist and the cover clears with it. Both ways out are CSS
- * animations started by the state alone, so the cover leaves even if every script stops.
+ * Every way out is a CSS animation started by the state alone, so the cover leaves even if every
+ * script stops.
  *
  * It is decoration over a finished page: `aria-hidden`, nothing in it can take focus, and it locks
  * neither focus nor scrolling. It takes the pointer for as long as a press can end it and through
@@ -45,7 +42,6 @@ export function IntroCover() {
 
   return (
     <div data-intro-cover="" aria-hidden="true" className={styles.cover}>
-      <InkBackdrop scene="intro" />
       <div className={styles.signature}>
         <svg
           className={styles.logo}

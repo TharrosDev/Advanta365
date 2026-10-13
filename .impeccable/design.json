@@ -420,38 +420,6 @@
           "oklch(95.0% 0.025 270)"
         ]
       },
-      "pigment-black": {
-        "role": "neutral",
-        "displayName": "Black Pigment",
-        "canonical": "#10131a",
-        "oklch": "oklch(18.7% 0.015 267)",
-        "tonalRamp": [
-          "oklch(15.0% 0.015 267)",
-          "oklch(26.0% 0.015 267)",
-          "oklch(38.0% 0.015 267)",
-          "oklch(50.0% 0.015 267)",
-          "oklch(62.0% 0.015 267)",
-          "oklch(74.0% 0.015 267)",
-          "oklch(85.0% 0.015 267)",
-          "oklch(95.0% 0.015 267)"
-        ]
-      },
-      "pigment-pale": {
-        "role": "neutral",
-        "displayName": "Pale Pigment",
-        "canonical": "#c3cedf",
-        "oklch": "oklch(84.8% 0.027 259)",
-        "tonalRamp": [
-          "oklch(15.0% 0.027 259)",
-          "oklch(26.0% 0.027 259)",
-          "oklch(38.0% 0.027 259)",
-          "oklch(50.0% 0.027 259)",
-          "oklch(62.0% 0.027 259)",
-          "oklch(74.0% 0.027 259)",
-          "oklch(85.0% 0.027 259)",
-          "oklch(95.0% 0.027 259)"
-        ]
-      },
       "scrim": {
         "role": "neutral",
         "displayName": "Scrim",
@@ -793,14 +761,14 @@
   ],
   "narrative": {
     "northStar": "The Working Copy",
-    "overview": "The site is a desk with documents on it. White sheets of paper lie on a cool grey desk, set in near-black type, and one light-blue highlighter marks the parts that belong to the buyer: the blank still to fill, the tenth block of ten, the phase they are on. Everything the system draws is an object from that desk. A sheet has a tooth, a light on it and a layered shadow. A folder has a tab and sheets standing in it. Phases are index tabs, lists are ledgers ruled with hairlines, and progress is a tally of blocks. The site sells one thing, the complete toolkit, and it is the folder on the desk with its price on a paper tag: six sample templates lie open on the desk, and every other template hangs behind a steel chain and a padlock.\n\nInk is the one material that moves. A real-time simulation of ink in water runs behind the first screen, the 90% statement, the closing band, the Purchase page, wide page titles, the 404 and the footer. It lies on the ground of a band and never on a sheet, it is held back around every block of text, and its strength is capped against the ground the copy is read on. The rest of the motion is small and physical: a sheet settles as it scrolls into view, rises 6px and tilts up to 1.2 degrees toward the pointer, a rule is drawn from the left, and a first visit opens on a blank page where the logo is signed stroke by stroke, the small 365 on its arm last. The first screen then acts out the tagline: an empty prompt box, a black drop and a blue one, and the six free samples standing where the box was.\n\nThe density is that of a document, not of a dashboard: reading-width columns, a twelve-column grid from 68em, bands 56 to 112px deep, and type that carries the hierarchy before colour or depth add anything. The system has a light scheme only. Under reduced motion, raised contrast, forced colours, no JavaScript or no WebGL2 the page is complete: still images stand in for the ink, shadows give way to ink lines, and nothing waits hidden.",
+    "overview": "The site is a desk with documents on it. White sheets of paper lie on a cool grey desk, set in near-black type, and one light-blue highlighter marks the parts that belong to the buyer: the blank still to fill, the tenth block of ten, the phase they are on. Everything the system draws is an object from that desk. A sheet has a tooth, a light on it and a layered shadow. A folder has a tab and sheets standing in it. Phases are index tabs, lists are ledgers ruled with hairlines, and progress is a tally of blocks. The site sells one thing, the complete toolkit, and it is the folder on the desk with its price on a paper tag: six sample templates lie open on the desk, and every other template hangs behind a steel chain and a padlock.\n\nNothing moves behind the text: a band is plain paper, desk or a dark ground. The motion is small and physical, and it belongs to the objects: a sheet settles as it scrolls into view, rises 6px and tilts up to 1.2 degrees toward the pointer, a rule is drawn from the left, a tally fills block by block, and a first visit opens on a blank page where the logo is signed stroke by stroke, the small 365 on its arm last. The first screen answers the tagline with the six free samples, standing from the first frame as a hand of finished documents.\n\nThe density is that of a document, not of a dashboard: reading-width columns, a twelve-column grid from 68em, bands 56 to 112px deep, and type that carries the hierarchy before colour or depth add anything. The system has a light scheme only. Under reduced motion, raised contrast, forced colours or no JavaScript the page is complete: shadows give way to ink lines, and nothing waits hidden.",
     "keyCharacteristics": [
       "Paper objects on a desk: sheets, stacks, folders, index tabs and ledgers, each with a real edge and a real shadow.",
       "Three inks: near-black for what is written, light blue for what is the buyer's, and a dark binder ground for the footer and the statement bands.",
       "The highlighter always comes with ink (a border, a ring, a tick or the text itself) and is never a text colour on a light ground.",
       "Two typefaces with fixed jobs: a slab serif for the documents and their figures, a hyperlegible sans for the store.",
       "A 7px module for every space, two breakpoints (40em and 68em) for every layout.",
-      "Live ink in water as the showpiece, always beneath the text, always pausable, with a still image for every case where it cannot run.",
+      "Plain grounds: paper, desk and dark bands, with nothing moving behind the text.",
       "Movement only inside the no-preference motion query. Bands and surfaces change ground with a hard edge and never fade."
     ],
     "rules": [
@@ -868,7 +836,6 @@
       "Do set documents, figures and prices in Besley at 600 to 800, and everything the store says in Atkinson Hyperlegible Next.",
       "Do make hover and keyboard focus look the same, and give a press the same answer, so a finger gets what a pointer gets.",
       "Do keep every target at least 44px tall below 68em, and show the 3px focus ring 3px off the element.",
-      "Do place ink on the ground of a band, mark every text block over it as a calm zone, and name a still for it.",
       "Do keep every animation inside the no-preference motion query, with the finished state as the default.",
       "Do give an object an ink line where its shadow is removed, at raised contrast and in forced colours."
     ],
@@ -879,7 +846,7 @@
       "Don't fade, slide or blend a band or a surface. Grounds change with a hard edge.",
       "Don't animate a shadow, a layout property or a custom property, and don't loop an animation.",
       "Don't let a state change alter a size: borders are always present and rings are drawn inside.",
-      "Don't place ink on a sheet, inside a panel or behind body copy that has no calm zone, and don't run a second canvas.",
+      "Don't put anything that moves behind the text, and don't add a canvas.",
       "Don't set type smaller than 14px unless it is uppercase, weight 700 and tracked, and don't track anything larger.",
       "Don't add a dark scheme or a query for one. The system declares a light scheme only.",
       "Don't hide content in a starting state that a script has to undo. Without the script, nothing is missing."

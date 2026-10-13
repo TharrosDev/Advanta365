@@ -1,4 +1,3 @@
-import { InkBackdrop } from "@/components/ink/ink-backdrop";
 import { Band } from "@/components/ui/band";
 import { Eyebrow } from "@/components/ui/eyebrow";
 import { Tally } from "@/components/ui/tally";
@@ -6,18 +5,16 @@ import { cx } from "@/lib/cx";
 import styles from "./home.module.css";
 
 /**
- * `#solution`: the ninety, the one black band of the page, with its own ink behind it. The figure
+ * `#solution`: the ninety, the one black band of the page. The figure
  * "90%" stands beside the heading, which says the same figure in words that are hidden from the
  * eye, so the heading still reads as the whole statement. The figure is printed as it is and never
  * moves: a number that rolls shows a wrong one while the page scrolls. Under them a ten-block
  * tally: nine blocks of ink and the tenth marked. As the band scrolls through the window the blocks
- * ink in one after another and, when the tenth turns light blue, one drop of light-blue ink falls
- * from it into the black water (app/motion.css and the ink layer; this file only says where things
- * are). The tenth block carries the anchor itself and names the place.
+ * ink in one after another and the tenth turns light blue (app/motion.css).
  *
- * In the document: the label, the figure, the heading, the paragraph, the tally, the open water.
- * From 68em the grid sets the figure and the sentence on one line, the tally under them, and the
- * paragraph beside the open water at the foot.
+ * In the document: the label, the figure, the heading, the paragraph, the tally. From 68em the
+ * grid sets the figure and the sentence on one line, the tally under them, and the paragraph at
+ * the foot.
  */
 export function SolutionSection() {
   return (
@@ -27,37 +24,29 @@ export function SolutionSection() {
       data-ninety=""
       aria-labelledby="solution-title"
       innerClassName={styles.ninety}
-      backdrop={
-        <InkBackdrop
-          scene="ninety"
-          still={{ wide: "ninety-wide", tall: "ninety-tall" }}
-          edges="top bottom"
-        />
-      }
     >
       <Eyebrow className={styles.ninetyLabel}>The answer</Eyebrow>
       <div className={styles.ninetyFigure}>
-        <span className={styles.ninetyNumber} data-ink-calm="display">
+        <span className={styles.ninetyNumber}>
           {/* Decoration: the heading says the figure. */}
           <span aria-hidden="true" className="type-poster">
             90%
           </span>
         </span>
       </div>
-      <h2 id="solution-title" className={cx("type-page", styles.ninetyTitle)} data-ink-calm="text">
+      <h2 id="solution-title" className={cx("type-page", styles.ninetyTitle)}>
         <span className="visually-hidden">90% </span>
         done before you open your AI tool.
       </h2>
-      <p className={cx("type-lead", styles.ninetyCopy)} data-ink-calm="text">
+      <p className={cx("type-lead", styles.ninetyCopy)}>
         AI can draft a comms plan in seconds. It can’t tell you which one held up with 10,000
         employees, a nervous sponsor and a cutover weekend. Advanta365 can. Start with content
         refined across decades of real rollouts, then use AI to fit it to your organization, tone
         and timeline.
       </p>
       <div className={styles.ninetyTally}>
-        <Tally total={10} filled={9} marked={10} size="lg" anchor={{ block: 10, name: "tenth" }} />
+        <Tally total={10} filled={9} marked={10} size="lg" />
       </div>
-      <div data-ink-anchor="open" aria-hidden="true" className={styles.ninetyOpen} />
     </Band>
   );
 }

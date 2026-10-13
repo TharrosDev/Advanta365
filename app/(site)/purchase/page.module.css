@@ -27,23 +27,9 @@
   min-width: 0;
 }
 
-/*
- * Below 68em the still of the ink is the tall frame, scaled by the width of the window and set on
- * the foot of the stage. Beside each other the pair is a short stage, so a frame as tall as the
- * window is wide is cut by the stage's top edge, and a cloud that goes on past it would show as a
- * straight line. The ink thins to nothing over the first 6rem instead.
- */
-.stage [data-ink-backdrop] {
-  mask-image: linear-gradient(to bottom, transparent, var(--ink) 6rem);
-}
-
 @media (min-width: 68em) {
   .stage.stage {
     padding-block-start: var(--s-6);
-  }
-
-  .stage [data-ink-backdrop] {
-    mask-image: none;
   }
 
   .grid {

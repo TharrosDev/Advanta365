@@ -28,9 +28,8 @@ const NEXT = [
  * how it was made, who it is for, how it compares and where the site stands. Writing to us has its
  * own page, `/contact`.
  *
- * Layout, top to bottom: the title block with ink (the `title` scene, so no new ink and no new
- * still); the black promise (`#promise`, the 90 to 10 promise on a ten-block tally, static, no ink
- * behind it); how it was made on paper (`#made`, four passes and the seven phases); who it is for
+ * Layout, top to bottom: the title block; the black promise (`#promise`, the 90 to 10 promise on a
+ * ten-block tally, static); how it was made on paper (`#made`, four passes and the seven phases); who it is for
  * on the desk (`#who`, five buyers as a ruled register on a sheet with two beneath it); the three
  * alternatives as three sheets on paper (`#compare`, linked from the home page, with the owner's
  * cost estimates marked as estimates); the one wash band, a plain note on the state of the site
@@ -46,7 +45,7 @@ export default async function WhyAdvantaPage() {
 
   return (
     <>
-      <TitleBlock form="wide" ink title={TITLE} lead={LEAD} />
+      <TitleBlock form="wide" title={TITLE} lead={LEAD} />
       <PromiseBand />
       <MakingSection phases={phases} />
       <BuyersSection />

@@ -2,7 +2,7 @@ import { BOOT_SCRIPT } from "@/lib/boot/boot-script";
 
 /**
  * The inline boot script (see `lib/boot/boot-script.ts`): it decides, before anything is painted,
- * how the ink starts, whether motion is on and whether this page load opens under the cover. The
+ * whether motion is on and whether this page load opens under the cover. The
  * root layout renders it first thing in `<body>`: there it runs on every page, which is how a
  * session that starts on an inner page is counted, and a change of page never renders it again. It
  * writes attributes on `<html>`, which therefore carries `suppressHydrationWarning`.

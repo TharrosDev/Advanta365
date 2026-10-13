@@ -1,7 +1,6 @@
 /**
- * The launch video's timeline and every fact it puts on screen. The picture (`launch.html`), the
- * ink plates (`plates.mjs`) and the sound (`sound.mjs`) all read this module, so a change to a time
- * here moves all three.
+ * The launch video's timeline and every fact it puts on screen. The picture (`launch.html`) and the
+ * sound (`sound.mjs`) both read this module, so a change to a time here moves both.
  *
  * The video is cut to music at 96 beats a minute: a beat is 0.625 s, a bar of four beats 2.5 s, and
  * the 45 seconds are exactly 18 bars. Scene times are written in bars and beats with `at`.
@@ -28,7 +27,7 @@ export const SCENES = {
   typing: { start: at(1), end: at(2) },
   reply: { start: at(2), end: at(3) },
   verdict: { start: at(3), end: at(4) },
-  ink: { start: at(4), end: at(5) },
+  clear: { start: at(4), end: at(5) },
   turn: { start: at(5), end: at(7) },
   what: { start: at(7), end: at(8) },
   rollout: { start: at(8), end: at(11) },
@@ -84,6 +83,8 @@ export const REPLY = {
 
 export const TAGLINE = {
   lines: ["Don’t start from", "a blank prompt."],
+  /** The fresh sheet the tagline is set on starts to slide up over the chat here. */
+  sheet: at(4, 3.2),
   times: [at(5), at(5, 0.5)],
   introducing: at(6),
 };
@@ -150,7 +151,7 @@ export const SCALE = {
   proofLines: ["Field-tested across real client rollouts.", "30+ years of practice."],
 };
 
-/** The ink that floods the frame from paper to the binder. */
+/** The binder sheet that slides up over the paper and takes the frame to the binder. */
 export const WIPE = { start: at(13, 3), black: at(14, 0.6) };
 
 export const NINETY = {
@@ -176,17 +177,4 @@ export const END = {
   price: "$1,499.99 CAD",
   domain: "advanta365.com",
   parent: "EchoFive",
-};
-
-/**
- * The ink plates: stretches of the real fluid engine (`lib/ink/engine`), rendered once by
- * `plates.mjs` at 30 frames a second and laid under or over the scenes. `start` is the video time
- * of the plate's first frame.
- */
-export const PLATE_FPS = 30;
-export const PLATES = {
-  flood: { start: at(4), end: at(7, 0.5) },
-  wipe: { start: WIPE.start, end: WIPE.black + 0.1 },
-  ninety: { start: at(14), end: at(16) },
-  bloom: { start: at(16), end: DURATION },
 };

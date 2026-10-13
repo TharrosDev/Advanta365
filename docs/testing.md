@@ -1,6 +1,6 @@
 # Testing and guard rails
 
-This page covers the checks that run against the repository: the commands, the unit and browser suites, the design gate that keeps the source inside the design system, the script budgets, the ink stills tooling, and the steps for adding a test. Run every command with `corepack pnpm` from the repository root.
+This page covers the checks that run against the repository: the commands, the unit and browser suites, the design gate that keeps the source inside the design system, the script budgets, and the steps for adding a test. Run every command with `corepack pnpm` from the repository root.
 
 ## Overview
 
@@ -9,9 +9,8 @@ This page covers the checks that run against the repository: the commands, the u
 | Catalog, search and the free samples | `content`, `validate`, `query`, `search-params`, `coverage`, `worked-example`, `format`, `compounds` | `browse`, `catalog`, `locked`, `template-dialog`, `redirects`, `not-found` | |
 | Purchase page, checkout and hero | `checkout-schema`, `checkout-order`, `checkout-steps`, `checkout-provider` | `purchase`, `checkout`, `hero` | |
 | Legal pages | `legal` | `legal` | |
-| Brand and static assets | `brand-mark`, `kit-grain`, `stills-files` | `identity` | `paper-grain` |
+| Brand and static assets | `brand-mark`, `kit-grain` | `identity` | `gen-icon`, `paper-grain` |
 | Boot, cover and motion | `boot-script`, `boot-cover`, `kit-motion` | `intro`, `motion`, `reduced-motion` | |
-| Ink | `ink-scenes`, `ink-stage`, `ink-zones`, `ink-cadence`, `stills-files` | `ink-live`, `ink-fallback` | `ink-stills` |
 | Look of the source | `design-gate` | `identity` | |
 | Shell and navigation | `nav-links`, `into-view` | `header`, `menu`, `console` | |
 | Layout at every window size | | `viewports` | |
@@ -35,8 +34,8 @@ Three scripts run by path, not through `package.json`:
 
 | Command | Purpose |
 |---|---|
-| `node scripts/check-budgets.mjs <baseUrl>` | Compares the script weight of the home page and the shader chunks with the committed baseline. Needs a running production server. |
-| `node scripts/ink-stills.mjs` | Captures the ink stills, checks them, measures the light blue, or writes contact sheets. Needs a GPU and a production build. |
+| `node scripts/check-budgets.mjs <baseUrl>` | Compares the script weight of the home page with the committed baseline, and checks that no shader chunk has come back. Needs a running production server. |
+| `node scripts/gen-icon.mjs` | Writes `app/icon.svg` from the mark in `lib/brand/mark.ts`. |
 | `node scripts/paper-grain.mjs` | Writes the paper grain texture to `public/paper/grain.png`. |
 
 Suggested checks by kind of change:
@@ -45,13 +44,12 @@ Suggested checks by kind of change:
 |---|---|
 | Code in `lib/` or catalog content | `test`, `typecheck`, `lint` |
 | Components, styles or pages | `test`, `typecheck`, `lint`, and the e2e specs the change touches (below) |
-| Shipped JavaScript, boot script or ink engine | The two rows above, plus `check-budgets` against a production server |
+| Shipped JavaScript or the boot script | The two rows above, plus `check-budgets` against a production server |
 
 Run only the e2e specs a change touches, not the whole suite: the full run takes about six
 minutes. Find them by searching `tests/e2e` for the route, component or text the change touches,
 then run those files, for example `corepack pnpm exec playwright test tests/e2e/purchase.spec.ts
---project=chromium` (add `--project=mobile` for a phone-specific change, and use
-`--project=gpu --no-deps` for `ink-live.spec.ts`). `viewports.spec.ts` is the geometry guard for any
+--project=chromium` (add `--project=mobile` for a phone-specific change). `viewports.spec.ts` is the geometry guard for any
 change to layout or CSS. The full suite runs once, as the last gate before a merge.
 
 ## Unit tests
@@ -80,7 +78,7 @@ Shared catalog fixtures live in `tests/unit/fixtures/catalog.ts`: `rawPhases`, `
 | `checkout-order.test.ts` | `orderCode` (the day in UTC, six characters from the entropy, never a 0, 1, I or O, always a code the schema accepts); `buildOrder` (nothing from a draft that is not ready); the summary's lines from `TOOLKIT`, the price as `formatPrice` prints it and the tax line; `detailRows`; `orderText`; `orderMailto` (addressed to `SITE.contactEmail` only, the order's code in the subject, message line ends, everything encoded). |
 | `checkout-steps.test.ts` | `checkoutHref` and `parseCheckoutStep` (the step and nothing else, any case, the first of a repeated value, junk opens nothing); `furthestStep` and `resolveStep` (never a step the order has not reached, always a way back); numbering, states and the announcement; the stored draft (a round trip, empty for anything that is not a draft, unknown keys dropped, a code that is not one disbelieved, no key for a card). |
 | `checkout-provider.test.ts` | The provider seam with a fake provider: `getPaymentProvider()` answers `null`; `startPayment` hands over the checked order, follows an `https:` or same-origin redirect and no other, passes on an embedded secret only when the provider can draw it, turns a rejection into the site's own failure message, and starts nothing for an order that is not one. `PaymentStep` rendered to markup: with no provider the honest notice, the order and the `mailto:`; with one, its pay button; never an input. |
-| `legal.test.ts` | The four legal documents of `lib/legal`, as data: they are the routes of `LEGAL_LINKS`, in order; each has a title, a description, a summary and at least three points; no section and no block is empty; every section and subsection has a kebab-case anchor of its own, none of them an id the layout uses; every link goes to a page that exists (and a `#` to an anchor that is there), and each page links to the contact page and to the other three; no placeholder or unset value is printed. The builders are run with every optional fact of `LEGAL` set and unset: a number of days appears in the refund policy only when `refundWindowDays` is set, the province in the terms only when `governingProvince` is, the host, privacy contact and address in the privacy policy only when they are, and an audit in the accessibility statement only when it has a date. The privacy policy names exactly the three session storage keys (the two of `lib/boot/state.ts` and the checkout's draft, `DRAFT_KEY` in `lib/checkout/draft.ts`), keeps what is planned for the checkout under its own heading and names no payment processor. |
+| `legal.test.ts` | The four legal documents of `lib/legal`, as data: they are the routes of `LEGAL_LINKS`, in order; each has a title, a description, a summary and at least three points; no section and no block is empty; every section and subsection has a kebab-case anchor of its own, none of them an id the layout uses; every link goes to a page that exists (and a `#` to an anchor that is there), and each page links to the contact page and to the other three; no placeholder or unset value is printed. The builders are run with every optional fact of `LEGAL` set and unset: a number of days appears in the refund policy only when `refundWindowDays` is set, the province in the terms only when `governingProvince` is, the host, privacy contact and address in the privacy policy only when they are, and an audit in the accessibility statement only when it has a date. The privacy policy names exactly the two session storage keys (the cover's flag in `lib/boot/state.ts` and the checkout's draft, `DRAFT_KEY` in `lib/checkout/draft.ts`), keeps what is planned for the checkout under its own heading and names no payment processor. |
 
 ### Brand and static assets
 
@@ -88,24 +86,14 @@ Shared catalog fixtures live in `tests/unit/fixtures/catalog.ts`: `rawPhases`, `
 |---|---|
 | `brand-mark.test.ts` | The mark geometry in `lib/brand/mark.ts` (three strokes, both viewBoxes, stroke width, the legs' lean, the ink centred in its box and path data); the 365 on the arm (three digits of one stroke each, read 3, 6, 5 with air between them, filling `MARK_DIGITS_BOX` inside the viewBox, clear of the legs and above the arm, the 6 keeping its eye); `LogoMark` markup (current colour stroke, hidden from assistive technology by default, `role="img"` with a title, the two-tone tail, the digits drawn last in two inks and never in one or with `digits={false}`); `app/icon.svg` equal to what `scripts/gen-icon.mjs` writes. |
 | `kit-grain.test.ts` | `public/paper/grain.png` is an indexed 128 by 128 PNG with four palette entries, a transparent first entry, a bounded maximum alpha and at most 4096 bytes. `app/globals.css` declares the `--grain` URL. |
-| `stills-files.test.ts` | `public/ink` holds exactly the thirteen files named in `lib/ink/stills.json`, each a WebP within the per-file and total byte budgets, with viewport, ratio and route values in range; no `hero` still remains and the `prompt` pair is there. |
 
 ### Boot, cover and motion
 
 | File | Guards |
 |---|---|
-| `boot-script.test.ts` | Runs `BOOT_SCRIPT` against stand-ins for the document, session storage, media queries, navigator, canvas and WebGL. It checks the decisions against the pure functions in `lib/boot/state.ts`: the reduced-motion early return, `data-motion` and `data-timeline`, ink mode, GPU probing and software renderers, the calm routes (the catalog and what lies under it, and no other), the backstop timers (5500 ms for the cover, and room for a takeover at `INTRO_TAKEOVER_MS`), the cover flag and skip events, the one-shot click guard that a touch or pen skip arms (and that a mouse, key or wheel does not), and the size limits (at most 1536 bytes gzipped, no `</script` or `<!--`). It also checks that `IntroScript` prints the script once inside a hidden wrapper. |
-| `boot-cover.test.ts` | The markup of `IntroCover` and `InkBackdrop`: one cover element hidden from assistive technology, no focusable control, six pen paths (the tail and the two strokes of the "A" at 4.2, the three digits at 1.1) with unit path length, no image or canvas in the cover; the cover animation timings in `intro-cover.module.css` (the digits 800 to 1000, the leave at 2500, the ink exit starting 250 ms into the clear and ending with the scene, the signature fading at 2500, the skip keeping the pointer for all of its 200 ms; on the cover's own way out the signature and the hint gone before the paper starts to clear, after the latest takeover by the ink); the `fetchpriority` of a backdrop with `priority`; the stills manifest (the thirteen names, each once, with page and window). |
-| `kit-motion.test.ts` | Reads `app/motion.css` as text. Every `@keyframes` block and every animating declaration sits inside `(prefers-reduced-motion: no-preference)`. Inside one rule, `animation-timeline` and `animation-range` follow the `animation` shorthand. Hidden starting states appear only under `html[data-motion="on"]`. No infinite animation, `@property` or iteration count. The five move keyframes (`move-drift`, `move-ink-in`, `move-settle`, `move-shadow`, `move-grow`) must exist. No entrance blurs: no `filter` animates or transitions, in a rule or in a `move-` keyframe, the one exception being the rule of the hero's empty prompt box as it dissolves. The ink-in range ends sooner than the drift range. |
-
-### Ink
-
-| File | Guards |
-|---|---|
-| `ink-scenes.test.ts` | Each of the seven scenes in `lib/ink/scenes.ts` runs against a recorder at 60 Hz with a fixed seed, on a wide and a tall canvas. Drops stay near the canvas and have positive radius and amount; the same seed gives the same events; the timing and placement rules of each scene hold (the `intro` timeline of 3.5 seconds; the `prompt` scene's empty first 0.7 seconds, its two drops either side of the `open` anchor, its clear and its slow drips; there is no `hero` scene); `STAGES[name].runMs` is positive and at most 30 seconds. |
-| `ink-stage.test.ts` | `chooseStage`, `visibleArea` and `coverProgress` in `lib/ink/stage.ts`: stage weights, which grounds are dark, which scene has the `tenth` trigger, the topmost-candidate rule, the end-of-page rule (the lowest backdrop wins at the very end once it is in view whole), the challenger margin, and the fire and rearm thresholds for the ninety band. |
-| `ink-zones.test.ts` | `calmZone` for the text, display and veil kinds (padding, feather, floor, hold, fade and cap values, and the narrow-window text variant); the dark-ground caps; `edgeZone`; `parseEdges`; `buildZones` order and limits; `mergeNearest`; `anchorRect` and `relativeRect`. |
-| `ink-cadence.test.ts` | `medianOf` and `slowFrameMs` in `lib/ink/engine/defaults.ts`, which the engine's adaptive watch judges a slow frame by: 24 ms on a display of 60 Hz or more, a frame over 1.5 times the cadence on a display capped at 30 Hz (so its 33 ms frames are normal and a stall is not), no forgiveness for a cadence slower than 30 Hz, and the counter that steps a tier down at 76 slow frames. |
+| `boot-script.test.ts` | Runs `BOOT_SCRIPT` against stand-ins for the document, session storage and media queries. It checks the decisions against the pure function in `lib/boot/state.ts`: the names in the site's own storage namespace, the reduced-motion early return (nothing written and nothing stored), `data-motion` and `data-timeline`, the cover flag (the first load of a session on any page, and no cover when storage cannot be read) and skip events, the end of the cover on its own animation and on the 5500 ms backstop, no restart once it is leaving, the one-shot click guard that a touch or pen skip arms (and that a mouse, key or wheel does not), and the size limits (at most 1536 bytes gzipped, no `</script` or `<!--`). It also checks that `IntroScript` prints the script once inside a hidden wrapper. |
+| `boot-cover.test.ts` | The markup of `IntroCover`: one cover element hidden from assistive technology, no focusable control, six pen paths (the tail and the two strokes of the "A" at 4.2, the three digits at 1.1) with unit path length, no image or canvas in the cover; the cover animation timings in `intro-cover.module.css` (the strokes at 120 to 800, the digits 800 to 1000, the mark held to 2500 and the cover gone at 2950, the skip of 200 ms keeping the pointer all the while; on the cover's own way out the signature and the hint gone before the paper starts to clear); the cover displayed only while the root carries `data-intro`. |
+| `kit-motion.test.ts` | Reads `app/motion.css` as text. Every `@keyframes` block and every animating declaration sits inside `(prefers-reduced-motion: no-preference)`. Inside one rule, `animation-timeline` and `animation-range` follow the `animation` shorthand. Hidden starting states appear only under `html[data-motion="on"]`. No infinite animation, `@property` or iteration count. The five move keyframes (`move-drift`, `move-ink-in`, `move-settle`, `move-shadow`, `move-grow`) must exist. No entrance blurs: no `filter` animates or transitions, in a rule or in a `move-` keyframe. The ink-in range ends sooner than the drift range. |
 
 ## Design gate
 
@@ -131,9 +119,9 @@ Some techniques are allowed in named places only. A folder entry ends in `/`; a 
 
 | Technique | Allowed in |
 |---|---|
-| `<canvas`, `getContext(`, `webgl` (any case) | `lib/ink/`, `components/ink/`, `lib/boot/` |
-| `requestAnimationFrame` | `lib/ink/`, `components/ink/`, `lib/scroll/`, `lib/boot/`, `components/intro/` |
-| The string `"scroll"` or `'scroll'` | `lib/ink/`, `components/ink/`, `lib/scroll/` |
+| `<canvas`, `getContext(`, `webgl` (any case) | Nowhere |
+| `requestAnimationFrame` | `lib/scroll/`, `lib/boot/`, `components/intro/` |
+| The string `"scroll"` or `'scroll'` | `lib/scroll/` |
 
 Adding a folder to one of these lists is a design decision: change the list in `design-gate.test.ts` in the same change, with a reason.
 
@@ -150,7 +138,7 @@ Adding a folder to one of these lists is a design decision: change the list in `
 | Only `components/ui/transition-link.tsx` imports `next/link`. | css, ts, tsx, svg, glsl, frag and vert under `app/`, `components/`, `lib/` |
 | The runtime dependencies in `package.json` are exactly `next`, `react`, `react-dom` and `zod`. | `package.json` |
 
-The colour pattern matches hex values and colour functions only. Keep 0 to 255 channel numbers in TypeScript equal to the tokens they mirror in `app/globals.css`, as the ink pigment fallbacks in `lib/ink/pigments.ts` do.
+The colour pattern matches hex values and colour functions only. Keep any 0 to 255 channel numbers in TypeScript equal to the tokens they mirror in `app/globals.css`.
 
 ## Browser tests
 
@@ -164,22 +152,19 @@ Playwright is configured in `playwright.config.ts`:
 
 | Project | Device and viewport | Runs |
 |---|---|---|
-| `chromium` | Desktop Chrome, 1280 by 800 | Every spec except `ink-live.spec.ts`. |
-| `mobile` | Pixel 7 | Every spec except `ink-live.spec.ts`. |
+| `chromium` | Desktop Chrome, 1280 by 800 | Every spec, except the tests tagged `@quiet`. |
+| `mobile` | Pixel 7 | Every spec, except the tests tagged `@quiet`. |
 | `quiet` | Desktop Chrome, 1280 by 800 | The tests tagged `@quiet`, which `chromium` and `mobile` leave out. It depends on `chromium`, `mobile` and, when that project is registered, `firefox`. |
 | `quiet-mobile` | Pixel 7 | The same tests. It depends on `quiet`. |
-| `gpu` | Desktop Chrome, 1440 by 900, with the GPU arguments | `ink-live.spec.ts` only. It depends on `quiet-mobile`, so it starts when every other project has finished. It runs one test at a time. |
-| `firefox` | Desktop Firefox, 1280 by 800 | `browse`, `console`, `reduced-motion`, `ink-fallback` and `motion`. Registered only when Firefox starts on the machine, or when `PW_FIREFOX=1` is set. |
-
-The default projects have no GPU, so the boot script finds the ink `still` there: a test that needs live ink, the hero's sequence among them, belongs in `ink-live.spec.ts`.
+| `firefox` | Desktop Firefox, 1280 by 800 | `browse`, `console`, `reduced-motion` and `motion`. Registered only when Firefox starts on the machine, or when `PW_FIREFOX=1` is set. |
 
 A test that reads a paint time off the page's clock is tagged `@quiet` (`{ tag: "@quiet" }`). That clock runs through every moment the browser waits for the processor: beside seven other workers the home page's largest paint was measured at 424 to 1648 ms, against 232 to 552 ms alone, while the server answered in 8 to 25 ms both times. The `quiet` projects run those tests one at a time, after the parallel projects. The one test so far is the largest paint of a first visit in `intro.spec.ts`.
 
-No project retries. One test does: the second test of `ink-live.spec.ts`, which holds every task of the page's first five seconds to 200 ms and asserts nothing else, may be tried three times (`retries: 2` on its own `describe`). The browser reports every long task of the main thread, including one the machine held up before any code of the ink ran; the bound stays at 200 ms.
+No project and no test retries.
 
-A check that depends on how soon a test gets to look is written so that it always runs: it reads a record made in the page (an observer or a frame callback installed before the first script), or the scene stepped by hand, and where neither is possible it calls `test.skip` with a reason. No `expect` sits inside an `if` on a clock.
+A check that depends on how soon a test gets to look is written so that it always runs: it reads a record made in the page (an observer or a frame callback installed before the first script), and where that is not possible it calls `test.skip` with a reason. No `expect` sits inside an `if` on a clock.
 
-The GPU arguments are `--ignore-gpu-blocklist` and `--enable-gpu`, plus `--use-angle=d3d11` on Windows. Firefox is the browser without view timelines, so it exercises the observer path of the motion system.
+Firefox is the browser without view timelines, so it exercises the observer path of the motion system.
 
 A spec that is not named by the Firefox pattern runs in `chromium` and `mobile`. The Projects column of the table below lists the exceptions.
 
@@ -194,20 +179,18 @@ A spec that is not named by the Firefox pattern runs in `chromium` and `mobile`.
 | `purchase.spec.ts` | chromium, mobile | The Purchase page: no title block, one `h1` (the heading on the folder) and the price once, on the tag; the folder with the six sample covers and a tally of seven phases; the ledger; Checkout as an enabled link to `/purchase?checkout=details` with the line to the contact page under it; no questions section, and the contents leaf beside the folder from 68em; 320px; the tag's swing and its stillness under reduced motion; the home page's folder leading here. |
 | `checkout.spec.ts` | chromium, mobile | The checkout: the Checkout link opens it over the page without moving it, and the address names the step; the order summary in the form that fits the window; a link to a step opens it, any other value opens nothing, and a link to a step the order has not reached shows the first; Escape, Close, the dimmed page (not on a phone, where the dialog is the whole window) and Back close it with focus back on the link; all steps are one history entry; labels, required marking and autocomplete tokens; the region as a list or a free line; errors on blur and on submit, with a summary that takes focus and links to each field; Enter submits; the whole walk to the Payment step, which says payment is not connected and offers the order by email and to copy, with no order data in any address or request; the draft surviving a reload and a visit to the Terms, keeping its code; Start over; what is stored; the phone layout (full window, sticky actions, the summary as a row that opens), 320px and the column from 68em; the step's movement and its stillness under reduced motion; the catalog's pop-up; without JavaScript. |
 | `redirects.spec.ts` | chromium, mobile | The retired addresses (bundles, bundle pages, pricing, cart, about, template pages) end on the right page, hash and query; the 308 and its `Location`; `/contact` answering as a page of its own; the offer on Purchase; a template's old address opens its pop-up, or is answered as locked. |
-| `hero.spec.ts` | chromium, mobile | The hero where the ink is still, as it is in these projects: its structure, copy, buttons and proof strip; the six documents as links named by their titles, in order, lit and overlapping; each opens its pop-up; with still ink, the documents stand and can be focused from the first frame, there is no box and nothing of the sequence starts on any frame; the same on a return to the home page inside the site and under the cover of a first visit; the first screen fits windows from 1280 by 720 to 1920 by 1080; no title or tag cut by a neighbour and 44px of each document its own; the band ends at its own bottom edge; two hands of three on a phone; the headline's contrast over the still; reduced motion and no JavaScript (no box, documents from the start). |
+| `hero.spec.ts` | chromium, mobile | The hero: its structure, copy, buttons and proof strip, with no backdrop, canvas or prompt box behind the words; the six documents as links named by their titles, in order, lit and overlapping; each opens its pop-up, and the one on top or in focus comes to the front; the documents stand and can be focused from the first frame, and nothing of the stage moves on any frame; the same on a return to the home page inside the site and under the cover of a first visit; the first screen fits windows from 1280 by 720 to 1920 by 1080; no title or tag cut by a neighbour and 44px of each document its own; the band ends at its own bottom edge; two hands of three on a phone; reduced motion and no JavaScript (the documents from the start). |
 | `console.spec.ts` | chromium, mobile, firefox | Twelve routes load with no console error and no page error. |
 | `contact.spec.ts` | chromium, mobile | The Contact page: status 200 and its title; one `h1`; exactly one section and one band in `main`, a region named by the title; the address as the one plain `mailto:` link, at least 44px tall; no form, field or button; the list "What to write about" with four links, each the address with a `subject`; no sideways overflow at 320 and 1920 (chromium only); the footer's link to the page; `/about` answering 308 to `/why-advanta`, which holds no `#contact` and no `mailto:`. |
-| `legal.spec.ts` | chromium, mobile | The four legal pages (`/privacy`, `/terms`, `/refunds`, `/accessibility`), each: status 200, one `h1` with its title, the document title and a description; one `time` with the date the page last changed; "In short" before the first section; a navigation "On this page" whose links are the ids of the `[data-legal-section]` sections in order, each entry named by the number and heading of its section and each section headed by one `h2`; no id on the page twice and no `h3` outside a section; a link to `/contact` and the `mailto:` address in the words, the four pages in the "Policies" aside with the current one marked, and a link to each of the other three in the words; no cookie, nothing in local storage and only the boot script's two session entries (the checkout's draft is written on the Purchase page alone). Once: an entry of the contents brings its section into view and its number takes the highlighter (`:target`), and `#when-checkout-opens` is an `h3`; a policy link leads to the next page; at 1280 the contents, the words and the policies stand side by side, the two at the sides sticky, and no paragraph is wider than 640px (chromium only); at 320 the contents come first, each entry 44px tall, with no sideways overflow. |
+| `legal.spec.ts` | chromium, mobile | The four legal pages (`/privacy`, `/terms`, `/refunds`, `/accessibility`), each: status 200, one `h1` with its title, the document title and a description; one `time` with the date the page last changed; "In short" before the first section; a navigation "On this page" whose links are the ids of the `[data-legal-section]` sections in order, each entry named by the number and heading of its section and each section headed by one `h2`; no id on the page twice and no `h3` outside a section; a link to `/contact` and the `mailto:` address in the words, the four pages in the "Policies" aside with the current one marked, and a link to each of the other three in the words; no cookie, nothing in local storage and no session entry outside the site's own names (the checkout's draft is written on the Purchase page alone). Once: an entry of the contents brings its section into view and its number takes the highlighter (`:target`), and `#when-checkout-opens` is an `h3`; a policy link leads to the next page; at 1280 the contents, the words and the policies stand side by side, the two at the sides sticky, and no paragraph is wider than 640px (chromium only); at 320 the contents come first, each entry 44px tall, with no sideways overflow. |
 | `header.spec.ts` | chromium only (skips the mobile project) | The banner; Catalog and Why Advanta in the row and the purchase button (no cart); their order; `aria-current` on the row and on the button at `/purchase`; the row centred on the bar at 1280 and 1440; the button's name with and without its price across 68em; the sliding underline; the phase rail; the sticky bar. |
-| `identity.spec.ts` | chromium, mobile | Design checks in the browser: landmarks; one `h1` per page; root colours and fonts; band values; the ink hooks on the page; the order and ids of the home sections; the headline's size and mark; focus rings; the 365 on the mark where the digits are 7px high and nowhere else, and the favicon unchanged; the catalog's tiles each with a printed page in its own format; retired wording is absent; no overflow and minimum touch targets at 320 px. |
+| `identity.spec.ts` | chromium, mobile | Design checks in the browser: landmarks; one `h1` per page; root colours and fonts; band values; no canvas, in the page or in the HTML sent; `/`, `/why-advanta` and `/catalog` at rest 5.5 seconds after they load; the order and ids of the home sections; the hero holds no tally and no caret; the headline's size and mark; focus rings; the 365 on the mark where the digits are 7px high and nowhere else, and the favicon unchanged; the catalog's tiles each with a printed page in its own format; retired wording is absent; no overflow and minimum touch targets at 320 px. |
 | `intro.spec.ts` | chromium, mobile | The cover on a first visit: its states; its largest paint under a second; the finished mark held to 2.5 seconds and the cover gone by 3.4; its end within 500 ms of a click or a key press (also at 0.5 and 1.5 seconds in), and on a wheel turn; no cover on reload or on other routes; no cover with reduced motion, blocked storage or JavaScript off. |
-| `ink-fallback.spec.ts` | chromium, mobile, firefox | Without WebGL2, with more contrast, and without JavaScript: still images only, no canvas, no button for the ink, a clean console. The software-renderer case runs in Chromium only. |
-| `ink-live.spec.ts` | gpu | Live ink on a GPU: the prompt scene (it runs within 2.5 seconds of a repeat visit, a frame costs at most 6 ms, no task is longer than 200 ms, the caps hold for twenty seconds, it opens over the box, drips again from 6 seconds and starts within 800 ms of the page's first paint; stepped by hand from its start, it is blank at 0.6 seconds and clean at 3.6); the hero's sequence (the timings of its animations and their one start; on a first visit the box under the cover and the clock that starts as the cover goes; a fall to still half-way lands the documents at once and ink that is live again leaves them; a return to the home page inside the site plays it again); the stop when idle; a resize with the loop stopped; one canvas across scenes; context loss and restore; the not-found scene; the takeover of the cover (within 1.6 seconds, gone 3.5 seconds later, ended within 500 ms of a key). Skips when the page is not live. |
 | `menu.spec.ts` | mobile (in chromium every test skips) | The phone bar and drawer: the brand, the button without its price and Menu at 390 and 320px, each a 44px target; the dialog, its four pages (Purchase, Catalog, Why Advanta, Contact) and seven phases, Escape, a click on the scrim (and a drag from the panel that ends on it, which leaves it open), the Close button, and navigation or back navigation closing it. |
 | `motion.spec.ts` | chromium, mobile, firefox | Entrances hidden until scrolled into view, with timelines and without (Chromium stubs `CSS.supports`); the fill of the ninety band under a 90% figure that reads its value at every step, and the `#inside` counts that never count up; a change of page runs a view transition; a filter change or opening a sample in the pop-up starts none. |
 | `not-found.spec.ts` | chromium, mobile | Missing paths return 404 with the page heading and the phase navigation; mixed-case paths redirect to lower case. |
-| `reduced-motion.spec.ts` | chromium, mobile, firefox | With the reduced-motion preference on thirteen routes: still ink, no motion attributes, no canvas, no running animations, no cover; the still images load; the 90% figure and the tally show their final state; links and the catalog filters work. |
-| `viewports.spec.ts` | chromium only (skips the mobile project) | The geometry of every page at every window the site is built for: twelve routes (`/`, `/catalog`, `/phases/plan`, `/purchase`, `/why-advanta`, `/contact`, `/privacy`, `/terms`, `/refunds`, `/accessibility`, `/sample` and the 404 at `/nope`) at sixteen sizes, from 320 by 640 and 390 by 844 through tablets (768 by 1024, 820 by 1180, 1024 by 768), the two sides of 68em (1087 and 1088 wide), the laptops and monitors (1280, 1366, 1440, 1536, 1680, 1920) to 2560 by 1440, 3440 by 1440 and 3840 by 2160, 192 tests in all. Each sets its own window size and checks: one `h1`; no element of the header, main or footer past the window's edge (the frame clips sideways, so the elements themselves are measured; a visually hidden box, an ink backdrop, which its band crops on purpose, and a row that scrolls sideways on purpose are not counted); from 1280 up, the words of the page span more than half of the window, so a large monitor is used and the page is not left as a narrow column (the 404, which sets its few words in six columns beside the ink, is left out of this one); and no console or page error. It measures and takes no screenshots. |
+| `reduced-motion.spec.ts` | chromium, mobile, firefox | With the reduced-motion preference on thirteen routes: no motion attributes, no canvas, no running animations, no cover, every entrance in its final state; the 90% figure and the tally show their final state; links and the catalog filters work. |
+| `viewports.spec.ts` | chromium only (skips the mobile project) | The geometry of every page at every window the site is built for: twelve routes (`/`, `/catalog`, `/phases/plan`, `/purchase`, `/why-advanta`, `/contact`, `/privacy`, `/terms`, `/refunds`, `/accessibility`, `/sample` and the 404 at `/nope`) at sixteen sizes, from 320 by 640 and 390 by 844 through tablets (768 by 1024, 820 by 1180, 1024 by 768), the two sides of 68em (1087 and 1088 wide), the laptops and monitors (1280, 1366, 1440, 1536, 1680, 1920) to 2560 by 1440, 3440 by 1440 and 3840 by 2160, 192 tests in all. Each sets its own window size and checks: one `h1`; no element of the header, main or footer past the window's edge (the frame clips sideways, so the elements themselves are measured; a visually hidden box and a row that scrolls sideways on purpose are not counted); from 1280 up, the words of the page span more than half of the window, so a large monitor is used and the page is not left as a narrow column (the 404, which sets its few words in six columns on purpose, is left out of this one); and no console or page error. It measures and takes no screenshots. |
 
 ### Helpers and support
 
@@ -217,11 +200,9 @@ A spec that is not named by the Firefox pattern runs in `chromium` and `mobile`.
 - `introSeen(page)`, which sets the session flag for the cover before any script runs, so the page is not under the cover.
 - `hydrated(page)`, which waits for `data-hydrated` on the root element: the client components of the page have their handlers. Wait for it before pressing a control that a script answers, on a page you have just loaded.
 
-`tests/e2e/support/hero.ts` holds helpers for the two specs that look at the hero's stage: `recordStage` notes the stage on every frame from the first (whether the box is displayed, how many documents are out of sight, how many animations of the sequence exist) and every value of `data-ink`; `stageFrames` and `unsettledFrames` read the frames back; `recordSequence` and `sequence` note each animation of the sequence with its delay, length and start time; `settled` waits for the stage to be at rest; `stageState` and `timings` read the box and the documents as computed now.
+`tests/e2e/support/hero.ts` holds the helpers of `hero.spec.ts`: `STAGE` and `DOCS` are the selectors of the stage and its documents; `recordStage` notes the stage on every frame from the first (how many documents are in the page, how many are out of sight, how many `hero-` animations exist); `stageFrames` and `unsettledFrames` read the frames back; `settled` waits for the stage to be at rest; `stageState` reads the documents as computed now.
 
-`tests/e2e/support/ink.ts` holds helpers for the ink specs: `withInkTest` sets the test flag before the page mounts; `recordIntro` logs changes to `data-intro`; `introStates` and `introAt` read them back; `inkMode`, `canvases`, `backdropState`, `canvasPixel` and `inkedPixels` read the layer; `scrollToElement` and `scrollToEnd` scroll; `pageClock` reads the page clock; `collectProblems` collects console errors and page errors.
-
-When the flag is set, `lib/ink/test-hook.ts` installs `window.__inkTest`. It exposes `still`, `hold`, `engine`, `cost`, `stats`, `zoneExtremes`, `loseContext` and `restoreContext`. `engine()` returns the Ink object, which has `step`, `render`, `setQuality` and `preset`.
+`tests/e2e/support/intro.ts` holds helpers for the specs that look at the cover of a first visit: `recordIntro` logs every value of `data-intro` with the page clock, from before the first script; `introStates` and `introAt` read them back; `pageClock` reads the page clock.
 
 ## Budgets
 
@@ -238,7 +219,7 @@ The pages checked are `/`, `/why-advanta` and `/catalog` by default. `--pages` r
 It measures two things:
 
 1. **Script weight of `/`.** Every `<script src>` that a modern browser runs and every inline script that holds code. Scripts marked `nomodule` are listed but not counted. The streamed page data is skipped. Each file is gzipped at level 9 and the sizes are summed. The sum may grow by at most 12 KiB over the recorded baseline.
-2. **Shader chunks.** Every `.js` file under `.next/static` that contains `#version 300 es`. Together they may weigh at most 40 KiB gzipped, and none may be an initial script of a checked page.
+2. **Shader chunks.** Every `.js` file under `.next/static` that contains `#version 300 es`. The site ships none, so the check reports none; it stays as a guard. Together they may weigh at most 40 KiB gzipped, and none may be an initial script of a checked page.
 
 The shader half needs a production build, so `.next/static` must exist. Without it the script throws "run a production build first" and exits with code 1.
 
@@ -251,38 +232,14 @@ The shader half needs a production build, so `.next/static` must exist. Without 
 | `page` | `/` |
 | `gzipTotal` | The summed gzip size of the counted scripts of `/`. This is the value the growth check compares against. |
 | `scripts` | Each script with its path, gzip size, and the `counted` flag. A `nomodule` script is recorded with `counted: false` and with its marker flag set to `true`. |
-| `shaderChunks` | The shader chunks found, with their paths and gzip sizes. |
+| `shaderChunks` | The shader chunks found, with their paths and gzip sizes (none today). |
 | `shaderGzipTotal` | The summed gzip size of the shader chunks. The shader check uses the fixed limit, not this value. |
 
 Refresh the baseline after an intended change to the shipped scripts: run a production build, start the server, run the script with `--record`, and commit the file.
 
 Exit codes: 0 when every budget holds, 1 when one is broken, 2 for a usage error.
 
-## Ink stills tooling
-
-`scripts/ink-stills.mjs` works with the stills listed in `lib/ink/stills.json`. It runs in one of four modes. Passing more than one mode prints the usage and exits with 2.
-
-| Mode | What it does | Fails when |
-|---|---|---|
-| Capture (default) | Renders each still on its route and viewport, at the device pixel ratio in the manifest, and writes WebP files to `public/ink/`. Quality starts at 0.86 and steps down by 0.04 to a floor of 0.70 until the file is at most 90 KiB. | The thirteen files together exceed 600 KiB. |
-| `--check` | Renders the routes (`/`, `/why-advanta`, `/purchase`, `/sample`, `/phases/prepare`, `/catalog`, `/nope`) at seven widths (320 to 1920 px) with ink off. Reads the still pixels under each calm zone and compares them with the zone cap. | On a light ground, the darkest pixel falls below the cap minus 0.02. On a dark ground, the lightest pixel rises above the cap plus 0.02. |
-| `--blue` | Measures the light blue at 1440 by 900: the prompt scene at 2 and 2.5 seconds, and the intro at 1.3 seconds. It takes the darkest 1 percent of saturated blue pixels. | Fewer than 100 such pixels exist, or their luminance is below 0.25, or their hue is outside 205 to 216 degrees. |
-| `--sheets` | Writes contact sheets of each scene at fixed times, for a desktop viewport (1440 by 900 at 1x) and a phone viewport (390 by 844 at 2x), as `sheet-<viewport>-<scene>.png`. | Not applicable. |
-
-Options:
-
-- `--base=URL` sets the server. The default is `http://localhost:3100`. If nothing answers there and `--base` was not passed, the script starts `next start -p 3100` from the existing `.next` build and stops it afterwards. Without `.next/BUILD_ID` it prints a request for a production build and exits with 2.
-- `--only=name,name` limits the capture to the named stills (for example `bloom-purchase-wide,bloom-purchase-tall`). With `--sheets`, scene names and viewport names (for example `spill,phone`) are accepted.
-- `--out=DIR` sets the output directory for `--sheets`. The default is `.qa-shots/final`, which is gitignored.
-- `--widths=` and `--routes=` are read by `--check` (a route is given as `--routes=/purchase`; a shell that rewrites a leading slash into a path, such as Git Bash, needs `MSYS_NO_PATHCONV=1`).
-
-Chromium runs with `--use-angle=d3d11`, `--ignore-gpu-blocklist` and `--enable-gpu` for capture, `--blue` and `--sheets`, on every platform. `--check` runs without them. The engine needs a GPU. Without one the script exits with 2.
-
-The script imports `lib/ink/stage.ts` and `lib/ink/zones.ts` directly, so Node must run TypeScript files with type stripping. It re-runs itself with `--disable-warning=MODULE_TYPELESS_PACKAGE_JSON` to hide the warning about the package type.
-
-The script copies the byte budgets and the quality start from `lib/ink/stills.ts`, and the session and storage keys from `lib/boot/state.ts`; the quality floor and step are defined only in the script. When a copied value changes in its source, change the script too.
-
-### Paper grain
+## Paper grain
 
 `scripts/paper-grain.mjs` writes `public/paper/grain.png`, the texture behind the paper surfaces. It produces a 128 pixel square indexed PNG with four palette entries in the ink colour, at alpha 0, 0.03, 0.06 and 0.09. The pixels are drawn from a fixed seed, so the output does not change between runs. The script fails if the file exceeds 4096 bytes. `tests/unit/kit-grain.test.ts` checks the result, so run the unit tests after regenerating the file.
 
@@ -317,14 +274,13 @@ describe("formatPrice", () => {
 });
 ```
 
-Logic that needs a browser (layout, focus, motion, the ink engine) belongs in a browser spec.
+Logic that needs a browser (layout, focus, motion) belongs in a browser spec.
 
 ### A browser spec
 
 1. Create `tests/e2e/<name>.spec.ts`. It runs in `chromium` and `mobile`. Add its name to the Firefox pattern in `playwright.config.ts` only when the behaviour must hold in Firefox.
 2. Call `introSeen(page)` before the first `goto` of any test that opens the home page for another reason.
-3. Collect console and page errors with `collectProblems` from `tests/e2e/support/ink.ts` when the page must load cleanly.
-4. Specs that need a GPU go in `ink-live.spec.ts`, which runs in the `gpu` project only.
+3. When the page must load cleanly, collect console and page errors with `page.on("console")` and `page.on("pageerror")`, as `console.spec.ts` does.
 
 ```ts
 import { expect, test } from "@playwright/test";
@@ -342,7 +298,7 @@ test("the phase page is titled with its phase", async ({ page }) => {
 - Colour belongs in `app/globals.css` as a token on `:root`. Components read it with `var(--token)`. Raw colour anywhere else fails the design gate.
 - Keyframes and transitions go in `app/motion.css` or in the component's CSS module. Animating rules sit inside `(prefers-reduced-motion: no-preference)`. `kit-motion.test.ts` checks `app/motion.css`.
 - Media queries use only the breakpoints and preference queries in the allow-list. Breakpoints are `40em` and `68em`. A large monitor is not a breakpoint: past a 1600px window the root font size grows (`html` in `app/globals.css`) and the page scales with it, so write lengths in rem and read `--over` or `--page-max` where a measure must follow the window. A change to layout or CSS is checked at every window size by `viewports.spec.ts`: run it, and add a size or a route to it when the change is for a window it does not cover.
-- Canvas, shader contexts, animation frames and scroll listeners go in the folders listed under scoped techniques.
+- The site has no canvas and no shader context. Animation frames and scroll listeners go in the folders listed under scoped techniques.
 - Words to ban go in the banned-terms array of `design-gate.test.ts` (line 64).
 
 ### A change to catalog content

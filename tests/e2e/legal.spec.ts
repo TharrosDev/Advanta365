@@ -139,7 +139,7 @@ for (const { href, label } of LEGAL_LINKS) {
       session: Object.keys(window.sessionStorage),
     }));
     expect(kept.local).toEqual([]);
-    for (const key of kept.session) expect(key).toMatch(/^advanta365\.(intro|ink)\.v1$/);
+    for (const key of kept.session) expect(key).toMatch(/^advanta365\.intro\.v1$/);
   });
 }
 

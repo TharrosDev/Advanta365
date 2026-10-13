@@ -2,15 +2,14 @@ import { createHash } from "node:crypto";
 import { readFile } from "node:fs/promises";
 import { expect, test, type Locator, type Page } from "@playwright/test";
 import { introSeen } from "./helpers";
-import { pageClock } from "./support/ink";
+import { pageClock } from "./support/intro";
 
 // The look of the site, checked where it is computed: grounds and inks, the two typefaces, the
-// landmarks every page shares, and the things the design does without (a second theme, a second
+// landmarks every page shares, and the things the design does without (a second theme, a
 // canvas, blending, a loop, movement that goes on by itself).
 //
 // The cover of a first visit to the home page has a spec of its own, intro.spec.ts; here every load
-// is a later one of its session. The live ink has one too (ink-live.spec.ts, on a graphics card);
-// the default projects render in software, where the stills stand in for it.
+// is a later one of its session.
 
 test.beforeEach(async ({ page }) => {
   await introSeen(page);
@@ -161,16 +160,8 @@ for (const path of ROUTES) {
     );
     expect(misread).toEqual([]);
 
-    // At most one canvas, inside an ink slot and hidden from assistive technology (the software
-    // renderer of this project has none), and nothing is blended.
-    const canvases = await page.locator("canvas").evaluateAll((elements) =>
-      elements.map((element) => ({
-        inSlot: !!element.closest("[data-ink-slot]"),
-        hidden: element.getAttribute("aria-hidden") === "true",
-      })),
-    );
-    expect(canvases.length).toBeLessThanOrEqual(1);
-    for (const canvas of canvases) expect(canvas).toEqual({ inSlot: true, hidden: true });
+    // No canvas, and nothing is blended.
+    await expect(page.locator("canvas")).toHaveCount(0);
     const blended = await page.evaluate(
       () =>
         [...document.querySelectorAll("*")].filter(
@@ -315,17 +306,12 @@ test.describe("home", () => {
     expect(order).toEqual({ heroFirst: true });
   });
 
-  test("the hero holds no tally, and one caret: the prompt box's, which is decoration", async ({
-    page,
-  }) => {
+  test("the hero holds no tally and no caret", async ({ page }) => {
     await page.goto("/");
     const hero = page.locator("[data-band]").filter({ has: page.locator("h1") });
     await expect(hero).toHaveCount(1);
     await expect(hero.locator("[data-tally]")).toHaveCount(0);
-    await expect(hero.locator("[data-caret]")).toHaveCount(1);
-    await expect(hero.locator('[data-hero-prompt][aria-hidden="true"] [data-caret]')).toHaveCount(
-      1,
-    );
+    await expect(hero.locator("[data-caret]")).toHaveCount(0);
   });
 
   test("states the answer as a figure, a sentence and a tally of nine and one", async ({

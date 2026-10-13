@@ -1,5 +1,4 @@
 import type { ReactNode } from "react";
-import { InkLayer } from "@/components/ink/ink-layer";
 import { Footer } from "@/components/layout/footer";
 import { Header } from "@/components/layout/header";
 import type { PhaseLink } from "@/components/layout/nav-links";
@@ -39,7 +38,6 @@ export default async function SiteLayout({ children }: { children: ReactNode }) 
           {children}
         </main>
         <Footer />
-        <InkLayer />
       </div>
     </>
   );

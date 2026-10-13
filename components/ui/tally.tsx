@@ -16,9 +16,6 @@ type BlockState = "ink" | "mark" | "empty";
  * motion, the tally is simply drawn in its final state. Inside a `[data-ninety]` band the blocks
  * follow the band's scroll instead (app/motion.css), so leave `animate` off there.
  *
- * `anchor` names one block for the ink layer: `{ block: 10, name: "tenth" }` puts
- * `data-ink-anchor="tenth"` on the tenth block, the place a drop of ink falls from.
- *
  * Hooks: `data-tally` on the root, `data-block="ink" | "mark" | "empty"` on each block, whose
  * position from 0 is the custom property `--i`.
  */
@@ -30,7 +27,6 @@ export function Tally({
   numerals = false,
   animate = false,
   label,
-  anchor,
   className,
 }: {
   total: number;
@@ -40,7 +36,6 @@ export function Tally({
   numerals?: boolean;
   animate?: boolean;
   label?: string;
-  anchor?: { block: number; name: string };
   className?: string;
 }) {
   const stateOf = (position: number): BlockState => {
@@ -55,7 +50,6 @@ export function Tally({
       <span
         key={index}
         data-block={state}
-        data-ink-anchor={anchor?.block === index + 1 ? anchor.name : undefined}
         className={cx(styles.block, styles[state])}
         style={cssVars({ "--i": index })}
       >

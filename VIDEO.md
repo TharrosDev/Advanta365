@@ -4,26 +4,23 @@ How Advanta365 videos are made. A fresh session should be able to plan, build, c
 new video from this file alone. The launch video, "Blank Prompt" (45 seconds), was made this way.
 Its code is in `video/`. Its designs are in `docs/superpowers/specs/`: v1
 (`2026-10-13-launch-video-design.md`) and the rebuilt v2 (`2026-10-13-launch-video-v2-design.md`),
-which is the current one.
+which is the current one, except that its ink has since been removed: the transitions are now
+plain sheets of paper and binder (see "Transitions" below).
 
 ## How it works
 
 The video is built in code, not in an editor. Every scene is HTML and CSS, drawn as a pure function
-of time. Chromium screenshots each frame and ffmpeg encodes the frames into an MP4. The ink is the
-site's own fluid engine, rendered frame by frame into image plates. The music and sound effects are
-synthesized in Node, one sample at a time, from the same timeline.
+of time. Chromium screenshots each frame and ffmpeg encodes the frames into an MP4. The music and
+sound effects are synthesized in Node, one sample at a time, from the same timeline.
 
-| File                   | Job                                                                                                                                                     |
-| ---------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `video/timeline.mjs`   | The only source of every time and every fact on screen: tempo, scenes in bars and beats, facts, plate timings. Picture, plates and sound all import it. |
-| `video/launch.html`    | The scenes. `window.renderAt(t)` sets every element's state for second `t` and resolves when its images are decoded. No CSS animations, no clocks.      |
-| `video/plate-defs.mjs` | The choreography of each ink plate: which site ink scene it starts from, anchors, pre-roll and its own drops.                                           |
-| `video/plates.html`    | Loads the ink engine from `lib/ink/` and steps it by hand (`window.plateTo(t)`).                                                                        |
-| `video/plates.mjs`     | Renders the plates to `video/out/plates/<name>/0000.jpg…` at 30 fps, cached per plate by a hash of its timing, its definition and the engine.           |
-| `video/sound.mjs`      | Synthesizes music (pad, bass, arpeggio, kick with sidechain duck, hats, a build) and the effects to a WAV.                                              |
-| `video/render.mjs`     | Brings the plates up to date, screenshots every frame, encodes, normalizes the sound to -16 LUFS in two loudnorm passes, muxes.                         |
-| `video/serve.mjs`      | The local static server. It strips TypeScript types on request, so the browser can import `lib/ink/engine` with no bundler.                             |
-| `video/out/`           | Output and plate cache. Ignored by git. The MP4 is never committed.                                                                                     |
+| File                 | Job                                                                                                                               |
+| -------------------- | --------------------------------------------------------------------------------------------------------------------------------- |
+| `video/timeline.mjs` | The only source of every time and every fact on screen: tempo, scenes in bars and beats, facts. Picture and sound both import it. |
+| `video/launch.html`  | The scenes. `window.renderAt(t)` sets every element's state for second `t`. No CSS animations, no clocks.                         |
+| `video/sound.mjs`    | Synthesizes music (pad, bass, arpeggio, kick with sidechain duck, hats, a build) and the effects to a WAV.                        |
+| `video/render.mjs`   | Screenshots every frame, encodes, normalizes the sound to -16 LUFS in two loudnorm passes, muxes.                                 |
+| `video/serve.mjs`    | The local static server, rooted at the repository so the page can load the paper grain from `public/paper/`.                      |
+| `video/out/`         | Output. Ignored by git. The MP4 is never committed.                                                                               |
 
 Nothing in `video/` is served by the site. Next.js serves only `app/` and `public/`.
 
@@ -35,26 +32,21 @@ Nothing in `video/` is served by the site. Next.js serves only `app/` and `publi
 3. Chromium: Playwright's own browser is used by default. In the cloud container the Playwright
    version does not match the preinstalled browser, so set
    `CHROMIUM_PATH=/opt/pw-browsers/chromium`. Never run `playwright install` there.
-4. Node 22.13 or later: `serve.mjs` uses `stripTypeScriptTypes` from `node:module`. Run the
-   scripts with `node --no-warnings` to hide its experimental warning.
-5. Network: the page loads Besley and Atkinson Hyperlegible Next from Google Fonts. Without network
+4. Network: the page loads Besley and Atkinson Hyperlegible Next from Google Fonts. Without network
    access the type falls back to Georgia and system sans, and the video will look wrong.
 
 ## Commands
 
-| Command                                    | What it does                                                                        |
-| ------------------------------------------ | ----------------------------------------------------------------------------------- |
-| `node video/render.mjs --stills 4,12.5,30` | Single frames at those seconds to `video/out/stills/`. Missing plates render blank. |
-| `node video/plates.mjs`                    | Renders the ink plates that are out of date (about 30 minutes for all four)         |
-| `node video/plates.mjs --only flood`       | One plate (`--force` renders even if it is up to date)                              |
-| `node video/render.mjs`                    | The full video to `video/out/advanta365-launch.mp4`, plus a copy under 30 MB        |
-| `node video/render.mjs --sound`            | The sound only, muxed onto the last rendered picture (seconds, not minutes)         |
-| `node video/sound.mjs`                     | Writes only the raw sound to `video/out/sound.wav`                                  |
+| Command                                    | What it does                                                                 |
+| ------------------------------------------ | ---------------------------------------------------------------------------- |
+| `node video/render.mjs --stills 4,12.5,30` | Single frames at those seconds to `video/out/stills/`.                       |
+| `node video/render.mjs`                    | The full video to `video/out/advanta365-launch.mp4`, plus a copy under 30 MB |
+| `node video/render.mjs --sound`            | The sound only, muxed onto the last rendered picture (seconds, not minutes)  |
+| `node video/sound.mjs`                     | Writes only the raw sound to `video/out/sound.wav`                           |
 
-Timings in the cloud container (4 cores, no GPU): the ink engine runs on SwiftShader at about
-3.3 seconds a frame, so plates are the slow part. The full picture, 2,700 frames at 60 fps, takes
-about 20 minutes. Don't run stills or tests while plates render: on 4 cores they slow the plates
-down by five times or more.
+Timings in the cloud container (4 cores, no GPU): a still takes a second or two and the sound
+about ten seconds. The full picture, 2,700 frames at 60 fps, took about 20 minutes with the old
+ink plates; it has not been timed without them.
 
 ## The process
 
@@ -115,25 +107,26 @@ Rules that keep frames deterministic and on the beat:
   that rises and sharpens, `pop` for words, `knock(t, t0, amp)` for a camera shake on a hit,
   `drift(t)` so no frame stands still, and `cam(el, {scale, x, y, ox, oy})` for a scene's camera.
 - Each scene is a full-frame `<section class="scene">`, shown only while it is on screen.
-- A plate is shown with `plateAt(name, t)`, which blends its two nearest 30 fps frames for 60 fps.
-  Lay ink over the page with `mix-blend-mode: multiply` (white is transparent), under text as a
-  background. To keep a plate's ink away from text, mask the plate (`mask-image` with a
-  `linear-gradient`); the paper behind it is the same white, so the mask leaves no edge.
 - `window.videoReady` waits for fonts and lays out the documents before the first frame.
 - Sounds are placed at times taken from the timeline, never typed in by hand.
 
-### 4. Ink plates
+### 4. Transitions
 
-The engine (`lib/ink/engine`) is deterministic: fixed 1/60 s steps and one seeded random source.
-A plate starts from one of the site's scenes (`lib/ink/scenes.ts`: intro, prompt, title, ninety,
-bloom, wisps, spill) with `preset(name, { anchors })`, then adds its own `drop`, `fire` and `clear`
-events. Paper scenes and binder scenes come from the scene's look (`ninety` and `wisps` are dark).
+The video has no ink and no background motion: grounds are plain paper or plain binder, and the
+words do the moving. Scenes change with a cut or with a sheet that slides over the last one, in
+step with a sound from the timeline.
 
-- Do not use `setCalmZone` for video. It switches on with a hard rectangular edge. Keep text clear
-  by where the drops fall, or by `clear({ duration })`, which turns the ink to mist.
-- A plate that has to be well under way when it appears takes a `preroll` in seconds.
-- Preview a plate cheaply with `node --no-warnings video/preview-plate.mjs <plate> 1,2.5,4 <dir>` at low quality before the
-  long render.
+- **The clear** (`SCENES.clear`, bar 4). Into the downbeat, the faded prompt and the generic reply
+  are swept up and blurred off the paper, the way the prompt left when it was sent. On the boom
+  only the verdict is left, with a camera knock. At `TAGLINE.sheet` a fresh sheet of paper slides
+  up over the verdict, with a whoosh, and the tagline rises on it.
+- **The fresh sheets.** "What it is" and the rollout each arrive the same way, a sheet sliding up
+  over the scene before.
+- **The binder sheet** (`WIPE`). From `WIPE.start` a binder-coloured sheet slides up over the
+  counters, gathering speed under a rising rumble, and lands on the slam at `WIPE.black`. The
+  binder scene of the same colour takes over under it.
+- **The ninety and the end card** have nothing behind them: the bar and the highlighter carry the
+  light blue.
 
 ### 5. Brand
 
@@ -178,7 +171,8 @@ From v1:
 - **Numerals collide.** Large numerals need about 0.6em per digit. Give each counter a fixed
   column wide enough for its own number.
 - **Long words overflow.** Size titles to the longest word, not the average.
-- **A crossfade from white to the dark binder passes through grey.** Use an ink wipe or a cut.
+- **A crossfade from white to the dark binder passes through grey.** Slide a binder sheet over the
+  page, or cut.
 - **Peak normalizing is driven by the spikiest sound.** Normalize loudness (LUFS) instead.
 - **AAC overshoots** a WAV's peak; keep a true-peak ceiling of -1.5 dBTP.
 
@@ -188,15 +182,6 @@ From v2:
   read them in order.
 - **Brand early.** A launch video that names the product only in its last seconds loses everyone
   who leaves early.
-- **Calm zones cut hard edges** into the ink. Choreograph the drops instead.
-- **Ink drifting under text** needs the drops kept on the far side of the frame and a velocity
-  that carries them away from the words.
-- **A plate cache keyed on the whole plate page** re-renders every plate when one changes. Key each
-  plate on its own definition.
-- **CPU contention.** Plate rendering on SwiftShader uses every core; anything else running beside
-  it slows it many times over.
-- **Rising ink reaches the words.** A plate with a long pre-roll climbed through the end card's
-  price and call to action. Check the last seconds of every plate behind text, and mask it.
 - **A line on screen for less than a second is not read.** Give every message at least a beat and
   a half before the next scene takes it away.
 - **Waiting on a process by name.** `pgrep -f name` in a shell loop also matches the loop's own
@@ -204,12 +189,17 @@ From v2:
   `run_in_background` once the first has finished.
 - **The chat's 30 MB limit.** The master did not fit; render the share copy every time.
 
+After v2:
+
+- **Background motion competes with the words.** v2 laid the site's fluid ink under and over the
+  scenes; the user found it distracting and it was removed from the site and the video. Keep the
+  grounds plain and let the type, the documents and the highlighter move.
+
 ## Checklist
 
 - [ ] Concept, format, audio, footage, length agreed; storyboard approved
 - [ ] Every fact traced to `lib/site.ts`, `content/` or `PRODUCT.md`; caveats raised
 - [ ] Timeline in bars and beats; scenes drawn through `renderAt(t)`
-- [ ] Plates previewed at low quality, then rendered
 - [ ] Contact sheets of stills checked, including transitions
 - [ ] Full render: length, frame count, loudness and waveform checked
 - [ ] `pnpm lint` and `pnpm test` pass

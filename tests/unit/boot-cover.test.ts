@@ -3,16 +3,12 @@ import { fileURLToPath } from "node:url";
 import { createElement } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { describe, expect, it } from "vitest";
-import { InkBackdrop } from "@/components/ink/ink-backdrop";
 import { IntroCover } from "@/components/intro/intro-cover";
-import { INTRO_BACKSTOP_MS, INTRO_CLICK_GUARD_MS, INTRO_TAKEOVER_MS } from "@/lib/boot/state";
+import { INTRO_BACKSTOP_MS, INTRO_CLICK_GUARD_MS } from "@/lib/boot/state";
 import { MARK_BAR_D, MARK_DIGITS, MARK_LEGS_D, MARK_TAIL_D } from "@/lib/brand/mark";
-import { STAGES } from "@/lib/ink/stage";
-import { STILLS, stillPath } from "@/lib/ink/stills";
 import { SITE } from "@/lib/site";
 
-// The cover of a first visit as markup, the budget its timeline keeps, and the backdrop contract
-// the ink layer relies on.
+// The cover of a first visit as markup, and the budget its timeline keeps.
 
 const cover = renderToStaticMarkup(createElement(IntroCover));
 const count = (text: string, part: string) => text.split(part).length - 1;
@@ -49,11 +45,8 @@ describe("the cover's markup", () => {
     expect(count(cover, ">Skip<")).toBe(1);
   });
 
-  it("holds the intro backdrop with an empty slot and no still", () => {
-    expect(count(cover, "data-ink-backdrop")).toBe(1);
-    expect(cover).toContain('data-scene="intro"');
-    expect(cover).toContain('data-ink-state="idle"');
-    expect(count(cover, "data-ink-slot")).toBe(1);
+  it("holds no picture and no canvas", () => {
+    expect(cover).not.toContain("data-ink");
     expect(cover).not.toContain("<img");
     expect(cover).not.toContain("<canvas");
   });
@@ -70,12 +63,13 @@ describe("the cover's timeline", () => {
     return Number(match?.[1]);
   };
 
-  it("holds the finished mark from 1000 to 2500ms and is gone 2950ms after first paint without ink", () => {
+  it("holds the finished mark from 1000 to 2500ms and is gone 2950ms after first paint", () => {
     expect(ms("leave-at")).toBe(2500);
     expect(ms("leave-at") + ms("leave")).toBe(2950);
     // The mark is complete at 1000ms (the last digit) and stands there for a second and a half.
     const written = ms("pen-digits-at") + 2 * ms("pen-digit-step") + ms("pen-digit");
     expect(ms("leave-at") - written).toBe(1500);
+    expect(ms("leave-at") + ms("leave")).toBeLessThan(INTRO_BACKSTOP_MS);
   });
 
   it("takes the signature off the paper before the paper clears, so the mark never lies over the page", () => {
@@ -85,38 +79,10 @@ describe("the cover's timeline", () => {
     expect(hold).not.toBeNull();
     const clearsAt = ms("leave-at") + (Number(hold?.[1]) / 100) * ms("leave");
     expect(ms("sign-leave-at") + ms("sign-leave")).toBeLessThanOrEqual(clearsAt);
-    // After the mark is complete (1000) and after the latest takeover by the ink, so the ink never
-    // finds the signature half gone; and at the moment the ink's own state takes it off.
-    expect(ms("sign-leave-at")).toBeGreaterThan(INTRO_TAKEOVER_MS);
-    expect(ms("sign-leave-at")).toBe(ms("ink-sign-at"));
     expect(css).toMatch(
       /:root\[data-intro="play"\]\s+\.signature\s*\{\s*animation:\s*sign-leave\b/,
     );
     expect(css).toMatch(/:root\[data-intro="play"\]\s+\.hint\s*\{[^}]*sign-leave\b/);
-  });
-
-  it("is gone 3500ms after the ink took it over, so at most 5100ms in, inside the backstop", () => {
-    expect(ms("ink-leave-at")).toBe(2700);
-    expect(ms("ink-leave-at") + ms("ink-leave")).toBe(3500);
-    expect(INTRO_TAKEOVER_MS + ms("ink-leave-at") + ms("ink-leave")).toBe(5100);
-    expect(INTRO_TAKEOVER_MS + ms("ink-leave-at") + ms("ink-leave")).toBeLessThan(
-      INTRO_BACKSTOP_MS,
-    );
-  });
-
-  it("ends the ink's exit with the scene, the cover starting to fade 250ms into the clear", () => {
-    // Both run from the moment of the takeover; the cover is never gone with the ink still opaque.
-    expect(ms("ink-leave-at") + ms("ink-leave")).toBe(STAGES.intro.runMs);
-    expect(ms("ink-leave-at") - 2450).toBe(250);
-  });
-
-  it("takes the signature off at 2500ms of the cover's own clock, whenever the ink came", () => {
-    // The layer writes the time of the takeover as `--taken`; the delay is counted from the state.
-    expect([ms("ink-sign-at"), ms("ink-sign-at") + ms("ink-sign")]).toEqual([2500, 2800]);
-    expect(ms("ink-sign-at")).toBe(ms("leave-at"));
-    expect(css).toMatch(
-      /:root\[data-intro="ink"\]\s+\.signature\s*\{[^}]*calc\(var\(--ink-sign-at\) - var\(--taken, 0ms\)\)/,
-    );
   });
 
   it("is gone 200ms after an input", () => {
@@ -133,9 +99,7 @@ describe("the cover's timeline", () => {
     expect(skip?.[1]).not.toMatch(/pointer-events/);
     expect(skip?.[1]).toMatch(/visibility:\s*hidden/);
     // The cover's own ways out do turn it off while the paper fades: the page is then the visitor's.
-    for (const name of ["cover-leave", "cover-ink"]) {
-      expect(frames(name)?.[1], name).toMatch(/pointer-events:\s*none/);
-    }
+    expect(frames("cover-leave")?.[1]).toMatch(/pointer-events:\s*none/);
     // And a touch held past the skip is covered by the boot script's click guard.
     expect(INTRO_CLICK_GUARD_MS).toBeGreaterThan(ms("skip"));
   });
@@ -165,83 +129,5 @@ describe("the cover's timeline", () => {
     // The strokes do not name a state, so a change of state never restarts them.
     expect(css).toMatch(/:root\[data-intro\]\s+\.legs\s*\{/);
     expect(css).not.toMatch(/:root\[data-intro="[a-z]+"\]\s+\.(legs|bar|tail|name)\b/);
-  });
-});
-
-describe("a backdrop's markup", () => {
-  const html = renderToStaticMarkup(
-    createElement(InkBackdrop, {
-      scene: "prompt",
-      still: { wide: "prompt-wide", tall: "prompt-tall" },
-      edges: "bottom",
-    }),
-  );
-
-  it("is a hidden layer with a still and a slot, and nothing after it", () => {
-    expect(html).toMatch(
-      /^<div[^>]*data-ink-backdrop=""[^>]*data-scene="prompt"[^>]*data-edges="bottom"[^>]*data-ink-state="idle"[^>]*aria-hidden="true"/,
-    );
-    expect(html).toMatch(/<div data-ink-slot=""[^>]*><\/div><\/div>$/);
-    expect(html).not.toContain("<canvas");
-    expect(html).not.toContain("data-ink-control");
-  });
-
-  it("serves the wide still from 68em and the tall one below, lazily and without a description", () => {
-    expect(html).toContain('<source media="(min-width: 68em)" srcSet="/ink/prompt-wide.webp"/>');
-    expect(html).toMatch(/<img[^>]*src="\/ink\/prompt-tall\.webp"/);
-    expect(html).toMatch(/<img[^>]*alt=""/);
-    expect(html).toMatch(/<img[^>]*loading="lazy"/);
-    expect(html).toMatch(/<img[^>]*decoding="async"/);
-    expect(html).toMatch(/<img[^>]*fetchPriority="low"/i);
-  });
-
-  it("asks for a first-screen still at high priority, and still lazily", () => {
-    const first = renderToStaticMarkup(
-      createElement(InkBackdrop, {
-        scene: "prompt",
-        still: { wide: "prompt-wide", tall: "prompt-tall" },
-        priority: true,
-      }),
-    );
-    expect(first).toMatch(/<img[^>]*fetchPriority="high"/i);
-    expect(first).toMatch(/<img[^>]*loading="lazy"/);
-  });
-
-  it("uses one image when a scene has one still", () => {
-    const one = renderToStaticMarkup(
-      createElement(InkBackdrop, { scene: "title", still: { wide: "title" } }),
-    );
-    expect(one).not.toContain("<source");
-    expect(one).toMatch(/<img[^>]*src="\/ink\/title\.webp"/);
-  });
-});
-
-describe("the stills manifest", () => {
-  it("names the thirteen stills, each once, with its page and window", () => {
-    expect(STILLS.map((still) => still.name)).toEqual([
-      "prompt-wide",
-      "prompt-tall",
-      "ninety-wide",
-      "ninety-tall",
-      "bloom-wide",
-      "bloom-tall",
-      "bloom-purchase-wide",
-      "bloom-purchase-tall",
-      "wisps-wide",
-      "wisps-tall",
-      "title",
-      "spill-wide",
-      "spill-tall",
-    ]);
-    for (const still of STILLS) {
-      expect(still.route.startsWith("/")).toBe(true);
-      expect(still.name.startsWith(still.scene)).toBe(true);
-      const tall = still.name.endsWith("-tall");
-      // A tall frame is captured in a phone's window at twice its density, a wide one in a desktop
-      // window (the narrowest, the usual or the widest width the frame is shown in) at one.
-      expect(tall ? [320, 390] : [1088, 1440, 1920]).toContain(still.viewport[0]);
-      expect(still.ratio).toBe(tall ? 2 : 1);
-      expect(stillPath(still.name)).toBe(`/ink/${still.name}.webp`);
-    }
   });
 });

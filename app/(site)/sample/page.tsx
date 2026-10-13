@@ -70,7 +70,6 @@ export default async function SamplePage() {
     <>
       <TitleBlock
         form="wide"
-        ink
         title="A complete worked example"
         lead="A full change management strategy for the fictional Meridian Group, an organization of about 10,000 employees, shows how the pieces of the toolkit fit together."
         aside={<WorkedExample name="Meridian Group" />}

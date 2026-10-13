@@ -21,8 +21,6 @@ can be paid for yet. The bar's "Get the toolkit" button is a link to the Purchas
   `--font-besley` and `--font-atkinson`.
 - Motion is CSS in `app/motion.css`, switched on by attributes. A small inline boot script
   (`lib/boot/boot-script.ts`) sets the root attributes before the first paint.
-- The ink is one WebGL2 canvas running a fluid simulation (`lib/ink/`, `components/ink/`). Where it cannot
-  run, the stills in `public/ink/` stand in. They are settled frames of the same engine.
 - Catalog records are validated with zod when the catalog loads.
 - The runtime dependencies are `next`, `react`, `react-dom` and `zod`. The design gate fails `pnpm test`
   if that list changes.
@@ -46,16 +44,12 @@ Install with `pnpm install`. If `pnpm` is not on the PATH, run `corepack enable`
 
 The scripts in `scripts/` have no package script. Run them by path from the repository root.
 
-| Command                                                | What it does                                                                                                                       |
-| ------------------------------------------------------ | ---------------------------------------------------------------------------------------------------------------------------------- |
-| `node scripts/gen-icon.mjs`                            | Writes `app/icon.svg` from the mark in `lib/brand/mark.ts` (run it after any change to the mark)                                   |
-| `node scripts/ink-stills.mjs`                          | Captures the thirteen stills into `public/ink/` (needs a production build and a graphics card)                                     |
-| `node scripts/ink-stills.mjs --check`                  | Checks that each still keeps its contrast caps under the calm zones, at seven widths                                               |
-| `node scripts/ink-stills.mjs --blue`                   | Checks that the light blue of the ink stays light                                                                                  |
-| `node scripts/ink-stills.mjs --sheets`                 | Saves contact sheets of every scene into `.qa-shots/final/`                                                                        |
-| `node scripts/check-budgets.mjs http://localhost:3100` | Checks the home page's scripts and the ink shader chunks against `tests/budgets/baseline.json` (needs a running production server) |
-| `node scripts/paper-grain.mjs`                         | Writes `public/paper/grain.png`                                                                                                    |
-| `node video/render.mjs`                                | Renders the 45 second launch video to `video/out/advanta365-launch.mp4` (`--stills 3,12` renders single frames; see `VIDEO.md`)    |
+| Command                                                | What it does                                                                                                                                        |
+| ------------------------------------------------------ | --------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `node scripts/gen-icon.mjs`                            | Writes `app/icon.svg` from the mark in `lib/brand/mark.ts` (run it after any change to the mark)                                                    |
+| `node scripts/check-budgets.mjs http://localhost:3100` | Checks the home page's scripts against `tests/budgets/baseline.json`, and that no WebGL shader chunk comes back (needs a running production server) |
+| `node scripts/paper-grain.mjs`                         | Writes `public/paper/grain.png`                                                                                                                     |
+| `node video/render.mjs`                                | Renders the 45 second launch video to `video/out/advanta365-launch.mp4` (`--stills 3,12` renders single frames; see `VIDEO.md`)                     |
 
 The browser tests need Chromium once, from `pnpm exec playwright install chromium`. They reuse a server
 already running on port 3100 unless `CI` is set, so stop a stale server first. The Playwright projects are:
@@ -63,8 +57,6 @@ already running on port 3100 unless `CI` is set, so stop a stale server first. T
 - `chromium`: desktop Chrome at 1280 by 800.
 - `mobile`: Pixel 7.
 - `quiet` and `quiet-mobile`: the tests tagged `@quiet`, one at a time once the two above have finished.
-- `gpu`: the live ink on a graphics card. It runs after the others and sets Chromium's GPU arguments
-  (on Windows, `--use-angle=d3d11` with `--ignore-gpu-blocklist` and `--enable-gpu`).
 - `firefox`: registered only where the installed Firefox starts.
 
 `tests/e2e/viewports.spec.ts` runs in `chromium` and sets its own window sizes: seven routes at sixteen
@@ -74,8 +66,8 @@ only the specs a change touches (see `docs/testing.md`); this one is the guard f
 or CSS.
 
 The unit tests cover catalog validation and the six free samples, queries, URL state, phase coverage, price
-formatting, the mark and its 365, the ink's scenes, stages and calm zones, the boot script and the cover's
-timings, the motion stylesheet, the stills and the design gate.
+formatting, the mark and its 365, the boot script and the cover's timings, the motion stylesheet and the
+design gate.
 
 ## Folder layout
 
@@ -85,15 +77,14 @@ app/
   globals.css         Design tokens, the data-band surfaces, base rules and the type classes
   motion.css          Motion: entrances, the ninety, page changes and the pointer's light
   icon.svg            The site icon (generated: `node scripts/gen-icon.mjs`)
-  not-found.tsx       The 404 page outside the site group, with the ink layer
+  not-found.tsx       The 404 page outside the site group
   (site)/             Public pages inside the site shell
-    layout.tsx        Skip link, header, phase rail, main, footer, ink layer
+    layout.tsx        Skip link, header, phase rail, main, footer
     page.tsx          Home: an array of sections, in order
     purchase/ catalog/ phases/[phase]/ about/ sample/
     privacy/ terms/ refunds/ accessibility/
                       The four legal pages, each one LegalDocument in the shared LegalPage layout
     [...rest]/        Calls notFound(), so unknown paths keep the site shell
-  (lab)/ink-lab/      The ink on a mock stage, in development only
 components/
   ui/                 Primitives (see Design system)
   layout/             Header, PrimaryNav, PurchaseButton, NavDrawer, PhaseRail, TitleBlock, Breadcrumbs,
@@ -112,7 +103,6 @@ components/
   contact/            ContactSection, the whole Contact page as one section
   legal/              LegalPage, the one layout of the four legal pages: contents, article, policies
   company/            NextSteps (Why Advanta and Sample), StatementSection and WorkedExample (Sample)
-  ink/                InkBackdrop, InkLayer, the controller and the lab
   intro/              The cover of a first visit, and the tag that prints the boot script
   not-found/          MissingPage, AskedPath and LateBoot
 content/              The sample catalog: phases, one template file per phase, taxonomy, and the worked
@@ -129,15 +119,13 @@ lib/
                       the worked example's contents
   checkout/           The order's schemas (zod/mini), the draft kept in session storage, the step
                       machine, the order's code, text and mailto, and provider.ts: the payment seam
-  ink/                The engine (engine/), scenes, stage choice, calm zones, pigments, stills, test hook
   boot/               The boot script and the pure decisions it mirrors
   legal/              The four legal pages as data (privacy, terms, refunds, accessibility), their types,
                       and facts.ts: LEGAL, the one object of facts and decisions the owner fills in
   scroll/             The observer for entrances, the pointer's light, and a sideways row's current item
                       brought into view
-public/ink/           The thirteen stills (WebP)
 public/paper/         The paper grain
-scripts/              ink-stills, check-budgets and paper-grain
+scripts/              gen-icon, check-budgets and paper-grain
 tests/unit/           Vitest, including the design gate
 tests/e2e/            Playwright specs, helpers.ts and support/
 tests/budgets/        The baseline that check-budgets compares with
@@ -156,9 +144,7 @@ next.config.ts        Redirects the retired addresses (bundles, pricing, cart, a
   (a template's slug) opens a free sample in the pop-up, so every view can be shared and is rendered on the
   server. Values within one filter combine with OR, filters combine with AND, and a page holds 24 templates.
 - **Colour, spacing, type and motion are tokens.** Raw colour values (hex and the colour functions) appear
-  only in `app/globals.css` and `app/icon.svg`. The ink reads its six pigments from the `--pigment-*`
-  tokens. `lib/ink/pigments.ts` keeps matching fallbacks as 0 to 255 numbers for when the tokens cannot be
-  read.
+  only in `app/globals.css` and `app/icon.svg`.
 - **Layout space is the 7px scale**, `--s-1` (7px) to `--s-9` (168px). The only layout breakpoints are
   `40em` and `68em`.
 - **Sizes and spaces are in rem, so a large monitor scales the page as one piece.** Past a 1600px window
@@ -172,10 +158,10 @@ next.config.ts        Redirects the retired addresses (bundles, pricing, cart, a
   `prefers-color-scheme`; the site sets `color-scheme: light` on `:root`.
 - **Motion sits behind the no-preference query.** Every keyframe and animation is inside
   `(prefers-reduced-motion: no-preference)`, and stylesheets never contain `infinite`. Motion is switched
-  by attributes on `<html>` and on elements (see Motion and ink).
-- **Canvas, WebGL, animation frames and scroll listeners have fixed homes.** A canvas or WebGL call belongs
-  in `lib/ink/`, `components/ink/` or `lib/boot/`. `requestAnimationFrame` and scroll listeners belong in
-  those three, or in `lib/scroll/` and `components/intro/`.
+  by attributes on `<html>` and on elements (see Motion).
+- **No canvas or WebGL; animation frames and scroll listeners have fixed homes.** `<canvas`, `getContext(`
+  and `webgl` appear nowhere in the source. `requestAnimationFrame` belongs in `lib/scroll/`, `lib/boot/` or
+  `components/intro/`, and scroll listeners in `lib/scroll/`.
 - **Internal links use `TransitionLink`**, or a primitive built on it. Only
   `components/ui/transition-link.tsx` imports `next/link`.
 - **Each page has one `h1`**, its title. The shell provides one `banner` (the header), one `main` and one
@@ -185,8 +171,6 @@ next.config.ts        Redirects the retired addresses (bundles, pricing, cart, a
 - **The price is written once.** `OFFER.priceCents` in `lib/site.ts` is integer cents (149999) and
   `OFFER.currency` its currency ("CAD"); `formatPrice` in `lib/format.ts` prints them as $1,499.99 CAD.
 - **Exactly six templates are free.** `free: true` marks them, and validation fails with any other count.
-- **The ink keeps clear of copy it is told about.** Copy marks itself with `data-ink-calm` (`text`,
-  `display` or `veil`), and a backdrop's open water is marked with `data-ink-anchor="open"`.
 
 `pnpm test` runs the design gate (`tests/unit/design-gate.test.ts`), which enforces the text-checkable rules
 above and blocks a fixed list of names and techniques from the source.
@@ -233,8 +217,7 @@ export function Example() {
 The palette has three families. Paper and ink: `--paper`, `--paper-shade`, `--desk`, `--desk-deep`, `--rule`,
 `--rule-firm`, `--ink`, `--ink-soft` and `--ink-faint`. The highlighter: `--mark`, `--mark-deep` and
 `--mark-wash`, with `--on-mark` as the text colour on it. The binder: `--binder`, `--binder-rise` and
-`--on-binder`. Errors use `--alert` and `--alert-wash`. The `--pigment-*` tokens name the six colours the ink
-paints with.
+`--on-binder`. Errors use `--alert` and `--alert-wash`.
 
 ### Type
 
@@ -283,30 +266,27 @@ Display and lead sizes are `clamp()` tokens between a phone value and a desktop 
 - Form controls: `Input`, `Select` and `Checkbox`.
 - Motion: `Appear`, `MotionRoot` and `PageShift`.
 
-## Motion and ink
+## Motion
 
 ### Attributes that switch motion
 
-| Attribute                                         | Set by                                                 | Effect                                                                    |
-| ------------------------------------------------- | ------------------------------------------------------ | ------------------------------------------------------------------------- |
-| `html[data-motion="on"]`                          | Boot script                                            | Switches on the motion rules                                              |
-| `html[data-timeline="on"]`                        | Boot script, where the browser supports view timelines | Entrances follow the scroll                                               |
-| `html[data-io="armed"]`                           | `MotionRoot`, once the observer starts                 | Entrances on browsers without view timelines                              |
-| `html[data-intro]`                                | Boot script and ink controller                         | The cover: `play`, `ink` or `leave`; the attribute is removed at the end  |
-| `html[data-ink]`                                  | Boot script                                            | `live` or `still`                                                         |
-| `data-move` (`drift`, `ink-in`, `settle`, `grow`) | `Appear`, `Sentences`                                  | The entrance of an element; `data-when="load"` plays it on load instead   |
-| `data-paper`, `data-lit`                          | `PaperSheet` (the `lit` prop)                          | The sheet's shadow, its lift and its tilt toward the pointer              |
-| `data-bar`                                        | `Header`                                               | The shadow under the sticky bar                                           |
-| `data-ledger`                                     | `BandedList`                                           | The rule of a ledger draws in                                             |
-| `data-ninety`                                     | The solution band (`components/home/pitch-spread.tsx`) | The ten blocks fill; the 90% figure never moves                           |
-| `data-watch`                                      | `Tally` with `animate`, `PriceTag`                     | The blocks fill, or the tag swings, when the element is seen              |
-| `data-hero-stage`, `-prompt`, `-doc`              | `HeroStage`                                            | With live ink, the hero's prompt box dissolves and the six documents land |
-| `data-tile` `data-denied`                         | `TemplateTile`, `LockedTile`                           | A locked tile says no: it vibrates, its outline and wash hit and fade     |
-| `data-page-dialog` `data-enter`                   | `PageDialog` (the catalog's pop-up, the checkout)      | The pop-up rises as the page dims                                         |
-| `data-price-tag`                                  | `PriceTag`                                             | The tag swings on its string                                              |
-| `data-nav-underline`                              | `PrimaryNav`                                           | The bar's underline slides to the current link                            |
-| `data-ink-calm` (`text`, `display`, `veil`)       | Page copy                                              | Copy the ink keeps clear of                                               |
-| `data-ink-anchor` (`open`, `tenth`)               | Ink backdrops and the tally                            | Where the open water is, and the block that fires the ninety              |
+| Attribute                                         | Set by                                                 | Effect                                                                  |
+| ------------------------------------------------- | ------------------------------------------------------ | ----------------------------------------------------------------------- |
+| `html[data-motion="on"]`                          | Boot script                                            | Switches on the motion rules                                            |
+| `html[data-timeline="on"]`                        | Boot script, where the browser supports view timelines | Entrances follow the scroll                                             |
+| `html[data-io="armed"]`                           | `MotionRoot`, once the observer starts                 | Entrances on browsers without view timelines                            |
+| `html[data-intro]`                                | Boot script                                            | The cover: `play` or `leave`; the attribute is removed at the end       |
+| `data-move` (`drift`, `ink-in`, `settle`, `grow`) | `Appear`, `Sentences`                                  | The entrance of an element; `data-when="load"` plays it on load instead |
+| `data-paper`, `data-lit`                          | `PaperSheet` (the `lit` prop)                          | The sheet's shadow, its lift and its tilt toward the pointer            |
+| `data-bar`                                        | `Header`                                               | The shadow under the sticky bar                                         |
+| `data-ledger`                                     | `BandedList`                                           | The rule of a ledger draws in                                           |
+| `data-ninety`                                     | The solution band (`components/home/pitch-spread.tsx`) | The ten blocks fill; the 90% figure never moves                         |
+| `data-watch`                                      | `Tally` with `animate`, `PriceTag`                     | The blocks fill, or the tag swings, when the element is seen            |
+| `data-hero-stage`, `data-hero-doc`                | `HeroStage`                                            | A document under the pointer or the keyboard straightens                |
+| `data-tile` `data-denied`                         | `TemplateTile`, `LockedTile`                           | A locked tile says no: it vibrates, its outline and wash hit and fade   |
+| `data-page-dialog` `data-enter`                   | `PageDialog` (the catalog's pop-up, the checkout)      | The pop-up rises as the page dims                                       |
+| `data-price-tag`                                  | `PriceTag`                                             | The tag swings on its string                                            |
+| `data-nav-underline`                              | `PrimaryNav`                                           | The bar's underline slides to the current link                          |
 
 Entrances follow the scroll where view timelines exist and fall back to an intersection observer elsewhere.
 Every animation sits behind the no-preference query, and the stylesheet forces durations to 0.01ms under
@@ -316,32 +296,8 @@ reduced motion.
 
 A first visit to `/` in a browser session plays a cover. It draws the mark in pen strokes, then the 365 on
 the arm of the mark in a finer pen, and shows the site name. The finished mark stands from 1.0 to 2.5
-seconds, and the cover is gone at 2.95 seconds, or 3.5 seconds after the ink took over from it (the ink
-may take over up to 1.6 seconds in). A press, a key, a wheel turn or a touch ends it. Reduced motion
-skips it. When the cover has gone, the hero's sequence starts, where the ink is live; with still ink
-the six documents stand from the first frame and there is no box.
-
-### Ink
-
-The ink is one canvas that the ink layer moves between backdrops as the page scrolls. The engine loads
-when a backdrop nears the viewport, and it picks a quality tier (high, medium or low) with a short probe,
-then steps down when frames run long. It comes to rest by itself after a while without input.
-
-| Scene    | Where it runs                                                                                   |
-| -------- | ----------------------------------------------------------------------------------------------- |
-| `intro`  | The cover                                                                                       |
-| `prompt` | The home page hero: a blank prompt that becomes the six free samples                            |
-| `ninety` | The solution band on the home page, which fires when the tenth block of its tally turns in view |
-| `bloom`  | The stage of the Purchase page                                                                  |
-| `wisps`  | The ink lab only; the footer has no ink                                                         |
-| `title`  | The title blocks of Why Advanta, Sample and the phase pages                                     |
-| `spill`  | The 404 page                                                                                    |
-
-On the catalog, the backdrops show the stills.
-
-Where the ink cannot run (no JavaScript, reduced motion, a software renderer, raised contrast, or no
-WebGL2), the stills stand in. The thirteen WebP files in `public/ink/` are listed in `lib/ink/stills.json`,
-each at most 90 KiB and 600 KiB in total. `scripts/ink-stills.mjs` captures them.
+seconds, and the cover is gone at 2.95 seconds. A press, a key, a wheel turn or a touch ends it. Reduced
+motion skips it. The hero has no sequence of its own: its six documents stand from the first frame.
 
 ## Replacing the sample content
 
@@ -420,11 +376,11 @@ Items to settle before launch, from content and commercial terms to the worked e
 ## Documentation
 
 - [`docs/design-system.md`](docs/design-system.md): the design system. It covers the surfaces, colour, type,
-  the 7px scale, motion, depth and paper objects, the ink, the primitives, the CSS Modules rules, the design
-  gate and the accessibility floor.
+  the 7px scale, motion, depth and paper objects, the primitives, the CSS Modules rules, the design gate and
+  the accessibility floor.
 - [`docs/architecture.md`](docs/architecture.md): the architecture. It covers the server and client
-  boundaries, routes, the site shell, the ink layer and engine, the boot script and the cover, motion, the
-  stills script, budgets, test hooks and the test contract.
+  boundaries, routes, the site shell, the boot script and the cover, motion, budgets, test hooks and the
+  test contract.
 - [`docs/testing.md`](docs/testing.md): the checks, the browser projects and every spec.
 
 ## Before public launch

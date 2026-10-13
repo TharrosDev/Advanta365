@@ -47,15 +47,13 @@
         font-family: var(--text);
         -webkit-font-smoothing: antialiased;
       }
-      .scene,
-      .layer {
+      .scene {
         position: absolute;
         inset: 0;
         overflow: hidden;
         display: none;
       }
-      .cam,
-      .plate {
+      .cam {
         position: absolute;
         inset: 0;
         width: 1920px;
@@ -63,15 +61,6 @@
       }
       .abs {
         position: absolute;
-      }
-      .plate img {
-        position: absolute;
-        inset: 0;
-        width: 1920px;
-        height: 1080px;
-      }
-      .multiply {
-        mix-blend-mode: multiply;
       }
       .mark-band {
         position: relative;
@@ -107,11 +96,13 @@
         );
         pointer-events: none;
       }
-      #black {
+      /* The binder sheet that slides up over the paper on the way to the binder. */
+      #binderSheet {
         position: absolute;
         inset: 0;
         background: var(--binder);
-        opacity: 0;
+        box-shadow: 0 -40px 80px rgb(11 13 18 / 0.22);
+        display: none;
       }
 
       /* 1 to 4: the chat. */
@@ -194,7 +185,11 @@
         transform-origin: 0 60%;
       }
 
-      /* 5 and 6: the ink and the turn. */
+      /* 5 and 6: the clear and the turn, on a fresh sheet. */
+      #turn {
+        background: var(--paper);
+        box-shadow: 0 -40px 80px rgb(11 13 18 / 0.18);
+      }
       #tagline {
         left: 140px;
         top: 220px;
@@ -202,7 +197,6 @@
         font-weight: 800;
         font-size: 150px;
         line-height: 1.02;
-        text-shadow: 0 0 40px rgb(255 255 255 / 0.9);
       }
       #tagline .word,
       #statement .word {
@@ -699,11 +693,6 @@
       #end {
         background: var(--paper);
       }
-      /* The rising ink stays in the lower third, under the words. */
-      #bloomPlate {
-        -webkit-mask-image: linear-gradient(to bottom, transparent 64%, #000 86%);
-        mask-image: linear-gradient(to bottom, transparent 64%, #000 86%);
-      }
       #endLockup {
         left: 50%;
         top: 250px;
@@ -763,10 +752,7 @@
       </div>
     </section>
 
-    <!-- 5 and 6: the ink floods the reply, then the tagline and the brand. -->
-    <section class="layer" id="floodLayer">
-      <div class="plate multiply" id="floodPlate"></div>
-    </section>
+    <!-- 5 and 6: the reply is cleared off, then a fresh sheet with the tagline and the brand. -->
     <section class="scene" id="turn">
       <div class="cam" id="turnCam">
         <div class="abs" id="tagline"></div>
@@ -818,12 +804,10 @@
           <div class="p2" id="p2"></div>
         </div>
       </div>
-      <div class="plate multiply" id="wipePlate"></div>
     </section>
 
     <!-- 11 and 12: ninety, and who it is for, on the binder. -->
     <section class="scene" id="dark">
-      <div class="plate" id="ninetyPlate"></div>
       <div class="cam" id="darkCam">
         <div class="abs" id="ninetyHead">We get you 90% of the way.</div>
         <div class="abs" id="pct">0%</div>
@@ -839,7 +823,6 @@
 
     <!-- 13: the end card. -->
     <section class="scene" id="end">
-      <div class="plate" id="bloomPlate"></div>
       <div class="cam" id="endCam">
         <div class="abs" id="endLockup">
           <div class="tile" id="tile2">
@@ -858,7 +841,7 @@
       </div>
     </section>
 
-    <div id="black"></div>
+    <div id="binderSheet"></div>
     <div id="vignette"></div>
     <div id="grain"></div>
 
@@ -936,40 +919,6 @@
         el.style.transform = `translateY(${(1 - e) * 50}px) scale(${mix(0.94, 1, e)})`;
         el.style.filter = p < 1 ? `blur(${(1 - easeOut(p)) * 8}px)` : "none";
       }
-
-      // Ink plates: two neighbouring frames of the 30 fps plate, blended for the 60 fps video.
-      const plates = {};
-      function setupPlate(name, host) {
-        const a = new Image();
-        const b = new Image();
-        host.append(a, b);
-        plates[name] = { a, b };
-      }
-      const frameUrl = (name, i) => `out/plates/${name}/${String(i).padStart(4, "0")}.jpg`;
-      async function plateAt(name, t) {
-        const p = plates[name];
-        const def = T.PLATES[name];
-        const last = Math.round((def.end - def.start) * T.PLATE_FPS);
-        const f = Math.min(last, Math.max(0, (t - def.start) * T.PLATE_FPS));
-        const i0 = Math.floor(f);
-        const i1 = Math.min(last, i0 + 1);
-        const loads = [];
-        for (const [img, url] of [
-          [p.a, frameUrl(name, i0)],
-          [p.b, frameUrl(name, i1)],
-        ]) {
-          if (img.getAttribute("src") !== url) {
-            img.setAttribute("src", url);
-            loads.push(img.decode().catch(() => {}));
-          }
-        }
-        p.b.style.opacity = f - i0;
-        await Promise.all(loads);
-      }
-      setupPlate("flood", $("floodPlate"));
-      setupPlate("wipe", $("wipePlate"));
-      setupPlate("ninety", $("ninetyPlate"));
-      setupPlate("bloom", $("bloomPlate"));
 
       // The mark, drawn stroke by stroke: the tail first, under the "A", as the site draws it.
       function buildMark(svg, h) {
@@ -1180,19 +1129,18 @@
         `See the free samples at <b class="mark-band" id="ctaBand">${END.domain}</b>`;
       $("parent").textContent = `A product of ${END.parent}`;
 
-      /** Draws the frame at second `t`. Resolves once every image on it is decoded. */
+      /** Draws the frame at second `t`. Async so the renderer can await it like any frame. */
       async function renderAt(t) {
-        const waits = [];
         const frame = Math.round(t * T.FPS);
         $("grain").style.transform = `translate(${(frame * 37) % 200}px, ${(frame * 73) % 200}px)`;
 
-        // 1 to 4: the chat, from the giant cursor to the verdict.
-        const chatOn = t < SCENES.ink.end + 0.1;
+        // 1 to 5: the chat, from the giant cursor to the verdict, then the reply cleared off.
+        const chatOn = t < SCENES.clear.end + 0.05;
         show($("chat"), chatOn);
         if (chatOn) {
           const [kx1, ky1] = knock(t, REPLY.plausible, 14);
           const [kx2, ky2] = knock(t, REPLY.unproven, 14);
-          const [kx3, ky3] = knock(t, SCENES.ink.start, 22);
+          const [kx3, ky3] = knock(t, SCENES.clear.start, 22);
           const [dx, dy] = drift(t, 5);
           const typed = keys.filter((k) => t >= k).length;
           $("typed").textContent = PROMPT.text.slice(0, typed);
@@ -1204,13 +1152,13 @@
           const sent = prog(t, PROMPT.send, 0.3);
           const pull = easeInOut(prog(t, SCENES.reply.start, 2.2));
           const push = easeInOut(prog(t, REPLY.plausible, 2.5));
-          const inkPush = easeOut(prog(t, SCENES.ink.start, 2.4));
+          const clearPush = easeOut(prog(t, SCENES.clear.start, 2.4));
           cam($("chatCam"), {
             scale:
               mix(2.6, 1, zoomOut) *
               mix(1, 0.94, pull) *
               mix(1, 1.05, push) *
-              mix(1, 1.04, inkPush),
+              mix(1, 1.04, clearPush),
             x: dx + kx1 + kx2 + kx3 + (1 - zoomOut) * 700,
             y: dy + ky1 + ky2 + ky3,
             ox: 252,
@@ -1228,8 +1176,11 @@
           $("underline").style.opacity = chrome;
 
           const dim = easeOut(prog(t, REPLY.plausible - 0.05, 0.3));
+          // Into the downbeat the faded prompt and reply are swept up off the paper, as the prompt
+          // was when it was sent, gone on the hit; only the verdict is left.
+          const gone = easeIn(prog(t, SCENES.clear.start - 0.3, 0.3));
           const b = easeOut(prog(t, PROMPT.send + 0.12, 0.45));
-          $("bubble").style.opacity = b * mix(1, 0.16, dim);
+          $("bubble").style.opacity = b * mix(1, 0.16, dim) * (1 - gone);
           const scroll =
             easeInOut(
               clamp01((t - rowTimes[8]) / (rowTimes[rows.length - 1] + 0.3 - rowTimes[8])),
@@ -1237,15 +1188,15 @@
             3 *
             74;
           $("bubble").style.transform =
-            `translateY(${(1 - b) * 60 - scroll}px) scale(${mix(0.9, 1, b)})`;
+            `translateY(${(1 - b) * 60 - scroll - gone * 220}px) scale(${mix(0.9, 1, b)})`;
           rows.forEach((row, i) => {
             const p = easeOut(prog(t, rowTimes[i], 0.32));
             row.style.opacity = p;
             row.style.transform = `translateX(${(1 - p) * -40}px)`;
           });
-          $("reply").style.transform = `translateY(${-scroll}px)`;
-          $("reply").style.opacity = mix(1, 0.16, dim);
-          $("reply").style.filter = dim > 0 ? `blur(${dim * 3}px)` : "none";
+          $("reply").style.transform = `translateY(${-scroll - gone * 220}px)`;
+          $("reply").style.opacity = mix(1, 0.16, dim) * (1 - gone);
+          $("reply").style.filter = dim > 0 ? `blur(${dim * 3 + gone * 12}px)` : "none";
 
           const slam = (el, at0) => {
             const p = prog(t, at0, 0.22);
@@ -1256,29 +1207,15 @@
           slam($("v1"), REPLY.plausible);
           slam($("v2"), REPLY.unproven);
           $("v2band").style.setProperty("--hi", easeInOut(prog(t, REPLY.unproven + 0.3, 0.35)));
-          // The ink swallows it all.
-          $("verdict").style.opacity = 1 - easeIn(prog(t, SCENES.ink.start + 0.5, 1.4));
         }
 
-        // 5: the flood plate, over the chat and under the tagline.
-        const floodOn = t >= T.PLATES.flood.start && t < SCENES.what.start + 0.05;
-        show($("floodLayer"), floodOn);
-        if (floodOn) {
-          const [kx, ky] = knock(t, SCENES.ink.start, 22);
-          cam($("floodPlate"), {
-            scale: mix(1, 1.06, easeOut(prog(t, SCENES.ink.start, 7))),
-            x: kx,
-            y: ky,
-            ox: 1300,
-            oy: 500,
-          });
-          waits.push(plateAt("flood", t));
-        }
-
-        // 6: the turn.
-        const turnOn = t >= TAGLINE.times[0] - 0.1 && t < SCENES.what.start + 0.05;
+        // 6: the turn, on a fresh sheet that slides up over the verdict.
+        const turnOn = t >= TAGLINE.sheet && t < SCENES.what.start + 0.05;
         show($("turn"), turnOn);
         if (turnOn) {
+          const inY =
+            (1 - easeInOut(prog(t, TAGLINE.sheet, TAGLINE.times[0] - TAGLINE.sheet))) * 1080;
+          $("turn").style.transform = `translateY(${inY}px)`;
           const [dx, dy] = drift(t, 4);
           cam($("turnCam"), {
             scale: mix(1, 1.05, easeInOut(prog(t, SCENES.turn.start, 5))),
@@ -1297,7 +1234,7 @@
           rise($("name1"), t, TAGLINE.introducing + 0.55, 30, 0.5);
         }
 
-        // 7: what it is, on a fresh sheet that slides up over the ink.
+        // 7: what it is, on a fresh sheet that slides up over the tagline.
         const whatOn = t >= SCENES.what.start - 0.4 && t < SCENES.rollout.start + 0.35;
         show($("what"), whatOn);
         if (whatOn) {
@@ -1388,7 +1325,7 @@
           $("rollout").style.transform = `translate(${kx}px, ${inY + ky}px) scale(${push})`;
         }
 
-        // 10: the scale, then the ink that floods it.
+        // 10: the scale, until the binder sheet covers it.
         const scaleOn = t >= SCENES.scale.start && t < WIPE.black + 0.05;
         show($("scale"), scaleOn);
         if (scaleOn) {
@@ -1421,21 +1358,23 @@
           }
           rise($("p1"), t, SCALE.proof, 40, 0.5);
           rise($("p2"), t, SCALE.proof + T.BEAT, 30, 0.5);
-          const wipeOn = t >= WIPE.start;
-          show($("wipePlate"), wipeOn);
-          if (wipeOn) waits.push(plateAt("wipe", t));
         }
-        $("black").style.opacity =
-          easeIn(prog(t, WIPE.black - 0.35, 0.35)) * (1 - prog(t, WIPE.black, 0.2));
+        // The binder sheet slides up, gathering speed, and lands on the binder with the slam; then
+        // it gives way to the binder scene of the same colour.
+        const sheetOn = t >= WIPE.start && t < WIPE.black + 0.2;
+        show($("binderSheet"), sheetOn);
+        if (sheetOn) {
+          const up = easeIn(prog(t, WIPE.start, WIPE.black - WIPE.start));
+          $("binderSheet").style.transform = `translateY(${(1 - up) * 1140}px)`;
+          $("binderSheet").style.opacity = 1 - prog(t, WIPE.black, 0.2);
+        }
 
         // 11 and 12: ninety and who, on the binder.
         const darkOn = t >= WIPE.black && t < SCENES.end.start;
         show($("dark"), darkOn);
         if (darkOn) {
-          waits.push(plateAt("ninety", t));
           const [dx, dy] = drift(t, 4);
           cam($("darkCam"), { scale: mix(1.04, 1, easeOut(prog(t, WIPE.black, 2))), x: dx, y: dy });
-          cam($("ninetyPlate"), { scale: mix(1.0, 1.05, prog(t, SCENES.ninety.start, 5)) });
           const away = easeInOut(prog(t, SCENES.who.start - 0.2, 0.45));
           const fill = 90 * easeInOut(prog(t, NINETY.fillStart, NINETY.fillEnd - NINETY.fillStart));
           $("fill").style.width = `${fill}%`;
@@ -1465,12 +1404,10 @@
         const endOn = t >= SCENES.end.start;
         show($("end"), endOn);
         if (endOn) {
-          waits.push(plateAt("bloom", t));
           cam($("endCam"), {
             scale: mix(1.0, 1.035, easeOut(prog(t, SCENES.end.start, 5))),
             oy: 420,
           });
-          cam($("bloomPlate"), { scale: mix(1.0, 1.04, prog(t, SCENES.end.start, 5)), oy: 1080 });
           const lk = prog(t, END.markStart - 0.15, 0.45);
           $("tile2").style.opacity = easeOut(lk);
           $("tile2").style.transform = `scale(${mix(0.7, 1, backOut(lk))})`;
@@ -1482,8 +1419,6 @@
           rise($("parent"), t, END.cta + T.BEAT, 16, 0.5);
         }
         $("vignette").style.opacity = darkOn ? 0 : 1;
-
-        await Promise.all(waits);
       }
 
       window.renderAt = renderAt;

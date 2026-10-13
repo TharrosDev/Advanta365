@@ -1,7 +1,6 @@
 /**
- * Renders the launch video: brings the ink plates up to date (`plates.mjs`), screenshots each frame
- * of `launch.html` in Chromium, pipes the frames to ffmpeg, synthesizes the sound (`sound.mjs`),
- * normalizes its loudness and muxes the two.
+ * Renders the launch video: screenshots each frame of `launch.html` in Chromium, pipes the frames
+ * to ffmpeg, synthesizes the sound (`sound.mjs`), normalizes its loudness and muxes the two.
  *
  *   node video/render.mjs                    the full video, to video/out/advanta365-launch.mp4, and a
  *                                            copy under 30 MB to advanta365-launch-share.mp4
@@ -15,7 +14,6 @@ import { spawn } from "node:child_process";
 import { join } from "node:path";
 import { chromium } from "@playwright/test";
 import { FPS, WIDTH, HEIGHT, DURATION } from "./timeline.mjs";
-import { renderPlates } from "./plates.mjs";
 import { serve, root } from "./serve.mjs";
 
 const out = join(root, "video", "out");
@@ -165,7 +163,6 @@ async function main() {
 
   const picture = join(out, "picture.mp4");
   if (!process.argv.includes("--sound")) {
-    await renderPlates();
     await renderPicture(picture);
   }
   const sound = join(out, "sound.m4a");

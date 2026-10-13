@@ -83,9 +83,8 @@ const FORMATS = ["DOCX", "PPTX", "XLSX", "PDF"] as const;
  * every size.
  *
  * Under the pointer the covers rise and fan a little, and the tag swings; the covers do the same
- * under keyboard focus where an element around the portfolio carries `data-folder-scope`. The
- * tally and its line are a calm rectangle for ink behind the portfolio. Hook: `data-portfolio`
- * on the folder and its tag.
+ * under keyboard focus where an element around the portfolio carries `data-folder-scope`. Hook:
+ * `data-portfolio` on the folder and its tag.
  */
 export function Portfolio({
   size,
@@ -148,7 +147,7 @@ export function Portfolio({
         <PriceTag className={styles.tag} />
       </div>
 
-      <div className={styles.reach} data-ink-calm="text">
+      <div className={styles.reach}>
         <Tally
           total={phases.length}
           filled={reached.map((phase) => phase.order)}

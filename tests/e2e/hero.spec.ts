@@ -1,9 +1,7 @@
-import { expect, test, type Page } from "@playwright/test";
+import { expect, test } from "@playwright/test";
 import { hydrated, introSeen, NAVIGATION_TIMEOUT } from "./helpers";
-import { INK_OFF } from "../../lib/boot/state";
 import {
   DOCS,
-  PROMPT,
   STAGE,
   recordStage,
   settled,
@@ -11,12 +9,10 @@ import {
   stageState,
   unsettledFrames,
 } from "./support/hero";
-import { INK_STORE, recordIntro } from "./support/ink";
+import { recordIntro } from "./support/intro";
 
-// The first screen of the home page: a blank prompt that turns into finished work. The sequence is
-// the page's half of the prompt ink scene and plays to live ink only. These projects have no
-// graphics card, so the ink here is still: the documents stand from the first frame and there is no
-// box. The sequence itself is the subject of ink-live.spec.ts, in the `gpu` project.
+// The first screen of the home page: the headline, and the six free samples as finished work. The
+// documents stand from the first frame.
 
 /** The six free samples, by slug, with the title each cover prints and each link is named by. */
 const SAMPLES: Record<string, string> = {
@@ -29,19 +25,6 @@ const SAMPLES: Record<string, string> = {
 };
 
 const HERO = "[data-band]:has(h1)";
-
-/** Sets the session's ink choice before any script of the page runs. */
-const storeInk = (page: Page, value: string) =>
-  page.addInitScript(
-    ([key, stored]) => {
-      try {
-        window.sessionStorage.setItem(key, stored);
-      } catch {
-        // No storage: the boot script asks the graphics card, and these projects have none.
-      }
-    },
-    [INK_STORE, value] as const,
-  );
 
 test.describe("the hero", () => {
   test.beforeEach(async ({ page }) => {
@@ -86,13 +69,9 @@ test.describe("the hero", () => {
       "One purchase",
     ]);
 
-    // The old right-hand column of open water is gone: the stage is the ink's anchor now.
-    await expect(hero.locator("[data-ink-anchor]")).toHaveCount(1);
-    await expect(hero.locator(STAGE)).toHaveAttribute("data-ink-anchor", "open");
-    // The documents are paper: the stage asks for no calm water behind them.
-    await expect(hero.locator(STAGE)).not.toHaveAttribute("data-ink-calm");
-    await expect(hero.locator("[data-ink-calm]")).toHaveCount(2);
-    await expect(hero.locator('[data-ink-backdrop][data-scene="prompt"]')).toHaveCount(1);
+    // Nothing lies behind the words: no backdrop, no canvas, no prompt box.
+    await expect(hero.locator(STAGE)).toHaveCount(1);
+    await expect(hero.locator("[data-ink-backdrop], [data-hero-prompt], canvas")).toHaveCount(0);
   });
 
   test("holds the six free samples as six links, named by their titles, left to right", async ({
@@ -202,21 +181,12 @@ test.describe("the hero", () => {
     await expect(page.getByRole("dialog", { name: title })).toBeVisible();
   });
 
-  test("with still ink the documents stand from the first frame, within reach of the keyboard, and there is no box", async ({
+  test("the documents stand from the first frame, within reach of the keyboard", async ({
     page,
   }) => {
     await recordStage(page);
     await page.goto("/");
-    // Movement is wanted; it is the ink that is still (no graphics card here).
     await expect(page.locator("html")).toHaveAttribute("data-motion", "on");
-    await expect(page.locator("html")).toHaveAttribute("data-ink", "still");
-
-    // The box is in the page, as decoration: a caret and two keys, hidden from assistive
-    // technology, and not displayed.
-    await expect(page.locator(PROMPT)).toHaveAttribute("aria-hidden", "true");
-    await expect(page.locator(`${PROMPT} [data-caret]`)).toHaveCount(1);
-    await expect(page.locator(`${PROMPT} a, ${PROMPT} button, ${PROMPT} input`)).toHaveCount(0);
-    await expect(page.locator(PROMPT)).toBeHidden();
 
     // The documents can be focused at once, and the keyboard goes from one to the next.
     const docs = page.locator(DOCS);
@@ -227,12 +197,8 @@ test.describe("the hero", () => {
     await page.keyboard.press("Tab");
     await expect(docs.nth(1)).toBeFocused();
 
-    // The stage is marked as landed once the page's script has run, and stays so.
-    await hydrated(page);
-    await expect(page.locator(STAGE)).toHaveAttribute("data-landed", "");
-
-    // On no frame since the first, from the load into the seconds the sequence would take, was a
-    // document out of sight, the box displayed, or anything of the sequence set going.
+    // On no frame since the first, over the first five seconds, was a document out of sight or
+    // anything of the stage set going.
     await expect
       .poll(async () => (await stageFrames(page)).at(-1)?.at ?? 0, { timeout: 15_000 })
       .toBeGreaterThan(5000);
@@ -255,7 +221,7 @@ test.describe("the hero", () => {
 
     await page.goBack();
     await expect(page).toHaveURL(/\/$/, { timeout: NAVIGATION_TIMEOUT });
-    await expect(page.locator(STAGE)).toHaveAttribute("data-landed", "");
+    await expect(page.locator(STAGE)).toHaveCount(1);
     await expect
       .poll(async () => (await stageFrames(page)).length, { timeout: 10_000 })
       .toBeGreaterThan(from + 12);
@@ -412,10 +378,8 @@ test.describe("the hero", () => {
         const box = title.getBoundingClientRect();
         const at = (x: number, y: number) => document.elementFromPoint(x, y);
         const centre = at(box.left + box.width / 2, box.top + box.height / 2);
-        // Everything the band holds ends where the band does (the ink's own layers apart, which
-        // the backdrop clips).
+        // Everything the band holds ends where the band does.
         const past = [...band.querySelectorAll("*")]
-          .filter((element) => !element.closest("[data-ink-backdrop]"))
           .filter((element) => {
             const rect = element.getBoundingClientRect();
             return rect.height > 0 && rect.bottom > bottom + 0.5;
@@ -513,7 +477,6 @@ test.describe("the hero", () => {
       const width = document.documentElement.clientWidth;
       return [...(band?.querySelectorAll("*") ?? [])]
         .filter((element) => {
-          if (element.closest("[data-ink-backdrop]")) return false;
           const box = element.getBoundingClientRect();
           if (!box.width || !box.height) return false;
           return box.left < -0.5 || box.right > width + 0.5;
@@ -527,75 +490,17 @@ test.describe("the hero", () => {
       ),
     ).toBeLessThanOrEqual(0);
   });
-
-  test("keeps the headline's contrast over the still", async ({ page }) => {
-    // The ink is off for the session, so the still is the picture behind the words.
-    await storeInk(page, INK_OFF);
-    await page.goto("/");
-    await expect(page.locator("html")).toHaveAttribute("data-ink", "still");
-    const image = page.locator('[data-ink-backdrop][data-scene="prompt"] img');
-    await expect
-      .poll(() => image.evaluate((element: HTMLImageElement) => element.naturalWidth))
-      .toBeGreaterThan(0);
-
-    const contrast = await page.evaluate(async () => {
-      const img = document.querySelector<HTMLImageElement>(
-        '[data-ink-backdrop][data-scene="prompt"] img',
-      );
-      const heading = document.querySelector("h1");
-      if (!img || !heading) return null;
-      await img.decode();
-      const canvas = document.createElement("canvas");
-      canvas.width = img.naturalWidth;
-      canvas.height = img.naturalHeight;
-      const context = canvas.getContext("2d", { willReadFrequently: true });
-      if (!context) return null;
-      context.drawImage(img, 0, 0);
-      const shown = img.getBoundingClientRect();
-      const words = heading.getBoundingClientRect();
-      const scale = img.naturalWidth / shown.width;
-      const x0 = Math.max(0, Math.floor((words.left - shown.left) * scale));
-      const y0 = Math.max(0, Math.floor((words.top - shown.top) * scale));
-      const x1 = Math.min(img.naturalWidth, Math.ceil((words.right - shown.left) * scale));
-      const y1 = Math.min(img.naturalHeight, Math.ceil((words.bottom - shown.top) * scale));
-      const linear = (v: number) => (v <= 0.04045 ? v / 12.92 : ((v + 0.055) / 1.055) ** 2.4);
-      const luminance = (r: number, g: number, b: number) =>
-        0.2126 * linear(r / 255) + 0.7152 * linear(g / 255) + 0.0722 * linear(b / 255);
-      // Where the frame does not reach, the ground of the band shows: paper.
-      let darkest = 1;
-      if (x1 > x0 && y1 > y0) {
-        const { data } = context.getImageData(x0, y0, x1 - x0, y1 - y0);
-        for (let i = 0; i < data.length; i += 4) {
-          darkest = Math.min(
-            darkest,
-            luminance(data[i] ?? 255, data[i + 1] ?? 255, data[i + 2] ?? 255),
-          );
-        }
-      }
-      const [r = 0, g = 0, b = 0] = (getComputedStyle(heading).color.match(/\d+/g) ?? []).map(
-        Number,
-      );
-      return (darkest + 0.05) / (luminance(r, g, b) + 0.05);
-    });
-    expect(contrast).not.toBeNull();
-    // Large text needs 3 to 1; the calm zone promises far more.
-    expect(contrast ?? 0).toBeGreaterThanOrEqual(7);
-  });
 });
 
 test.describe("the hero without movement", () => {
-  test("under reduced motion the documents stand from the start and there is no box", async ({
-    page,
-  }) => {
+  test("under reduced motion the documents stand from the start", async ({ page }) => {
     await page.emulateMedia({ reducedMotion: "reduce" });
     await page.goto("/");
     await expect(page.locator("html")).not.toHaveAttribute("data-motion", "on");
     const state = await stageState(page);
-    expect(state.prompt).toMatchObject({ display: "none" });
     expect(state.docs).toHaveLength(6);
     for (const doc of state.docs)
       expect(doc).toMatchObject({ opacity: "1", visibility: "visible" });
-    await expect(page.locator(PROMPT)).toBeHidden();
     await expect(page.locator(DOCS).first()).toBeVisible();
     expect(await page.evaluate(() => document.getAnimations().length)).toBe(0);
   });
@@ -605,7 +510,6 @@ test.describe("the hero without movement", () => {
     const page = await context.newPage();
     try {
       await page.goto("/");
-      await expect(page.locator(PROMPT)).toBeHidden();
       const docs = page.locator(DOCS);
       await expect(docs).toHaveCount(6);
       for (const doc of await docs.all()) await expect(doc).toBeVisible();
@@ -617,14 +521,13 @@ test.describe("the hero without movement", () => {
 });
 
 test.describe("the hero on a first visit", () => {
-  test("with still ink the documents already stand under the cover, and nothing starts when it has gone", async ({
+  test("the documents already stand under the cover, and nothing starts when it has gone", async ({
     page,
   }) => {
     await recordIntro(page);
     await recordStage(page);
     await page.goto("/", { waitUntil: "commit" });
     await expect(page.locator("[data-intro-cover]")).toBeVisible();
-    await expect(page.locator("html")).toHaveAttribute("data-ink", "still");
 
     // The cover plays and leaves.
     await expect
@@ -640,14 +543,13 @@ test.describe("the hero on a first visit", () => {
     const gone = await page.evaluate(() => (window.__introLog ?? []).at(-1)?.[0] ?? Infinity);
 
     // A second later the stage is as it was on every frame under the cover and since: the
-    // documents in place, no box, nothing of the sequence.
+    // documents in place, nothing moving.
     await expect
       .poll(async () => (await stageFrames(page)).at(-1)?.at ?? 0, { timeout: 10_000 })
       .toBeGreaterThan(gone + 1000);
     const frames = await stageFrames(page);
     expect(frames.filter((frame) => frame.at < gone).length).toBeGreaterThan(10);
     expect(await unsettledFrames(page)).toEqual([]);
-    await expect(page.locator(PROMPT)).toBeHidden();
     for (const doc of await page.locator(DOCS).all()) await expect(doc).toBeVisible();
   });
 });

@@ -1,6 +1,6 @@
 ---
 name: Advanta365
-description: A working copy on a desk. White paper, near-black ink, one light-blue highlighter, and live ink in water under the text.
+description: A working copy on a desk. White paper, near-black ink and one light-blue highlighter.
 colors:
   mark: "#86c1ff"
   mark-deep: "#5fa8f5"
@@ -22,8 +22,6 @@ colors:
   on-binder: "#f4f5f8"
   on-binder-soft: "#b4b9c7"
   rule-on-binder: "#343947"
-  pigment-black: "#10131a"
-  pigment-pale: "#c3cedf"
   scrim: "rgb(11 13 18 / 0.5)"
 typography:
   poster:
@@ -300,9 +298,9 @@ components:
 
 The site is a desk with documents on it. White sheets of paper lie on a cool grey desk, set in near-black type, and one light-blue highlighter marks the parts that belong to the buyer: the blank still to fill, the tenth block of ten, the phase they are on. Everything the system draws is an object from that desk. A sheet has a tooth, a light on it and a layered shadow. A folder has a tab and sheets standing in it. Phases are index tabs, lists are ledgers ruled with hairlines, and progress is a tally of blocks. The site sells one thing, the complete toolkit, and it is the folder on the desk with its price on a paper tag: six sample templates lie open on the desk, and every other template is locked, its cover out of focus.
 
-Ink is the one material that moves. A real-time simulation of ink in water runs behind the first screen, the 90% statement, the Purchase page, wide page titles and the 404. It lies on the ground of a band and never on a sheet, it is held back around every block of text, and its strength is capped against the ground the copy is read on. The rest of the motion is small and physical: a sheet settles as it scrolls into view, rises 6px and tilts up to 1.2 degrees toward the pointer, a rule is drawn from the left, and a first visit opens on a blank page where the logo is signed stroke by stroke, the small 365 on its arm last. The first screen then acts out the tagline: an empty prompt box, a black drop and a blue one, and the six free samples standing where the box was.
+Nothing moves behind the text: a band is plain paper, desk or a dark ground. The motion is small and physical, and it belongs to the objects: a sheet settles as it scrolls into view, rises 6px and tilts up to 1.2 degrees toward the pointer, a rule is drawn from the left, a tally fills block by block, and a first visit opens on a blank page where the logo is signed stroke by stroke, the small 365 on its arm last. The first screen answers the tagline with the six free samples, standing from the first frame as a hand of finished documents.
 
-The density is that of a document, not of a dashboard: reading-width columns, a twelve-column grid from 68em, bands 56 to 112px deep, and type that carries the hierarchy before colour or depth add anything. The system has a light scheme only. Under reduced motion, raised contrast, forced colours, no JavaScript or no WebGL2 the page is complete: still images stand in for the ink, shadows give way to ink lines, and nothing waits hidden.
+The density is that of a document, not of a dashboard: reading-width columns, a twelve-column grid from 68em, bands 56 to 112px deep, and type that carries the hierarchy before colour or depth add anything. The system has a light scheme only. Under reduced motion, raised contrast, forced colours or no JavaScript the page is complete: shadows give way to ink lines, and nothing waits hidden.
 
 **Key Characteristics:**
 
@@ -312,7 +310,7 @@ The density is that of a document, not of a dashboard: reading-width columns, a 
 - Two typefaces with fixed jobs: a slab serif for the documents and their figures, a hyperlegible sans for the store.
 - A 7px module for every space, two breakpoints (40em and 68em) for every layout, and one root size that grows past a 1600px window, so a large monitor gets the same page drawn larger.
 - Every size and space in rem, so the whole page scales together on a large monitor.
-- Live ink in water as the showpiece, always beneath the text, coming to rest by itself, with a still image for every case where it cannot run.
+- Plain grounds: paper, desk and dark bands, with nothing moving behind the text.
 - Movement only inside the no-preference motion query. Bands and surfaces change ground with a hard edge and never fade.
 
 ## Colors
@@ -322,7 +320,7 @@ White, near-black and one light blue, on cool greys that lean a few degrees towa
 ### Primary
 
 - **Highlighter Blue** (`mark`, #86c1ff): the buyer's colour. It fills the blank on a template cover, the marked block of a tally, a checked box, the current phase tab, a saving tag (the "Free sample" tag among them), the square before an eyebrow, the tail of the logo and the 365 on it, the headline's last words and the text selection. Under the pointer or keyboard focus it comes up inside solid buttons and behind the words of a link. On the binder it is the fill of the footer's one button.
-- **Pressed Highlighter** (`mark-deep`, #5fa8f5): the highlighter one step deeper. A solid button while it is held down, a checked box under the pointer, and the blue pigment of the ink on light grounds.
+- **Pressed Highlighter** (`mark-deep`, #5fa8f5): the highlighter one step deeper. A solid button while it is held down and a checked box under the pointer.
 - **Highlighter Wash** (`mark-wash`, #eaf4ff): the highlighter diluted to a ground. The wash band, the front and tab of a folder (the front of a page-size folder lies under a light, `card-light`), a note, the bar's button when it is the current page, the hover and focus fill of the footer's button, and the hover and focus fill of rows, outline buttons, navigation links and tabs.
 
 ### Secondary
@@ -345,7 +343,6 @@ White, near-black and one light blue, on cool greys that lean a few degrees towa
 - **Binder Rise** (`binder-rise`, #1c202b): a raised surface on the binder: the surface, stripe and tile of a dark band.
 - **On Binder** (`on-binder`, #f4f5f8) and **Soft On Binder** (`on-binder-soft`, #b4b9c7): primary and secondary text on the binder.
 - **Binder Rule** (`rule-on-binder`, #343947): hairlines on the binder.
-- **Black Pigment** (`pigment-black`, #10131a) and **Pale Pigment** (`pigment-pale`, #c3cedf): the ink simulation's black on paper and its pale ink on the binder. Its two blues are the highlighter pair.
 - **Scrim** (`scrim`, ink at 50%): the dimmed page behind the navigation drawer, the filter sheet and the pop-up of the catalog.
 
 ### Named Rules
@@ -400,7 +397,7 @@ The page is a stack of full-width bands. A band paints its own ground, sets the 
 
 All space comes from a 7px module: 7, 14, 21, 28, 42, 56, 84, 112 and 168px. A band is padded 56px above and below on a phone and 84px from 40em. A roomy band takes 84 and 112px, a tight one 42px, a title band 28 and 42px. A pixel figure for a size or a space in this file is that size at the 16px root; hairlines, edges, corner radii and shadows are drawn in pixels at any root.
 
-A large monitor gets the same page, drawn larger, and not a wider desk with the same page in its middle. Up to a 1600px window the root font size is 16px. Past it the root grows by 0.5% of every pixel of window, to 140% (22.4px) at about 2880px, and since every size and space is in rem (the module, the type, the controls, the icons and the caps on a band) the whole page scales together. The column grows faster: `page-max` is 77rem as a floor, from about 1840px of window it is 72% of the window, and it stops at `page-max-ceiling`, 120rem. On a 1920, 2560 or 3440 monitor the words span about 70% of the window, on a 4K panel the ceiling holds them at 2688px. Objects that would be lost in a wider column are drawn larger with it: the hero's headline, prompt box and proof strip, the toolkit's folder on the home page, and, by a scale that stops at what the window's height leaves room for, the folder and the contents leaf of the Purchase page and the worked example's page. A few measures stay fixed on purpose: a ledger of rows with a label at one end and a link at the other holds to 64rem, and the filter sheet to 40rem, so a row is never a thousand pixels from its arrow.
+A large monitor gets the same page, drawn larger, and not a wider desk with the same page in its middle. Up to a 1600px window the root font size is 16px. Past it the root grows by 0.5% of every pixel of window, to 140% (22.4px) at about 2880px, and since every size and space is in rem (the module, the type, the controls, the icons and the caps on a band) the whole page scales together. The column grows faster: `page-max` is 77rem as a floor, from about 1840px of window it is 72% of the window, and it stops at `page-max-ceiling`, 120rem. On a 1920, 2560 or 3440 monitor the words span about 70% of the window, on a 4K panel the ceiling holds them at 2688px. Objects that would be lost in a wider column are drawn larger with it: the hero's headline, its hand of documents and its proof strip, the toolkit's folder on the home page, and, by a scale that stops at what the window's height leaves room for, the folder and the contents leaf of the Purchase page and the worked example's page. A few measures stay fixed on purpose: a ledger of rows with a label at one end and a link at the other holds to 64rem, and the filter sheet to 40rem, so a row is never a thousand pixels from its arrow.
 
 There are two breakpoints and no others, and a large monitor is not a third. They are written in em, which a browser reads at its own text size and not at the root size the page sets, so 40em and 68em stay where they are while the root grows; nothing changes layout at 1600px, the page only grows from there. Below 40em is the phone layout: one column, full-width stacked buttons, index rows in place of sheets. From 40em sheets stand two across and rows gain a second column; a tablet in portrait, 768px wide, is this layout, and where a pair of things has room for two columns before 68em (an aside beside a page title, the Why Advanta sheets, the Purchase folder and leaf from about 1010px) it takes them. From 68em the twelve-column grid applies: a margin in columns 1 to 3 with content in 4 to 12, the home first screen centred across the whole band, the inline navigation, the phase rail and the deeper shadows. Three container queries hide the brand name or the word Menu visually when the bar or the drawer is too narrow for them; the text stays readable to assistive technology.
 
@@ -431,7 +428,7 @@ Depth is layered and physical. Every paper object casts a soft shadow in the ink
 
 ## Shapes
 
-Corners are small, as on cut paper. Sheets, tags, checkboxes, tally blocks and numeral tiles take 3px. Controls, tabs, rows, notes, page numbers and the panels of a folder take 6px. The 10px radius appears on the top corners of the filter sheet that rises from the bottom of a phone, on the pop-up of the catalog, on the panels of a page-size folder and on the hero's prompt box. The logo tile has its own 7px corner.
+Corners are small, as on cut paper. Sheets, tags, checkboxes, tally blocks and numeral tiles take 3px. Controls, tabs, rows, notes, page numbers and the panels of a folder take 6px. The 10px radius appears on the top corners of the filter sheet that rises from the bottom of a phone, on the pop-up of the catalog and on the panels of a page-size folder. The logo tile has its own 7px corner.
 
 Edges come in two weights: a 1px hairline for rules and quiet borders, and a 2px ink edge for control borders, inset rings and thick underlines. A ring is drawn inside the box, so a state change never alters a size.
 
@@ -492,7 +489,7 @@ There are no boxed cards. A thing in a list is either a row on a hairline or a p
 - **Text link:** ink with a 1px ink underline. On hover and focus the highlighter is drawn behind the words like a stroke of a marker and the underline thickens. On the binder the words stay as they are and the underline takes the highlighter.
 - **Row link:** a row at least 56px tall inside a ledger. Hover, focus and press fill it with the wash, underline its label and move its arrow 3px.
 - **Pagination:** square page numbers (44px, 40px from 68em) with a 2px ink border; the current page is the highlighter at weight 700.
-- **Footer:** the binder, kept short, under a 2px highlighter edge along its top. Three rows on hairlines: the lockup with the one button; one navigation of the site's links (Catalog, Why Advanta, Contact) followed by the legal pages in smaller, softer type, each in a 44px-tall item; and the copyright with the non-affiliation notice. It has no ink, no tagline and no status lines. A hovered or focused link is underlined in the highlighter.
+- **Footer:** the binder, kept short, under a 2px highlighter edge along its top. Three rows on hairlines: the lockup with the one button; one navigation of the site's links (Catalog, Why Advanta, Contact) followed by the legal pages in smaller, softer type, each in a 44px-tall item; and the copyright with the non-affiliation notice. It has no tagline and no status lines. A hovered or focused link is underlined in the highlighter.
 
 ### Template Cover
 
@@ -504,13 +501,9 @@ The signature object: a miniature first page of a template, printed on a paper s
 - **Blank:** an empty field waiting for text. The highlighter inside a 2px ink border, 42px tall, with an ink caret 14px in that blinks three times and then stays.
 - **Eyebrow marker:** a 9px square of the highlighter inside a hairline of ink, before an uppercase label.
 
-### Ink Backdrop
-
-The showpiece. One canvas serves the whole page, and the backdrop most in view holds it; every other backdrop shows a still image of its scene. Seven scenes exist: a black drop and a blue one landing in the hero's empty prompt box and opening across the first screen before they clear (slow drops then keep arriving), a drop onto the tenth block of the 90% tally when the scroll reaches it, blue ink rising from the foot of the Purchase page's stage, pale wisps (played in the ink lab only; the footer has no ink), a strip beside wide page titles, a spill on the 404, and the drop under the first-load cover. Text over ink marks itself as a calm zone and the ink is thinned and capped around it. Below 68em the 90% still takes the height of its band, so its ink lands in the open water under the tally instead of past the foot. From 68em a wide still stands where the page's grid is and not where the window's edges are: it is scaled with the window only as far as a 1600px desktop and is as wide as the page asks past it, centred, so the ink keeps to the same words and columns on a large monitor. The ink has no control on the page: it comes to rest by itself and moves again when the pointer, a scroll or a click reaches it. It gives way to its stills under reduced motion, raised contrast, forced colours, data saving, without WebGL2, and on a device that cannot keep up.
-
 ### Entrances and Page Changes
 
-Content arrives in one of four ways: a drift (12px up, fading in), ink-in (fading in, never blurred, and done first: a heading is legible by the time it stands 8rem into the window), a settle (a sheet dropping 28px from 1.03 times its size, with a small overshoot) and a grow (a rule drawn from its left end). Where the browser supports view timelines an entrance follows the scroll; elsewhere it plays once when the element is seen, 70ms apart for siblings. On a page change only the first block of the page leaves and arrives, and a cover or a folder given a `slug` that exists on both pages travels between them over 420ms (no page does today). On a first visit to the home page a paper cover fills the window, the logo is written on it in three strokes within 800ms and the 365 on its arm within 200ms more, the finished mark stands until 2500ms, the mark and the hint fade from the paper by 2680ms before the paper itself clears, and the cover is gone by 2950ms, by 3500ms after the ink took over when the ink runs under it, or within 200ms of any press, key, scroll or touch. The hero's sequence belongs to the ink and plays only where the ink is live. It starts when the cover is gone: the empty box stands for 700ms, dissolves from 1100ms to 2300ms as the ink opens, and from 3700ms the six documents land, the middle two first, 110ms apart. Where the ink is still, under reduced motion and without JavaScript, there is no box and the documents stand from the first frame; ink that stops half-way lands them at once, and ink that starts later leaves them standing.
+Content arrives in one of four ways: a drift (12px up, fading in), ink-in (fading in, never blurred, and done first: a heading is legible by the time it stands 8rem into the window), a settle (a sheet dropping 28px from 1.03 times its size, with a small overshoot) and a grow (a rule drawn from its left end). Where the browser supports view timelines an entrance follows the scroll; elsewhere it plays once when the element is seen, 70ms apart for siblings. On a page change only the first block of the page leaves and arrives, and a cover or a folder given a `slug` that exists on both pages travels between them over 420ms (no page does today). On a first visit to the home page a paper cover fills the window, the logo is written on it in three strokes within 800ms and the 365 on its arm within 200ms more, the finished mark stands until 2500ms, the mark and the hint fade from the paper by 2680ms before the paper itself clears, and the cover is gone by 2950ms, or within 200ms of any press, key, scroll or touch. The hero has no sequence of its own: its six documents stand from the first frame, under the cover and without it.
 
 ## Do's and Don'ts
 
@@ -524,7 +517,6 @@ Content arrives in one of four ways: a drift (12px up, fading in), ink-in (fadin
 - **Do** set documents, figures and prices in Besley at 600 to 800, and everything the store says in Atkinson Hyperlegible Next.
 - **Do** make hover and keyboard focus look the same, and give a press the same answer, so a finger gets what a pointer gets.
 - **Do** keep every target at least 44px tall below 68em, and show the 3px focus ring 3px off the element.
-- **Do** place ink on the ground of a band, mark every text block over it as a calm zone, and name a still for it.
 - **Do** keep every animation inside the no-preference motion query, with the finished state as the default.
 - **Do** print a figure as it is. A number never counts or rolls up to its value: while it moves it reads a wrong one.
 - **Do** give an object an ink line where its shadow is removed, at raised contrast and in forced colours.
@@ -537,7 +529,7 @@ Content arrives in one of four ways: a drift (12px up, fading in), ink-in (fadin
 - **Don't** fade, slide or blend a band or a surface. Grounds change with a hard edge.
 - **Don't** animate a shadow, a layout property or a custom property, and don't loop an animation.
 - **Don't** let a state change alter a size: borders are always present and rings are drawn inside.
-- **Don't** place ink on a sheet, inside a panel or behind body copy that has no calm zone, and don't run a second canvas.
+- **Don't** put anything that moves behind the text, and don't add a canvas.
 - **Don't** set type smaller than 14px unless it is uppercase, weight 700 and tracked, and don't track anything larger.
 - **Don't** add a dark scheme or a query for one. The system declares a light scheme only.
 - **Don't** hide content in a starting state that a script has to undo. Without the script, nothing is missing.

@@ -48,7 +48,7 @@ const SIZES: ReadonlyArray<readonly [number, number]> = [
 /** The least share of the window the words of a page span, from 1280 up. */
 const MIN_SPAN = 0.5;
 
-/** The 404 sets its few words in six columns beside the ink on purpose, so it has no span to hold. */
+/** The 404 sets its few words in six columns on purpose, so it has no span to hold. */
 const NARROW_BY_DESIGN = new Set(["/nope"]);
 
 for (const [width, height] of SIZES) {
@@ -72,10 +72,8 @@ for (const [width, height] of SIZES) {
 
       const measure = await page.evaluate(() => {
         const window_ = document.documentElement.clientWidth;
-        // A visually hidden box is a clipped pixel, and an ink backdrop is clipped by its band on
-        // purpose: its still is drawn wider than the window where the band crops it.
-        const hidden = (element: Element) =>
-          !!element.closest(".visually-hidden, [data-ink-backdrop]");
+        // A visually hidden box is a clipped pixel.
+        const hidden = (element: Element) => !!element.closest(".visually-hidden");
         const scrolls = (element: Element) =>
           ["auto", "scroll"].includes(getComputedStyle(element).overflowX);
 

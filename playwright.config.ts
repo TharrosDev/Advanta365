@@ -5,14 +5,6 @@ import { defineConfig, devices, firefox } from "@playwright/test";
 // checkout that runs at the same time.
 const PORT = Number(process.env.PW_PORT) || 3100;
 
-// The ink runs on the graphics card or not at all: headless Chromium gets a GPU only with these
-// arguments, and on Windows the Direct3D backend.
-const GPU_ARGS = [
-  "--ignore-gpu-blocklist",
-  "--enable-gpu",
-  ...(process.platform === "win32" ? ["--use-angle=d3d11"] : []),
-];
-
 /**
  * Whether the installed Firefox starts. It is the browser that really lacks view timelines, so it
  * exercises the observer path of the motion system. A copy that cannot start (a broken runtime on
@@ -54,13 +46,11 @@ export default defineConfig({
   projects: [
     {
       name: "chromium",
-      testIgnore: /ink-live\.spec\.ts/,
       grepInvert: QUIET,
       use: { ...devices["Desktop Chrome"], viewport: { width: 1280, height: 800 } },
     },
     {
       name: "mobile",
-      testIgnore: /ink-live\.spec\.ts/,
       grepInvert: QUIET,
       use: { ...devices["Pixel 7"] },
     },
@@ -68,7 +58,6 @@ export default defineConfig({
     // project from here down waits for the one before it, so one test runs at a time.
     {
       name: "quiet",
-      testIgnore: /ink-live\.spec\.ts/,
       grep: QUIET,
       fullyParallel: false,
       dependencies: PARALLEL,
@@ -76,30 +65,16 @@ export default defineConfig({
     },
     {
       name: "quiet-mobile",
-      testIgnore: /ink-live\.spec\.ts/,
       grep: QUIET,
       fullyParallel: false,
       dependencies: ["quiet"],
       use: { ...devices["Pixel 7"] },
     },
-    // The live ink: one worker and one test at a time, after everything else has finished, so
-    // that the frame costs and the clocks it reads are not those of a busy machine.
-    {
-      name: "gpu",
-      testMatch: /ink-live\.spec\.ts/,
-      fullyParallel: false,
-      dependencies: ["quiet-mobile"],
-      use: {
-        ...devices["Desktop Chrome"],
-        viewport: { width: 1440, height: 900 },
-        launchOptions: { args: GPU_ARGS },
-      },
-    },
     ...(withFirefox
       ? [
           {
             name: "firefox",
-            testMatch: /(browse|console|reduced-motion|ink-fallback|motion)\.spec\.ts/,
+            testMatch: /(browse|console|reduced-motion|motion)\.spec\.ts/,
             use: { ...devices["Desktop Firefox"], viewport: { width: 1280, height: 800 } },
           },
         ]

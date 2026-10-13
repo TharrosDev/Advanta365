@@ -12,8 +12,7 @@
  *   [data-tile][data-denied], [data-well]          a locked tile saying no, its vibration and wash
  *   [data-page-dialog][data-enter]                 a pop-up (a free sample, the checkout) arriving
  *   [data-checkout-step], [data-checkout-progress] a step of the checkout arriving, and its line
- *   [data-hero-stage], [data-hero-prompt],
- *   [data-hero-doc], [data-landed]                 the hero: a prompt box that becomes documents
+ *   [data-hero-stage]                              the hero: its documents straighten under the pointer
  *
  * Three attributes on the root element, set by the boot script before first paint, are the only
  * switches: `data-motion="on"` (movement is wanted), `data-timeline="on"` (view timelines exist)
@@ -23,8 +22,7 @@
  *
  * Every animation and transition sits inside the no-preference query, with the final state
  * outside it. Keyframes name the starting state only: the end is whatever the element is. Nothing
- * repeats, with one exception: the caret of the hero's prompt box blinks three times inside one
- * run of `hero-caret-blink`, and then stands. No custom property is animated and no shadow
+ * repeats. No custom property is animated and no shadow
  * changes: a shadow that comes or goes is a second shadow on a pseudo-element whose opacity moves.
  * `animation-timeline` and `animation-range` are written after the `animation` shorthand, which
  * would reset them.
@@ -71,15 +69,6 @@
   :is(article, [data-lit-scope]):hover [data-lit]::after {
     opacity: 1;
   }
-}
-
-/*
- * The prompt box of the hero (components/home/hero-stage.tsx) exists for its sequence only, and
- * the sequence is played to live ink only. Without movement, without a script, or with ink that
- * is still, the box is not displayed and the documents stand where it would have been.
- */
-[data-hero-prompt] {
-  display: none;
 }
 
 @media (prefers-reduced-motion: no-preference) {
@@ -622,112 +611,6 @@
     transition: scale var(--time-settle) var(--curve-settle);
   }
 
-  /*
-   * The hero's stage (components/home/hero-stage.tsx): a blank prompt becomes finished work. It
-   * is the page's half of the prompt ink scene (lib/ink/scenes.ts), so it plays only where that
-   * scene does: the root element says `data-ink="live"`, and the stage is not marked
-   * `data-landed`. components/home/hero-landing.tsx sets that mark when the ink is not running as
-   * the stage mounts, or stops running later, and never takes it off. Wherever one of the two
-   * fails, no rule below applies: the box is not displayed and the documents stand, and a
-   * sequence that loses its ink half-way simply has its documents in place.
-   *
-   * One clock, which starts when the root element has no `data-intro`: at load, or when the cover
-   * of a first visit has gone. The scene starts on the same event and is written to the same
-   * times; nothing ties the two together but that.
-   *
-   *      0 to  700ms  the box stands empty, its caret blinking; then the first drop lands in it
-   *   1100 to 2300ms  the box dissolves as the ink opens over it
-   *   3700ms on       the water is clean: the documents land, the middle ones first, 110ms
-   *                   apart and 560ms each, opaque from their first frames, from a little
-   *                   above and a little large, their lifted shadows coming to rest with them
-   *
-   * Under the cover the page is already in its opening state: the box there, its caret solid, the
-   * documents out of sight (and out of reach of the keyboard). Each end state is the element's
-   * own, so the box stays gone and the documents stay.
-   */
-  @keyframes hero-prompt-out {
-    from {
-      visibility: visible;
-      opacity: 1;
-      filter: none;
-      scale: 1;
-    }
-  }
-
-  /* On for 300ms, off for 200, three times: it is on when the box is first seen. */
-  @keyframes hero-caret-blink {
-    0%,
-    33.3%,
-    66.6% {
-      opacity: 1;
-    }
-
-    20%,
-    53.3%,
-    86.6% {
-      opacity: 0;
-    }
-  }
-
-  @keyframes hero-doc-in {
-    from {
-      visibility: hidden;
-      translate: 0 -1.75rem;
-      scale: 1.06;
-    }
-  }
-
-  @keyframes hero-doc-show {
-    from {
-      opacity: 0;
-    }
-  }
-
-  html[data-motion="on"][data-ink="live"] [data-hero-stage]:not([data-landed]) [data-hero-prompt] {
-    display: grid;
-  }
-
-  html[data-motion="on"][data-ink="live"]:not([data-intro])
-    [data-hero-stage]:not([data-landed])
-    [data-hero-prompt] {
-    visibility: hidden;
-    opacity: 0;
-    filter: blur(12px);
-    scale: 1.05;
-    animation: hero-prompt-out 1200ms var(--curve-leave) 1100ms backwards;
-  }
-
-  html[data-motion="on"][data-ink="live"]:not([data-intro])
-    [data-hero-stage]:not([data-landed])
-    [data-hero-prompt]
-    [data-caret] {
-    animation: hero-caret-blink 1500ms steps(1, end);
-  }
-
-  html[data-motion="on"][data-ink="live"][data-intro]
-    [data-hero-stage]:not([data-landed])
-    [data-hero-doc] {
-    visibility: hidden;
-    opacity: 0;
-  }
-
-  html[data-motion="on"][data-ink="live"]:not([data-intro])
-    [data-hero-stage]:not([data-landed])
-    [data-hero-doc] {
-    animation:
-      hero-doc-in var(--time-settle) var(--curve-drop) backwards,
-      hero-doc-show 90ms linear backwards;
-    animation-delay: calc(3700ms + var(--i, 0) * 110ms);
-  }
-
-  html[data-motion="on"][data-ink="live"]:not([data-intro])
-    [data-hero-stage]:not([data-landed])
-    [data-hero-doc]
-    [data-paper]::after {
-    animation: move-shadow var(--time-settle) var(--curve-settle) backwards;
-    animation-delay: calc(3700ms + var(--i, 0) * 110ms);
-  }
-
   /* A document under the pointer or the keyboard straightens in the time of a lift. */
   [data-hero-stage] li {
     transition: rotate var(--time-lift) var(--curve-settle);
@@ -783,23 +666,13 @@
   }
 }
 
-/* More contrast: no ink behind anything, and a line under the bar in place of its shadow. */
+/* More contrast: a line under the bar in place of its shadow. */
 @media (prefers-contrast: more) {
-  [data-ink-backdrop] {
-    display: none;
-  }
-
   [data-bar] {
     border-block-end: var(--hair) solid var(--ink);
   }
 
   [data-bar]::after {
-    display: none;
-  }
-}
-
-@media (forced-colors: active) {
-  [data-ink-backdrop] {
     display: none;
   }
 }
