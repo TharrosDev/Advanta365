@@ -1,0 +1,69 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>Advanta365 video ink plates</title>
+    <style>
+      html,
+      body {
+        margin: 0;
+        width: 1920px;
+        height: 1080px;
+        overflow: hidden;
+        background: #fff;
+      }
+      canvas {
+        display: block;
+        width: 1920px;
+        height: 1080px;
+      }
+    </style>
+  </head>
+  <body>
+    <canvas id="ink"></canvas>
+    <script type="module">
+      // The real engine of the site, loaded as TypeScript with its types stripped by serve.mjs.
+      import { createInk } from "/lib/ink/engine/index";
+      import { PIGMENT_FALLBACKS } from "/lib/ink/pigments";
+      import { PLATE_DEFS as PLATES } from "./plate-defs.mjs";
+
+      const name = new URLSearchParams(location.search).get("plate");
+      const plate = PLATES[name];
+      const ink = createInk(document.getElementById("ink"), {
+        pigments: PIGMENT_FALLBACKS,
+        preset: null,
+        quality: new URLSearchParams(location.search).get("q") || "high",
+        maxDpr: 1,
+        autoStart: false,
+        autoResize: false,
+        autoPause: false,
+        interactive: false,
+        scrollImpulse: false,
+        adapt: false,
+        seed: 365,
+      });
+
+      let next = 0;
+      /** Advances the plate to second `t` (in whole steps of 1/60 s) and draws it. */
+      window.plateTo = (t) => {
+        t += plate.preroll ?? 0;
+        const steps = Math.round(t * 60) - window.plateSteps;
+        while (next < plate.events.length && plate.events[next].at <= t + 1e-9) {
+          plate.events[next].run(ink);
+          next += 1;
+        }
+        if (steps > 0) ink.step(steps);
+        else ink.render();
+        window.plateSteps += Math.max(0, steps);
+      };
+      window.plateSteps = 0;
+      window.plateReady = ink.ready.then(() => {
+        if (!plate) throw new Error(`no plate "${name}"`);
+        plate.events.sort((a, b) => a.at - b.at);
+        window.platePreroll = plate.preroll ?? 0;
+        ink.preset(plate.scene, { anchors: { ...(plate.anchors ?? {}) } });
+        return ink.stats().tier;
+      });
+    </script>
+  </body>
+</html>

@@ -15,7 +15,9 @@
         --mark: #86c1ff;
         --mark-deep: #5fa8f5;
         --mark-wash: #eaf4ff;
+        --alert: #a32b1d;
         --paper: #ffffff;
+        --paper-shade: #f1f3f7;
         --desk: #f4f5f8;
         --desk-deep: #e6e8ee;
         --rule: #d2d5de;
@@ -24,6 +26,7 @@
         --ink-soft: #3a3f4c;
         --ink-faint: #596072;
         --binder: #0d0f15;
+        --binder-rise: #1c202b;
         --on-binder: #f4f5f8;
         --on-binder-soft: #b4b9c7;
         --rule-on-binder: #343947;
@@ -44,298 +47,602 @@
         font-family: var(--text);
         -webkit-font-smoothing: antialiased;
       }
-      .scene {
+      .scene,
+      .layer {
         position: absolute;
         inset: 0;
         overflow: hidden;
-        opacity: 0;
+        display: none;
+      }
+      .cam,
+      .plate {
+        position: absolute;
+        inset: 0;
+        width: 1920px;
+        height: 1080px;
       }
       .abs {
         position: absolute;
       }
-      .grain {
+      .plate img {
         position: absolute;
         inset: 0;
-        background: url("../public/paper/grain.png");
-        opacity: 0.35;
+        width: 1920px;
+        height: 1080px;
+      }
+      .multiply {
         mix-blend-mode: multiply;
-        pointer-events: none;
       }
-
-      /* 1 and 2: the chat. */
-      #chat {
-        background: var(--paper);
-      }
-      #promptBox {
-        left: 370px;
-        width: 1180px;
-        border: 2px solid var(--rule);
-        border-radius: 26px;
-        background: var(--paper);
-        box-shadow: 0 24px 60px rgb(11 13 18 / 0.08);
-        padding: 44px 140px 44px 52px;
-        font-size: 40px;
-        line-height: 1.35;
-        min-height: 140px;
-        transform-origin: right top;
-      }
-      #promptText {
-        white-space: pre-wrap;
-      }
-      #placeholder {
-        color: var(--ink-faint);
-      }
-      #caret {
-        display: inline-block;
-        width: 3px;
-        height: 46px;
-        margin-left: 2px;
-        background: var(--ink);
-        vertical-align: -8px;
-      }
-      #send {
-        right: 34px;
-        bottom: 36px;
-        width: 68px;
-        height: 68px;
-        border-radius: 50%;
-        background: var(--ink);
-        display: grid;
-        place-items: center;
-      }
-      #chatLabel {
-        left: 372px;
-        font-size: 24px;
-        letter-spacing: 0.02em;
-        color: var(--ink-faint);
-      }
-      #reply {
-        left: 370px;
-        top: 330px;
-        width: 1180px;
-        font-size: 34px;
-        line-height: 1.6;
-        color: var(--ink-soft);
-        white-space: pre-wrap;
-      }
-      #replyDot {
-        display: inline-block;
-        width: 18px;
-        height: 18px;
-        border-radius: 50%;
-        background: var(--ink-soft);
-        margin-left: 8px;
-        vertical-align: 2px;
-      }
-      #verdict {
-        left: 364px;
-        top: 735px;
-        font-family: var(--display);
-        font-weight: 800;
-        font-size: 124px;
-        line-height: 1;
-        white-space: nowrap;
-      }
-      #verdict span {
-        display: inline-block;
-        position: relative;
-      }
-      #verdictHi {
-        position: absolute;
-        left: -10px;
-        right: -10px;
-        top: 34%;
-        bottom: 2%;
-        background: var(--mark);
-        z-index: -1;
-        transform-origin: left center;
-      }
-
-      /* 3: the ink. */
-      #ink {
-        background: var(--paper);
-      }
-      #spill {
-        right: -170px;
-        top: -60px;
-        height: 1200px;
-        transform-origin: 70% 50%;
-      }
-      #tagline {
-        left: 140px;
-        top: 330px;
-        font-family: var(--display);
-        font-weight: 800;
-        font-size: 128px;
-        line-height: 1.02;
-      }
-      #tagline div {
-        white-space: nowrap;
-      }
-
-      /* 4: the documents. */
-      #documents {
-        background: var(--desk);
-      }
-      .heading {
-        font-family: var(--display);
-        font-weight: 700;
-        font-size: 76px;
-        line-height: 1.05;
-      }
-      .sub {
-        font-size: 32px;
-        color: var(--ink-soft);
-        margin-top: 18px;
-      }
-      #docHead {
-        left: 74px;
-        top: 96px;
-      }
-      .card {
-        top: 330px;
-        width: 272px;
-        height: 384px;
-        background: var(--paper);
-        border: 1px solid var(--rule);
-        border-radius: 6px;
-        padding: 26px 22px;
-        display: flex;
-        flex-direction: column;
-      }
-      .card .phase {
-        display: flex;
-        gap: 10px;
-        align-items: baseline;
-        font-size: 19px;
-        color: var(--ink-faint);
-        padding-bottom: 14px;
-        border-bottom: 2px solid var(--ink);
-      }
-      .card .phase b {
-        font-family: var(--display);
-        font-weight: 700;
-        font-size: 22px;
-        color: var(--ink);
-      }
-      .card h3 {
-        font-family: var(--display);
-        font-weight: 700;
-        font-size: 26px;
-        line-height: 1.16;
-        margin-top: 18px;
-      }
-      .card .lines {
-        margin-top: 18px;
-        display: grid;
-        gap: 11px;
-      }
-      .card .lines i {
-        display: block;
-        height: 9px;
-        border-radius: 5px;
-        background: var(--desk-deep);
-      }
-      .card .format {
-        margin-top: auto;
-        align-self: flex-start;
-        font-size: 18px;
-        font-weight: 500;
-        border: 1.5px solid var(--rule-firm);
-        border-radius: 999px;
-        padding: 5px 14px;
-        color: var(--ink-soft);
-      }
-      #docNote {
-        left: 74px;
-        top: 790px;
-        font-size: 36px;
-        color: var(--ink);
-      }
-      #docNote mark {
-        background: none;
-        color: inherit;
+      .mark-band {
         position: relative;
         z-index: 0;
       }
-      #docNote mark::before {
+      .mark-band::before {
         content: "";
         position: absolute;
-        left: -6px;
-        right: -6px;
-        top: 38%;
-        bottom: 0;
+        left: -0.08em;
+        right: -0.08em;
+        top: 42%;
+        bottom: 2%;
         background: var(--mark);
         z-index: -1;
         transform: scaleX(var(--hi, 0));
         transform-origin: left center;
       }
+      #grain {
+        position: absolute;
+        inset: -200px;
+        background: url("../public/paper/grain.png");
+        opacity: 0.32;
+        mix-blend-mode: multiply;
+        pointer-events: none;
+      }
+      #vignette {
+        position: absolute;
+        inset: 0;
+        background: radial-gradient(
+          ellipse at 50% 45%,
+          rgb(255 255 255 / 0) 55%,
+          rgb(11 13 18 / 0.045) 100%
+        );
+        pointer-events: none;
+      }
+      #black {
+        position: absolute;
+        inset: 0;
+        background: var(--binder);
+        opacity: 0;
+      }
 
-      /* 5: what is inside. */
-      #inside {
+      /* 1 to 4: the chat. */
+      #chat {
         background: var(--paper);
       }
-      #insideHead {
-        left: 74px;
-        top: 110px;
+      #newChat {
+        left: 240px;
+        top: 352px;
+        font-size: 34px;
+        color: var(--ink-faint);
+        letter-spacing: 0.01em;
       }
-      .count {
-        top: 360px;
-        width: 330px;
-        border-top: 3px solid var(--ink);
-        padding-top: 22px;
+      #line {
+        left: 240px;
+        top: 452px;
+        height: 150px;
+        white-space: nowrap;
+        font-size: 120px;
+        line-height: 150px;
+      }
+      #placeholder {
+        color: rgb(89 96 114 / 0.55);
+      }
+      #caret {
+        display: inline-block;
+        width: 10px;
+        height: 132px;
+        margin-left: 6px;
+        background: var(--ink);
+        vertical-align: -22px;
+      }
+      #underline {
+        left: 240px;
+        top: 640px;
+        width: 1440px;
+        height: 4px;
+        background: var(--ink);
+        transform-origin: left center;
+      }
+      #bubble {
+        right: 200px;
+        top: 96px;
+        max-width: 980px;
+        padding: 30px 40px;
+        border-radius: 34px 34px 8px 34px;
+        background: var(--paper-shade);
+        font-size: 44px;
+        line-height: 1.3;
+        color: var(--ink);
+        transform-origin: right bottom;
+      }
+      #reply {
+        left: 240px;
+        top: 330px;
+        width: 1440px;
+        font-size: 52px;
+        line-height: 1.42;
+        color: var(--ink-soft);
+      }
+      #reply .row {
+        white-space: nowrap;
+      }
+      #reply .row b {
+        display: inline-block;
+        width: 1.6em;
+        font-weight: 500;
+        color: var(--ink-faint);
+      }
+      #verdict {
+        left: 200px;
+        top: 250px;
+        font-family: var(--display);
+        font-weight: 800;
+        font-size: 250px;
+        line-height: 1.02;
+      }
+      #verdict div {
+        white-space: nowrap;
+        transform-origin: 0 60%;
+      }
+
+      /* 5 and 6: the ink and the turn. */
+      #tagline {
+        left: 140px;
+        top: 220px;
+        font-family: var(--display);
+        font-weight: 800;
+        font-size: 150px;
+        line-height: 1.02;
+        text-shadow: 0 0 40px rgb(255 255 255 / 0.9);
+      }
+      #tagline .word,
+      #statement .word {
+        display: inline-block;
+        white-space: pre;
+      }
+      #introducing {
+        left: 146px;
+        top: 668px;
+        font-size: 44px;
+        color: var(--ink-soft);
+        letter-spacing: 0.02em;
+      }
+      #lockup {
+        left: 140px;
+        top: 740px;
+        display: flex;
+        align-items: center;
+        gap: 34px;
+      }
+      .tile {
+        border-radius: 20%;
+        background: var(--ink);
+        display: grid;
+        place-items: center;
+      }
+      .name {
+        font-family: var(--display);
+        font-weight: 800;
+        line-height: 1;
+      }
+
+      /* 7: what it is. */
+      #what {
+        background: var(--paper);
+        box-shadow: 0 -40px 80px rgb(11 13 18 / 0.18);
+      }
+      #statement {
+        left: 140px;
+        top: 200px;
+        width: 1640px;
+        font-family: var(--display);
+        font-weight: 700;
+        font-size: 92px;
+        line-height: 1.12;
+      }
+      #apps {
+        left: 140px;
+        top: 800px;
+        display: flex;
+        gap: 22px;
+      }
+      #apps span {
+        display: inline-block;
+        font-size: 42px;
+        font-weight: 500;
+        border: 3px solid var(--ink);
+        border-radius: 999px;
+        padding: 12px 34px;
+        background: var(--paper);
+      }
+
+      /* 8 and 9: the rollout and the folder. */
+      #rollout {
+        background: var(--desk);
+      }
+      #dots {
+        position: absolute;
+        inset: -100px -2000px;
+        background-image: radial-gradient(circle, rgb(112 117 138 / 0.28) 2px, transparent 2.5px);
+        background-size: 48px 48px;
+      }
+      #track {
+        left: -4000px;
+        width: 12000px;
+        height: 4px;
+        background: var(--rule);
+        transform-origin: 4960px 0;
+      }
+      #rolloutHead {
+        left: 120px;
+        top: 70px;
+        font-family: var(--display);
+        font-weight: 700;
+        font-size: 68px;
+      }
+      #steps {
+        right: 120px;
+        top: 96px;
+        display: flex;
+        gap: 10px;
+      }
+      #steps i {
+        display: block;
+        width: 58px;
+        height: 14px;
+        border-radius: 7px;
+        background: var(--desk-deep);
+      }
+      .doc {
+        left: 0;
+        top: 0;
+        transform-origin: 50% 50%;
+      }
+      .sheet {
+        position: relative;
+        background: var(--paper);
+        border: 1px solid var(--rule);
+        border-radius: 8px;
+        box-shadow:
+          0 50px 90px rgb(11 13 18 / 0.16),
+          0 8px 20px rgb(11 13 18 / 0.08);
+        overflow: hidden;
+      }
+      .phaseTag {
+        position: absolute;
+        left: -200px;
+        right: -200px;
+        text-align: center;
+        font-family: var(--display);
+        font-weight: 700;
+        font-size: 50px;
+        white-space: nowrap;
+      }
+      .phaseTag b {
+        color: var(--mark-deep);
+        margin-right: 16px;
+      }
+      .formatTag {
+        position: absolute;
+        left: 50%;
+        transform: translateX(-50%);
+        font-size: 34px;
+        font-weight: 500;
+        border: 2.5px solid var(--rule-firm);
+        border-radius: 999px;
+        padding: 6px 26px;
+        color: var(--ink-soft);
+        white-space: nowrap;
+        background: var(--paper);
+      }
+      /* A slide. */
+      .slide {
+        width: 780px;
+        height: 439px;
+        padding: 44px 50px;
+      }
+      .slide .kicker {
+        font-size: 22px;
+        font-weight: 700;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        color: var(--mark-deep);
+      }
+      .slide h3 {
+        font-family: var(--display);
+        font-weight: 800;
+        font-size: 50px;
+        line-height: 1.06;
+        margin-top: 14px;
+        width: 420px;
+      }
+      .slide .bars {
+        position: absolute;
+        right: 50px;
+        bottom: 80px;
+        display: flex;
+        align-items: flex-end;
+        gap: 16px;
+        height: 230px;
+      }
+      .slide .bars i {
+        display: block;
+        width: 46px;
+        border-radius: 6px 6px 0 0;
+        background: var(--desk-deep);
+      }
+      .slide .bars i.hi {
+        background: var(--mark);
+      }
+      .slide .foot {
+        position: absolute;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        height: 40px;
+        background: var(--ink);
+      }
+      .slide .points {
+        margin-top: 28px;
+        display: grid;
+        gap: 14px;
+      }
+      .slide .points i,
+      .page .text i,
+      .page td i,
+      .book td i {
+        display: block;
+        border-radius: 5px;
+        background: var(--desk-deep);
+      }
+      .slide .points i {
+        height: 12px;
+      }
+      /* A page. */
+      .page {
+        width: 540px;
+        height: 720px;
+        padding: 52px;
+      }
+      .page h3 {
+        font-family: var(--display);
+        font-weight: 800;
+        font-size: 44px;
+        line-height: 1.08;
+      }
+      .page .rule {
+        height: 4px;
+        background: var(--ink);
+        margin: 22px 0 26px;
+        width: 120px;
+      }
+      .page h4 {
+        font-family: var(--display);
+        font-weight: 700;
+        font-size: 24px;
+        margin: 22px 0 12px;
+      }
+      .page .text {
+        display: grid;
+        gap: 11px;
+      }
+      .page .text i {
+        height: 10px;
+      }
+      .page table,
+      .book table {
+        width: 100%;
+        border-collapse: collapse;
+      }
+      .page table {
+        margin-top: 18px;
+      }
+      .page td {
+        height: 34px;
+        border-bottom: 1px solid var(--rule);
+      }
+      .page tr:first-child td {
+        background: var(--ink);
+        border: 0;
+      }
+      .page td i {
+        height: 9px;
+        width: 70%;
+        margin-left: 10px;
+      }
+      /* A workbook. */
+      .book {
+        width: 800px;
+        height: 500px;
+      }
+      .book .title {
+        height: 96px;
+        padding: 22px 30px;
+        background: var(--ink);
+        color: var(--on-binder);
+        font-family: var(--display);
+        font-weight: 800;
+        font-size: 42px;
+        white-space: nowrap;
+      }
+      .book td {
+        height: 50.5px;
+        border-right: 1px solid var(--rule);
+        border-bottom: 1px solid var(--rule);
+        padding: 0 16px;
+        font-size: 22px;
+        font-weight: 500;
+        color: var(--ink-soft);
+      }
+      .book tr:first-child td {
+        background: var(--paper-shade);
+        font-weight: 700;
+        color: var(--ink-faint);
+        text-align: center;
+        height: 36px;
+        font-size: 18px;
+      }
+      .book td i {
+        height: 10px;
+      }
+      .book .chip {
+        display: inline-block;
+        width: 74px;
+        height: 24px;
+        border-radius: 12px;
+      }
+      #folderBack,
+      #folderFront {
+        left: 410px;
+        width: 1100px;
+        border-radius: 26px;
+      }
+      #folderBack {
+        top: 230px;
+        height: 680px;
+        background: var(--binder-rise);
+      }
+      #folderBack::before {
+        content: "";
+        position: absolute;
+        left: 0;
+        top: -46px;
+        width: 380px;
+        height: 80px;
+        border-radius: 22px 22px 0 0;
+        background: var(--binder-rise);
+      }
+      #folderFront {
+        top: 470px;
+        height: 450px;
+        background: var(--binder);
+        box-shadow: 0 -10px 40px rgb(0 0 0 / 0.3);
+        padding: 50px 60px;
+        color: var(--on-binder);
+      }
+      #folderFront .label {
+        font-family: var(--display);
+        font-weight: 800;
+        font-size: 84px;
+        line-height: 1;
+        white-space: nowrap;
+        margin-top: 110px;
+      }
+      #folderFront .sub {
+        margin-top: 26px;
+        font-size: 44px;
+        color: var(--on-binder-soft);
+      }
+      #folderFront .tag {
+        position: absolute;
+        left: 60px;
+        top: 44px;
+        font-family: var(--display);
+        font-weight: 800;
+        font-size: 52px;
+        color: var(--ink);
+        background: var(--mark);
+        padding: 10px 28px;
+        border-radius: 8px;
+      }
+
+      /* 10: the scale. */
+      #scale {
+        background: var(--paper);
+      }
+      #tiles {
+        position: absolute;
+        inset: 0;
+      }
+      #tiles i {
+        position: absolute;
+        left: 0;
+        top: 0;
+        width: 92px;
+        height: 120px;
+        border-radius: 6px;
+        border: 2px solid var(--rule);
+        background: var(--paper);
+      }
+      #tiles i::before {
+        content: "";
+        position: absolute;
+        left: 14px;
+        right: 26px;
+        top: 18px;
+        height: 10px;
+        border-radius: 5px;
+        background: var(--rule);
+      }
+      #counts {
+        left: 140px;
+        top: 190px;
+        width: 1640px;
+        display: grid;
+        grid-template-columns: 270px 400px 250px 270px 330px;
+        column-gap: 30px;
       }
       .count .n {
         font-family: var(--display);
         font-weight: 800;
-        font-size: 150px;
+        font-size: 200px;
         line-height: 1;
         font-variant-numeric: lining-nums;
+        transform-origin: 30% 70%;
       }
       .count .l {
-        font-size: 32px;
+        font-size: 38px;
+        font-weight: 500;
         color: var(--ink-soft);
-        margin-top: 14px;
+        margin-top: 12px;
+        border-top: 4px solid var(--ink);
+        padding-top: 16px;
       }
       #proof {
-        left: 74px;
-        top: 790px;
+        left: 140px;
+        top: 660px;
+      }
+      #proof .p1 {
         font-family: var(--display);
         font-style: italic;
         font-weight: 600;
-        font-size: 52px;
+        font-size: 76px;
+        line-height: 1.1;
       }
-      #apps {
-        left: 76px;
-        top: 878px;
-        font-size: 28px;
-        color: var(--ink-faint);
-        letter-spacing: 0.01em;
+      #proof .p2 {
+        font-size: 52px;
+        color: var(--ink-soft);
+        margin-top: 22px;
       }
 
-      /* 6: ninety. */
-      #ninety {
+      /* 11 and 12: ninety and who. */
+      #dark {
         background: var(--binder);
         color: var(--on-binder);
       }
-      #ninetyInk {
-        left: 0;
-        bottom: -40px;
-        width: 1920px;
-      }
       #ninetyHead {
         left: 160px;
-        top: 220px;
+        top: 250px;
         font-family: var(--display);
         font-weight: 700;
-        font-size: 96px;
+        font-size: 116px;
+        white-space: nowrap;
       }
-      #track {
+      #track90 {
         left: 160px;
-        top: 520px;
+        top: 560px;
         width: 1600px;
-        height: 40px;
-        border-radius: 20px;
+        height: 56px;
+        border-radius: 28px;
         background: var(--rule-on-binder);
         overflow: hidden;
       }
@@ -354,63 +661,58 @@
         background: var(--mark);
       }
       #pct {
-        top: 410px;
+        top: 440px;
         font-family: var(--display);
         font-weight: 800;
-        font-size: 84px;
+        font-size: 104px;
         line-height: 1;
         transform: translateX(-100%);
       }
       #restLabel {
         right: 160px;
-        top: 600px;
-        font-size: 40px;
+        top: 660px;
+        font-size: 52px;
         color: var(--on-binder-soft);
-        text-align: right;
       }
       #restLabel b {
         color: var(--mark);
+      }
+      #whoLead {
+        left: 160px;
+        top: 170px;
+        font-size: 52px;
+        color: var(--on-binder-soft);
+      }
+      #roles {
+        left: 154px;
+        top: 260px;
+        font-family: var(--display);
         font-weight: 700;
+        font-size: 128px;
+        line-height: 1.12;
+      }
+      #roles div {
+        white-space: nowrap;
       }
 
-      /* 7: the end card. */
+      /* 13: the end card. */
       #end {
         background: var(--paper);
       }
-      #bloom {
-        left: -60px;
-        width: 2040px;
-        top: 170px;
-      }
-      #lockup {
+      #endLockup {
         left: 50%;
-        top: 270px;
+        top: 250px;
         transform: translateX(-50%);
         display: flex;
         align-items: center;
-        gap: 40px;
-      }
-      #tile {
-        width: 168px;
-        height: 168px;
-        border-radius: 22px;
-        background: var(--ink);
-        display: grid;
-        place-items: center;
-      }
-      #name {
-        font-family: var(--display);
-        font-weight: 800;
-        font-size: 128px;
-        line-height: 1;
+        gap: 46px;
       }
       #offer {
         left: 0;
         right: 0;
-        top: 520px;
+        top: 560px;
         text-align: center;
-        font-size: 44px;
-        color: var(--ink);
+        font-size: 62px;
       }
       #offer b {
         font-family: var(--display);
@@ -419,150 +721,159 @@
       #cta {
         left: 0;
         right: 0;
-        top: 600px;
+        top: 660px;
         text-align: center;
-        font-size: 40px;
+        font-size: 56px;
         color: var(--ink-soft);
       }
       #cta b {
         color: var(--ink);
         font-weight: 700;
-        position: relative;
-        z-index: 0;
-      }
-      #cta b::before {
-        content: "";
-        position: absolute;
-        left: -6px;
-        right: -6px;
-        top: 40%;
-        bottom: 0;
-        background: var(--mark);
-        z-index: -1;
-        transform: scaleX(var(--hi, 0));
-        transform-origin: left center;
       }
       #parent {
         left: 0;
         right: 0;
-        top: 990px;
+        top: 950px;
         text-align: center;
-        font-size: 24px;
+        font-size: 34px;
         color: var(--ink-faint);
       }
     </style>
   </head>
   <body>
-    <!-- 1 and 2: the prompt and its reply. -->
+    <!-- 1 to 4: the blank prompt, the typing, the reply and the verdict. -->
     <section class="scene" id="chat">
-      <div class="abs" id="chatLabel">New chat</div>
-      <div class="abs" id="promptBox">
-        <span id="placeholder">Ask anything</span><span id="promptText"></span
-        ><span id="caret"></span>
-        <div class="abs" id="send">
-          <svg
-            width="30"
-            height="30"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="#fff"
-            stroke-width="2.6"
-            stroke-linecap="round"
-            stroke-linejoin="round"
-          >
-            <path d="M12 19V5M5 12l7-7 7 7" />
-          </svg>
+      <div class="cam" id="chatCam">
+        <div class="abs" id="newChat">New chat</div>
+        <div class="abs" id="line">
+          <span id="typed"></span><span id="caret"></span><span id="placeholder"></span>
+        </div>
+        <div class="abs" id="underline"></div>
+        <div class="abs" id="bubble"></div>
+        <div class="abs" id="reply"></div>
+        <div class="abs" id="verdict">
+          <div id="v1">Plausible.</div>
+          <div id="v2"><span class="mark-band" id="v2band">Unproven.</span></div>
         </div>
       </div>
-      <div class="abs" id="reply"><span id="replyText"></span><span id="replyDot"></span></div>
-      <div class="abs" id="verdict">
-        <span id="v1">Plausible.</span> <span id="v2"><i id="verdictHi"></i>Unproven.</span>
-      </div>
-      <div class="grain"></div>
     </section>
 
-    <!-- 3: the ink. -->
-    <section class="scene" id="ink">
-      <img class="abs" id="spill" src="../public/ink/spill-wide.webp" alt="" />
-      <div class="abs" id="tagline">
-        <div id="t1"></div>
-        <div id="t2"></div>
+    <!-- 5 and 6: the ink floods the reply, then the tagline and the brand. -->
+    <section class="layer" id="floodLayer">
+      <div class="plate multiply" id="floodPlate"></div>
+    </section>
+    <section class="scene" id="turn">
+      <div class="cam" id="turnCam">
+        <div class="abs" id="tagline"></div>
+        <div class="abs" id="introducing">Introducing</div>
+        <div class="abs" id="lockup">
+          <div class="tile" id="tile1">
+            <svg
+              viewBox="0 0 36 24"
+              fill="none"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            ></svg>
+          </div>
+          <div class="name" id="name1">Advanta365</div>
+        </div>
       </div>
-      <div class="grain"></div>
     </section>
 
-    <!-- 4: the six free samples. -->
-    <section class="scene" id="documents">
-      <div class="abs" id="docHead">
-        <div class="heading">Start from finished work.</div>
-        <div class="sub">One for each phase of the rollout, ready to adapt today.</div>
+    <!-- 7: what it is. -->
+    <section class="scene" id="what">
+      <div class="cam" id="whatCam">
+        <div class="abs" id="statement"></div>
+        <div class="abs" id="apps"></div>
       </div>
-      <div id="cards"></div>
-      <div class="abs" id="docNote">
-        <mark>Six free samples.</mark> The complete toolkit covers all seven phases.
-      </div>
-      <div class="grain"></div>
     </section>
 
-    <!-- 5: what the toolkit holds. -->
-    <section class="scene" id="inside">
-      <div class="abs" id="insideHead">
-        <div class="heading">The complete toolkit.</div>
+    <!-- 8 and 9: the rollout and the folder. -->
+    <section class="scene" id="rollout">
+      <div class="abs" id="dots"></div>
+      <div class="abs" id="track"></div>
+      <div id="docs"></div>
+      <div class="abs" id="folderBack"></div>
+      <div class="abs" id="folderFront">
+        <div class="label">The complete toolkit</div>
+        <div class="sub">Every phase. Every audience. Yours to keep.</div>
+        <div class="tag" id="folderTag"></div>
       </div>
-      <div id="counts"></div>
-      <div class="abs" id="proof">Refined across real client rollouts over 30+ years.</div>
-      <div class="abs" id="apps">For SharePoint, Teams, OneDrive, Outlook and Copilot rollouts</div>
-      <div class="grain"></div>
+      <div class="abs" id="rolloutHead">Every phase of the rollout.</div>
+      <div class="abs" id="steps"></div>
     </section>
 
-    <!-- 6: ninety. -->
-    <section class="scene" id="ninety">
-      <img class="abs" id="ninetyInk" src="../public/ink/ninety-wide.webp" alt="" />
-      <div class="abs" id="ninetyHead">We get you 90% of the way.</div>
-      <div class="abs" id="pct">0%</div>
-      <div class="abs" id="track">
-        <div id="fill"></div>
-        <div id="rest"></div>
+    <!-- 10: the scale and the proof. -->
+    <section class="scene" id="scale">
+      <div class="cam" id="scaleCam">
+        <div id="tiles"></div>
+        <div class="abs" id="counts"></div>
+        <div class="abs" id="proof">
+          <div class="p1" id="p1"></div>
+          <div class="p2" id="p2"></div>
+        </div>
       </div>
-      <div class="abs" id="restLabel"><b>You, or your AI,</b> finish the rest.</div>
+      <div class="plate multiply" id="wipePlate"></div>
     </section>
 
-    <!-- 7: the end card. -->
+    <!-- 11 and 12: ninety, and who it is for, on the binder. -->
+    <section class="scene" id="dark">
+      <div class="plate" id="ninetyPlate"></div>
+      <div class="cam" id="darkCam">
+        <div class="abs" id="ninetyHead">We get you 90% of the way.</div>
+        <div class="abs" id="pct">0%</div>
+        <div class="abs" id="track90">
+          <div id="fill"></div>
+          <div id="rest"></div>
+        </div>
+        <div class="abs" id="restLabel"><b>You, or your AI,</b> finish the rest.</div>
+        <div class="abs" id="whoLead"></div>
+        <div class="abs" id="roles"></div>
+      </div>
+    </section>
+
+    <!-- 13: the end card. -->
     <section class="scene" id="end">
-      <img class="abs" id="bloom" src="../public/ink/prompt-wide.webp" alt="" />
-      <div class="abs" id="lockup">
-        <div id="tile">
-          <svg
-            id="mark"
-            width="150"
-            height="100"
-            viewBox="0 0 36 24"
-            fill="none"
-            stroke-linecap="round"
-            stroke-linejoin="round"
-          ></svg>
+      <div class="plate" id="bloomPlate"></div>
+      <div class="cam" id="endCam">
+        <div class="abs" id="endLockup">
+          <div class="tile" id="tile2">
+            <svg
+              viewBox="0 0 36 24"
+              fill="none"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            ></svg>
+          </div>
+          <div class="name" id="name2">Advanta365</div>
         </div>
-        <div id="name">Advanta365</div>
+        <div class="abs" id="offer"></div>
+        <div class="abs" id="cta"></div>
+        <div class="abs" id="parent"></div>
       </div>
-      <div class="abs" id="offer"></div>
-      <div class="abs" id="cta"></div>
-      <div class="abs" id="parent"></div>
-      <div class="grain"></div>
     </section>
+
+    <div id="black"></div>
+    <div id="vignette"></div>
+    <div id="grain"></div>
 
     <script type="module">
-      import {
+      import * as T from "./timeline.mjs";
+
+      const {
         SCENES,
-        CROSSFADE,
         PROMPT,
-        keystrokeTimes,
         REPLY,
         TAGLINE,
-        DOCUMENTS,
-        INSIDE,
+        WHAT,
+        ROLLOUT,
+        FOLDER,
+        SCALE,
+        WIPE,
         NINETY,
+        WHO,
         END,
-      } from "./timeline.mjs";
+      } = T;
 
       // The paths of the full mark, from lib/brand/mark.ts.
       const MARK = {
@@ -580,207 +891,613 @@
       const clamp01 = (x) => Math.min(1, Math.max(0, x));
       const prog = (t, start, dur) => clamp01((t - start) / dur);
       const easeOut = (x) => 1 - (1 - x) ** 3;
+      const easeOut5 = (x) => 1 - (1 - x) ** 5;
+      const easeIn = (x) => x ** 3;
       const easeInOut = (x) => (x < 0.5 ? 4 * x * x * x : 1 - (-2 * x + 2) ** 3 / 2);
-      const backOut = (x) => 1 + 2.2 * (x - 1) ** 3 + 1.2 * (x - 1) ** 2;
+      const backOut = (x) => 1 + 2.4 * (x - 1) ** 3 + 1.4 * (x - 1) ** 2;
       const mix = (a, b, x) => a + (b - a) * x;
 
-      /** A scene's opacity: in over the crossfade from its start, out over the crossfade to its end. */
-      function sceneAlpha(t, { start, end }, first = false, last = false) {
-        const a = first ? 1 : prog(t, start, CROSSFADE);
-        const b = last ? 1 : 1 - prog(t, end - CROSSFADE, CROSSFADE);
-        return Math.min(a, b);
+      /** A camera knock: a decaying shake after `t0`. */
+      function knock(t, t0, amp = 10) {
+        if (t < t0) return [0, 0];
+        const s = t - t0;
+        const k = amp * Math.exp(-s * 9);
+        return [k * Math.sin(s * 71), k * Math.cos(s * 53)];
+      }
+      /** A slow drift, so no frame ever stands still. */
+      const drift = (t, a = 6) => [a * Math.sin(t * 0.37 + 1), a * 0.7 * Math.sin(t * 0.29)];
+
+      function cam(el, { scale = 1, x = 0, y = 0, ox = 960, oy = 540 }) {
+        el.style.transformOrigin = `${ox}px ${oy}px`;
+        el.style.transform = `translate(${x}px, ${y}px) scale(${scale})`;
       }
 
-      /** Text that rises a little as it fades in. */
-      function rise(el, t, at, dist = 28, dur = 0.6) {
-        const p = easeOut(prog(t, at, dur));
+      const show = (el, on) => (el.style.display = on ? "block" : "none");
+
+      /** Text that rises and sharpens as it fades in. */
+      function rise(el, t, at0, dist = 40, dur = 0.5, blur = 10) {
+        const p = easeOut(prog(t, at0, dur));
         el.style.opacity = p;
         el.style.transform = `translateY(${(1 - p) * dist}px)`;
+        el.style.filter = p < 1 ? `blur(${(1 - p) * blur}px)` : "none";
+        return p;
       }
 
-      // Build the cards and counters once.
-      const lineWidths = [100, 92, 97, 70, 88, 60];
-      $("cards").innerHTML = DOCUMENTS.items
+      /** A word that lands with a small overshoot. */
+      function pop(el, t, at0, dur = 0.35) {
+        const p = prog(t, at0, dur);
+        const e = backOut(p);
+        el.style.opacity = clamp01(p * 3);
+        el.style.transform = `translateY(${(1 - e) * 50}px) scale(${mix(0.94, 1, e)})`;
+        el.style.filter = p < 1 ? `blur(${(1 - easeOut(p)) * 8}px)` : "none";
+      }
+
+      // Ink plates: two neighbouring frames of the 30 fps plate, blended for the 60 fps video.
+      const plates = {};
+      function setupPlate(name, host) {
+        const a = new Image();
+        const b = new Image();
+        host.append(a, b);
+        plates[name] = { a, b };
+      }
+      const frameUrl = (name, i) => `out/plates/${name}/${String(i).padStart(4, "0")}.jpg`;
+      async function plateAt(name, t) {
+        const p = plates[name];
+        const def = T.PLATES[name];
+        const last = Math.round((def.end - def.start) * T.PLATE_FPS);
+        const f = Math.min(last, Math.max(0, (t - def.start) * T.PLATE_FPS));
+        const i0 = Math.floor(f);
+        const i1 = Math.min(last, i0 + 1);
+        const loads = [];
+        for (const [img, url] of [
+          [p.a, frameUrl(name, i0)],
+          [p.b, frameUrl(name, i1)],
+        ]) {
+          if (img.getAttribute("src") !== url) {
+            img.setAttribute("src", url);
+            loads.push(img.decode().catch(() => {}));
+          }
+        }
+        p.b.style.opacity = f - i0;
+        await Promise.all(loads);
+      }
+      setupPlate("flood", $("floodPlate"));
+      setupPlate("wipe", $("wipePlate"));
+      setupPlate("ninety", $("ninetyPlate"));
+      setupPlate("bloom", $("bloomPlate"));
+
+      // The mark, drawn stroke by stroke: the tail first, under the "A", as the site draws it.
+      function buildMark(svg, h) {
+        const ns = "http://www.w3.org/2000/svg";
+        svg.style.width = `${h * 0.82}px`;
+        svg.style.height = `${h * 0.547}px`;
+        const make = (d, stroke, width) => {
+          const p = document.createElementNS(ns, "path");
+          p.setAttribute("d", d);
+          p.setAttribute("stroke", stroke);
+          p.setAttribute("stroke-width", width);
+          svg.appendChild(p);
+          const len = p.getTotalLength();
+          p.style.strokeDasharray = `${len} ${len}`;
+          return { p, len };
+        };
+        return {
+          tail: make(MARK.tail, "var(--mark)", 3.8),
+          legs: make(MARK.legs, "#fff", 3.8),
+          bar: make(MARK.bar, "#fff", 3.8),
+          digits: MARK.digits.map((d) => make(d, "var(--mark)", 1.4)),
+        };
+      }
+      function drawMark(parts, t, start, dur) {
+        const part = ({ p, len }, x) => {
+          p.style.strokeDashoffset = `${len * (1 - x)}`;
+          p.style.opacity = x > 0 ? 1 : 0;
+        };
+        part(parts.legs, easeInOut(prog(t, start, dur * 0.45)));
+        part(parts.bar, easeOut(prog(t, start + dur * 0.45, dur * 0.2)));
+        part(parts.tail, easeOut(prog(t, start + dur * 0.6, dur * 0.25)));
+        parts.digits.forEach((d, i) =>
+          part(d, easeOut(prog(t, start + dur * (0.7 + i * 0.1), dur * 0.18))),
+        );
+      }
+      function lockup(tileId, nameId, h) {
+        const tile = $(tileId);
+        tile.style.width = tile.style.height = `${h}px`;
+        $(nameId).style.fontSize = `${h * 0.93}px`;
+        return buildMark(tile.querySelector("svg"), h);
+      }
+      const mark1 = lockup("tile1", "name1", 130);
+      const mark2 = lockup("tile2", "name2", 180);
+
+      // The chat.
+      const keys = T.keystrokeTimes();
+      $("placeholder").textContent = PROMPT.placeholder;
+      $("bubble").textContent = PROMPT.text;
+      $("reply").innerHTML =
+        `<div class="row">${REPLY.intro}</div>` +
+        REPLY.lines.map((l, i) => `<div class="row"><b>${i + 1}.</b>${l}</div>`).join("");
+      const rows = [...document.querySelectorAll("#reply .row")];
+      const rowTimes = rows.map(
+        (_, i) => REPLY.streamStart + ((REPLY.streamEnd - REPLY.streamStart) * i) / rows.length,
+      );
+
+      // The tagline and the statement, word by word.
+      $("tagline").innerHTML = TAGLINE.lines
         .map(
-          (d, i) => `
-          <div class="abs card" id="card${i}" style="left:${74 + i * 300}px">
-            <div class="phase"><b>${d.phase}</b><span>${d.phaseName}</span></div>
-            <h3>${d.title}</h3>
-            <div class="lines">${lineWidths
-              .slice(0, d.title.length > 28 ? 4 : 5)
-              .map((w, j) => `<i style="width:${lineWidths[(j + i) % 6]}%"></i>`)
-              .join("")}</div>
-            <span class="format">${d.format}</span>
-          </div>`,
+          (l, li) =>
+            `<div>${l
+              .split(" ")
+              .map((w) => `<span class="word" data-line="${li}">${w} </span>`)
+              .join("")}</div>`,
         )
         .join("");
-      $("counts").innerHTML = INSIDE.items
+      const tagWords = [...$("tagline").querySelectorAll(".word")].map((el) => ({
+        el,
+        line: Number(el.dataset.line),
+      }));
+      tagWords.forEach(
+        (w, i) => (w.index = tagWords.slice(0, i).filter((o) => o.line === w.line).length),
+      );
+      const HIGHLIGHT = new Set(["Microsoft 365", "SharePoint"]);
+      $("statement").innerHTML = [
+        ...WHAT.line1.split(" ").map((w) => `<span class="word">${w} </span>`),
+        ...WHAT.line2.map(
+          (w) =>
+            `<span class="word">${HIGHLIGHT.has(w) ? `<span class="mark-band">${w}</span>` : w} </span>`,
+        ),
+      ].join("");
+      const statementWords = [...$("statement").querySelectorAll(".word")];
+      const statementBands = [...$("statement").querySelectorAll(".mark-band")];
+      $("apps").innerHTML = WHAT.apps.map((a) => `<span>${a}</span>`).join("");
+      const appChips = [...$("apps").children];
+
+      // The documents, each drawn as its format: a slide, a page or a workbook.
+      const bar = (w) => `<i style="width:${w}%"></i>`;
+      function slide(d, i) {
+        const heights = [
+          [40, 62, 50, 84, 70],
+          [55, 38, 72, 60, 92],
+        ][i % 2];
+        return `<div class="sheet slide">
+          <div class="kicker">${d.name}</div>
+          <h3>${d.title}</h3>
+          <div class="points">${bar(34)}${bar(28)}${bar(31)}</div>
+          <div class="bars">${heights.map((h, j) => `<i class="${j === 3 + (i % 2) ? "hi" : ""}" style="height:${h}%"></i>`).join("")}</div>
+          <div class="foot"></div>
+        </div>`;
+      }
+      function page(d, i) {
+        const text = (ws) => `<div class="text">${ws.map(bar).join("")}</div>`;
+        const table = Array.from(
+          { length: 4 },
+          (_, r) => `<tr>${[0, 1, 2].map(() => `<td>${r ? "<i></i>" : ""}</td>`).join("")}</tr>`,
+        ).join("");
+        return `<div class="sheet page">
+          <h3>${d.title}</h3>
+          <div class="rule"></div>
+          ${text([100, 96, 100, 74])}
+          <h4>1. ${i === 1 ? "Objectives" : "Principles"}</h4>
+          ${text([98, 100, 88])}
+          <table>${table}</table>
+          <h4>2. ${i === 1 ? "Approach" : "Roles"}</h4>
+          ${text([100, 92, 60])}
+        </div>`;
+      }
+      function book(d, i) {
+        const chips = [
+          "var(--mark)",
+          "var(--ink-faint)",
+          "var(--alert)",
+          "var(--mark)",
+          "var(--mark)",
+          "var(--ink-faint)",
+          "var(--mark)",
+        ];
+        const header = `<tr><td style="width:44px"></td><td>A</td><td>B</td><td>C</td><td>D</td></tr>`;
+        const body = Array.from({ length: 7 }, (_, r) => {
+          const k = (r + i) % 7;
+          return `<tr><td style="text-align:center;color:var(--ink-faint);font-size:18px">${r + 1}</td>
+            <td style="width:44%"><i style="width:${[80, 64, 72, 58, 76, 68, 60][k]}%"></i></td>
+            <td style="text-align:right">${[92, 78, 64, 88, 71, 95, 83][k]}%</td>
+            <td><span class="chip" style="background:${chips[k]}"></span></td>
+            <td><i style="width:${[50, 70, 40, 60, 55, 65, 45][k]}%"></i></td></tr>`;
+        }).join("");
+        return `<div class="sheet book"><div class="title">${d.title}</div><table>${header}${body}</table></div>`;
+      }
+      const docs = ROLLOUT.items.map((d, i) => {
+        const el = document.createElement("div");
+        el.className = "abs doc";
+        const inner =
+          d.format === "PowerPoint" ? slide(d, i) : d.format === "Word" ? page(d, i) : book(d, i);
+        el.innerHTML = `<div class="phaseTag"><b>${d.phase}</b>${d.name}</div>${inner}<div class="formatTag">${d.format}</div>`;
+        $("docs").appendChild(el);
+        return {
+          el,
+          sheet: el.querySelector(".sheet"),
+          tag: el.querySelector(".phaseTag"),
+          format: el.querySelector(".formatTag"),
+        };
+      });
+      /** Centres each document on its own point, once its size is known. */
+      function layoutDocs() {
+        for (const doc of docs) {
+          const w = doc.sheet.offsetWidth;
+          const h = doc.sheet.offsetHeight;
+          Object.assign(doc.el.style, {
+            width: `${w}px`,
+            height: `${h}px`,
+            marginLeft: `${-w / 2}px`,
+            marginTop: `${-h / 2}px`,
+          });
+          doc.tag.style.top = "-96px";
+          doc.format.style.top = `${h + 34}px`;
+        }
+      }
+      $("steps").innerHTML = ROLLOUT.items.map(() => "<i></i>").join("");
+      const stepBars = [...$("steps").children];
+      $("folderTag").textContent = END.price;
+
+      // The scale.
+      $("counts").innerHTML = SCALE.items
         .map(
-          (c, i) => `
-          <div class="abs count" id="count${i}" style="left:${74 + i * 360}px">
-            <div class="n" id="n${i}">0</div><div class="l">${c.label}</div>
-          </div>`,
+          (c, i) =>
+            `<div class="count" id="c${i}"><div class="n" id="n${i}">0</div><div class="l">${c.label}</div></div>`,
         )
         .join("");
+      $("p1").textContent = SCALE.proofLines[0];
+      $("p2").textContent = SCALE.proofLines[1];
+      const tileEls = [];
+      {
+        let s = 130;
+        const rand = () => (s = (s * 1664525 + 1013904223) >>> 0) / 2 ** 32;
+        for (let i = 0; i < 130; i++) {
+          const el = document.createElement("i");
+          $("tiles").appendChild(el);
+          tileEls.push({
+            el,
+            x: 40 + (i % 17) * 110,
+            y: 30 + Math.floor(i / 17) * 136,
+            dx: (rand() - 0.5) * 1400,
+            dy: (rand() - 0.5) * 900 - 300,
+            r: (rand() - 0.5) * 60,
+            at: SCALE.first + SCALE.step + rand() * 1.1,
+          });
+        }
+      }
+
+      // Ninety and who.
+      $("whoLead").textContent = WHO.lead;
+      $("roles").innerHTML = WHO.roles.map((r, i) => `<div id="role${i}">${r}</div>`).join("");
+
+      // The end card.
       $("offer").innerHTML = `The complete toolkit &nbsp;·&nbsp; <b>${END.price}</b>`;
-      $("cta").innerHTML = `See the free samples at <b>${END.domain}</b>`;
+      $("cta").innerHTML =
+        `See the free samples at <b class="mark-band" id="ctaBand">${END.domain}</b>`;
       $("parent").textContent = `A product of ${END.parent}`;
-      $("t1").textContent = TAGLINE.lines[0];
-      $("t2").textContent = TAGLINE.lines[1];
 
-      const svgNs = "http://www.w3.org/2000/svg";
-      function markPath(d, stroke, width) {
-        const p = document.createElementNS(svgNs, "path");
-        p.setAttribute("d", d);
-        p.setAttribute("stroke", stroke);
-        p.setAttribute("stroke-width", width);
-        $("mark").appendChild(p);
-        const len = p.getTotalLength();
-        p.style.strokeDasharray = `${len} ${len}`;
-        return { p, len };
-      }
-      // The tail first, under the "A", as the site draws it.
-      const markParts = {
-        tail: markPath(MARK.tail, "var(--mark)", 3.8),
-        legs: markPath(MARK.legs, "#fff", 3.8),
-        bar: markPath(MARK.bar, "#fff", 3.8),
-        digits: MARK.digits.map((d) => markPath(d, "var(--mark)", 1.4)),
-      };
-      function drawPart({ p, len }, x) {
-        p.style.strokeDashoffset = `${len * (1 - x)}`;
-        p.style.opacity = x > 0 ? 1 : 0;
-      }
+      /** Draws the frame at second `t`. Resolves once every image on it is decoded. */
+      async function renderAt(t) {
+        const waits = [];
+        const frame = Math.round(t * T.FPS);
+        $("grain").style.transform = `translate(${(frame * 37) % 200}px, ${(frame * 73) % 200}px)`;
 
-      const keys = keystrokeTimes();
-      const replyAll = REPLY.lines.join("\n");
+        // 1 to 4: the chat, from the giant cursor to the verdict.
+        const chatOn = t < SCENES.ink.end + 0.1;
+        show($("chat"), chatOn);
+        if (chatOn) {
+          const [kx1, ky1] = knock(t, REPLY.plausible, 14);
+          const [kx2, ky2] = knock(t, REPLY.unproven, 14);
+          const [kx3, ky3] = knock(t, SCENES.ink.start, 22);
+          const [dx, dy] = drift(t, 5);
+          const typed = keys.filter((k) => t >= k).length;
+          $("typed").textContent = PROMPT.text.slice(0, typed);
+          $("placeholder").style.display = typed ? "none" : "inline";
+          // From the giant cursor out to the page, along the line with the caret, then back for
+          // the reply and in again for the verdict.
+          const zoomOut = easeInOut(prog(t, 0.3, 1.9));
+          const follow = Math.max(0, $("typed").offsetWidth - 1240);
+          const sent = prog(t, PROMPT.send, 0.3);
+          const pull = easeInOut(prog(t, SCENES.reply.start, 2.2));
+          const push = easeInOut(prog(t, REPLY.plausible, 2.5));
+          const inkPush = easeOut(prog(t, SCENES.ink.start, 2.4));
+          cam($("chatCam"), {
+            scale:
+              mix(2.6, 1, zoomOut) *
+              mix(1, 0.94, pull) *
+              mix(1, 1.05, push) *
+              mix(1, 1.04, inkPush),
+            x: dx + kx1 + kx2 + kx3 + (1 - zoomOut) * 700,
+            y: dy + ky1 + ky2 + ky3,
+            ox: 252,
+            oy: 530,
+          });
+          $("line").style.transform = `translate(${-follow}px, ${-easeIn(sent) * 220}px)`;
+          $("line").style.opacity = 1 - sent;
+          $("line").style.filter = sent > 0 ? `blur(${sent * 12}px)` : "none";
+          const typing = typed > 0 && t < PROMPT.typeEnd + 0.1;
+          $("caret").style.opacity = typing || Math.floor(t / (T.BEAT / 2)) % 2 === 0 ? 1 : 0;
+          const chrome = 1 - easeOut(prog(t, PROMPT.typeStart, 0.3));
+          $("placeholder").style.opacity = easeOut(prog(t, 0.7, 0.5));
+          $("newChat").style.opacity = easeOut(prog(t, 0.9, 0.5)) * chrome;
+          $("underline").style.transform = `scaleX(${easeInOut(prog(t, 0.8, 1.0))})`;
+          $("underline").style.opacity = chrome;
 
-      function renderAt(t) {
-        // 1 and 2: the chat.
-        $("chat").style.opacity = sceneAlpha(
-          t,
-          { start: SCENES.prompt.start, end: SCENES.reply.end },
-          true,
-        );
-        $("chat").style.transform =
-          `scale(${mix(1, 1.04, easeInOut(prog(t, SCENES.ink.start - 0.2, 0.8)))})`;
-        $("chat").style.filter = `blur(${8 * prog(t, SCENES.ink.start, 0.4)}px)`;
+          const dim = easeOut(prog(t, REPLY.plausible - 0.05, 0.3));
+          const b = easeOut(prog(t, PROMPT.send + 0.12, 0.45));
+          $("bubble").style.opacity = b * mix(1, 0.16, dim);
+          const scroll =
+            easeInOut(
+              clamp01((t - rowTimes[8]) / (rowTimes[rows.length - 1] + 0.3 - rowTimes[8])),
+            ) *
+            3 *
+            74;
+          $("bubble").style.transform =
+            `translateY(${(1 - b) * 60 - scroll}px) scale(${mix(0.9, 1, b)})`;
+          rows.forEach((row, i) => {
+            const p = easeOut(prog(t, rowTimes[i], 0.32));
+            row.style.opacity = p;
+            row.style.transform = `translateX(${(1 - p) * -40}px)`;
+          });
+          $("reply").style.transform = `translateY(${-scroll}px)`;
+          $("reply").style.opacity = mix(1, 0.16, dim);
+          $("reply").style.filter = dim > 0 ? `blur(${dim * 3}px)` : "none";
 
-        const typed = keys.filter((k) => t >= k).length;
-        $("placeholder").style.display = typed > 0 ? "none" : "inline";
-        $("promptText").textContent = PROMPT.text.slice(0, typed);
+          const slam = (el, at0) => {
+            const p = prog(t, at0, 0.22);
+            el.style.opacity = clamp01(p * 4);
+            el.style.transform = `scale(${mix(1.35, 1, easeOut5(p))})`;
+            el.style.filter = p < 1 ? `blur(${(1 - easeOut(p)) * 14}px)` : "none";
+          };
+          slam($("v1"), REPLY.plausible);
+          slam($("v2"), REPLY.unproven);
+          $("v2band").style.setProperty("--hi", easeInOut(prog(t, REPLY.unproven + 0.3, 0.35)));
+          // The ink swallows it all.
+          $("verdict").style.opacity = 1 - easeIn(prog(t, SCENES.ink.start + 0.5, 1.4));
+        }
 
-        const typing = t >= PROMPT.typeStart && t < PROMPT.typeEnd + 0.15;
-        const sent = t >= PROMPT.send;
-        $("caret").style.opacity = sent ? 0 : typing ? 1 : Math.floor(t * 2) % 2 === 0 ? 1 : 0;
+        // 5: the flood plate, over the chat and under the tagline.
+        const floodOn = t >= T.PLATES.flood.start && t < SCENES.what.start + 0.05;
+        show($("floodLayer"), floodOn);
+        if (floodOn) {
+          const [kx, ky] = knock(t, SCENES.ink.start, 22);
+          cam($("floodPlate"), {
+            scale: mix(1, 1.06, easeOut(prog(t, SCENES.ink.start, 7))),
+            x: kx,
+            y: ky,
+            ox: 1300,
+            oy: 500,
+          });
+          waits.push(plateAt("flood", t));
+        }
 
-        const boxIn = easeOut(prog(t, 0.15, 0.7));
-        const lift = easeInOut(prog(t, PROMPT.send + 0.1, 0.7));
-        const press = t >= PROMPT.send && t < PROMPT.send + 0.18 ? 0.9 : 1;
-        $("send").style.transform = `scale(${press})`;
-        $("send").style.opacity = 1 - prog(t, PROMPT.send + 0.1, 0.3);
-        const box = $("promptBox");
-        box.style.top = `${mix(440, 140, lift)}px`;
-        box.style.opacity = boxIn;
-        box.style.transform = `translateY(${(1 - boxIn) * 20}px) scale(${mix(1, 0.82, lift)})`;
-        box.style.background = lift > 0 ? `rgb(241 243 247 / ${lift})` : "var(--paper)";
-        box.style.borderColor = `rgb(210 213 222 / ${1 - lift})`;
-        box.style.boxShadow = `0 24px 60px rgb(11 13 18 / ${0.08 * (1 - lift)})`;
-        $("chatLabel").style.top = `${mix(380, 90, lift)}px`;
-        $("chatLabel").style.opacity = boxIn * (1 - lift);
+        // 6: the turn.
+        const turnOn = t >= TAGLINE.times[0] - 0.1 && t < SCENES.what.start + 0.05;
+        show($("turn"), turnOn);
+        if (turnOn) {
+          const [dx, dy] = drift(t, 4);
+          cam($("turnCam"), {
+            scale: mix(1, 1.05, easeInOut(prog(t, SCENES.turn.start, 5))),
+            x: dx,
+            y: dy,
+            ox: 140,
+            oy: 540,
+          });
+          for (const w of tagWords)
+            rise(w.el, t, TAGLINE.times[w.line] + w.index * 0.07, 70, 0.55, 14);
+          rise($("introducing"), t, TAGLINE.introducing, 24, 0.5);
+          const lk = prog(t, TAGLINE.introducing + 0.05, 0.45);
+          $("tile1").style.opacity = easeOut(lk);
+          $("tile1").style.transform = `scale(${mix(0.7, 1, backOut(lk))})`;
+          drawMark(mark1, t, TAGLINE.introducing + 0.15, 1.0);
+          rise($("name1"), t, TAGLINE.introducing + 0.55, 30, 0.5);
+        }
 
-        const streamed = Math.round(
-          replyAll.length * prog(t, REPLY.streamStart, REPLY.streamEnd - REPLY.streamStart),
-        );
-        $("replyText").textContent = replyAll.slice(0, streamed);
-        const streaming = t >= REPLY.streamStart - 0.3 && t < REPLY.streamEnd + 0.2;
-        $("replyDot").style.opacity = streaming ? 0.5 + 0.5 * Math.sin(t * 12) : 0;
-        $("reply").style.opacity = mix(1, 0.3, easeOut(prog(t, REPLY.plausible - 0.1, 0.5)));
+        // 7: what it is, on a fresh sheet that slides up over the ink.
+        const whatOn = t >= SCENES.what.start - 0.4 && t < SCENES.rollout.start + 0.35;
+        show($("what"), whatOn);
+        if (whatOn) {
+          const inY = (1 - easeInOut(prog(t, SCENES.what.start - 0.4, 0.4))) * 1080;
+          const outY = easeInOut(prog(t, SCENES.rollout.start - 0.15, 0.45)) * -1080;
+          $("what").style.transform = `translateY(${inY + outY}px)`;
+          const [dx, dy] = drift(t, 4);
+          cam($("whatCam"), {
+            scale: mix(1.03, 1, easeOut(prog(t, SCENES.what.start, 2.5))),
+            x: dx,
+            y: dy,
+            ox: 140,
+            oy: 300,
+          });
+          statementWords.forEach((w, i) => pop(w, t, WHAT.start + i * WHAT.wordStep));
+          const hi = easeInOut(prog(t, WHAT.start + statementWords.length * WHAT.wordStep, 0.35));
+          for (const band of statementBands) band.style.setProperty("--hi", hi);
+          appChips.forEach((c, i) => {
+            const p = prog(t, WHAT.appsStart + i * WHAT.appStep, 0.32);
+            c.style.opacity = clamp01(p * 3);
+            c.style.transform = `translateY(${(1 - backOut(p)) * 60}px) scale(${mix(0.6, 1, backOut(p))})`;
+          });
+        }
 
-        rise($("v1"), t, REPLY.plausible, 36);
-        rise($("v2"), t, REPLY.unproven, 36);
-        $("verdictHi").style.transform =
-          `scaleX(${easeInOut(prog(t, REPLY.unproven + 0.35, 0.45))})`;
+        // 8 and 9: the rollout, then the folder.
+        const rollOn = t >= SCENES.rollout.start - 0.35 && t < SCENES.scale.start;
+        show($("rollout"), rollOn);
+        if (rollOn) {
+          const SPACING = 1180;
+          const BASE = { PowerPoint: 1.3, Word: 0.95, Excel: 1.2 };
+          const phaseAt = (i) => ROLLOUT.first + i * ROLLOUT.step;
+          // The camera snaps from phase to phase, a dotted quarter apart.
+          let camX = -SPACING * 0.6;
+          for (let i = 0; i < docs.length; i++) {
+            const from = i === 0 ? -SPACING * 0.6 : (i - 1) * SPACING;
+            camX = mix(from, i * SPACING, easeInOut(prog(t, phaseAt(i) - 0.12, 0.55)));
+            if (t < phaseAt(i) + 0.43) break;
+          }
+          const pull = easeInOut(prog(t, phaseAt(docs.length - 1) + 1.1, 1.0));
+          camX = mix(camX, ((docs.length - 1) * SPACING) / 2, pull);
+          const zoom = mix(1, 0.2, pull);
+          const gather = easeInOut(prog(t, FOLDER.gather, 0.9));
+          const close = easeInOut(prog(t, FOLDER.close, 0.5));
 
-        // 3: the ink.
-        $("ink").style.opacity = sceneAlpha(t, SCENES.ink);
-        const inkIn = easeOut(prog(t, SCENES.ink.start, 1.2));
-        const push = prog(t, SCENES.ink.start, SCENES.ink.end - SCENES.ink.start);
-        $("spill").style.opacity = inkIn;
-        $("spill").style.transform =
-          `translateX(${(1 - inkIn) * 120}px) scale(${mix(0.98, 1.1, push)})`;
-        rise($("t1"), t, TAGLINE.times[0], 40, 0.7);
-        rise($("t2"), t, TAGLINE.times[1], 40, 0.7);
+          $("dots").style.transform = `translateX(${(-camX * 0.5) % 48}px)`;
+          $("track").style.top = `${600 + 400 * zoom}px`;
+          $("track").style.opacity = 1 - gather;
+          const head = rise($("rolloutHead"), t, ROLLOUT.heading, 30, 0.45);
+          $("rolloutHead").style.opacity = head * (1 - prog(t, phaseAt(1) - 0.3, 0.3));
+          $("steps").style.opacity = easeOut(prog(t, ROLLOUT.heading, 0.4)) * (1 - gather);
+          stepBars.forEach((s, i) => {
+            const lit = t >= phaseAt(i);
+            const current = lit && (i === docs.length - 1 || t < phaseAt(i + 1));
+            s.style.background = current
+              ? "var(--mark-deep)"
+              : lit
+                ? "var(--ink)"
+                : "var(--desk-deep)";
+          });
+          docs.forEach((doc, i) => {
+            const p = prog(t, phaseAt(i), 0.6);
+            const up = backOut(p);
+            // World to screen.
+            const sx = 960 + (i * SPACING - camX) * zoom;
+            const sy = 600 + (1 - up) * 420 * zoom;
+            const tilt = Math.max(-28, Math.min(28, ((sx - 960) / 960) * -22)) * (1 - pull);
+            // Into the folder.
+            const g = easeInOut(prog(t, FOLDER.gather + i * 0.05, 0.75));
+            const x = mix(sx, 960 + (i - 3) * 44, g);
+            const y = mix(sy, 470 - i * 5, g);
+            doc.el.style.opacity = clamp01(p * 2.5);
+            doc.el.style.zIndex = 10 + i;
+            doc.el.style.transform = `translate(${x}px, ${y}px) perspective(1600px) rotateY(${tilt}deg) rotateX(${(1 - up) * 50}deg) rotate(${mix(0, (i - 3) * 2.2, g)}deg) scale(${mix(zoom * BASE[ROLLOUT.items[i].format], 0.6, g)})`;
+            doc.tag.style.opacity = 1 - g;
+            doc.format.style.opacity = 1 - g;
+          });
+          const fb = easeOut(prog(t, FOLDER.gather - 0.2, 0.6));
+          $("folderBack").style.opacity = fb;
+          $("folderBack").style.transform = `translateY(${(1 - fb) * 200}px)`;
+          $("folderBack").style.zIndex = 5;
+          $("folderFront").style.zIndex = 40;
+          $("folderFront").style.opacity = close > 0 ? 1 : 0;
+          $("folderFront").style.transform = `translateY(${(1 - close) * 520}px)`;
+          const [kx, ky] = knock(t, FOLDER.close + 0.45, 10);
+          const inY = (1 - easeInOut(prog(t, SCENES.rollout.start - 0.35, 0.5))) * 1080;
+          const push = mix(1, 1.08, easeIn(prog(t, FOLDER.close + 0.5, 0.75)));
+          $("rollout").style.transformOrigin = "960px 600px";
+          $("rollout").style.transform = `translate(${kx}px, ${inY + ky}px) scale(${push})`;
+        }
 
-        // 4: the documents.
-        $("documents").style.opacity = sceneAlpha(t, SCENES.documents);
-        rise($("docHead"), t, DOCUMENTS.heading, 30);
-        DOCUMENTS.items.forEach((_, i) => {
-          const at = DOCUMENTS.first + i * DOCUMENTS.step;
-          const x = prog(t, at, 0.55);
-          const e = backOut(x);
-          const settle = i % 2 === 0 ? -0.8 : 0.9;
-          const card = $(`card${i}`);
-          card.style.opacity = prog(t, at, 0.15);
-          card.style.transform = `translateY(${(1 - e) * -150}px) rotate(${mix(i % 2 ? -5 : 4, settle, e)}deg)`;
-          card.style.boxShadow = `0 ${mix(50, 16, e)}px ${mix(70, 36, e)}px rgb(11 13 18 / ${mix(0.05, 0.12, e)})`;
-        });
-        rise($("docNote"), t, DOCUMENTS.note, 24);
-        $("docNote").style.setProperty("--hi", easeInOut(prog(t, DOCUMENTS.note + 0.4, 0.5)));
+        // 10: the scale, then the ink that floods it.
+        const scaleOn = t >= SCENES.scale.start && t < WIPE.black + 0.05;
+        show($("scale"), scaleOn);
+        if (scaleOn) {
+          const [dx, dy] = drift(t, 4);
+          let kx = 0;
+          let ky = 0;
+          SCALE.items.forEach((_, i) => {
+            const [x, y] = knock(t, SCALE.first + i * SCALE.step, 9);
+            kx += x;
+            ky += y;
+          });
+          cam($("scaleCam"), {
+            scale: mix(1.0, 1.06, easeInOut(prog(t, SCENES.scale.start, 5))),
+            x: dx + kx,
+            y: dy + ky,
+          });
+          SCALE.items.forEach((c, i) => {
+            const at0 = SCALE.first + i * SCALE.step;
+            const p = prog(t, at0, 0.28);
+            const n = $(`n${i}`);
+            n.textContent = Math.round(c.value * easeOut(prog(t, at0, SCALE.count)));
+            n.style.transform = `scale(${mix(1.5, 1, easeOut5(p))})`;
+            n.style.filter = p < 1 ? `blur(${(1 - easeOut(p)) * 12}px)` : "none";
+            $(`c${i}`).style.opacity = clamp01(p * 4);
+          });
+          for (const tile of tileEls) {
+            const p = easeOut5(prog(t, tile.at, 0.9));
+            tile.el.style.opacity = clamp01(p * 2) * mix(0.55, 0.22, prog(t, tile.at + 0.9, 0.6));
+            tile.el.style.transform = `translate(${tile.x + (1 - p) * tile.dx}px, ${tile.y + (1 - p) * tile.dy}px) rotate(${(1 - p) * tile.r}deg)`;
+          }
+          rise($("p1"), t, SCALE.proof, 40, 0.5);
+          rise($("p2"), t, SCALE.proof + T.BEAT, 30, 0.5);
+          const wipeOn = t >= WIPE.start;
+          show($("wipePlate"), wipeOn);
+          if (wipeOn) waits.push(plateAt("wipe", t));
+        }
+        $("black").style.opacity =
+          easeIn(prog(t, WIPE.black - 0.35, 0.35)) * (1 - prog(t, WIPE.black, 0.2));
 
-        // 5: what is inside.
-        $("inside").style.opacity = sceneAlpha(t, SCENES.inside);
-        rise($("insideHead"), t, INSIDE.heading, 30);
-        INSIDE.items.forEach((c, i) => {
-          const at = INSIDE.first + i * INSIDE.step;
-          rise($(`count${i}`), t, at, 30, 0.5);
-          $(`n${i}`).textContent = Math.round(c.value * easeOut(prog(t, at, INSIDE.count)));
-        });
-        rise($("proof"), t, INSIDE.proof, 24);
-        rise($("apps"), t, INSIDE.proof + 0.6, 20);
+        // 11 and 12: ninety and who, on the binder.
+        const darkOn = t >= WIPE.black && t < SCENES.end.start;
+        show($("dark"), darkOn);
+        if (darkOn) {
+          waits.push(plateAt("ninety", t));
+          const [dx, dy] = drift(t, 4);
+          cam($("darkCam"), { scale: mix(1.04, 1, easeOut(prog(t, WIPE.black, 2))), x: dx, y: dy });
+          cam($("ninetyPlate"), { scale: mix(1.0, 1.05, prog(t, SCENES.ninety.start, 5)) });
+          const away = easeInOut(prog(t, SCENES.who.start - 0.2, 0.45));
+          const fill = 90 * easeInOut(prog(t, NINETY.fillStart, NINETY.fillEnd - NINETY.fillStart));
+          $("fill").style.width = `${fill}%`;
+          $("pct").style.left = `${160 + 16 * Math.max(fill, 7)}px`;
+          $("pct").textContent = `${Math.round(fill)}%`;
+          $("rest").style.width = `${10 * easeOut(prog(t, NINETY.rest, 0.35))}%`;
+          const vis = {
+            ninetyHead: rise($("ninetyHead"), t, NINETY.heading, 30, 0.5),
+            pct: prog(t, NINETY.fillStart, 0.15),
+            track90: easeOut(prog(t, NINETY.heading + 0.2, 0.4)),
+            restLabel: rise($("restLabel"), t, NINETY.rest + 0.15, 24, 0.45),
+          };
+          for (const [id, v] of Object.entries(vis)) {
+            $(id).style.opacity = v * (1 - away);
+            $(id).style.translate = `0 ${-away * 140}px`;
+          }
+          rise($("whoLead"), t, WHO.first - 0.1, 24, 0.4);
+          WHO.roles.forEach((_, i) => {
+            const el = $(`role${i}`);
+            rise(el, t, WHO.first + i * WHO.step, 50, 0.4, 12);
+            const later = i < WHO.roles.length - 1 && t >= WHO.first + (i + 1) * WHO.step;
+            el.style.color = later ? "var(--on-binder-soft)" : "var(--on-binder)";
+          });
+        }
 
-        // 6: ninety.
-        $("ninety").style.opacity = sceneAlpha(t, SCENES.ninety);
-        $("ninetyInk").style.opacity = 0.9 * easeOut(prog(t, SCENES.ninety.start, 1.2));
-        $("ninetyInk").style.transform =
-          `scale(${mix(1, 1.06, prog(t, SCENES.ninety.start, 5.4))})`;
-        rise($("ninetyHead"), t, NINETY.heading, 30);
-        const fill = 90 * easeInOut(prog(t, NINETY.fillStart, NINETY.fillEnd - NINETY.fillStart));
-        $("fill").style.width = `${fill}%`;
-        $("pct").style.left = `${160 + 16 * Math.max(fill, 6)}px`;
-        $("pct").textContent = `${Math.round(fill)}%`;
-        $("pct").style.opacity = prog(t, NINETY.fillStart, 0.2);
-        $("track").style.opacity = easeOut(prog(t, NINETY.heading + 0.3, 0.4));
-        $("rest").style.width = `${10 * easeOut(prog(t, NINETY.rest, 0.5))}%`;
-        rise($("restLabel"), t, NINETY.rest + 0.2, 20);
+        // 13: the end card.
+        const endOn = t >= SCENES.end.start;
+        show($("end"), endOn);
+        if (endOn) {
+          waits.push(plateAt("bloom", t));
+          cam($("endCam"), {
+            scale: mix(1.0, 1.035, easeOut(prog(t, SCENES.end.start, 5))),
+            oy: 420,
+          });
+          cam($("bloomPlate"), { scale: mix(1.0, 1.04, prog(t, SCENES.end.start, 5)), oy: 1080 });
+          const lk = prog(t, END.markStart - 0.15, 0.45);
+          $("tile2").style.opacity = easeOut(lk);
+          $("tile2").style.transform = `scale(${mix(0.7, 1, backOut(lk))})`;
+          drawMark(mark2, t, END.markStart, END.markEnd - END.markStart);
+          rise($("name2"), t, END.name, 30, 0.5);
+          rise($("offer"), t, END.offer, 30, 0.5);
+          rise($("cta"), t, END.cta, 30, 0.5);
+          $("ctaBand").style.setProperty("--hi", easeInOut(prog(t, END.cta + 0.35, 0.4)));
+          rise($("parent"), t, END.cta + T.BEAT, 16, 0.5);
+        }
+        $("vignette").style.opacity = darkOn ? 0 : 1;
 
-        // 7: the end card.
-        $("end").style.opacity = sceneAlpha(t, SCENES.end, false, true);
-        $("bloom").style.opacity = 0.85 * easeOut(prog(t, SCENES.end.start, 1.4));
-        $("bloom").style.transform =
-          `translateY(${mix(40, 0, easeOut(prog(t, SCENES.end.start, 4)))}px)`;
-        const m = END.markStart;
-        const md = END.markEnd - END.markStart;
-        const tileIn = easeOut(prog(t, m - 0.3, 0.4));
-        $("tile").style.opacity = tileIn;
-        $("tile").style.transform = `scale(${mix(0.85, 1, tileIn)})`;
-        drawPart(markParts.legs, easeInOut(prog(t, m, md * 0.45)));
-        drawPart(markParts.bar, easeOut(prog(t, m + md * 0.45, md * 0.2)));
-        drawPart(markParts.tail, easeOut(prog(t, m + md * 0.6, md * 0.25)));
-        markParts.digits.forEach((part, i) =>
-          drawPart(part, easeOut(prog(t, m + md * (0.7 + i * 0.1), md * 0.18))),
-        );
-        rise($("name"), t, END.name, 20);
-        rise($("offer"), t, END.offer, 20);
-        rise($("cta"), t, END.cta, 20);
-        $("cta").style.setProperty("--hi", easeInOut(prog(t, END.cta + 0.4, 0.5)));
-        rise($("parent"), t, END.cta + 0.3, 10);
+        await Promise.all(waits);
       }
 
       window.renderAt = renderAt;
       window.videoReady = (async () => {
         await document.fonts.ready;
-        await Promise.all([...document.images].map((img) => img.decode()));
-        renderAt(0);
+        await Promise.all(
+          [
+            "800 100px Besley",
+            "700 100px Besley",
+            "italic 600 100px Besley",
+            "400 40px 'Atkinson Hyperlegible Next'",
+            "500 40px 'Atkinson Hyperlegible Next'",
+            "700 40px 'Atkinson Hyperlegible Next'",
+          ].map((f) => document.fonts.load(f)),
+        );
+        // The documents are measured once, with their scene laid out.
+        show($("rollout"), true);
+        layoutDocs();
+        show($("rollout"), false);
         return true;
       })();
       const q = new URLSearchParams(location.search).get("t");
