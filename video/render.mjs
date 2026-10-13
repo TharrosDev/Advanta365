@@ -3,7 +3,8 @@
  * of `launch.html` in Chromium, pipes the frames to ffmpeg, synthesizes the sound (`sound.mjs`),
  * normalizes its loudness and muxes the two.
  *
- *   node video/render.mjs                    the full video, to video/out/advanta365-launch.mp4
+ *   node video/render.mjs                    the full video, to video/out/advanta365-launch.mp4, and a
+ *                                            copy under 30 MB to advanta365-launch-share.mp4
  *   node video/render.mjs --stills 3,12,20   single frames at those seconds, to video/out/stills/
  *   node video/render.mjs --sound            the sound only, muxed onto the last picture
  *
@@ -190,6 +191,62 @@ async function main() {
     final,
   ]);
   console.log(`wrote ${final}`);
+  await shareCopy(final, join(out, "advanta365-launch-share.mp4"));
+}
+
+/**
+ * A copy under 30 MB, the most a file sent in a Claude chat may weigh: two-pass H.264 at a fixed
+ * bitrate, with the sound copied over.
+ */
+async function shareCopy(from, to) {
+  const rate = "4300k";
+  const log = join(out, "share-pass");
+  await run("ffmpeg", [
+    "-y",
+    "-loglevel",
+    "error",
+    "-i",
+    from,
+    "-c:v",
+    "libx264",
+    "-preset",
+    "slow",
+    "-b:v",
+    rate,
+    "-pass",
+    "1",
+    "-passlogfile",
+    log,
+    "-an",
+    "-f",
+    "null",
+    "/dev/null",
+  ]);
+  await run("ffmpeg", [
+    "-y",
+    "-loglevel",
+    "error",
+    "-i",
+    from,
+    "-c:v",
+    "libx264",
+    "-preset",
+    "slow",
+    "-b:v",
+    rate,
+    "-pass",
+    "2",
+    "-passlogfile",
+    log,
+    "-pix_fmt",
+    "yuv420p",
+    "-c:a",
+    "copy",
+    "-movflags",
+    "+faststart",
+    to,
+  ]);
+  console.log(`wrote ${to}`);
 }
 
 await main();

@@ -47,7 +47,7 @@ Nothing in `video/` is served by the site. Next.js serves only `app/` and `publi
 | `node video/render.mjs --stills 4,12.5,30` | Single frames at those seconds to `video/out/stills/`. Missing plates render blank. |
 | `node video/plates.mjs`                    | Renders the ink plates that are out of date (about 30 minutes for all four)         |
 | `node video/plates.mjs --only flood`       | One plate (`--force` renders even if it is up to date)                              |
-| `node video/render.mjs`                    | The full video to `video/out/advanta365-launch.mp4`                                 |
+| `node video/render.mjs`                    | The full video to `video/out/advanta365-launch.mp4`, plus a copy under 30 MB        |
 | `node video/render.mjs --sound`            | The sound only, muxed onto the last rendered picture (seconds, not minutes)         |
 | `node video/sound.mjs`                     | Writes only the raw sound to `video/out/sound.wav`                                  |
 
@@ -117,7 +117,8 @@ Rules that keep frames deterministic and on the beat:
 - Each scene is a full-frame `<section class="scene">`, shown only while it is on screen.
 - A plate is shown with `plateAt(name, t)`, which blends its two nearest 30 fps frames for 60 fps.
   Lay ink over the page with `mix-blend-mode: multiply` (white is transparent), under text as a
-  background.
+  background. To keep a plate's ink away from text, mask the plate (`mask-image` with a
+  `linear-gradient`); the paper behind it is the same white, so the mask leaves no edge.
 - `window.videoReady` waits for fonts and lays out the documents before the first frame.
 - Sounds are placed at times taken from the timeline, never typed in by hand.
 
@@ -163,7 +164,10 @@ Claude cannot listen to the sound. Say so, and ask the user to play it.
 
 ### 7. Deliver
 
-Send the MP4 to the user directly. Commit only the code and the spec; `video/out/` is ignored. A
+Send `video/out/advanta365-launch-share.mp4` to the user in the chat: a file sent there may weigh
+at most 30 MB, and the 60 fps master is about 50 MB. `render.mjs` writes the share copy with
+two-pass H.264 at 4.3 Mbit/s (about 26 MB). Commit only the code and the spec; `video/out/` is
+ignored. A
 video goes on the site only if the user asks, by committing it to `public/` or hosting it elsewhere
 and embedding it.
 
@@ -191,6 +195,14 @@ From v2:
   plate on its own definition.
 - **CPU contention.** Plate rendering on SwiftShader uses every core; anything else running beside
   it slows it many times over.
+- **Rising ink reaches the words.** A plate with a long pre-roll climbed through the end card's
+  price and call to action. Check the last seconds of every plate behind text, and mask it.
+- **A line on screen for less than a second is not read.** Give every message at least a beat and
+  a half before the next scene takes it away.
+- **Waiting on a process by name.** `pgrep -f name` in a shell loop also matches the loop's own
+  command line, so the loop never ends. Wait on a process id, or start the next step with
+  `run_in_background` once the first has finished.
+- **The chat's 30 MB limit.** The master did not fit; render the share copy every time.
 
 ## Checklist
 
