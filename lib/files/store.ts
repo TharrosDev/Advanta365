@@ -25,7 +25,9 @@ export interface FileStore {
  * folder, relative to the working directory or absolute). Anything else, or nothing, is `null`: no
  * store, and downloads are off.
  */
-export function getFileStore(env: NodeJS.ProcessEnv = process.env): FileStore | null {
+export function getFileStore(
+  env: Record<string, string | undefined> = process.env,
+): FileStore | null {
   if (env.FILE_STORE === "local" && env.FILE_STORE_DIR) {
     return createLocalStore(resolve(process.cwd(), env.FILE_STORE_DIR));
   }

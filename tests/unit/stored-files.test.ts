@@ -25,9 +25,8 @@ describe.skipIf(store === null)("the stored files", () => {
       expect(await store!.stat(file.key)).toEqual({ bytes: file.bytes });
       const stream = await store!.open(file.key);
       expect(stream).not.toBeNull();
-      const hash = createHash("sha256");
-      for await (const chunk of stream!) hash.update(chunk);
-      expect(hash.digest("hex")).toBe(file.sha256);
+      const bytes = new Uint8Array(await new Response(stream).arrayBuffer());
+      expect(createHash("sha256").update(bytes).digest("hex")).toBe(file.sha256);
     },
   );
 });
