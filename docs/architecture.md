@@ -570,7 +570,7 @@ Components built from the primitives for one part of the site. Each has a doc co
 | `PhaseStrip` | `components/catalog/phase-strip.tsx` | `label`, `current`, `className` | The `nav` around the catalog's row of phases below 68em; scrolls the row to its lit card once drawn, when the fonts arrive and when the phase changes |
 | `PhasePager` | `components/catalog/phase-pager.tsx` | `previous`, `next`, `className` | The phase before and the phase after, at the foot of a phase page |
 | `TemplateDetail` | `components/catalog/template-detail.tsx` | `template`, `phase`, `titleId` | The content of the pop-up: large cover, "Free sample" tag, title, summary, description, facts, what is included, and the button to `/purchase` |
-| `Hero`, `HeroStage` | `components/home/hero.tsx`, `hero-stage.tsx` | `samples`, `phases` | The first screen of the home page: headline, lead and two buttons; the stage, where the six free samples stand as a hand of documents from the first frame |
+| `Hero`, `HeroStage` | `components/home/hero.tsx`, `hero-stage.tsx` | `samples`, `phases` | The first screen of the home page: headline, lead and two buttons; the stage, where an empty prompt box dissolves and the six free samples land as a hand of documents |
 | `ProofStrip` | `components/home/proof-strip.tsx` | none | The band's foot: 30+ years, 59 playbooks, 130 templates, one purchase, on opaque paper |
 | `PortfolioSection` | `components/home/portfolio-section.tsx` | `covers`, `phases` | `#toolkit` on the home page: words and the button to `/purchase`, the `Portfolio` at section size |
 | `PurchaseButton` | `components/layout/purchase-button.tsx` | `className` | The bar's call to action (section 4.1) |
@@ -685,7 +685,7 @@ animated property sits inside `@media (prefers-reduced-motion: no-preference)`. 
 | `data-tile` with `data-denied` | `TemplateTile`, `LockedTile` | A locked tile saying no for 600 ms: `tile-shake` (3px decaying to rest, 13 keyframes 33 ms apart on a linear timing, 467 ms, with 1px or less of Y and 0.3 degrees or less of rotate), `denied-pulse` (the outline hits `--alert` and fades, 560 ms, fill forwards), `denied-wash` (opacity of the well's `::before`, 560 ms). They play only where `html[data-motion="on"]`; under reduced motion and without a script the static outline and wash stand for as long as the state does |
 | `data-page-dialog` with `data-enter` | `PageDialog` (the pop-up of the catalog and the checkout) | The pop-up rises 14px as the page dims (`dialog-in` 320 ms, `scrim-in`) when a link inside the site opened it |
 | `data-checkout-step` with `data-enter`, `data-checkout-progress` | `CheckoutDialog` | A step the visitor moved to settles 10px into place (`checkout-step-in`, `--time-enter`); the line under the bar grows to the current step |
-| `data-hero-stage`, `data-hero-doc` | `HeroStage` | A document under the pointer or keyboard straightens over `--time-lift` (section 7.7) |
+| `data-hero-stage`, `data-hero-prompt`, `data-hero-doc` | `HeroStage` | The prompt box dissolves and the documents land (section 7.7); a document under the pointer or keyboard straightens over `--time-lift` |
 
 ### 7.2 Entrances
 
@@ -806,7 +806,12 @@ the headline and the lead, two buttons ("Get the toolkit" to `/purchase`, "See t
 `/catalog?free=1`), the stage and the proof strip. `HeroStage` (`data-hero-stage`) holds the six free samples
 as a list of six links (`data-hero-doc`, each named by its template's title and leading to
 `/catalog?view=<slug>`), each a lit `TemplateCover` fanned from -9 to 9 degrees and overlapping so that no title
-or format tag lies under a neighbour. They stand from the first frame, under the cover and without it. Under the
+or format tag lies under a neighbour. In the same cell an empty prompt box (`data-hero-prompt`, decoration, a
+caret and two keys) stands where movement is wanted: its caret blinks, it dissolves from 700ms to 1500ms
+(`hero-prompt-out`, `hero-caret-blink`), and the documents land from 1300ms, the middle two first, 110ms apart
+and 560ms each (`hero-doc-in`, `hero-doc-show`), on a clock that starts at load or when the cover of a first
+visit has gone; under the cover the box stands and the documents wait out of sight. It plays again on each
+mount of the stage. Under reduced motion or without a script the box is not displayed. Under the
 pointer or keyboard focus a document straightens, comes to the front and lifts. Below 40em the six are two hands
 of three. From 68em the band's height follows the window's, so the proof strip is above the fold down to a
 window 720px tall. The band is as tall as the window leaves (the bar and the rail taken off), at most
@@ -971,7 +976,7 @@ Run the scripts in `scripts/` by path, for example `node scripts/check-budgets.m
 | `data-well` | Catalog tiles | The well of a tile; its `::before` is the red wash of a denied tile |
 | `data-page-dialog`, `data-template-dialog`, `data-checkout-dialog`, `data-enter` | Pop-ups | Any page dialog, whose it is, and that a link inside the site opened it |
 | `data-checkout-step` (`details`, `review`, `payment`), `data-order-summary` (`panel`, `disclosure`), `data-order-code`, `data-error-summary`, `data-field-error`, `data-pay` | Checkout | The step in view, the two forms of the summary, the order's code, the summary of a form's problems, an error under a field, and a provider's pay button |
-| `data-hero-stage`, `data-hero-doc` | Hero | The stage and a document |
+| `data-hero-stage`, `data-hero-prompt`, `data-hero-doc` | Hero | The stage, its prompt box and a document |
 | `data-included` | Catalog | The line above the results for a locked template that has no tile on the page |
 | `data-nav-underline` | Bar | The sliding underline |
 | `data-mark-digits` | Mark | The 365 on the arm |
@@ -1044,7 +1049,7 @@ Specs:
 | `redirects.spec.ts` | chromium, mobile | The retired addresses (bundles, pricing, cart, about, template pages) end where they should; the 308; `/contact` answering as a page |
 | `contact.spec.ts` | chromium, mobile | The Contact page: one section and one band in `main`, one `h1`, the address as the one plain `mailto:` link, no form or field, the four subject links, the fit at 320 and 1920, the footer's link to it; `/about` redirecting to `/why-advanta`, which holds no contact section |
 | `legal.spec.ts` | chromium, mobile | The four legal pages: status 200, one `h1`, the page title, the date and the summary; a table of contents whose links are the sections' ids in order, each section headed by one numbered `h2`; no id twice; links to the contact page and the other three, and the current page marked among the policies; no cookie and no storage beyond the site's own session entries; an entry of the contents brings its section into view and lights its number; the three columns from 68em and the measure; the contents first and 44px tall at 320px |
-| `hero.spec.ts` | chromium, mobile | The hero: structure and copy, with no backdrop, canvas or prompt box behind the words; the six documents as links; their pop-ups; the documents standing and focusable from the first frame (on load, on a return inside the site, under the cover of a first visit); the first screen at several window sizes; no title or tag cut by a neighbour and 44px targets; the band's foot; reduced motion; no JavaScript |
+| `hero.spec.ts` | chromium, mobile | The hero: structure and copy, with no backdrop or canvas behind the words; the six documents as links; their pop-ups; the sequence (the box from 700ms for 800ms, the documents from 1300ms, 110ms apart), once on load, again on a return inside the site, and after the cover of a first visit, under which the box stands and the documents wait; the first screen at several window sizes; no title or tag cut by a neighbour and 44px targets; the band's foot; reduced motion; no JavaScript |
 | `console.spec.ts` | chromium, mobile, firefox | Twelve routes load with no console error and no page error |
 | `header.spec.ts` | chromium only (skips the mobile project) | The banner; Catalog and Why Advanta and the purchase button; centring; the 68em boundary; the sliding underline; the phase rail; the sticky bar; the brand returning to the top on the home page |
 | `identity.spec.ts` | chromium, mobile | Design checks in the browser: landmarks; one `h1` per page; root colours and fonts; band values; no canvas, sent or drawn; the home, Why Advanta and catalog pages at rest 5.5 s after they load; the order of the home sections; focus rings; the 365 on the mark; the tiles' covers; no overflow and minimum touch targets at 320 px |

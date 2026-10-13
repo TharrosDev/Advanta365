@@ -1,5 +1,6 @@
 import { expect, test } from "@playwright/test";
 import { hydrated, introSeen } from "./helpers";
+import { settled } from "./support/hero";
 
 // One geometry check for every page at every window the site is built for: phones, tablets and the
 // computer monitors from a 1280 laptop to a 3840 4K panel. It measures, it does not photograph:
@@ -69,6 +70,9 @@ for (const [width, height] of SIZES) {
       await page.goto(route);
       await hydrated(page);
       await expect(page.getByRole("heading", { level: 1 })).toHaveCount(1);
+      // The page is measured at rest: the hero's documents land from a little large, and the
+      // first of them is clipped by its band while it does.
+      if (route === "/") await settled(page);
 
       const measure = await page.evaluate(() => {
         const window_ = document.documentElement.clientWidth;

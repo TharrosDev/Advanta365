@@ -1,4 +1,5 @@
 import { TemplateCover } from "@/components/catalog/template-cover";
+import { Icon } from "@/components/ui/icon";
 import { TransitionLink } from "@/components/ui/transition-link";
 import { DEFAULT_CRITERIA } from "@/lib/catalog/query";
 import type { Format, Phase, Template } from "@/lib/catalog/schema";
@@ -39,6 +40,9 @@ const ROW_GAP = 5;
 
 /** The shadow deepens toward the middle of the six. */
 const DEPTHS = [1, 2, 3, 3, 2, 1] as const;
+
+/** The turn in which each of the six arrives: the middle two first, the ends last. */
+const TURN_IN = [4, 2, 0, 1, 3, 5] as const;
 
 /**
  * The order of the hand. The tallest documents stand in the middle and the lowest at the ends, so
@@ -113,20 +117,28 @@ function layOut(
 const fixed = (value: number) => value.toFixed(2);
 
 /**
- * The stage of the home page's first screen, where the tagline is answered: the six free samples
- * as a hand of finished documents. Each document is one link to the catalog with that sample's
- * pop-up open, named by the template's title: its real cover, printed with its title, lit, in its
- * format's proportions, its format tag at the top left, where it always shows. They overlap and
- * fan, the tall pages in the middle (`arrange`), each lying over the one to its left as cards do
- * in a hand and leaving that one's title in sight (`layOut`). The order on the page is the tab
- * order; the one under the pointer or the keyboard straightens and comes to the front. From 40em
- * the six are one hand; narrower they are two hands of three, so every document keeps its words
- * and a strip of its own wide enough for a finger.
+ * The stage of the home page's first screen, where the tagline is acted out: an empty prompt box
+ * with a caret, and the six free samples as a hand of finished documents standing where the box
+ * was. Both are in the page from the start, in the same place. Where movement is wanted the box
+ * stands empty for a moment with its caret blinking, dissolves, and the documents land one after
+ * the other, the middle ones first: app/motion.css, on the hooks below, by the clock that starts
+ * when the cover of a first visit has gone. Without it (no script, reduced motion) the box is not
+ * displayed and the documents simply stand there.
  *
- * Every measure is a share of the stage's own width. The stage publishes the height of the hand
- * as `--hand` (hundredths of its width) and takes `--hero-room` from the band it stands in: the
- * height there is for it, which narrows the stage, and the hand with it, on a low window. Hooks:
- * `data-hero-stage`, `data-hero-doc`.
+ * The box is decoration, hidden from assistive technology: the outline of a field drawn on the
+ * paper, with a caret, a key for adding something and a send key. Each document is one link to the
+ * catalog with that sample's pop-up open, named by the template's title: its real cover, printed
+ * with its title, lit, in its format's proportions, its format tag at the top left, where it always
+ * shows. They overlap and fan, the tall pages in the middle (`arrange`), each lying over the one to
+ * its left as cards do in a hand and leaving that one's title in sight (`layOut`). The order on the
+ * page is the tab order; the one under the pointer or the keyboard straightens and comes to the
+ * front. From 40em the six are one hand; narrower they are two hands of three, so every document
+ * keeps its words and a strip of its own wide enough for a finger.
+ *
+ * Every measure is a share of the stage's own width. The stage publishes the height of the hand as
+ * `--hand` (hundredths of its width) and takes `--hero-room` from the band it stands in: the height
+ * there is for it, which narrows the stage, and the hand with it, on a low window. Hooks:
+ * `data-hero-stage`, `data-hero-prompt`, `data-hero-doc`.
  */
 export function HeroStage({
   samples,
@@ -146,6 +158,18 @@ export function HeroStage({
       className={styles.stage}
       style={cssVars({ "--hand": fixed(wide.height), "--hand-narrow": fixed(narrow.height) })}
     >
+      <div data-hero-prompt="" aria-hidden="true" className={styles.prompt}>
+        <span data-caret="" className={styles.caret} />
+        <span className={styles.keys}>
+          <span className={styles.chip}>
+            <Icon name="plus" size={16} />
+          </span>
+          <span className={styles.send}>
+            <Icon name="arrow" size={18} className={styles.sendArrow} />
+          </span>
+        </span>
+      </div>
+
       <ul className={styles.hand}>
         {hand.map((template, index) => {
           const at = wide.places[index];
@@ -167,6 +191,7 @@ export function HeroStage({
                 "--w-narrow": fixed(small.w),
                 "--turn-narrow": `${small.turn}deg`,
                 "--z": index + 1,
+                "--i": TURN_IN[index % TURN_IN.length],
               })}
             >
               <TransitionLink
