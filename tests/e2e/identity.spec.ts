@@ -543,7 +543,12 @@ test("the mark carries its 365 wherever the digits are 7px high, and nowhere els
 
   // The link is still named by the word beside the mark, once: the digits are not read out.
   await expect(brand).toHaveAccessibleName("Advanta365");
-  await expect(brand.locator("svg")).toHaveAttribute("aria-hidden", "true");
+  // The tile holds both forms of the mark and shows one: neither is read out.
+  const forms = await brand.locator("svg").all();
+  expect(forms.length).toBeGreaterThan(0);
+  for (const form of forms) {
+    await expect(form).toHaveAttribute("aria-hidden", "true");
+  }
   await expect(brand.locator("svg title, svg text")).toHaveCount(0);
 
   // The footer: the bare mark, in the highlighter on the binder.
