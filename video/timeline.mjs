@@ -155,9 +155,9 @@ export const WIPE = { start: at(13, 3), black: at(14, 0.6) };
 
 export const NINETY = {
   heading: at(14, 0.4),
-  fillStart: at(14, 1),
-  fillEnd: at(14, 3),
-  rest: at(14, 3.2),
+  fillStart: at(14, 0.6),
+  fillEnd: at(14, 2),
+  rest: at(14, 2.2),
 };
 
 export const WHO = {

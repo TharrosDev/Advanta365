@@ -669,7 +669,7 @@
         transform: translateX(-100%);
       }
       #restLabel {
-        right: 160px;
+        left: 160px;
         top: 660px;
         font-size: 52px;
         color: var(--on-binder-soft);
@@ -698,6 +698,11 @@
       /* 13: the end card. */
       #end {
         background: var(--paper);
+      }
+      /* The rising ink stays in the lower third, under the words. */
+      #bloomPlate {
+        -webkit-mask-image: linear-gradient(to bottom, transparent 64%, #000 86%);
+        mask-image: linear-gradient(to bottom, transparent 64%, #000 86%);
       }
       #endLockup {
         left: 50%;
@@ -733,7 +738,7 @@
       #parent {
         left: 0;
         right: 0;
-        top: 950px;
+        top: 776px;
         text-align: center;
         font-size: 34px;
         color: var(--ink-faint);
