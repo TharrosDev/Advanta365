@@ -200,18 +200,28 @@ describe(FILE, () => {
     expect(end(heading)).toBeLessThan(end(text));
   });
 
-  it("keeps the red pulse off a denied tile that holds keyboard focus", () => {
-    // The tile's outline is the only mark of focus on a locked tile; an animation of its
-    // `outline-color` that ends on transparent would take the ring away for the whole denial.
-    const animationOf = (prelude: string) =>
-      blocks
-        .find((block) => block.prelude === prelude)
-        ?.declarations.find(({ property }) => property === "animation")?.value;
-    const denied = 'html[data-motion="on"] [data-tile][data-denied]';
-    expect(animationOf(denied)).toContain("denied-pulse");
-    const focused = animationOf(`${denied}:has(:focus-visible)`);
-    expect(focused).toContain("tile-shake");
-    expect(focused).not.toContain("denied-pulse");
+  it("leaves the outline of a denied tile alone, so a focused tile keeps its ring", () => {
+    // The tile's outline is the only mark of focus on a locked tile. The denial shakes the tile and
+    // rings its well; nothing of it animates the tile's `outline-color`.
+    const denied = blocks.filter((block) => block.prelude.includes("[data-tile][data-denied]"));
+    expect(denied.length).toBeGreaterThan(0);
+    for (const block of denied) {
+      const animation = block.declarations.find(({ property }) => property === "animation");
+      if (block.prelude.endsWith("::before")) expect(animation?.value).toContain("denied-ring");
+      else expect(animation?.value).toBe("tile-shake 440ms ease-in-out");
+    }
+    const keyframes = blocks.filter((block) => block.parents.at(-1) === "@keyframes tile-shake");
+    expect(keyframes).toHaveLength(5);
+    for (const frame of keyframes) {
+      expect(frame.declarations.map(({ property }) => property)).toEqual(["translate"]);
+      expect(frame.declarations[0]?.value).toMatch(/^-?[\d.]+px 0$/);
+    }
+    const outlineFrames = blocks.filter(
+      (block) =>
+        block.parents.some((parent) => parent.startsWith("@keyframes")) &&
+        block.declarations.some(({ property }) => property === "outline-color"),
+    );
+    expect(outlineFrames).toEqual([]);
   });
 
   it("leaves the layer of a view transition without pointer events under every motion setting", () => {
