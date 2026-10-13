@@ -30,7 +30,7 @@
   container-type: inline-size;
 }
 
-/* The words are one box, so the ink can keep clear of exactly that and nothing wider. */
+/* The words are one box. */
 .words {
   display: flex;
   flex-direction: column;
@@ -154,36 +154,7 @@
   }
 }
 
-/*
- * The picture of the title stage, live ink or its still, sits in the right 42% from 68em. Below
- * that the words span too much of the block for ink beside them, and a frame captured for the wide
- * layout would run under them.
- */
-.ink.ink {
-  display: none;
-  inset: 0 0 0 58%;
-}
-
-/*
- * The frame is as wide as it was captured, 451px, written in rem: up to 1600px of window the root
- * is 16px and nothing changes; on a large monitor the root grows, the block grows with it (its
- * words, its padding and its height are in rem), and the frame follows, so the ink keeps its size
- * against the title instead of shrinking to a corner. The three classes outrank the rule of the
- * scene, which sets the frame at its own size.
- */
-.ink.ink.ink [data-ink-still] img {
-  width: 28.1875rem;
-}
-
 @media (min-width: 68em) {
-  .ink.ink {
-    display: block;
-  }
-
-  .inked {
-    min-height: 20rem;
-  }
-
   .grid {
     grid-template-columns: repeat(12, minmax(0, 1fr));
     column-gap: var(--col-gap);
@@ -284,18 +255,5 @@
   .index .title,
   .index .titleLine::before {
     font-size: min(var(--size-banner), calc((25cqi - 0.75 * var(--col-gap)) / 4.89));
-  }
-}
-
-/* No ink behind the words at raised contrast or in forced colours. */
-@media (prefers-contrast: more) {
-  .ink.ink {
-    display: none;
-  }
-}
-
-@media (forced-colors: active) {
-  .ink.ink {
-    display: none;
   }
 }

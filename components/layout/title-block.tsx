@@ -1,5 +1,4 @@
 import type { ReactNode } from "react";
-import { InkBackdrop } from "@/components/ink/ink-backdrop";
 import { Appear } from "@/components/ui/appear";
 import { Band } from "@/components/ui/band";
 import { KeepCompounds } from "@/components/ui/keep-compounds";
@@ -30,11 +29,6 @@ function has(node: ReactNode): boolean {
  * `aside` is an object (a stack of sheets, a numeral) in columns 9 to 12 from 68em, and under the
  * lead below it; the words then keep to columns 1 to 8.
  *
- * `ink` puts the `title` ink in the right 42% of the block, and makes the block at least 20rem tall,
- * both from 68em (below it there is no ink). The title, the lead and `children` are one calm
- * rectangle for it (the words need no more room than that), so the ink thins under them and nowhere
- * else.
- *
  * Below 68em every form is one column in the same order: crumbs, meta, h1, lead, children, aside;
  * with an aside, from 40em the words and the aside stand side by side (the aside is 18rem at most,
  * at the right), so a tablet's first screen is not a column of words over an object with half of
@@ -47,7 +41,6 @@ export function TitleBlock({
   crumbs,
   meta,
   children,
-  ink = false,
   aside,
 }: {
   title: string;
@@ -56,7 +49,6 @@ export function TitleBlock({
   crumbs?: ReactNode;
   meta?: ReactNode;
   children?: ReactNode;
-  ink?: boolean;
   aside?: ReactNode;
 }) {
   const hasLead = has(lead);
@@ -64,7 +56,7 @@ export function TitleBlock({
   const hasAside = has(aside);
 
   // How many of the twelve columns the words may take.
-  const span = hasAside ? styles.s8 : form === "wide" ? styles.s9 : ink ? styles.s8 : styles.s12;
+  const span = hasAside ? styles.s8 : form === "wide" ? styles.s9 : styles.s12;
 
   const trail = has(crumbs) ? <div className={styles.trail}>{crumbs}</div> : null;
   const facts = has(meta) ? <div className={styles.meta}>{meta}</div> : null;
@@ -131,31 +123,11 @@ export function TitleBlock({
 
   return (
     <PageShift>
-      <Band
-        as="div"
-        surface="paper"
-        pad="none"
-        className={cx(styles.block, ink && styles.inked)}
-        backdrop={
-          ink ? (
-            <InkBackdrop
-              scene="title"
-              still={{ wide: "title" }}
-              edges="left bottom"
-              className={styles.ink}
-            />
-          ) : undefined
-        }
-      >
+      <Band as="div" surface="paper" pad="none" className={styles.block}>
         <div
           className={cx(styles.grid, hasAside && styles.paired, form === "index" && styles.measure)}
         >
-          <div
-            className={cx(styles.words, styles[form], span)}
-            data-ink-calm={ink ? "text" : undefined}
-          >
-            {words}
-          </div>
+          <div className={cx(styles.words, styles[form], span)}>{words}</div>
           {hasAside ? <div className={styles.aside}>{aside}</div> : null}
         </div>
       </Band>

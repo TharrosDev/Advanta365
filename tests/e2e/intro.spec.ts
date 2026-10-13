@@ -1,6 +1,6 @@
 import { expect, test, type Page } from "@playwright/test";
 import { NAVIGATION_TIMEOUT } from "./helpers";
-import { introAt, introStates, recordIntro } from "./support/ink";
+import { introAt, introStates, recordIntro } from "./support/intro";
 
 // The cover of a first visit. The first page load of a browser session, if it is the home page,
 // opens under a white sheet on which the mark is signed; the page under it is complete all along.
@@ -8,9 +8,7 @@ import { introAt, introStates, recordIntro } from "./support/ink";
 // storage or no JavaScript. Every test starts a session of its own, so here the first `goto` is a
 // first visit.
 //
-// The default projects render in software, so the ink does not join the cover here and it leaves
-// the way it does for a visitor without a graphics card: by itself, in 2.95 seconds. The cover
-// with ink is in ink-live.spec.ts. Every time below is read from the page's own clock, so a busy
+// The cover leaves by itself in 2.95 seconds. Every time below is read from the page's own clock, so a busy
 // machine moves the moment the test asks, not the moment it measures.
 
 declare global {
@@ -150,7 +148,7 @@ test("the cover does not hold back the page: its largest paint is under a second
   expect(paint).toBeLessThan(1000);
 });
 
-test("without ink the finished mark is held until 2.5 seconds and the cover is gone by 3.4", async ({
+test("the finished mark is held until 2.5 seconds and the cover is gone by 3.4", async ({
   page,
 }) => {
   await noteOpacity(page);

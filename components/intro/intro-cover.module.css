@@ -16,16 +16,12 @@
  *   800 to 1000  a finer pen writes 3, 6 and 5 on the tail, each 100 long and 50 after the last
  *   500 to 900   the name fades in; the hint from 600
  *
- * The finished mark then stands from 1000 to 2500, a second and a half, before one of three ways
+ * The finished mark then stands from 1000 to 2500, a second and a half, before one of two ways
  * out, each started by its state:
  *
  *   play    2500 to 2950   the cover leaves: the signature and the hint fade on the paper by
  *                          2680, and only then does the paper clear, so the mark never lies over
  *                          the hero's words
- *   ink     from T (the layer sets it when the engine is ready, 1600 at the latest; the scene
- *           runs from T, its clear from T + 2450 to T + 3500):
- *           2500 to 2800 the signature fades, whenever T was (the layer writes T as `--taken`),
- *           T + 2700 to T + 3500 the cover fades with the last of the mist, as the clear ends
  *   leave   the visitor pressed, typed, scrolled or touched: gone in 200
  */
 .cover {
@@ -46,10 +42,6 @@
   --leave-at: 2500ms;
   --sign-leave: 180ms;
   --sign-leave-at: 2500ms;
-  --ink-sign: 300ms;
-  --ink-sign-at: 2500ms;
-  --ink-leave: 800ms;
-  --ink-leave-at: 2700ms;
   --skip: 200ms;
   --pen: var(--curve-pen, var(--curve-settle));
 
@@ -68,11 +60,11 @@
 }
 
 /*
- * While it fades on its own way out (`cover-leave`, `cover-ink`) the cover does not take the
- * pointer, and its last frame, which is held, keeps it out of sight for good. Three names: a
- * change of name starts a new animation, where a change of duration would only retime the one that
- * is running. On its own way out the paper stays opaque for the first 40% (--sign-leave of
- * --leave), while the signature fades on it.
+ * While it fades on its own way out (`cover-leave`) the cover does not take the pointer, and its
+ * last frame, which is held, keeps it out of sight for good. Two names: a change of name starts a
+ * new animation, where a change of duration would only retime the one that is running. On its own
+ * way out the paper stays opaque for the first 40% (--sign-leave of --leave), while the signature
+ * fades on it.
  */
 @keyframes cover-leave {
   from {
@@ -81,18 +73,6 @@
 
   40% {
     opacity: 1;
-  }
-
-  to {
-    visibility: hidden;
-    opacity: 0;
-    pointer-events: none;
-  }
-}
-
-@keyframes cover-ink {
-  from {
-    pointer-events: none;
   }
 
   to {
@@ -120,29 +100,14 @@
   animation: cover-leave var(--leave) var(--curve-leave) var(--leave-at) forwards;
 }
 
-:root[data-intro="ink"] .cover {
-  animation: cover-ink var(--ink-leave) ease-in-out var(--ink-leave-at) forwards;
-}
-
 :root[data-intro="leave"] .cover {
   animation: cover-skip var(--skip) var(--curve-leave) forwards;
-}
-
-/* The ink arrives at once here: the cover is its own entrance. */
-.cover [data-ink-slot] {
-  transition: none;
 }
 
 /* The mark and the name, stacked and centred as one signature. */
 .signature {
   display: grid;
   justify-items: center;
-}
-
-@keyframes sign-out {
-  to {
-    opacity: 0;
-  }
 }
 
 @keyframes sign-leave {
@@ -152,20 +117,11 @@
 }
 
 /*
- * The signature leaves before the paper does. The ink takes over by 1600 at the latest, before
- * this fade begins, and starts its own under another name; once the cover is leaving no input
- * changes the state any more.
+ * The signature leaves before the paper does. Once the cover is leaving no input changes the
+ * state any more.
  */
 :root[data-intro="play"] .signature {
   animation: sign-leave var(--sign-leave) linear var(--sign-leave-at) forwards;
-}
-
-/*
- * The ink's state starts at T, so the delay is what is left of 2500 once T has passed. Without
- * the property (nothing set it) the signature waits the whole of it.
- */
-:root[data-intro="ink"] .signature {
-  animation: sign-out var(--ink-sign) linear calc(var(--ink-sign-at) - var(--taken, 0ms)) forwards;
 }
 
 /*

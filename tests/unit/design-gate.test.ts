@@ -116,20 +116,18 @@ const RETIRED: Rule[] = [
  */
 type ScopedRule = Rule & { allowed: readonly string[] };
 
-const INK_HOMES = ["lib/ink/", "components/ink/", "lib/boot/"] as const;
-
 const SCOPED: ScopedRule[] = [
-  { ...literal("<canvas"), allowed: INK_HOMES },
-  { ...literal("getContext("), allowed: INK_HOMES },
-  { ...literal("webgl", "i"), allowed: INK_HOMES },
+  { ...literal("<canvas"), allowed: [] },
+  { ...literal("getContext("), allowed: [] },
+  { ...literal("webgl", "i"), allowed: [] },
   {
     ...literal("requestAnimationFrame"),
-    allowed: ["lib/ink/", "components/ink/", "lib/scroll/", "lib/boot/", "components/intro/"],
+    allowed: ["lib/scroll/", "lib/boot/", "components/intro/"],
   },
   {
     name: `"scroll" or 'scroll'`,
     pattern: /["']scroll["']/,
-    allowed: ["lib/ink/", "components/ink/", "lib/scroll/"],
+    allowed: ["lib/scroll/"],
   },
 ];
 
@@ -191,6 +189,9 @@ describe("design gate: retired vocabulary", () => {
       "components/motion",
       "lib/motion",
       "lib/gl",
+      "lib/ink",
+      "components/ink",
+      "public/ink",
     ]) {
       expect(existsSync(join(ROOT, folder)), folder).toBe(false);
     }
@@ -198,7 +199,7 @@ describe("design gate: retired vocabulary", () => {
 });
 
 describe("design gate: scoped techniques", () => {
-  it("canvas, shader contexts, frame loops and scroll listeners stay in their own folders", () => {
+  it("no canvas or shader context anywhere; frame loops and scroll listeners in their own folders", () => {
     expect(scopedHits(SOURCE, read)).toEqual([]);
   });
 
@@ -207,8 +208,7 @@ describe("design gate: scoped techniques", () => {
       "components/home/hero.tsx": "const gl = canvas.getContext('webgl2');\n<canvas />",
       "components/layout/footer.tsx": "requestAnimationFrame(tick);",
       "lib/format.ts": "window.addEventListener('scroll', onScroll);",
-      "lib/ink/engine/gl.ts": "canvas.getContext('webgl2'); requestAnimationFrame(tick);",
-      "components/ink/ink-layer.tsx": "<canvas />; addEventListener('scroll', f);",
+      "lib/boot/boot-script.ts": "canvas.getContext('webgl2'); requestAnimationFrame(tick);",
       "lib/scroll/observe.ts": 'addEventListener("scroll", f); requestAnimationFrame(f);',
       "components/intro/intro-cover.tsx": "requestAnimationFrame(step);",
       "components/ui/odometer.tsx": "requestAnimationFrame(step);",
@@ -220,6 +220,8 @@ describe("design gate: scoped techniques", () => {
         "components/home/hero.tsx:1: getContext(",
         "components/home/hero.tsx:1: webgl",
         "components/home/hero.tsx:2: <canvas",
+        "lib/boot/boot-script.ts:1: getContext(",
+        "lib/boot/boot-script.ts:1: webgl",
         "components/layout/footer.tsx:1: requestAnimationFrame",
         `lib/format.ts:1: "scroll" or 'scroll'`,
         "components/ui/odometer.tsx:1: requestAnimationFrame",

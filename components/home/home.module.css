@@ -10,8 +10,7 @@
  * edge and top to bottom (its padding makes up the page's margins and the band's), and it clips
  * sideways, because the foot's paper is drawn out past the band's sides. Downwards nothing is
  * clipped: the foot's paper ends at the band's bottom edge by measure (`--hero-under`, the
- * column's own bottom padding). A clip on the band, or one on the column in both directions,
- * costs the ink's engine some 170ms when it starts, so there is neither.
+ * column's own bottom padding).
  *
  * From 68em the whole of it fits the window. The column is as tall as the window leaves (the bar
  * and the rail taken off, `--hero-cap` at most: 56rem up to a 1600px desktop, then 57% of the
@@ -94,9 +93,7 @@
 /*
  * The proof strip: a ruled row that is the band's foot. Its paper and the hairline over it run
  * the whole width of the band (the column clips them at its sides) and down to its bottom edge,
- * `--hero-under` below the strip, and no further, so the ink
- * behind the band ends at the foot as it does at the edge of a sheet, and the facts are always
- * read on paper. Two facts to a row below 40em, four from there, a hairline between them. Below
+ * `--hero-under` below the strip, and no further, so the facts are always read on paper. Two facts to a row below 40em, four from there, a hairline between them. Below
  * 40em the strip is the width of the column; from 40em it stands centred, 64rem wide at most (four
  * fifths of the column on a large monitor, where that is more).
  */
@@ -517,12 +514,9 @@
 /*
  * The ninety. `--figure` is the size of "90%": the poster size, never more than 30% of the
  * window's height and, from 68em, never so large that the figure (2.45em wide) leaves its six
- * columns: the grid measures itself for that. Stacked in document order below 68em, the open water
- * 14rem tall at the foot. From 68em the band is at least min(88svh, 46rem) tall (a quarter of a
- * pixel more for every pixel of window past a 1600px desktop, so a large monitor gets a band as
- * deep as it is): the label; the figure in columns 1 to 6 with the rest of the sentence in columns
- * 7 to 12 on its baseline; the tally across the grid; the paragraph in columns 1 to 6 beside the
- * open water in columns 7 to 12.
+ * columns: the grid measures itself for that. Stacked in document order below 68em. From 68em:
+ * the label; the figure in columns 1 to 6 with the rest of the sentence in columns 7 to 12 on its
+ * baseline; the tally across the grid; the paragraph in columns 1 to 6.
  */
 .ninety {
   --figure: min(var(--size-poster), 30svh);
@@ -539,7 +533,7 @@
   line-height: 1;
 }
 
-/* The calm rectangle is the figure itself, not the columns it stands in. */
+/* The figure is its own box, not the columns it stands in. */
 .ninetyNumber {
   display: flex;
   flex: none;
@@ -568,17 +562,11 @@
   margin-block-start: var(--s-5);
 }
 
-.ninetyOpen {
-  height: 14rem;
-}
-
 @media (min-width: 68em) {
   .ninety {
     --figure: min(var(--size-poster), 30svh, 19.5cqi);
     grid-template-columns: repeat(12, minmax(0, 1fr));
-    grid-template-rows: auto auto auto 1fr;
     column-gap: var(--col-gap);
-    min-height: calc(min(88svh, 46rem + var(--over) * 0.25) - 2 * var(--pad));
   }
 
   .ninetyLabel {
@@ -608,11 +596,5 @@
   .ninetyCopy {
     grid-area: 4 / 1 / auto / span 6;
     margin-block-start: var(--s-5);
-  }
-
-  .ninetyOpen {
-    grid-area: 4 / 7 / auto / -1;
-    height: auto;
-    min-height: 16rem;
   }
 }

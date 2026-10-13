@@ -1,12 +1,12 @@
 /**
  * The launch video's sound, synthesized sample by sample from the timeline: a music bed at 96
  * beats a minute (pad, bass, plucked arpeggio, kick, hats, a build) and the sound effects (keys,
- * slams, the ink, whooshes, ticks, bells). No samples. Run alone to write video/out/sound.wav;
+ * slams, the clear, whooshes, ticks, bells). No samples. Run alone to write video/out/sound.wav;
  * `render.mjs` then normalizes its loudness.
  *
  * Sections follow the picture: a quiet pad under the blank prompt, tension under the reply, a boom
- * for the ink, the groove from "what it is" through the rollout, a build into the counters at 0:30,
- * a breakdown on the binder and a resolve on the end card.
+ * as the reply is cleared off, the groove from "what it is" through the rollout, a build into the
+ * counters at 0:30, a breakdown on the binder and a resolve on the end card.
  */
 import { writeFile, mkdir } from "node:fs/promises";
 import { dirname, join } from "node:path";
@@ -348,16 +348,16 @@ function effects() {
   slam(REPLY.plausible, 70);
   slam(REPLY.unproven, 58);
 
-  // The ink: a deep boom on the downbeat, after a short dark breath in.
+  // The clear: a deep boom on the downbeat as the reply is swept off, after a short dark breath in.
   {
     const n = noise(400);
     e.add(
-      SCENES.ink.start,
+      SCENES.clear.start,
       3,
       (s) => 0.9 * Math.sin(TAU * 38 * s) * Math.exp(-s / 0.9) + 0.4 * n() * Math.exp(-s / 0.6),
     );
     let lo = 0;
-    e.add(SCENES.ink.start - 0.6, 0.6, (s) => {
+    e.add(SCENES.clear.start - 0.6, 0.6, (s) => {
       lo += 0.05 * (rnd() * 2 - 1 - lo);
       return 0.5 * (s / 0.6) ** 3 * lo;
     });
@@ -375,6 +375,7 @@ function effects() {
       return gain * Math.sin(Math.PI * x) ** 2 * (lo - lo2);
     });
   };
+  whoosh(TAGLINE.sheet - 0.05, 0.6, 0.28);
   whoosh(SCENES.what.start - 0.45, 0.6);
   whoosh(SCENES.rollout.start - 0.4, 0.6);
 
@@ -409,7 +410,7 @@ function effects() {
     );
   });
 
-  // The wipe: a rising rumble that cuts dead on the binder.
+  // The binder sheet: a rising rumble that cuts dead as it lands.
   {
     let lo = 0;
     const dur = WIPE.black - WIPE.start + 0.2;

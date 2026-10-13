@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import { CheckoutDialog } from "@/components/checkout/checkout-dialog";
 import { OrderSummary } from "@/components/checkout/order-summary";
-import { InkBackdrop } from "@/components/ink/ink-backdrop";
 import { ContentsLeaf } from "@/components/purchase/contents-leaf";
 import { Portfolio } from "@/components/purchase/portfolio";
 import { Appear } from "@/components/ui/appear";
@@ -28,8 +27,7 @@ type PurchasePageProps = {
  * `/purchase`: the one place a sale starts. The bundles, pricing and cart addresses redirect here.
  *
  * The page has no title block (and so, like the catalog, no block that changes with the route): it
- * opens on its stage, one band of paper with light-blue ink rising
- * faintly behind it, 42px under the bar (56px from 68em). On the stage, from 68em, the folder
+ * opens on its stage, one band of paper, 42px under the bar (56px from 68em). On the stage, from 68em, the folder
  * stands at the left (columns 1 to 6, with the price on the tag that hangs from it and the tally of
  * the phases it reaches under it) and the contents leaf at the right (columns 8 to 12, centred on
  * the folder; column 7 is the room the tag hangs into). The heading on the folder's front, "Seven
@@ -56,18 +54,7 @@ export default async function PurchasePage({ searchParams }: PurchasePageProps) 
 
   return (
     <>
-      <Band
-        surface="paper"
-        className={styles.stage}
-        innerClassName={styles.grid}
-        backdrop={
-          <InkBackdrop
-            scene="bloom"
-            still={{ wide: "bloom-purchase-wide", tall: "bloom-purchase-tall" }}
-            edges="top"
-          />
-        }
-      >
+      <Band surface="paper" className={styles.stage} innerClassName={styles.grid}>
         <Appear move="settle" when="load" className={styles.folder}>
           <Portfolio
             size="page"

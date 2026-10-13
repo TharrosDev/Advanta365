@@ -1,4 +1,4 @@
-import { INK_KEY, INTRO_FLAG } from "@/lib/boot/state";
+import { INTRO_FLAG } from "@/lib/boot/state";
 import { DRAFT_KEY } from "@/lib/checkout/draft";
 import { CONTACT_LINK, SITE } from "@/lib/site";
 import type { LegalFacts } from "./facts";
@@ -6,8 +6,8 @@ import { heading, link, list, p, terms, type LegalDocument } from "./types";
 
 /**
  * `/privacy`. Written from what the code does: the site sets no cookie, runs no analytics and has
- * no account or form that sends anything to us; the only things it keeps are three entries in the
- * browser's session storage (two preferences, `lib/boot/state.ts`, and the checkout's draft,
+ * no account or form that sends anything to us; the only things it keeps are two entries in the
+ * browser's session storage (one preference, `lib/boot/state.ts`, and the checkout's draft,
  * `lib/checkout/draft.ts`), and the fonts are served from the site itself. The checkout has no
  * payment provider yet: it writes the order into an email the buyer sends themselves. What changes
  * when a provider is connected stands in a part of its own, so the rest stays true today.
@@ -80,7 +80,7 @@ export function privacy(facts: LegalFacts): LegalDocument {
             "The site sets no cookies, so there is no cookie banner and nothing to accept or decline.",
           ),
           p(
-            "It keeps up to three entries in your browser’s session storage. The site never sends them to us or to anyone else, and your browser deletes them when you close the tab. The first two hold no personal information.",
+            "It keeps up to two entries in your browser’s session storage. The site never sends them to us or to anyone else, and your browser deletes them when you close the tab. The first holds no personal information.",
           ),
           terms(
             [
@@ -88,16 +88,12 @@ export function privacy(facts: LegalFacts): LegalDocument {
               "Notes that the opening animation of the home page has been shown, so it plays once per visit and not on every page load.",
             ],
             [
-              INK_KEY,
-              "Remembers whether the ink animation is switched off because your device could not run it smoothly, and the quality level it settled on, so that holds as you move between pages.",
-            ],
-            [
               DRAFT_KEY,
               "Exists only if you start the checkout. Holds the order details you type there (your name, email address, organization, country and region, and a purchase order number or a note if you add one), so that a refresh or a look at another page does not lose them.",
             ],
           ),
           p(
-            "If your browser blocks storage, the site still works: the opening animation is skipped, and the ink choice and the checkout’s details last for one page at a time.",
+            "If your browser blocks storage, the site still works: the opening animation is skipped, and the checkout’s details last for one page at a time.",
           ),
         ],
       },

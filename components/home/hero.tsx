@@ -1,4 +1,3 @@
-import { InkBackdrop } from "@/components/ink/ink-backdrop";
 import { Appear } from "@/components/ui/appear";
 import { Band } from "@/components/ui/band";
 import { Button } from "@/components/ui/button";
@@ -21,15 +20,12 @@ const LEAD = `The change management and user adoption toolkit behind real ShareP
 const ACTIONS_TURN = 8 / 7;
 
 /**
- * The first screen: the tagline, acted out. A paper band about as tall as the window with the
- * prompt ink behind all of it. Centred, top to bottom: the headline and the lead (one calm
- * rectangle that keeps the ink out) and the two buttons (ink may pass behind them, capped, so the
- * water right under them stays open); the stage, where an empty prompt box becomes the six free
- * samples (`samples`, with `phases` for the numeral on each cover) as a hand of finished
- * documents, with the ink behind and beside them; and the proof strip as the band's foot. From
- * 68em all of it fits the window, down to a window 720px tall. The headline never animates; the lead
- * and the buttons drift in at load; the stage plays its sequence once (`HeroStage`). The lead
- * never breaks inside a hyphenated word.
+ * The first screen: a paper band about as tall as the window. Centred, top to bottom: the headline
+ * and the lead and the two buttons; the stage, the six free samples (`samples`, with `phases` for
+ * the numeral on each cover) as a hand of finished documents (`HeroStage`); and the proof strip as
+ * the band's foot. From 68em all of it fits the window, down to a window 720px tall. The headline
+ * never animates; the lead and the buttons drift in at load. The lead never breaks inside a
+ * hyphenated word.
  */
 export function Hero({
   samples,
@@ -39,23 +35,10 @@ export function Hero({
   phases: readonly Phase[];
 }) {
   return (
-    <Band
-      surface="paper"
-      pad="none"
-      className={styles.hero}
-      innerClassName={styles.heroInner}
-      backdrop={
-        <InkBackdrop
-          scene="prompt"
-          still={{ wide: "prompt-wide", tall: "prompt-tall" }}
-          edges="bottom"
-          priority
-        />
-      }
-    >
+    <Band surface="paper" pad="none" className={styles.hero} innerClassName={styles.heroInner}>
       <PageShift>
         <div className={styles.heroText}>
-          <div className={styles.heroWords} data-ink-calm="text">
+          <div className={styles.heroWords}>
             <h1 className={cx("type-hero", styles.heroTitle)}>
               {HEADLINE} <span data-mark="">{HEADLINE_MARKED}</span>
             </h1>
@@ -63,12 +46,7 @@ export function Hero({
               <KeepCompounds text={LEAD} />
             </Appear>
           </div>
-          <Appear
-            when="load"
-            order={ACTIONS_TURN}
-            className={styles.heroActions}
-            data-ink-calm="veil"
-          >
+          <Appear when="load" order={ACTIONS_TURN} className={styles.heroActions}>
             <Button variant="mark" size="lg" href={PURCHASE_LINK.href}>
               Get the toolkit
             </Button>

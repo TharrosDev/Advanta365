@@ -54,20 +54,15 @@ export default async function PhasePage({ params }: PhasePageProps) {
     <>
       <TitleBlock
         form="document"
-        ink
         title={phase.name}
         lead={phase.summary}
         crumbs={<Breadcrumbs items={[{ href: "/", label: "Home" }, { label: phase.name }]} />}
         aside={
           <div className={styles.place}>
-            <p
-              className={cx("type-poster", styles.numeral)}
-              aria-hidden="true"
-              data-ink-calm="display"
-            >
+            <p className={cx("type-poster", styles.numeral)} aria-hidden="true">
               {number}
             </p>
-            <div className={styles.count} data-ink-calm="text">
+            <div className={styles.count}>
               <p className="type-note">
                 Phase {number} of {phases.length}
               </p>
