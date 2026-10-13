@@ -36,6 +36,10 @@ Related documents: `design-system.md` covers the visual rules and component usag
 | `/privacy`, `/terms`, `/refunds`, `/accessibility` | `app/(site)/<name>/page.tsx` | Server, static | The four legal pages, the routes of `LEGAL_LINKS` in `lib/site.ts`: the privacy policy (with the cookies and browser storage as its section `#cookies`, and what is planned for the checkout under `#when-checkout-opens`), the terms of use and licence, the refund policy and the accessibility statement. Each page renders `LegalPage` with one `LegalDocument` from `lib/legal` and takes its title and description from it (section 5.3) |
 | `/sample` | `app/(site)/sample/page.tsx` | Server, reads phases and the worked example's contents | Title `Sample` |
 | `/phases/[phase]` | `app/(site)/phases/[phase]/page.tsx` | Static params for the 7 phases | `notFound()` for other slugs |
+| `/library` | `app/(site)/library/page.tsx` | Dynamic (reads the licence cookie and `searchParams`) | Title `Your toolkit`; not in the navigation, `noindex`. With a licence, every file by phase; without one, how to get one (section 3.8) |
+| `/licence` | `app/licence/route.ts` | Route handler (`GET`) | Checks `t`, sets the licence cookie, 303 to `/library` (or `/library?link=invalid`) |
+| `/api/samples/[slug]/[fileId]` | `app/api/samples/[slug]/[fileId]/route.ts` | Route handler (`GET`) | A free sample's file; 404 for any other |
+| `/api/library/[slug]/[fileId]` | `app/api/library/[slug]/[fileId]/route.ts` | Route handler (`GET`) | Any file, with a valid licence cookie; 404 without |
 | Unmatched paths | `app/(site)/[...rest]/page.tsx`, `app/(site)/not-found.tsx`, `app/not-found.tsx` | 404 | Site 404 keeps the shell; the root 404 renders `MissingPage` without it |
 
 Metadata: the root layout (`app/layout.tsx`) sets the title template `%s · Advanta365` and the default
@@ -327,11 +331,41 @@ submitting it closes the pop-up and puts nothing in the address.
    provider's signature over the raw body with the webhook secret, ignores an event id it has already
    handled, and on the paid event (Stripe: `checkout.session.completed`) fulfils the order named by the
    reference in the metadata. Fulfilment itself is undecided (PRODUCT.md): it needs somewhere to record
-   orders and a way to deliver the files, and neither exists.
+   orders and a way to deliver the files. Delivery exists (section 3.8): the webhook calls
+   `signLicence(order.reference, LICENCE_SECRET)` and emails the buyer `/licence?t=<licence>`.
 8. **Update what the site says**: the Payment step's copy if needed, the Checkout entry of `SiteState`, the
    footer's status line, and the privacy policy's "When checkout opens" section (`lib/legal/privacy.ts`).
+   Add the provider's origins to the content security policy in `next.config.ts` (`script-src`,
+   `connect-src` and `frame-src`, as its documentation lists them), or its script and frame are blocked.
 9. **Test it.** `tests/unit/checkout-provider.test.ts` already runs `startPayment` and `PaymentStep` against
    a fake provider; add a browser spec that walks to a paid order in the provider's test mode.
+
+### 3.8 Files and licences
+
+| Module | Holds |
+|---|---|
+| `lib/files/types.ts` | `FILE_TYPES` (each allowed extension and its content type: docx, dotx, pptx, potx, xlsx, xltx, pdf, zip) and `extensionOf` |
+| `lib/catalog/schema.ts` | `TemplateFileSchema` (`id` a slug, `name` safe characters and an allowed extension, `key` lower-case segments with no `.` or `..`, `bytes`, `sha256`); `files` on a template, default `[]` |
+| `lib/files/store.ts` | `FileStore` (`stat`, `open`, optional `signedUrl`) and `getFileStore()`, read from the environment on every call: `FILE_STORE=local` and `FILE_STORE_DIR`, else `null` |
+| `lib/files/local-store.ts` | `createLocalStore(root)`: resolves a key with `realpath` and refuses anything outside the root, symbolic links included |
+| `lib/files/respond.ts` | `serveFile` (a 302 to `signedUrl` when the store has one, else the stream with `Content-Disposition: attachment`, `nosniff`, `noindex`, and `public, max-age=3600` for a free file or `private, no-store` for a licensed one), `notFound`, `tooMany`, `unavailable`, `contentDisposition` |
+| `lib/licence/token.ts` | `signLicence`, `verifyLicence`, `licenceEnv`, `ORDER_CODE`. Imports only `node:crypto`, so `scripts/mint-licence.mjs` runs it directly |
+| `lib/licence/cookie.ts` | `LICENCE_COOKIE` (`__Host-a365-licence`), `LICENCE_COOKIE_MAX_AGE` (400 days), `readCookie` |
+| `lib/http/rate-limit.ts` | `createRateLimiter` (a fixed window per client, in memory, capped) and `clientKey` |
+
+**A licence** is `v1.<payload>.<signature>`: the payload is base64url JSON `{"o":"<order code>","i":<issued>}`
+and the signature HMAC-SHA256 over `v1.<payload>` with `LICENCE_SECRET`. It verifies against that secret or
+`LICENCE_SECRET_PREVIOUS`, compared in constant time, and fails for an order in `LICENCE_REVOKED`. Every
+failure is the same `null`. It holds no name or email address, because it travels in an address once, and
+it does not expire.
+
+**The flow.** The buyer opens `/licence?t=<licence>`. A good licence is set as an `HttpOnly; Secure;
+SameSite=Lax` cookie on the whole host and the answer is a 303 to `/library`, so the licence leaves the address
+bar; both answers carry `Referrer-Policy: no-referrer`. `/library` reads the cookie on each request. A file
+route checks, in order: the rate limit (429), the licence for `/api/library` (404), the store (503), the
+template and file (404, and for `/api/samples` a template that is not free is 404 too), then serves the file.
+
+**Limits.** `/licence` takes 10 requests a minute per client, each file route 60, counted per server instance.
 
 ## 4. Site shell
 
@@ -1088,7 +1122,11 @@ from the ink colour at alphas 0, 0.03, 0.06 and 0.09. It fails above 4 KiB.
 | Unknown phase slug | `notFound()`. The site 404 page renders with the shell; the root 404 renders without it |
 | Malformed catalog query | Unknown values are dropped; a bad `page` becomes `1`; an out-of-range page is clamped. The response is 200 |
 | `view` that names no template, or a locked one | Nothing opens. A locked template's tile, if it is on the page of results, is rendered saying no; if it is not, a line above the results says the template is included with the toolkit. The response is 200 |
-| Checkout | Built up to payment: no provider is connected (`getPaymentProvider()` returns `null`), so the Payment step offers the order by email and nothing can be paid for; locked templates stay locked. Blocked session storage: the draft lasts for the page only |
+| Checkout | Built up to payment: no provider is connected (`getPaymentProvider()` returns `null`), so the Payment step offers the order by email and nothing can be paid for; the owner mints a licence by hand (section 3.8). Blocked session storage: the draft lasts for the page only |
+| No file store configured | Download buttons are hidden; `/api/samples` and `/api/library` answer 503 |
+| Licence missing, changed, revoked, or no `LICENCE_SECRET` | `/licence` sets nothing and goes to `/library?link=invalid`; `/api/library` answers 404; `/library` says how to get a link |
+| A catalog file the store does not have | The file routes answer 404; `tests/unit/stored-files.test.ts` fails |
+| Too many requests from one client | 429 with `Retry-After` |
 | Cover cannot start | No cover; the page loads as normal |
 | Cover interrupted | Skip, or the 5500 ms backstop unsets `data-intro` |
 | Reduced motion | No cover, no motion |
