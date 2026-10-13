@@ -12,8 +12,7 @@
  *   [data-tile][data-denied], [data-well]          a locked tile saying no, its vibration and wash
  *   [data-page-dialog][data-enter]                 a pop-up (a free sample, the checkout) arriving
  *   [data-checkout-step], [data-checkout-progress] a step of the checkout arriving, and its line
- *   [data-hero-stage], [data-hero-prompt],
- *   [data-hero-doc], [data-landed]                 the hero: a prompt box that becomes documents
+ *   [data-hero-stage]                              the hero: its documents straighten under the pointer
  *
  * Three attributes on the root element, set by the boot script before first paint, are the only
  * switches: `data-motion="on"` (movement is wanted), `data-timeline="on"` (view timelines exist)
@@ -23,8 +22,7 @@
  *
  * Every animation and transition sits inside the no-preference query, with the final state
  * outside it. Keyframes name the starting state only: the end is whatever the element is. Nothing
- * repeats, with one exception: the caret of the hero's prompt box blinks three times inside one
- * run of `hero-caret-blink`, and then stands. No custom property is animated and no shadow
+ * repeats. No custom property is animated and no shadow
  * changes: a shadow that comes or goes is a second shadow on a pseudo-element whose opacity moves.
  * `animation-timeline` and `animation-range` are written after the `animation` shorthand, which
  * would reset them.
@@ -71,15 +69,6 @@
   :is(article, [data-lit-scope]):hover [data-lit]::after {
     opacity: 1;
   }
-}
-
-/*
- * The prompt box of the hero (components/home/hero-stage.tsx) exists for its sequence only, and
- * the sequence is played to live ink only. Without movement, without a script, or with ink that
- * is still, the box is not displayed and the documents stand where it would have been.
- */
-[data-hero-prompt] {
-  display: none;
 }
 
 @media (prefers-reduced-motion: no-preference) {

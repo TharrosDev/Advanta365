@@ -4,7 +4,7 @@ import { link, list, p, type LegalDocument } from "./types";
 
 /**
  * `/accessibility`: the accessibility statement. Every line under "What the site does" is a rule
- * the code keeps and a test checks (docs/design-system.md, section 13, and docs/testing.md); the
+ * the code keeps and a test checks (docs/design-system.md, section 12, and docs/testing.md); the
  * limits are the ones known today. It claims a target, not a certificate.
  */
 export function accessibility(facts: LegalFacts): LegalDocument {

@@ -102,7 +102,7 @@ Tagline: "Don't start from a blank prompt."
 
 What the storefront does today:
 
-- A home page whose first screen turns a blank prompt into the six free samples, shown as finished
+- A home page whose first screen answers the tagline with the six free samples, shown as finished
   documents.
 - Browse a catalog by phase, deliverable type, app, audience and format, with search, a "Free samples
   only" filter and a sort (free samples first, phase order, or by title). The filters that are on show as
@@ -195,7 +195,8 @@ visual decisions belong to later design work, not this file.
 
 - Palette: white, black and light blue. He rejected yellow. He rejected royal blue because black text
   on it is hard to read.
-- The showpiece is real-time ink in water.
+- He first asked for real-time ink in water as the showpiece, then had it removed (October 2026)
+  because it distracted from the words.
 - He likes the load-in animation.
 - The bar: "ultra realistic, high polished", "engineered to be amazing". Not "standard cards", and not
   "a simple coded site anybody could make". When offered choices: "decide and go big".
@@ -252,10 +253,8 @@ Derived from the answers above (inferred as a set; each rests on a stated fact).
   and Crown corporation buyers make an accessible site part of being credible to them.
 - **Legibility is a stated owner requirement:** he rejected a colour because text on it was hard to
   read.
-- The ink and all motion are optional. Under reduced motion, raised contrast, forced colours, no
-  JavaScript or no WebGL2, the site stays complete and still images stand in for the ink. The live
-  ink has no control on the page: it comes to rest by itself, and the reduce-motion setting of the
-  system is the way to stop it (listed as a known limit on the accessibility page).
+- All motion is optional. Under reduced motion, raised contrast, forced colours or no JavaScript,
+  the site stays complete, and under reduced motion nothing moves by itself.
 - Keyboard use, visible focus, a skip link, one `h1` per page, labelled navigation, and targets of at
-  least 44px on phones are the floor the site already keeps (`docs/design-system.md`, section 13).
+  least 44px on phones are the floor the site already keeps (`docs/design-system.md`, section 12).
 - English only today.
