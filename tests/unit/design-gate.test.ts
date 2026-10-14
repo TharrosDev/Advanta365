@@ -324,6 +324,8 @@ describe("design gate: standing rules", () => {
   it("the runtime dependencies are next, react, react-dom and zod, and nothing else", () => {
     const manifest = JSON.parse(read("package.json")) as { dependencies?: Record<string, string> };
     expect(Object.keys(manifest.dependencies ?? {}).sort()).toEqual([
+      "@vercel/analytics",
+      "@vercel/speed-insights",
       "next",
       "react",
       "react-dom",
