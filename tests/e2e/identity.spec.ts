@@ -478,48 +478,39 @@ test("the footer names the brand once, as plain text no larger than 28px", async
 });
 
 /**
- * The digits on a mark as they are inked: whether they are drawn at all, their height in CSS pixels
- * (the path's own box and its stroke, at the scale the mark is drawn at) and their ink. Null when
- * the mark has no digits.
+ * The shapes of the mark inside a lockup: how many, the fill of each in order, and whether it is
+ * shown at all. Null when the lockup holds no mark.
  */
-const digitsOf = (lockup: Locator) =>
+const markOf = (lockup: Locator) =>
   lockup.evaluate((element) => {
-    const path = element.querySelector<SVGPathElement>("svg path[data-mark-digits]");
-    const svg = path?.ownerSVGElement;
-    if (!path || !svg) return null;
-    const look = getComputedStyle(path);
-    const scale = svg.getBoundingClientRect().height / svg.viewBox.baseVal.height;
+    const svg = element.querySelector<SVGSVGElement>("svg");
+    if (!svg) return null;
+    const paths = [...svg.querySelectorAll("path")];
     return {
-      // The bar's tile holds both forms of the mark and shows one: a form that is not shown has no
-      // boxes at all, whatever its path says.
-      drawn: svg.getClientRects().length > 0 && look.display !== "none",
-      height: (path.getBBox().height + Number.parseFloat(look.strokeWidth)) * scale,
-      ink: look.stroke,
-      fill: look.fill,
-      last: path === svg.lastElementChild,
+      drawn: svg.getClientRects().length > 0,
+      fills: paths.map((path) => getComputedStyle(path).fill),
+      strokes: paths.map((path) => getComputedStyle(path).stroke),
+      height: svg.getBoundingClientRect().height,
     };
   });
 
-test("the mark carries its 365 wherever the digits are 7px high, and nowhere else", async ({
+test("the mark is two filled halves, in the highlighter and the ink of the page, at every size", async ({
   page,
 }) => {
   await page.setViewportSize({ width: 1440, height: 900 });
   await page.goto("/purchase");
 
-  // The bar: on the ink tile, last in the mark, stroked in the highlighter and not filled.
+  // The bar: on the ink tile, the leg in the highlighter first and the arm in white over it.
   const brand = page.getByRole("banner").getByRole("link", { name: "Advanta365", exact: true });
-  const onBar = await digitsOf(brand);
-  expect(onBar).not.toBeNull();
+  const onBar = await markOf(brand);
   expect(onBar?.drawn).toBe(true);
-  expect(onBar?.height).toBeGreaterThanOrEqual(7);
-  expect(onBar?.ink).toBe(MARK);
-  expect(onBar?.fill).toBe("none");
-  expect(onBar?.last).toBe(true);
+  expect(onBar?.fills).toEqual([MARK, "rgb(255, 255, 255)"]);
+  expect(onBar?.strokes).toEqual(["none", "none"]);
 
-  // The tile holds the whole mark, digits and all (the one form it shows), and the bar holds the tile.
+  // The tile holds the whole mark and the bar holds the tile.
   const fit = await brand.evaluate((link) => {
     const edges = (element: Element | null | undefined) => element?.getBoundingClientRect();
-    const svg = [...link.querySelectorAll("svg")].find((form) => form.getClientRects().length > 0);
+    const svg = link.querySelector("svg");
     const tile = edges(svg?.parentElement);
     const mark = edges(svg);
     const bar = edges(link.closest("header"));
@@ -532,38 +523,27 @@ test("the mark carries its 365 wherever the digits are 7px high, and nowhere els
   });
   expect(fit).toEqual({ square: true, inTile: true, inBar: true });
 
-  // The link is still named by the word beside the mark, once: the digits are not read out.
+  // The link is still named by the word beside the mark, once: the mark is not read out.
   await expect(brand).toHaveAccessibleName("Advanta365");
-  // The tile holds both forms of the mark and shows one: neither is read out.
-  const forms = await brand.locator("svg").all();
-  expect(forms.length).toBeGreaterThan(0);
-  for (const form of forms) {
-    await expect(form).toHaveAttribute("aria-hidden", "true");
-  }
+  await expect(brand.locator("svg")).toHaveCount(1);
+  await expect(brand.locator("svg")).toHaveAttribute("aria-hidden", "true");
   await expect(brand.locator("svg title, svg text")).toHaveCount(0);
 
-  // The footer: the bare mark, in the highlighter on the binder.
-  const onBinder = await digitsOf(page.getByRole("contentinfo"));
+  // The footer: the bare mark, its leg in the highlighter on the binder.
+  const onBinder = await markOf(page.getByRole("contentinfo"));
   expect(onBinder?.drawn).toBe(true);
-  expect(onBinder?.height).toBeGreaterThanOrEqual(7);
-  expect(onBinder?.ink).toBe(MARK);
+  expect(onBinder?.fills[0]).toBe(MARK);
 
-  // The small tile on the folder of the purchase page is drawn without them.
-  const maker = page
-    .getByRole("main")
-    .locator("svg")
-    .filter({ has: page.locator("path") });
-  expect(await page.getByRole("main").locator("[data-mark-digits]").count()).toBe(0);
-  expect(await maker.count()).toBeGreaterThan(0);
-
-  // Below 68em the bar's tile is 28px, where they would be a smudge: it shows the compact form.
+  // Below 68em the bar's tile is 28px: the same mark, smaller, with nothing dropped.
   await page.setViewportSize({ width: 390, height: 844 });
-  const small = await digitsOf(brand);
-  expect(small?.drawn).toBe(false);
+  const small = await markOf(brand);
+  expect(small?.drawn).toBe(true);
+  expect(small?.fills).toEqual([MARK, "rgb(255, 255, 255)"]);
+  expect(small?.height).toBeLessThan(onBar?.height ?? 0);
   await expect(brand).toHaveAccessibleName("Advanta365");
 });
 
-test("the site icon is the file the script writes: the mark without the digits", async ({
+test("the site icon is the file the script writes: the two-tone mark on the ink tile", async ({
   request,
 }) => {
   const response = await request.get("/icon.svg");
@@ -575,10 +555,10 @@ test("the site icon is the file the script writes: the mark without the digits",
   // Line endings aside (a checkout may rewrite them), these are the bytes `scripts/gen-icon.mjs` writes.
   const text = served.toString("utf8").replaceAll(String.fromCharCode(13), "");
   expect(createHash("sha256").update(text).digest("hex")).toBe(
-    "46c50e59252ff328f4830d45b1c77b2f5bb49dd81e80df00003b91060d77a7a8",
+    "907a0bdef7564cbeae783ba830bb1fd72c2dd3b0c098215c0e38c9fbde6d427d",
   );
   expect(text.match(/<path/g)).toHaveLength(2);
-  expect(text).not.toContain("data-mark-digits");
+  expect(text).not.toContain("stroke");
 });
 
 test("the menu control stands at the right of the bar", async ({ page, isMobile }) => {

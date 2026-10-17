@@ -302,9 +302,9 @@ reduced motion.
 
 ### The cover
 
-A first visit to `/` in a browser session plays a cover. It draws the mark in pen strokes, then the 365 on
-the arm of the mark in a finer pen, and shows the site name. The finished mark stands from 1.0 to 2.5
-seconds, and the cover is gone at 2.95 seconds. A press, a key, a wheel turn or a touch ends it. Reduced
+A first visit to `/` in a browser session plays a cover. The arm of the mark rises, the leg in the highlighter
+drops and lands with a little weight, and the site name and "An EchoFive product" are written in under it.
+The finished signature stands from 1.4 to 2.5 seconds, and the cover is gone at 2.95 seconds. A press, a key, a wheel turn or a touch ends it. Reduced
 motion skips it. The hero then plays its sequence: an empty prompt box blinks, dissolves, and the six
 documents land by 2.4 seconds. Under reduced motion or without a script there is no box and the documents
 stand from the start.

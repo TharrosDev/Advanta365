@@ -48,7 +48,7 @@ Defined on `:root` in `app/globals.css`.
 | `--ink` | `#0b0d12` | Primary text and the ink fill. |
 | `--ink-soft` | `#3a3f4c` | Secondary text. |
 | `--ink-faint` | `#596072` | Tertiary text, captions, counts. |
-| `--mark` | `#86c1ff` | The highlighter. Fills marked blocks and the logo tail. |
+| `--mark` | `#86c1ff` | The highlighter. Fills marked blocks and the logo's right-hand leg. |
 | `--mark-deep` | `#5fa8f5` | A solid button while pressed; a checked checkbox under the pointer. |
 | `--mark-wash` | `#eaf4ff` | The mark diluted to a ground for the wash band and hover rows. |
 | `--on-mark` | `var(--ink)` | Text on a mark fill. |
@@ -119,7 +119,7 @@ Measured as WCAG 2.x contrast ratios from the token values.
 - The mark fill is never the only signal. Pair it with ink: a 2px ink ring (`box-shadow: inset 0 0 0 var(--edge) var(--ink)`), an ink border, a tick, or ink text.
 - Text on a mark fill is `--on-mark` (ink). Text on an ink fill is `--on-ink` (white).
 - The mark is the colour of the highlighter behind words (`::selection`, `[data-mark]` headline spans, the link highlight on focus). It is a background, never a text colour on paper.
-- The logo tail is the mark colour. Under forced colours it uses `currentColor`.
+- The logo's right-hand leg is the mark colour. Under forced colours it uses `currentColor`.
 - On the binder, where the mark measures 10.11 : 1, it may be a line: the focus ring, the underline of a hovered or focused link, and in the footer the 2px edge along its top and the underline of a hovered or focused link. The footer's one button is a mark fill with ink text, which dilutes to `--mark-wash` under the pointer or focus and goes to `--mark-deep` when held down.
 
 ### 3.5 Binder and ink surfaces
@@ -476,17 +476,16 @@ A page change swaps the page at once. The first block of a page, wrapped in `Pag
 
 ### 8.8 The first-load cover
 
-The home page opens with a cover: a full-viewport paper plane (`--layer-cover`) with the logo drawn stroke by stroke, the name, and a `Skip` hint at the bottom.
+The home page opens with a cover: a full-viewport paper plane (`--layer-cover`) with the logo drawn in two moves, the name and the line "An EchoFive product" written in under it, and a `Skip` hint at the bottom.
 
 | Element | Timing |
 | --- | --- |
-| Legs of the mark | 120ms to 480ms, on `--curve-pen`, from 0 to full stroke. |
-| Crossbar | 420ms to 600ms. |
-| Tail | 560ms to 800ms, in the mark colour. |
-| The 365 | 800ms to 1000ms, in a finer pen on the tail: the 3, the 6 and the 5, 100ms each and 50ms apart. |
-| Name | 500ms to 900ms, fading in. |
+| Arm of the mark (ink) | 120ms to 620ms, on `--curve-pen`, uncovered smoothly from its foot up to the peak. |
+| Leg of the mark (highlighter) | 620ms to 1000ms, uncovered from the peak down on an ease-in (a fall speeds up), landing at about 850ms; it then squashes against the ground (`scaleY` 0.93, from its foot) and springs back past 1 to rest, for weight. |
+| Name | 900ms to 1150ms, written in from the left. |
+| "An EchoFive product" | 1100ms to 1400ms, written in from the left, in the text face and the faint ink. |
 | Hint | 600ms to 900ms. |
-| The finished mark | Stands from 1000ms to 2500ms. |
+| The finished signature | Stands from 1400ms to 2500ms. |
 | Signature and hint leave | 2500ms to 2680ms, fading on the paper while it is still opaque. |
 | Cover leaves | From 2500ms, 450ms with `--curve-leave`. The paper holds until 40% (2680ms) and only then clears, so the logo is gone before the hero shows. |
 
@@ -538,7 +537,7 @@ All primitives live in `components/ui/`. Props are shown with their defaults in 
 | `Tag` | `variant` (format, saving, plain; format), `className`, children | `<Tag variant="saving">Free sample</Tag>` |
 | `FactList` | `items` ({ label, value }[]), `className` | `<FactList items={[{ label: "Type", value: "Plan" }]} />` |
 | `Icon` | `name` (arrow, chevron, plus, minus, close, tick, bars, search), `size` (20, the width and height in pixels at the 16px root, drawn in rem), `flip` (false), `className` | `<Icon name="arrow" size={32} />` |
-| `LogoMark` | `height` ("1.5em"), `className`, `title`, `tone` (one, two; one), `digits` (true) | `<LogoMark tone="two" height="2.5rem" />` (the 365 and the long tail are drawn only in two inks, and only where the mark is 28px high or more; without digits it is the compact form) |
+| `LogoMark` | `height` ("1.5em"), `className`, `title`, `tone` (one, two; one) | `<LogoMark tone="two" height="2.5rem" />` (one fills the whole "A" in `currentColor`; two draws the right half in `--logo-half`) |
 | `BrandLockup` | `variant` (tile, bare; tile), `size` (sm, md; md), `className`, `nameClassName` | `<BrandLockup variant="bare" size="sm" />` |
 
 ### 9.3 Links
@@ -626,28 +625,21 @@ Rules for them: a catalog tile has exactly one control; a price is printed from 
 
 ### 10.1 The mark
 
-The logo is three strokes on a grid 24 units high: two legs meeting at a peak, leaning 1 across for 2 down, and a crossbar set a little past their middle that continues to the right as the tail. Stroke width is 3.8, with round caps and joins. A blue "365" stands on the tail, in a finer pen, and ends flush with it. The geometry lives in `lib/brand/mark.ts`, and the mark has two forms:
+The logo is an "A" made of one strip folded at its peak, in two filled halves that meet on a vertical seam: the arm on the left, which climbs, in the ink, and the leg on the right, which comes down, in the highlighter. It is drawn on a grid 48 by 44 units (`MARK_VIEWBOX`), with a flat peak 10 wide and both legs leaning 11 across for 40 down; the ink is centred in its box, 2 units clear of every side. It has no crossbar and no strokes. The geometry lives in `lib/brand/mark.ts`:
 
-- **Full**, 36 by 24 (`MARK_VIEWBOX`): the long tail (`MARK_TAIL_D`) with the digits on it.
-- **Compact**, 30 by 24 (`MARK_VIEWBOX_COMPACT`): the same "A" with a short tail (`MARK_TAIL_COMPACT_D`) and no digits. It is the form for any mark under 28px high and for the icon, so the "A" keeps its size where the digits would be a smudge.
+- `MARK_INK_D`: the left half, the arm.
+- `MARK_HUE_D`: the right half, the leg. Its left edge runs half a unit under the arm (`MARK_SEAM_X` is 24, the leg starts at 23.5), so no hairline shows on the seam; the arm is drawn over it.
+- `MARK_PATH_D`: the whole "A" as one shape, for one ink.
 
-The ink of both forms is centred in its box. The parts:
-
-- `MARK_LEGS_D`: the legs.
-- `MARK_BAR_D`: the short crossbar inside the legs.
-- `MARK_BODY_D`: the legs and the crossbar together.
-- `MARK_PATH_D`: the compact form as one path, for one ink.
-- `MARK_DIGITS`: the 3, the 6 and the 5, each one open pen stroke; `MARK_DIGITS_D` joins them, `MARK_DIGITS_STROKE_WIDTH` is 1.4, and `MARK_DIGITS_BOX` is x 19.37 to 34.3, y 3.48 to 9.5, inside the view box, 1.4 clear of the right leg and 1.2 above the tail.
-
-`BrandLockup` renders the mark in tone `two`: the body takes `currentColor` and the tail and the digits take `--logo-tail`, which is the mark colour. `LogoMark` defaults to tone `one`, which draws the whole mark in `currentColor`, in the compact form, and never draws the digits.
+`BrandLockup` renders the mark in tone `two`: the arm takes `currentColor` and the leg takes `--logo-half`, which is the mark colour. `LogoMark` defaults to tone `one`, which fills the whole mark in `currentColor`. Under forced colours `--logo-half` is `currentColor`.
 
 ### 10.2 Lockups
 
-`BrandLockup` pairs the mark with the name in Besley. The `tile` variant sets the mark in an ink square. The `bare` variant sets the mark and name on the current ground. Sizes are `sm` and `md`. The `md` tile is 28px, and from 68em 49px with the full mark 28.4px high and 42.6px wide (58% of the tile's height, 3px of ink either side), which makes the digits 7px high; the bare `md` mark (the footer) is 36px high, so its digits are 9px. The digits show only there: they would be 4px high on the 28px tile, so the phone bar, the drawer's `sm` lockup and the folder's tile draw the compact form (62% of the tile's height). The bar's tile holds both forms and the stylesheet shows one, so the mark's shape changes at 68em and nowhere else.
+`BrandLockup` pairs the mark with the name in Besley. The `tile` variant sets the mark in an ink square, at 60% of the tile's height. The `bare` variant sets the mark and name on the current ground. Sizes are `sm` and `md`. The `md` tile is 28px, and 49px from 68em; the bare `md` mark (the footer) is 36px high. There is one form of the mark at every size.
 
 ### 10.3 Site icon
 
-`app/icon.svg` is the site icon: a 32 by 32 ink tile with a 7-unit corner radius, and the compact mark in white and blue at 84% of its width, centred, with no digits. It is generated: `node scripts/gen-icon.mjs` writes it from `lib/brand/mark.ts`, and `brand-mark.test.ts` fails when the file is not what the script writes. Its colours are the tokens' values, written out because an icon file cannot read tokens.
+`app/icon.svg` is the site icon: a 32 by 32 ink tile with a 7-unit corner radius, and the mark (the arm in white, the leg in blue) at 84% of its width, centred. It is generated: `node scripts/gen-icon.mjs` writes it from `lib/brand/mark.ts`, and `brand-mark.test.ts` fails when the file is not what the script writes. Its colours are the tokens' values, written out because an icon file cannot read tokens.
 
 ### 10.4 Icon set
 

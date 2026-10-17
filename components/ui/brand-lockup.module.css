@@ -1,12 +1,10 @@
 /*
  * `--lockup-mark` is the height of the tile or of the bare mark, `--lockup-fill` the share of the
- * tile's height the compact mark takes and `--lockup-fill-full` the share the full mark takes (it
- * is wider, so a smaller share of the height fills the same width), `--lockup-name` the name's size.
+ * tile's height the mark takes, `--lockup-name` the name's size.
  */
 .root {
   --lockup-mark: var(--s-4);
-  --lockup-fill: 0.62;
-  --lockup-fill-full: 0.58;
+  --lockup-fill: 0.6;
   --lockup-name: 1.1875rem;
   display: inline-flex;
   align-items: center;
@@ -16,11 +14,11 @@
 }
 
 /*
- * The square ink tile with the mark centred in it, at 62% of the tile's height (the compact form):
- * the "A" in white and its tail in the highlighter.
+ * The square ink tile with the mark centred in it, at 60% of the tile's height: the arm in white
+ * and the leg that drops in the highlighter.
  */
 .square {
-  --logo-tail: var(--mark);
+  --logo-half: var(--mark);
   display: grid;
   flex: none;
   place-items: center;
@@ -33,14 +31,6 @@
 
 .mark {
   display: block;
-}
-
-/*
- * The bar's tile holds both forms. On a 28px tile the digits would be 3px high: a smudge, so it
- * shows the compact one, and the full one from 68em.
- */
-.full {
-  display: none;
 }
 
 .glyph {
@@ -57,7 +47,6 @@
   white-space: nowrap;
 }
 
-/* 36px: the digits on the tail are 9px, over the 7px they must be (a mark 28px high gives 7). */
 .bare {
   --lockup-mark: 2.25rem;
   --lockup-name: 1.375rem;
@@ -70,29 +59,18 @@
 
 /* Drawn bare, the second ink is the highlighter only where it can be seen: on the binder. */
 [data-band="binder"] .bare {
-  --logo-tail: var(--mark);
+  --logo-half: var(--mark);
 }
 
 @media (min-width: 68em) {
-  /*
-   * A 49px tile with the full mark at 58% of its height: 28.4px high and 42.6px wide, so the digits
-   * on the tail are 7.1px high and 3px of ink tile are left on either side of the mark.
-   */
+  /* A 49px tile, the mark 29px high. */
   .tile.md {
     --lockup-mark: calc(var(--s-1) * 7);
     --lockup-name: 1.3125rem;
   }
-
-  .tile.md .full {
-    display: block;
-  }
-
-  .tile.md .compact {
-    display: none;
-  }
 }
 
-/* System colours only: the tile keeps an edge, and the tail is drawn in the ink of the body. */
+/* System colours only: the tile keeps an edge, and the second half is drawn in the ink of the arm. */
 @media (forced-colors: active) {
   .square {
     border: var(--hair) solid CanvasText;
@@ -100,6 +78,6 @@
 
   .square,
   [data-band="binder"] .bare {
-    --logo-tail: currentColor;
+    --logo-half: currentColor;
   }
 }
