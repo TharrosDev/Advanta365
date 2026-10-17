@@ -13,8 +13,8 @@ import styles from "./header.module.css";
  * line under it. `data-bar` is the hook of app/motion.css, which draws that shadow on a layer of its
  * own (so the bar must not use its own `::after`) and lets it arrive over the first 84px of scroll.
  *
- * From 68em it has three zones on one row: the brand at the left, Catalog and Why Advanta centred
- * on the bar itself (not on the room the other two leave), and the purchase button at the right.
+ * From 68em it has three zones on one row: the brand at the left, Catalog, the Phases drop-down and
+ * Why Advanta centred on the bar itself (not on the room the other two leave), and the purchase button at the right.
  * Below 68em the row is the brand, the button without its price, and the Menu button of the
  * drawer. DOM and tab order follow the picture: brand, links, button, Menu.
  *
@@ -34,7 +34,7 @@ export function Header({ phases }: { phases: readonly PhaseLink[] }) {
         <BrandLink href="/" className={styles.brand}>
           <BrandLockup nameClassName={styles.brandName} />
         </BrandLink>
-        <PrimaryNav className={styles.nav} />
+        <PrimaryNav phases={phases} className={styles.nav} />
         <div className={styles.tools}>
           <PurchaseButton className={styles.buy} />
           <NavDrawer

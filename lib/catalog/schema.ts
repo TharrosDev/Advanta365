@@ -5,19 +5,19 @@ import { extensionOf } from "@/lib/files/types";
 const slug = z.string().regex(/^[a-z0-9]+(-[a-z0-9]+)*$/, "must be lower-case kebab");
 const text = z.string().trim().min(1);
 
-const StepSchema = z.object({
-  slug,
-  name: text,
-  summary: text,
-  order: z.number().int(),
-});
-
+/**
+ * One section of the toolkit, matching one of its folders. `name` is the plain name menus, lists and
+ * the catalog use; `label` is the short one the line of steps on Why Advanta uses. `order` is the folder's number. `number`
+ * is the phase number, which only the numbered phases have: the orientation folder before them and
+ * the folder of tools used throughout have none.
+ */
 export const PhaseSchema = z.object({
   slug,
   name: text,
+  label: text,
   summary: text,
   order: z.number().int(),
-  steps: z.array(StepSchema).min(1),
+  number: z.number().int().positive().optional(),
 });
 
 /**
@@ -48,7 +48,6 @@ export const TemplateSchema = z.object({
   summary: text,
   description: text,
   phase: slug,
-  step: slug,
   deliverableType: z.enum(DELIVERABLE_TYPES),
   apps: z.array(z.enum(APPS)).min(1),
   audiences: z.array(z.enum(AUDIENCES)).min(1),
@@ -63,7 +62,6 @@ export const TemplateSchema = z.object({
   files: z.array(TemplateFileSchema).default([]),
 });
 
-export type Step = z.infer<typeof StepSchema>;
 export type Phase = z.infer<typeof PhaseSchema>;
 export type Template = z.infer<typeof TemplateSchema>;
 export type TemplateFile = z.infer<typeof TemplateFileSchema>;

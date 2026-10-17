@@ -31,7 +31,7 @@ import styles from "./template-tile.module.css";
 export function TemplateTile({
   template,
   phaseName,
-  phaseOrder,
+  phaseNumber,
   href,
   headingLevel = "h3",
   scroll = true,
@@ -40,7 +40,7 @@ export function TemplateTile({
 }: {
   template: Template;
   phaseName?: string;
-  phaseOrder?: number;
+  phaseNumber?: number;
   href: string;
   headingLevel?: "h2" | "h3";
   scroll?: boolean;
@@ -84,7 +84,7 @@ export function TemplateTile({
             lit={open}
             title={template.title}
             summary={template.summary}
-            phaseOrder={phaseOrder}
+            phaseNumber={phaseNumber}
             tagClassName={styles.coverTag}
           />
         </div>

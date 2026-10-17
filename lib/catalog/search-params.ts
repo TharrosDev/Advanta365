@@ -75,6 +75,11 @@ export function parseView(sp: RawParams): string | undefined {
   return SLUG.test(view) ? view : undefined;
 }
 
+/** The address of a section's own page. */
+export function phaseHref(slug: string): string {
+  return `/phases/${slug}`;
+}
+
 /** The address of the catalog for some criteria, with `view` (a template slug) last. */
 export function catalogHref(criteria: CatalogCriteria, view?: string): string {
   const params = new URLSearchParams(serializeCatalogParams(criteria));

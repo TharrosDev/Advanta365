@@ -43,6 +43,7 @@ describe("currentPhase", () => {
       "/sample",
       "/phases",
       "/phases/prepare/x",
+      "/steps/prepare",
     ]) {
       expect(currentPhase(path), path).toBeUndefined();
     }

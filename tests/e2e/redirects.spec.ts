@@ -4,7 +4,8 @@ import { expect, test } from "@playwright/test";
 // addresses are permanent redirects now, so that a bookmark or a link from elsewhere still lands on
 // the page that took over: the one purchase page, or Why Advanta, which About became. A template had
 // a page of its own, too: its address now opens the catalog with that template in the pop-up when
-// it is a free sample, and the catalog as it is when it is not.
+// it is a free sample, and the catalog as it is when it is not. The seven invented phases gave way
+// to the toolkit's own folders: each old phase page goes to the phase that took over most of it.
 
 const MOVED: readonly { from: string; pathname: string; hash?: string; search?: string }[] = [
   { from: "/bundles", pathname: "/purchase" },
@@ -22,6 +23,13 @@ const MOVED: readonly { from: string; pathname: string; hash?: string; search?: 
     search: "?view=change-management-strategy",
   },
   { from: "/templates/nope", pathname: "/catalog", search: "?view=nope" },
+  { from: "/phases/make-the-case", pathname: "/phases/define-the-change" },
+  { from: "/phases/plan", pathname: "/phases/assess-the-impact" },
+  { from: "/phases/design", pathname: "/phases/design-the-platform" },
+  { from: "/phases/prepare", pathname: "/phases/build-the-training" },
+  { from: "/phases/communicate", pathname: "/phases/plan-communications" },
+  { from: "/phases/execute", pathname: "/phases/go-live-and-support" },
+  { from: "/Phases/Sustain", pathname: "/phases/make-it-stick" },
   {
     from: "/Templates/Change-Management-Strategy",
     pathname: "/catalog",
@@ -73,7 +81,7 @@ test("Contact is a page of its own again, and Purchase gives the offer and its p
   );
 
   await page.goto("/purchase");
-  await expect(page.getByRole("heading", { level: 1 })).toHaveText("Seven phases in one folder.");
+  await expect(page.getByRole("heading", { level: 1 })).toHaveText("Eleven phases in one folder.");
   // Exactly: the folder's tab is the one place the name of the offer is printed.
   await expect(page.getByText("The complete toolkit", { exact: true })).toBeVisible();
   await expect(page.getByRole("main").getByText("$1,499.99")).toBeVisible();

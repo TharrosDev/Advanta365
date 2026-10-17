@@ -15,6 +15,7 @@ import { Eyebrow } from "@/components/ui/eyebrow";
 import { Icon } from "@/components/ui/icon";
 import { TextLink } from "@/components/ui/text-link";
 import { TransitionLink } from "@/components/ui/transition-link";
+import { phaseHref } from "@/lib/catalog/search-params";
 import { cssVars, cx } from "@/lib/cx";
 import { createScrimPress } from "@/lib/scrim";
 import styles from "./nav-drawer.module.css";
@@ -27,7 +28,8 @@ const INLINE_NAV = "(min-width: 68em)";
  *
  * The panel is a native modal `<dialog>` on the right edge of the screen, with the page dimmed
  * behind it. Top to bottom: the brand and its own Close button, the three primary links and the
- * Contact page (`MENU_LINKS`), the seven phases under a visible label, and the contact address at
+ * Contact page (`MENU_LINKS`), the toolkit's thirteen sections under a visible label (the numbered
+ * steps with their numerals, Start here and Used at every step with an empty tile), and the contact address at
  * the foot. The dialog itself keeps focus inside, closes on Escape and hands focus back to the
  * button.
  *
@@ -147,7 +149,7 @@ export function NavDrawer({
             </ul>
             <div className={styles.group}>
               <Eyebrow id={phasesLabelId} className={styles.label}>
-                Rollout phases
+                Phases
               </Eyebrow>
               <ul aria-labelledby={phasesLabelId} className={styles.list}>
                 {phases.map((item, index) => (
@@ -157,13 +159,13 @@ export function NavDrawer({
                     style={cssVars({ "--order": MENU_LINKS.length + index })}
                   >
                     <TransitionLink
-                      href={`/phases/${item.slug}`}
+                      href={phaseHref(item.slug)}
                       className={cx("type-ui", styles.row, styles.phase)}
                       aria-current={phase?.slug === item.slug ? phase.kind : undefined}
                       onClick={close}
                     >
                       <span className={styles.numeral} aria-hidden="true">
-                        {index + 1}
+                        {item.number}
                       </span>
                       {item.name}
                     </TransitionLink>

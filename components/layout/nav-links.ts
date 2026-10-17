@@ -2,8 +2,11 @@ import { CONTACT_LINK, NAV, PURCHASE_LINK } from "@/lib/site";
 
 type NavLink = { href: string; label: string };
 
-/** A rollout phase as the navigation needs it: where it lives and what it is called. */
-export type PhaseLink = { slug: string; name: string };
+/**
+ * A section of the toolkit as the navigation needs it: where it lives, its plain name and its step
+ * number (none for Start here and Used at every step).
+ */
+export type PhaseLink = { slug: string; name: string; number?: number };
 
 /** The site's primary destinations, in order: Purchase, Catalog, Why Advanta. */
 export const PRIMARY_LINKS: readonly NavLink[] = [PURCHASE_LINK, ...NAV];

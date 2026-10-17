@@ -58,6 +58,17 @@ const PRIVATE_HEADERS = [
   { key: "X-Robots-Tag", value: "noindex" },
 ];
 
+/** The old phase pages and the new phase page each one redirects to. */
+const OLD_PHASES: Record<string, string> = {
+  "make-the-case": "define-the-change",
+  plan: "assess-the-impact",
+  design: "design-the-platform",
+  prepare: "build-the-training",
+  communicate: "plan-communications",
+  execute: "go-live-and-support",
+  sustain: "make-it-stick",
+};
+
 const config: NextConfig = {
   reactStrictMode: true,
   poweredByHeader: false,
@@ -80,6 +91,13 @@ const config: NextConfig = {
       { source: "/cart", destination: "/purchase", permanent: true },
       { source: "/about", destination: "/why-advanta", permanent: true },
       { source: "/templates/:slug", destination: "/catalog?view=:slug", permanent: true },
+      // The seven invented phases became the toolkit's own folders: each old phase page goes to the
+      // phase that took over most of it.
+      ...Object.entries(OLD_PHASES).map(([old, phase]) => ({
+        source: `/phases/${old}`,
+        destination: `/phases/${phase}`,
+        permanent: true,
+      })),
     ];
   },
 };

@@ -19,10 +19,13 @@ function withFreeCount(count: number) {
 }
 
 describe("validateCatalog", () => {
-  test("returns phases and their steps sorted by order", () => {
+  test("returns the sections sorted by order", () => {
     const catalog = validateCatalog(rawCatalog());
-    expect(catalog.phases.map((p) => p.slug)).toEqual(["make-the-case", "prepare"]);
-    expect(catalog.phases[1]?.steps.map((s) => s.slug)).toEqual(["recruit", "train"]);
+    expect(catalog.phases.map((p) => p.slug)).toEqual([
+      "start-here",
+      "define-the-change",
+      "build-the-training",
+    ]);
     expect(catalog.templates).toHaveLength(8);
     expect(catalog).not.toHaveProperty("bundles");
   });
@@ -52,10 +55,24 @@ describe("validateCatalog", () => {
     expect(() => validateCatalog(withTemplate({ phase: "nope" }))).toThrow(/nope/);
   });
 
-  test("rejects a step that belongs to a different phase", () => {
-    expect(() => validateCatalog(withTemplate({ phase: "make-the-case", step: "train" }))).toThrow(
-      CatalogError,
+  test("rejects step numbers that do not run 1, 2, 3 in order", () => {
+    const skipped = rawCatalog();
+    skipped.phases = skipped.phases.map((phase) =>
+      phase.number === 2 ? { ...phase, number: 3 } : phase,
     );
+    expect(() => validateCatalog(skipped)).toThrow(/run 1 to 2 in order, found 1, 3/);
+
+    const swapped = rawCatalog();
+    swapped.phases = swapped.phases.map((phase) =>
+      phase.number === undefined ? phase : { ...phase, number: 3 - phase.number },
+    );
+    expect(() => validateCatalog(swapped)).toThrow(CatalogError);
+  });
+
+  test("rejects a section without a short label", () => {
+    const catalog = rawCatalog();
+    catalog.phases = catalog.phases.map((phase) => ({ ...phase, label: undefined })) as never;
+    expect(() => validateCatalog(catalog)).toThrow(/label/);
   });
 
   test("rejects an unknown deliverable type", () => {

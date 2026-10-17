@@ -46,7 +46,7 @@ const STEPS = [
  * four passes in one sentence) stands in columns 1 to 4 from 68em and stays under the bar while the
  * ledger scrolls past it in columns 6 to 12. The ledger has one row to a pass: the verb in the
  * document's face, a four-block tally that fills one more block with each pass, and a sentence.
- * Under both, across the page, stand the seven phases (`PhaseLine`). No metric of any kind is
+ * Under both, across the page, stand the eleven phases (`PhaseLine`). No metric of any kind is
  * printed.
  */
 export function MakingSection({ phases }: { phases: readonly Phase[] }) {

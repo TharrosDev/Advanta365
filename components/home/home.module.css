@@ -171,7 +171,7 @@
     --hero-below: var(--s-1);
     --stage-bleed: calc(max(0px, var(--over) - 320px) * 0.2);
     --hero-cap: max(56rem, 57vw);
-    --hero-window: min(100svh - var(--bar-h) - var(--rail-h), var(--hero-cap));
+    --hero-window: min(100svh - var(--bar-h), var(--hero-cap));
     --hero-type: max(var(--size-hero), var(--page-max) / 16.2);
     --hero-size: min(var(--hero-type), 12svh - 1.375rem, 100cqi / 15.3);
     --hero-lead: max(var(--size-lead), var(--hero-size) / 4);

@@ -6,8 +6,8 @@ and training. The site sells one thing: the complete toolkit, for $1,499.99 CAD,
 templates are free samples; every other template in the catalog is shown locked. There is one Purchase page
 and no cart.
 
-The catalog in this repository is sample content. The phases, steps and templates are placeholders, and the
-site labels them as a beta. The Checkout button on the Purchase page opens a checkout in a pop-up, which is
+The catalog in this repository is sample content. Its phases follow the toolkit's folders; its templates are
+placeholders, and the site labels them as a beta. The Checkout button on the Purchase page opens a checkout in a pop-up, which is
 built up to payment: no payment provider is connected, so its last step offers the order by email and nothing
 can be paid for yet. The bar's "Get the toolkit" button is a link to the Purchase page.
 
@@ -79,7 +79,7 @@ app/
   icon.svg            The site icon (generated: `node scripts/gen-icon.mjs`)
   not-found.tsx       The 404 page outside the site group
   (site)/             Public pages inside the site shell
-    layout.tsx        Skip link, header, phase rail, main, footer
+    layout.tsx        Skip link, header, main, footer
     page.tsx          Home: an array of sections, in order
     purchase/ catalog/ phases/[phase]/ about/ sample/
     privacy/ terms/ refunds/ accessibility/
@@ -87,13 +87,13 @@ app/
     [...rest]/        Calls notFound(), so unknown paths keep the site shell
 components/
   ui/                 Primitives (see Design system)
-  layout/             Header, PrimaryNav, PurchaseButton, NavDrawer, PhaseRail, TitleBlock, Breadcrumbs,
+  layout/             Header, PrimaryNav, PhasesMenu, PurchaseButton, NavDrawer, TitleBlock, Breadcrumbs,
                       Footer
   home/               Home sections: hero (HeroStage, ProofStrip), featured (the six samples), inside, the
                       portfolio, solution
   catalog/            Template covers, tiles (TemplateTile, LockedTile), the pop-up
                       (TemplateDialog, a PageDialog from ui/, and TemplateDetail), filters and their chips, search, sort, result
-                      list, the phone's phase strip, step nav, the phase pager
+                      list, the phase pager
   purchase/           Portfolio (the toolkit as a folder), PriceTag and the contents leaf (ContentsLeaf)
   checkout/           The checkout over the Purchase page: CheckoutDialog, its three steps, the order
                       summary and the form fields
@@ -105,7 +105,7 @@ components/
   company/            NextSteps (Why Advanta and Sample), StatementSection and WorkedExample (Sample)
   intro/              The cover of a first visit, and the tag that prints the boot script
   not-found/          MissingPage, AskedPath and LateBoot
-content/              The sample catalog: phases, one template file per phase, taxonomy, and the worked
+content/              The sample catalog: the 13 sections, one template file per section, taxonomy, and the worked
                       example's table of contents
 lib/
   site.ts             Name, parent company, tagline, contact address, TOOLKIT counts, OFFER (the one
@@ -247,7 +247,7 @@ Display and lead sizes are `clamp()` tokens between a phone value and a desktop 
   1600px window. 77rem grows with the root size past that, and from about 1840px of window the column
   follows 72% of the window, to a ceiling of 120rem. `--over` is how far the window is past 1600px, which
   the root size and some caps read. `--col-gap` is the gap between columns.
-- `--bar-h` (56px, 70px from 68em): the sticky header. `--rail-h` (42px): the phase rail.
+- `--bar-h` (56px, 70px from 68em): the sticky header.
 - `--control-sm` (40px, on the desktop bar), `--control` (48px) and `--control-lg` (56px): control heights.
   `--tap` (44px) is the minimum target below 68em.
 - `--round-1` (3px) to `--round-3` (10px), `--edge` (2px) and `--hair` (1px).
@@ -268,7 +268,8 @@ Display and lead sizes are `clamp()` tokens between a phone value and a desktop 
 
 - Layout: `Band`, `Wrap`, `Split`, `ShelfHead`, `FactList`, `BandedList` and `BandedRow` (the
   ledger), and `Note`.
-- Links and actions: `Button`, `TransitionLink`, `TextLink`, `RowLink`, `Pagination` and `PhaseTabs`.
+- Links and actions: `Button`, `TransitionLink`, `TextLink`, `RowLink`, `Pagination`, `PhaseTabs` and
+  `StepMenu` (the drop-down of the phases).
 - Paper and objects: `PaperSheet`, `PaperStack`, `Folder`, `Tag`, `Blank` and `Tally`.
 - Text and marks: `Eyebrow`, `Sentences`, `KeepCompounds`, `LogoMark`, `BrandLockup` and `Icon`.
 - Form controls: `Input`, `Select` and `Checkbox`.
@@ -311,18 +312,23 @@ stand from the start.
 
 ## Replacing the sample content
 
-The catalog has seven phases in rollout order: Make the case (`make-the-case`), Plan (`plan`), Design
-(`design`), Prepare (`prepare`), Communicate (`communicate`), Execute (`execute`) and Sustain (`sustain`).
-Each phase has two steps.
+The catalog has 13 sections, one for each of the toolkit's folders 00 to 12, in folder order: Start here
+(`start-here`), then eleven numbered phases, Define the change (`define-the-change`), Assess the impact
+(`assess-the-impact`), Set the strategy (`set-the-strategy`), Engage leaders (`engage-leaders`), Plan
+communications (`plan-communications`), Design the platform (`design-the-platform`), Plan the training
+(`plan-the-training`), Build the training (`build-the-training`), Deliver training (`deliver-training`), Go
+live and support (`go-live-and-support`) and Make it stick (`make-it-stick`), and last Used at every step
+(`used-at-every-step`). Start here and Used at every step have no number.
 
-1. **Phases and steps.** Edit `content/phases.ts`. Each phase has a slug, a name, a summary, an `order` and
-   its steps. Slugs are lower-case words joined by hyphens. The catalog's metadata description writes the
-   phase count out as "seven" (`app/(site)/catalog/page.tsx`), so change it by hand if the count changes.
-   The tally of the phases on the Purchase page and in the home portfolio follows the phase list
-   automatically.
-2. **Templates.** Each phase has one file in `content/templates/`: `make-the-case.ts`, `plan.ts`,
-   `design.ts`, `prepare.ts`, `communicate.ts`, `execute.ts` and `sustain.ts`. `index.ts` joins them in
-   phase order. A template gives its phase and step, deliverable type, apps, audiences, format, ADKAR
+1. **Phases.** Edit `content/phases.ts`. Each section has a slug, a plain `name` (menus, lists, the
+   catalog), a short `label` (the line of phases on Why Advanta), a summary, an `order` (its folder's
+   number, 0 to 12) and, on the numbered phases only, a `number` (1 to 11). Slugs are lower-case words
+   joined by hyphens. The catalog's metadata description writes the phase count out as "eleven"
+   (`app/(site)/catalog/page.tsx`), so change it by hand if the count changes. The tally of the phases on
+   the Purchase page and in the home portfolio follows the numbered phases automatically.
+2. **Templates.** Each section has one file in `content/templates/`, named by its slug
+   (`start-here.ts` to `used-at-every-step.ts`). `index.ts` joins them in folder order. A template gives
+   its phase, deliverable type, apps, audiences, format, ADKAR
    stages (`adkar`, stored and not shown), an optional page count (shown as slides for a PowerPoint deck
    and pages for every other format), what it includes, and `free` (true for a
    free sample). Real records are written out in full with `isSample: false`. The `sample()` helper in
@@ -330,12 +336,12 @@ Each phase has two steps.
    belongs only in the sample files. There is no price on a template: the one price is `OFFER` in
    `lib/site.ts`.
 3. **Free samples.** Exactly six templates have `free: true` (`FREE_SAMPLE_COUNT` in
-   `lib/catalog/validate.ts`): one for each of the first six phases. They are the six on the home page, the
+   `lib/catalog/validate.ts`), each in a different phase. They are the six on the home page, the
    ones that open in the pop-up and the covers in the folder on the Purchase page.
 4. **Validation.** `lib/catalog/repository.ts` validates the catalog when it loads. `pnpm test` and
    `pnpm build` fail with the record and field named if a record is invalid, a slug repeats, a template
-   names a phase or step that is missing or belongs to another phase, or the number of free templates is
-   not six.
+   names a phase that is missing, the phase numbers do not run 1, 2, 3 and on in order, or the number of
+   free templates is not six.
 5. **Sample labels.** The sample wording is plain text, edited by hand, in these places: the catalog's
    metadata description and the line under its result count (`app/(site)/catalog/page.tsx`), the "Browse
    the sample catalog" links on the home page (`components/home/featured-section.tsx` and
@@ -347,7 +353,7 @@ Each phase has two steps.
    call `hasSampleContent()`), so nothing changes by itself when the real records arrive: edit each of
    these places by hand.
    The worked example is the fictional Meridian Group. The name appears in `app/(site)/sample/page.tsx`,
-   `content/templates/plan.ts` and `content/worked-example.ts`. That last
+   `content/templates/start-here.ts` and `content/worked-example.ts`. That last
    file holds the example's table of contents on `/sample`: placeholder sections, labelled as such on the
    page, until the real file is published. The 10,000 figure also
    appears on the home page, in `components/home/inside-section.tsx` and `components/home/pitch-spread.tsx`.
@@ -375,7 +381,7 @@ The code already has the seams that a production build connects to.
 | Concern       | Seam in the code                                                                                                                                            |
 | ------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | Catalog data  | Files in `content/`, read through `lib/catalog/repository.ts`. Its functions are async, so another source can implement the same functions.                 |
-| Record shapes | `lib/catalog/schema.ts` defines the phase, step and template records, and `lib/catalog/validate.ts` checks them.                                            |
+| Record shapes | `lib/catalog/schema.ts` defines the phase and template records, and `lib/catalog/validate.ts` checks them.                                                  |
 | The offer     | `OFFER` in `lib/site.ts`: its name and its price in cents. The tag, the bar's button and the Purchase page all print it.                                    |
 | Checkout      | `getPaymentProvider()` in `lib/checkout/provider.ts` returns `null`: a provider is returned from there (`docs/architecture.md`, section 3.7).               |
 | Files         | `getFileStore()` in `lib/files/store.ts`: a `FileStore` driver for the real files (section 3.8 of `docs/architecture.md`). Only a local-disk driver exists. |
@@ -458,7 +464,7 @@ The rest are about the site itself. None of this is legal advice.
       throughout, and the content for the other earlier product and for the provisioning tool has
       been removed. One government platform name stays only in labelled government examples.
   - On the site: none of these names appears. This README does not spell them out either; the
-    list is the `banned` pattern in `tests/unit/content.test.ts`, which checks every phase, step and
+    list is the `banned` pattern in `tests/unit/content.test.ts`, which checks every phase and
     template text. Run the same search over the real files before they are offered.
 - [ ] **Ownership of the source material.** Confirm which files were rebuilt from the owner's own
       know-how and which began as client deliverables under contract. Only the first group is
@@ -478,7 +484,7 @@ The rest are about the site itself. None of this is legal advice.
       says its file cannot be downloaded in this beta. It needs the real file, and its real table of
       contents: `content/worked-example.ts` lists placeholder sections (the pieces `/sample` names; a
       free sample links to its template in the catalog, a locked template is named in plain text with
-      no link, and a step or phase links to its page) that the page marks "Placeholder"; replace them
+      no link, and a phase links to its page) that the page marks "Placeholder"; replace them
       and set `placeholder` to false. The sample catalog
       also lists the worked example as a locked template; decide whether it is a free sample, a
       product, or both.

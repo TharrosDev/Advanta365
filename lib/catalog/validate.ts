@@ -38,25 +38,26 @@ const byOrder = (a: { order: number }, b: { order: number }) => a.order - b.orde
 
 /** Parses raw catalog content and checks cross-references. Throws CatalogError naming the record at fault. */
 export function validateCatalog(input: { phases: unknown[]; templates: unknown[] }): Catalog {
-  const phases = parseAll("phase", PhaseSchema, input.phases)
-    .map((phase) => ({ ...phase, steps: [...phase.steps].sort(byOrder) }))
-    .sort(byOrder);
+  const phases = parseAll("phase", PhaseSchema, input.phases).sort(byOrder);
   const templates = parseAll("template", TemplateSchema, input.templates);
 
   assertUniqueSlugs("phase", phases);
   assertUniqueSlugs("template", templates);
-  for (const phase of phases) assertUniqueSlugs(`step in phase "${phase.slug}"`, phase.steps);
 
-  const stepsByPhase = new Map(phases.map((p) => [p.slug, new Set(p.steps.map((s) => s.slug))]));
-  for (const template of templates) {
-    const steps = stepsByPhase.get(template.phase);
-    if (!steps) {
-      throw new CatalogError(`Template "${template.slug}" has unknown phase "${template.phase}"`);
-    }
-    if (!steps.has(template.step)) {
+  // The numbered phases run 1, 2, 3 and on, in order; the unnumbered sections can stand anywhere.
+  const numbers = phases.flatMap((phase) => (phase.number === undefined ? [] : [phase.number]));
+  numbers.forEach((number, index) => {
+    if (number !== index + 1) {
       throw new CatalogError(
-        `Template "${template.slug}" has step "${template.step}" which is not in phase "${template.phase}"`,
+        `Phase numbers must run 1 to ${numbers.length} in order, found ${numbers.join(", ")}`,
       );
+    }
+  });
+
+  const phaseSlugs = new Set(phases.map((phase) => phase.slug));
+  for (const template of templates) {
+    if (!phaseSlugs.has(template.phase)) {
+      throw new CatalogError(`Template "${template.slug}" has unknown phase "${template.phase}"`);
     }
   }
 

@@ -1,18 +1,30 @@
-import { communicateTemplates } from "./communicate";
-import { designTemplates } from "./design";
-import { executeTemplates } from "./execute";
-import { makeTheCaseTemplates } from "./make-the-case";
-import { planTemplates } from "./plan";
-import { prepareTemplates } from "./prepare";
-import { sustainTemplates } from "./sustain";
+import { assessTheImpactTemplates } from "./assess-the-impact";
+import { buildTheTrainingTemplates } from "./build-the-training";
+import { defineTheChangeTemplates } from "./define-the-change";
+import { deliverTrainingTemplates } from "./deliver-training";
+import { designThePlatformTemplates } from "./design-the-platform";
+import { engageLeadersTemplates } from "./engage-leaders";
+import { goLiveAndSupportTemplates } from "./go-live-and-support";
+import { makeItStickTemplates } from "./make-it-stick";
+import { planCommunicationsTemplates } from "./plan-communications";
+import { planTheTrainingTemplates } from "./plan-the-training";
+import { setTheStrategyTemplates } from "./set-the-strategy";
+import { startHereTemplates } from "./start-here";
+import { usedAtEveryStepTemplates } from "./used-at-every-step";
 
-// Listed in phase order: the free samples come out of this list in that order.
+// Listed in folder order: the free samples come out of this list in that order.
 export const templates = [
-  ...makeTheCaseTemplates,
-  ...planTemplates,
-  ...designTemplates,
-  ...prepareTemplates,
-  ...communicateTemplates,
-  ...executeTemplates,
-  ...sustainTemplates,
+  ...startHereTemplates,
+  ...defineTheChangeTemplates,
+  ...assessTheImpactTemplates,
+  ...setTheStrategyTemplates,
+  ...engageLeadersTemplates,
+  ...planCommunicationsTemplates,
+  ...designThePlatformTemplates,
+  ...planTheTrainingTemplates,
+  ...buildTheTrainingTemplates,
+  ...deliverTrainingTemplates,
+  ...goLiveAndSupportTemplates,
+  ...makeItStickTemplates,
+  ...usedAtEveryStepTemplates,
 ];

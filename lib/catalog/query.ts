@@ -74,33 +74,25 @@ function matchesSearch(template: Template, terms: string[]) {
 }
 
 type Comparator = (a: Template, b: Template) => number;
-type PhaseOrder = readonly Pick<Phase, "slug" | "order" | "steps">[];
+type PhaseOrder = readonly Pick<Phase, "slug" | "order">[];
 
 const byTitle: Comparator = (a, b) => a.title.localeCompare(b.title);
 
 /**
- * The order a rollout moves in: by the phase's order, then by the step's order inside it. Templates
- * of one step keep the order they were given in (the sort is stable). A phase or a step the list
- * does not know goes after every known one.
+ * The order a rollout moves in: by the order of the section, which is its folder's. Templates of
+ * one section keep the order they were given in (the sort is stable). A section the list does not
+ * know goes after every known one.
  */
 function byPhase(phases: PhaseOrder): Comparator {
-  const phaseRank = new Map(phases.map((phase) => [phase.slug, phase.order]));
-  const stepRank = new Map(
-    phases.flatMap((phase) =>
-      phase.steps.map((step) => [`${phase.slug}/${step.slug}`, step.order]),
-    ),
-  );
-  // Two keys the list does not know are level with each other, so they keep the given order.
-  const compare = (ranks: Map<string, number>, a: string, b: string) => {
-    const [rankA, rankB] = [ranks.get(a), ranks.get(b)];
+  const rank = new Map(phases.map((phase) => [phase.slug, phase.order]));
+  // Two sections the list does not know are level with each other, so they keep the given order.
+  return (a, b) => {
+    const [rankA, rankB] = [rank.get(a.phase), rank.get(b.phase)];
     if (rankA === rankB) return 0;
     if (rankA === undefined) return 1;
     if (rankB === undefined) return -1;
     return rankA - rankB;
   };
-  return (a, b) =>
-    compare(phaseRank, a.phase, b.phase) ||
-    compare(stepRank, `${a.phase}/${a.step}`, `${b.phase}/${b.step}`);
 }
 
 /** The comparator of a sort key: "samples" is the free templates first, then the rollout order. */
@@ -113,8 +105,8 @@ function sorterFor(sort: SortKey, phases: PhaseOrder): Comparator {
 
 /**
  * Filters, searches, sorts and paginates. Values within a facet are OR; facets are AND; the free
- * filter, when on, narrows everything (the facet counts too). `phases` gives the phase and step
- * order for the "samples" and "phase" sorts; without it those keep the order the templates were
+ * filter, when on, narrows everything (the facet counts too). `phases` gives the section order
+ *  for the "samples" and "phase" sorts; without it those keep the order the templates were
  * given in (under "samples", the free ones still first).
  */
 export function queryTemplates(

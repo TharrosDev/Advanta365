@@ -31,20 +31,18 @@ export async function getTemplate(slug: string): Promise<Template | undefined> {
   return templatesBySlug.get(slug);
 }
 
-/** The six free samples, in phase order. */
+/** The six free samples, in folder order. */
 export async function getFreeTemplates(): Promise<Template[]> {
   return catalog.templates.filter((t) => t.free);
 }
 
-/** Templates from the same step first, then the rest of the same phase. */
+/** Other templates of the same section. */
 export async function getRelatedTemplates(slug: string, limit = 4): Promise<Template[]> {
   const source = templatesBySlug.get(slug);
   if (!source) return [];
-  const samePhase = catalog.templates.filter((t) => t.phase === source.phase && t.slug !== slug);
-  return [
-    ...samePhase.filter((t) => t.step === source.step),
-    ...samePhase.filter((t) => t.step !== source.step),
-  ].slice(0, limit);
+  return catalog.templates
+    .filter((t) => t.phase === source.phase && t.slug !== slug)
+    .slice(0, limit);
 }
 
 /** A template and one of its files, by the template's slug and the file's id. */

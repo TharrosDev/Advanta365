@@ -9,7 +9,7 @@ import { expect, test } from "@playwright/test";
 const ROUTES = [
   "/",
   "/catalog",
-  "/phases/prepare",
+  "/phases/build-the-training",
   "/catalog?view=executive-sponsor-kickoff-deck",
   "/purchase",
   "/why-advanta",

@@ -23,9 +23,9 @@ const ITEMS: readonly Item[] = [
     status: "Sample content",
     body: (
       <>
-        Its phases, steps and templates are placeholders, and it does not list the full toolkit. The
-        six free samples open in a pop-up; every other template is locked.{" "}
-        <TextLink href="/catalog">Browse the sample catalog</TextLink>.
+        Its phases follow the toolkit’s folders. Its templates are placeholders, and it does not
+        list the full toolkit. The six free samples open in a pop-up; every other template is
+        locked. <TextLink href="/catalog">Browse the sample catalog</TextLink>.
       </>
     ),
   },

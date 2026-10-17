@@ -28,7 +28,7 @@ const ITEMS: readonly Item[] = [
   {
     count: TOOLKIT.playbooks,
     title: "playbooks",
-    body: "Covering every phase: make the case, plan, design, prepare, communicate, execute, sustain.",
+    body: "Covering all eleven phases of a rollout, from defining the change to making it stick.",
   },
   {
     count: TOOLKIT.templates,
@@ -71,8 +71,8 @@ const PHASES_LABEL = "Browse the sample catalog by phase";
  * open with their count as a large figure, printed as it is and never counted up, the last three
  * with a line drawing; neither a title nor a description breaks inside a hyphenated word
  * ("10,000-person"). The worked example is the one row that is a link, to `/sample`: its title is
- * the anchor and is stretched over the row. Under the ledger, the seven phases as large index tabs;
- * a tab's accessible name is exactly the phase name.
+ * the anchor and is stretched over the row. Under the ledger, the toolkit's thirteen sections as large
+ * index tabs; a tab's accessible name is exactly the section's plain name.
  */
 export function InsideSection({
   phases,
@@ -132,7 +132,7 @@ export function InsideSection({
           <div aria-hidden="true">
             <Eyebrow className={styles.insidePhasesLabel}>{PHASES_LABEL}</Eyebrow>
           </div>
-          <PhaseTabs phases={phases} size="large" />
+          <PhaseTabs phases={phases} />
         </nav>
       </div>
     </Band>

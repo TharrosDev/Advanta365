@@ -5,7 +5,7 @@ type BlockState = "ink" | "mark" | "empty";
 
 /**
  * A row of equal blocks that counts something out: ten blocks with nine inked and the tenth marked
- * is the "90% done" claim; seven blocks are the seven phases.
+ * is the "90% done" claim; eleven blocks are the eleven phases.
  *
  * `filled` is either how many blocks are inked from the left or the list of 1-based positions that
  * are; `marked` is the 1-based position of the one highlighted block (the part that is the buyer's).

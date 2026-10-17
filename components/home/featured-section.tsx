@@ -48,7 +48,7 @@ export function FeaturedSection({
                 <TemplateTile
                   template={template}
                   phaseName={phase?.name}
-                  phaseOrder={phase?.order}
+                  phaseNumber={phase?.number}
                   href={catalogHref(DEFAULT_CRITERIA, template.slug)}
                 />
               </li>

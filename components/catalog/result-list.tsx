@@ -12,7 +12,7 @@ import { TemplateTile, TileGrid } from "./template-tile";
 type ResultListProps = {
   result: CatalogResult;
   criteria: CatalogCriteria;
-  phases: { slug: string; name: string }[];
+  phases: { slug: string; name: string; number?: number }[];
   /** The slug of a locked template a link named: its tile is rendered already denied. */
   denied?: string;
   /** The browser holds a licence: every tile opens. */
@@ -25,13 +25,13 @@ type ResultListProps = {
  * opens it in the pop-up without moving the page. Nothing in the grid animates in, so a change of
  * filter, sort or search only swaps the tiles. With no match it is a blank sheet with an empty
  * field, the message and a link back to the unfiltered catalog. When only a search found nothing,
- * the message quotes the search, the link clears it, and from 68em the seven phases follow as index
- * cards, a way in that needs no right word (below 68em the catalog's own strip of phases is that
+ * the message quotes the search, the link clears it, and from 68em the toolkit's steps follow as index
+ * cards, a way in that needs no right word (below 68em the catalog's own drop-down of steps is that
  * way in, right above the sheet).
  */
 export function ResultList({ result, criteria, phases, denied, unlocked }: ResultListProps) {
   const phaseNames = new Map(phases.map((phase) => [phase.slug, phase.name]));
-  const phaseOrders = new Map(phases.map((phase, position) => [phase.slug, position + 1]));
+  const phaseNumbers = new Map(phases.map((phase) => [phase.slug, phase.number]));
 
   if (result.total === 0) {
     const filtered = hasFilters(criteria);
@@ -64,7 +64,7 @@ export function ResultList({ result, criteria, phases, denied, unlocked }: Resul
             <h3 id="empty-phases" className={cx("type-ui", styles.pivotTitle)}>
               Browse by phase
             </h3>
-            <PhaseTabs phases={phases} size="large" />
+            <PhaseTabs phases={phases} />
           </nav>
         )}
       </PaperSheet>
@@ -81,7 +81,7 @@ export function ResultList({ result, criteria, phases, denied, unlocked }: Resul
             <TemplateTile
               template={template}
               phaseName={phaseNames.get(template.phase)}
-              phaseOrder={phaseOrders.get(template.phase)}
+              phaseNumber={phaseNumbers.get(template.phase)}
               href={catalogHref(criteria, template.slug)}
               headingLevel="h2"
               scroll={false}

@@ -19,9 +19,9 @@ export const workedExampleContents: { placeholder: boolean; entries: readonly Co
     { title: "Communications plan", see: { template: "master-communications-plan" } },
     { title: "Kickoff emails", see: { template: "launch-announcement-email-series" } },
     { title: "Champion network", see: { template: "champion-network-playbook" } },
-    { title: "Training", see: { phase: "prepare", step: "train-each-audience" } },
+    { title: "Training", see: { phase: "build-the-training" } },
     { title: "Cutover playbook", see: { template: "sharepoint-cutover-playbook" } },
     { title: "Hypercare", see: { template: "hypercare-support-plan" } },
-    { title: "Sustainment", see: { phase: "sustain" } },
+    { title: "Sustainment", see: { phase: "make-it-stick" } },
   ],
 };

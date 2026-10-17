@@ -13,7 +13,7 @@ test.beforeEach(async ({ page }) => {
 const ROUTES = [
   "/",
   "/catalog",
-  "/phases/prepare",
+  "/phases/build-the-training",
   "/catalog?view=executive-sponsor-kickoff-deck",
   "/purchase",
   "/why-advanta",
@@ -76,10 +76,13 @@ test("the home page shows the figure at 90% and a full tally", async ({ page }) 
 test("links navigate", async ({ page }) => {
   await page.goto("/");
 
-  await page.getByRole("main").getByRole("link", { name: "Prepare", exact: true }).click();
+  await page
+    .getByRole("main")
+    .getByRole("link", { name: "Build the training", exact: true })
+    .click();
 
-  await expect(page).toHaveURL(/\/phases\/prepare$/);
-  await expect(page.getByRole("heading", { level: 1 })).toHaveText("Prepare");
+  await expect(page).toHaveURL(/\/phases\/build-the-training$/);
+  await expect(page.getByRole("heading", { level: 1 })).toHaveText("Build the training");
 });
 
 test("the catalog filters work", async ({ page }) => {

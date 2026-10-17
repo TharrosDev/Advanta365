@@ -66,10 +66,10 @@ test("the pop-up shows the template: cover, summary, facts, what is included and
 
   await expect(popup.locator("[data-cover]")).toHaveCount(1);
   await expect(popup.getByText("Free sample", { exact: true })).toBeVisible();
-  for (const label of ["Phase", "Step", "Type", "Format", "Length"]) {
+  for (const label of ["Phase", "Type", "Format", "Length"]) {
     await expect(popup.locator("dt", { hasText: new RegExp(`^${label}$`) })).toHaveCount(1);
   }
-  await expect(popup.locator("dd").first()).toHaveText("Plan");
+  await expect(popup.locator("dd").first()).toHaveText("Set the strategy");
   await expect(popup.getByRole("heading", { level: 3, name: "What’s included" })).toBeVisible();
   expect(await popup.getByRole("listitem").count()).toBeGreaterThan(0);
 
@@ -82,33 +82,33 @@ test("the pop-up shows the template: cover, summary, facts, what is included and
 test("Escape closes it, takes view out of the address, keeps the search and the filters, and hands focus back to the tile", async ({
   page,
 }) => {
-  await openCatalog(page, "/catalog?q=strategy&phase=plan");
+  await openCatalog(page, "/catalog?q=strategy&phase=set-the-strategy");
   await openFromTile(page);
   expect(params(page).get("q")).toBe("strategy");
-  expect(params(page).get("phase")).toBe("plan");
+  expect(params(page).get("phase")).toBe("set-the-strategy");
 
   await page.keyboard.press("Escape");
   await expect(dialog(page)).toHaveCount(0, { timeout: NAVIGATION_TIMEOUT });
   await expect(page).not.toHaveURL(/view=/);
   expect(params(page).get("q")).toBe("strategy");
-  expect(params(page).get("phase")).toBe("plan");
+  expect(params(page).get("phase")).toBe("set-the-strategy");
   await expect(tileLink(page)).toBeFocused();
 });
 
 test("its Close control closes it the same way", async ({ page }) => {
-  await openCatalog(page, "/catalog?q=strategy&phase=plan");
+  await openCatalog(page, "/catalog?q=strategy&phase=set-the-strategy");
   await openFromTile(page);
 
   await dialog(page).getByRole("link", { name: "Close", exact: true }).click();
   await expect(dialog(page)).toHaveCount(0, { timeout: NAVIGATION_TIMEOUT });
   await expect(page).not.toHaveURL(/view=/);
   expect(params(page).get("q")).toBe("strategy");
-  expect(params(page).get("phase")).toBe("plan");
+  expect(params(page).get("phase")).toBe("set-the-strategy");
   await expect(tileLink(page)).toBeFocused();
 });
 
 test("a click on the dimmed page closes it, and a click inside it does not", async ({ page }) => {
-  await openCatalog(page, "/catalog?q=strategy&phase=plan");
+  await openCatalog(page, "/catalog?q=strategy&phase=set-the-strategy");
   await openFromTile(page);
 
   await dialog(page).getByRole("heading", { level: 2 }).click();
@@ -120,7 +120,7 @@ test("a click on the dimmed page closes it, and a click inside it does not", asy
   await expect(dialog(page)).toHaveCount(0, { timeout: NAVIGATION_TIMEOUT });
   await expect(page).not.toHaveURL(/view=/);
   expect(params(page).get("q")).toBe("strategy");
-  expect(params(page).get("phase")).toBe("plan");
+  expect(params(page).get("phase")).toBe("set-the-strategy");
 });
 
 test("a selection dragged out of the pop-up onto the dimmed page leaves it open", async ({
@@ -225,7 +225,7 @@ for (const view of [LOCKED_SLUG, "nope", "../x", ""]) {
 test("a link to a free sample opens it on load, even when the filters leave its tile out", async ({
   page,
 }) => {
-  const response = await openCatalog(page, `/catalog?view=${FREE.slug}&phase=sustain`);
+  const response = await openCatalog(page, `/catalog?view=${FREE.slug}&phase=make-it-stick`);
   expect(response?.status()).toBe(200);
   await expect(page.getByRole("dialog", { name: FREE.title })).toBeVisible();
   await expect.poll(() => dialog(page).evaluate((element) => element.matches(":modal"))).toBe(true);
@@ -234,10 +234,10 @@ test("a link to a free sample opens it on load, even when the filters leave its 
   // Closing keeps the filter.
   await page.keyboard.press("Escape");
   await expect(dialog(page)).toHaveCount(0, { timeout: NAVIGATION_TIMEOUT });
-  await expect(page).toHaveURL(/\/catalog\?phase=sustain$/);
+  await expect(page).toHaveURL(/\/catalog\?phase=make-it-stick$/);
 });
 
-test("the six samples on the home page and the free tile of a phase page open the pop-up in the catalog", async ({
+test("the six samples on the home page and the free tile of a step page open the pop-up in the catalog", async ({
   page,
 }) => {
   await introSeen(page);
@@ -254,7 +254,7 @@ test("the six samples on the home page and the free tile of a phase page open th
   });
   await expect(page.getByRole("dialog", { name: FREE.title })).toBeVisible();
 
-  await page.goto("/phases/plan");
+  await page.goto("/phases/set-the-strategy");
   await hydrated(page);
   const main = page.getByRole("main");
   await expect(main.locator("[data-tile][data-free]")).toHaveCount(1);
@@ -272,7 +272,7 @@ test.describe("without JavaScript", () => {
   test("a free tile's link shows the same content open on the page, with a link that closes it", async ({
     page,
   }) => {
-    await page.goto("/catalog?q=strategy&phase=plan");
+    await page.goto("/catalog?q=strategy&phase=set-the-strategy");
     await tileLink(page).click();
     await expect(page).toHaveURL(new RegExp(`view=${FREE.slug}$`));
 
@@ -282,7 +282,7 @@ test.describe("without JavaScript", () => {
     await expect(popup.getByRole("link", { name: /Purchase/ })).toBeVisible();
 
     await popup.getByRole("link", { name: "Close", exact: true }).click();
-    await expect(page).toHaveURL(/\/catalog\?q=strategy&phase=plan$/);
+    await expect(page).toHaveURL(/\/catalog\?q=strategy&phase=set-the-strategy$/);
     await expect(dialog(page)).toHaveCount(0, { timeout: NAVIGATION_TIMEOUT });
   });
 });

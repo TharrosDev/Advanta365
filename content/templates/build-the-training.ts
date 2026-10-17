@@ -1,58 +1,10 @@
 import { sample } from "./sample";
 
 // SAMPLE CONTENT — placeholder entries for the beta, not real products.
-export const prepareTemplates = sample("prepare", [
-  // Build the champion network
-  {
-    slug: "champion-network-playbook",
-    title: "Champion Network Playbook",
-    step: "build-the-champion-network",
-    deliverableType: "stakeholder",
-    apps: ["sharepoint", "m365-general"],
-    audiences: ["change-lead"],
-    format: "docx",
-    adkar: ["desire", "ability"],
-    summary: "How to recruit, brief and run a champion network through a SharePoint rollout.",
-    description:
-      "Sets out how to choose champions, what to ask of them at each stage, and how to keep their meetings worth attending. Includes meeting agendas and a simple activity tracker.",
-    includes: ["Champion network playbook", "Meeting agendas", "Champion activity tracker"],
-  },
-  {
-    slug: "teams-champion-network-charter",
-    title: "Teams Champion Network Charter",
-    step: "build-the-champion-network",
-    deliverableType: "stakeholder",
-    apps: ["teams"],
-    audiences: ["change-lead", "manager"],
-    format: "docx",
-    adkar: ["desire", "ability"],
-    pageCount: 7,
-    summary: "Set up a champion network with a clear purpose, time commitment and recognition.",
-    description:
-      "Defines what champions do, how they are chosen and what they get in return. Includes the nomination email and a manager approval note.",
-    includes: ["Seven-page charter", "Nomination email", "Manager approval note"],
-  },
-  {
-    slug: "train-the-trainer-kit",
-    title: "Train-the-Trainer Facilitation Kit",
-    step: "build-the-champion-network",
-    deliverableType: "training",
-    apps: ["m365-general"],
-    audiences: ["change-lead", "manager"],
-    format: "docx",
-    adkar: ["knowledge", "ability"],
-    pageCount: 18,
-    summary: "Prepare internal trainers and champions to deliver sessions with confidence.",
-    description:
-      "A facilitator guide covering preparation, delivery and handling difficult questions. Includes a rehearsal checklist and an observation form.",
-    includes: ["18-page facilitator guide", "Rehearsal checklist", "Observation form"],
-  },
-
-  // Train each audience
+export const buildTheTrainingTemplates = sample("build-the-training", [
   {
     slug: "sharepoint-end-user-training-deck",
     title: "SharePoint End-User Training Deck",
-    step: "train-each-audience",
     deliverableType: "training",
     apps: ["sharepoint"],
     audiences: ["end-user"],
@@ -82,24 +34,8 @@ export const prepareTemplates = sample("prepare", [
     ],
   },
   {
-    slug: "site-owner-training-curriculum",
-    title: "SharePoint Site Owner Training Curriculum",
-    step: "train-each-audience",
-    deliverableType: "training",
-    apps: ["sharepoint"],
-    audiences: ["site-owner"],
-    format: "docx",
-    adkar: ["knowledge", "ability"],
-    pageCount: 24,
-    summary: "A four-module curriculum for the people who will own and manage sites.",
-    description:
-      "Covers permissions, structure, content lifecycle and the governance rules owners must follow. Each module has objectives, an outline and an assessment.",
-    includes: ["Four module outlines", "Learning objectives", "End-of-module assessments"],
-  },
-  {
     slug: "im-representative-training-kit",
     title: "IM Representative Training Kit",
-    step: "train-each-audience",
     deliverableType: "training",
     apps: ["sharepoint"],
     audiences: ["im-rep"],
@@ -113,7 +49,6 @@ export const prepareTemplates = sample("prepare", [
   {
     slug: "teams-quick-reference-guides",
     title: "Teams Quick Reference Guides",
-    step: "train-each-audience",
     deliverableType: "training",
     apps: ["teams"],
     audiences: ["end-user"],
@@ -128,7 +63,6 @@ export const prepareTemplates = sample("prepare", [
   {
     slug: "onedrive-file-migration-guide",
     title: "OneDrive File Migration Guide for Staff",
-    step: "train-each-audience",
     deliverableType: "training",
     apps: ["onedrive"],
     audiences: ["end-user"],
@@ -143,7 +77,6 @@ export const prepareTemplates = sample("prepare", [
   {
     slug: "copilot-prompting-starter-workshop",
     title: "Copilot Prompting Starter Workshop",
-    step: "train-each-audience",
     deliverableType: "training",
     apps: ["copilot"],
     audiences: ["end-user", "manager"],

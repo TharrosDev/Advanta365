@@ -64,9 +64,9 @@ test("a buyer's tile opens its pop-up from the grid", async ({ page }) => {
   await expect(page.getByRole("dialog")).toBeVisible();
 });
 
-test("a buyer's phase page has no locked tiles", async ({ page }) => {
+test("a buyer's step page has no locked tiles", async ({ page }) => {
   await claim(page);
-  await page.goto("/phases/plan");
+  await page.goto("/phases/assess-the-impact");
   await expect(page.locator("[data-tile]").first()).toBeVisible();
   await expect(page.locator("[data-locked]")).toHaveCount(0);
 });

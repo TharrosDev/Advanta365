@@ -70,7 +70,7 @@ test.describe("the hero", () => {
       "30+ years",
       "59 playbooks",
       "130 templates",
-      "One purchase",
+      "58 job aids",
     ]);
 
     // Nothing lies behind the words: no canvas. The stage holds one prompt box.

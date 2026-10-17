@@ -1,30 +1,38 @@
 import type { Phase, Template } from "./schema";
 
-/** One rollout phase and whether a set of templates reaches it. */
-export type PhaseCoverage = { order: number; slug: string; name: string; covered: boolean };
+/** One numbered phase of the rollout and whether a set of templates reaches it. */
+export type PhaseCoverage = { number: number; slug: string; name: string; covered: boolean };
 
 /**
- * Which phases a set of templates (the whole catalog's, for the portfolio) covers: one entry per
- * phase, in rollout order. A phase is covered when at least one of the templates belongs to it.
- * `order` is the phase's own 1-based position, so the covered orders can be handed to a
- * seven-block tally as they are.
+ * Which numbered phases a set of templates (the whole catalog's, for the portfolio) covers: one
+ * entry per step, in rollout order. A step is covered when at least one of the templates belongs
+ * to it. `number` is the step's own number, from 1, so the covered numbers can be handed to a tally
+ * of the steps as they are. The unnumbered sections (Start here, Used at every step) are not steps
+ * of the rollout and are left out.
  */
 export function phaseCoverage(
   phases: readonly Phase[],
   templates: readonly Template[],
 ): PhaseCoverage[] {
   const reached = new Set(templates.map((template) => template.phase));
-  return [...phases]
-    .sort((a, b) => a.order - b.order)
-    .map((phase) => ({
-      order: phase.order,
-      slug: phase.slug,
-      name: phase.name,
-      covered: reached.has(phase.slug),
-    }));
+  return numberedPhases(phases).map((phase) => ({
+    number: phase.number,
+    slug: phase.slug,
+    name: phase.name,
+    covered: reached.has(phase.slug),
+  }));
 }
 
-/** The phases before and after one, in rollout order; either is undefined at an end. */
+/** The numbered phases, in order: every section but Start here and Used at every step. */
+export function numberedPhases<P extends Pick<Phase, "number">>(
+  phases: readonly P[],
+): (P & { number: number })[] {
+  return phases
+    .filter((phase): phase is P & { number: number } => phase.number !== undefined)
+    .sort((a, b) => a.number - b.number);
+}
+
+/** The sections before and after one, in folder order; either is undefined at an end. */
 export function adjacentPhases<P extends Pick<Phase, "slug" | "order">>(
   phases: readonly P[],
   slug: string,

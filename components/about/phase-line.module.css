@@ -11,12 +11,14 @@
   color: var(--text-soft);
 }
 
+/* The line's own width decides when the eleven labels fit under a tally (see the query below). */
 .line {
   margin-block-start: var(--s-4);
+  container-type: inline-size;
 }
 
 /*
- * The tally belongs to the wide layout: below 68em the list carries its own numerals. Doubled to
+ * The tally belongs to the wide layout: below the wide layout the list carries its own numerals. Doubled to
  * outrank the display the tally sets itself.
  */
 .tally.tally {
@@ -56,6 +58,17 @@
   font-feature-settings: "tnum" 0;
 }
 
+/* In a list row there is room for the plain name; in the wide layout the short label stands under its block. */
+.short {
+  display: none;
+}
+
+/* Start here and Used at every step, which are not steps, after the eleven. */
+.others {
+  margin-block-start: var(--s-3);
+  color: var(--text-soft);
+}
+
 /* The words are the link, 44px tall; the highlighter is drawn behind them on hover and focus. */
 .link {
   display: inline-flex;
@@ -71,12 +84,26 @@
   }
 }
 
-@media (min-width: 68em) {
+@container (min-width: 72rem) {
   .tally.tally {
     display: flex;
   }
 
-  /* The names stand on the seven columns of the tally above them. */
+  /* Still the link's name for assistive technology, which does not read the short label. */
+  .plain {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+
+  .short {
+    display: inline;
+  }
+
+  /* The labels stand on the eleven columns of the tally above them. */
   .names {
     grid-template-columns: repeat(var(--count), minmax(0, 1fr));
     column-gap: var(--s-1);
@@ -92,13 +119,13 @@
   }
 
   /*
-   * Seven names across the page: from 16px at the narrowest desktop, where "Communicate" fills
-   * its column, up to the 20px of a row title where there is room. Doubled to outrank the type
-   * class.
+   * Eleven labels across the page: from 12px on the narrowest such line, where "Communicate" fills
+   * its column, up to 16px where there is room; a two-word label may take two lines. Doubled to
+   * outrank the type class.
    */
   .link.link {
     align-items: flex-start;
     padding-block: var(--s-1);
-    font-size: clamp(1rem, 0.25rem + 1.05vw, 1.25rem);
+    font-size: clamp(0.75rem, 0.1rem + 0.85vw, 1rem);
   }
 }

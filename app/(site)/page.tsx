@@ -14,21 +14,18 @@ import { formatLength } from "@/lib/format";
 
 /**
  * The specimen in the margin of `#inside` shows one real template: its title and summary, and the
- * same labelled facts the pop-up of a free sample lists (Phase, Step, Type, Format, Length). Without a phase
+ * same labelled facts the pop-up of a free sample lists (Phase, Type, Format, Length). Without a phase
  * for the template there is nothing to print in its corner, so there is no specimen.
  */
 function buildSpecimen(template: Template, phases: Phase[]): SpecimenContent | undefined {
   const phase = phases.find((candidate) => candidate.slug === template.phase);
   if (!phase) return undefined;
-  const step = phase.steps.find((candidate) => candidate.slug === template.step);
-
   return {
     title: template.title,
     summary: template.summary,
     formatTag: template.format,
     facts: [
       { label: "Phase", value: phase.name },
-      ...(step ? [{ label: "Step", value: step.name }] : []),
       { label: "Type", value: DELIVERABLE_TYPE_LABELS[template.deliverableType] },
       { label: "Format", value: FORMAT_LABELS[template.format] },
       ...(template.pageCount
@@ -40,7 +37,7 @@ function buildSpecimen(template: Template, phases: Phase[]): SpecimenContent | u
           ]
         : []),
     ],
-    phaseOrder: phase.order,
+    phaseNumber: phase.number,
     phaseName: phase.name,
   };
 }

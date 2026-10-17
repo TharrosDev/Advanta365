@@ -1,5 +1,5 @@
 /*
- * In the aside of the title block: the phase numeral, then its place among the phases. Below 68em
+ * In the aside of the title block: the step numeral, then its place among the steps. Below 68em
  * the aside stands under the words, and the numeral stacked over its count would take the rest of
  * a tablet's first screen with nothing beside it; there the count stands at the numeral's foot,
  * on its right, and drops under it only where the row is too narrow for both. From 68em the aside
@@ -26,78 +26,17 @@
   color: var(--text);
 }
 
-/* Seven blocks, 147px across at most. */
+/* Eleven blocks, 231px across at most. */
 .tally.tally {
-  max-width: calc(var(--s-1) * 21);
+  max-width: calc(var(--s-1) * 33);
 }
 
-/*
- * One step. Below 68em: the number beside the step name, the summary under them, then the tiles.
- * From 68em it is the margin layout of the page: number and summary in columns 1 to 3, name and
- * tiles in columns 4 to 12. The parts are placed by grid line, so in the document the name comes
- * straight after the number and before the summary.
- */
-.step {
-  display: grid;
-  grid-template-columns: auto minmax(0, 1fr);
-  align-items: baseline;
-  gap: var(--s-1) var(--s-2);
-}
-
-/* Besley's own figures: its tabular zero is drawn at one weight only. */
-.stepNumber {
-  font-family: var(--face-display);
-  font-size: 1.625rem;
-  line-height: 1.24;
-  font-weight: 700;
-  font-feature-settings: "tnum" 0;
+/* Start here and Used at every step: where they stand, in place of a numeral. */
+.apart {
   color: var(--text);
 }
 
-.stepTitle {
-  min-width: 0;
-}
-
-.stepSummary {
-  grid-column: 1 / -1;
-  max-width: var(--wrap-copy);
-  color: var(--text-soft);
-  font-weight: 400;
-}
-
-/* The tiles of the step, under everything else. */
-.tiles {
-  grid-column: 1 / -1;
-  margin-block-start: var(--s-4);
-}
-
 @media (min-width: 68em) {
-  .step {
-    grid-template-columns: repeat(12, minmax(0, 1fr));
-    grid-template-rows: auto 1fr;
-    gap: 0 var(--col-gap);
-  }
-
-  .stepNumber {
-    grid-area: 1 / 1 / 2 / span 3;
-  }
-
-  .stepSummary {
-    grid-area: 2 / 1 / 3 / span 3;
-    align-self: start;
-    margin-block-start: var(--s-2);
-  }
-
-  .stepTitle {
-    grid-area: 1 / 4 / 2 / -1;
-  }
-
-  .tiles {
-    grid-area: 2 / 4 / 3 / -1;
-    align-self: start;
-    margin-block-start: var(--s-4);
-  }
-
   .place {
     flex-direction: column;
     flex-wrap: nowrap;
@@ -106,7 +45,7 @@
   }
 }
 
-/* The foot: the link to the phase in the catalog, then the phases before and after, 42px under it. */
+/* The foot: the link to the section in the catalog, then the sections before and after, 42px under it. */
 .foot {
   display: flex;
   flex-direction: column;

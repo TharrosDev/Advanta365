@@ -1,12 +1,10 @@
 import { sample } from "./sample";
 
 // SAMPLE CONTENT — placeholder entries for the beta, not real products.
-export const planTemplates = sample("plan", [
-  // Assess impact and readiness
+export const assessTheImpactTemplates = sample("assess-the-impact", [
   {
     slug: "sharepoint-migration-impact-assessment",
     title: "SharePoint Migration Impact Assessment",
-    step: "assess-impact-and-readiness",
     deliverableType: "assessment",
     apps: ["sharepoint"],
     audiences: ["change-lead", "it-admin"],
@@ -43,7 +41,6 @@ export const planTemplates = sample("plan", [
   {
     slug: "current-state-site-audit",
     title: "Current-State Content and Site Audit",
-    step: "assess-impact-and-readiness",
     deliverableType: "assessment",
     apps: ["sharepoint"],
     audiences: ["it-admin", "change-lead"],
@@ -57,7 +54,6 @@ export const planTemplates = sample("plan", [
   {
     slug: "stakeholder-map-and-analysis",
     title: "Stakeholder Map and Analysis",
-    step: "assess-impact-and-readiness",
     deliverableType: "stakeholder",
     apps: ["sharepoint", "m365-general"],
     audiences: ["change-lead"],
@@ -71,7 +67,6 @@ export const planTemplates = sample("plan", [
   {
     slug: "change-readiness-survey",
     title: "Organizational Change Readiness Survey",
-    step: "assess-impact-and-readiness",
     deliverableType: "assessment",
     apps: ["sharepoint", "m365-general"],
     audiences: ["change-lead", "manager"],
@@ -86,7 +81,6 @@ export const planTemplates = sample("plan", [
   {
     slug: "change-saturation-heatmap",
     title: "Change Saturation Heatmap",
-    step: "assess-impact-and-readiness",
     deliverableType: "assessment",
     apps: ["m365-general"],
     audiences: ["change-lead", "sponsor"],
@@ -98,23 +92,8 @@ export const planTemplates = sample("plan", [
     includes: ["Saturation heatmap workbook", "Initiative inventory sheet", "Reading guide"],
   },
   {
-    slug: "change-risk-and-resistance-register",
-    title: "Change Risk and Resistance Register",
-    step: "assess-impact-and-readiness",
-    deliverableType: "resistance",
-    apps: ["m365-general"],
-    audiences: ["change-lead"],
-    format: "xlsx",
-    adkar: ["desire"],
-    summary: "Log people-side risks and likely sources of resistance before they surface.",
-    description:
-      "A risk register tuned for adoption risks rather than technical ones. Each risk has a likely root cause and a planned response.",
-    includes: ["Risk and resistance register", "Common root causes list", "Response options"],
-  },
-  {
     slug: "copilot-readiness-assessment",
     title: "Copilot Readiness Assessment",
-    step: "assess-impact-and-readiness",
     deliverableType: "assessment",
     apps: ["copilot"],
     audiences: ["change-lead", "it-admin"],
@@ -128,7 +107,6 @@ export const planTemplates = sample("plan", [
   {
     slug: "copilot-change-impact-assessment",
     title: "Copilot Change Impact Assessment",
-    step: "assess-impact-and-readiness",
     deliverableType: "assessment",
     apps: ["copilot"],
     audiences: ["change-lead", "manager"],
@@ -139,81 +117,18 @@ export const planTemplates = sample("plan", [
       "Rates the degree of change for each impacted group across tasks, skills and ways of working. Shows which groups need the most communication and training before Copilot reaches them.",
     includes: ["Impact scoring workbook", "Role-by-role impact summary", "Interview question set"],
   },
-
-  // Set the change strategy
   {
-    slug: "change-management-strategy",
-    title: "Change Management Strategy",
-    step: "set-the-change-strategy",
-    deliverableType: "plan",
-    apps: ["sharepoint", "m365-general"],
-    audiences: ["change-lead", "sponsor"],
-    format: "docx",
-    adkar: ["awareness", "desire", "knowledge", "ability", "reinforcement"],
-    pageCount: 22,
-    free: true,
-    summary: "The master strategy document for a Microsoft 365 rollout, ready to tailor.",
-    description:
-      "Covers the nature of the change, the groups affected, the sponsorship model, and the approach to communication, training and resistance. Every section includes guidance and example wording.",
-    includes: [
-      "22-page strategy document",
-      "Section-by-section guidance",
-      "Example wording",
-      "Executive summary slide",
-    ],
-    // Test fixture files (tests/fixtures/files), not real downloads.
-    files: [
-      {
-        id: "strategy",
-        name: "Change Management Strategy.docx",
-        key: "plan/change-management-strategy/change-management-strategy.docx",
-        bytes: 57,
-        sha256: "05de3d26cc85a0df9b37305ca5199733735fe6224f33ff8cd2e68b0403586bd7",
-      },
-    ],
-  },
-  {
-    slug: "meridian-group-worked-example",
-    title: "Meridian Group Worked Example",
-    step: "set-the-change-strategy",
-    deliverableType: "plan",
-    apps: ["sharepoint", "m365-general"],
-    audiences: ["change-lead", "sponsor"],
-    format: "docx",
-    adkar: ["awareness", "desire", "knowledge", "ability", "reinforcement"],
-    summary:
-      "A full change management strategy, worked through for the fictional Meridian Group of about 10,000 employees.",
-    description:
-      "Shows a complete strategy filled in for one organization, so you can see how the pieces fit together before writing your own. Meridian Group is fictional and was created for this example.",
-    includes: ["Fully worked change management strategy"],
-  },
-  {
-    slug: "change-team-raci-matrix",
-    title: "Change Team RACI Matrix",
-    step: "set-the-change-strategy",
-    deliverableType: "governance",
-    apps: ["m365-general"],
+    slug: "user-persona-impact-profiles",
+    title: "User Persona Impact Profiles",
+    deliverableType: "stakeholder",
+    apps: ["sharepoint", "teams", "onedrive"],
     audiences: ["change-lead"],
-    format: "xlsx",
-    adkar: ["awareness"],
-    summary: "Who is responsible, accountable, consulted and informed for every change activity.",
+    format: "pptx",
+    adkar: ["awareness", "knowledge"],
+    pageCount: 12,
+    summary: "Six editable personas that describe a day of work before and after the rollout.",
     description:
-      "A pre-filled RACI covering the change activities of a typical rollout. Adjust the roles to match your project team.",
-    includes: ["Pre-filled RACI matrix", "Role descriptions", "Gap check sheet"],
-  },
-  {
-    slug: "resistance-management-plan",
-    title: "Resistance Management Plan",
-    step: "set-the-change-strategy",
-    deliverableType: "resistance",
-    apps: ["sharepoint", "m365-general"],
-    audiences: ["change-lead", "manager"],
-    format: "docx",
-    adkar: ["desire"],
-    pageCount: 10,
-    summary: "A plan for anticipating resistance and responding to it at the right level.",
-    description:
-      "Sets out expected objections by group, who is best placed to respond, and when to escalate. Treats resistance as information rather than a problem to suppress.",
-    includes: ["Ten-page plan", "Objection and response table", "Escalation path"],
+      "Persona slides for common roles such as frontline staff, knowledge workers and executives. Each shows what changes in their day and what they will need.",
+    includes: ["Six persona slides", "Blank persona layout", "Before-and-after day outline"],
   },
 ]);
