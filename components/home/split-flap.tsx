@@ -4,14 +4,17 @@ import { useEffect, useRef, useState } from "react";
 import { cssVars } from "@/lib/cx";
 import styles from "./split-flap.module.css";
 
-/** The drum of every cell, in the order its flaps fall: a blank, then the alphabet. */
-const DRUM = " abcdefghijklmnopqrstuvwxyz";
+/** Every letter a cell can show, measured once: a blank, then the alphabet. */
+const LETTERS = " abcdefghijklmnopqrstuvwxyz";
 
 /** A blank cell at rest holds this: no width, but a baseline, so the board's line keeps its height. */
 const BLANK = "\u200b";
 
-/** One letter's flap falls in this time, its top half and then its bottom half. */
-const STEP = 70;
+/** A letter's one flap falls in this time, its top half and then its bottom half. */
+const FLIP = 240;
+
+/** Each cell flips this long after the cell to its left, so the word turns left to right. */
+const STAGGER = 45;
 
 /** The first word stands this long once the hero's clock has started: past the hand's landing. */
 const FIRST_HOLD = 3600;
@@ -21,9 +24,10 @@ const HOLD = 2600;
 
 /**
  * One cell of the board. `char` is the letter it shows, `prev` the one whose flap is falling over
- * it (null when the cell stands still), `flips` counts the flaps so each one is drawn afresh, and
- * `wait` is how many steps the cell lets pass before it starts, so the board turns left to right.
- * `run` and `delay` time the change of its width, in steps.
+ * it (null when the cell stands still), `flips` counts the flaps so each one is drawn afresh,
+ * `wait` is how many staggers the cell lets pass before it flips, `age` how many have passed since
+ * it flipped, and `index` its place. Its width is always its shown letter's, so it changes at the
+ * moment the cell flips and never ahead of it.
  */
 type Cell = {
   char: string;
@@ -31,38 +35,38 @@ type Cell = {
   prev: string | null;
   flips: number;
   wait: number;
-  run: number;
-  delay: number;
+  age: number;
+  index: number;
 };
 
 const moving = () => document.documentElement.dataset.motion === "on";
 
-/** How many flaps fall between two letters on the drum, which only ever turns forwards. */
-const distance = (from: string, to: string) =>
-  (DRUM.indexOf(to) - DRUM.indexOf(from) + DRUM.length) % DRUM.length;
-
 function standing(word: string, length: number): Cell[] {
   return Array.from({ length }, (_, index) => {
     const char = word[index] ?? " ";
-    return { char, target: char, prev: null, flips: 0, wait: 0, run: 0, delay: 0 };
+    return { char, target: char, prev: null, flips: 0, wait: 0, age: 0, index };
   });
 }
 
-/** Every cell is set to turn to its letter of `word`, a step after the cell to its left. */
+/** Every cell is set to turn to its letter of `word`, a stagger after the cell to its left. */
 function aim(cells: readonly Cell[], word: string): Cell[] {
-  return cells.map((cell, index) => {
-    const target = word[index] ?? " ";
-    return { ...cell, target, wait: index, run: distance(cell.char, target), delay: index };
-  });
+  return cells.map((cell) => ({ ...cell, target: word[cell.index] ?? " ", wait: cell.index }));
 }
 
-/** One step of the board: every cell that is due lets one flap fall. */
+/**
+ * One stagger of the board. A cell that is due and has a new letter flips once, straight from its
+ * old letter to the new one; a cell whose letter stays never flips; a flap is cleared once it has
+ * had the whole of `FLIP` to fall.
+ */
 function advance(cells: readonly Cell[]): Cell[] {
   return cells.map((cell) => {
     if (cell.wait > 0) return { ...cell, wait: cell.wait - 1 };
-    if (cell.char === cell.target) return cell.prev === null ? cell : { ...cell, prev: null };
-    const next = DRUM[(DRUM.indexOf(cell.char) + 1) % DRUM.length] ?? " ";
-    return { ...cell, prev: cell.char, char: next, flips: cell.flips + 1 };
+    if (cell.char !== cell.target) {
+      return { ...cell, prev: cell.char, char: cell.target, flips: cell.flips + 1, age: 0 };
+    }
+    if (cell.prev === null) return cell;
+    const age = cell.age + 1;
+    return age * STAGGER >= FLIP ? { ...cell, prev: null, age: 0 } : { ...cell, age };
   });
 }
 
@@ -96,8 +100,8 @@ function room(board: HTMLElement): number {
 
 /**
  * A word on a split-flap board, as on a station's departures board: every few seconds it turns to
- * the next of `words`, each letter falling flap by flap through the alphabet to its new one, left
- * to right, and the board widening or narrowing with the word. The first word is the one that
+ * the next of `words`, each letter that changes flipping once, straight to its new one, left to
+ * right, and the board widening or narrowing with the word. The first word is the one that
  * stands at load, under reduced motion and without a script, and it is the only one a screen
  * reader is given: the turning letters are decoration. `tail` (the sentence's full stop) follows
  * the board on its line and in what is read, with no gap before it.
@@ -115,7 +119,7 @@ export function SplitFlap({ words, tail = "" }: { words: readonly string[]; tail
   const board = useRef<HTMLSpanElement>(null);
   const ruler = useRef<HTMLSpanElement>(null);
 
-  // Every letter of the drum, measured once in the board's own type, in ems.
+  // Every letter a cell can show, measured once in the board's own type, in ems.
   useEffect(() => {
     if (!moving()) return;
     let gone = false;
@@ -124,7 +128,7 @@ export function SplitFlap({ words, tail = "" }: { words: readonly string[]; tail
       if (gone || !span) return;
       const size = parseFloat(getComputedStyle(span).fontSize);
       const measured: Record<string, number> = {};
-      for (const char of DRUM) {
+      for (const char of LETTERS) {
         span.textContent = char;
         measured[char] = char === " " ? 0 : span.getBoundingClientRect().width / size;
       }
@@ -172,9 +176,9 @@ export function SplitFlap({ words, tail = "" }: { words: readonly string[]; tail
       do next = (next + 1) % words.length;
       while (next !== index && wide(words[next] ?? "") > budget);
       index = next;
-      current = aim(current, words[index] ?? "");
+      current = advance(aim(current, words[index] ?? ""));
       setCells(current);
-      ticker = setInterval(step, STEP);
+      ticker = setInterval(step, STAGGER);
     };
 
     const intro = new MutationObserver(() => {
@@ -207,7 +211,7 @@ export function SplitFlap({ words, tail = "" }: { words: readonly string[]; tail
         className={styles.board}
         data-split-flap=""
         aria-hidden="true"
-        style={cssVars({ "--flip": `${STEP}ms` })}
+        style={cssVars({ "--flip": `${FLIP}ms` })}
       >
         {cells.map((cell, position) => (
           <span
@@ -217,10 +221,9 @@ export function SplitFlap({ words, tail = "" }: { words: readonly string[]; tail
             style={
               widths
                 ? {
-                    width: `${widths[cell.target] ?? 0}em`,
+                    width: `${widths[cell.char] ?? 0}em`,
                     ...cssVars({
-                      "--run": `${cell.run * STEP}ms`,
-                      "--wait": `${cell.delay * STEP}ms`,
+                      "--run": `${FLIP}ms`,
                     }),
                   }
                 : undefined

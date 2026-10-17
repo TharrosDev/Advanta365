@@ -509,6 +509,17 @@ select {
     transition-duration: 0.01ms !important;
     scroll-behavior: auto !important;
   }
+
+  /*
+   * Nothing inside a closed disclosure transitions at all: the browser does not run time for
+   * content it is not drawing, so a transition the net starts there (a font size settling at
+   * load) would stand "running" until the disclosure opens.
+   */
+  details:not([open]) *,
+  details:not([open]) *::before,
+  details:not([open]) *::after {
+    transition-property: none !important;
+  }
 }
 
 /* Forced colours drop backgrounds: give every state that is drawn with a fill a system colour. */

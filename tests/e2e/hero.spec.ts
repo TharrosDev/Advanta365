@@ -532,13 +532,38 @@ test.describe("the hero", () => {
     ).toBeLessThanOrEqual(0);
   });
 
-  test("turns the headline's blank, letter by letter, from prompt to sheet", async ({ page }) => {
+  test("turns the headline's blank from prompt to sheet, each letter flipping once", async ({
+    page,
+  }) => {
     await page.goto("/");
     await hydrated(page);
     expect(await boardWord(page)).toBe("prompt");
     // A letter mid-fall is drawn twice: its falling flap and the half it uncovers.
     await expect(page.locator(`${BOARD} [data-flap]`).first()).toBeAttached({ timeout: 10_000 });
-    await expect.poll(() => boardWord(page), { timeout: 10_000 }).toBe("sheet");
+
+    // Every frame of the turn, every cell shows only its old letter or its new one, never one
+    // in between, and the whole word is down well inside a second.
+    const turn = await page.locator(BOARD).evaluate(async (board) => {
+      const start = performance.now();
+      const seen: string[][] = [];
+      const cells = () => [...board.querySelectorAll("[data-flap-cell]")];
+      while (board.querySelector("[data-flap]") && performance.now() - start < 3000) {
+        cells().forEach((cell, index) => {
+          const letters = [...cell.children].map((glyph) => glyph.textContent ?? "");
+          seen[index] = [...new Set([...(seen[index] ?? []), ...letters])];
+        });
+        await new Promise(requestAnimationFrame);
+      }
+      return { seen, took: performance.now() - start };
+    });
+    const before = "prompt";
+    const after = "sheet";
+    turn.seen.forEach((letters, index) => {
+      const allowed = [before[index] ?? " ", after[index] ?? " ", "\u200b"];
+      expect(letters.filter((letter) => !allowed.includes(letter))).toEqual([]);
+    });
+    expect(turn.took).toBeLessThan(1000);
+    expect(await boardWord(page)).toBe("sheet");
     // The heading is still read with its first blank.
     await expect(page.getByRole("heading", { level: 1 })).toHaveAccessibleName(
       "Don’t start your M365 rollout from a blank prompt.",
