@@ -17,7 +17,7 @@ import { SplitFlap } from "./split-flap";
  * stands at load and the one the heading is read with.
  */
 const HEADLINE = "Don’t start your M365 rollout from a";
-const BLANKS = ["prompt", "sheet", "project", "document", "plan", "design", "idea"] as const;
+const BLANKS = ["prompt", "page", "project", "document", "plan", "design", "idea"] as const;
 
 const LEAD = `The change management and user adoption toolkit behind real SharePoint Online rollouts: field-tested over ${TOOLKIT.experience}, built by a Prosci-certified practitioner, ready to use as is or tailor with AI.`;
 

@@ -521,7 +521,7 @@ test.describe("the hero", () => {
     ).toBeLessThanOrEqual(0);
   });
 
-  test("turns the headline's blank from prompt to sheet, each letter flipping once", async ({
+  test("turns the headline's blank from prompt to page, each letter flipping once", async ({
     page,
   }) => {
     await page.goto("/");
@@ -546,13 +546,13 @@ test.describe("the hero", () => {
       return { seen, took: performance.now() - start };
     });
     const before = "prompt";
-    const after = "sheet";
+    const after = "page";
     turn.seen.forEach((letters, index) => {
       const allowed = [before[index] ?? " ", after[index] ?? " ", "\u200b"];
       expect(letters.filter((letter) => !allowed.includes(letter))).toEqual([]);
     });
     expect(turn.took).toBeLessThan(1000);
-    expect(await boardWord(page)).toBe("sheet");
+    expect(await boardWord(page)).toBe("page");
     // The heading is still read with its first blank.
     await expect(page.getByRole("heading", { level: 1 })).toHaveAccessibleName(
       "Don’t start your M365 rollout from a blank prompt.",

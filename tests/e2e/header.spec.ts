@@ -2,12 +2,12 @@ import { expect, test, type Locator, type Page } from "@playwright/test";
 import { hydrated, introSeen, NAVIGATION_TIMEOUT } from "./helpers";
 
 // From 68em the bar has three zones (the brand, Catalog and Why Advanta centred, and the purchase button)
-// and the row holds the Phases drop-down between them. This file covers both on the desktop project (1280x800);
+// and the row holds the Roadmap drop-down between them. This file covers both on the desktop project (1280x800);
 // menu.spec.ts covers the narrow bar and the drawer on a phone.
 
 const INLINE = ["Catalog", "Why Advanta"];
 const BUTTON = "Get the toolkit · $1,499.99 CAD";
-// The toolkit's folders, in order, as the Phases drop-down names them.
+// The toolkit's folders, in order, as the Roadmap drop-down names them.
 const STEPS = [
   "Start here",
   "Define the change",
@@ -174,20 +174,20 @@ test.describe("desktop bar", () => {
       .toBeLessThan(0.001);
   });
 
-  test("Phases in the bar is a drop-down of the thirteen steps, between Catalog and Why Advanta", async ({
+  test("Roadmap in the bar is a drop-down of the thirteen steps, between Catalog and Why Advanta", async ({
     page,
   }) => {
     await page.goto("/");
     await hydrated(page);
 
-    // The row reads Catalog, Phases, Why Advanta, and nothing stands under the bar.
+    // The row reads Catalog, Roadmap, Why Advanta, and nothing stands under the bar.
     await expect(
       primary(page).locator(":scope > ul > li > a, :scope > ul > li summary"),
-    ).toHaveText(["Catalog", "Phases", "Why Advanta"]);
+    ).toHaveText(["Catalog", "Roadmap", "Why Advanta"]);
     await expect(page.locator("[data-phase-rail]")).toHaveCount(0);
 
     const button = menu(page).locator("summary");
-    await expect(button).toHaveText("Phases");
+    await expect(button).toHaveText("Roadmap");
     await expect(button.locator("svg")).toBeVisible();
     await button.click();
     const links = menu(page).getByRole("link");
@@ -217,7 +217,7 @@ test.describe("desktop bar", () => {
     await expect(links.first()).toBeHidden();
   });
 
-  test("on a step page Phases is underlined and the step marked, and no step while a template is open", async ({
+  test("on a step page Roadmap is underlined and the step marked, and no step while a template is open", async ({
     page,
   }) => {
     await page.goto("/phases/build-the-training");

@@ -149,7 +149,7 @@ export function NavDrawer({
             </ul>
             <div className={styles.group}>
               <Eyebrow id={phasesLabelId} className={styles.label}>
-                Phases
+                Roadmap
               </Eyebrow>
               <ul aria-labelledby={phasesLabelId} className={styles.list}>
                 {phases.map((item, index) => (

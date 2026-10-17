@@ -18,7 +18,7 @@ type MenuPhase = { slug: string; name: string; number?: number };
  * button), on a click outside it, on a link inside it and on any change of page.
  *
  * The button names the section being shown (`current`), or says "Jump to a phase" when there is
- * none; with `label` it always says that instead ("Phases" in the bar). `currentKind` is the
+ * none; with `label` it always says that instead ("Roadmap" in the bar). `currentKind` is the
  * `aria-current` the section's link carries. `variant="bar"` draws the button as a link of the
  * bar's row, the word and its chevron with no box, and drops the panel centred under it.
  */

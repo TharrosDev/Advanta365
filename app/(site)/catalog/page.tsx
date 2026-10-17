@@ -50,7 +50,7 @@ const DIALOG_TITLE = "template-dialog-title";
  * are sample content and what the locks mean (the page has no lead of its own to say the first),
  * then a grid of tiles, one per template. Below 68em the rail is a block above the grid and the
  * filters open as a sheet, and the rail opens with the "Jump to a phase" drop-down (the way in that
- * the bar's Phases gives from 68em). Below 40em the search shares a row with the Filters button, and the
+ * the bar's Roadmap gives from 68em). Below 40em the search shares a row with the Filters button, and the
  * sort order moves into the sheet.
  *
  * A browser holding a licence (`hasLicence`, the cookie of the licence link) sees every tile open and
