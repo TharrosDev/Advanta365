@@ -628,7 +628,7 @@ Components built from the primitives for one part of the site. Each has a doc co
 | `PhasePager` | `components/catalog/phase-pager.tsx` | `previous`, `next`, `className` | The section before and the section after, in folder order, at the foot of a phase page ("Previous and next phase") |
 | `TemplateDetail` | `components/catalog/template-detail.tsx` | `template`, `phase`, `titleId` | The content of the pop-up: large cover, "Free sample" tag, title, summary, description, facts, what is included, and the button to `/purchase` |
 | `Hero`, `HeroStage` | `components/home/hero.tsx`, `hero-stage.tsx` | `samples`, `phases` | The first screen of the home page: headline, lead and two buttons; the stage, where an empty prompt box dissolves and the six free samples land as a hand of documents |
-| `SplitFlap` | `components/home/split-flap.tsx` | `words` | The headline's last word on a split-flap board: the first of `words` stands (and is what a screen reader reads); where movement is wanted it turns through the rest, letter by letter, passing over a word that would not fit its line |
+| `SplitFlap` | `components/home/split-flap.tsx` | `words` | The headline's last word on a split-flap board: the first of `words` stands (and is what a screen reader reads); where movement is wanted it turns through the rest, each changed letter flipping once to its new one, passing over a word that would not fit its line |
 | `ProofStrip` | `components/home/proof-strip.tsx` | none | The band's foot: 30+ years, 59 playbooks, 130 templates, 58 job aids, on opaque paper |
 | `PortfolioSection` | `components/home/portfolio-section.tsx` | `covers`, `phases` | `#toolkit` on the home page: words and the button to `/purchase`, the `Portfolio` at section size |
 | `PurchaseButton` | `components/layout/purchase-button.tsx` | `className` | The bar's call to action (section 4.1) |
@@ -743,7 +743,7 @@ animated property sits inside `@media (prefers-reduced-motion: no-preference)`. 
 | `data-page-dialog` with `data-enter` | `PageDialog` (the pop-up of the catalog and the checkout) | The pop-up rises 14px as the page dims (`dialog-in` 320 ms, `scrim-in`) when a link inside the site opened it |
 | `data-checkout-step` with `data-enter`, `data-checkout-progress` | `CheckoutDialog` | A step the visitor moved to settles 10px into place (`checkout-step-in`, `--time-enter`); the line under the bar grows to the current step |
 | `data-hero-stage`, `data-hero-prompt`, `data-hero-doc` | `HeroStage` | The prompt box dissolves and the documents land (section 7.7); a document under the pointer or keyboard straightens over `--time-lift` |
-| `data-flap`, `data-flap-cell` | `SplitFlap` | A letter of the headline's last word falling to the next: the old top half drops to the split (`flap-fall`, darkening) and the new bottom half comes down from it (`flap-land`), half of `--flip` (70ms) each; the cell's width moves to the new letter's over `--run`, from `--wait` (section 7.7) |
+| `data-flap`, `data-flap-cell` | `SplitFlap` | A letter of the headline's last word falling to the next: the old top half drops to the split (`flap-fall`, darkening) and the new bottom half comes down from it (`flap-land`), half of `--flip` (240ms) each; the cell's width moves to the new letter's over `--run`, from the moment it flips (section 7.7) |
 
 ### 7.2 Entrances
 
@@ -863,9 +863,9 @@ The hero (`components/home/hero.tsx`) is a paper band about as tall as the windo
 "from a blank prompt.", and the prompt is only the first of the blanks it names: the last word is a
 `SplitFlap` board (`data-split-flap`, decoration, beside a visually hidden "prompt" that the heading is read
 with) that turns through prompt, sheet, project, document, plan, design and idea. Where movement is wanted it
-turns 3.6s after the stage's clock starts and every 2.6s after its last letter is down; each letter falls
-through the alphabet to its new one, 70ms a flap and a step after the letter to its left, and the highlighter's
-width follows the word. Before a turn the board measures the room left on its line and passes over a word
+turns 3.6s after the stage's clock starts and every 2.6s after its last letter is down; each letter that
+changes flips once, straight to its new one (240ms, 45ms after the letter to its left), a letter that stays
+does not move, and the highlighter's width follows the word. Before a turn the board measures the room left on its line and passes over a word
 that would not fit, so the headline never gains a line ("document" shows only where the line has room). It
 holds still while out of sight or in a hidden tab, and under reduced motion or without a script it stands at
 "prompt". Centred, top to bottom:

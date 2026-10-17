@@ -19,6 +19,11 @@ const atkinson = Atkinson_Hyperlegible_Next({
   variable: "--font-atkinson",
 });
 
+// Vercel Analytics and Speed Insights load their scripts from `/_vercel/…`, which only a Vercel
+// deployment serves (it sets `VERCEL`, at build and at run time). Anywhere else, a local
+// `next start` among them, the two tags would only fetch a 404 and log it, so they are left out.
+const ON_VERCEL = Boolean(process.env.VERCEL);
+
 // The Open Graph block carries no title or description of its own: Next fills both from the page's
 // resolved title and description, so a shared link to an inner page names that page.
 export const metadata: Metadata = {
@@ -45,8 +50,12 @@ export default function RootLayout({ children }: { children: ReactNode }) {
         <IntroScript />
         {children}
         <MotionRoot />
-        <Analytics />
-        <SpeedInsights />
+        {ON_VERCEL && (
+          <>
+            <Analytics />
+            <SpeedInsights />
+          </>
+        )}
       </body>
     </html>
   );

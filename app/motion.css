@@ -649,11 +649,11 @@
 
   /*
    * The headline's last word, a split-flap board (components/home/split-flap.tsx). Its script
-   * turns it only where movement is wanted, and draws a flap for each letter that falls: the top
-   * half of the old letter drops to the split in the first half of a step (`--flip`), darkening
-   * as it goes edge-on, and the bottom half of the new one comes down from the split in the
-   * second. A cell's width moves to its new letter's over the whole of that cell's run (`--run`),
-   * from the step it sets off on (`--wait`).
+   * turns it only where movement is wanted, and draws one flap for each letter that changes: the
+   * top half of the old letter drops to the split in the first half of the flip (`--flip`),
+   * darkening as it goes edge-on, and the bottom half of the new one comes down from the split in
+   * the second. A cell's width moves to its new letter's over the flip (`--run`), from the moment
+   * the cell flips.
    */
   @keyframes flap-fall {
     from {
@@ -678,7 +678,7 @@
   }
 
   html[data-motion="on"] [data-flap-cell] {
-    transition: width var(--run, 0ms) ease-in-out var(--wait, 0ms);
+    transition: width var(--run, 0ms) ease-in-out;
   }
 
   /*

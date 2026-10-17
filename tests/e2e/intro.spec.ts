@@ -112,7 +112,7 @@ test("a first visit opens under the cover, with the whole page beneath it", asyn
   await expect(cover(page)).toHaveAttribute("aria-hidden", "true");
   await expect(cover(page).locator("a, button, input, select, [tabindex]")).toHaveCount(0);
   await expect(cover(page).getByText("Advanta365", { exact: true })).toHaveCount(1);
-  await expect(headline(page)).toHaveText(HEADLINE);
+  await expect(headline(page)).toHaveAccessibleName(HEADLINE);
   // Under the cover the headline is opaque and painted: it is not waiting to be shown.
   await expect(headline(page)).toHaveCSS("opacity", "1");
   await expect(page.getByRole("banner")).toHaveCount(1);
@@ -229,7 +229,7 @@ test("a click on the cover ends it within 500ms and does not navigate", async ({
   expect((await goneAt(page)) ?? Infinity).toBeLessThan((pressed ?? 0) + SKIP_WITHIN);
 
   // A press that began on the cover is not a click on the link under it.
-  await expect(headline(page)).toHaveText(HEADLINE);
+  await expect(headline(page)).toHaveAccessibleName(HEADLINE);
   await expect(page).toHaveURL(/\/$/);
   await expect(cover(page)).toBeHidden();
   expect(await introStates(page)).toContain("leave");
@@ -303,14 +303,14 @@ test("an inner page has no cover, and neither has the home page in a session tha
   // Home by the brand link: a change of page, not a load.
   await page.getByRole("banner").getByRole("link", { name: "Advanta365", exact: true }).click();
   await expect(page).toHaveURL(/\/$/, { timeout: NAVIGATION_TIMEOUT });
-  await expect(headline(page)).toHaveText(HEADLINE);
+  await expect(headline(page)).toHaveAccessibleName(HEADLINE);
   await expect(cover(page)).toHaveCount(1);
   await expect(cover(page)).toBeHidden();
   expect(await introStates(page)).toEqual([]);
 
   // And loaded outright: still not the first load of the session.
   await page.reload();
-  await expect(headline(page)).toHaveText(HEADLINE);
+  await expect(headline(page)).toHaveAccessibleName(HEADLINE);
   await expect(cover(page)).toBeHidden();
   expect(await introStates(page)).toEqual([]);
 });
@@ -351,7 +351,7 @@ test.describe("without JavaScript", () => {
 
   test("there is no cover", async ({ page }) => {
     await page.goto("/");
-    await expect(headline(page)).toHaveText(HEADLINE);
+    await expect(headline(page)).toHaveAccessibleName(HEADLINE);
     await expect(root(page)).not.toHaveAttribute("data-intro");
     await expect(cover(page)).toBeHidden();
     await headline(page).click();
