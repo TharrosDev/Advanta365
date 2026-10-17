@@ -6,17 +6,24 @@ import { PromiseBand } from "@/components/about/promise-band";
 import { SiteState } from "@/components/about/site-state";
 import { NextSteps } from "@/components/company/next-steps";
 import { TitleBlock } from "@/components/layout/title-block";
+import { JsonLd } from "@/components/seo/json-ld";
 import { getPhases } from "@/lib/catalog/repository";
+import { pageMetadata } from "@/lib/seo/metadata";
+import { graph, IDS, webPage } from "@/lib/seo/structured-data";
 import { SITE, TOOLKIT } from "@/lib/site";
 
 const TITLE = "Change content that has met real users.";
 
 const LEAD = `${SITE.name}, a product of ${SITE.parent}, is change management and user adoption content for Microsoft 365 and SharePoint Online. It exists to help every organization moving to Microsoft 365 get real adoption, not just a launch.`;
 
-export const metadata: Metadata = {
+const DESCRIPTION = `${SITE.name}, a product of ${SITE.parent}, is change management and user adoption content for Microsoft 365 and SharePoint Online, refined across client rollouts over ${TOOLKIT.experience}: who it is for, how it was made and how it compares with building it with AI or hiring a consultant.`;
+
+export const metadata: Metadata = pageMetadata({
+  path: "/why-advanta",
   title: "Why Advanta",
-  description: `${SITE.name} is change management and user adoption content for Microsoft 365 and SharePoint Online, refined across client rollouts over ${TOOLKIT.experience}.`,
-};
+  description: DESCRIPTION,
+  ownCard: true,
+});
 
 const NEXT = [
   { href: "/catalog", label: "Browse the catalog" },
@@ -52,6 +59,21 @@ export default async function WhyAdvantaPage() {
       <CompareSection />
       <SiteState />
       <NextSteps title="See what the toolkit holds for the phase you are on" links={NEXT} />
+      <JsonLd
+        data={graph(
+          ...webPage({
+            path: "/why-advanta",
+            name: TITLE,
+            description: DESCRIPTION,
+            type: "AboutPage",
+            trail: [{ name: "Why Advanta", path: "/why-advanta" }],
+            extra: {
+              about: [{ "@id": IDS.organization }, { "@id": IDS.product }],
+              mainEntity: { "@id": IDS.brand },
+            },
+          }),
+        )}
+      />
     </>
   );
 }

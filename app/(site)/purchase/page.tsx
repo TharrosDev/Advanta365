@@ -3,21 +3,32 @@ import { CheckoutDialog } from "@/components/checkout/checkout-dialog";
 import { OrderSummary } from "@/components/checkout/order-summary";
 import { ContentsLeaf } from "@/components/purchase/contents-leaf";
 import { Portfolio } from "@/components/purchase/portfolio";
+import { JsonLd } from "@/components/seo/json-ld";
 import { Appear } from "@/components/ui/appear";
 import { Band } from "@/components/ui/band";
 import { phaseCoverage } from "@/lib/catalog/coverage";
 import { getFreeTemplates, getPhases, getTemplates } from "@/lib/catalog/repository";
 import { CHECKOUT_PARAM, parseCheckoutStep } from "@/lib/checkout/steps";
-import { PURCHASE_LINK, TOOLKIT } from "@/lib/site";
+import { formatPrice } from "@/lib/format";
+import { pageMetadata } from "@/lib/seo/metadata";
+import { graph, IDS, product, webPage } from "@/lib/seo/structured-data";
+import { OFFER, PURCHASE_LINK, SITE, TOOLKIT } from "@/lib/site";
 import styles from "./page.module.css";
 
 // Every address of the page (the checkout open on a step in `checkout`) names the plain page as its
 // canonical one.
-export const metadata: Metadata = {
-  title: "Purchase",
-  description: `One toolkit, one price: ${TOOLKIT.playbooks} playbooks, ${TOOLKIT.templates} templates, ${TOOLKIT.fieldGuides} field guides and training for ${TOOLKIT.trainingAudiences} audiences, in a single purchase.`,
-  alternates: { canonical: PURCHASE_LINK.href },
-};
+const TITLE = "Purchase the complete toolkit";
+// The structured data states the price once, in its offer; the page's own description in it leaves the
+// price out, because the page prints it once, on the tag (the data is inside `<main>`).
+const ABOUT = `One toolkit, one price: ${TOOLKIT.playbooks} playbooks, ${TOOLKIT.templates} templates, ${TOOLKIT.fieldGuides} field guides and training for ${TOOLKIT.trainingAudiences} audiences for Microsoft 365 and SharePoint Online change management, in a single purchase`;
+const DESCRIPTION = `${ABOUT} of ${formatPrice(OFFER.priceCents, OFFER.currency)}.`;
+
+export const metadata: Metadata = pageMetadata({
+  path: PURCHASE_LINK.href,
+  title: TITLE,
+  description: DESCRIPTION,
+  ownCard: true,
+});
 
 type PurchasePageProps = {
   searchParams: Promise<Record<string, string | string[] | undefined>>;
@@ -73,6 +84,19 @@ export default async function PurchasePage({ searchParams }: PurchasePageProps) 
           disclosure={<OrderSummary variant="disclosure" />}
         />
       ) : null}
+      <JsonLd
+        data={graph(
+          ...webPage({
+            path: PURCHASE_LINK.href,
+            name: `${TITLE} · ${SITE.name}`,
+            description: `${ABOUT}.`,
+            type: "WebPage",
+            trail: [{ name: PURCHASE_LINK.label, path: PURCHASE_LINK.href }],
+            extra: { about: { "@id": IDS.product }, mainEntity: { "@id": IDS.product } },
+          }),
+          product(phases),
+        )}
+      />
     </>
   );
 }

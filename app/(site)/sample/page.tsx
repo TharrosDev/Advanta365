@@ -3,6 +3,7 @@ import { NextSteps } from "@/components/company/next-steps";
 import { StatementSection } from "@/components/company/statement-section";
 import { WorkedExample } from "@/components/company/worked-example";
 import { TitleBlock } from "@/components/layout/title-block";
+import { JsonLd } from "@/components/seo/json-ld";
 import { Band } from "@/components/ui/band";
 import { BandedList, BandedRow } from "@/components/ui/banded-list";
 import { Eyebrow } from "@/components/ui/eyebrow";
@@ -16,13 +17,20 @@ import { numberedPhases } from "@/lib/catalog/coverage";
 import { getPhases, getWorkedExampleContents } from "@/lib/catalog/repository";
 import { phaseHref } from "@/lib/catalog/search-params";
 import { cx } from "@/lib/cx";
+import { pageMetadata } from "@/lib/seo/metadata";
+import { graph, IDS, webPage } from "@/lib/seo/structured-data";
 import styles from "./page.module.css";
 
-export const metadata: Metadata = {
-  title: "Sample",
-  description:
-    "A fully worked change management strategy for a 10,000-person organization shows how the pieces fit together.",
-};
+const TITLE = "Worked example: a complete change management strategy";
+const DESCRIPTION =
+  "A fully worked change management strategy for a fictional 10,000-person organization shows how the pieces of a Microsoft 365 or SharePoint Online rollout fit together, from the business case to sustainment.";
+
+export const metadata: Metadata = pageMetadata({
+  path: "/sample",
+  title: TITLE,
+  description: DESCRIPTION,
+  ownCard: true,
+});
 
 const STATEMENT = "See how the pieces fit before you buy the toolkit.";
 
@@ -180,6 +188,28 @@ export default async function SamplePage() {
       </Band>
 
       <NextSteps title="See what the toolkit holds for the phase you are on" links={NEXT} />
+      <JsonLd
+        data={graph(
+          ...webPage({
+            path: "/sample",
+            name: TITLE,
+            description: DESCRIPTION,
+            trail: [{ name: "Worked example", path: "/sample" }],
+            extra: {
+              about: { "@id": IDS.product },
+              mainEntity: {
+                "@type": "ItemList",
+                name: "Contents of the worked example",
+                itemListElement: sections.map((section, index) => ({
+                  "@type": "ListItem",
+                  position: index + 1,
+                  name: section.title,
+                })),
+              },
+            },
+          }),
+        )}
+      />
     </>
   );
 }
