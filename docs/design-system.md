@@ -20,7 +20,7 @@ Six principles guide every decision:
 | Path | What it holds |
 | --- | --- |
 | `app/globals.css` | Every colour, type, space, depth, shape, layer and motion token; the band definitions; base element rules; the type classes; the reduced-motion safety net; the forced-colours rules. |
-| `app/motion.css` | Entrances, view transitions, paper and lift behaviour, the sticky bar's shadow, the bar's sliding underline, the ninety-percent scroll sequence, the price tag's swing, a locked tile saying no (a shake and a ring), the arrival of a pop-up, a step of the checkout settling in and a hero document straightening. Imported first by `globals.css`. |
+| `app/motion.css` | Entrances, view transitions, paper and lift behaviour, the sticky bar's shadow, the bar's sliding underline, the ninety-percent scroll sequence, the price tag's swing, a locked tile saying no (a shake and a ring), the arrival of a pop-up, a step of the checkout settling in and a hero document straightening and the headline's split-flap word. Imported first by `globals.css`. |
 | `app/layout.tsx` | Font loading (Besley and Atkinson Hyperlegible Next as CSS variables), root attributes, the boot script, and `MotionRoot`. |
 | `app/icon.svg` | The site icon: the logo mark on an ink tile. |
 | `lib/brand/mark.ts` | The logo geometry, the single source for the mark path data. |
@@ -458,6 +458,7 @@ Entrance kinds:
 | `data-page-dialog`, `data-enter` | `PageDialog` | A pop-up: the catalog's (`data-template-dialog`) or the checkout (`data-checkout-dialog`); `data-enter` is on one that a link inside the site opened, which rises into place. |
 | `data-checkout-step`, `data-checkout-progress` | `CheckoutDialog` | A step of the checkout, which settles 10px into place when the visitor moves to it (`data-enter`), and the line under the bar, which grows to the current step. |
 | `data-hero-stage`, `data-hero-prompt`, `data-hero-doc` | `HeroStage` | The hero's prompt box and hand of six documents. Where movement is wanted the box blinks for 700ms, dissolves by 1500ms, and the documents land from 1300ms, 110ms apart; under reduced motion or without a script there is no box. One under the pointer or the keyboard straightens over `--time-lift`. |
+| `data-split-flap`, `data-flap-cell`, `data-flap` | `SplitFlap` | The headline's last word, a split-flap board that turns from "prompt" through the other blanks (sheet, project, document, plan, design, idea). Each letter falls flap by flap to the next, 70ms a flap, its flaps in `--mark`; the cell's width follows the letter. It repeats for as long as it is in sight, the one motion on the site that does, and stands at "prompt" under reduced motion. |
 | `data-lit-scope` | Read by the pointer tracker | Scope for a group of lit sheets that is not an article (the Purchase page's contents leaf, the Why Advanta page's toolkit sheet and the pop-up's cover each stand in one, and so does each of the hero's documents); the scope stands where the sheet rests, so a lifted sheet does not drop and lift again under a pointer at its lower edge; read by `lib/scroll/pointer.ts` and the lit selectors in `app/motion.css`. |
 
 ### 8.6 Sheets and the pointer

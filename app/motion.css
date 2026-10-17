@@ -14,6 +14,7 @@
  *   [data-checkout-step], [data-checkout-progress] a step of the checkout arriving, and its line
  *   [data-hero-stage], [data-hero-prompt],
  *   [data-hero-doc]                                the hero: a prompt box that becomes documents
+ *   [data-flap], [data-flap-cell]                  the headline's split-flap word, flap by flap
  *
  * Three attributes on the root element, set by the boot script before first paint, are the only
  * switches: `data-motion="on"` (movement is wanted), `data-timeline="on"` (view timelines exist)
@@ -23,8 +24,9 @@
  *
  * Every animation and transition sits inside the no-preference query, with the final state
  * outside it. Keyframes name the starting state only: the end is whatever the element is. Nothing
- * repeats, with one exception: the caret of the hero's prompt box blinks three times inside one
- * run of `hero-caret-blink`, and then stands. No custom property is animated and no shadow
+ * repeats, with two exceptions: the caret of the hero's prompt box blinks three times inside one
+ * run of `hero-caret-blink`, and then stands; and the headline's split-flap word, whose script
+ * turns it to the next word every few seconds for as long as it is in sight. No custom property is animated and no shadow
  * changes: a shadow that comes or goes is a second shadow on a pseudo-element whose opacity moves.
  * `animation-timeline` and `animation-range` are written after the `animation` shorthand, which
  * would reset them.
@@ -643,6 +645,40 @@
   /* A document under the pointer or the keyboard straightens in the time of a lift. */
   [data-hero-stage] li {
     transition: rotate var(--time-lift) var(--curve-settle);
+  }
+
+  /*
+   * The headline's last word, a split-flap board (components/home/split-flap.tsx). Its script
+   * turns it only where movement is wanted, and draws a flap for each letter that falls: the top
+   * half of the old letter drops to the split in the first half of a step (`--flip`), darkening
+   * as it goes edge-on, and the bottom half of the new one comes down from the split in the
+   * second. A cell's width moves to its new letter's over the whole of that cell's run (`--run`),
+   * from the step it sets off on (`--wait`).
+   */
+  @keyframes flap-fall {
+    from {
+      rotate: x 0deg;
+      background-color: var(--mark);
+    }
+  }
+
+  @keyframes flap-land {
+    from {
+      rotate: x 90deg;
+    }
+  }
+
+  html[data-motion="on"] [data-flap="top"] {
+    background-color: var(--mark-deep);
+    animation: flap-fall calc(var(--flip) / 2) ease-in backwards;
+  }
+
+  html[data-motion="on"] [data-flap="bottom"] {
+    animation: flap-land calc(var(--flip) / 2) ease-out calc(var(--flip) / 2) backwards;
+  }
+
+  html[data-motion="on"] [data-flap-cell] {
+    transition: width var(--run, 0ms) ease-in-out var(--wait, 0ms);
   }
 
   /*

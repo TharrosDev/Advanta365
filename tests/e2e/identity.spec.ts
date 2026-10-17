@@ -278,7 +278,9 @@ test.describe("home", () => {
     await page.goto("/");
     const mark = page.locator("h1 [data-mark]");
     await expect(mark).toHaveCount(1);
-    await expect(mark).toHaveText("blank prompt.");
+    // Its last word turns on a split-flap board; what is read is always "blank prompt.".
+    await expect(mark).toHaveText(/^blank /);
+    await expect(mark.locator(".visually-hidden")).toHaveText("prompt.");
     await expect(mark).toHaveCSS("background-color", MARK);
     await expect(mark).toHaveCSS("color", INK);
   });

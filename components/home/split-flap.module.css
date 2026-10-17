@@ -1,0 +1,52 @@
+/*
+ * The split-flap board (split-flap.tsx). The cells sit on one baseline and never part, so the word
+ * stays one piece of the line. A cell is one grid area that every layer of it shares: at rest one
+ * letter, while a flap falls the new letter's top half and the old one's bottom half, with the two
+ * flaps over them. The flaps are drawn in the highlighter, so each hides what is behind it; how
+ * they fall is in app/motion.css (`[data-flap]`). Each letter is as wide as itself, so the word
+ * keeps its own type and not a board's even pitch.
+ */
+.board {
+  position: relative;
+  display: inline-flex;
+  align-items: baseline;
+}
+
+.cell {
+  display: grid;
+  perspective: 2.5em;
+}
+
+.glyph {
+  grid-area: 1 / 1;
+  min-block-size: 1lh;
+  text-align: center;
+  white-space: pre;
+}
+
+.glyph[data-half="top"],
+.glyph[data-flap="top"] {
+  clip-path: inset(0 0 50% 0);
+}
+
+.glyph[data-half="bottom"],
+.glyph[data-flap="bottom"] {
+  clip-path: inset(50% 0 0 0);
+}
+
+/* A flap that has fallen stands edge-on at the split, out of sight. */
+.glyph[data-flap] {
+  background: var(--mark);
+}
+
+.glyph[data-flap="top"] {
+  rotate: x -90deg;
+}
+
+/* Out of sight and out of the line: it only measures letters. */
+.ruler {
+  position: absolute;
+  visibility: hidden;
+  white-space: pre;
+  pointer-events: none;
+}

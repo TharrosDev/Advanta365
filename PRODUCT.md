@@ -35,7 +35,7 @@ owner names five buyers and what each cares about:
   They arrive from a working desk, on a desktop or a phone, and are weighing the toolkit against two
   alternatives: building it themselves with AI, or hiring a consultant.
 - **Job:** get a credible, complete starting point they can adapt the same day, instead of starting
-  from a blank prompt.
+  from blank: an empty prompt, sheet, project plan, document or design.
 - The audiences _inside_ the content are different from the buyers: training exists for end users,
   Site Owners and IM Representatives, and templates are tagged for sponsors, change leads, people
   managers, end users, Site Owners, IM Reps and IT admins.
@@ -60,6 +60,13 @@ SharePoint Online. It is a product of EchoFive. This repository is its storefron
 ## Positioning
 
 Tagline: "Don't start from a blank prompt."
+
+- The idea is "don't start from blank", and the prompt is only the first blank it names. A rollout
+  stalls in front of an empty sheet, project, document, plan or design just as often as in front of
+  an empty AI prompt, and the toolkit fills all of them. On the home page the headline's last word
+  turns, split-flap fashion, through prompt, sheet, project, document, plan, design and idea, so
+  the promise reads as wider than AI. "Prompt" stays the tagline's word because it is the blank most
+  buyers meet first now, and it is the one the page title, a screen reader and a still page carry.
 
 - The content has met real users, sponsors and skeptical records managers. It was refined across
   client rollouts over 30+ years by a Prosci-certified practitioner. AI output is plausible but
@@ -103,7 +110,7 @@ Tagline: "Don't start from a blank prompt."
 What the storefront does today:
 
 - A home page whose first screen answers the tagline with the six free samples, shown as finished
-  documents.
+  documents, under a headline whose last word turns through the blanks a rollout starts from.
 - Browse a catalog by phase, deliverable type, app, audience and format, with search, a "Free samples
   only" filter and a sort (free samples first, phase order, or by title). The filters that are on show as
   removable chips above the results, and a search that finds nothing names itself and offers the seven
@@ -174,7 +181,9 @@ Explicitly undecided:
 ## Brand Commitments
 
 - **Names:** Advanta365, "a product of EchoFive". Contact: `hello@advanta365.com`.
-- **Tagline:** "Don't start from a blank prompt."
+- **Tagline:** "Don't start from a blank prompt." The prompt is the first of several blanks, not the
+  whole idea: copy that builds on the tagline says "from blank" and names the prompt among the
+  sheet, the plan and the document, never as the only alternative to the toolkit.
 - **Voice:** plain, practical, credible, experienced. No hype.
 - **Prosci describes the practitioner, never the product.** "Built by a Prosci-certified practitioner"
   is allowed. "Prosci-aligned", "Prosci-approved" or anything that suggests endorsement is not. ADKAR
