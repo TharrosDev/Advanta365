@@ -39,7 +39,7 @@
   color: var(--ink);
 }
 
-/* The Phases drop-down's button keeps the row's height and padding. */
+/* The Roadmap drop-down's button keeps the row's height and padding. */
 .phases {
   height: var(--control-sm);
   min-height: 0;

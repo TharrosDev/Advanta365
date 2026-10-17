@@ -290,7 +290,7 @@ Other layout tokens:
 
 ### 6.3 Breakpoints
 
-Two viewport breakpoints exist: `40em` and `68em`. Below 40em is the phone layout. From 40em sheets stand two across and rows gain a second column, which is a tablet's layout (640 to 1087px wide). From 68em the site shows the inline navigation with its Phases drop-down, the twelve-column grid, and the four-layer depth. The header and the nav drawer also use container queries at 27.4em and 24.3em (header) and 17em (drawer), and the line of phases on Why Advanta (`PhaseLine`) one at 72rem of its own width. The other media queries in use are listed in section 12.4.
+Two viewport breakpoints exist: `40em` and `68em`. Below 40em is the phone layout. From 40em sheets stand two across and rows gain a second column, which is a tablet's layout (640 to 1087px wide). From 68em the site shows the inline navigation with its Roadmap drop-down, the twelve-column grid, and the four-layer depth. The header and the nav drawer also use container queries at 27.4em and 24.3em (header) and 17em (drawer), and the line of phases on Why Advanta (`PhaseLine`) one at 72rem of its own width. The other media queries in use are listed in section 12.4.
 
 A large monitor is not a third breakpoint. The breakpoints are in em, which a browser reads at its own text size and not at the root size that section 6.2 grows past a 1600px window, so they stay at 640px and 1088px, and nothing changes layout at 1600px: the page only grows. The design gate allows no other width query.
 
@@ -548,7 +548,7 @@ All primitives live in `components/ui/`. Props are shown with their defaults in 
 | `RowLink` | `href`, `label`, `caption`, `trailing`, `lead`, `size` (md, lg; md), `external`, `onClick`, `className`, `aria-current` | `<RowLink href="/phases/assess-the-impact" label="Assess the impact" caption="Phase 2 of 11" />` |
 | `Pagination` | `page`, `pageCount`, `hrefFor` (page to href) | `<Pagination page={2} pageCount={5} hrefFor={(p) => `/catalog?page=${p}`} />` |
 | `PhaseTabs` | `phases` ({ slug, name, number? }[]), `current`, `currentKind` (page, true; page), `className` | `<PhaseTabs phases={phases} />`: index cards, 56px tall, numeral over name (none for an unnumbered section). |
-| `StepMenu` | `phases` ({ slug, name, number? }[]), `current`, `currentKind` (page, true; page), `label`, `variant` (field, bar; field), `className`, `buttonClassName` | `<StepMenu phases={phases} current={litPhase} currentKind="true" />`: a native `<details>` (`data-step-menu`) of links to `/phases/<slug>`, its panel a navigation named "Toolkit phases". The button names the current phase ("Phase 10 Go live and support") or says "Jump to a phase"; `label` replaces both ("Phases" in the bar). Closes on Escape (focus back on the button), a click outside, a link and a change of page. |
+| `StepMenu` | `phases` ({ slug, name, number? }[]), `current`, `currentKind` (page, true; page), `label`, `variant` (field, bar; field), `className`, `buttonClassName` | `<StepMenu phases={phases} current={litPhase} currentKind="true" />`: a native `<details>` (`data-step-menu`) of links to `/phases/<slug>`, its panel a navigation named "Toolkit phases". The button names the current phase ("Phase 10 Go live and support") or says "Jump to a phase"; `label` replaces both ("Roadmap" in the bar). Closes on Escape (focus back on the button), a click outside, a link and a change of page. |
 
 `TransitionLink` is the only module that imports `next/link`. Every internal link goes through it.
 
@@ -692,7 +692,7 @@ In stylesheets, the allowed media queries are exactly these, and the design gate
 | Query | Behaviour |
 | --- | --- |
 | `(min-width: 40em)` | The tablet layout. |
-| `(min-width: 68em)` | The desktop layout: inline navigation with the Phases drop-down, four-layer depth, twelve columns. There is no query for a larger monitor: the root size scales it (section 6.2). |
+| `(min-width: 68em)` | The desktop layout: inline navigation with the Roadmap drop-down, four-layer depth, twelve columns. There is no query for a larger monitor: the root size scales it (section 6.2). |
 | `(hover: hover)` | Hover states and the sheet tilt. |
 | `(prefers-reduced-motion: no-preference)` | Every animation and transition. |
 | `(prefers-reduced-motion: reduce)` | The global safety net and the reduced-motion branches. |
@@ -706,7 +706,7 @@ Scripts query only forms from this list. Stylesheets do not query `prefers-color
 ### 12.5 Semantics
 
 - Site pages have one `header` (the banner), one `main` with `id="main"`, and one `footer` (the contentinfo landmark).
-- Navigation is labelled: `Primary` for the header, `Toolkit phases` for the panel of either Phases drop-down, `Footer` for the footer's site and legal links, `Breadcrumb` on section pages, `Pagination` on catalog pages, `Browse the sample catalog by phase` for the phase links on the home, Sample and Why Advanta pages, `Browse by phase` in the catalog's empty search, `Previous and next phase` at the foot of a phase page, and `Menu` for the site drawer.
+- Navigation is labelled: `Primary` for the header, `Toolkit phases` for the panel of either Roadmap drop-down, `Footer` for the footer's site and legal links, `Breadcrumb` on section pages, `Pagination` on catalog pages, `Browse the sample catalog by phase` for the phase links on the home, Sample and Why Advanta pages, `Browse by phase` in the catalog's empty search, `Previous and next phase` at the foot of a phase page, and `Menu` for the site drawer.
 - The current page is marked with `aria-current="page"`, and the current section with `aria-current="true"`.
 - Decorative elements are hidden from assistive technology: the 90% figure (its heading says it in words), unlabelled tallies, numerals on phase cards and in the phase lists, the specimen sheet and the cover of a first visit (a locked cover has nothing drawn over it; the tile's button says "locked").
 - Each `Tally` or count with a meaning carries a `label`.

@@ -136,13 +136,13 @@ test.describe("phone menu", () => {
 
     // The steps are a list under a visible label, in folder order, and each link is named by its
     // step alone (the numeral is hidden from assistive technology).
-    const phases = menu.getByRole("list", { name: "Phases" });
+    const phases = menu.getByRole("list", { name: "Roadmap" });
     await expect(phases.getByRole("link")).toHaveCount(PHASES.length);
     for (const [index, name] of PHASES.entries()) {
       await expect(phases.getByRole("link").nth(index)).toHaveAccessibleName(name);
       await expect(phases.getByRole("link").nth(index)).toBeVisible();
     }
-    await expect(menu.getByText("Phases", { exact: true })).toBeVisible();
+    await expect(menu.getByText("Roadmap", { exact: true })).toBeVisible();
 
     // The contact address closes the panel, with no caption under it.
     await expect(drawer(page).locator('a[href^="mailto:"]')).toBeVisible();
@@ -208,7 +208,7 @@ test.describe("phone menu", () => {
     await page.goto("/");
     await openDrawer(page);
 
-    await drawer(page).getByText("Phases", { exact: true }).click();
+    await drawer(page).getByText("Roadmap", { exact: true }).click();
     await expect(drawer(page)).toBeVisible();
   });
 
@@ -220,7 +220,7 @@ test.describe("phone menu", () => {
 
     // The browser sends the click to the dialog, the common ancestor of the label and the scrim,
     // but the press was not on the scrim, so it is a selection and not a click on the dimmed page.
-    const label = await drawer(page).getByText("Phases", { exact: true }).boundingBox();
+    const label = await drawer(page).getByText("Roadmap", { exact: true }).boundingBox();
     const viewport = page.viewportSize();
     if (!label || !viewport) throw new Error("no label or viewport");
     await page.mouse.move(label.x + 4, label.y + label.height / 2);

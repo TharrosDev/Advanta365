@@ -10,7 +10,7 @@ import styles from "./layout.module.css";
  * The frame around every page, in DOM order: the skip link, then one column that is at least a
  * screen tall and holds the bar, the one `<main>` and the footer.
  *
- * The bar's Phases drop-down and the drawer inside the bar list the toolkit's steps and mark the
+ * The bar's Roadmap drop-down and the drawer inside the bar list the toolkit's steps and mark the
  * one whose page is shown.
  *
  * `children` is rendered directly inside `<main>`. There is deliberately no boundary around it that

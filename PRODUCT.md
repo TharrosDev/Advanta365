@@ -35,7 +35,7 @@ owner names five buyers and what each cares about:
   They arrive from a working desk, on a desktop or a phone, and are weighing the toolkit against two
   alternatives: building it themselves with AI, or hiring a consultant.
 - **Job:** get a credible, complete starting point they can adapt the same day, instead of starting
-  from blank: an empty prompt, sheet, project plan, document or design.
+  from blank: an empty prompt, page, project plan, document or design.
 - The audiences _inside_ the content are different from the buyers: training exists for end users,
   Site Owners and IM Representatives, and templates are tagged for sponsors, change leads, people
   managers, end users, Site Owners, IM Reps and IT admins.
@@ -64,7 +64,7 @@ Tagline: "Don't start from a blank prompt."
 - The idea is "don't start from blank", and the prompt is only the first blank it names. A rollout
   stalls in front of an empty sheet, project, document, plan or design just as often as in front of
   an empty AI prompt, and the toolkit fills all of them. On the home page the headline's last word
-  turns, split-flap fashion, through prompt, sheet, project, document, plan, design and idea, so
+  turns, split-flap fashion, through prompt, page, project, document, plan, design and idea, so
   the promise reads as wider than AI. "Prompt" stays the tagline's word because it is the blank most
   buyers meet first now, and it is the one the page title, a screen reader and a still page carry.
 

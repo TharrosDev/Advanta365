@@ -9,9 +9,9 @@ import { NAV } from "@/lib/site";
 import styles from "./primary-nav.module.css";
 
 /**
- * The bar's inline navigation, from 68em: Catalog, the Phases drop-down and Why Advanta in one
+ * The bar's inline navigation, from 68em: Catalog, the Roadmap drop-down and Why Advanta in one
  * row. The link of the page being shown carries `aria-current="page"`; on a page underneath it,
- * `aria-current="true"`. A phase's own page belongs to Phases.
+ * `aria-current="true"`. A phase's own page belongs to Roadmap.
  *
  * One ink underline (`data-nav-underline`, decoration only) sits under the row and stands under
  * the current item. The row is a grid of equal columns, so the underline is positioned from the
@@ -28,7 +28,7 @@ export function PrimaryNav({
 }) {
   const pathname = usePathname();
   const [catalog, ...rest] = NAV;
-  // The row's items, in order: Catalog, Phases, then the rest of the links.
+  // The row's items, in order: Catalog, Roadmap, then the rest of the links.
   const items = [catalog, "phases", ...rest] as const;
   const current = items.findIndex((item) =>
     item === "phases"

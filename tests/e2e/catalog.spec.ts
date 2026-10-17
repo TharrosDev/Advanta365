@@ -296,7 +296,7 @@ test("step order is the rollout order alone, and one filtered step is lit", asyn
   expect(kinds.slice(0, 6).every(Boolean)).toBe(false);
 
   // The step is marked in the drop-down: the catalog's own on a phone, which names it on its
-  // button too, and Phases in the bar from 68em.
+  // button too, and Roadmap in the bar from 68em.
   await openCatalog(page, "/catalog?phase=go-live-and-support");
   const dropDown = isMobile
     ? page.getByRole("main").locator("[data-step-menu]")
@@ -308,7 +308,7 @@ test("step order is the rollout order alone, and one filtered step is lit", asyn
 
   // Two steps are no single step: nothing is named or marked.
   await openCatalog(page, "/catalog?phase=go-live-and-support,assess-the-impact");
-  await expect(dropDown.locator("summary")).toHaveText(isMobile ? "Jump to a phase" : "Phases");
+  await expect(dropDown.locator("summary")).toHaveText(isMobile ? "Jump to a phase" : "Roadmap");
   await dropDown.locator("summary").click();
   await expect(dropDown.getByRole("link").first()).toBeVisible();
   await expect(dropDown.locator("[aria-current]")).toHaveCount(0);
@@ -335,7 +335,7 @@ test("on a phone the rail is the phases' drop-down, one search row and the sort 
   await expect(current).toBeInViewport({ ratio: 1 });
   await page.keyboard.press("Escape");
   await expect(current).toBeHidden();
-  // The bar's own Phases drop-down is the desktop's: the page never shows the steps twice.
+  // The bar's own Roadmap drop-down is the desktop's: the page never shows the steps twice.
   await expect(page.getByRole("banner").locator("[data-step-menu]")).toBeHidden();
 
   // One search field, with its button inside it, beside the Filters button.

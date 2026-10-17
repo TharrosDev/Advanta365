@@ -8,7 +8,7 @@ import { StepMenu } from "@/components/ui/step-menu";
 type PhasesMenuProps = { phases: readonly PhaseLink[]; buttonClassName?: string };
 
 /**
- * "Phases" in the bar's row, from 68em: the drop-down of the toolkit's thirteen sections. The
+ * "Roadmap" in the bar's row, from 68em: the drop-down of the toolkit's thirteen sections. The
  * section being shown is marked in its list: `aria-current="page"` on the section's own page, and
  * `aria-current="true"` on the catalog while it is filtered on that section alone.
  *
@@ -44,7 +44,7 @@ function Menu({
       phases={phases}
       current={current?.slug}
       currentKind={current?.kind}
-      label="Phases"
+      label="Roadmap"
       variant="bar"
       buttonClassName={buttonClassName}
     />

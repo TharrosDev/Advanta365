@@ -114,7 +114,7 @@ Client components (files with `"use client"`):
 | Not found | `components/not-found/asked-path.tsx`, `late-boot.tsx` | Read `window.location`; add the boot script when needed |
 | UI | `components/ui/motion-root.tsx` | Observers and the `data-hydrated` signal |
 | Catalog | `components/catalog/active-filters.tsx` | The filter chips (the router, and focus after a removal) |
-| Phases drop-down | `components/ui/step-menu.tsx` | Closes its `<details>` on Escape, a click outside, a link and a change of page |
+| Roadmap drop-down | `components/ui/step-menu.tsx` | Closes its `<details>` on Escape, a click outside, a link and a change of page |
 
 The cover is server-rendered markup (`components/intro/intro-cover.tsx`). What switches it on is an inline
 script rendered by `IntroScript` at the start of `<body>`, before any other content. See section 6.
@@ -393,7 +393,7 @@ template and file (404, and for `/api/samples` a template that is not free is 40
 1. A skip link (`Button` with `href="#main"`, text "Skip to content"), fixed at the top left and shown
    on keyboard focus.
 2. A `.frame` element (`position: relative`, flex column, `min-height: 100svh`, `overflow-x: clip`) containing:
-   - `Header`, with `PurchaseButton` in its tools area and the phases for its Phases drop-down and drawer;
+   - `Header`, with `PurchaseButton` in its tools area and the phases for its Roadmap drop-down and drawer;
    - `<main id="main">` holding the route's children;
    - `Footer`.
 
@@ -414,9 +414,9 @@ button, Menu.
   with no navigation and no history entry, and a query or hash in the address stays. A click with a modifier key,
   a middle click or a link that opens elsewhere is left to the browser. The drawer's brand is not a link, so it is
   unchanged.
-- Centre: `PrimaryNav`, shown from 68em, in a grid of equal columns: Catalog, the Phases drop-down
+- Centre: `PrimaryNav`, shown from 68em, in a grid of equal columns: Catalog, the Roadmap drop-down
   (`PhasesMenu`, section 4.3) and Why Advanta (`NAV`). The current link has `aria-current="page"`, or `"true"`
-  when the current path is nested under it; on `/phases/<slug>` the current item is Phases. One ink
+  when the current path is nested under it; on `/phases/<slug>` the current item is Roadmap. One ink
   underline (`data-nav-underline`, decoration only) stands under the current item and slides to the next
   one when movement is wanted; with no current item it is not displayed.
 - Right: `PurchaseButton`, then the Menu button of `NavDrawer` (shown below 68em only). `PurchaseButton` is
@@ -437,7 +437,7 @@ are used only in `header.module.css`, `nav-drawer.module.css` and `components/ab
 `showModal()`.
 
 - The dialog is labelled "Site menu". It contains a `nav` labelled "Menu" with the three primary links (Purchase, Catalog, Why Advanta) and the Contact page (`MENU_LINKS`: `PRIMARY_LINKS`, then `CONTACT_LINK`), and a
-  group labelled "Phases" with the 13 section links in folder order, each with its numeral tile (empty, and not
+  group labelled "Roadmap" with the 13 section links in folder order, each with its numeral tile (empty, and not
   drawn, for Start here and Used at every step).
 - It shows the contact address as a `mailto:` link taken from `SITE.contactEmail`.
 - Escape and the Close button close it. A click on the backdrop closes it when the event target is the
@@ -447,10 +447,10 @@ are used only in `header.module.css`, `nav-drawer.module.css` and `components/ab
 - It closes when the viewport reaches `(min-width: 68em)`, where the inline navigation takes over.
 - The drawer is 88vw wide at most and 23.625rem at most, anchored to the right edge.
 
-### 4.3 Phases drop-down
+### 4.3 Roadmap drop-down
 
 There is no rail under the bar. `components/layout/phases-menu.tsx` (`PhasesMenu`, client) renders
-`StepMenu` (`components/ui/step-menu.tsx`) with `label="Phases"` and `variant="bar"` as the middle item of
+`StepMenu` (`components/ui/step-menu.tsx`) with `label="Roadmap"` and `variant="bar"` as the middle item of
 `PrimaryNav`, so it shows from 68em only. `StepMenu` is a native `<details data-step-menu>` whose panel is a
 navigation named "Toolkit phases": a list of links to `/phases/<slug>` (`phaseHref`), each a numeral tile and
 the plain name, Start here first and Used at every step last, neither numbered. It works without script; with
@@ -588,7 +588,7 @@ Primitives are the building blocks for pages. Each one has a CSS module unless n
 | `Input`, `Select`, `Checkbox` | Form controls |
 | `Pagination` | Previous, numbered pages and next |
 | `PhaseTabs` | The sections as large index cards, numeral over name (none for an unnumbered section): two across on a phone, from 40em as many across as fit (12.5rem at least). Used on the home page ("Browse the sample catalog by phase") and in the catalog's empty search ("Browse by phase") |
-| `StepMenu` | The sections as a `<details>` drop-down of links (`data-step-menu`), its panel named "Toolkit phases". The button names the current phase ("Phase 10 Go live and support") or says "Jump to a phase"; `label` replaces both ("Phases" in the bar), `variant` is `field` or `bar` (section 4.3) |
+| `StepMenu` | The sections as a `<details>` drop-down of links (`data-step-menu`), its panel named "Toolkit phases". The button names the current phase ("Phase 10 Go live and support") or says "Jump to a phase"; `label` replaces both ("Roadmap" in the bar), `variant` is `field` or `bar` (section 4.3) |
 | `Icon` | Inline SVG glyphs: arrow, chevron, plus, minus, close, tick, bars, search. `size` is pixels at the 16px root and the icon is set in rem, so it grows with the root on a large monitor |
 | `LogoMark`, `BrandLockup` | The mark, as a tile or bare lockup. `LogoMark` fills the whole "A" in one ink, or its right half in `--logo-half` with `tone="two"`; `BrandLockup` draws it on the tile or bare |
 | `KeepCompounds` | Keeps hyphenated compounds from breaking across lines |
@@ -862,7 +862,7 @@ Other keyframes sit in component CSS modules: `caret-blink`, `drawer-in`, `fade-
 The hero (`components/home/hero.tsx`) is a paper band about as tall as the window. Its headline ends
 "from a blank prompt.", and the prompt is only the first of the blanks it names: the last word is a
 `SplitFlap` board (`data-split-flap`, decoration, beside a visually hidden "prompt" that the heading is read
-with) that turns through prompt, sheet, project, document, plan, design and idea. Where movement is wanted it
+with) that turns through prompt, page, project, document, plan, design and idea. Where movement is wanted it
 turns 3.6s after the stage's clock starts and every 2.6s after its last letter is down; each letter that
 changes flips once, straight to its new one (240ms, 45ms after the letter to its left), a letter that stays
 does not move, and the highlighter's width follows the word. Before a turn the board measures the room left on its line and passes over a word
@@ -984,11 +984,11 @@ control and no price.
   is drawn at the top of the dialog's body below 40em only.
 - Layout of the rail below 68em: a `StepMenu` drop-down, "Jump to a phase", on a row of its own (its button
   names the phase the catalog is filtered on, and that phase's link is `aria-current="true"`, under the same
-  rule as the bar's Phases drop-down). Below 40em the search and the
+  rule as the bar's Roadmap drop-down). Below 40em the search and the
   "Filters" button share the row under it; from 40em the search has its own row with the sort and Filters
   under it. The catalog page renders `SortSelect` twice: once in the rail, hidden below 40em, and once as
   `FilterPanel`'s `sort`, hidden from 40em. Only one is ever displayed. From 68em the drop-down is not displayed:
-  the bar's Phases drop-down has the phases.
+  the bar's Roadmap drop-down has the phases.
 - "Clear all filters" links to `/catalog?q=<q>` when a search term exists, or to `/catalog` otherwise. It keeps
   only the search term, so the free filter and the sort also reset (`clearFiltersHref`). With script, a plain
   click clears in place like every other change (`router.replace` without scrolling, optimistically), and
@@ -1035,7 +1035,7 @@ Run the scripts in `scripts/` by path, for example `node scripts/check-budgets.m
 | `data-band` | Band | Ground: desk, paper, wash, ink or binder |
 | `data-paper`, `data-lit` | Sheets | Paper and pointer light |
 | `data-bar`, `data-nav-drawer` | Shell | Bar and drawer |
-| `data-step-menu` | `StepMenu` | A Phases drop-down: the bar's, and the catalog's below 68em |
+| `data-step-menu` | `StepMenu` | A Roadmap drop-down: the bar's, and the catalog's below 68em |
 | `data-ledger`, `data-folder` | Lists, folders | Rule and folder |
 | `data-portfolio`, `data-price-tag` | Purchase page, home `#toolkit` | The folder object and its tag |
 | `data-tile`, `data-free`, `data-locked`, `data-denied` | Catalog tiles | Tile and its state: free sample, locked, saying no |
@@ -1117,7 +1117,7 @@ Specs:
 | `legal.spec.ts` | chromium, mobile | The four legal pages: status 200, one `h1`, the page title, the date and the summary; a table of contents whose links are the sections' ids in order, each section headed by one numbered `h2`; no id twice; links to the contact page and the other three, and the current page marked among the policies; no cookie and no storage beyond the site's own session entries; an entry of the contents brings its section into view and lights its number; the three columns from 68em and the measure; the contents first and 44px tall at 320px |
 | `hero.spec.ts` | chromium, mobile | The hero: structure and copy, with no backdrop or canvas behind the words; the six documents as links; their pop-ups; the sequence (the box from 700ms for 800ms, the documents from 1300ms, 110ms apart), once on load, again on a return inside the site, and after the cover of a first visit, under which the box stands and the documents wait; the first screen at several window sizes; no title or tag cut by a neighbour and 44px targets; the band's foot; reduced motion; no JavaScript |
 | `console.spec.ts` | chromium, mobile, firefox | Twelve routes load with no console error and no page error |
-| `header.spec.ts` | chromium only (skips the mobile project) | The banner; Catalog, the Phases drop-down and Why Advanta and the purchase button; centring; the 68em boundary; the sliding underline (under Phases on a phase page); the drop-down's 13 links, Escape and a click outside; the sticky bar; the brand returning to the top on the home page |
+| `header.spec.ts` | chromium only (skips the mobile project) | The banner; Catalog, the Roadmap drop-down and Why Advanta and the purchase button; centring; the 68em boundary; the sliding underline (under Roadmap on a phase page); the drop-down's 13 links, Escape and a click outside; the sticky bar; the brand returning to the top on the home page |
 | `identity.spec.ts` | chromium, mobile | Design checks in the browser: landmarks; one `h1` per page; root colours and fonts; band values; no canvas, sent or drawn; the home, Why Advanta and catalog pages at rest 5.5 s after they load; the order of the home sections; focus rings; the 365 on the mark; the tiles' covers; no overflow and minimum touch targets at 320 px |
 | `intro.spec.ts` | chromium, mobile | The cover on a first visit: its states; the mark held to 2.5 s and gone by 3.4 s; skip on a click, key press (at any time) or wheel; no cover on reload or on other routes; no cover with reduced motion, blocked storage or JavaScript off |
 | `menu.spec.ts` | mobile (in chromium every test skips) | The phone bar and drawer: brand, button and Menu at 390 and 320px; the four pages and the 13 phases; Escape, Close, the dimmed page (a drag that ends there does not close it); navigation closing it |
