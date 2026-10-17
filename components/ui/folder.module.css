@@ -116,6 +116,9 @@
   --peek: 21cqi;
   --lift: 3.2cqi;
   --lift-step: 0.35cqi;
+  /* The thumb cut: half an ellipse out of the middle of the front's top edge. */
+  --thumb-w: 9cqi;
+  --thumb-h: 4.5cqi;
 
   container-type: inline-size;
   padding-block-start: 0;
@@ -123,23 +126,88 @@
 
 .page .back {
   border-radius: 0 var(--round-3) var(--round-3);
+  /* The inside of the folder, deepest where it goes down into the pocket, with the stock's tooth. */
+  background:
+    var(--grain) 0 0 / 8rem 8rem,
+    linear-gradient(
+      var(--folder-inside),
+      var(--folder-inside-deep) calc(var(--tab-h) + var(--peek))
+    ),
+    var(--folder-inside);
+  box-shadow:
+    inset 0 1px 0 var(--card-edge),
+    var(--depth-2);
 }
 
 .page .tab {
-  padding-inline: clamp(var(--s-2), 4cqi, var(--s-3));
+  padding-inline: clamp(var(--s-2), 4.5cqi, var(--s-4));
   border-radius: var(--round-3) var(--round-3) 0 0;
+  background: var(--folder-inside);
+  box-shadow:
+    inset 0 1px 0 var(--card-edge),
+    var(--depth-2);
   font-size: clamp(var(--size-note), 3cqi, var(--size-ui));
+  letter-spacing: 0.01em;
 }
 
+/*
+ * The front of a page's folder is card stock, drawn by `frontStock` under the words: the wash
+ * under a light from the top left, with the paper's tooth, a thumb cut out of the middle of its
+ * top edge and two scores pressed along its foot. The stock casts a little shade up onto the
+ * sheets in the pocket behind it and its own shadow down onto the desk; both follow the cut, so
+ * the shadow is a filter on the layer and not the box's.
+ */
 .page .front {
+  isolation: isolate;
   margin-block-start: calc(var(--tab-h) + var(--peek));
   padding: clamp(var(--s-3), 6.5cqi, var(--s-5));
   border-radius: var(--round-3);
+  background: none;
+  box-shadow: none;
+}
+
+.frontStock {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  border-radius: inherit;
+  filter: var(--card-cast);
+  pointer-events: none;
+}
+
+.frontStock::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
   background:
+    /* The two scores: a pressed line, and the light catching its lower lip. */
+    linear-gradient(var(--card-score) 0 1px, var(--card-score-lip) 1px 2px) 0 calc(100% - 3.5cqi) /
+      100% 2px no-repeat,
+    linear-gradient(var(--card-score) 0 1px, var(--card-score-lip) 1px 2px) 0 calc(100% - 2cqi) /
+      100% 2px no-repeat,
     radial-gradient(farthest-corner at 10% 0, var(--card-light), transparent 64%),
     var(--grain) 0 0 / 8rem 8rem,
     var(--mark-wash);
-  box-shadow: var(--pocket-shade), var(--depth-3);
+  box-shadow: inset 0 1px 0 var(--card-edge-bright);
+  mask: radial-gradient(
+    var(--thumb-w) var(--thumb-h) at 50% 0,
+    transparent calc(100% - 0.5px),
+    black 100%
+  );
+}
+
+/* The rim of the cut, where the stock's edge catches the light. */
+.frontStock::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: calc(50% - var(--thumb-w));
+  width: calc(var(--thumb-w) * 2);
+  height: var(--thumb-h);
+  border-radius: 0 0 50% 50% / 0 0 100% 100%;
+  box-shadow: 0 1px 0 var(--card-edge-bright);
+  pointer-events: none;
 }
 
 /*
@@ -183,6 +251,10 @@
   .page .front {
     background: var(--mark-wash);
   }
+
+  .frontStock {
+    display: none;
+  }
 }
 
 @media (forced-colors: active) {
@@ -197,5 +269,13 @@
   .tab {
     border-block-end-width: 0;
     clip-path: none;
+  }
+
+  .page .front {
+    background: Canvas;
+  }
+
+  .frontStock {
+    display: none;
   }
 }
