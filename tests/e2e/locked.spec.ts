@@ -1,5 +1,5 @@
 import { expect, test, type Locator, type Page } from "@playwright/test";
-import { hydrated, NAVIGATION_TIMEOUT } from "./helpers";
+import { NAVIGATION_TIMEOUT, openCatalog } from "./helpers";
 
 // Every template that is not a free sample is locked: its cover is out of focus, and the tile is a
 // button. Nothing is drawn over the cover. Pressing the tile does not open anything. The tile says
@@ -20,12 +20,6 @@ declare global {
 
 const lockedTiles = (page: Page) => page.locator("[data-tile][data-locked]");
 const message = (tile: Locator) => tile.locator("[aria-live]");
-
-async function openCatalog(page: Page, address = "/catalog") {
-  const response = await page.goto(address);
-  await hydrated(page);
-  return response;
-}
 
 /** Records every time the tile gains or loses `data-denied`, so no state can be missed. */
 async function watchDenied(tile: Locator) {

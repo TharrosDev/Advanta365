@@ -19,7 +19,7 @@ const MIN_SECRET = 32;
 
 const VERSION = "v1";
 
-export type LicenceEnv = {
+type LicenceEnv = {
   /** Signs new licences and verifies them. */
   secret?: string;
   /** The secret before the last rotation: verifies only. */

@@ -1,5 +1,5 @@
 import { expect, test, type Page } from "@playwright/test";
-import { hydrated, NAVIGATION_TIMEOUT } from "./helpers";
+import { NAVIGATION_TIMEOUT, openCatalog } from "./helpers";
 
 // The catalog is a grid of small tiles, one per template: its cover, its title, its phase and type
 // and its format. Six are free samples and come first; every other one is locked. Nothing on the
@@ -16,12 +16,6 @@ async function openFiltersIfCollapsed(page: Page) {
 }
 
 const tiles = (page: Page) => page.getByRole("main").locator("[data-tile]");
-
-async function openCatalog(page: Page, address = "/catalog") {
-  const response = await page.goto(address);
-  await hydrated(page);
-  return response;
-}
 
 test("the results are a grid of tiles, several to a row", async ({ page }) => {
   await openCatalog(page);

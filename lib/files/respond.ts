@@ -33,7 +33,7 @@ export function unavailable(): Response {
  * A `Content-Disposition` that saves the file under its name: a plain `filename` for old clients
  * (anything outside printable ASCII, and `"` and `\`, become `_`) and an RFC 5987 `filename*`.
  */
-export function contentDisposition(name: string): string {
+function contentDisposition(name: string): string {
   const plain = name.replace(/[^\x20-\x7e]|["\\]/g, "_");
   const encoded = encodeURIComponent(name).replace(
     /['()*]/g,

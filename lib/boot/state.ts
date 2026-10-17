@@ -28,7 +28,7 @@ export const INTRO_CLICK_GUARD_MS = 600;
 export const INTRO_BACKSTOP_MS = 5500;
 
 /** What the decision about the cover needs to know about a page load. */
-export type IntroVisit = {
+type IntroVisit = {
   /** The pathname being loaded. */
   path: string;
   /** Whether the session flag was already set. Storage that cannot be read counts as seen. */

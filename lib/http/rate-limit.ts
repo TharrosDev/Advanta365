@@ -3,7 +3,7 @@
  * own and forgets on a cold start, so this only stops one client hammering one warm instance; the
  * host's firewall rule (README, "Files and licences") is what enforces a limit across the site.
  */
-export type RateLimiter = {
+type RateLimiter = {
   /** Counts one request from `key`: allowed, or refused with the seconds until its window ends. */
   check(key: string, now?: number): { ok: true } | { ok: false; retryAfter: number };
   /** How many clients are being counted. */

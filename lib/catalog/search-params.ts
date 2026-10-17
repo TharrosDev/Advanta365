@@ -16,7 +16,7 @@ import {
   type SortKey,
 } from "./query";
 
-export type RawParams = Record<string, string | string[] | undefined>;
+type RawParams = Record<string, string | string[] | undefined>;
 
 const SORT_KEYS: readonly SortKey[] = ["samples", "phase", "title"];
 const SLUG = /^[a-z0-9]+(-[a-z0-9]+)*$/;
@@ -115,7 +115,7 @@ export function clearFiltersHref(criteria: CatalogCriteria): string {
   return catalogHref({ ...DEFAULT_CRITERIA, q: criteria.q });
 }
 
-export type ActiveFilter = {
+type ActiveFilter = {
   key: FacetKey | "free";
   value: string;
   /** The facet's name, such as "File format"; empty for "Free samples only", which has none. */

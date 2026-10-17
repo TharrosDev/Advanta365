@@ -1,6 +1,6 @@
 import { CONTACT_LINK, NAV, PURCHASE_LINK } from "@/lib/site";
 
-export type NavLink = { href: string; label: string };
+type NavLink = { href: string; label: string };
 
 /** A rollout phase as the navigation needs it: where it lives and what it is called. */
 export type PhaseLink = { slug: string; name: string };

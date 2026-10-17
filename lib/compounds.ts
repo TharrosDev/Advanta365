@@ -1,4 +1,4 @@
-export type TextPart = { kind: "text" | "compound"; text: string };
+type TextPart = { kind: "text" | "compound"; text: string };
 
 /** A run without whitespace that has a hyphen inside it, with a character on each side of the hyphen. */
 const COMPOUND = /(\S*[^\s-]-[^\s-]\S*)/;
