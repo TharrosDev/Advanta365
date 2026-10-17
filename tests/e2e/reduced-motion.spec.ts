@@ -55,7 +55,7 @@ test("the home page shows the figure at 90% and a full tally", async ({ page }) 
   await page.goto("/");
 
   const heading = page.getByRole("heading", { level: 1 });
-  await expect(heading).toHaveText("Don’t start your M365 rollout from a blank prompt.");
+  await expect(heading).toHaveAccessibleName("Don’t start your M365 rollout from a blank prompt.");
 
   // The cover is in the page and not displayed.
   const cover = page.locator("[data-intro-cover]");

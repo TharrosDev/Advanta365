@@ -1,4 +1,4 @@
-import { expect, test } from "@playwright/test";
+import { expect, type Page, test } from "@playwright/test";
 import { hydrated, introSeen, NAVIGATION_TIMEOUT } from "./helpers";
 import {
   DOCS,
@@ -17,6 +17,13 @@ import { recordIntro } from "./support/intro";
 // The first screen of the home page: a blank prompt that turns into finished work. Where movement is
 // wanted the box stands empty, dissolves, and the six documents land; under reduced motion or
 // without a script there is no box and the documents stand from the first frame.
+
+/** The headline's last word, a split-flap board. */
+const BOARD = "[data-split-flap]";
+
+/** The word the board shows, without the zero-width blanks of its empty cells or its full stop. */
+const boardWord = (page: Page) =>
+  page.locator(BOARD).evaluate((board) => (board.textContent ?? "").replace(/[\u200b.]/g, ""));
 
 /** The six free samples, by slug, with the title each cover prints and each link is named by. */
 const SAMPLES: Record<string, string> = {
@@ -42,10 +49,12 @@ test.describe("the hero", () => {
     const hero = page.locator(HERO);
     await expect(hero).toHaveCount(1);
     await expect(hero).toHaveAttribute("data-band", "paper");
-    await expect(hero.getByRole("heading", { level: 1 })).toHaveText(
+    // The heading is read with its first blank, whichever word the split-flap board shows.
+    await expect(hero.getByRole("heading", { level: 1 })).toHaveAccessibleName(
       "Don’t start your M365 rollout from a blank prompt.",
     );
-    await expect(hero.locator("h1 [data-mark]")).toHaveText("blank prompt.");
+    await expect(hero.locator(`h1 [data-mark] ${BOARD}`)).toHaveAttribute("aria-hidden", "true");
+    expect(await boardWord(page)).toBe("prompt");
 
     // The lead keeps what the offer rests on.
     const lead = hero.locator("p").first();
@@ -522,6 +531,19 @@ test.describe("the hero", () => {
       ),
     ).toBeLessThanOrEqual(0);
   });
+
+  test("turns the headline's blank, letter by letter, from prompt to sheet", async ({ page }) => {
+    await page.goto("/");
+    await hydrated(page);
+    expect(await boardWord(page)).toBe("prompt");
+    // A letter mid-fall is drawn twice: its falling flap and the half it uncovers.
+    await expect(page.locator(`${BOARD} [data-flap]`).first()).toBeAttached({ timeout: 10_000 });
+    await expect.poll(() => boardWord(page), { timeout: 10_000 }).toBe("sheet");
+    // The heading is still read with its first blank.
+    await expect(page.getByRole("heading", { level: 1 })).toHaveAccessibleName(
+      "Don’t start your M365 rollout from a blank prompt.",
+    );
+  });
 });
 
 test.describe("the hero without movement", () => {
@@ -556,6 +578,15 @@ test.describe("the hero without movement", () => {
     } finally {
       await context.close();
     }
+  });
+
+  test("keeps the headline's blank still under reduced motion", async ({ page }) => {
+    await page.emulateMedia({ reducedMotion: "reduce" });
+    await page.goto("/");
+    await hydrated(page);
+    // The board is only measured, and only turns, where movement is wanted.
+    await expect(page.locator(`${BOARD} [data-flap-cell][style]`)).toHaveCount(0);
+    expect(await boardWord(page)).toBe("prompt");
   });
 });
 
