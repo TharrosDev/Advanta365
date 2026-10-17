@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import type { ReactElement } from "react";
 import { FeaturedSection } from "@/components/home/featured-section";
 import { Hero } from "@/components/home/hero";
@@ -6,11 +7,20 @@ import { InsideSection } from "@/components/home/inside-section";
 import { PortfolioSection } from "@/components/home/portfolio-section";
 import { SolutionSection } from "@/components/home/pitch-spread";
 import { IntroCover } from "@/components/intro/intro-cover";
+import { JsonLd } from "@/components/seo/json-ld";
 import { DELIVERABLE_TYPE_LABELS, FORMAT_LABELS } from "@/content/taxonomy";
 import { phaseCoverage } from "@/lib/catalog/coverage";
 import { getFreeTemplates, getPhases, getTemplates } from "@/lib/catalog/repository";
 import type { Phase, Template } from "@/lib/catalog/schema";
 import { formatLength } from "@/lib/format";
+import { DEFAULT_TITLE, pageMetadata } from "@/lib/seo/metadata";
+import { absoluteUrl } from "@/lib/seo/origin";
+import { graph, IDS, phaseList, product, templateList, webPage } from "@/lib/seo/structured-data";
+import { SITE } from "@/lib/site";
+
+// The home page keeps the default title, the name and the tagline (PRODUCT.md: the page title
+// carries the prompt), and names itself as its canonical address.
+export const metadata: Metadata = pageMetadata({ path: "/", description: SITE.description });
 
 /**
  * The specimen in the margin of `#inside` shows one real template: its title and summary, and the
@@ -73,10 +83,29 @@ export default async function Home() {
     <SolutionSection key="solution" />,
   ];
 
+  // What the page shows, for search engines and AI tools: the toolkit and its offer, the six free
+  // samples and the phases.
+  const structured = graph(
+    ...webPage({
+      path: "/",
+      name: DEFAULT_TITLE,
+      description: SITE.description,
+      extra: {
+        about: { "@id": IDS.product },
+        mainEntity: { "@id": IDS.product },
+        primaryImageOfPage: { "@type": "ImageObject", url: absoluteUrl("/opengraph-image") },
+      },
+    }),
+    product(phases),
+    templateList("Free samples", freeTemplates, phases),
+    phaseList(phases),
+  );
+
   return (
     <>
       <IntroCover />
       {sections}
+      <JsonLd data={structured} />
     </>
   );
 }

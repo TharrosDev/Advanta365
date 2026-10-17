@@ -41,12 +41,41 @@ Related documents: `design-system.md` covers the visual rules and component usag
 | `/api/library/[slug]/[fileId]` | `app/api/library/[slug]/[fileId]/route.ts` | Route handler (`GET`) | Any file, with a valid licence cookie; 404 without |
 | Unmatched paths | `app/(site)/[...rest]/page.tsx`, `app/(site)/not-found.tsx`, `app/not-found.tsx` | 404 | Site 404 keeps the shell; the root 404 renders `MissingPage` without it |
 
-Metadata: the root layout (`app/layout.tsx`) sets the title template `%s · Advanta365` and the default
-title `Advanta365 · Don’t start from a blank prompt.` The description is built from the toolkit counts in
-`lib/site.ts`. The home route exports no metadata of its own. The catalog page sets
-`alternates.canonical` to `/catalog`, so every address of the catalog (a search, a filter, a page of results, a
-template in `view`) names the plain catalog as the canonical one. No `metadataBase` is set and the site has no
-origin of its own in the source, so the link is written as that path.
+Metadata, search and AI tools (`lib/seo/`):
+
+- The root layout (`app/layout.tsx`) sets `metadataBase` to `SITE_ORIGIN` (`lib/seo/origin.ts`: the environment
+  variable of the same name, else `https://advanta365.com`), the title template `%s · Advanta365`, the default
+  title `Advanta365 · Don’t start from a blank prompt.` (the home page keeps it), the description built from the
+  toolkit counts, the author, publisher and keywords, `robots` (`index, follow` with large image previews; `noindex,
+  nofollow` on a Vercel deployment that is not production), the search-console tags from
+  `GOOGLE_SITE_VERIFICATION` and `BING_SITE_VERIFICATION` when set, and the alternates that point at `/llms.txt`
+  and `/llms-full.txt`. It sets no canonical link, which every page would inherit.
+- Every indexable page sets its metadata with `pageMetadata` (`lib/seo/metadata.ts`): its canonical address (its
+  own path, so every address of the catalog, the purchase page or a phase names the plain page), its description,
+  and its Open Graph and X cards written out whole. A page without a card of its own names the home page's card;
+  `ownCard` leaves the image to the route's `opengraph-image` file. The two 404 pages set `noindex, follow`.
+- Shared-link cards are drawn by `next/og` at build time (`lib/seo/og-card.tsx`): `app/opengraph-image.tsx` (the
+  home page and every page without its own), and one each for `/catalog`, `/purchase`, `/why-advanta`, `/sample`
+  and every `/phases/[phase]`. Their colours are read from the tokens in `app/globals.css`; their faces are fetched
+  from Google Fonts during the build, with the renderer's own face if that fails.
+- Structured data (`lib/seo/structured-data.ts`, rendered by `components/seo/json-ld.tsx` as
+  `application/ld+json`): the root layout renders the company (`Organization`, EchoFive), the brand and the
+  `WebSite` with the catalog's search as its `SearchAction` on every page; each page adds its own `WebPage` kind
+  (`CollectionPage`, `AboutPage`, `ContactPage`), a `BreadcrumbList`, and what it shows: the toolkit as a `Product`
+  with its one `Offer` (home and purchase), the free samples and the phases as `ItemList`s, a phase's listings as
+  `CreativeWork`s (an address only for a free sample), the legal pages' dates. Strings are escaped so no value can
+  close the script. Nothing is stated that the pages do not say: no rating, no review.
+- `app/sitemap.ts` (`/sitemap.xml`) lists every indexable page at its canonical address; only the legal pages carry
+  a date. `app/robots.ts` (`/robots.txt`) lets every crawler, and the AI search and answer crawlers by name
+  (`AI_CRAWLERS`), read all but `/api/` and `/licence`, and turns every crawler away from a preview deployment.
+  `app/manifest.ts` (`/manifest.webmanifest`) names the site and its icons.
+- `/llms.txt` and `/llms-full.txt` (`app/llms.txt/route.ts`, `app/llms-full.txt/route.ts`, built by
+  `lib/seo/llms.ts`) are the site as Markdown for AI tools, after the llms.txt proposal: the short guide, and the
+  full file with the facts, common questions, every phase with its listings and the legal pages in full. Both are
+  built from `lib/site.ts`, `content/` and `lib/legal`, are static, and call the catalog sample content.
+- Icons: `app/icon.svg` (`scripts/gen-icon.mjs`), and the raster set `scripts/gen-favicon.mjs` draws from it with
+  Playwright's Chromium: `app/favicon.ico` (16, 32 and 48 px), `app/apple-icon.png` (180 px, square) and
+  `public/icons/` (192 and 512 px, and a maskable 512 px).
 
 `next.config.ts` redirects the retired addresses, each with a permanent redirect (308):
 
@@ -1083,6 +1112,8 @@ Each file below is in `tests/unit/`:
 | `coverage.test.ts`, `format.test.ts` | Helpers; `phaseCoverage` (numbered phases only), `numberedPhases`, `adjacentPhases`; `formatPrice(149999, "CAD")` is `$1,499.99 CAD`; `countWord(6)` is `six`; `formatLength(16, "pptx")` is `16 slides` |
 | `compounds.test.ts` | Compound splitting for `KeepCompounds` |
 | `brand-mark.test.ts` | Logo geometry (the two halves, the seam, the leans, the ink centred), `LogoMark` in one and two inks, and `app/icon.svg` against `scripts/gen-icon.mjs` |
+| `seo.test.ts` | Page metadata and canonical addresses, the structured data, the sitemap, robots (production and preview), the manifest's icons, and `llms.txt` / `llms-full.txt` |
+| `favicon.test.ts` | The favicon's three sizes and the size of each raster icon |
 | `boot-script.test.ts` | Runs `BOOT_SCRIPT` against stand-ins for the document, storage and media queries: reduced motion writing nothing, the motion switches, the cover decision against `shouldPlayIntro`, the skip and its click guard, the 5500 ms backstop, and the script's weight |
 | `boot-cover.test.ts` | Cover markup (no picture and no canvas, two filled halves, the name and the line under it) and timings (the arm 120 to 620, the leg 620 to 1000 with its squash, the text written by 1400, leave at 2500 with the signature gone before the paper clears, gone 200 ms after an input) |
 | `kit-motion.test.ts` | `motion.css` rules: keyframes and animations inside `no-preference`, timeline ordering, hidden states only under `data-motion="on"`, no blurred entrance, the heading's range ending first |

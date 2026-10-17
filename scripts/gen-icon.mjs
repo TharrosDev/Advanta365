@@ -11,22 +11,28 @@ import { writeFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import { MARK_HUE_D, MARK_INK_D, MARK_VIEWBOX } from "../lib/brand/mark.ts";
 
-const SIZE = 32;
-const RADIUS = 7;
-const INK = "#0B0D12";
-const HIGHLIGHTER = "#86C1FF";
-const WHITE = "#FFFFFF";
+export const SIZE = 32;
+export const RADIUS = 7;
+export const INK = "#0B0D12";
+export const HIGHLIGHTER = "#86C1FF";
+export const WHITE = "#FFFFFF";
 /** The mark fills this share of the tile's width, centred on both axes. */
-const FILL = 0.84;
+export const FILL = 0.84;
 
-export function renderIcon() {
-  const scale = (SIZE * FILL) / MARK_VIEWBOX.width;
-  const x = (SIZE - MARK_VIEWBOX.width * scale) / 2;
-  const y = (SIZE - MARK_VIEWBOX.height * scale) / 2;
+/**
+ * The icon as SVG text. With no options it is `app/icon.svg`: the 32 unit tile with its rounded
+ * corners. `scripts/gen-favicon.mjs` asks for other cuts of the same drawing: a square tile for the
+ * Apple touch icon, which the system rounds itself, and a smaller mark for the maskable icon, whose
+ * edges a launcher may crop.
+ */
+export function renderIcon({ size = SIZE, radius = RADIUS, fill = FILL } = {}) {
+  const scale = (size * fill) / MARK_VIEWBOX.width;
+  const x = (size - MARK_VIEWBOX.width * scale) / 2;
+  const y = (size - MARK_VIEWBOX.height * scale) / 2;
   const n = (value) => String(Number(value.toFixed(3)));
   return [
-    `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${SIZE} ${SIZE}">`,
-    `  <rect width="${SIZE}" height="${SIZE}" rx="${RADIUS}" fill="${INK}"/>`,
+    `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${size} ${size}">`,
+    `  <rect width="${size}" height="${size}"${radius ? ` rx="${radius}"` : ""} fill="${INK}"/>`,
     `  <g transform="translate(${n(x)} ${n(y)}) scale(${n(scale)})">`,
     `    <path d="${MARK_HUE_D}" fill="${HIGHLIGHTER}"/>`,
     `    <path d="${MARK_INK_D}" fill="${WHITE}"/>`,

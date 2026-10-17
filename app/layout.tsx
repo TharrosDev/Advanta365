@@ -4,8 +4,12 @@ import type { Metadata } from "next";
 import { Atkinson_Hyperlegible_Next, Besley } from "next/font/google";
 import type { ReactNode } from "react";
 import { IntroScript } from "@/components/intro/intro-script-tag";
+import { JsonLd } from "@/components/seo/json-ld";
 import { MotionRoot } from "@/components/ui/motion-root";
 import { cx } from "@/lib/cx";
+import { DEFAULT_TITLE, KEYWORDS, LLMS_ALTERNATES, OG_LOCALE } from "@/lib/seo/metadata";
+import { isPublicDeployment, SITE_ORIGIN } from "@/lib/seo/origin";
+import { siteGraph } from "@/lib/seo/structured-data";
 import { SITE } from "@/lib/site";
 import "./globals.css";
 
@@ -24,12 +28,55 @@ const atkinson = Atkinson_Hyperlegible_Next({
 // `next start` among them, the two tags would only fetch a 404 and log it, so they are left out.
 const ON_VERCEL = Boolean(process.env.VERCEL);
 
-// The Open Graph block carries no title or description of its own: Next fills both from the page's
-// resolved title and description, so a shared link to an inner page names that page.
+/**
+ * The ownership tags of the search consoles, read from the environment so that no account's code is
+ * written in the source: `GOOGLE_SITE_VERIFICATION` and `BING_SITE_VERIFICATION`. Unset, no tag.
+ */
+const VERIFICATION: Metadata["verification"] = {
+  ...(process.env.GOOGLE_SITE_VERIFICATION ? { google: process.env.GOOGLE_SITE_VERIFICATION } : {}),
+  ...(process.env.BING_SITE_VERIFICATION
+    ? { other: { "msvalidate.01": process.env.BING_SITE_VERIFICATION } }
+    : {}),
+};
+
+// The defaults every page starts from. `metadataBase` turns the paths of the canonical links and
+// the cards into absolute addresses. There is no canonical link here: a layout's would be inherited
+// by every page that sets none (the 404 among them), so each indexable page sets its own through
+// `pageMetadata` (lib/seo/metadata.ts), which also writes its Open Graph and X cards out whole.
+// The card images come from the `opengraph-image` files. A preview deployment asks not to be indexed.
 export const metadata: Metadata = {
-  title: { default: `${SITE.name} · ${SITE.tagline}`, template: `%s · ${SITE.name}` },
+  metadataBase: new URL(SITE_ORIGIN),
+  title: { default: DEFAULT_TITLE, template: `%s · ${SITE.name}` },
   description: SITE.description,
-  openGraph: { type: "website", siteName: SITE.name },
+  applicationName: SITE.name,
+  authors: [{ name: SITE.parent, url: SITE_ORIGIN }],
+  creator: SITE.parent,
+  publisher: SITE.parent,
+  keywords: [...KEYWORDS],
+  category: "business",
+  robots: isPublicDeployment()
+    ? {
+        index: true,
+        follow: true,
+        googleBot: {
+          index: true,
+          follow: true,
+          "max-image-preview": "large",
+          "max-snippet": -1,
+          "max-video-preview": -1,
+        },
+      }
+    : { index: false, follow: false },
+  openGraph: {
+    type: "website",
+    siteName: SITE.name,
+    locale: OG_LOCALE,
+    title: DEFAULT_TITLE,
+    description: SITE.description,
+  },
+  twitter: { card: "summary_large_image", title: DEFAULT_TITLE, description: SITE.description },
+  verification: VERIFICATION,
+  alternates: { types: LLMS_ALTERNATES },
 };
 
 // `IntroScript` comes first in the body, so it runs before anything is painted. It writes the
@@ -50,6 +97,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
         <IntroScript />
         {children}
         <MotionRoot />
+        <JsonLd data={siteGraph()} />
         {ON_VERCEL && (
           <>
             <Analytics />

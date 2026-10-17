@@ -6,6 +6,7 @@ import { SearchBox } from "@/components/catalog/search-box";
 import { SortSelect } from "@/components/catalog/sort-select";
 import { TemplateDetail } from "@/components/catalog/template-detail";
 import { TemplateDialog } from "@/components/catalog/template-dialog";
+import { JsonLd } from "@/components/seo/json-ld";
 import { singleCatalogPhase } from "@/components/layout/nav-links";
 import { Band } from "@/components/ui/band";
 import { KeepCompounds } from "@/components/ui/keep-compounds";
@@ -20,6 +21,8 @@ import { cx } from "@/lib/cx";
 import { getFileStore } from "@/lib/files/store";
 import { countWord } from "@/lib/format";
 import { hasLicence } from "@/lib/licence/session";
+import { pageMetadata } from "@/lib/seo/metadata";
+import { graph, phaseList, templateList, webPage } from "@/lib/seo/structured-data";
 import { PURCHASE_LINK, SITE } from "@/lib/site";
 import styles from "./page.module.css";
 
@@ -27,12 +30,16 @@ import styles from "./page.module.css";
 // loses a phase. The listings are sample content (placeholders), so it does not say how much the catalog
 // holds or presents them as pieces of the toolkit. Every address of the catalog (a search, a filter,
 // a page of results, a template in `view`) names the plain catalog as its canonical one.
-export const metadata: Metadata = {
-  title: "Catalog",
-  description:
-    "The catalog is organized by the eleven phases of a rollout, as the toolkit's folders are. The listings shown are sample content, searchable by phase, type, app and audience.",
-  alternates: { canonical: "/catalog" },
-};
+const TITLE = "Catalog of change management templates";
+const DESCRIPTION =
+  "Change management and user adoption templates for Microsoft 365 and SharePoint Online, organized by the eleven phases of a rollout, as the toolkit's folders are. The listings shown are sample content, searchable by phase, type, app and audience, with six free samples.";
+
+export const metadata: Metadata = pageMetadata({
+  path: "/catalog",
+  title: TITLE,
+  description: DESCRIPTION,
+  ownCard: true,
+});
 
 type CatalogPageProps = {
   searchParams: Promise<Record<string, string | string[] | undefined>>;
@@ -202,6 +209,25 @@ export default async function CatalogPage({ searchParams }: CatalogPageProps) {
           />
         </TemplateDialog>
       ) : null}
+      <JsonLd
+        data={graph(
+          ...webPage({
+            path: "/catalog",
+            name: TITLE,
+            description: DESCRIPTION,
+            type: "CollectionPage",
+            trail: [{ name: "Catalog", path: "/catalog" }],
+            extra: {
+              mainEntity: phaseList(phases),
+              hasPart: templateList(
+                "Free samples",
+                templates.filter((template) => template.free),
+                phases,
+              ),
+            },
+          }),
+        )}
+      />
     </>
   );
 }

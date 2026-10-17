@@ -4,6 +4,7 @@ import { PhasePager } from "@/components/catalog/phase-pager";
 import { TemplateTile, TileGrid } from "@/components/catalog/template-tile";
 import { Breadcrumbs } from "@/components/layout/breadcrumbs";
 import { TitleBlock } from "@/components/layout/title-block";
+import { JsonLd } from "@/components/seo/json-ld";
 import { Band } from "@/components/ui/band";
 import { Button } from "@/components/ui/button";
 import { Split } from "@/components/ui/split";
@@ -11,9 +12,13 @@ import { Tally } from "@/components/ui/tally";
 import { adjacentPhases, numberedPhases } from "@/lib/catalog/coverage";
 import { DEFAULT_CRITERIA } from "@/lib/catalog/query";
 import { getPhase, getPhases, getTemplates } from "@/lib/catalog/repository";
-import { catalogHref } from "@/lib/catalog/search-params";
+import type { Phase } from "@/lib/catalog/schema";
+import { catalogHref, phaseHref } from "@/lib/catalog/search-params";
 import { cx } from "@/lib/cx";
 import { hasLicence } from "@/lib/licence/session";
+import { pageMetadata } from "@/lib/seo/metadata";
+import { graph, templateList, webPage } from "@/lib/seo/structured-data";
+import { SITE } from "@/lib/site";
 import styles from "./page.module.css";
 
 type PhasePageProps = { params: Promise<{ phase: string }> };
@@ -22,9 +27,29 @@ export async function generateStaticParams() {
   return (await getPhases()).map((phase) => ({ phase: phase.slug }));
 }
 
+/** The page's title: the section's name, and what it holds. */
+function phaseTitle(phase: Phase): string {
+  return `${phase.name}: Microsoft 365 change management templates`;
+}
+
+/** The summary, then where the section stands among the phases of a rollout. */
+function phaseDescription(phase: Phase, total: number): string {
+  const place =
+    phase.number === undefined
+      ? `A section of the ${SITE.name} toolkit for Microsoft 365 and SharePoint Online rollouts.`
+      : `Phase ${phase.number} of ${total} of a Microsoft 365 or SharePoint Online rollout, in the ${SITE.name} change management toolkit.`;
+  return `${phase.summary} ${place}`;
+}
+
 export async function generateMetadata({ params }: PhasePageProps): Promise<Metadata> {
-  const phase = await getPhase((await params).phase);
-  return phase ? { title: phase.name, description: phase.summary } : {};
+  const [phase, phases] = await Promise.all([getPhase((await params).phase), getPhases()]);
+  if (!phase) return {};
+  return pageMetadata({
+    path: phaseHref(phase.slug),
+    title: phaseTitle(phase),
+    description: phaseDescription(phase, numberedPhases(phases).length),
+    ownCard: true,
+  });
 }
 
 /**
@@ -113,6 +138,23 @@ export default async function PhasePage({ params }: PhasePageProps) {
           <PhasePager previous={previous} next={next} className={styles.pager} />
         </Split>
       </Band>
+
+      <JsonLd
+        data={graph(
+          ...webPage({
+            path: phaseHref(phase.slug),
+            name: phaseTitle(phase),
+            description: phaseDescription(phase, steps.length),
+            type: "CollectionPage",
+            trail: [{ name: phase.name, path: phaseHref(phase.slug) }],
+            extra: {
+              about: { "@type": "Thing", name: phase.name, description: phase.summary },
+              ...(phase.number === undefined ? {} : { position: phase.number }),
+              mainEntity: templateList(`${phase.name} templates`, inPhase, phases),
+            },
+          }),
+        )}
+      />
     </>
   );
 }
