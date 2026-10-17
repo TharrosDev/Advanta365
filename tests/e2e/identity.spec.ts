@@ -308,17 +308,12 @@ test.describe("home", () => {
     expect(order).toEqual({ heroFirst: true });
   });
 
-  test("the hero holds no tally, and one caret: the prompt box's, which is decoration", async ({
-    page,
-  }) => {
+  test("the hero holds no tally and no caret", async ({ page }) => {
     await page.goto("/");
     const hero = page.locator("[data-band]").filter({ has: page.locator("h1") });
     await expect(hero).toHaveCount(1);
     await expect(hero.locator("[data-tally]")).toHaveCount(0);
-    await expect(hero.locator("[data-caret]")).toHaveCount(1);
-    await expect(hero.locator('[data-hero-prompt][aria-hidden="true"] [data-caret]')).toHaveCount(
-      1,
-    );
+    await expect(hero.locator("[data-caret]")).toHaveCount(0);
   });
 
   test("states the answer as a figure, a sentence and a tally of nine and one", async ({

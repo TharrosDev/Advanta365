@@ -2,7 +2,6 @@ import { expect, type Page, test } from "@playwright/test";
 import { hydrated, introSeen, NAVIGATION_TIMEOUT } from "./helpers";
 import {
   DOCS,
-  PROMPT,
   STAGE,
   recordSequence,
   recordStage,
@@ -14,9 +13,9 @@ import {
 } from "./support/hero";
 import { recordIntro } from "./support/intro";
 
-// The first screen of the home page: a blank prompt that turns into finished work. Where movement is
-// wanted the box stands empty, dissolves, and the six documents land; under reduced motion or
-// without a script there is no box and the documents stand from the first frame.
+// The first screen of the home page: the six free samples as a hand of finished documents. Where
+// movement is wanted they land, the middle ones first; under reduced motion or without a script they
+// stand from the first frame.
 
 /** The headline's last word, a split-flap board. */
 const BOARD = "[data-split-flap]";
@@ -82,9 +81,9 @@ test.describe("the hero", () => {
       "58 job aids",
     ]);
 
-    // Nothing lies behind the words: no canvas. The stage holds one prompt box.
+    // Nothing lies behind the words: no canvas. The stage holds the documents and no prompt box.
     await expect(hero.locator(STAGE)).toHaveCount(1);
-    await expect(hero.locator(PROMPT)).toHaveCount(1);
+    await expect(hero.locator("[data-hero-prompt]")).toHaveCount(0);
     await expect(hero.locator("canvas")).toHaveCount(0);
   });
 
@@ -195,45 +194,33 @@ test.describe("the hero", () => {
     await expect(page.getByRole("dialog", { name: title })).toBeVisible();
   });
 
-  test("plays once: the box stands empty, dissolves from 700ms to 1500ms, and the documents land from 1300ms", async ({
-    page,
-  }) => {
+  test("plays once: the documents land from the start, the middle two first", async ({ page }) => {
     await recordSequence(page);
     await page.goto("/");
     await expect(page.locator("html")).toHaveAttribute("data-motion", "on");
-    // The box is decoration: a caret and two keys, hidden from assistive technology.
-    await expect(page.locator(PROMPT)).toHaveAttribute("aria-hidden", "true");
-    await expect(page.locator(`${PROMPT} [data-caret]`)).toHaveCount(1);
-    await expect(page.locator(`${PROMPT} a, ${PROMPT} button, ${PROMPT} input`)).toHaveCount(0);
 
-    // When the sequence is over, the box is gone and every document stands.
+    // When the sequence is over every document stands.
     await settled(page);
     const state = await stageState(page);
-    expect(state.prompt).toMatchObject({ opacity: "0", visibility: "hidden" });
     expect(state.docs).toHaveLength(6);
     for (const doc of state.docs)
       expect(doc).toMatchObject({ opacity: "1", visibility: "visible" });
     // Nothing of the sequence is left running or repeating, and it ran to its own end.
-    expect(await timings(page, PROMPT, "hero-prompt-out")).toEqual([null]);
     expect(await timings(page, DOCS, "hero-doc-in")).toEqual(Array(6).fill(null));
 
-    // What ran: the box once, from 700ms for 800ms; its caret, which is on at the start; the six
-    // documents once each, from 1300ms, 110ms apart, 560ms each, the middle two first; and with
-    // each its showing, which takes 90ms. All of it was set going at one moment.
+    // What ran: the six documents once each, from 0ms, 110ms apart, 560ms each, the middle two
+    // first; and with each its showing, which takes 90ms. All of it was set going at one moment.
     const ran = await sequence(page);
-    const box = ran.filter(([name]) => name === "hero-prompt-out");
-    const caret = ran.filter(([name]) => name === "hero-caret-blink");
     const docs = ran.filter(([name]) => name === "hero-doc-in");
     const shown = ran.filter(([name]) => name === "hero-doc-show");
-    expect(box.map(([, delay, duration]) => [delay, duration])).toEqual([[700, 800]]);
-    expect(caret.map(([, delay, duration]) => [delay, duration])).toEqual([[0, 1500]]);
+    expect(ran.filter(([name]) => !["hero-doc-in", "hero-doc-show"].includes(name))).toEqual([]);
     expect(docs.map(([, delay, duration]) => [delay, duration])).toEqual(
-      [0, 1, 2, 3, 4, 5].map((index) => [1300 + index * 110, 560]),
+      [0, 1, 2, 3, 4, 5].map((index) => [index * 110, 560]),
     );
     expect(shown.map(([, delay, duration]) => [delay, duration])).toEqual(
-      [0, 1, 2, 3, 4, 5].map((index) => [1300 + index * 110, 90]),
+      [0, 1, 2, 3, 4, 5].map((index) => [index * 110, 90]),
     );
-    const starts = [...box, ...docs].map(([, , , start]) => start);
+    const starts = docs.map(([, , , start]) => start);
     expect(Math.max(...starts) - Math.min(...starts)).toBeLessThanOrEqual(50);
 
     // The documents can then be focused, and the keyboard goes from one to the next.
@@ -256,13 +243,13 @@ test.describe("the hero", () => {
 
     await page.goBack();
     await expect(page).toHaveURL(/\/$/, { timeout: NAVIGATION_TIMEOUT });
-    // The new stage opens as a load does: the box there, the documents waiting.
+    // The new stage opens as a load does: the documents waiting.
     await expect
       .poll(
         async () =>
           (await stageFrames(page))
             .slice(from)
-            .some((frame) => frame.box && frame.hidden === 6 && frame.moving > 0),
+            .some((frame) => frame.hidden === 6 && frame.moving > 0),
         { timeout: 10_000 },
       )
       .toBe(true);
@@ -452,6 +439,8 @@ test.describe("the hero", () => {
   test("below 40em the six are two hands of three, one under the other", async ({ page }) => {
     await page.setViewportSize({ width: 390, height: 844 });
     await page.goto("/");
+    // Measured at rest: the documents land from the first moment.
+    await settled(page);
     const boxes = await page.locator(DOCS).evaluateAll((links) =>
       links.map((link) => {
         const box = link.getBoundingClientRect();
@@ -572,18 +561,14 @@ test.describe("the hero", () => {
 });
 
 test.describe("the hero without movement", () => {
-  test("under reduced motion the documents stand from the start and there is no box", async ({
-    page,
-  }) => {
+  test("under reduced motion the documents stand from the start", async ({ page }) => {
     await page.emulateMedia({ reducedMotion: "reduce" });
     await page.goto("/");
     await expect(page.locator("html")).not.toHaveAttribute("data-motion", "on");
     const state = await stageState(page);
-    expect(state.prompt).toMatchObject({ display: "none" });
     expect(state.docs).toHaveLength(6);
     for (const doc of state.docs)
       expect(doc).toMatchObject({ opacity: "1", visibility: "visible" });
-    await expect(page.locator(PROMPT)).toBeHidden();
     await expect(page.locator(DOCS).first()).toBeVisible();
     // Polled, as in reduced-motion.spec.ts: the safety net in globals.css shortens any transition
     // to 0.01ms, and one may be caught in flight.
@@ -595,7 +580,6 @@ test.describe("the hero without movement", () => {
     const page = await context.newPage();
     try {
       await page.goto("/");
-      await expect(page.locator(PROMPT)).toBeHidden();
       const docs = page.locator(DOCS);
       await expect(docs).toHaveCount(6);
       for (const doc of await docs.all()) await expect(doc).toBeVisible();
@@ -616,9 +600,7 @@ test.describe("the hero without movement", () => {
 });
 
 test.describe("the hero on a first visit", () => {
-  test("waits under the cover with its box, and starts its clock when the cover has gone", async ({
-    page,
-  }) => {
+  test("waits under the cover, and starts its clock when the cover has gone", async ({ page }) => {
     await recordIntro(page);
     await recordSequence(page);
     await recordStage(page);
@@ -638,21 +620,17 @@ test.describe("the hero on a first visit", () => {
       .toBe(true);
     const gone = await page.evaluate(() => (window.__introLog ?? []).at(-1)?.[0] ?? Infinity);
 
-    // Under the cover, on every frame: the opening state, the box there and the documents out of
-    // sight, with nothing of the sequence running.
+    // Under the cover, on every frame: the opening state, the documents out of sight, with nothing
+    // of the sequence running.
     await settled(page);
     const frames = (await stageFrames(page)).filter((frame) => frame.docs === 6);
     const under = frames.filter((frame) => frame.at < gone);
     expect(under.length).toBeGreaterThan(10);
-    expect(under.filter((frame) => !frame.box || frame.hidden !== 6 || frame.moving > 0)).toEqual(
-      [],
-    );
+    expect(under.filter((frame) => frame.hidden !== 6 || frame.moving > 0)).toEqual([]);
 
     // The sequence was set going as the cover went, with the delays it always has.
     const docs = (await sequence(page)).filter(([name]) => name === "hero-doc-in");
-    expect(docs.map(([, delay]) => delay)).toEqual(
-      [0, 1, 2, 3, 4, 5].map((index) => 1300 + index * 110),
-    );
+    expect(docs.map(([, delay]) => delay)).toEqual([0, 1, 2, 3, 4, 5].map((index) => index * 110));
     for (const [, , , start] of docs) {
       expect(start - gone).toBeGreaterThanOrEqual(-20);
       expect(start - gone).toBeLessThanOrEqual(375);
@@ -660,7 +638,6 @@ test.describe("the hero on a first visit", () => {
 
     // And it ran to its end.
     const state = await stageState(page);
-    expect(state.prompt).toMatchObject({ opacity: "0" });
     for (const doc of state.docs)
       expect(doc).toMatchObject({ opacity: "1", visibility: "visible" });
   });

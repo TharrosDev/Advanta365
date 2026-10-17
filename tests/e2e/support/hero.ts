@@ -7,15 +7,12 @@ import { expect, type Page } from "@playwright/test";
  */
 
 export const STAGE = "[data-hero-stage]";
-export const PROMPT = "[data-hero-prompt]";
 export const DOCS = "[data-hero-doc]";
 
 /** One frame of the stage: what a visitor could see of it then. */
 export type StageFrame = {
   /** The page clock, in milliseconds from the start of the navigation. */
   at: number;
-  /** Whether the box is displayed (it may still be transparent). */
-  box: boolean;
   /** How many documents were in the page, and how many of them could not be seen or reached. */
   docs: number;
   hidden: number;
@@ -37,44 +34,39 @@ declare global {
  * frame is in the record; nothing depends on when the test asks.
  */
 export async function recordStage(page: Page): Promise<void> {
-  await page.addInitScript(
-    ([prompt, docs]) => {
-      const frames: StageFrame[] = [];
-      window.__heroFrames = frames;
-      const look = () => {
-        const all = [...document.querySelectorAll(docs)];
-        if (all.length) {
-          const box = document.querySelector(prompt);
-          frames.push({
-            at: performance.now(),
-            box: !!box && getComputedStyle(box).display !== "none",
-            docs: all.length,
-            hidden: all.filter((doc) => {
-              const style = getComputedStyle(doc);
-              return style.visibility !== "visible" || style.opacity !== "1";
-            }).length,
-            moving: document
-              .getAnimations()
-              .filter(
-                (entry) => entry instanceof CSSAnimation && entry.animationName.startsWith("hero-"),
-              ).length,
-          });
-        }
-        // Half a minute of frames is more than any test here looks at.
-        if (frames.length < 1800) requestAnimationFrame(look);
-      };
-      requestAnimationFrame(look);
-    },
-    [PROMPT, DOCS] as const,
-  );
+  await page.addInitScript((docs) => {
+    const frames: StageFrame[] = [];
+    window.__heroFrames = frames;
+    const look = () => {
+      const all = [...document.querySelectorAll(docs)];
+      if (all.length) {
+        frames.push({
+          at: performance.now(),
+          docs: all.length,
+          hidden: all.filter((doc) => {
+            const style = getComputedStyle(doc);
+            return style.visibility !== "visible" || style.opacity !== "1";
+          }).length,
+          moving: document
+            .getAnimations()
+            .filter(
+              (entry) => entry instanceof CSSAnimation && entry.animationName.startsWith("hero-"),
+            ).length,
+        });
+      }
+      // Half a minute of frames is more than any test here looks at.
+      if (frames.length < 1800) requestAnimationFrame(look);
+    };
+    requestAnimationFrame(look);
+  }, DOCS);
 }
 
 /** The frames recorded so far. */
 export const stageFrames = (page: Page) => page.evaluate(() => window.__heroFrames ?? []);
 
-/** The frames on which the documents were not all in sight, the box showed, or anything moved. */
+/** The frames on which the documents were not all in sight, or anything moved. */
 export const unsettledFrames = async (page: Page) =>
-  (await stageFrames(page)).filter((frame) => frame.box || frame.hidden > 0 || frame.moving > 0);
+  (await stageFrames(page)).filter((frame) => frame.hidden > 0 || frame.moving > 0);
 
 /**
  * Notes every animation of the sequence on the first frame that has them started, while all of
@@ -118,51 +110,35 @@ export async function recordSequence(page: Page): Promise<void> {
 export const sequence = (page: Page) => page.evaluate(() => window.__heroSequence ?? []);
 
 /**
- * Waits for the stage to be at rest: the cover gone, the box out of sight (dissolved at the end of
- * the sequence, or never displayed where there is none), and nothing of the stage still moving.
- * The sequence ends 2410ms after it began, on its own clock; a busy machine begins it late, so the
- * page is asked, not a timer.
+ * Waits for the stage to be at rest: the cover gone and nothing of the stage still moving. The
+ * sequence ends 1110ms after it began, on its own clock; a busy machine begins it late, so the page
+ * is asked, not a timer.
  */
 export async function settled(page: Page): Promise<void> {
   await expect
     .poll(
       () =>
-        page.evaluate(
-          ([prompt, docs]) => {
-            if (document.documentElement.hasAttribute("data-intro")) return "under the cover";
-            const box = document.querySelector(prompt);
-            const style = box ? getComputedStyle(box) : null;
-            if (!style || (style.display !== "none" && style.opacity !== "0")) {
-              return "the box is there";
-            }
-            const moving = [...document.querySelectorAll(`${prompt}, ${prompt} *, ${docs}`)]
-              .flatMap((element) => element.getAnimations({ subtree: true }))
-              .filter((animation) => animation.playState !== "finished").length;
-            return moving ? "moving" : "settled";
-          },
-          [PROMPT, DOCS] as const,
-        ),
+        page.evaluate((docs) => {
+          if (document.documentElement.hasAttribute("data-intro")) return "under the cover";
+          const moving = [...document.querySelectorAll(docs)]
+            .flatMap((element) => element.getAnimations({ subtree: true }))
+            .filter((animation) => animation.playState !== "finished").length;
+          return moving ? "moving" : "settled";
+        }, DOCS),
       { timeout: 20_000 },
     )
     .toBe("settled");
 }
 
-/** The opacity, visibility and display of the box and of every document, as computed now. */
+/** The opacity, visibility and display of every document, as computed now. */
 export const stageState = (page: Page) =>
-  page.evaluate(
-    ([prompt, docs]) => {
-      const read = (element: Element) => {
-        const style = getComputedStyle(element);
-        return { opacity: style.opacity, visibility: style.visibility, display: style.display };
-      };
-      const box = document.querySelector(prompt);
-      return {
-        prompt: box ? read(box) : null,
-        docs: [...document.querySelectorAll(docs)].map(read),
-      };
-    },
-    [PROMPT, DOCS] as const,
-  );
+  page.evaluate((docs) => {
+    const read = (element: Element) => {
+      const style = getComputedStyle(element);
+      return { opacity: style.opacity, visibility: style.visibility, display: style.display };
+    };
+    return { docs: [...document.querySelectorAll(docs)].map(read) };
+  }, DOCS);
 
 /** The delay and the length of the animation an element runs, by the animation's name. */
 export const timings = (page: Page, selector: string, name: string) =>

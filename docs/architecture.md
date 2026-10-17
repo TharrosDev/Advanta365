@@ -627,7 +627,7 @@ Components built from the primitives for one part of the site. Each has a doc co
 | `ActiveFilters` | `components/catalog/active-filters.tsx` | `criteria`, `phases`, `fallbackFocusId` | The filters that are on, as a row of chips above the results (section 8.4) |
 | `PhasePager` | `components/catalog/phase-pager.tsx` | `previous`, `next`, `className` | The section before and the section after, in folder order, at the foot of a phase page ("Previous and next phase") |
 | `TemplateDetail` | `components/catalog/template-detail.tsx` | `template`, `phase`, `titleId` | The content of the pop-up: large cover, "Free sample" tag, title, summary, description, facts, what is included, and the button to `/purchase` |
-| `Hero`, `HeroStage` | `components/home/hero.tsx`, `hero-stage.tsx` | `samples`, `phases` | The first screen of the home page: headline, lead and two buttons; the stage, where an empty prompt box dissolves and the six free samples land as a hand of documents |
+| `Hero`, `HeroStage` | `components/home/hero.tsx`, `hero-stage.tsx` | `samples`, `phases` | The first screen of the home page: headline, lead and two buttons; the stage, where the six free samples land as a hand of documents |
 | `SplitFlap` | `components/home/split-flap.tsx` | `words` | The headline's last word on a split-flap board: the first of `words` stands (and is what a screen reader reads); where movement is wanted it turns through the rest, each changed letter flipping once to its new one, passing over a word that would not fit its line |
 | `ProofStrip` | `components/home/proof-strip.tsx` | none | The band's foot: 30+ years, 59 playbooks, 130 templates, 58 job aids, on opaque paper |
 | `PortfolioSection` | `components/home/portfolio-section.tsx` | `covers`, `phases` | `#toolkit` on the home page: words and the button to `/purchase`, the `Portfolio` at section size |
@@ -742,7 +742,7 @@ animated property sits inside `@media (prefers-reduced-motion: no-preference)`. 
 | `data-tile` with `data-denied` | `TemplateTile`, `LockedTile` | A locked tile saying no for 600 ms: `tile-shake` (sideways only, five swings from 6px to rest on `ease-in-out`, 440 ms), `denied-ring` (opacity of the well's `::before`, a 2px `--alert` border, 560 ms, fill forwards). They play only where `html[data-motion="on"]`; under reduced motion and without a script the static ring stands for as long as the state does. The tile's outline is never animated, so it stays the focus ring |
 | `data-page-dialog` with `data-enter` | `PageDialog` (the pop-up of the catalog and the checkout) | The pop-up rises 14px as the page dims (`dialog-in` 320 ms, `scrim-in`) when a link inside the site opened it |
 | `data-checkout-step` with `data-enter`, `data-checkout-progress` | `CheckoutDialog` | A step the visitor moved to settles 10px into place (`checkout-step-in`, `--time-enter`); the line under the bar grows to the current step |
-| `data-hero-stage`, `data-hero-prompt`, `data-hero-doc` | `HeroStage` | The prompt box dissolves and the documents land (section 7.7); a document under the pointer or keyboard straightens over `--time-lift` |
+| `data-hero-stage`, `data-hero-doc` | `HeroStage` | The documents land (section 7.7); a document under the pointer or keyboard straightens over `--time-lift` |
 | `data-flap`, `data-flap-cell` | `SplitFlap` | A letter of the headline's last word falling to the next: the old top half drops to the split (`flap-fall`, darkening) and the new bottom half comes down from it (`flap-land`), half of `--flip` (240ms) each; the cell's width moves to the new letter's over `--run`, from the moment it flips (section 7.7) |
 
 ### 7.2 Entrances
@@ -873,12 +873,10 @@ the headline and the lead, two buttons ("Get the toolkit" to `/purchase`, "See t
 `/catalog?free=1`), the stage and the proof strip. `HeroStage` (`data-hero-stage`) holds the six free samples
 as a list of six links (`data-hero-doc`, each named by its template's title and leading to
 `/catalog?view=<slug>`), each a lit `TemplateCover` fanned from -9 to 9 degrees and overlapping so that no title
-or format tag lies under a neighbour. In the same cell an empty prompt box (`data-hero-prompt`, decoration, a
-caret and two keys) stands where movement is wanted: its caret blinks, it dissolves from 700ms to 1500ms
-(`hero-prompt-out`, `hero-caret-blink`), and the documents land from 1300ms, the middle two first, 110ms apart
-and 560ms each (`hero-doc-in`, `hero-doc-show`), on a clock that starts at load or when the cover of a first
-visit has gone; under the cover the box stands and the documents wait out of sight. It plays again on each
-mount of the stage. Under reduced motion or without a script the box is not displayed. Under the
+or format tag lies under a neighbour. Where movement is wanted the documents land from 0ms, the middle two
+first, 110ms apart and 560ms each (`hero-doc-in`, `hero-doc-show`), on a clock that starts at load or when the
+cover of a first visit has gone; under the cover the documents wait out of sight. It plays again on each mount
+of the stage. Under reduced motion or without a script the documents stand from the start. Under the
 pointer or keyboard focus a document straightens, comes to the front and lifts. Below 40em the six are two hands
 of three. From 68em the band's height follows the window's, so the proof strip is above the fold down to a
 window 720px tall. The band is as tall as the window leaves (the bar taken off), at most
@@ -1044,7 +1042,7 @@ Run the scripts in `scripts/` by path, for example `node scripts/check-budgets.m
 | `data-well` | Catalog tiles | The well of a tile; its `::before` is the red wash of a denied tile |
 | `data-page-dialog`, `data-template-dialog`, `data-checkout-dialog`, `data-enter` | Pop-ups | Any page dialog, whose it is, and that a link inside the site opened it |
 | `data-checkout-step` (`details`, `review`, `payment`), `data-order-summary` (`panel`, `disclosure`), `data-order-code`, `data-error-summary`, `data-field-error`, `data-pay` | Checkout | The step in view, the two forms of the summary, the order's code, the summary of a form's problems, an error under a field, and a provider's pay button |
-| `data-hero-stage`, `data-hero-prompt`, `data-hero-doc` | Hero | The stage, its prompt box and a document |
+| `data-hero-stage`, `data-hero-doc` | Hero | The stage and a document |
 | `data-split-flap`, `data-flap-cell`, `data-flap`, `data-half` | Hero | The headline's turning word, one of its letters, a falling flap and a still half-letter |
 | `data-included` | Catalog | The line above the results for a locked template that has no tile on the page |
 | `data-nav-underline` | Bar | The sliding underline |

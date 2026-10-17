@@ -44,7 +44,7 @@ function buildSpecimen(template: Template, phases: Phase[]): SpecimenContent | u
 
 /**
  * Home, top to bottom: the hero (the headline, whose blank turns from a prompt to a sheet, a plan
- * and more, and a blank prompt that turns into the six free samples as a hand of documents); the same six as a row of tiles, with what each one is; what is
+ * and more, and the six free samples landing as a hand of documents); the same six as a row of tiles, with what each one is; what is
  * inside the toolkit, with one real template as a specimen; the toolkit as the one folder it is
  * sold as, with its price; the answer (the one black band). Reordering the page is reordering the
  * array below. The cover of a first visit is rendered before all of it.

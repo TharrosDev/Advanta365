@@ -198,7 +198,7 @@ test("the counts of what is inside read their own values all the way in", async 
   expect(final).toEqual([
     expect.stringMatching(/^\d+ playbooks$/),
     expect.stringMatching(/^\d+ ready-to-use templates$/),
-    expect.stringMatching(/^\d+ field guides$/),
+    expect.stringMatching(/^58 job aids$/),
   ]);
 
   // Down to the ledger in small steps: at no step does a count read anything but its value.

@@ -36,14 +36,14 @@ const ITEMS: readonly Item[] = [
     body: "Emails, plans, checklists, worksheets, workshop kits.",
   },
   {
-    count: TOOLKIT.fieldGuides,
-    title: "field guides",
-    body: "For change practitioners and IM partners.",
+    count: TOOLKIT.jobAids,
+    title: "job aids",
+    body: "Quick references for end users, Site Owners and IM Representatives.",
   },
   {
     drawing: "audiences",
     title: `Training for ${TOOLKIT.trainingAudiences} audiences`,
-    body: `End users, Site Owners and IM Representatives, with facilitator guides, learning guides and ${TOOLKIT.jobAids} job aids.`,
+    body: "End users, Site Owners and IM Representatives, with facilitator guides and learning guides.",
   },
   {
     drawing: "example",
