@@ -192,7 +192,13 @@ test("under reduced motion the denial is the red ring and the line, and nothing 
   // The state is set by hand, so that it holds while the styles are read. The ring is on the
   // well, not the tile: the tile's outline stays its focus ring.
   await tile.evaluate((element) => element.setAttribute("data-denied", ""));
-  const look = await tile.evaluate((element) => {
+  const look = await tile.evaluate(async (element) => {
+    // The safety net in app/globals.css gives every transition under reduced motion 0.01ms rather
+    // than none, so that `transitionend` still fires. The ring's fade is one of those: it starts at
+    // 0 and is over before the next frame. Wait for it to land, then read what stands.
+    await Promise.all(
+      element.getAnimations({ subtree: true }).map((animation) => animation.finished),
+    );
     const ring = getComputedStyle(element.querySelector("[data-well]") as Element, "::before");
     return {
       tile: getComputedStyle(element).animationName,
