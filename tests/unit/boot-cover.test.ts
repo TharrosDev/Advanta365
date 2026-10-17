@@ -5,7 +5,7 @@ import { renderToStaticMarkup } from "react-dom/server";
 import { describe, expect, it } from "vitest";
 import { IntroCover } from "@/components/intro/intro-cover";
 import { INTRO_BACKSTOP_MS, INTRO_CLICK_GUARD_MS } from "@/lib/boot/state";
-import { MARK_BAR_D, MARK_DIGITS, MARK_LEGS_D, MARK_TAIL_D } from "@/lib/brand/mark";
+import { MARK_HUE_D, MARK_INK_D } from "@/lib/brand/mark";
 import { SITE } from "@/lib/site";
 
 // The cover of a first visit as markup, and the budget its timeline keeps.
@@ -27,21 +27,22 @@ describe("the cover's markup", () => {
     expect(cover).toContain('focusable="false"');
   });
 
-  it("writes the mark from the brand's own paths: the tail first, three strokes, then the 365", () => {
-    expect(count(cover, "<path")).toBe(6);
-    const order = [MARK_TAIL_D, MARK_LEGS_D, MARK_BAR_D, ...MARK_DIGITS].map((d) =>
-      cover.indexOf(`d="${d}"`),
-    );
-    expect(order.every((index) => index > 0)).toBe(true);
-    expect([...order].sort((a, b) => a - b)).toEqual(order);
-    expect(count(cover, 'pathLength="1"')).toBe(6);
-    // The "A" is written with the broad pen, the digits with the fine one.
-    expect(count(cover, 'stroke-width="3.8"')).toBe(3);
-    expect(count(cover, 'stroke-width="1.4"')).toBe(3);
+  it("draws the mark from the brand's own shapes: the leg first, then the arm over it", () => {
+    expect(count(cover, "<path")).toBe(2);
+    const leg = cover.indexOf(`d="${MARK_HUE_D}"`);
+    const arm = cover.indexOf(`d="${MARK_INK_D}"`);
+    expect(leg).toBeGreaterThan(0);
+    expect(arm).toBeGreaterThan(leg);
+    // Filled shapes, not pen strokes.
+    expect(cover).not.toContain("stroke");
+    expect(cover).not.toContain("pathLength");
   });
 
-  it("carries the name once, and the hint", () => {
+  it("carries the name once, the line under it, and the hint", () => {
     expect(count(cover, SITE.name)).toBe(1);
+    expect(count(cover, `An ${SITE.parent} product`)).toBe(1);
+    // The name comes before the line under it.
+    expect(cover.indexOf(SITE.name)).toBeLessThan(cover.indexOf(`An ${SITE.parent} product`));
     expect(count(cover, ">Skip<")).toBe(1);
   });
 
@@ -62,12 +63,13 @@ describe("the cover's timeline", () => {
     return Number(match?.[1]);
   };
 
-  it("holds the finished mark from 1000 to 2500ms and is gone 2950ms after first paint", () => {
+  it("holds the finished signature until 2500ms and is gone 2950ms after first paint", () => {
     expect(ms("leave-at")).toBe(2500);
     expect(ms("leave-at") + ms("leave")).toBe(2950);
-    // The mark is complete at 1000ms (the last digit) and stands there for a second and a half.
-    const written = ms("pen-digits-at") + 2 * ms("pen-digit-step") + ms("pen-digit");
-    expect(ms("leave-at") - written).toBe(1500);
+    // The line under the name is written by 1400ms, and the signature stands there for 1100ms.
+    const written = ms("byline-at") + ms("byline-in");
+    expect(written).toBe(1400);
+    expect(ms("leave-at") - written).toBe(1100);
     expect(ms("leave-at") + ms("leave")).toBeLessThan(INTRO_BACKSTOP_MS);
   });
 
@@ -103,30 +105,46 @@ describe("the cover's timeline", () => {
     expect(INTRO_CLICK_GUARD_MS).toBeGreaterThan(ms("skip"));
   });
 
-  it("signs the mark before the cover leaves: legs, crossbar, tail, then the name", () => {
-    expect([ms("pen-legs-at"), ms("pen-legs-at") + ms("pen-legs")]).toEqual([120, 480]);
-    expect([ms("pen-bar-at"), ms("pen-bar-at") + ms("pen-bar")]).toEqual([420, 600]);
-    expect([ms("pen-tail-at"), ms("pen-tail-at") + ms("pen-tail")]).toEqual([560, 800]);
-    expect([ms("name-at"), ms("name-at") + ms("name-in")]).toEqual([500, 900]);
+  it("signs before the cover leaves: the arm rises, the leg drops, the name, then the line under it", () => {
+    expect([ms("arm-rise-at"), ms("arm-rise-at") + ms("arm-rise")]).toEqual([120, 620]);
+    // The leg drops as the arm arrives, and the mark is whole at 1000ms.
+    expect([ms("leg-drop-at"), ms("leg-drop-at") + ms("leg-drop")]).toEqual([620, 1000]);
+    expect([ms("name-at"), ms("name-at") + ms("name-in")]).toEqual([900, 1150]);
+    expect([ms("byline-at"), ms("byline-at") + ms("byline-in")]).toEqual([1100, 1400]);
     expect(ms("hint-at")).toBe(600);
   });
 
-  it("writes the 365 last, one digit after another, from 800 to 1000ms", () => {
-    const first = ms("pen-digits-at");
-    const last = first + 2 * ms("pen-digit-step");
-    expect(first).toBe(ms("pen-tail-at") + ms("pen-tail"));
-    expect([first, last + ms("pen-digit")]).toEqual([800, 1000]);
-    // Done before the cover starts to leave.
-    expect(last + ms("pen-digit")).toBeLessThanOrEqual(ms("leave-at"));
-    expect(css).toMatch(/:root\[data-intro\]\s+\.digit\s*\{/);
-    expect(css).not.toMatch(/:root\[data-intro="[a-z]+"\]\s+\.digit\b/);
+  it("drops the leg fast and lets it land with weight: it speeds up, then squashes and springs back", () => {
+    const frames = css.match(/@keyframes leg-drop\s*\{([\s\S]*?)\n\}/);
+    expect(frames).not.toBeNull();
+    // A fall accelerates: the first stretch eases in.
+    expect(frames?.[1]).toMatch(
+      /0%\s*\{[^}]*animation-timing-function:\s*cubic-bezier\(0\.55,\s*0,\s*1,/,
+    );
+    // It squashes against the ground, then overshoots a little on the way back.
+    const scales = [...(frames?.[1] ?? "").matchAll(/scaleY\(([\d.]+)\)/g)].map((m) =>
+      Number(m[1]),
+    );
+    expect(Math.min(...scales)).toBeLessThan(1);
+    expect(Math.max(...scales)).toBeGreaterThan(1);
+    expect(scales[scales.length - 1]).toBe(1);
+    // The squash happens on its foot.
+    expect(css).toMatch(/\.leg\s*\{[^}]*transform-origin:\s*50% 100%/);
+  });
+
+  it("writes the name and the line under it from the left", () => {
+    expect(css).toMatch(/@keyframes write\s*\{\s*from\s*\{\s*clip-path:\s*inset\([^)]*100%/);
+    expect(css).toMatch(/:root\[data-intro\]\s+\.name\s+\.write\s*\{/);
+    expect(css).toMatch(/:root\[data-intro\]\s+\.byline\s+\.write\s*\{/);
+    expect(css).not.toMatch(/:root\[data-intro="[a-z]+"\]\s+\.(arm|leg|write)\b/);
   });
 
   it("is displayed only while the root element carries the state", () => {
     expect(css).toMatch(/\.cover\s*\{[^}]*display:\s*none/);
     expect(css).toMatch(/:root\[data-intro\]\s+\.cover\s*\{\s*display:\s*grid/);
     // The strokes do not name a state, so a change of state never restarts them.
-    expect(css).toMatch(/:root\[data-intro\]\s+\.legs\s*\{/);
-    expect(css).not.toMatch(/:root\[data-intro="[a-z]+"\]\s+\.(legs|bar|tail|name)\b/);
+    expect(css).toMatch(/:root\[data-intro\]\s+\.arm\s*\{/);
+    expect(css).toMatch(/:root\[data-intro\]\s+\.leg\s*\{/);
+    expect(css).not.toMatch(/:root\[data-intro="[a-z]+"\]\s+\.(arm|leg|name|byline)\b/);
   });
 });

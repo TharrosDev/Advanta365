@@ -10,13 +10,13 @@
  * Milliseconds from first paint, in every state (the selectors do not name one, so a change of
  * state never restarts a stroke):
  *
- *   120 to 480   the pen writes both legs of the "A"
- *   420 to 600   then the crossbar, up to the right leg
- *   560 to 800   and its tail, in the highlighter
- *   800 to 1000  a finer pen writes 3, 6 and 5 on the tail, each 100 long and 50 after the last
- *   500 to 900   the name fades in; the hint from 600
+ *   120 to 620   the arm of the "A" rises smoothly from its foot to the peak
+ *   620 to 1000  the leg in the highlighter drops from the peak, fast, lands at about 850 and
+ *                settles with a little weight
+ *   900 to 1150  the name is written in under the mark
+ *   1100 to 1400 and "An EchoFive product" under the name; the hint fades in from 600
  *
- * The finished mark then stands from 1000 to 2500, a second and a half, before one of two ways
+ * The finished signature then stands from 1400 to 2500, before one of two ways
  * out, each started by its state:
  *
  *   play    2500 to 2950   the cover leaves: the signature and the hint fade on the paper by
@@ -25,17 +25,14 @@
  *   leave   the visitor pressed, typed, scrolled or touched: gone in 200
  */
 .cover {
-  --pen-legs: 360ms;
-  --pen-legs-at: 120ms;
-  --pen-bar: 180ms;
-  --pen-bar-at: 420ms;
-  --pen-tail: 240ms;
-  --pen-tail-at: 560ms;
-  --pen-digit: 100ms;
-  --pen-digit-step: 50ms;
-  --pen-digits-at: 800ms;
-  --name-in: 400ms;
-  --name-at: 500ms;
+  --arm-rise: 500ms;
+  --arm-rise-at: 120ms;
+  --leg-drop: 380ms;
+  --leg-drop-at: 620ms;
+  --name-in: 250ms;
+  --name-at: 900ms;
+  --byline-in: 300ms;
+  --byline-at: 1100ms;
   --hint-in: 300ms;
   --hint-at: 600ms;
   --leave: 450ms;
@@ -43,7 +40,6 @@
   --sign-leave: 180ms;
   --sign-leave-at: 2500ms;
   --skip: 200ms;
-  --pen: var(--curve-pen, var(--curve-settle));
 
   position: fixed;
   inset: 0;
@@ -125,7 +121,7 @@
 }
 
 /*
- * 84px high on a phone, 112px from 40em; the width follows the 3:2 view box. On a large monitor
+ * 84px high on a phone, 112px from 40em; the width follows the 12:11 view box. On a large monitor
  * from 68em the signature grows with the window, to an eighth of its height (and no more than 7%
  * of its width), so that it stands in the paper as it does on a desktop and not as a speck: that
  * is more than 112px only from about 1700px of window. The name beneath it keeps its proportion.
@@ -138,7 +134,7 @@
   display: block;
   width: auto;
   height: var(--mark-h);
-  aspect-ratio: 3 / 2;
+  aspect-ratio: 12 / 11;
 }
 
 @media (min-width: 40em) {
@@ -154,55 +150,72 @@
 }
 
 /*
- * Each stroke is one unit long (`pathLength`), so one dash of that length is the whole stroke and
- * an offset of one unit is none of it. A stroke stays hidden until its turn: with round caps, a
- * dash of no length would still show as a dot.
+ * The two halves are filled shapes, hidden by a clip until their turn (`backwards`): the arm is
+ * uncovered from its foot up, the leg from the peak down. The leg's clip runs with the ground in
+ * its ease (a fall speeds up, it does not slow down) and, once it has landed, the leg squashes
+ * against the ground and springs back, on its foot.
  */
-.pen {
-  stroke: currentColor;
-  stroke-dasharray: 1;
+.arm {
+  fill: currentColor;
 }
 
-.tail,
-.digit {
-  stroke: var(--mark);
+.leg {
+  fill: var(--mark);
+  transform-box: fill-box;
+  transform-origin: 50% 100%;
 }
 
-@keyframes pen-stroke {
+@keyframes arm-rise {
   from {
-    visibility: hidden;
-    stroke-dashoffset: 1;
+    clip-path: inset(100% 0 0 0);
+  }
+
+  to {
+    clip-path: inset(0);
   }
 }
 
-:root[data-intro] .legs {
-  animation: pen-stroke var(--pen-legs) var(--pen) var(--pen-legs-at) backwards;
+@keyframes leg-drop {
+  0% {
+    clip-path: inset(0 0 100% 0);
+    transform: scaleY(1);
+    animation-timing-function: cubic-bezier(0.55, 0, 1, 0.45);
+  }
+
+  60% {
+    clip-path: inset(0);
+    transform: scaleY(1);
+    animation-timing-function: cubic-bezier(0.2, 0.7, 0.4, 1);
+  }
+
+  76% {
+    clip-path: inset(0);
+    transform: scaleY(0.93);
+    animation-timing-function: cubic-bezier(0.3, 0, 0.3, 1);
+  }
+
+  90% {
+    clip-path: inset(0);
+    transform: scaleY(1.02);
+  }
+
+  100% {
+    clip-path: inset(0);
+    transform: scaleY(1);
+  }
 }
 
-:root[data-intro] .bar {
-  animation: pen-stroke var(--pen-bar) linear var(--pen-bar-at) backwards;
+:root[data-intro] .arm {
+  animation: arm-rise var(--arm-rise) var(--curve-pen) var(--arm-rise-at) backwards;
 }
 
-:root[data-intro] .tail {
-  animation: pen-stroke var(--pen-tail) var(--pen) var(--pen-tail-at) backwards;
-}
-
-/* The second and third digit start one and two steps after the first. */
-:root[data-intro] .digit {
-  animation: pen-stroke var(--pen-digit) var(--pen)
-    calc(var(--pen-digits-at) + var(--digit, 0) * var(--pen-digit-step)) backwards;
-}
-
-.digit:nth-child(2) {
-  --digit: 1;
-}
-
-.digit:nth-child(3) {
-  --digit: 2;
+:root[data-intro] .leg {
+  animation: leg-drop var(--leg-drop) linear var(--leg-drop-at) backwards;
 }
 
 /* The name, as one word, 21px under the mark, a quarter of its height. */
 .name {
+  white-space: nowrap;
   margin-block-start: max(var(--s-3), var(--mark-h) * 0.1875);
   font-family: var(--face-display);
   font-size: max(var(--s-4), var(--mark-h) / 4);
@@ -217,8 +230,41 @@
   }
 }
 
-:root[data-intro] .name {
-  animation: fade-in var(--name-in) linear var(--name-at) backwards;
+/*
+ * The name and the line under it are written in from the left. The clip is a little wider than the
+ * text so that no stroke of a letter is cut at a side, above or below.
+ */
+.write {
+  display: inline-block;
+}
+
+@keyframes write {
+  from {
+    clip-path: inset(-0.25em 100% -0.25em -0.1em);
+  }
+
+  to {
+    clip-path: inset(-0.25em -0.1em);
+  }
+}
+
+:root[data-intro] .name .write {
+  animation: write var(--name-in) linear var(--name-at) backwards;
+}
+
+:root[data-intro] .byline .write {
+  animation: write var(--byline-in) linear var(--byline-at) backwards;
+}
+
+/* The line under the name, in the text face and the faint ink, a third of the name's size. */
+.byline {
+  margin-block-start: max(var(--s-2), var(--mark-h) * 0.09);
+  color: var(--ink-faint);
+  font-family: var(--face-text);
+  font-size: max(var(--s-3), var(--mark-h) / 7);
+  line-height: 1;
+  letter-spacing: 0;
+  white-space: nowrap;
 }
 
 /* A hint at the foot of the window: decoration, since any input ends the cover. */

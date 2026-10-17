@@ -565,7 +565,7 @@ Primitives are the building blocks for pages. Each one has a CSS module unless n
 | `Pagination` | Previous, numbered pages and next |
 | `PhaseTabs` | Phase tabs in `rail` or `large` size. `large` is two across on a phone; from 40em one row where the list is 42rem wide, each card as wide as its name needs, and four across where it is not |
 | `Icon` | Inline SVG glyphs: arrow, chevron, plus, minus, close, tick, bars, search. `size` is pixels at the 16px root and the icon is set in rem, so it grows with the root on a large monitor |
-| `LogoMark`, `BrandLockup` | The mark, as a tile or bare lockup. `LogoMark` draws the 365 on the arm in `tone="two"` unless `digits={false}`; `BrandLockup` shows it on the bar's tile from 68em and on the bare `md` lockup |
+| `LogoMark`, `BrandLockup` | The mark, as a tile or bare lockup. `LogoMark` fills the whole "A" in one ink, or its right half in `--logo-half` with `tone="two"`; `BrandLockup` draws it on the tile or bare |
 | `KeepCompounds` | Keeps hyphenated compounds from breaking across lines |
 | `Sentences` | Splits text into sentences, optionally animated in one at a time |
 | `Appear` | Wrapper that sets the entrance hook (`data-move`) |
@@ -573,18 +573,14 @@ Primitives are the building blocks for pages. Each one has a CSS module unless n
 | `MotionRoot` | Client component that sets up the scroll observer (renders nothing) |
 
 Helpers: `lib/cx.ts` exports `cx` (joins truthy class names) and `cssVars` (builds a style object and
-drops `undefined` values). `lib/brand/mark.ts` holds the logo geometry in two forms: the full one, `MARK_VIEWBOX` (36 by 24) with the long
-tail `MARK_TAIL_D`, and the compact one, `MARK_VIEWBOX_COMPACT` (30 by 24) with the short tail
-`MARK_TAIL_COMPACT_D` and no digits. Both share `MARK_STROKE_WIDTH` (3.8), the three segments, and the path
-strings `MARK_LEGS_D`, `MARK_BAR_D` and `MARK_BODY_D`; `MARK_PATH_D` is the compact form as one path. The 365 on
-the crossbar's arm is `MARK_DIGITS` (three open strokes, one per digit, each `M`, lines and curves only),
-`MARK_DIGITS_D` (the three as one path), `MARK_DIGITS_STROKE_WIDTH` (1.4) and `MARK_DIGITS_BOX` (x 19.37 to
-34.3, y 3.48 to 9.5, inside the viewBox). They are drawn last, in the ink of the tail, and only where they are
-at least 7px high, which takes a mark 28px high: the bar's tile from 68em (a 49px tile with the full mark 28.4px
-high), the bare footer mark (36px, so the digits are 9px) and the cover of a first visit, which writes them on
-the arm after the mark (section 6). The 28px tile below 68em, the drawer, the folder's tile and the favicon
-draw the compact form. `app/icon.svg` is generated from this file by `scripts/gen-icon.mjs` and uses the same
-colours as the tokens: a #0B0D12 tile, the body in #FFFFFF and the tail in #86C1FF, and has no digits.
+drops `undefined` values). `lib/brand/mark.ts` holds the logo geometry: one form, `MARK_VIEWBOX` (48 by 44),
+as two filled halves that meet on the seam `MARK_SEAM_X`: `MARK_INK_D`, the arm, and `MARK_HUE_D`, the leg
+(which runs half a unit under the arm so no hairline shows); `MARK_PATH_D` is the whole "A" as one shape, and
+`MARK_ASPECT` its width over height. `LogoMark` fills it as one shape or as two (the leg in `--logo-half`),
+`BrandLockup` draws it on the bar's tile, bare in the footer and on the drawer's and the folder's small tile, and
+the cover of a first visit draws the halves one after the other (section 6). `app/icon.svg` is generated from this
+file by `scripts/gen-icon.mjs` and uses the same colours as the tokens: a #0B0D12 tile, the arm in #FFFFFF and the
+leg in #86C1FF.
 
 ### 5.3 Feature components
 
@@ -664,18 +660,17 @@ that). The selectors do not name a state, so a change of state never restarts a 
 | Time (ms) | Event |
 |---|---|
 | 0 | `data-intro="play"`. The cover (`[data-intro-cover]`, fixed, `z-index: var(--layer-cover)`) shows over the page |
-| 120 to 480 | Both legs of the mark are drawn (`pen-stroke` on `.legs`) |
-| 420 to 600 | Bar is drawn |
-| 500 to 900 | The name (`.name`) fades in |
-| 560 to 800 | Tail is drawn, in the highlighter |
+| 120 to 620 | The arm of the mark rises from its foot to the peak (`arm-rise` on `.arm`, `--curve-pen`) |
 | 600 | Skip hint fades in |
-| 800 to 1000 | The 365 is written on the tail in a finer pen (stroke 1.1): the 3 from 800 to 900, the 6 from 850 to 950, the 5 from 900 to 1000 |
-| 1000 to 2500 | The finished mark stands |
+| 620 to 1000 | The leg drops from the peak (`leg-drop` on `.leg`): an ease-in fall that lands at about 850, then a squash and spring back (`scaleY`, from its foot) |
+| 900 to 1150 | The name (`.name .write`) is written in from the left (`write`, a clip) |
+| 1100 to 1400 | "An EchoFive product" (`.byline .write`) is written in the same way |
+| 1400 to 2500 | The finished signature stands |
 | 2500 to 2680 | The signature and the hint fade on the still opaque paper (`sign-leave`, 180 ms) |
 | 2500 to 2950 | Cover leaves (`cover-leave`, 450 ms, `--curve-leave`): its opacity holds at 1 until 40%, 2680, so the mark never lies over the hero |
 | 5500 | Backstop: the `data-intro` attribute is unset |
 
-The mark is drawn with `pathLength={1}` and dash offsets. The pen curve is `--curve-pen`.
+The two halves of the mark are filled shapes hidden by an animated `clip-path`; the writing of the text is a `clip-path` that opens from the left. The arm's curve is `--curve-pen`.
 
 ### 6.5 Skip and end
 
@@ -1016,7 +1011,6 @@ Run the scripts in `scripts/` by path, for example `node scripts/check-budgets.m
 | `data-hero-stage`, `data-hero-prompt`, `data-hero-doc` | Hero | The stage, its prompt box and a document |
 | `data-included` | Catalog | The line above the results for a locked template that has no tile on the page |
 | `data-nav-underline` | Bar | The sliding underline |
-| `data-mark-digits` | Mark | The 365 on the arm |
 | `data-cover`, `data-format` | Template covers | Format ratio |
 | `data-specimen`, `data-mark` | Home page | Specimen and highlighted phrase |
 
@@ -1053,9 +1047,9 @@ Each file below is in `tests/unit/`:
 | `validate.test.ts` | Validation errors and sorting; a catalog with 0, 5, 7 or 8 free templates is rejected |
 | `coverage.test.ts`, `format.test.ts` | Helpers; `adjacentPhases`; `formatPrice(149999, "CAD")` is `$1,499.99 CAD`; `countWord(6)` is `six`; `formatLength(16, "pptx")` is `16 slides` |
 | `compounds.test.ts` | Compound splitting for `KeepCompounds` |
-| `brand-mark.test.ts` | Logo geometry, the 365 (three one-stroke digits in their box, clear of the legs, above the arm, evenly set), `LogoMark` with and without digits (the full and the compact form), and `app/icon.svg` against `scripts/gen-icon.mjs` |
+| `brand-mark.test.ts` | Logo geometry (the two halves, the seam, the leans, the ink centred), `LogoMark` in one and two inks, and `app/icon.svg` against `scripts/gen-icon.mjs` |
 | `boot-script.test.ts` | Runs `BOOT_SCRIPT` against stand-ins for the document, storage and media queries: reduced motion writing nothing, the motion switches, the cover decision against `shouldPlayIntro`, the skip and its click guard, the 5500 ms backstop, and the script's weight |
-| `boot-cover.test.ts` | Cover markup (no picture and no canvas) and timings (six pen paths, the digits 800 to 1000, leave at 2500 with the signature gone before the paper clears, gone 200 ms after an input) |
+| `boot-cover.test.ts` | Cover markup (no picture and no canvas, two filled halves, the name and the line under it) and timings (the arm 120 to 620, the leg 620 to 1000 with its squash, the text written by 1400, leave at 2500 with the signature gone before the paper clears, gone 200 ms after an input) |
 | `kit-motion.test.ts` | `motion.css` rules: keyframes and animations inside `no-preference`, timeline ordering, hidden states only under `data-motion="on"`, no blurred entrance, the heading's range ending first |
 | `kit-grain.test.ts` | Paper grain image format and size |
 | `legal.test.ts` | The four legal documents: the routes of `LEGAL_LINKS` in order; no empty section or block; an anchor of its own for every section and subsection; links only to pages and anchors that exist, and to the contact page and the other three; no placeholder text; the wording for set and unset facts (refund window, province, host, audit); the privacy policy names the two session storage keys (`lib/boot/state.ts`, `lib/checkout/draft.ts`) |
