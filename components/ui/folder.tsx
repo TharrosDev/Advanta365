@@ -14,7 +14,8 @@ type FolderProps = {
   /**
    * `card` is the folder of a card or a row. `page` is the one a page is built around: every
    * measure of it is a share of its own width, so it is the same object at 18rem and at 34rem,
-   * with a taller pocket for its sheets, a card stock front and a deeper shadow.
+   * with a taller pocket for its sheets, a deeper inside, a card stock front with a thumb cut at
+   * the middle of its top edge and two scores along its foot, and a deeper shadow.
    */
   size?: "card" | "page";
   /**
@@ -81,7 +82,10 @@ export function Folder({
               style={cssVars({ "--n": index })}
             />
           ))}
-      <div className={cx(styles.front, frontClassName)}>{children}</div>
+      <div className={cx(styles.front, frontClassName)}>
+        {size === "page" ? <span aria-hidden="true" className={styles.frontStock} /> : null}
+        {children}
+      </div>
     </div>
   );
 

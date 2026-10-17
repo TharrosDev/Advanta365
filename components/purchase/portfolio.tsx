@@ -76,11 +76,12 @@ const FORMATS = ["DOCX", "PPTX", "XLSX", "PDF"] as const;
  *
  * `size="page"` is the folder of the purchase page: 34rem wide at most, centred in what holds it
  * (the page stands it at the start of its columns from 68em, beside the contents leaf, through
- * `className`), its front headed by the page's one `h1` (that page has no title block); from 68em
- * the tag hangs outwards, off the folder's edge. `size="section"` is the same object as part of a section that has a heading of its own
- * (so the front is headed by an `h3`), 30rem at most, the tag always lying on the front.
- * Everything in and on the folder is measured from the folder's own width, so it is one object at
- * every size.
+ * `className`), its front headed by the page's one `h1` (that page has no title block).
+ * `size="section"` is the same object as part of a section that has a heading of its own (so the
+ * front is headed by an `h3`), 30rem at most unless its section asks for more, with a deeper
+ * pocket. At either size the tag lies on the front below 68em and, from 68em, hangs outwards off
+ * the folder's edge. Everything in and on the folder is measured from the folder's own width, so
+ * it is one object at every size, and it lies on the desk in a soft shadow of its own.
  *
  * Under the pointer the covers rise and fan a little, and the tag swings; the covers do the same
  * under keyboard focus where an element around the portfolio carries `data-folder-scope`. Hook:

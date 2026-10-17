@@ -66,6 +66,24 @@
    */
   --card-light: rgb(255 255 255 / 0.62);
   --pocket-shade: 0 -8px 14px -8px rgb(11 13 18 / 0.22);
+  /*
+   * Its inside, the same stock in the front's shade (the wash a step towards the highlighter,
+   * deeper down the pocket); the light along a cut edge of the stock; the two scores pressed along
+   * the front's foot, a line and the light on its lip; and the shadow of a front whose outline has
+   * a thumb cut in it, so a filter and not a box shadow: the shade up into the pocket, a hairline
+   * edge and the drop onto the desk.
+   */
+  --folder-inside: color-mix(in oklab, var(--mark-wash), var(--mark) 22%);
+  --folder-inside-deep: color-mix(in oklab, var(--mark-wash), var(--mark) 40%);
+  --card-edge: rgb(255 255 255 / 0.55);
+  --card-edge-bright: rgb(255 255 255 / 0.88);
+  --card-score: rgb(11 13 18 / 0.07);
+  --card-score-lip: rgb(255 255 255 / 0.8);
+  --card-cast: drop-shadow(0 -0.125rem 0.25rem rgb(11 13 18 / 0.1))
+    drop-shadow(0 0 0.5px rgb(11 13 18 / 0.28))
+    drop-shadow(0 0.875rem 1.125rem rgb(11 13 18 / 0.16));
+  /* What an object lying on the desk leaves under its foot. */
+  --desk-shadow: rgb(11 13 18 / 0.13);
 
   /*
    * Semantic layer: what components read. Each [data-band] redefines it. The focus ring is ink on

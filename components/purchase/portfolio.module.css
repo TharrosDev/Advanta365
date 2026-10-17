@@ -19,6 +19,11 @@
   --portfolio-w: 30rem;
 }
 
+/* The home section's folder is fuller: a deeper pocket, so more of each cover stands above the front. */
+.section .object {
+  --pocket: 31cqi;
+}
+
 .object {
   --tab: clamp(1.75rem, 7cqi, 2.5rem);
   --pocket: 28cqi;
@@ -29,8 +34,25 @@
   --tag-drop: clamp(0px, (20rem - 100cqi) * 999, 2.5cqi + 2rem);
 
   position: relative;
+  isolation: isolate;
   container-type: inline-size;
   width: min(100%, var(--portfolio-w));
+}
+
+/*
+ * Where the folder lies on the desk: a soft shadow under its foot, wider than the drop shadow of
+ * the front, so the folder sits on something.
+ */
+.object::before {
+  content: "";
+  position: absolute;
+  right: -4cqi;
+  bottom: -5cqi;
+  left: -4cqi;
+  z-index: -1;
+  height: 14cqi;
+  background: radial-gradient(closest-side, var(--desk-shadow), transparent);
+  pointer-events: none;
 }
 
 /* The doubled selector beats the measures the folder sets for itself. */
@@ -119,18 +141,18 @@
 }
 
 /*
- * From 68em the folder of a page has the room beside it: the tag is tied 5 units in from the
- * corner and hangs outwards, half of it off the folder's edge, and the heading takes its place
- * under the mark.
+ * From 68em the folder has the room beside it: the tag is tied 5 units in from the corner and
+ * hangs outwards, half of it off the folder's edge, and the heading takes its place under the
+ * mark.
  */
 @media (min-width: 68em) {
-  .page .tag.tag {
+  .tag.tag {
     --tag-turn: -6deg;
 
     right: calc(5cqi - var(--tag-w) / 2);
   }
 
-  .page .title {
+  .title {
     margin-block-start: calc(var(--s-5) + var(--tag-drop));
   }
 }
@@ -155,6 +177,18 @@
 @media (hover: hover) {
   .folder:hover .cover {
     rotate: calc(var(--turn, 0deg) * 2.2);
+  }
+}
+
+@media (prefers-contrast: more) {
+  .object::before {
+    display: none;
+  }
+}
+
+@media (forced-colors: active) {
+  .object::before {
+    display: none;
   }
 }
 

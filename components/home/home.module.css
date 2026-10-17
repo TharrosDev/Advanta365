@@ -453,12 +453,13 @@
  * The toolkit. The words, then the portfolio under them; from 68em the words in columns 1 to 5 and
  * the portfolio in columns 7 to 12, centred on each other. Before that the two stand side by side
  * as soon as each has 24rem (a tablet held wide), so the folder is not left alone in the middle of
- * a row with 270px of nothing on either side; narrower, one column.
+ * a row with 270px of nothing on either side; narrower, one column. The gap between the words and
+ * the folder is wide: the folder is an object on the desk, not a picture in a card.
  */
 .toolkit {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(min(100%, 24rem), 1fr));
-  gap: var(--s-6);
+  gap: var(--s-7) var(--s-6);
   align-items: center;
 }
 
@@ -467,21 +468,80 @@
   min-width: 0;
 }
 
+.toolkitTitle {
+  max-width: 12em;
+  margin-block-start: var(--s-2);
+}
+
 .toolkitLead {
   max-width: var(--wrap-copy);
   margin-block-start: var(--s-3);
   color: var(--text-soft);
 }
 
-/* Full width on a phone, its own width after. */
+/*
+ * The terms, as the lines of a receipt: 42px under the lead, each row a label with an ink tick on
+ * a highlighter square and its value; from 40em the label stands in a column of its own. (Doubled
+ * to outrank the ledger's own margin.)
+ */
+.toolkitTerms.toolkitTerms {
+  max-width: var(--wrap-copy);
+  margin-block-start: var(--s-5);
+}
+
+.toolkitTerm {
+  display: grid;
+  gap: var(--s-1) var(--s-3);
+}
+
+.toolkitTermLabel {
+  display: flex;
+  align-items: center;
+  gap: var(--s-2);
+  color: var(--text-soft);
+}
+
+/* The mark carries ink: a highlighter square, ringed and ticked in ink. */
+.toolkitTick {
+  flex: none;
+  width: var(--s-3);
+  height: var(--s-3);
+  padding: 0.125rem;
+  border-radius: var(--round-1);
+  background: var(--mark);
+  box-shadow: inset 0 0 0 var(--hair) var(--ink);
+  color: var(--ink);
+  stroke-width: 2.5;
+}
+
+.toolkitTermValue {
+  margin: 0;
+  color: var(--text);
+  text-wrap: pretty;
+}
+
+/* Full width on a phone, side by side after, the purchase first. */
 .toolkitAction {
   display: flex;
   flex-direction: column;
+  gap: var(--s-2);
   margin-block-start: var(--s-5);
 }
 
 @media (min-width: 40em) {
+  .toolkitTerm {
+    grid-template-columns: 7rem minmax(0, 1fr);
+    align-items: baseline;
+  }
+
+  .toolkitTermLabel {
+    align-self: start;
+    min-height: var(--size-ui);
+  }
+
   .toolkitAction {
+    flex-direction: row;
+    flex-wrap: wrap;
     align-items: flex-start;
   }
 }
@@ -496,18 +556,23 @@
     grid-column: 1 / span 5;
   }
 
+  /*
+   * The portfolio in columns 7 to 12, nudged off the band's right edge by 28px so the tag that
+   * hangs from the folder's corner stays inside the column.
+   */
   .toolkitObject {
     grid-column: 7 / -1;
+    padding-inline-end: var(--s-4);
   }
 
   /*
-   * The folder is 30rem wide, which is four fifths of its six columns on a desktop and less of
-   * them on a large monitor, where the columns grow faster than the root size does: so it takes
+   * The folder is 30rem wide, which is under four fifths of its six columns on a desktop and less
+   * of them on a large monitor, where the columns grow faster than the root size does: so it takes
    * four fifths of them when that is more. (Doubled by the attribute selector to outrank the
    * measure the portfolio sets for itself.)
    */
   .toolkitObject > [class] {
-    --portfolio-w: max(30rem, 79.7%);
+    --portfolio-w: max(30rem, 84%);
   }
 }
 
