@@ -1,5 +1,5 @@
 import { expect, test, type Page } from "@playwright/test";
-import { hydrated, introSeen, NAVIGATION_TIMEOUT } from "./helpers";
+import { hydrated, introSeen, NAVIGATION_TIMEOUT, openCatalog } from "./helpers";
 
 // A free sample opens in a pop-up over the catalog: a native modal dialog whose being open is the
 // `view` parameter of the address. A free tile is a link to that address, so the pop-up opens by a
@@ -13,12 +13,6 @@ const LOCKED_SLUG = "sharepoint-migration-impact-assessment";
 const dialog = (page: Page) => page.locator("dialog[data-template-dialog]");
 const tileLink = (page: Page, title = FREE.title) =>
   page.locator("[data-tile][data-free]").getByRole("link", { name: title, exact: true });
-
-async function openCatalog(page: Page, address = "/catalog") {
-  const response = await page.goto(address);
-  await hydrated(page);
-  return response;
-}
 
 /** Opens the pop-up of the free sample from its tile, and waits for it to be the modal dialog. */
 async function openFromTile(page: Page) {

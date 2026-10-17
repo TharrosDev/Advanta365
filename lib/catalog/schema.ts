@@ -5,7 +5,7 @@ import { extensionOf } from "@/lib/files/types";
 const slug = z.string().regex(/^[a-z0-9]+(-[a-z0-9]+)*$/, "must be lower-case kebab");
 const text = z.string().trim().min(1);
 
-export const StepSchema = z.object({
+const StepSchema = z.object({
   slug,
   name: text,
   summary: text,
@@ -24,7 +24,7 @@ export const PhaseSchema = z.object({
  * One file a template is delivered as. `key` is where the file store keeps it and is never shown;
  * `name` is the file name the buyer saves; `id` names the file in its download address.
  */
-export const TemplateFileSchema = z.object({
+const TemplateFileSchema = z.object({
   id: slug,
   name: z
     .string()

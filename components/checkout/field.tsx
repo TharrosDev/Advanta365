@@ -3,7 +3,7 @@ import { cx } from "@/lib/cx";
 import styles from "./field.module.css";
 
 /** What a field hands its control: the id its label points at, and how it is described. */
-export type FieldControl = {
+type FieldControl = {
   id: string;
   required: boolean;
   "aria-describedby": string | undefined;
@@ -79,7 +79,7 @@ export function FieldError({ id, children }: { id?: string; children: ReactNode 
   );
 }
 
-export type Problem = { id: string; message: string };
+type Problem = { id: string; message: string };
 
 /**
  * What stands at the head of a form that was sent with something wrong: how many problems there

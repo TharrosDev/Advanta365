@@ -77,7 +77,7 @@ export const DETAIL_LABELS: Record<Exclude<DetailField, "region">, string> = {
   note: "Note",
 };
 
-export type DetailRow = { field: DetailField; label: string; value: string };
+type DetailRow = { field: DetailField; label: string; value: string };
 
 /**
  * The buyer's details as rows, in the order the form asks: a country and a listed region by name,

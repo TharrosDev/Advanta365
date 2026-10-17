@@ -38,3 +38,10 @@ export async function introSeen(page: Page): Promise<void> {
 export async function hydrated(page: Page): Promise<void> {
   await expect(page.locator("html[data-hydrated]")).toBeAttached();
 }
+
+/** Opens the catalog (or another address) and waits for the page to answer to input. */
+export async function openCatalog(page: Page, address = "/catalog") {
+  const response = await page.goto(address);
+  await hydrated(page);
+  return response;
+}

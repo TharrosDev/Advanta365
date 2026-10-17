@@ -3,7 +3,7 @@ import type { Phase, Template } from "./schema";
 import { catalogHref } from "./search-params";
 
 /** Where a section of the worked example points in the catalog: one template, or a phase or step. */
-export type ContentsTarget = { template: string } | { phase: string; step?: string };
+type ContentsTarget = { template: string } | { phase: string; step?: string };
 
 /** One section of the worked example's table of contents, as the content file lists it. */
 export type ContentsEntry = { title: string; see: ContentsTarget };
@@ -12,7 +12,7 @@ export type ContentsEntry = { title: string; see: ContentsTarget };
  * The place in the catalog a section names, with what kind of place it is ("Template", "Step",
  * "Phase"). Without an `href` it is a locked template: named, in plain text, and not a link.
  */
-export type ContentsLink = { kind: "Template" | "Step" | "Phase"; label: string; href?: string };
+type ContentsLink = { kind: "Template" | "Step" | "Phase"; label: string; href?: string };
 
 /** A section ready to print: its title, and its place when the catalog has the one it names. */
 export type ContentsRow = { title: string; link?: ContentsLink };

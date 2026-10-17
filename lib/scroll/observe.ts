@@ -23,7 +23,7 @@ function needsHalf(element: Element): boolean {
 }
 
 /** Whether the element has arrived, read from the layout as it is now. Anything above counts. */
-export function hasArrived(element: Element, viewport = window.innerHeight): boolean {
+function hasArrived(element: Element, viewport = window.innerHeight): boolean {
   const rect = element.getBoundingClientRect();
   if (rect.width === 0 && rect.height === 0) return false;
   const line = viewport * VISIBLE_SHARE;

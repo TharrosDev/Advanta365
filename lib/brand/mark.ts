@@ -17,7 +17,7 @@
  * and bottom.
  */
 
-export type MarkSegment = {
+type MarkSegment = {
   readonly a: readonly [number, number];
   readonly b: readonly [number, number];
 };

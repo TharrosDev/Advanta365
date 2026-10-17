@@ -89,9 +89,9 @@ export const EMPTY_DETAILS: DetailsDraft = {
   note: "",
 };
 
-export type DetailErrors = Partial<Record<DetailField, string>>;
+type DetailErrors = Partial<Record<DetailField, string>>;
 
-export type DetailsResult =
+type DetailsResult =
   { ok: true; details: OrderDetails; errors: DetailErrors } | { ok: false; errors: DetailErrors };
 
 /**
