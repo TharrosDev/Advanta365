@@ -2,19 +2,33 @@ import { expect, test, type Locator, type Page } from "@playwright/test";
 import { hydrated, introSeen, NAVIGATION_TIMEOUT } from "./helpers";
 
 // From 68em the bar has three zones (the brand, Catalog and Why Advanta centred, and the purchase button)
-// and the phase rail stands under it. This file covers both on the desktop project (1280x800);
+// and the row holds the Phases drop-down between them. This file covers both on the desktop project (1280x800);
 // menu.spec.ts covers the narrow bar and the drawer on a phone.
 
 const INLINE = ["Catalog", "Why Advanta"];
 const BUTTON = "Get the toolkit · $1,499.99 CAD";
-const PHASES = ["Make the case", "Plan", "Design", "Prepare", "Communicate", "Execute", "Sustain"];
+// The toolkit's folders, in order, as the Phases drop-down names them.
+const STEPS = [
+  "Start here",
+  "Define the change",
+  "Assess the impact",
+  "Set the strategy",
+  "Engage leaders",
+  "Plan communications",
+  "Design the platform",
+  "Plan the training",
+  "Build the training",
+  "Deliver training",
+  "Go live and support",
+  "Make it stick",
+  "Used at every step",
+];
 
 const banner = (page: Page) => page.getByRole("banner");
 const primary = (page: Page) => banner(page).getByRole("navigation", { name: "Primary" });
 const buy = (page: Page) => banner(page).getByRole("link", { name: BUTTON, exact: true });
 const underline = (page: Page) => banner(page).locator("[data-nav-underline]");
-// Exact, so that no other navigation named after the phases is taken for the rail.
-const rail = (page: Page) => page.getByRole("navigation", { name: "Phases", exact: true });
+const menu = (page: Page) => primary(page).locator("[data-step-menu]");
 
 /** The horizontal centre of an element's box. */
 async function centre(locator: Locator): Promise<number> {
@@ -25,7 +39,7 @@ async function centre(locator: Locator): Promise<number> {
 
 test.describe("desktop bar", () => {
   test.beforeEach(async ({ page, isMobile }) => {
-    test.skip(isMobile, "the inline navigation and the rail only show from 68em");
+    test.skip(isMobile, "the inline navigation only shows from 68em");
     // The bar is the subject here, not the cover a first visit to the home page opens under.
     await introSeen(page);
   });
@@ -160,34 +174,67 @@ test.describe("desktop bar", () => {
       .toBeLessThan(0.001);
   });
 
-  test("the phase rail has seven tabs, each named by its phase", async ({ page }) => {
-    await page.goto("/");
-
-    await expect(rail(page)).toBeVisible();
-    await expect(rail(page)).toHaveAttribute("data-phase-rail");
-    await expect(rail(page).getByRole("link")).toHaveCount(PHASES.length);
-    for (const name of PHASES) {
-      await expect(rail(page).getByRole("link", { name, exact: true })).toBeVisible();
-    }
-    await expect(rail(page).locator("[aria-current]")).toHaveCount(0);
-  });
-
-  test("the rail marks a phase page, and no phase while a template is open in the catalog", async ({
+  test("Phases in the bar is a drop-down of the thirteen steps, between Catalog and Why Advanta", async ({
     page,
   }) => {
-    await page.goto("/phases/prepare");
-    await expect(rail(page).getByRole("link", { name: "Prepare", exact: true })).toHaveAttribute(
-      "aria-current",
-      "page",
-    );
-    await expect(rail(page).locator("[aria-current]")).toHaveCount(1);
+    await page.goto("/");
+    await hydrated(page);
+
+    // The row reads Catalog, Phases, Why Advanta, and nothing stands under the bar.
+    await expect(
+      primary(page).locator(":scope > ul > li > a, :scope > ul > li summary"),
+    ).toHaveText(["Catalog", "Phases", "Why Advanta"]);
+    await expect(page.locator("[data-phase-rail]")).toHaveCount(0);
+
+    const button = menu(page).locator("summary");
+    await expect(button).toHaveText("Phases");
+    await expect(button.locator("svg")).toBeVisible();
+    await button.click();
+    const links = menu(page).getByRole("link");
+    await expect(links).toHaveCount(STEPS.length);
+    for (const [index, name] of STEPS.entries()) {
+      await expect(links.nth(index)).toHaveAccessibleName(name);
+    }
+    await expect(links.first()).toBeInViewport();
+    await expect(menu(page).locator("[aria-current]")).toHaveCount(0);
+
+    // Escape closes it and hands focus back to its button.
+    await page.keyboard.press("Escape");
+    await expect(links.first()).toBeHidden();
+    await expect(button).toBeFocused();
+
+    // So does a click outside it.
+    await button.click();
+    await expect(links.first()).toBeVisible();
+    // The panel hangs centred under the bar, so the page's left edge is outside it.
+    await page.mouse.click(8, 400);
+    await expect(links.first()).toBeHidden();
+
+    // A step link goes to the step's page.
+    await button.click();
+    await menu(page).getByRole("link", { name: "Build the training", exact: true }).click();
+    await expect(page).toHaveURL(/\/phases\/build-the-training$/, { timeout: NAVIGATION_TIMEOUT });
+    await expect(links.first()).toBeHidden();
+  });
+
+  test("on a step page Phases is underlined and the step marked, and no step while a template is open", async ({
+    page,
+  }) => {
+    await page.goto("/phases/build-the-training");
+    await expect(underline(page)).toBeVisible();
+    const button = menu(page).locator("summary");
+    await button.click();
+    await expect(
+      menu(page).getByRole("link", { name: "Build the training", exact: true }),
+    ).toHaveAttribute("aria-current", "page");
+    await expect(menu(page).locator("[aria-current]")).toHaveCount(1);
 
     await page.goto("/catalog?view=executive-sponsor-kickoff-deck");
     await expect(page.locator("dialog[open]")).toHaveCount(1);
-    await expect(rail(page).locator("[aria-current]")).toHaveCount(0);
+    await expect(menu(page).locator("[aria-current]")).toHaveCount(0);
   });
 
-  test("the bar stays at the top after scrolling, and the rail scrolls away", async ({ page }) => {
+  test("the bar stays at the top after scrolling", async ({ page }) => {
     await page.goto("/catalog");
     await expect(banner(page)).toHaveCSS("position", "sticky");
     // The bar is set off by a shadow, not by a line under it.
@@ -199,7 +246,6 @@ test.describe("desktop bar", () => {
     await expect(banner(page)).toBeInViewport({ ratio: 1 });
     const box = await banner(page).boundingBox();
     expect(box?.y).toBe(0);
-    await expect(rail(page)).not.toBeInViewport();
   });
 
   test("the brand takes the home page back to its top, with no new history entry", async ({

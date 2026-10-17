@@ -2,13 +2,25 @@ import { expect, test } from "@playwright/test";
 import { introSeen } from "./helpers";
 
 // The one place a sale starts. `/purchase` shows the toolkit as one folder with its price on a paper
-// tag, the phases it reaches, and, on a contents leaf beside it, what is inside (the ledger, the
+// tag, the steps it reaches, and, on a contents leaf beside it, what is inside (the ledger, the
 // Checkout link, the way to write to us and the note that the catalog is sample content). The page
 // has no title block: it opens on the folder, whose heading is its one h1. The checkout that the
 // link opens is the subject of checkout.spec.ts. The home page shows the same folder with a way to
 // that page.
 
-const PHASES = ["Make the case", "Plan", "Design", "Prepare", "Communicate", "Execute", "Sustain"];
+const STEPS = [
+  "Define the change",
+  "Assess the impact",
+  "Set the strategy",
+  "Engage leaders",
+  "Plan communications",
+  "Design the platform",
+  "Plan the training",
+  "Build the training",
+  "Deliver training",
+  "Go live and support",
+  "Make it stick",
+];
 
 test.beforeEach(async ({ page }) => {
   await introSeen(page);
@@ -20,7 +32,7 @@ test("the purchase page has one title, and the price once, on the tag", async ({
   // There is no title block: the one h1 is the heading on the front of the folder, and the stage
   // is the first thing under the bar.
   await expect(page.getByRole("heading", { level: 1 })).toHaveCount(1);
-  await expect(page.getByRole("heading", { level: 1 })).toHaveText("Seven phases in one folder.");
+  await expect(page.getByRole("heading", { level: 1 })).toHaveText("Eleven phases in one folder.");
   await expect(page.locator("[data-folder]").getByRole("heading", { level: 1 })).toHaveCount(1);
   await expect(page).toHaveTitle(/Purchase/);
   await expect(page.getByRole("main").getByText(/not available yet|coming soon/i)).toHaveCount(0);
@@ -41,17 +53,19 @@ test("the purchase page has one title, and the price once, on the tag", async ({
   expect(mentions).toBe(1);
 });
 
-test("the folder shows the six sample covers and a tally of all seven phases", async ({ page }) => {
+test("the folder shows the six sample covers and a tally of all eleven phases", async ({
+  page,
+}) => {
   await page.goto("/purchase");
 
   const folder = page.locator("[data-folder]");
   await expect(folder).toHaveCount(1);
   await expect(folder.locator("[data-cover]")).toHaveCount(6);
 
-  const tally = page.getByRole("img", { name: `Phases: ${PHASES.join(", ")}` });
+  const tally = page.getByRole("img", { name: `Phases: ${STEPS.join(", ")}` });
   await expect(tally).toBeVisible();
-  await expect(tally.locator("[data-block]")).toHaveCount(7);
-  await expect(tally.locator('[data-block="ink"]')).toHaveCount(7);
+  await expect(tally.locator("[data-block]")).toHaveCount(11);
+  await expect(tally.locator('[data-block="ink"]')).toHaveCount(11);
 });
 
 test("the ledger counts what is inside the toolkit", async ({ page }) => {

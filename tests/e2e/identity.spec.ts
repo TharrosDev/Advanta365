@@ -18,7 +18,7 @@ test.beforeEach(async ({ page }) => {
 const ROUTES = [
   "/",
   "/catalog",
-  "/phases/prepare",
+  "/phases/build-the-training",
   "/catalog?view=executive-sponsor-kickoff-deck",
   "/purchase",
   "/why-advanta",
@@ -431,6 +431,8 @@ test("every link and button shows the 3px focus ring under the keyboard", async 
         if (!(element instanceof HTMLElement)) continue;
         // A disabled button takes no keyboard focus, so it has no ring.
         if (element.matches(":disabled")) continue;
+        // Nor does a link inside a closed drop-down, which the browser still gives a box.
+        if (element.closest("details:not([open]) > :not(summary)")) continue;
         const box = element.getBoundingClientRect();
         if (!box.width || !box.height || getComputedStyle(element).visibility === "hidden")
           continue;
@@ -636,7 +638,7 @@ test("at 320px no page runs past the screen, and the bar's controls and every bu
 
     // The frame clips sideways, which hides an element that sticks out from the measure above:
     // check the edges of everything that takes up room on the page. A row that scrolls sideways
-    // (the phones' phase strip) is measured itself, and what scrolls inside it is not: its cards
+    // (should a page have one) is measured itself, and what scrolls inside it is not: its cards
     // run past the screen on purpose, inside a box that does not.
     const outside = await page.evaluate(() => {
       const width = document.documentElement.clientWidth;

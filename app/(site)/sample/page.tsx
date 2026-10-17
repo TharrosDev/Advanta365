@@ -12,7 +12,9 @@ import { RowLink } from "@/components/ui/row-link";
 import { Split } from "@/components/ui/split";
 import { Tally } from "@/components/ui/tally";
 import { TextLink } from "@/components/ui/text-link";
+import { numberedPhases } from "@/lib/catalog/coverage";
 import { getPhases, getWorkedExampleContents } from "@/lib/catalog/repository";
+import { phaseHref } from "@/lib/catalog/search-params";
 import { cx } from "@/lib/cx";
 import styles from "./page.module.css";
 
@@ -36,11 +38,11 @@ const CONTENTS_TITLE = "Contents";
  * until the example's file is published (see content/worked-example.ts).
  */
 const CONTENTS_PLACEHOLDER =
-  "Beta note: placeholder contents. The real table of contents comes with the example’s file. Until then each section names a piece of the rollout. Free samples, steps and phases are links; the other templates come with the toolkit.";
+  "Beta note: placeholder contents. The real table of contents comes with the example’s file. Until then each section names a piece of the rollout. Free samples and phases are links; the other templates come with the toolkit.";
 
 /**
- * The caption over the phase links and the accessible name of their `<nav>`. The links go to the
- * sample catalog's phase pages; the label makes no claim about how the example is organized.
+ * The caption over the step links and the accessible name of their `<nav>`. The links go to the
+ * sample catalog's step pages; the label makes no claim about how the example is organized.
  */
 const PHASES_LABEL = "Browse the sample catalog by phase";
 
@@ -56,8 +58,8 @@ const NEXT = [
  * Layout: the title block with ink and the example as a thick document in its aside; a statement
  * section on the desk; the contents on paper as a numbered ledger, each section's title in the
  * document's face with the catalog's name for that piece beside it, a link unless it is a locked
- * template (marked as placeholders while the content file says they are); the catalog phases on the desk as a ledger, each row
- * the one link to its phase page, with a seven-block tally that marks where the phase falls; a
+ * template (marked as placeholders while the content file says they are); the toolkit's sections on the desk as a ledger, each row
+ * the one link to its page, a numbered phase with an eleven-block tally that marks where it falls; a
  * closing paper band with two links to the next places.
  */
 export default async function SamplePage() {
@@ -65,6 +67,7 @@ export default async function SamplePage() {
     getPhases(),
     getWorkedExampleContents(),
   ]);
+  const steps = numberedPhases(phases);
 
   return (
     <>
@@ -138,22 +141,35 @@ export default async function SamplePage() {
         >
           <nav aria-label={PHASES_LABEL}>
             <BandedList>
-              {phases.map((phase, index) => (
+              {phases.map((phase) => (
                 <BandedRow key={phase.slug}>
                   <RowLink
                     size="lg"
-                    href={`/phases/${phase.slug}`}
+                    href={phaseHref(phase.slug)}
                     label={phase.name}
-                    caption={`Phase ${index + 1} of ${phases.length}`}
+                    caption={
+                      phase.number === undefined
+                        ? phase.order < (steps[0]?.order ?? 0)
+                          ? "Before phase 1"
+                          : `Alongside phases 1 to ${steps.length}`
+                        : `Phase ${phase.number} of ${steps.length}`
+                    }
                     lead={
                       <span className={styles.numeral} aria-hidden="true">
-                        {index + 1}
+                        {phase.number}
                       </span>
                     }
                     trailing={
-                      <span className={styles.tally}>
-                        <Tally total={phases.length} filled={index} marked={index + 1} size="sm" />
-                      </span>
+                      phase.number === undefined ? undefined : (
+                        <span className={styles.tally}>
+                          <Tally
+                            total={steps.length}
+                            filled={phase.number - 1}
+                            marked={phase.number}
+                            size="sm"
+                          />
+                        </span>
+                      )
                     }
                   />
                 </BandedRow>
@@ -163,7 +179,7 @@ export default async function SamplePage() {
         </Split>
       </Band>
 
-      <NextSteps title="See what the toolkit holds for the step you are on" links={NEXT} />
+      <NextSteps title="See what the toolkit holds for the phase you are on" links={NEXT} />
     </>
   );
 }

@@ -9,13 +9,13 @@ import { settled } from "./support/hero";
 //   - the words of the page span a good share of the window, so a large monitor is used and not
 //     left as a narrow column in the middle of a wide desk;
 //   - the page has its one title and no console error.
-// A visually hidden element is a clipped 1px box and a row that scrolls sideways on purpose (the
-// phones' phase strip) is measured as the row, not by what scrolls inside it.
+// A visually hidden element is a clipped 1px box and a row that scrolls sideways on purpose (should
+// a page have one) is measured as the row, not by what scrolls inside it.
 
 const ROUTES = [
   "/",
   "/catalog",
-  "/phases/plan",
+  "/phases/assess-the-impact",
   "/purchase",
   "/why-advanta",
   "/contact",

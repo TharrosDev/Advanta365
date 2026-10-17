@@ -10,14 +10,15 @@ import styles from "./hero-sheet.module.css";
 
 /**
  * What the specimen shows: one catalog template, written out. `facts` are the template pop-up's own
- * label and value pairs, in its order (Phase, Step, Type, Format, Length).
+ * label and value pairs, in its order (Phase, Type, Format, Length).
  */
 export type SpecimenContent = {
   title: string;
   summary: string;
   formatTag: string;
   facts: ReadonlyArray<{ label: string; value: string }>;
-  phaseOrder: number;
+  /** The phase number; none for a section that is not a numbered phase. */
+  phaseNumber?: number;
   phaseName: string;
 };
 
@@ -35,7 +36,7 @@ export function Specimen({
   specimen: SpecimenContent;
   className?: string;
 }) {
-  const { title, summary, formatTag, facts, phaseOrder, phaseName } = specimen;
+  const { title, summary, formatTag, facts, phaseNumber, phaseName } = specimen;
 
   return (
     <Appear move="settle" data-specimen="" aria-hidden="true" className={className}>
@@ -44,7 +45,9 @@ export function Specimen({
           <div className={styles.head}>
             <Tag variant="format">{formatTag}</Tag>
             <span className={styles.phase}>
-              <span className={styles.numeral}>{phaseOrder}</span>
+              {phaseNumber === undefined ? null : (
+                <span className={styles.numeral}>{phaseNumber}</span>
+              )}
               <span className="type-note">{phaseName}</span>
             </span>
           </div>

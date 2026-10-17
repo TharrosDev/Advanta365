@@ -1,0 +1,211 @@
+/*
+ * The disclosure stands where it is put; its panel drops over what is under it, as wide as the
+ * button and never narrower than its longest name.
+ */
+.root {
+  position: relative;
+  min-width: 0;
+}
+
+/* The button: an outline control with the section's name and a chevron at its end. */
+.button {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--s-2);
+  min-height: var(--tap);
+  padding: var(--s-1) var(--s-2);
+  border: var(--edge) solid var(--line-ink);
+  border-radius: var(--round-2);
+  background: var(--surface);
+  color: var(--text);
+  font-weight: 600;
+  list-style: none;
+  cursor: pointer;
+  transition: background-color var(--time-swap) linear;
+}
+
+.button::-webkit-details-marker {
+  display: none;
+}
+
+.button:focus-visible {
+  background: var(--mark-wash);
+  color: var(--ink);
+}
+
+.words {
+  display: flex;
+  align-items: baseline;
+  gap: var(--s-1);
+  min-width: 0;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+/* Besley's own figures: see the note on the display classes in globals.css. */
+.buttonNumeral {
+  flex: none;
+  font-family: var(--face-display);
+  font-weight: 700;
+  font-feature-settings: "tnum" 0;
+}
+
+.buttonName {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* An SVG turns about its own corner unless told otherwise. */
+.chevron {
+  flex: none;
+  transform-box: fill-box;
+  transform-origin: center;
+  transition: rotate var(--time-swap) linear;
+}
+
+.root[open] .chevron {
+  rotate: 180deg;
+}
+
+.panel {
+  position: absolute;
+  inset-block-start: calc(100% + var(--s-1));
+  inset-inline-start: 0;
+  z-index: 20;
+  min-width: max(100%, 17rem);
+  max-height: min(70dvh, 40rem);
+  padding: var(--s-1);
+  overflow-y: auto;
+  border: var(--hair) solid var(--line);
+  border-radius: var(--round-2);
+  background: var(--surface);
+  box-shadow: var(--depth-3);
+}
+
+.list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+/* Start here and Used at every step stand apart from the numbered run, a hairline between. */
+.apart:first-child {
+  margin-block-end: var(--s-1);
+  padding-block-end: var(--s-1);
+  border-block-end: var(--hair) solid var(--line);
+}
+
+.apart:last-child {
+  margin-block-start: var(--s-1);
+  padding-block-start: var(--s-1);
+  border-block-start: var(--hair) solid var(--line);
+}
+
+.link {
+  display: flex;
+  align-items: center;
+  gap: var(--s-2);
+  min-height: var(--tap);
+  padding-inline: var(--s-1);
+  border-radius: var(--round-1);
+  color: var(--text);
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+.link:focus-visible,
+.link:active {
+  background: var(--mark-wash);
+  color: var(--ink);
+}
+
+/* The numeral tile, as in the menu panel; empty for a section with no number. */
+.numeral {
+  display: grid;
+  flex: none;
+  place-items: center;
+  width: var(--s-4);
+  height: var(--s-4);
+  border: var(--edge) solid transparent;
+  border-radius: var(--round-1);
+  background: var(--desk);
+  font-family: var(--face-display);
+  font-weight: 700;
+  font-feature-settings: "tnum" 0;
+}
+
+.numeral:empty {
+  background: none;
+}
+
+.link[aria-current] {
+  font-weight: 700;
+}
+
+.link[aria-current] .numeral {
+  border-color: var(--ink);
+  background: var(--mark);
+  color: var(--on-mark);
+}
+
+.link[aria-current] .numeral:empty {
+  border-color: transparent;
+  background: none;
+}
+
+/* From 68em a pointer is the rule and a row is 36px, so all thirteen fit under the rail. */
+@media (min-width: 68em) {
+  .link {
+    min-height: calc(var(--s-1) * 5);
+  }
+}
+
+@media (hover: hover) {
+  .button:hover {
+    background: var(--mark-wash);
+  }
+
+  .link:hover {
+    background: var(--mark-wash);
+  }
+}
+
+/*
+ * In the bar: the button is a link of the row (the word in the soft text colour, ink on hover,
+ * focus and while open, no box), and the panel drops centred under it, clear of the bar's foot.
+ */
+.bar .button {
+  justify-content: center;
+  gap: var(--s-1);
+  min-height: var(--control-sm);
+  border-color: transparent;
+  background: transparent;
+  color: var(--text-soft);
+  font-weight: inherit;
+}
+
+.bar[open] .button {
+  background: var(--mark-wash);
+  color: var(--ink);
+}
+
+.bar .panel {
+  inset-block-start: calc(100% + var(--s-2));
+  inset-inline-start: 50%;
+  translate: -50% 0;
+}
+
+@media (hover: hover) {
+  .bar .button:hover {
+    color: var(--ink);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .chevron {
+    transition: none;
+  }
+}

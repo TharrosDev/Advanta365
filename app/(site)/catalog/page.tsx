@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import { ActiveFilters } from "@/components/catalog/active-filters";
 import { FilterPanel } from "@/components/catalog/filter-panel";
-import { PhaseStrip } from "@/components/catalog/phase-strip";
 import { ResultList } from "@/components/catalog/result-list";
 import { SearchBox } from "@/components/catalog/search-box";
 import { SortSelect } from "@/components/catalog/sort-select";
@@ -10,8 +9,8 @@ import { TemplateDialog } from "@/components/catalog/template-dialog";
 import { singleCatalogPhase } from "@/components/layout/nav-links";
 import { Band } from "@/components/ui/band";
 import { KeepCompounds } from "@/components/ui/keep-compounds";
-import { PhaseTabs } from "@/components/ui/phase-tabs";
 import { Split } from "@/components/ui/split";
+import { StepMenu } from "@/components/ui/step-menu";
 import { TextLink } from "@/components/ui/text-link";
 import { queryTemplates } from "@/lib/catalog/query";
 import { getPhases, getTemplate, getTemplates } from "@/lib/catalog/repository";
@@ -24,14 +23,14 @@ import { hasLicence } from "@/lib/licence/session";
 import { PURCHASE_LINK, SITE } from "@/lib/site";
 import styles from "./page.module.css";
 
-// The description writes the phase count out ("seven"): change it here if the catalog gains or loses
-// a phase. The listings are sample content (placeholders), so it does not say how much the catalog
+// The description writes the phase count out ("eleven"): change it here if the toolkit gains or
+// loses a phase. The listings are sample content (placeholders), so it does not say how much the catalog
 // holds or presents them as pieces of the toolkit. Every address of the catalog (a search, a filter,
 // a page of results, a template in `view`) names the plain catalog as its canonical one.
 export const metadata: Metadata = {
   title: "Catalog",
   description:
-    "The catalog is organized by the seven phases of a rollout. The listings shown are sample content, searchable by phase, type, app and audience.",
+    "The catalog is organized by the eleven phases of a rollout, as the toolkit's folders are. The listings shown are sample content, searchable by phase, type, app and audience.",
   alternates: { canonical: "/catalog" },
 };
 
@@ -45,14 +44,14 @@ const DIALOG_TITLE = "template-dialog-title";
 /**
  * The catalog. The page opens straight into the catalogue, with no title block: its one `h1` is
  * read out and not shown (from 68em the bar's current link says where the visitor is). On paper,
- * 42px under the bar (and under the phase rail from 68em): a rail with the search, the sort order
+ * 42px under the bar: a rail with the search, the sort order
  * and the filters (grid columns 1 to 3, staying under the bar from 68em) and the results beside it
  * (columns 4 to 12): the chips of the filters that are on, the count, a line that says the listings
  * are sample content and what the locks mean (the page has no lead of its own to say the first),
  * then a grid of tiles, one per template. Below 68em the rail is a block above the grid and the
- * filters open as a sheet. Below 40em the rail opens with the seven phases as a strip of index
- * cards (the way in the phase rail gives from 68em), the search shares a row with the Filters
- * button, and the sort order moves into the sheet.
+ * filters open as a sheet, and the rail opens with the "Jump to a phase" drop-down (the way in that
+ * the bar's Phases gives from 68em). Below 40em the search shares a row with the Filters button, and the
+ * sort order moves into the sheet.
  *
  * A browser holding a licence (`hasLicence`, the cookie of the licence link) sees every tile open and
  * any template in the pop-up, with its files to download; the line under the count says so. After a
@@ -77,8 +76,8 @@ export default async function CatalogPage({ searchParams }: CatalogPageProps) {
   const result = queryTemplates(templates, parsed, phases);
   // Use the clamped page so links and controls never carry an out-of-range value.
   const criteria = { ...parsed, page: result.page };
-  const phaseOptions = phases.map(({ slug, name }) => ({ slug, name }));
-  // Lit like the rail's tab when the catalog is filtered on exactly one phase.
+  const phaseOptions = phases.map(({ slug, name, number }) => ({ slug, name, number }));
+  // Named on the drop-down, as on the rail, when the catalog is filtered on exactly one section.
   const litPhase = singleCatalogPhase(
     criteria.phase,
     phaseOptions.map((phase) => phase.slug),
@@ -103,15 +102,12 @@ export default async function CatalogPage({ searchParams }: CatalogPageProps) {
           marginClassName={styles.rail}
           margin={
             <>
-              <PhaseStrip label="Start from a phase" current={litPhase} className={styles.phases}>
-                <PhaseTabs
-                  phases={phaseOptions}
-                  size="large"
-                  current={litPhase}
-                  currentKind="true"
-                  className={styles.strip}
-                />
-              </PhaseStrip>
+              <StepMenu
+                phases={phaseOptions}
+                current={litPhase}
+                currentKind="true"
+                className={styles.phases}
+              />
               <div className={styles.search}>
                 <SearchBox criteria={criteria} />
               </div>

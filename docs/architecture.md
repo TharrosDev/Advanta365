@@ -35,7 +35,7 @@ Related documents: `design-system.md` covers the visual rules and component usag
 | `/contact` | `app/(site)/contact/page.tsx` | Server, static | Title `Contact`; one section (`ContactSection`) and nothing else: the `h1`, the address `SITE.contactEmail` as a `mailto:` link, and four subjects to write about, each the same address with `?subject=`. No form and no endpoint |
 | `/privacy`, `/terms`, `/refunds`, `/accessibility` | `app/(site)/<name>/page.tsx` | Server, static | The four legal pages, the routes of `LEGAL_LINKS` in `lib/site.ts`: the privacy policy (with the cookies and browser storage as its section `#cookies`, and what is planned for the checkout under `#when-checkout-opens`), the terms of use and licence, the refund policy and the accessibility statement. Each page renders `LegalPage` with one `LegalDocument` from `lib/legal` and takes its title and description from it (section 5.3) |
 | `/sample` | `app/(site)/sample/page.tsx` | Server, reads phases and the worked example's contents | Title `Sample` |
-| `/phases/[phase]` | `app/(site)/phases/[phase]/page.tsx` | Params for the 7 phases; dynamic, because it reads the licence cookie | `notFound()` for other slugs; every tile opens for a browser holding a licence (section 3.8) |
+| `/phases/[phase]` | `app/(site)/phases/[phase]/page.tsx` | Params for the 13 sections; dynamic, because it reads the licence cookie | `notFound()` for other slugs; every tile opens for a browser holding a licence (section 3.8) |
 | `/licence` | `app/licence/route.ts` | Route handler (`GET`) | Checks `t`, sets the licence cookie, 303 to `/catalog` (or `/catalog?link=invalid`, which the catalog answers with a line above the results) |
 | `/api/samples/[slug]/[fileId]` | `app/api/samples/[slug]/[fileId]/route.ts` | Route handler (`GET`) | A free sample's file; 404 for any other |
 | `/api/library/[slug]/[fileId]` | `app/api/library/[slug]/[fileId]/route.ts` | Route handler (`GET`) | Any file, with a valid licence cookie; 404 without |
@@ -55,6 +55,9 @@ origin of its own in the source, so the link is written as that path.
 | `/bundles`, `/bundles/:slug`, `/pricing`, `/cart` | `/purchase` |
 | `/about` | `/why-advanta` |
 | `/templates/:slug` | `/catalog?view=:slug` |
+| `/phases/make-the-case`, `/phases/plan`, `/phases/design`, `/phases/prepare`, `/phases/communicate`, `/phases/execute`, `/phases/sustain` (the seven retired phases) | `/phases/define-the-change`, `/phases/assess-the-impact`, `/phases/design-the-platform`, `/phases/build-the-training`, `/phases/plan-communications`, `/phases/go-live-and-support`, `/phases/make-it-stick`, in that order (`OLD_PHASES`) |
+
+Any other unknown `/phases/<slug>` is a 404.
 
 `view` opens the pop-up only for a free sample. For a locked template nothing opens and its tile says no (or,
 where its tile is not on the page of results, a line above them does), and for any other value the catalog
@@ -62,14 +65,15 @@ shows as it is (section 8.3).
 
 Page layouts:
 
-- `/catalog` has no title block. It opens on the catalogue band (`pad="tight"`, 42px under the bar or the
-  phase rail) with a visually hidden `h1` "Catalog" (`type-banner visually-hidden`), and the line under
+- `/catalog` has no title block. It opens on the catalogue band (`pad="tight"`, 42px under the bar) with a visually hidden `h1` "Catalog" (`type-banner visually-hidden`), and the line under
   the result count (shown while there are results) says the listings are sample content.
-- `/phases/[phase]`: the step bands alternate desk and paper, and the foot band carries the alternation on. It
-  holds "View all <phase> templates" and `PhasePager`, a navigation named "Previous and next phase" whose
-  links read "Previous phase <name>" and "Next phase <name>" (`adjacentPhases`); the first phase has no
-  previous link and the last no next one. A tile on a phase page gets no `phaseName`, so it names its
-  deliverable type alone.
+- `/phases/[phase]`: the title block's aside holds, for a numbered phase, the numeral at the poster size,
+  "Phase N of 11" and an 11-block `Tally` with the blocks before it inked and its own marked; Start here says
+  "Before phase 1" and Used at every step "Alongside phases 1 to 11" instead, with no numeral or tally. The
+  templates follow as tiles on one desk band, and the foot band on paper holds "View all <name> templates" and
+  `PhasePager`, a navigation named "Previous and next phase" whose links read "Previous <name>" and "Next
+  <name>" (`adjacentPhases`, in folder order); Start here has no previous link and Used at every step no next
+  one. A tile on a phase page gets no `phaseName`, so it names its deliverable type alone.
 - `/why-advanta`: two headlines stand at the statement size, the `h1` and the black `#promise` band. `#who` and
   `#compare` open with `SectionHead` at `banner`; `#made` and `#state` use `page` (`#made` because its head
   stands in a narrow column that stays under the bar, held inside a slot as tall as the ledger because a
@@ -84,10 +88,11 @@ Page layouts:
   accessibility feedback), each `mailto:` with a `subject`. The page has no client code and no endpoint.
 - `/sample`: after the statement, a paper band "Contents" holds the worked example's table of contents
   (`getWorkedExampleContents`) as a numbered `BandedList as="ol"` labelled by its heading: each section's
-  title in `type-item`, then its place ("Template: …", "Step: …" or "Phase: …"). A free sample's place is a
+  title in `type-item`, then its place ("Template: …" or "Phase: …"). A free sample's place is a
   link to `/catalog?view=<slug>`, where it opens in the pop-up; a locked template's is its title in plain
   text. While `content/worked-example.ts` sets `placeholder`, a beta note heads
-  the list and every section reads "Placeholder". The phase ledger follows on the desk.
+  the list and every section reads "Placeholder". The phase ledger follows on the desk: all 13 sections, each a `RowLink` captioned "Phase N of 11" with an
+  11-block tally, or "Before phase 1" / "Alongside phases 1 to 11" with no numeral or tally.
 
 `proxy.ts` runs before routing. Any path containing an uppercase letter receives a 308 redirect to the
 lowercase path. Its matcher skips `_next/` and any path containing a dot.
@@ -105,10 +110,11 @@ Client components (files with `"use client"`):
 | Catalog | `components/catalog/filter-panel.tsx`, `sort-select.tsx` | Update the URL with `router.replace` |
 | Catalog tiles and pop-up | `components/catalog/locked-tile.tsx`, `components/ui/page-dialog.tsx` | The locked tile owns the denied state and its live line; the page dialog (which `TemplateDialog` and `CheckoutDialog` both render) is made modal in a layout effect and closes through the router |
 | Checkout | `components/checkout/checkout-dialog.tsx` (and the steps it imports) | Reads the step from `useSearchParams` and the order's draft from session storage with `useSyncExternalStore`; owns validation state, focus on a step change and the polite announcement. `OrderSummary` is a server component, rendered by the page and passed in |
-| Shell | `components/layout/primary-nav.tsx`, `purchase-button.tsx`, `phase-rail.tsx`, `nav-drawer.tsx` | Read `usePathname`; the drawer owns a native dialog |
+| Shell | `components/layout/primary-nav.tsx`, `phases-menu.tsx`, `purchase-button.tsx`, `nav-drawer.tsx` | Read `usePathname` (`PhasesMenu` also the search); the drawer owns a native dialog |
 | Not found | `components/not-found/asked-path.tsx`, `late-boot.tsx` | Read `window.location`; add the boot script when needed |
 | UI | `components/ui/motion-root.tsx` | Observers and the `data-hydrated` signal |
-| Catalog | `components/catalog/active-filters.tsx`, `phase-strip.tsx` | The filter chips (the router, and focus after a removal); the phase strip (below 68em) scrolling its lit card into view |
+| Catalog | `components/catalog/active-filters.tsx` | The filter chips (the router, and focus after a removal) |
+| Phases drop-down | `components/ui/step-menu.tsx` | Closes its `<details>` on Escape, a click outside, a link and a change of page |
 
 The cover is server-rendered markup (`components/intro/intro-cover.tsx`). What switches it on is an inline
 script rendered by `IntroScript` at the start of `<body>`, before any other content. See section 6.
@@ -124,15 +130,15 @@ content/*.ts  ->  lib/catalog/schema.ts (zod)  ->  lib/catalog/validate.ts
 
 | File | Holds |
 |---|---|
-| `content/phases.ts` | The seven phases and their steps |
-| `content/templates/index.ts` | Concatenates the seven per-phase template lists in phase order |
-| `content/templates/make-the-case.ts`, `plan.ts`, `design.ts`, `prepare.ts`, `communicate.ts`, `execute.ts`, `sustain.ts` | Templates per phase |
+| `content/phases.ts` | The 13 sections, one per toolkit folder (00 to 12) |
+| `content/templates/index.ts` | Concatenates the 13 per-section template lists in folder order |
+| `content/templates/<slug>.ts` (`start-here.ts` to `used-at-every-step.ts`) | Templates per section |
 | `content/templates/sample.ts` | The `sample()` helper |
 | `content/taxonomy.ts` | Labels for deliverable types, apps, audiences and formats, and the list of ADKAR stage keys (stored on templates, never shown) |
-| `content/worked-example.ts` | The worked example's table of contents: placeholder sections (`placeholder: true`, a `TODO(owner)`), each pointing at a template, a step or a phase |
+| `content/worked-example.ts` | The worked example's table of contents: placeholder sections (`placeholder: true`, a `TODO(owner)`), each pointing at a template or a phase |
 
 `sample(phase, entries)` adds `phase`, `free` (default `false`) and `isSample: true` to each entry.
-The per-phase files mark their entries as sample content, so `hasSampleContent()` is true (it is used only by
+The per-section files mark their entries as sample content, so `hasSampleContent()` is true (it is used only by
 the unit tests now; the beta strip is gone).
 
 ### 3.2 Schema and validation
@@ -142,15 +148,16 @@ trimmed and non-empty. A template has no price: the one price is `OFFER` (sectio
 
 | Kind | Required fields |
 |---|---|
-| Step | `slug`, `name`, `summary`, `order` (integer) |
-| Phase | `slug`, `name`, `summary`, `order` (integer), `steps` (at least one) |
-| Template | `slug`, `title`, `summary`, `description`, `phase`, `step`, `deliverableType`, `apps` (at least one), `audiences` (at least one), `format`, `adkar` (may be empty), `includes` (at least one), `free` (boolean: one of the six samples given away), `isSample`; optional `pageCount` (positive integer) |
+| Phase | `slug`, `name` (the plain name), `label` (the short one, for the line of phases on Why Advanta), `summary`, `order` (integer: the folder number, 0 to 12); optional `number` (positive integer: the phase number, on 01 to 11 only) |
+| Template | `slug`, `title`, `summary`, `description`, `phase`, `deliverableType`, `apps` (at least one), `audiences` (at least one), `format`, `adkar` (may be empty), `includes` (at least one), `free` (boolean: one of the six samples given away), `isSample`; optional `pageCount` (positive integer) |
 
-`lib/catalog/validate.ts` parses each record, sorts phases by `order` and steps by `order` within each
-phase, and keeps the file order of templates. It then checks:
+`lib/catalog/validate.ts` parses each record, sorts phases by `order`, and keeps the file order of
+templates. It then checks:
 
-- slugs are unique within phases, templates, and steps of one phase;
-- each template's `phase` exists and its `step` belongs to that phase;
+- slugs are unique within phases and within templates;
+- the phase numbers, in `order`, run 1, 2, 3 and on (`Phase numbers must run 1 to N in order, found …`);
+  the unnumbered sections can stand anywhere;
+- each template's `phase` exists;
 - exactly `FREE_SAMPLE_COUNT` (6) templates have `free: true`.
 
 A failure throws `CatalogError` with the message `Invalid <kind> "<slug>" — <path>: <msg>` for a record, or a
@@ -167,8 +174,8 @@ ESLint enforces this: imports of `@/content/*` are rejected in `app/**` and `com
 |---|---|
 | `getPhases()`, `getPhase(slug)` | Phases in order |
 | `getTemplates()`, `getTemplate(slug)` | Templates in file order |
-| `getFreeTemplates()` | The six free samples, in phase order |
-| `getRelatedTemplates(slug, limit = 4)` | Templates in the same phase: same step first, then the rest of the phase; excludes the template itself |
+| `getFreeTemplates()` | The six free samples, in folder order |
+| `getRelatedTemplates(slug, limit = 4)` | Templates of the same section, in file order; excludes the template itself |
 | `hasSampleContent()` | `true` when any template is marked as sample (used by tests only) |
 | `getWorkedExampleContents()` | `{ placeholder, sections }`: the worked example's sections resolved with `contentsRows` |
 
@@ -176,9 +183,10 @@ Helpers used by pages and components:
 
 | Helper | Behaviour |
 |---|---|
-| `phaseCoverage(phases, templates)` | One entry per phase, sorted by `order`, with `covered` set when any template belongs to it |
-| `adjacentPhases(phases, slug)` | `{ previous, next }` in `order`; either is undefined at an end, both for an unknown slug |
-| `contentsRows(entries, templates, phases)` (`lib/catalog/worked-example.ts`) | Each contents section with its link: a free sample links into the catalog (`/catalog?view=<slug>`) under the template's title, a locked template is named by its title with no link, a step links to its anchor on its phase page, a phase to its page; no link when the catalog lacks the target |
+| `phaseCoverage(phases, templates)` | One entry per numbered phase (`number`, `slug`, `name`), sorted by `number`, with `covered` set when any template belongs to it; Start here and Used at every step are left out |
+| `numberedPhases(phases)` | The numbered phases alone, sorted by `number` |
+| `adjacentPhases(phases, slug)` | `{ previous, next }` in `order` (folder order, numbered or not); either is undefined at an end, both for an unknown slug |
+| `contentsRows(entries, templates, phases)` (`lib/catalog/worked-example.ts`) | Each contents section with its link: a free sample links into the catalog (`/catalog?view=<slug>`) under the template's title, a locked template is named by its title with no link, a phase links to its page (`phaseHref`, `/phases/<slug>`) under kind "Phase"; no link when the catalog lacks the target |
 | `formatLength(count, format)` (`lib/format.ts`) | A template's Length fact: slides for a `pptx` deck ("16 slides"), pages for every other format |
 | `intoViewOffset(row, item, padding)`, `scrollCurrentIntoView(row)` (`lib/scroll/into-view.ts`) | How far a sideways row must scroll so one item stands clear of its scroll padding (0 when it already does), and the call that scrolls a row to its `aria-current` item without moving the page |
 | `createScrimPress()` (`lib/scrim.ts`) | Tells a click on a dialog's dimmed page from a drag that merely ended there: it closes only when the press, the release and the click all have the dialog itself as their target. `PageDialog` and `NavDrawer` use it |
@@ -188,29 +196,37 @@ Helpers used by pages and components:
 
 ### 3.4 Catalog contents
 
-Seven phases, each with two steps (14 steps in total):
+Thirteen sections, one for each of the toolkit's folders, in folder order. Only 01 to 11 are numbered phases; Start
+here is orientation and Used at every step holds the tools used throughout, so neither has a `number`:
 
-| Order | Slug | Name | Steps | Templates |
-|---|---|---|---|---|
-| 1 | `make-the-case` | Make the case | `build-the-business-case`, `secure-sponsorship` | 8 |
-| 2 | `plan` | Plan | `assess-impact-and-readiness`, `set-the-change-strategy` | 12 |
-| 3 | `design` | Design | `design-governance`, `design-the-adoption-approach` | 6 |
-| 4 | `prepare` | Prepare | `build-the-champion-network`, `train-each-audience` | 9 |
-| 5 | `communicate` | Communicate | `announce-the-change`, `equip-sponsors-and-managers` | 8 |
-| 6 | `execute` | Execute | `go-live`, `run-hypercare` | 7 |
-| 7 | `sustain` | Sustain | `measure-adoption`, `reinforce-and-hand-over` | 17 |
+| Order | Number | Slug | Name | Label | Templates |
+|---|---|---|---|---|---|
+| 0 | | `start-here` | Start here | Start here | 1 |
+| 1 | 1 | `define-the-change` | Define the change | Define | 5 |
+| 2 | 2 | `assess-the-impact` | Assess the impact | Assess | 8 |
+| 3 | 3 | `set-the-strategy` | Set the strategy | Strategize | 4 |
+| 4 | 4 | `engage-leaders` | Engage leaders | Engage | 8 |
+| 5 | 5 | `plan-communications` | Plan communications | Communicate | 6 |
+| 6 | 6 | `design-the-platform` | Design the platform | Design | 3 |
+| 7 | 7 | `plan-the-training` | Plan the training | Plan training | 2 |
+| 8 | 8 | `build-the-training` | Build the training | Build training | 5 |
+| 9 | 9 | `deliver-training` | Deliver training | Train | 1 |
+| 10 | 10 | `go-live-and-support` | Go live and support | Go live | 6 |
+| 11 | 11 | `make-it-stick` | Make it stick | Sustain | 15 |
+| 12 | | `used-at-every-step` | Used at every step | Every step | 3 |
 
 There are 67 templates. Their formats are docx (32), xlsx (19), pptx (12) and pdf (4). `pageCount` is set on
-43 templates; it is printed as slides for a deck and pages otherwise (`formatLength`). Six are free samples, one for each of the first six phases (the Sustain phase has none):
+43 templates; it is printed as slides for a deck and pages otherwise (`formatLength`). Six are free samples, each
+in a different phase:
 
 | Phase | Free sample | Format |
 |---|---|---|
-| 1 | `executive-sponsor-kickoff-deck` | pptx |
-| 2 | `change-management-strategy` | docx |
-| 3 | `sharepoint-governance-framework` | docx |
-| 4 | `sharepoint-end-user-training-deck` | pptx |
+| 3 | `change-management-strategy` | docx |
+| 4 | `executive-sponsor-kickoff-deck` | pptx |
 | 5 | `master-communications-plan` | xlsx |
-| 6 | `go-live-readiness-checklist` | xlsx |
+| 6 | `sharepoint-governance-framework` | docx |
+| 8 | `sharepoint-end-user-training-deck` | pptx |
+| 10 | `go-live-readiness-checklist` | xlsx |
 
 Every other template is part of the toolkit and shown locked.
 
@@ -228,10 +244,10 @@ The site sells one thing. `lib/site.ts` holds it:
 
 `/purchase` shows the offer. It has no title block: it opens on one stage on paper, 42px under the bar
 (56px from 68em), holding the `Portfolio` at the left (columns 1 to 6 from 68em: the toolkit as one folder at page
-size, the price on the tag that hangs from it, the tally of all seven phases under it) and the `ContentsLeaf`
+size, the price on the tag that hangs from it, the tally of the eleven numbered phases under it) and the `ContentsLeaf`
 at the right (columns 8 to 12; column 7 is the room the tag hangs into): the h2 "What is inside", a ledger
 read from `TOOLKIT`, the Checkout link, the line that leads to the contact page (for a purchase order, or a
-question) and the note that the catalog is sample content. The heading on the folder's front, "Seven phases
+question) and the note that the catalog is sample content. The heading on the folder's front, "Eleven phases
 in one folder.", is the page's one `h1` (`Portfolio` at `size="page"`). Below 68em it is one column, the folder first, until a window is about 1010px wide: the grid is then
 two columns of at least 28rem, so a landscape tablet has the two side by side, the tag lying on the folder. From
 68em, on a large monitor, the folder and the leaf are drawn larger together with CSS `zoom` (`--grow`, section
@@ -377,8 +393,7 @@ template and file (404, and for `/api/samples` a template that is not free is 40
 1. A skip link (`Button` with `href="#main"`, text "Skip to content"), fixed at the top left and shown
    on keyboard focus.
 2. A `.frame` element (`position: relative`, flex column, `min-height: 100svh`, `overflow-x: clip`) containing:
-   - `Header`, with `PurchaseButton` in its tools area;
-   - `PhaseRail`;
+   - `Header`, with `PurchaseButton` in its tools area and the phases for its Phases drop-down and drawer;
    - `<main id="main">` holding the route's children;
    - `Footer`.
 
@@ -399,10 +414,11 @@ button, Menu.
   with no navigation and no history entry, and a query or hash in the address stays. A click with a modifier key,
   a middle click or a link that opens elsewhere is left to the browser. The drawer's brand is not a link, so it is
   unchanged.
-- Centre: `PrimaryNav`, the links to Catalog and Why Advanta (`NAV`), shown from 68em, in a grid of equal columns.
-  The current link has `aria-current="page"`, or `"true"` when the current path is nested under it. One ink
-  underline (`data-nav-underline`, decoration only) stands under the current link and slides to the next
-  one when movement is wanted; with no current link it is not displayed.
+- Centre: `PrimaryNav`, shown from 68em, in a grid of equal columns: Catalog, the Phases drop-down
+  (`PhasesMenu`, section 4.3) and Why Advanta (`NAV`). The current link has `aria-current="page"`, or `"true"`
+  when the current path is nested under it; on `/phases/<slug>` the current item is Phases. One ink
+  underline (`data-nav-underline`, decoration only) stands under the current item and slides to the next
+  one when movement is wanted; with no current item it is not displayed.
 - Right: `PurchaseButton`, then the Menu button of `NavDrawer` (shown below 68em only). `PurchaseButton` is
   one link to `/purchase` with one accessible name at every width: "Get the toolkit · $1,499.99 CAD" from 68em,
   "Get the toolkit" below it, where the price is `display: none`. On `/purchase` it carries
@@ -412,7 +428,8 @@ button, Menu.
 The bar is `position: sticky` at `top: 0`, height `var(--bar-h)`, and is a container for two container
 queries that hide the menu word at 27.4em and below and the brand name at 24.3em and below, in that order,
 so that at 320px the mark, the button and the Menu button all stay, each a 44px target. Container queries
-are used only in `header.module.css` and `nav-drawer.module.css`.
+are used only in `header.module.css`, `nav-drawer.module.css` and `components/about/phase-line.module.css`
+(the line of phases on Why Advanta draws its tally from 72rem of its own width).
 
 ### 4.2 Nav drawer
 
@@ -420,7 +437,8 @@ are used only in `header.module.css` and `nav-drawer.module.css`.
 `showModal()`.
 
 - The dialog is labelled "Site menu". It contains a `nav` labelled "Menu" with the three primary links (Purchase, Catalog, Why Advanta) and the Contact page (`MENU_LINKS`: `PRIMARY_LINKS`, then `CONTACT_LINK`), and a
-  group labelled "Rollout phases" with the seven phase links, each with a numeral.
+  group labelled "Phases" with the 13 section links in folder order, each with its numeral tile (empty, and not
+  drawn, for Start here and Used at every step).
 - It shows the contact address as a `mailto:` link taken from `SITE.contactEmail`.
 - Escape and the Close button close it. A click on the backdrop closes it when the event target is the
   dialog itself and the press began there too (`createScrimPress`), so a selection dragged out of the panel
@@ -429,13 +447,19 @@ are used only in `header.module.css` and `nav-drawer.module.css`.
 - It closes when the viewport reaches `(min-width: 68em)`, where the inline navigation takes over.
 - The drawer is 88vw wide at most and 23.625rem at most, anchored to the right edge.
 
-### 4.3 Phase rail
+### 4.3 Phases drop-down
 
-`components/layout/phase-rail.tsx` renders the phases as a `PhaseTabs` row labelled "Phases". It is
-hidden below 68em. It scrolls with the page. Its tabs use `aria-current="page"` on `/phases/<slug>`,
-and `aria-current="true"` on `/catalog` while the `phase` parameter names exactly one known phase
-(`singleCatalogPhase`); no other page belongs to a phase. `currentPhase()` in `nav-links.ts` computes it. The
-rail reads the search inside a Suspense boundary whose fallback is the rail drawn from the pathname alone.
+There is no rail under the bar. `components/layout/phases-menu.tsx` (`PhasesMenu`, client) renders
+`StepMenu` (`components/ui/step-menu.tsx`) with `label="Phases"` and `variant="bar"` as the middle item of
+`PrimaryNav`, so it shows from 68em only. `StepMenu` is a native `<details data-step-menu>` whose panel is a
+navigation named "Toolkit phases": a list of links to `/phases/<slug>` (`phaseHref`), each a numeral tile and
+the plain name, Start here first and Used at every step last, neither numbered. It works without script; with
+it, the panel also closes on Escape (focus back on the button), on a click outside it, on a link and on any
+change of page. The phase being shown is marked in the list: `aria-current="page"` on `/phases/<slug>`, and
+`aria-current="true"` on `/catalog` while the `phase` parameter names exactly one known phase
+(`singleCatalogPhase`); no other page belongs to a phase. `currentPhase()` in `nav-links.ts` computes it.
+`PhasesMenu` reads the search inside a Suspense boundary whose fallback is the menu drawn from the pathname
+alone. Below 68em the catalog renders its own `StepMenu` (section 8.4) and the drawer lists the phases.
 
 ### 4.4 Footer
 
@@ -505,7 +529,7 @@ Display classes reset letter-spacing and turn off tabular figures. Size tokens a
 
 Spacing uses a 7px module: `--s-1` (0.4375rem) through `--s-9` (10.5rem). Page layout uses `--page-max`
 (`max(77rem, min(72vw, 120rem))`, see below), `--over`, `--page-pad`, `--col-gap`, `--band-pad` (`--s-6`,
-`--s-7` from 40em), `--bar-h` (3.5rem, 4.375rem from 68em) and `--rail-h` (2.625rem). Controls use `--tap` (2.75rem, the minimum target below 68em),
+`--s-7` from 40em), `--bar-h` (3.5rem, 4.375rem from 68em). Controls use `--tap` (2.75rem, the minimum target below 68em),
 `--control-sm` (2.5rem, desktop bar only), `--control` (3rem) and `--control-lg` (3.5rem). Shapes use
 `--round-1` to `--round-3`, `--edge` (2px) and `--hair` (1px). Layers are
 `--layer-bar` (50), `--layer-skip` (90) and `--layer-cover` (100).
@@ -563,7 +587,8 @@ Primitives are the building blocks for pages. Each one has a CSS module unless n
 | `Note` | A short paragraph on the wash ground |
 | `Input`, `Select`, `Checkbox` | Form controls |
 | `Pagination` | Previous, numbered pages and next |
-| `PhaseTabs` | Phase tabs in `rail` or `large` size. `large` is two across on a phone; from 40em one row where the list is 42rem wide, each card as wide as its name needs, and four across where it is not |
+| `PhaseTabs` | The sections as large index cards, numeral over name (none for an unnumbered section): two across on a phone, from 40em as many across as fit (12.5rem at least). Used on the home page ("Browse the sample catalog by phase") and in the catalog's empty search ("Browse by phase") |
+| `StepMenu` | The sections as a `<details>` drop-down of links (`data-step-menu`), its panel named "Toolkit phases". The button names the current phase ("Phase 10 Go live and support") or says "Jump to a phase"; `label` replaces both ("Phases" in the bar), `variant` is `field` or `bar` (section 4.3) |
 | `Icon` | Inline SVG glyphs: arrow, chevron, plus, minus, close, tick, bars, search. `size` is pixels at the 16px root and the icon is set in rem, so it grows with the root on a large monitor |
 | `LogoMark`, `BrandLockup` | The mark, as a tile or bare lockup. `LogoMark` fills the whole "A" in one ink, or its right half in `--logo-half` with `tone="two"`; `BrandLockup` draws it on the tile or bare |
 | `KeepCompounds` | Keeps hyphenated compounds from breaking across lines |
@@ -588,23 +613,22 @@ Components built from the primitives for one part of the site. Each has a doc co
 
 | Component | File | Props | What it is |
 |---|---|---|---|
-| `Portfolio` | `components/purchase/portfolio.tsx` | `size` (`page`, `section`), `covers`, `phases` | The toolkit as a folder: the six sample covers in its pocket, the maker's lockup, a heading and the file formats, the `PriceTag` on its corner, and under it a tally of the phases |
+| `Portfolio` | `components/purchase/portfolio.tsx` | `size` (`page`, `section`), `covers`, `phases` | The toolkit as a folder: the six sample covers in its pocket, the maker's lockup, a heading and the file formats, the `PriceTag` on its corner, and under it a tally of the eleven numbered phases (`phaseCoverage`), labelled "Phases: …" |
 | `PriceTag` | `components/purchase/price-tag.tsx` | `className` | The price from `OFFER` and "one purchase" on a paper tag hung on a string from the corner of the folder. Swings once when first seen and a little when the folder is hovered; still under reduced motion |
 | `ContentsLeaf` | `components/purchase/contents-leaf.tsx` | `className` | The toolkit's contents as a loose paper leaf with a dog-eared corner: a ledger (dl) of counts from `TOOLKIT`, then the Checkout link (to `/purchase?checkout=details`), the line to the contact page and the sample note |
 | `ContactSection` | `components/contact/contact-section.tsx` | none | The whole Contact page as one paper band (a `section` named by its `h1`): the title in the margin from 68em, the lead on its baseline, the address as a `mailto:` link at the statement size, a sentence on what to expect, then a `BandedList` of four `RowLink`s, each the address with a subject. No script |
-| `PromiseBand`, `MakingSection`, `BuyersSection`, `CompareSection`, `SiteState` | `components/about/` | none (`MakingSection` takes `phases`) | The sections of the Why Advanta page, in page order (section 1); `SectionHead` is the head they share and `PhaseLine` the seven phase links inside `MakingSection` |
-| `TemplateTile`, `TileGrid` | `components/catalog/template-tile.tsx` | `template`, `phaseName`, `phaseOrder`, `href`, `headingLevel`, `scroll`, `denied` | One template in a grid, an `<article data-tile>` with exactly one control: a link (free sample) or a button (locked). The grid has as many columns of at least 11rem (176px at the 16px root) as fit, never fewer than two; the home page's six free samples set their own columns (`featuredGrid`: three across from 40em, six from 68em), so a row is never one tile short |
+| `PromiseBand`, `MakingSection`, `BuyersSection`, `CompareSection`, `SiteState` | `components/about/` | none (`MakingSection` takes `phases`) | The sections of the Why Advanta page, in page order (section 1); `SectionHead` is the head they share and `PhaseLine` the phase links inside `MakingSection`: "The whole rollout, in eleven phases", the eleven numbered phases (a tally with their short labels under it where the line is 72rem wide, otherwise rows with their plain names), then "Plus Start here and Used at every step" |
+| `TemplateTile`, `TileGrid` | `components/catalog/template-tile.tsx` | `template`, `phaseName`, `phaseNumber`, `href`, `headingLevel`, `scroll`, `denied` | One template in a grid, an `<article data-tile>` with exactly one control: a link (free sample) or a button (locked). The grid has as many columns of at least 11rem (176px at the 16px root) as fit, never fewer than two; the home page's six free samples set their own columns (`featuredGrid`: three across from 40em, six from 68em), so a row is never one tile short |
 | `LockedTile` | `components/catalog/locked-tile.tsx` | `title`, `headingLevel`, `initialDenied` | The button of a locked tile, named "<title>, locked", and the line it answers with (section 8.3) |
 | `TemplateDialog` | `components/catalog/template-dialog.tsx` | `closeHref`, `labelledBy` | The pop-up of the catalog: `PageDialog` with `name="template"` (section 8.3) |
 | `PageDialog` | `components/ui/page-dialog.tsx` | `name` (`template`, `checkout`), `closeHref`, `labelledBy`, `bar`, `fill` | The dialog both pop-ups share: a native modal `<dialog>` that is open while the page renders it and closes to `closeHref`. `bar` stands before Close; `fill` makes it the whole window below 40em and one fixed height from there |
 | `CheckoutDialog` | `components/checkout/checkout-dialog.tsx` | `panel`, `disclosure` (the two forms of `OrderSummary`) | The checkout (section 3.7) |
 | `OrderSummary` | `components/checkout/order-summary.tsx` | `variant` (`panel`, `disclosure`) | The offer, what it holds, the price, the tax line and the total before tax, on the binder: a column from 68em, a native `<details>` row below it |
 | `ActiveFilters` | `components/catalog/active-filters.tsx` | `criteria`, `phases`, `fallbackFocusId` | The filters that are on, as a row of chips above the results (section 8.4) |
-| `PhaseStrip` | `components/catalog/phase-strip.tsx` | `label`, `current`, `className` | The `nav` around the catalog's row of phases below 68em; scrolls the row to its lit card once drawn, when the fonts arrive and when the phase changes |
-| `PhasePager` | `components/catalog/phase-pager.tsx` | `previous`, `next`, `className` | The phase before and the phase after, at the foot of a phase page |
+| `PhasePager` | `components/catalog/phase-pager.tsx` | `previous`, `next`, `className` | The section before and the section after, in folder order, at the foot of a phase page ("Previous and next phase") |
 | `TemplateDetail` | `components/catalog/template-detail.tsx` | `template`, `phase`, `titleId` | The content of the pop-up: large cover, "Free sample" tag, title, summary, description, facts, what is included, and the button to `/purchase` |
 | `Hero`, `HeroStage` | `components/home/hero.tsx`, `hero-stage.tsx` | `samples`, `phases` | The first screen of the home page: headline, lead and two buttons; the stage, where an empty prompt box dissolves and the six free samples land as a hand of documents |
-| `ProofStrip` | `components/home/proof-strip.tsx` | none | The band's foot: 30+ years, 59 playbooks, 130 templates, one purchase, on opaque paper |
+| `ProofStrip` | `components/home/proof-strip.tsx` | none | The band's foot: 30+ years, 59 playbooks, 130 templates, 58 job aids, on opaque paper |
 | `PortfolioSection` | `components/home/portfolio-section.tsx` | `covers`, `phases` | `#toolkit` on the home page: words and the button to `/purchase`, the `Portfolio` at section size |
 | `PurchaseButton` | `components/layout/purchase-button.tsx` | `className` | The bar's call to action (section 4.1) |
 | `TitleBlock` | `components/layout/title-block.tsx` | `title`, `lead`, `form` (`index`, `document`, `wide`), `crumbs`, `meta`, `children`, `aside` | The band that opens every inner page but the catalog, holding its one `h1`. One column below 40em. With an `aside` (the phase numeral and its count, the worked example's page), from 40em the words and the aside stand side by side (`.paired`: the aside's column is `clamp(16rem, 25vw + 6rem, 18rem)`), so a tablet's first screen is not a column of words over an object; from 68em the twelve columns take over. The `index` form's grid is a size container (`.measure`), and from 68em its title is held to the three margin columns by `cqi` (the banner size is wider than they are up to about 1280px). |
@@ -856,7 +880,7 @@ visit has gone; under the cover the box stands and the documents wait out of sig
 mount of the stage. Under reduced motion or without a script the box is not displayed. Under the
 pointer or keyboard focus a document straightens, comes to the front and lifts. Below 40em the six are two hands
 of three. From 68em the band's height follows the window's, so the proof strip is above the fold down to a
-window 720px tall. The band is as tall as the window leaves (the bar and the rail taken off), at most
+window 720px tall. The band is as tall as the window leaves (the bar taken off), at most
 `--hero-cap`, which is `max(56rem, 57vw)`: 56rem up to a 1600px desktop and then 57% of the window's width, so
 a 16:9 and a 16:10 monitor are filled to the fold at any size. On a large monitor the headline grows with the
 column (`--hero-type` is `max(--size-hero, --page-max / 16.2)`; `--hero-size` is that, or what 12svh or the
@@ -900,10 +924,10 @@ values are omitted. `catalogHref(criteria, view?)` writes the same address with 
 - Facet counts are computed with each facet's own selection cleared, so a count shows what ticking that box
   would return. Search, the free filter and the other facets still apply.
 - Sort: `samples`, the default, puts the free templates first and then follows the rollout inside each
-  group: phase `order`, then step `order`, then the order the content lists the templates in. `phase` is that
-  rollout order alone, with a free sample standing where its step is. Both need the phases, so the catalog
-  page passes them as the third argument of `queryTemplates`; without them they keep the given order, and a
-  template of an unknown phase or step goes last. `title` sorts by title with `localeCompare`. There is no
+  group: the section's `order` (folder order, Start here first), then the order the content lists the
+  templates in. `phase` is that order alone, with a free sample standing where its section is. Both need the
+  phases, so the catalog page passes them as the third argument of `queryTemplates`; without them they keep the
+  given order, and a template of an unknown section goes last. `title` sorts by title with `localeCompare`. There is no
   price sort. The select labels them "Free samples first", "Phase order" and "Title A–Z".
 - Pagination: `PAGE_SIZE` is 24. The page is clamped to between 1 and the page count (at least 1). The catalog
   page passes the clamped page back into its criteria, so links never point past the last page.
@@ -959,13 +983,13 @@ control and no price.
   closes when the window grows to 68em (a `matchMedia` listener, as in `NavDrawer`): from there the sheet has no
   box, and an open modal dialog would leave the page inert and its scrolling locked. Its `sort` prop
   is drawn at the top of the dialog's body below 40em only.
-- Layout of the rail below 68em: `PhaseStrip`, a navigation "Start from a phase" with the seven phases as
-  large `PhaseTabs` in one row that scrolls sideways (the card is lit, `aria-current="true"`, under the same
-  rule as the phase rail, and scrolled into view by `scrollCurrentIntoView`). Below 40em the search and the
+- Layout of the rail below 68em: a `StepMenu` drop-down, "Jump to a phase", on a row of its own (its button
+  names the phase the catalog is filtered on, and that phase's link is `aria-current="true"`, under the same
+  rule as the bar's Phases drop-down). Below 40em the search and the
   "Filters" button share the row under it; from 40em the search has its own row with the sort and Filters
   under it. The catalog page renders `SortSelect` twice: once in the rail, hidden below 40em, and once as
-  `FilterPanel`'s `sort`, hidden from 40em. Only one is ever displayed. From 68em the strip is not displayed:
-  the bar's phase rail has the phases.
+  `FilterPanel`'s `sort`, hidden from 40em. Only one is ever displayed. From 68em the drop-down is not displayed:
+  the bar's Phases drop-down has the phases.
 - "Clear all filters" links to `/catalog?q=<q>` when a search term exists, or to `/catalog` otherwise. It keeps
   only the search term, so the free filter and the sort also reset (`clearFiltersHref`). With script, a plain
   click clears in place like every other change (`router.replace` without scrolling, optimistically), and
@@ -978,8 +1002,8 @@ control and no price.
   scrolling; focus then moves to the chip now at the removed one's position (or the one before), or to the
   result count (`#results-heading`, `tabIndex=-1`) once no chip is left. Nothing renders without filters.
 - Empty result: with only a search term, the heading is `No templates match “<q>”.`, the link is "Clear search"
-  (the same criteria without `q`), and from 68em a navigation labelled "Browse by phase" shows the phases as large
-  `PhaseTabs` (below 68em it is not displayed: the strip above the sheet is that way in). With a filter on (`hasFilters`: a facet value or the free filter) it is "No templates match
+  (the same criteria without `q`), and from 68em a navigation labelled "Browse by phase" shows the 13 sections as
+  `PhaseTabs` (below 68em it is not displayed: the drop-down above the sheet is that way in). With a filter on (`hasFilters`: a facet value or the free filter) it is "No templates match
   these filters." with "Clear filters" (or "Clear search and filters" when a term is also set), linking to
   `/catalog`.
 - `Pagination` renders links to `/catalog` with the same criteria and the new page. It renders nothing when
@@ -1011,7 +1035,8 @@ Run the scripts in `scripts/` by path, for example `node scripts/check-budgets.m
 | `data-seen`, `data-tally`, `data-block` | Motion elements | Entrance and tally state |
 | `data-band` | Band | Ground: desk, paper, wash, ink or binder |
 | `data-paper`, `data-lit` | Sheets | Paper and pointer light |
-| `data-bar`, `data-phase-rail`, `data-nav-drawer` | Shell | Bar, rail and drawer |
+| `data-bar`, `data-nav-drawer` | Shell | Bar and drawer |
+| `data-step-menu` | `StepMenu` | A Phases drop-down: the bar's, and the catalog's below 68em |
 | `data-ledger`, `data-folder` | Lists, folders | Rule and folder |
 | `data-portfolio`, `data-price-tag` | Purchase page, home `#toolkit` | The folder object and its tag |
 | `data-tile`, `data-free`, `data-locked`, `data-denied` | Catalog tiles | Tile and its state: free sample, locked, saying no |
@@ -1051,12 +1076,12 @@ Each file below is in `tests/unit/`:
 | `content.test.ts` | The real catalog: phases, counts, no price on any template, exactly six free templates (named), sample flags, copy rules, search, the default order, related templates, the worked example's contents |
 | `query.test.ts` | Filters, the free filter, search, the `samples`, `phase` and `title` sorts (no price sort), facet counts, pagination |
 | `search-params.test.ts` | URL parsing and serialisation, `free`, `parseView`, `catalogHref`; `clearFiltersHref`, `hasFilters`, and the active-filter chips and their links |
-| `nav-links.test.ts` | The phase a page belongs to, including the catalog filtered on one phase |
+| `nav-links.test.ts` | The phase a page belongs to (`/phases/<slug>`), including the catalog filtered on one phase |
 | `worked-example.test.ts`, `into-view.test.ts` | The worked example's contents resolved against the catalog; how far a sideways row scrolls to show an item |
 | `scrim.test.ts`, `history.test.ts` | A click closes a dialog only when its press and release were on the dimmed page too; the entry before the current one is an address (parameters in any order), and never when the history cannot say |
 | `checkout-schema.test.ts`, `checkout-order.test.ts`, `checkout-steps.test.ts`, `checkout-provider.test.ts` | The checkout: the places and the details schema with its messages; the order schema; the order's code, summary, text and `mailto:`; the step machine and the stored draft; `getPaymentProvider()` answering `null`, `startPayment` against a fake provider, and the Payment step's markup with and without one |
 | `validate.test.ts` | Validation errors and sorting; a catalog with 0, 5, 7 or 8 free templates is rejected |
-| `coverage.test.ts`, `format.test.ts` | Helpers; `adjacentPhases`; `formatPrice(149999, "CAD")` is `$1,499.99 CAD`; `countWord(6)` is `six`; `formatLength(16, "pptx")` is `16 slides` |
+| `coverage.test.ts`, `format.test.ts` | Helpers; `phaseCoverage` (numbered phases only), `numberedPhases`, `adjacentPhases`; `formatPrice(149999, "CAD")` is `$1,499.99 CAD`; `countWord(6)` is `six`; `formatLength(16, "pptx")` is `16 slides` |
 | `compounds.test.ts` | Compound splitting for `KeepCompounds` |
 | `brand-mark.test.ts` | Logo geometry (the two halves, the seam, the leans, the ink centred), `LogoMark` in one and two inks, and `app/icon.svg` against `scripts/gen-icon.mjs` |
 | `boot-script.test.ts` | Runs `BOOT_SCRIPT` against stand-ins for the document, storage and media queries: reduced motion writing nothing, the motion switches, the cover decision against `shouldPlayIntro`, the skip and its click guard, the 5500 ms backstop, and the script's weight |
@@ -1083,24 +1108,24 @@ Specs:
 | Spec | Projects | Covers |
 |---|---|---|
 | `browse.spec.ts` | chromium, mobile, firefox | Home to a phase and on to its free sample; the hero to the six samples; the worked example; no horizontal overflow on 8 routes |
-| `catalog.spec.ts` | chromium, mobile | The grid of tiles; six free first, the rest locked; the canonical address; no price anywhere; "Free samples only"; the sort options; filters, chips, URL restore, search, phase order and the lit phase, empty states, malformed parameters, the sort select keeping the picked option while the server answers, Clear all filters clearing in place with focus kept, the phone's rail and filter dialog, the sheet closing when the window grows to 68em |
+| `catalog.spec.ts` | chromium, mobile | The grid of tiles; six free first, the rest locked; the canonical address; no price anywhere; "Free samples only"; the sort options; filters, chips, URL restore, search, phase order and the one filtered phase marked in the drop-down, empty states, malformed parameters, the sort select keeping the picked option while the server answers, Clear all filters clearing in place with focus kept, the phone's rail (the "Jump to a phase" drop-down) and filter dialog, the sheet closing when the window grows to 68em |
 | `locked.spec.ts` | chromium, mobile | A locked tile: its button and its blurred cover with nothing drawn over it; the 600 ms denial and its line; Enter and Space; repeated presses; the shake and the red ring; reduced motion; `?view=` a locked template, on the page of results and off it; a phase page's locked tiles; without JavaScript |
 | `template-dialog.spec.ts` | chromium, mobile | The pop-up: opening from a tile, its content, Escape, Close and the dimmed page each closing it and keeping the other parameters, Back, focus, a selection dragged out of the pop-up not closing it, a close after an open from the catalog leaving no entry behind (Back leaves the catalog) and one after an open from another page staying on the catalog, values that open nothing, the home and phase tiles, without JavaScript |
 | `purchase.spec.ts` | chromium, mobile | The Purchase page: no title block, one `h1` on the folder, and the price once on the tag; the folder and the tally; the ledger; the Checkout link; no questions section, and the contents leaf beside the folder from 68em; 320px; the tag's swing; reduced motion; the home folder |
 | `checkout.spec.ts` | chromium, mobile | The checkout: opening from the link and from the address, the summary, Escape, Close, the dimmed page and Back with focus returned, one history entry for all steps, labels and autocomplete tokens, the region control, validation on blur and on submit, the whole walk to the Payment step, no order data in any address or request, the draft surviving a reload, Start over, the phone and 320px layouts, the step's movement, the catalog's pop-up unchanged, and no JavaScript |
-| `redirects.spec.ts` | chromium, mobile | The retired addresses (bundles, pricing, cart, about, template pages) end where they should; the 308; `/contact` answering as a page |
+| `redirects.spec.ts` | chromium, mobile | The retired addresses (bundles, pricing, cart, about, template pages, the seven old phase pages) end where they should; the 308; `/contact` answering as a page |
 | `contact.spec.ts` | chromium, mobile | The Contact page: one section and one band in `main`, one `h1`, the address as the one plain `mailto:` link, no form or field, the four subject links, the fit at 320 and 1920, the footer's link to it; `/about` redirecting to `/why-advanta`, which holds no contact section |
 | `legal.spec.ts` | chromium, mobile | The four legal pages: status 200, one `h1`, the page title, the date and the summary; a table of contents whose links are the sections' ids in order, each section headed by one numbered `h2`; no id twice; links to the contact page and the other three, and the current page marked among the policies; no cookie and no storage beyond the site's own session entries; an entry of the contents brings its section into view and lights its number; the three columns from 68em and the measure; the contents first and 44px tall at 320px |
 | `hero.spec.ts` | chromium, mobile | The hero: structure and copy, with no backdrop or canvas behind the words; the six documents as links; their pop-ups; the sequence (the box from 700ms for 800ms, the documents from 1300ms, 110ms apart), once on load, again on a return inside the site, and after the cover of a first visit, under which the box stands and the documents wait; the first screen at several window sizes; no title or tag cut by a neighbour and 44px targets; the band's foot; reduced motion; no JavaScript |
 | `console.spec.ts` | chromium, mobile, firefox | Twelve routes load with no console error and no page error |
-| `header.spec.ts` | chromium only (skips the mobile project) | The banner; Catalog and Why Advanta and the purchase button; centring; the 68em boundary; the sliding underline; the phase rail; the sticky bar; the brand returning to the top on the home page |
+| `header.spec.ts` | chromium only (skips the mobile project) | The banner; Catalog, the Phases drop-down and Why Advanta and the purchase button; centring; the 68em boundary; the sliding underline (under Phases on a phase page); the drop-down's 13 links, Escape and a click outside; the sticky bar; the brand returning to the top on the home page |
 | `identity.spec.ts` | chromium, mobile | Design checks in the browser: landmarks; one `h1` per page; root colours and fonts; band values; no canvas, sent or drawn; the home, Why Advanta and catalog pages at rest 5.5 s after they load; the order of the home sections; focus rings; the 365 on the mark; the tiles' covers; no overflow and minimum touch targets at 320 px |
 | `intro.spec.ts` | chromium, mobile | The cover on a first visit: its states; the mark held to 2.5 s and gone by 3.4 s; skip on a click, key press (at any time) or wheel; no cover on reload or on other routes; no cover with reduced motion, blocked storage or JavaScript off |
-| `menu.spec.ts` | mobile (in chromium every test skips) | The phone bar and drawer: brand, button and Menu at 390 and 320px; the four pages and seven phases; Escape, Close, the dimmed page (a drag that ends there does not close it); navigation closing it |
+| `menu.spec.ts` | mobile (in chromium every test skips) | The phone bar and drawer: brand, button and Menu at 390 and 320px; the four pages and the 13 phases; Escape, Close, the dimmed page (a drag that ends there does not close it); navigation closing it |
 | `motion.spec.ts` | chromium, mobile, firefox | Entrances hidden until scrolled into view, with timelines and without; the ninety band; a page change runs a view transition; a filter change or a pop-up starts none |
 | `reduced-motion.spec.ts` | chromium, mobile, firefox | Reduced motion on 13 routes: no motion attributes, no canvas, no running animations, no cover, every entrance in its final state; the 90% figure and the tally show their final state |
 | `not-found.spec.ts` | chromium, mobile | 404 status and content for missing paths; lowercase redirect |
-| `viewports.spec.ts` | chromium only (skips the mobile project) | The geometry guard: twelve routes (`/`, `/catalog`, `/phases/plan`, `/purchase`, `/why-advanta`, `/contact`, `/privacy`, `/terms`, `/refunds`, `/accessibility`, `/sample`, `/nope`) at sixteen window sizes, 320 by 640 to 3840 by 2160 (192 tests): one `h1`, no element past the window's edge, from 1280 up the words span more than half of the window (not on the 404), no console or page error |
+| `viewports.spec.ts` | chromium only (skips the mobile project) | The geometry guard: twelve routes (`/`, `/catalog`, `/phases/assess-the-impact`, `/purchase`, `/why-advanta`, `/contact`, `/privacy`, `/terms`, `/refunds`, `/accessibility`, `/sample`, `/nope`) at sixteen window sizes, 320 by 640 to 3840 by 2160 (192 tests): one `h1`, no element past the window's edge, from 1280 up the words span more than half of the window (not on the 404), no console or page error |
 
 `tests/e2e/support/hero.ts` gives the hero specs their helpers, and `tests/e2e/support/intro.ts` records the
 states of `data-intro` with the page clock for the cover's specs.

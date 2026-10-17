@@ -39,6 +39,15 @@
   color: var(--ink);
 }
 
+/* The Phases drop-down's button keeps the row's height and padding. */
+.phases {
+  height: var(--control-sm);
+  min-height: 0;
+  padding-block: 0;
+  padding-inline: var(--s-2);
+  white-space: nowrap;
+}
+
 /* Current: ink, and the underline beneath it. Never the colour alone. */
 .link[aria-current] {
   color: var(--ink);

@@ -1,7 +1,7 @@
 import { expect, test, type Page } from "@playwright/test";
 import { NAVIGATION_TIMEOUT, openCatalog } from "./helpers";
 
-// The catalog is a grid of small tiles, one per template: its cover, its title, its phase and type
+// The catalog is a grid of small tiles, one per template: its cover, its title, its step and type
 // and its format. Six are free samples and come first; every other one is locked. Nothing on the
 // page has a price. The lock has a spec of its own (locked.spec.ts), and so has the pop-up a free
 // tile opens (template-dialog.spec.ts).
@@ -69,7 +69,7 @@ test("every address of the catalog names the plain catalog as the canonical one"
     "/catalog",
     "/catalog?view=change-management-strategy",
     "/catalog?view=sharepoint-migration-impact-assessment",
-    "/catalog?phase=plan&q=plan&page=2",
+    "/catalog?phase=assess-the-impact&q=plan&page=2",
   ]) {
     await page.goto(address);
     const canonical = page.locator('head link[rel="canonical"]');
@@ -184,22 +184,29 @@ test("search keeps the active filters", async ({ page }) => {
   await expect(tiles(page).first()).toContainText("Executive Sponsor Kickoff Deck");
 });
 
-test("a search with no match names the search and offers the phases, once", async ({
+test("a search with no match names the search and offers the steps, once", async ({
   page,
   isMobile,
 }) => {
   await openCatalog(page, "/catalog?q=zzzzqqq");
   await expect(page.getByText("No templates match “zzzzqqq”.")).toBeVisible();
-  // Below 68em the strip above the sheet is the way in by phase, and the sheet does not repeat it.
-  const inSheet = page.getByRole("navigation", { name: "Browse by phase" });
-  const strip = page.getByRole("navigation", { name: "Start from a phase" });
-  await expect(isMobile ? inSheet : strip).toHaveCount(0);
-  const pivot = isMobile ? strip : inSheet;
-  await expect(pivot.getByRole("link")).toHaveCount(7);
-  await expect(pivot.getByRole("link", { name: "Prepare", exact: true })).toHaveAttribute(
-    "href",
-    "/phases/prepare",
-  );
+  // Below 68em the drop-down above the results is the way in by step, and the results do not
+  // repeat it; from 68em the results offer the steps as cards, and the drop-down is not shown.
+  const inResults = page.getByRole("navigation", { name: "Browse by phase" });
+  const dropDown = page.getByRole("main").locator("[data-step-menu]");
+  if (isMobile) {
+    await expect(inResults).toHaveCount(0);
+    await dropDown.locator("summary").click();
+  } else {
+    await expect(dropDown).toBeHidden();
+  }
+  const pivot = isMobile ? dropDown : inResults;
+  await expect(pivot.getByRole("link")).toHaveCount(13);
+  await expect(
+    pivot.getByRole("link", { name: "Build the training", exact: true }),
+  ).toHaveAttribute("href", "/phases/build-the-training");
+  // The open drop-down lies over the results; Escape puts it away.
+  if (isMobile) await page.keyboard.press("Escape");
 
   await page.getByRole("link", { name: "Clear search" }).click();
   await expect(page).toHaveURL(/\/catalog$/, { timeout: NAVIGATION_TIMEOUT });
@@ -223,12 +230,14 @@ test("the free filter with a search that finds none of the six is a filter with 
 });
 
 test("active filters show as chips that remove one value each", async ({ page }) => {
-  await openCatalog(page, "/catalog?phase=prepare&format=docx");
+  await openCatalog(page, "/catalog?phase=build-the-training&format=pptx");
   const chips = page.getByRole("list", { name: "Active filters" });
   await expect(chips.getByRole("link", { name: /^Remove/ })).toHaveCount(2);
 
-  await chips.getByRole("link", { name: "Remove File format filter: Word" }).click();
-  await expect(page).toHaveURL(/\/catalog\?phase=prepare$/, { timeout: NAVIGATION_TIMEOUT });
+  await chips.getByRole("link", { name: "Remove File format filter: PowerPoint" }).click();
+  await expect(page).toHaveURL(/\/catalog\?phase=build-the-training$/, {
+    timeout: NAVIGATION_TIMEOUT,
+  });
   await expect(chips.getByRole("link", { name: /^Remove/ })).toHaveCount(1);
 
   await chips.getByRole("link", { name: "Clear all", exact: true }).click();
@@ -239,20 +248,22 @@ test("active filters show as chips that remove one value each", async ({ page })
 test("“Free samples only” has a chip of its own, and removing it brings the locked tiles back", async ({
   page,
 }) => {
-  await openCatalog(page, "/catalog?free=1&phase=plan");
+  await openCatalog(page, "/catalog?free=1&phase=set-the-strategy");
   const chips = page.getByRole("list", { name: "Active filters" });
   await expect(chips.getByRole("link", { name: /^Remove/ })).toHaveText([
     "Free samples only",
-    "Plan",
+    "Set the strategy",
   ]);
   await expect(tiles(page)).toHaveCount(1);
 
   await chips.getByRole("link", { name: "Remove filter: Free samples only" }).click();
-  await expect(page).toHaveURL(/\/catalog\?phase=plan$/, { timeout: NAVIGATION_TIMEOUT });
+  await expect(page).toHaveURL(/\/catalog\?phase=set-the-strategy$/, {
+    timeout: NAVIGATION_TIMEOUT,
+  });
   await expect(page.locator("[data-tile][data-locked]").first()).toBeVisible();
 
   // The last chip gone, focus is on the count: the keyboard is not left on nothing.
-  await chips.getByRole("link", { name: "Remove Phase filter: Plan" }).click();
+  await chips.getByRole("link", { name: "Remove Phase filter: Set the strategy" }).click();
   await expect(page).toHaveURL(/\/catalog$/, { timeout: NAVIGATION_TIMEOUT });
   await expect(page.locator("#results-heading")).toBeFocused();
 });
@@ -263,56 +274,69 @@ test("a free tile keeps the filters that are on in its link", async ({ page }) =
   await expect(link).toHaveAttribute("href", /^\/catalog\?format=docx&free=1&view=[a-z0-9-]+$/);
 });
 
-test("phase order is the rollout order alone, and one filtered phase is lit", async ({
+test("step order is the rollout order alone, and one filtered step is lit", async ({
   page,
   isMobile,
 }) => {
   await openCatalog(page, "/catalog?sort=phase");
-  // The first tile is of the first phase, and no tile's phase comes before the one ahead of it.
+  // The first tile is of the first section, and no tile's section comes before the one ahead of it.
   const phases = await tiles(page).evaluateAll((elements) =>
     elements.map((element) => {
       const meta = [...element.querySelectorAll("p")].find((p) => p.textContent?.includes(" · "));
       return meta?.textContent?.split(" · ")[0] ?? "";
     }),
   );
-  expect(phases[0]).toBe("Make the case");
+  expect(phases[0]).toBe("Start here");
   const order = [...new Set(phases)];
   expect(phases).toEqual([...phases].sort((a, b) => order.indexOf(a) - order.indexOf(b)));
-  // Not the samples first: the six are spread through the phases they belong to.
+  // Not the samples first: the six are spread through the steps they belong to.
   const kinds = await tiles(page).evaluateAll((elements) =>
     elements.map((element) => element.hasAttribute("data-free")),
   );
   expect(kinds.slice(0, 6).every(Boolean)).toBe(false);
 
-  await openCatalog(page, "/catalog?phase=execute");
-  const lit = isMobile
-    ? page.getByRole("navigation", { name: "Start from a phase" })
-    : page.getByRole("navigation", { name: "Phases" });
-  await expect(lit.locator('[aria-current="true"]')).toHaveText(/Execute/);
-  await expect(lit.locator("[aria-current]")).toHaveCount(1);
+  // The step is marked in the drop-down: the catalog's own on a phone, which names it on its
+  // button too, and Phases in the bar from 68em.
+  await openCatalog(page, "/catalog?phase=go-live-and-support");
+  const dropDown = isMobile
+    ? page.getByRole("main").locator("[data-step-menu]")
+    : page.getByRole("banner").locator("[data-step-menu]");
+  if (isMobile) await expect(dropDown.locator("summary")).toContainText("Go live and support");
+  await dropDown.locator("summary").click();
+  await expect(dropDown.locator('[aria-current="true"]')).toHaveText(/Go live and support/);
+  await expect(dropDown.locator("[aria-current]")).toHaveCount(1);
 
-  // Two phases are no single phase: nothing is lit.
-  await openCatalog(page, "/catalog?phase=execute,plan");
-  await expect(lit.getByRole("link").first()).toBeVisible();
-  await expect(lit.locator("[aria-current]")).toHaveCount(0);
+  // Two steps are no single step: nothing is named or marked.
+  await openCatalog(page, "/catalog?phase=go-live-and-support,assess-the-impact");
+  await expect(dropDown.locator("summary")).toHaveText(isMobile ? "Jump to a phase" : "Phases");
+  await dropDown.locator("summary").click();
+  await expect(dropDown.getByRole("link").first()).toBeVisible();
+  await expect(dropDown.locator("[aria-current]")).toHaveCount(0);
 });
 
-test("on a phone the rail is one strip of phases, one search row and the sort in the sheet", async ({
+test("on a phone the rail is the phases' drop-down, one search row and the sort in the sheet", async ({
   page,
   isMobile,
 }) => {
-  test.skip(!isMobile, "the strip and the sheet's sort order are the phone's");
-  await openCatalog(page, "/catalog?phase=sustain");
+  test.skip(!isMobile, "the drop-down and the sheet's sort order are the phone's");
+  await openCatalog(page, "/catalog?phase=make-it-stick");
 
-  // One strip, seven phases, the lit one scrolled into view although it is the last.
-  const strip = page.getByRole("navigation", { name: "Start from a phase" });
-  await expect(strip).toHaveCount(1);
-  await expect(strip.getByRole("link")).toHaveCount(7);
-  const current = strip.locator('[aria-current="true"]');
-  await expect(current).toHaveText(/Sustain/);
+  // One drop-down, named by the step the catalog is filtered on; open, it lists the thirteen in
+  // folder order, the lit one in view although it is near the end.
+  const dropDown = page.getByRole("main").locator("[data-step-menu]");
+  await expect(dropDown).toHaveCount(1);
+  await expect(dropDown.locator("summary")).toContainText("Make it stick");
+  await dropDown.locator("summary").click();
+  await expect(dropDown.getByRole("link")).toHaveCount(13);
+  await expect(dropDown.getByRole("link").first()).toHaveAccessibleName("Start here");
+  await expect(dropDown.getByRole("link").last()).toHaveAccessibleName("Used at every step");
+  const current = dropDown.locator('[aria-current="true"]');
+  await expect(current).toHaveText(/Make it stick/);
   await expect(current).toBeInViewport({ ratio: 1 });
-  // The bar's own rail is the desktop's: the page never shows the phases twice.
-  await expect(page.locator("[data-phase-rail]")).toBeHidden();
+  await page.keyboard.press("Escape");
+  await expect(current).toBeHidden();
+  // The bar's own Phases drop-down is the desktop's: the page never shows the steps twice.
+  await expect(page.getByRole("banner").locator("[data-step-menu]")).toBeHidden();
 
   // One search field, with its button inside it, beside the Filters button.
   const search = page.getByRole("searchbox", { name: "Search templates" });
@@ -352,7 +376,7 @@ test("Clear all filters clears in place: the entry is replaced and focus stays i
   page,
   isMobile,
 }) => {
-  await openCatalog(page, "/catalog?q=strategy&phase=plan&type=training");
+  await openCatalog(page, "/catalog?q=strategy&phase=assess-the-impact&type=training");
   await openFiltersIfCollapsed(page);
   const clear = page
     .getByRole("link", { name: "Clear all filters", exact: true })

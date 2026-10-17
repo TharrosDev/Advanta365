@@ -6,7 +6,21 @@ import { introSeen, NAVIGATION_TIMEOUT } from "./helpers";
 // both on the phone project; header.spec.ts covers the three zones of the desktop bar.
 
 const PRIMARY = ["Purchase", "Catalog", "Why Advanta", "Contact"];
-const PHASES = ["Make the case", "Plan", "Design", "Prepare", "Communicate", "Execute", "Sustain"];
+const PHASES = [
+  "Start here",
+  "Define the change",
+  "Assess the impact",
+  "Set the strategy",
+  "Engage leaders",
+  "Plan communications",
+  "Design the platform",
+  "Plan the training",
+  "Build the training",
+  "Deliver training",
+  "Go live and support",
+  "Make it stick",
+  "Used at every step",
+];
 
 // A caption the menu must not show under the contact address. Written in two parts so that this
 // file does not contain the sentence it checks for.
@@ -100,7 +114,7 @@ test.describe("phone menu", () => {
     }
   });
 
-  test("the Menu button opens the site menu with its four pages and the seven phases", async ({
+  test("the Menu button opens the site menu with its four pages and the thirteen steps", async ({
     page,
   }) => {
     await page.goto("/");
@@ -120,13 +134,15 @@ test.describe("phone menu", () => {
       await expect(menu.getByRole("link", { name, exact: true })).toBeVisible();
     }
 
-    // The phases are a list under a visible label, and each link is named by its phase alone.
-    const phases = menu.getByRole("list", { name: "Rollout phases" });
+    // The steps are a list under a visible label, in folder order, and each link is named by its
+    // step alone (the numeral is hidden from assistive technology).
+    const phases = menu.getByRole("list", { name: "Phases" });
     await expect(phases.getByRole("link")).toHaveCount(PHASES.length);
-    for (const name of PHASES) {
-      await expect(phases.getByRole("link", { name, exact: true })).toBeVisible();
+    for (const [index, name] of PHASES.entries()) {
+      await expect(phases.getByRole("link").nth(index)).toHaveAccessibleName(name);
+      await expect(phases.getByRole("link").nth(index)).toBeVisible();
     }
-    await expect(menu.getByText("Rollout phases", { exact: true })).toBeVisible();
+    await expect(menu.getByText("Phases", { exact: true })).toBeVisible();
 
     // The contact address closes the panel, with no caption under it.
     await expect(drawer(page).locator('a[href^="mailto:"]')).toBeVisible();
@@ -154,17 +170,16 @@ test.describe("phone menu", () => {
     await expect(page.getByRole("heading", { level: 1 })).toHaveText("Catalog");
     await expect(toggle(page)).toHaveAttribute("aria-expanded", "false");
 
-    // A phase link does the same, and the phase is marked when the menu is opened again.
+    // A step link does the same, and the step is marked when the menu is opened again.
     await openDrawer(page);
-    await drawer(page).getByRole("link", { name: "Prepare", exact: true }).click();
-    await expect(page).toHaveURL(/\/phases\/prepare$/, { timeout: NAVIGATION_TIMEOUT });
+    await drawer(page).getByRole("link", { name: "Build the training", exact: true }).click();
+    await expect(page).toHaveURL(/\/phases\/build-the-training$/, { timeout: NAVIGATION_TIMEOUT });
     await expect(drawer(page)).toBeHidden();
 
     await openDrawer(page);
-    await expect(drawer(page).getByRole("link", { name: "Prepare", exact: true })).toHaveAttribute(
-      "aria-current",
-      "page",
-    );
+    await expect(
+      drawer(page).getByRole("link", { name: "Build the training", exact: true }),
+    ).toHaveAttribute("aria-current", "page");
   });
 
   test("Escape closes it and focus returns to the Menu button", async ({ page }) => {
@@ -193,7 +208,7 @@ test.describe("phone menu", () => {
     await page.goto("/");
     await openDrawer(page);
 
-    await drawer(page).getByText("Rollout phases", { exact: true }).click();
+    await drawer(page).getByText("Phases", { exact: true }).click();
     await expect(drawer(page)).toBeVisible();
   });
 
@@ -205,7 +220,7 @@ test.describe("phone menu", () => {
 
     // The browser sends the click to the dialog, the common ancestor of the label and the scrim,
     // but the press was not on the scrim, so it is a selection and not a click on the dimmed page.
-    const label = await drawer(page).getByText("Rollout phases", { exact: true }).boundingBox();
+    const label = await drawer(page).getByText("Phases", { exact: true }).boundingBox();
     const viewport = page.viewportSize();
     if (!label || !viewport) throw new Error("no label or viewport");
     await page.mouse.move(label.x + 4, label.y + label.height / 2);

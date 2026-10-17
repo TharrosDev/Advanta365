@@ -1,49 +1,46 @@
 import { TransitionLink } from "@/components/ui/transition-link";
+import { phaseHref } from "@/lib/catalog/search-params";
 import { cx } from "@/lib/cx";
 import styles from "./phase-tabs.module.css";
 
+type TabPhase = { slug: string; name: string; number?: number };
+
 /**
- * The rollout phases as numbered index tabs: a list of links to `/phases/{slug}`, in the order
- * given. Each link shows its number (the position in the list, hidden from assistive technology)
- * and the phase name, so its accessible name is exactly the phase name.
+ * The toolkit's sections as index tabs: a list of links to `/phases/{slug}`, in the order given.
+ * A numbered phase shows its number (hidden from assistive technology) over its plain name; Start
+ * here and Used at every step have no number. The cards are two per row, then from 40em as many as
+ * fit.
  *
- * `size="rail"` is the strip under the bar: equal tabs in one row, standing on the bottom edge of
- * whatever holds them. `size="large"` is the set of index cards on a page: two per row, then from
- * 40em one row in which each card is as wide as its name needs where the list is wide enough for
- * the seven, and four across where it is not.
- *
- * `current` is the slug of the phase being shown. `currentKind` says how: `page` when the page is
- * that phase, `true` when the page only belongs to it (a template of that phase). The component has
- * no state; a caller that knows the pathname passes `current`.
+ * `current` is the slug of the section being shown. `currentKind` says how: `page` when the page
+ * is that section, `true` when the page only belongs to it. The component has no state; a caller
+ * that knows the pathname passes `current`.
  */
 export function PhaseTabs({
   phases,
   current,
   currentKind = "page",
-  size = "rail",
   className,
 }: {
-  phases: ReadonlyArray<{ slug: string; name: string }>;
+  phases: ReadonlyArray<TabPhase>;
   current?: string;
   currentKind?: "page" | "true";
-  size?: "rail" | "large";
   className?: string;
 }) {
   return (
-    <ul className={cx(styles.root, styles[size], className)}>
-      {phases.map((phase, index) => (
+    <ul className={cx(styles.root, styles.large, className)}>
+      {phases.map((phase) => (
         <li key={phase.slug} className={styles.item}>
           <TransitionLink
-            href={`/phases/${phase.slug}`}
+            href={phaseHref(phase.slug)}
             className={styles.tab}
             aria-current={phase.slug === current ? currentKind : undefined}
           >
-            <span className={styles.numeral} aria-hidden="true">
-              {index + 1}
-            </span>
-            <span className={cx(size === "rail" ? "type-note" : "type-ui", styles.name)}>
-              {phase.name}
-            </span>
+            {phase.number === undefined ? null : (
+              <span className={styles.numeral} aria-hidden="true">
+                {phase.number}
+              </span>
+            )}
+            <span className={cx("type-ui", styles.name)}>{phase.name}</span>
           </TransitionLink>
         </li>
       ))}

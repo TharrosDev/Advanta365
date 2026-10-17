@@ -306,9 +306,10 @@ describe("design gate: standing rules", () => {
     expect(others).toEqual([]);
   });
 
-  it("container queries stay in the bar and the drawer, where a row has to fit", () => {
+  it("container queries stay where a row has to fit: the bar, the drawer and the phase line", () => {
     const users = STYLESHEETS.filter((file) => /@container\b/.test(read(file)));
     expect(users).toEqual([
+      "components/about/phase-line.module.css",
       "components/layout/header.module.css",
       "components/layout/nav-drawer.module.css",
     ]);

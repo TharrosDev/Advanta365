@@ -149,7 +149,7 @@ export function TemplateCover({
   slug,
   title,
   summary,
-  phaseOrder,
+  phaseNumber,
   className,
   tagClassName,
 }: {
@@ -160,7 +160,7 @@ export function TemplateCover({
   slug?: string;
   title?: string;
   summary?: string;
-  phaseOrder?: number;
+  phaseNumber?: number;
   className?: string;
   tagClassName?: string;
 }) {
@@ -216,7 +216,7 @@ export function TemplateCover({
           </span>
         </span>
         {format === "pdf" ? <span className={styles.flap} /> : null}
-        {phaseOrder === undefined ? null : <span className={styles.numeral}>{phaseOrder}</span>}
+        {phaseNumber === undefined ? null : <span className={styles.numeral}>{phaseNumber}</span>}
         <Tag className={cx(styles.format, tagClassName)}>{FORMAT_TAGS[format]}</Tag>
       </span>
     </PaperSheet>

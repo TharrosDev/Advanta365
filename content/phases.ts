@@ -1,156 +1,117 @@
-// Rollout phases, labeled in plain language and listed in the order a rollout moves through
-// them, from making the case to sustaining the change. Names and steps are working labels:
-// edit them here.
+// The toolkit's sections, one for each of its folders and in the folders' order, so the step
+// numbers on the site match the folder numbers a buyer sees after purchase. Only folders 01 to 11
+// are numbered phases: Start here is orientation and Used at every step holds the tools used
+// throughout. `label` is the short name the line of steps on Why Advanta uses, `name` the plain
+// one menus, lists and the catalog use. The summaries are working copy: edit them here.
 export const phases = [
   {
-    slug: "make-the-case",
-    name: "Make the case",
+    slug: "start-here",
+    name: "Start here",
+    label: "Start here",
     summary:
-      "Show why adoption needs its own plan, agree what success looks like and get a sponsor who will stand behind it.",
+      "Get your bearings: how the toolkit is organized, how to use it and a worked example of a whole rollout.",
+    order: 0,
+  },
+  {
+    slug: "define-the-change",
+    name: "Define the change",
+    label: "Define",
+    summary:
+      "Say what is changing and why, agree what success looks like and how its benefits will be measured.",
     order: 1,
-    steps: [
-      {
-        slug: "build-the-business-case",
-        name: "Build the business case",
-        summary:
-          "Set out the reason for the change, the outcomes expected and how benefits will be measured.",
-        order: 1,
-      },
-      {
-        slug: "secure-sponsorship",
-        name: "Secure sponsorship",
-        summary:
-          "Name the sponsor, agree what is asked of them and start the rollout in their voice.",
-        order: 2,
-      },
-    ],
+    number: 1,
   },
   {
-    slug: "plan",
-    name: "Plan",
-    summary:
-      "Understand who is affected and how ready they are, then set the strategy the rest of the rollout follows.",
+    slug: "assess-the-impact",
+    name: "Assess the impact",
+    label: "Assess",
+    summary: "Map the audiences affected, how much changes for each and how ready they are for it.",
     order: 2,
-    steps: [
-      {
-        slug: "assess-impact-and-readiness",
-        name: "Assess impact and readiness",
-        summary: "Map the groups affected, how ready they are and where resistance is likely.",
-        order: 1,
-      },
-      {
-        slug: "set-the-change-strategy",
-        name: "Set the change strategy",
-        summary: "Set the approach, the team and how resistance will be handled.",
-        order: 2,
-      },
-    ],
+    number: 2,
   },
   {
-    slug: "design",
-    name: "Design",
+    slug: "set-the-strategy",
+    name: "Set the strategy",
+    label: "Strategize",
     summary:
-      "Decide the rules people will work within and how each group will be reached, trained and supported.",
+      "Set the approach the rest of the rollout follows: the team, the plan and how resistance will be handled.",
     order: 3,
-    steps: [
-      {
-        slug: "design-governance",
-        name: "Design governance",
-        summary:
-          "Agree who can create what, how content is kept in order and who decides when the rules change.",
-        order: 1,
-      },
-      {
-        slug: "design-the-adoption-approach",
-        name: "Design the adoption approach",
-        summary: "Work out what each role needs and how the rollout will reach them.",
-        order: 2,
-      },
-    ],
+    number: 3,
   },
   {
-    slug: "prepare",
-    name: "Prepare",
+    slug: "engage-leaders",
+    name: "Engage leaders",
+    label: "Engage",
     summary:
-      "Get people ready before launch: build a network of champions and train each audience for the way they actually work.",
+      "Bring sponsors, managers and champions on board, and give them what they need to lead the change.",
     order: 4,
-    steps: [
-      {
-        slug: "build-the-champion-network",
-        name: "Build the champion network",
-        summary: "Recruit champions and trainers, and give them what they need to help colleagues.",
-        order: 1,
-      },
-      {
-        slug: "train-each-audience",
-        name: "Train each audience",
-        summary: "Build the knowledge and skills each audience needs on day one.",
-        order: 2,
-      },
-    ],
+    number: 4,
   },
   {
-    slug: "communicate",
-    name: "Communicate",
+    slug: "plan-communications",
+    name: "Plan communications",
+    label: "Communicate",
     summary:
-      "Tell each audience what is changing, why, and what it means for them, through the people they listen to.",
+      "Tell each audience what is changing, why and what it means for them, from first notice to launch day.",
     order: 5,
-    steps: [
-      {
-        slug: "announce-the-change",
-        name: "Announce the change",
-        summary: "Take staff from first notice to launch day with clear, timely messages.",
-        order: 1,
-      },
-      {
-        slug: "equip-sponsors-and-managers",
-        name: "Equip sponsors and managers",
-        summary: "Give sponsors and people managers the words to lead the change with their teams.",
-        order: 2,
-      },
-    ],
+    number: 5,
   },
   {
-    slug: "execute",
-    name: "Execute",
+    slug: "design-the-platform",
+    name: "Design the platform",
+    label: "Design",
     summary:
-      "Go live with a plan, on-the-ground help and a way to hear feedback, then support people through the first weeks.",
+      "Agree who can create what, how content is kept in order and who decides when the rules change.",
     order: 6,
-    steps: [
-      {
-        slug: "go-live",
-        name: "Go live",
-        summary: "Make the Go/No-Go decision, then run cutover and launch day in order.",
-        order: 1,
-      },
-      {
-        slug: "run-hypercare",
-        name: "Run hypercare",
-        summary: "Give extra support after launch, act on feedback and agree when it ends.",
-        order: 2,
-      },
-    ],
+    number: 6,
   },
   {
-    slug: "sustain",
-    name: "Sustain",
-    summary:
-      "Make the change stick: measure real adoption, reinforce the new ways of working and hand ownership to the business.",
+    slug: "plan-the-training",
+    name: "Plan the training",
+    label: "Plan training",
+    summary: "Work out what each role needs to learn and how and when they will learn it.",
     order: 7,
-    steps: [
-      {
-        slug: "measure-adoption",
-        name: "Measure adoption",
-        summary: "Track usage, proficiency and benefits against the targets you set.",
-        order: 1,
-      },
-      {
-        slug: "reinforce-and-hand-over",
-        name: "Reinforce and hand over",
-        summary:
-          "Recognize progress, correct gaps and move from project to operations with clear owners.",
-        order: 2,
-      },
-    ],
+    number: 7,
+  },
+  {
+    slug: "build-the-training",
+    name: "Build the training",
+    label: "Build training",
+    summary: "Build the decks, guides and exercises each audience needs on day one.",
+    order: 8,
+    number: 8,
+  },
+  {
+    slug: "deliver-training",
+    name: "Deliver training",
+    label: "Train",
+    summary: "Run the sessions, prepare the trainers and bring each audience on board.",
+    order: 9,
+    number: 9,
+  },
+  {
+    slug: "go-live-and-support",
+    name: "Go live and support",
+    label: "Go live",
+    summary:
+      "Make the Go/No-Go decision, run cutover and launch day, then support people through the first weeks.",
+    order: 10,
+    number: 10,
+  },
+  {
+    slug: "make-it-stick",
+    name: "Make it stick",
+    label: "Sustain",
+    summary:
+      "Measure real adoption, reinforce the new ways of working and hand ownership to the business.",
+    order: 11,
+    number: 11,
+  },
+  {
+    slug: "used-at-every-step",
+    name: "Used at every step",
+    label: "Every step",
+    summary: "The registers, reports and reviews you keep up from the first step to the last.",
+    order: 12,
   },
 ];

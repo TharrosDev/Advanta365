@@ -1,12 +1,10 @@
 import { sample } from "./sample";
 
 // SAMPLE CONTENT — placeholder entries for the beta, not real products.
-export const executeTemplates = sample("execute", [
-  // Go live
+export const goLiveAndSupportTemplates = sample("go-live-and-support", [
   {
     slug: "go-live-readiness-checklist",
     title: "Go/No-Go Decision Checklist",
-    step: "go-live",
     deliverableType: "plan",
     apps: ["sharepoint", "teams"],
     audiences: ["change-lead", "it-admin"],
@@ -31,7 +29,6 @@ export const executeTemplates = sample("execute", [
   {
     slug: "sharepoint-cutover-playbook",
     title: "SharePoint Cutover Playbook",
-    step: "go-live",
     deliverableType: "plan",
     apps: ["sharepoint"],
     audiences: ["change-lead", "it-admin"],
@@ -50,7 +47,6 @@ export const executeTemplates = sample("execute", [
   {
     slug: "launch-day-run-sheet",
     title: "Launch Day Run Sheet",
-    step: "go-live",
     deliverableType: "plan",
     apps: ["sharepoint", "m365-general"],
     audiences: ["change-lead"],
@@ -62,26 +58,8 @@ export const executeTemplates = sample("execute", [
     includes: ["Hour-by-hour run sheet", "Contact sheet", "Issues log"],
   },
   {
-    slug: "shared-mailbox-transition-notice-pack",
-    title: "Shared Mailbox Transition Notice Pack",
-    step: "go-live",
-    deliverableType: "communication",
-    apps: ["outlook"],
-    audiences: ["end-user", "manager"],
-    format: "docx",
-    adkar: ["awareness", "knowledge"],
-    pageCount: 5,
-    summary: "Notices for teams whose shared mailboxes are moving or changing.",
-    description:
-      "Three notices timed for two weeks before, the day before and the day after the move. Each explains exactly what the team needs to do.",
-    includes: ["Three timed notices", "Action checklist for mailbox owners", "Help contact block"],
-  },
-
-  // Run hypercare
-  {
     slug: "hypercare-support-plan",
     title: "Hypercare Support Plan",
-    step: "run-hypercare",
     deliverableType: "plan",
     apps: ["sharepoint", "m365-general"],
     audiences: ["it-admin", "change-lead"],
@@ -96,7 +74,6 @@ export const executeTemplates = sample("execute", [
   {
     slug: "floor-walker-support-playbook",
     title: "Floor-Walker Support Playbook",
-    step: "run-hypercare",
     deliverableType: "training",
     apps: ["m365-general"],
     audiences: ["change-lead", "manager"],
@@ -111,7 +88,6 @@ export const executeTemplates = sample("execute", [
   {
     slug: "user-feedback-intake-log",
     title: "User Feedback Intake and Triage Log",
-    step: "run-hypercare",
     deliverableType: "measurement",
     apps: ["sharepoint"],
     audiences: ["change-lead", "it-admin"],

@@ -283,7 +283,6 @@ Other layout tokens:
 | Token | Value | Use |
 | --- | --- | --- |
 | `--over` | `max(0px, 100vw - 1600px)` | How far the window is past a 1600px desktop. The root size and the stage's bleed read it. |
-| `--rail-h` | 42px | The phase rail below the bar, from 68em. |
 | `--wrap-copy` | 36rem | Body measure. |
 | `--wrap-lead` | 40rem | Lead measure. |
 | `--wrap-head` | 22em | Heading measure. |
@@ -291,7 +290,7 @@ Other layout tokens:
 
 ### 6.3 Breakpoints
 
-Two viewport breakpoints exist: `40em` and `68em`. Below 40em is the phone layout. From 40em sheets stand two across and rows gain a second column, which is a tablet's layout (640 to 1087px wide). From 68em the site shows the inline navigation, the phase rail, the twelve-column grid, and the four-layer depth. The header and the nav drawer also use container queries at 27.4em and 24.3em (header) and 17em (drawer). The other media queries in use are listed in section 12.4.
+Two viewport breakpoints exist: `40em` and `68em`. Below 40em is the phone layout. From 40em sheets stand two across and rows gain a second column, which is a tablet's layout (640 to 1087px wide). From 68em the site shows the inline navigation with its Phases drop-down, the twelve-column grid, and the four-layer depth. The header and the nav drawer also use container queries at 27.4em and 24.3em (header) and 17em (drawer), and the line of phases on Why Advanta (`PhaseLine`) one at 72rem of its own width. The other media queries in use are listed in section 12.4.
 
 A large monitor is not a third breakpoint. The breakpoints are in em, which a browser reads at its own text size and not at the root size that section 6.2 grows past a 1600px window, so they stay at 640px and 1088px, and nothing changes layout at 1600px: the page only grows. The design gate allows no other width query.
 
@@ -299,17 +298,16 @@ A tablet is not a stretched phone or a squeezed desktop, and the layout does not
 
 | Surface | Beside each other from | How |
 | --- | --- | --- |
-| A page title and its aside (`TitleBlock` with `aside`: the phase numeral and its count, the worked example's page) | 40em | The `paired` grid: words and a column of `clamp(16rem, 25vw + 6rem, 18rem)`. The numeral and its count stand in a row below 68em and stack from it. |
+| A page title and its aside (`TitleBlock` with `aside`: the phase numeral, "Phase N of 11" and its tally, the worked example's page) | 40em | The `paired` grid: words and a column of `clamp(16rem, 25vw + 6rem, 18rem)`. The numeral and its count stand in a row below 68em and stack from it. |
 | The home page's toolkit: the words and the folder | each has 24rem | An auto-fit grid. |
 | The six free samples on the home page | 40em: three across; 68em: six across | A grid of three and then six equal columns, so no tile is left alone on a second row. |
 | The Why Advanta page's head and passes of the making; a buyer's name and concern; a thing not finished and its sentence | about 55em; about 52em; about 50em | Wrapping flex rows: the head (22rem) and the passes (28rem); the name (20rem) and the concern (16rem); the thing (20rem) and its sentence (24rem). The phases of the making take the full width under both. |
 | The Why Advanta comparison | 40em | The two alternatives are two columns on five shared rows (a subgrid), and the toolkit's sheet lies the full width under them. A fact stands as a line where its sheet holds both of its parts. |
 | The Purchase page's folder and contents leaf | about 1010px | An auto-fit grid of two 28rem columns, the tag lying on the folder. |
-| The catalog's phase row | 40em | The seven cards share the row equally where they fit (a 768px tablet holds them; each card is 70px at least from 40em, 84px below) and scroll sideways where they do not. |
 
-Other tablet details: the filter sheet is the window's width on a phone and at most 40rem, centred, past it; the pop-up's side padding runs from 21px at 640px to 42px from 1088px; the `large` phase cards (a page's index of the phases) stand in one row from 40em where their list is 42rem wide, a window of about 730px, and four across where it is not.
+Other tablet details: the filter sheet is the window's width on a phone and at most 40rem, centred, past it; the pop-up's side padding runs from 21px at 640px to 42px from 1088px; the phase cards (`PhaseTabs`, a page's index of the 13 sections) are two across on a phone and from 40em as many across as fit, none narrower than 12.5rem.
 
-The site is checked at sixteen window sizes by `tests/e2e/viewports.spec.ts`, on twelve routes (`/`, `/catalog`, `/phases/plan`, `/purchase`, `/why-advanta`, `/contact`, `/privacy`, `/terms`, `/refunds`, `/accessibility`, `/sample` and `/nope`). Nothing is drawn past the window's edge at any of them, and from 1280px up the words of a page span more than half of the window (the 404 is the exception):
+The site is checked at sixteen window sizes by `tests/e2e/viewports.spec.ts`, on twelve routes (`/`, `/catalog`, `/phases/assess-the-impact`, `/purchase`, `/why-advanta`, `/contact`, `/privacy`, `/terms`, `/refunds`, `/accessibility`, `/sample` and `/nope`). Nothing is drawn past the window's edge at any of them, and from 1280px up the words of a page span more than half of the window (the 404 is the exception):
 
 | Group | Window sizes (width by height) |
 | --- | --- |
@@ -353,7 +351,7 @@ Depth is a shadow scale. Level 0 is a hairline ring, and higher levels lift obje
 | Token | Level | Use |
 | --- | --- | --- |
 | `--depth-0` | Hairline ring | A sheet sitting flat on the desk. |
-| `--depth-1` | Thumbnail or tab | Phase tabs and small covers. |
+| `--depth-1` | Thumbnail or tab | Small covers. |
 | `--depth-2` | At rest | Sheets at rest. The default for `PaperSheet`. |
 | `--depth-3` | Lifted or panel | Lifted sheets, the toolkit's sheet in the comparison, the front of a page-size folder. |
 | `--depth-4` | Top of a stack | The menu drawer, the filter sheet, the pop-up of the catalog and the checkout. |
@@ -547,9 +545,10 @@ All primitives live in `components/ui/`. Props are shown with their defaults in 
 | --- | --- | --- |
 | `TransitionLink` | `prefetch` (true), plus `next/link` props | `<TransitionLink href="/catalog">Catalog</TransitionLink>` |
 | `TextLink` | `href`, `external` (false), `onClick`, `className`, `aria-current` | `<TextLink href="/purchase">Purchase</TextLink>` |
-| `RowLink` | `href`, `label`, `caption`, `trailing`, `lead`, `size` (md, lg; md), `external`, `onClick`, `className`, `aria-current` | `<RowLink href="/phases/plan" label="Plan" caption="Two steps" />` |
+| `RowLink` | `href`, `label`, `caption`, `trailing`, `lead`, `size` (md, lg; md), `external`, `onClick`, `className`, `aria-current` | `<RowLink href="/phases/assess-the-impact" label="Assess the impact" caption="Phase 2 of 11" />` |
 | `Pagination` | `page`, `pageCount`, `hrefFor` (page to href) | `<Pagination page={2} pageCount={5} hrefFor={(p) => `/catalog?page=${p}`} />` |
-| `PhaseTabs` | `phases` ({ slug, name }[]), `current`, `currentKind` (page, true; page), `size` (rail, large; rail), `className` | `<PhaseTabs phases={phases} current="plan" size="large" />` |
+| `PhaseTabs` | `phases` ({ slug, name, number? }[]), `current`, `currentKind` (page, true; page), `className` | `<PhaseTabs phases={phases} />`: index cards, 56px tall, numeral over name (none for an unnumbered section). |
+| `StepMenu` | `phases` ({ slug, name, number? }[]), `current`, `currentKind` (page, true; page), `label`, `variant` (field, bar; field), `className`, `buttonClassName` | `<StepMenu phases={phases} current={litPhase} currentKind="true" />`: a native `<details>` (`data-step-menu`) of links to `/phases/<slug>`, its panel a navigation named "Toolkit phases". The button names the current phase ("Phase 10 Go live and support") or says "Jump to a phase"; `label` replaces both ("Phases" in the bar). Closes on Escape (focus back on the button), a click outside, a link and a change of page. |
 
 `TransitionLink` is the only module that imports `next/link`. Every internal link goes through it.
 
@@ -595,7 +594,7 @@ Built from the primitives for one part of the site; each has a doc comment that 
 
 | Component | Props | Usage |
 | --- | --- | --- |
-| `TemplateTile` | `template`, `phaseName`, `phaseOrder`, `href`, `headingLevel`, `scroll` (true), `denied` (false) | `<li><TemplateTile template={t} phaseName="Plan" phaseOrder={2} href={catalogHref(criteria, t.slug)} headingLevel="h2" /></li>` inside a `TileGrid`. A free sample is a link; any other template is locked. |
+| `TemplateTile` | `template`, `phaseName`, `phaseNumber`, `href`, `headingLevel`, `scroll` (true), `denied` (false) | `<li><TemplateTile template={t} phaseName="Assess the impact" phaseNumber={2} href={catalogHref(criteria, t.slug)} headingLevel="h2" /></li>` inside a `TileGrid`. A free sample is a link; any other template is locked. |
 | `TileGrid` | `className`, children | `<TileGrid>{items}</TileGrid>`: a list with as many columns of at least 11rem (176px at the 16px root) as fit, never fewer than two. A page that holds a set number of tiles gives the grid its own columns by `className` (the home page's six free samples: three across from 40em, six from 68em). |
 | `LockedTile` | `title`, `headingLevel` (h3), `initialDenied` (false), children | Used by `TemplateTile`: the button named "<title>, locked" and its live line, "Included with the toolkit." |
 | `PageDialog` (`components/ui`) | `name` (template, checkout), `closeHref`, `labelledBy`, `bar`, `fill` (false), children | The pop-up both features share: a native modal dialog at depth 4 with a bar that holds Close; Escape, Close and the dimmed page close it. `bar` is what stands before Close. `fill` is for content that changes while it is open: the whole window below 40em (square corners, no dimmed page), and one height (46rem, or what the window leaves) and at most 64rem wide from there. |
@@ -604,7 +603,7 @@ Built from the primitives for one part of the site; each has a doc comment that 
 | `OrderSummary` | `variant` (panel, disclosure) | What is being bought, on the binder (white on black, highlighter ticks, the total in Besley): a column beside the form from 68em, a native `<details>` row above it below 68em. |
 | `Field`, `FieldError`, `ErrorSummary` | `id`, `label`, `required`, `hint`, `error`, children (a function that draws the control) | One field of a form: a real label, an asterisk for a needed field and "(optional)" in words for the others, a hint, the control, and an error line in the alert colour behind a 3px rule that opens with a hidden "Error:". The summary stands at the head of a form sent with something wrong, on the alert wash, takes focus and links to each field. |
 | `TemplateDetail` | `template`, `phase`, `titleId` | The pop-up's content: a large lit cover, the "Free sample" tag, the title, facts, what is included, and a button to `/purchase`. |
-| `Portfolio` | `size` (page, section), `covers`, `phases`, `className` | `<Portfolio size="page" covers={samples} phases={phaseCoverage(phases, templates)} />`: the toolkit as a folder with its price tag and a tally of the phases. |
+| `Portfolio` | `size` (page, section), `covers`, `phases`, `className` | `<Portfolio size="page" covers={samples} phases={phaseCoverage(phases, templates)} />`: the toolkit as a folder with its price tag and a tally of the eleven numbered phases. |
 | `PriceTag` | `className` | The price from `OFFER` on a paper tag on a string: the amount in Besley with its currency code (`CAD`) small under it. Used by `Portfolio`. |
 | `ContentsLeaf` | `className` | The Purchase page's contents leaf: a lit, dog-eared `PaperSheet` (cut as a whole along the fold, with a flap over the cut) holding a ledger (`dl`) of counts from `TOOLKIT`, each a large Besley figure with a drawn highlighter stroke, then the Checkout link (the page's main action, which opens the checkout), the line that leads to the contact page and the sample note. |
 | `Hero`, `HeroStage` | `samples`, `phases` | The home page's first screen and its stage, the six free samples as a hand of documents (section 8.5). |
@@ -693,22 +692,23 @@ In stylesheets, the allowed media queries are exactly these, and the design gate
 | Query | Behaviour |
 | --- | --- |
 | `(min-width: 40em)` | The tablet layout. |
-| `(min-width: 68em)` | The desktop layout: inline navigation, rail, four-layer depth, twelve columns. There is no query for a larger monitor: the root size scales it (section 6.2). |
+| `(min-width: 68em)` | The desktop layout: inline navigation with the Phases drop-down, four-layer depth, twelve columns. There is no query for a larger monitor: the root size scales it (section 6.2). |
 | `(hover: hover)` | Hover states and the sheet tilt. |
 | `(prefers-reduced-motion: no-preference)` | Every animation and transition. |
 | `(prefers-reduced-motion: reduce)` | The global safety net and the reduced-motion branches. |
 | `(prefers-contrast: more)` | The bar gets a solid ink border, and paper sheets get a solid border. |
 | `(forced-colors: active)` | Blocks use system colours, and borders use `CanvasText`. |
 | `@container (max-width: 27.4em)`, `(max-width: 24.3em)` (header), `(max-width: 17em)` (nav drawer) | A name that does not fit its container is hidden visually and stays readable to assistive technology. |
+| `@container (min-width: 72rem)` (`PhaseLine`) | The eleven phases stand as a tally with their short labels under it; narrower, they are a list of rows with their plain names. |
 
 Scripts query only forms from this list. Stylesheets do not query `prefers-color-scheme`. `:root` declares `color-scheme: light`, and the design gate enforces this.
 
 ### 12.5 Semantics
 
 - Site pages have one `header` (the banner), one `main` with `id="main"`, and one `footer` (the contentinfo landmark).
-- Navigation is labelled: `Primary` for the header, `Phases` for the rail, `Footer` for the footer's site and legal links, `Breadcrumb` on section pages, `Pagination` on catalog pages, `Start from a phase` for the phone catalog's strip, `Browse by phase` in the catalog's empty search, `Previous and next phase` at the foot of a phase page, and `Menu` for the site drawer.
+- Navigation is labelled: `Primary` for the header, `Toolkit phases` for the panel of either Phases drop-down, `Footer` for the footer's site and legal links, `Breadcrumb` on section pages, `Pagination` on catalog pages, `Browse the sample catalog by phase` for the phase links on the home, Sample and Why Advanta pages, `Browse by phase` in the catalog's empty search, `Previous and next phase` at the foot of a phase page, and `Menu` for the site drawer.
 - The current page is marked with `aria-current="page"`, and the current section with `aria-current="true"`.
-- Decorative elements are hidden from assistive technology: the 90% figure (its heading says it in words), unlabelled tallies, numerals on phase tabs, the specimen sheet and the cover of a first visit (a locked cover has nothing drawn over it; the tile's button says "locked").
+- Decorative elements are hidden from assistive technology: the 90% figure (its heading says it in words), unlabelled tallies, numerals on phase cards and in the phase lists, the specimen sheet and the cover of a first visit (a locked cover has nothing drawn over it; the tile's button says "locked").
 - Each `Tally` or count with a meaning carries a `label`.
 - A form field has a real `<label>`, an `autocomplete` token, `required` where it is needed and "(optional)" in words where it is not. An error is tied to its control with `aria-invalid` and `aria-describedby` and never rests on colour alone; a form sent with errors moves focus to a summary that links to each field. A change of step in the checkout moves focus to the step's heading and is announced by a polite status line.
 

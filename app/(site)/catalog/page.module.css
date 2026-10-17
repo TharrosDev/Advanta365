@@ -1,5 +1,5 @@
 /*
- * The rail: search, sort and filters. Below 68em it opens with the phases, a row of its own. Below
+ * The rail: search, sort and filters. Below 68em it opens with the phases' drop-down, a row of its own. Below
  * 40em the search and the Filters button share the row under it, 7px apart; the sort order is in
  * the sheet. From 40em the search keeps a row and the sort order and the Filters button share the
  * next, one at each end.
@@ -22,38 +22,6 @@
 
 .sort {
   display: none;
-}
-
-/*
- * The phases below 68em: the index cards in one row that scrolls sideways, each as wide as its name
- * needs and never narrower than 84px, so the card cut off at the edge says there is more. Where
- * the seven fit (a tablet) they share what is left equally and the row is full; where they do not,
- * they keep their own width and the row scrolls. The row runs out to both edges of the screen and
- * starts and stops at the page padding; the 7px above and below, taken back by the margin, is the
- * room a focus ring needs inside a box that clips. The doubled class outranks the layout of the
- * cards' own module (two across, then from 40em a row that wraps), and the rule for its cards is
- * doubled for the same reason. From 40em the cards' own padding is a quarter smaller, so a 768px
- * tablet holds the seven in full and the row does not scroll by the width of one name.
- */
-.strip.strip {
-  display: flex;
-  flex-wrap: nowrap;
-  gap: var(--s-1);
-  margin: calc(-1 * var(--s-1)) calc(-1 * var(--page-pad));
-  padding: var(--s-1) var(--page-pad);
-  overflow-x: auto;
-  overscroll-behavior-x: contain;
-  scroll-padding-inline: var(--page-pad);
-  scroll-snap-type: x proximity;
-  scrollbar-color: var(--line-firm) transparent;
-  scrollbar-width: thin;
-}
-
-.strip.strip > li {
-  flex: 1 0 auto;
-  min-width: var(--s-7);
-  max-width: none;
-  scroll-snap-align: start;
 }
 
 /*
@@ -103,15 +71,9 @@
 }
 
 /*
- * From 40em the sort order comes back into the rail; the phases keep their row above the search,
- * and their cards may be as narrow as their names (70px, not 84), which brings the seven within a
- * 768px tablet.
+ * From 40em the sort order comes back into the rail; the drop-down keeps its row above the search.
  */
 @media (min-width: 40em) {
-  .strip.strip > li {
-    min-width: calc(var(--s-1) * 10);
-  }
-
   .rail {
     grid-template-columns: calc(var(--s-9) + var(--s-6)) minmax(0, 1fr);
     align-items: end;
@@ -133,7 +95,7 @@
 }
 
 /*
- * From 68em the phases leave the rail (the bar's own rail has them) and the rail is a column in the
+ * From 68em the drop-down leaves the rail (the bar's own rail has the steps) and the rail is a column in the
  * margin, its groups 28px apart. It stays under the bar and scrolls inside itself when the filters
  * are taller than the window. The 7px of padding, taken back by the margin, is the room a focus
  * ring needs inside a box that clips. Its foot is 28px of padding that fades out (the mask is alpha

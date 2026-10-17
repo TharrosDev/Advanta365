@@ -129,63 +129,62 @@ describe("queryTemplates", () => {
     expect(slugs.slice(6, 9)).toEqual(["t00", "t01", "t02"]);
   });
 
-  test("the free samples come first, and each group then goes in phase order", () => {
+  test("the free samples come first, and each group then goes in folder order", () => {
     const phases = rawPhases as Phase[];
     const listed = [
-      makeTemplate({ slug: "train-a", phase: "prepare", step: "train" }),
-      makeTemplate({ slug: "free-train", phase: "prepare", step: "train", free: true }),
-      makeTemplate({ slug: "recruit-a", phase: "prepare", step: "recruit" }),
-      makeTemplate({ slug: "sponsor-a", phase: "make-the-case", step: "sponsor" }),
-      makeTemplate({ slug: "free-sponsor", phase: "make-the-case", step: "sponsor", free: true }),
-      makeTemplate({ slug: "free-recruit", phase: "prepare", step: "recruit", free: true }),
+      makeTemplate({ slug: "build-a", phase: "build-the-training" }),
+      makeTemplate({ slug: "free-build", phase: "build-the-training", free: true }),
+      makeTemplate({ slug: "intro-a", phase: "start-here" }),
+      makeTemplate({ slug: "define-a", phase: "define-the-change" }),
+      makeTemplate({ slug: "free-define", phase: "define-the-change", free: true }),
+      makeTemplate({ slug: "free-intro", phase: "start-here", free: true }),
     ];
     expect(queryTemplates(listed, DEFAULT_CRITERIA, phases).items.map((t) => t.slug)).toEqual([
-      "free-sponsor",
-      "free-recruit",
-      "free-train",
-      "sponsor-a",
-      "recruit-a",
-      "train-a",
+      "free-intro",
+      "free-define",
+      "free-build",
+      "intro-a",
+      "define-a",
+      "build-a",
     ]);
   });
 
-  test("sorts by phase, then by step, keeping the given order inside a step", () => {
-    // Given out of order: the fixture lists "prepare" (order 2) first, with its steps reversed.
+  test("sorts by section, keeping the given order inside a section", () => {
+    // Given out of order: the fixture lists "build-the-training" (order 2) first.
     const phases = rawPhases as Phase[];
     const listed = [
-      makeTemplate({ slug: "train-a", phase: "prepare", step: "train" }),
-      makeTemplate({ slug: "recruit-a", phase: "prepare", step: "recruit", free: true }),
-      makeTemplate({ slug: "sponsor-a", phase: "make-the-case", step: "sponsor" }),
-      makeTemplate({ slug: "train-b", phase: "prepare", step: "train", free: true }),
-      makeTemplate({ slug: "recruit-b", phase: "prepare", step: "recruit" }),
+      makeTemplate({ slug: "build-a", phase: "build-the-training" }),
+      makeTemplate({ slug: "intro-a", phase: "start-here", free: true }),
+      makeTemplate({ slug: "define-a", phase: "define-the-change" }),
+      makeTemplate({ slug: "build-b", phase: "build-the-training", free: true }),
+      makeTemplate({ slug: "intro-b", phase: "start-here" }),
     ];
     const order = (sort: CatalogCriteria["sort"]) =>
       queryTemplates(listed, { ...DEFAULT_CRITERIA, sort }, phases).items.map((t) => t.slug);
 
-    // The rollout order alone: a free sample stands where its step is.
-    expect(order("phase")).toEqual(["sponsor-a", "recruit-a", "recruit-b", "train-a", "train-b"]);
-    // The title order does not depend on the phases.
+    // The rollout order alone: a free sample stands where its section is.
+    expect(order("phase")).toEqual(["intro-a", "intro-b", "define-a", "build-a", "build-b"]);
+    // The title order does not depend on the sections.
     expect(order("title")).toEqual(
       queryTemplates(listed, { ...DEFAULT_CRITERIA, sort: "title" }).items.map((t) => t.slug),
     );
   });
 
-  test("phase order puts a phase or step it does not know last, and keeps the input without phases", () => {
+  test("section order puts a section it does not know last, and keeps the input without sections", () => {
     const phases = rawPhases as Phase[];
     const listed = [
-      makeTemplate({ slug: "stray", phase: "retired", step: "gone" }),
-      makeTemplate({ slug: "stray-too", phase: "also-retired", step: "gone" }),
-      makeTemplate({ slug: "odd-step", phase: "prepare", step: "gone" }),
-      makeTemplate({ slug: "recruit", phase: "prepare", step: "recruit" }),
-      makeTemplate({ slug: "sponsor", phase: "make-the-case", step: "sponsor" }),
+      makeTemplate({ slug: "stray", phase: "retired" }),
+      makeTemplate({ slug: "stray-too", phase: "also-retired" }),
+      makeTemplate({ slug: "build", phase: "build-the-training" }),
+      makeTemplate({ slug: "define", phase: "define-the-change" }),
     ];
     const slugs = (given: Phase[]) =>
       queryTemplates(listed, { ...DEFAULT_CRITERIA, sort: "phase" }, given).items.map(
         (t) => t.slug,
       );
 
-    expect(slugs(phases)).toEqual(["sponsor", "recruit", "odd-step", "stray", "stray-too"]);
-    expect(slugs([])).toEqual(["stray", "stray-too", "odd-step", "recruit", "sponsor"]);
+    expect(slugs(phases)).toEqual(["define", "build", "stray", "stray-too"]);
+    expect(slugs([])).toEqual(["stray", "stray-too", "build", "define"]);
   });
 
   test("free: true keeps only the free templates", () => {

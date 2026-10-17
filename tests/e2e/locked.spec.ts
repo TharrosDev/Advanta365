@@ -298,16 +298,12 @@ test("a link to a locked template whose tile is not on the page of results is an
   }
 });
 
-test("a phase page draws nothing over its locked tiles, in any of its grids", async ({ page }) => {
-  await page.goto("/phases/plan");
-  // Several steps, each with a grid of its own, and locked tiles in more than one of them.
+test("a step page draws nothing over its locked tiles", async ({ page }) => {
+  await page.goto("/phases/assess-the-impact");
+  // One grid of the step's templates, every one of them locked.
   const grids = page.getByRole("main").locator("ul:has([data-tile])");
-  expect(await grids.count()).toBeGreaterThan(1);
-  expect(
-    await grids.evaluateAll(
-      (lists) => lists.filter((list) => list.querySelector("[data-tile][data-locked]")).length,
-    ),
-  ).toBeGreaterThan(1);
+  await expect(grids).toHaveCount(1);
+  expect(await grids.locator("[data-tile][data-locked]").count()).toBeGreaterThan(1);
 
   // A locked tile is a button named for its template, and the well of every tile holds its cover
   // and nothing drawn over it. No id is on the page twice.

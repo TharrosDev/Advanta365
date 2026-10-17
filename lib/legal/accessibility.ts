@@ -74,7 +74,6 @@ export function accessibility(facts: LegalFacts): LegalDocument {
             "The toolkit’s files are Word, PowerPoint, Excel and PDF documents meant to be edited. We have not checked each one against a document accessibility standard, and how accessible your adapted versions are depends on the changes you make.",
             "We have not tested every page with every combination of screen reader, browser and voice control software, so a fault may exist that our checks did not find.",
             "The covers of templates in the catalog are small pictures of a page. Their content is decoration; each template’s title, description and details are given as text beside the cover.",
-            "On phones, the row of rollout phases in the catalog scrolls sideways. Every phase in it can be reached by touch and with the keyboard, but it is one place where content runs past the edge of the screen on purpose.",
             "Without JavaScript, controls that open a panel, such as the phone menu and the catalog’s filter sheet, may not respond. The pages and their links still work.",
             "The site is in English only.",
             "The checkout does not take payment yet. The payment step that a processor will add is not built, and will be held to the same standard and covered by this statement when it is.",

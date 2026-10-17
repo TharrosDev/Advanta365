@@ -14,8 +14,8 @@ for (const path of MISSING) {
 }
 
 test("a mixed-case address redirects to the lower-case page", async ({ page }) => {
-  const response = await page.goto("/Phases/Prepare");
+  const response = await page.goto("/Phases/Build-The-Training");
   expect(response?.status()).toBe(200);
-  await expect(page).toHaveURL(/\/phases\/prepare$/);
-  await expect(page.getByRole("heading", { level: 1 })).toHaveText("Prepare");
+  await expect(page).toHaveURL(/\/phases\/build-the-training$/);
+  await expect(page.getByRole("heading", { level: 1 })).toHaveText("Build the training");
 });

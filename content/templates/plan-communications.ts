@@ -1,12 +1,10 @@
 import { sample } from "./sample";
 
 // SAMPLE CONTENT — placeholder entries for the beta, not real products.
-export const communicateTemplates = sample("communicate", [
-  // Announce the change
+export const planCommunicationsTemplates = sample("plan-communications", [
   {
     slug: "master-communications-plan",
     title: "Master Communications Plan",
-    step: "announce-the-change",
     deliverableType: "communication",
     apps: ["sharepoint", "m365-general"],
     audiences: ["change-lead"],
@@ -36,7 +34,6 @@ export const communicateTemplates = sample("communicate", [
   {
     slug: "launch-announcement-email-series",
     title: "Launch Announcement Email Series",
-    step: "announce-the-change",
     deliverableType: "communication",
     apps: ["sharepoint", "outlook"],
     audiences: ["end-user"],
@@ -51,7 +48,6 @@ export const communicateTemplates = sample("communicate", [
   {
     slug: "intranet-news-post-kit",
     title: "Intranet News Post Kit",
-    step: "announce-the-change",
     deliverableType: "communication",
     apps: ["sharepoint"],
     audiences: ["end-user"],
@@ -66,7 +62,6 @@ export const communicateTemplates = sample("communicate", [
   {
     slug: "rollout-faq-builder",
     title: "Rollout FAQ Builder",
-    step: "announce-the-change",
     deliverableType: "communication",
     apps: ["sharepoint", "m365-general"],
     audiences: ["end-user", "manager"],
@@ -81,7 +76,6 @@ export const communicateTemplates = sample("communicate", [
   {
     slug: "whats-changing-for-me-one-pager",
     title: "What’s Changing for Me One-Pager",
-    step: "announce-the-change",
     deliverableType: "communication",
     apps: ["onedrive", "sharepoint"],
     audiences: ["end-user"],
@@ -93,52 +87,18 @@ export const communicateTemplates = sample("communicate", [
       "A before-and-after layout for file storage and sharing. Designed to be printed or posted where people work.",
     includes: ["One-page layout", "Editable source file", "Three role variants"],
   },
-
-  // Equip sponsors and managers
   {
-    slug: "sponsor-message-scripts",
-    title: "Sponsor Message Scripts",
-    step: "equip-sponsors-and-managers",
-    deliverableType: "sponsor",
-    apps: ["m365-general"],
-    audiences: ["sponsor"],
-    format: "docx",
-    adkar: ["awareness", "desire"],
-    pageCount: 7,
-    summary: "Scripts for the sponsor’s key messages: town hall, video and all-staff email.",
-    description:
-      "Three scripts written to be spoken aloud, each under three minutes. They answer why the change is happening and what the sponsor expects.",
-    includes: ["Town hall script", "Video script", "All-staff email"],
-  },
-  {
-    slug: "manager-talking-points-pack",
-    title: "Manager Talking Points Pack",
-    step: "equip-sponsors-and-managers",
+    slug: "shared-mailbox-transition-notice-pack",
+    title: "Shared Mailbox Transition Notice Pack",
     deliverableType: "communication",
-    apps: ["sharepoint", "teams"],
-    audiences: ["manager"],
+    apps: ["outlook"],
+    audiences: ["end-user", "manager"],
     format: "docx",
-    adkar: ["awareness", "desire"],
-    pageCount: 6,
-    summary:
-      "What people managers should say to their teams, and how to answer the hard questions.",
+    adkar: ["awareness", "knowledge"],
+    pageCount: 5,
+    summary: "Notices for teams whose shared mailboxes are moving or changing.",
     description:
-      "Gives managers a short script for team meetings plus answers to the questions staff are most likely to raise. Staff hear about personal impact best from their own manager.",
-    includes: ["Team meeting script", "Hard questions and answers", "Follow-up checklist"],
-  },
-  {
-    slug: "manager-coaching-guide-for-resistance",
-    title: "Manager Coaching Guide for Resistance",
-    step: "equip-sponsors-and-managers",
-    deliverableType: "resistance",
-    apps: ["m365-general"],
-    audiences: ["manager"],
-    format: "docx",
-    adkar: ["desire", "ability"],
-    pageCount: 12,
-    summary: "Helps managers have one-to-one conversations with staff who are struggling.",
-    description:
-      "A practical guide to finding out why someone is not adopting the change and what would help. Includes conversation openers and a simple action plan.",
-    includes: ["12-page coaching guide", "Conversation openers", "Individual action plan"],
+      "Three notices timed for two weeks before, the day before and the day after the move. Each explains exactly what the team needs to do.",
+    includes: ["Three timed notices", "Action checklist for mailbox owners", "Help contact block"],
   },
 ]);

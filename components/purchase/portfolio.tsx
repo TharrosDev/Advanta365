@@ -71,8 +71,8 @@ const FORMATS = ["DOCX", "PPTX", "XLSX", "PDF"] as const;
  * The toolkit as the one object it is sold as: a folder at the scale of a page, its tab naming the
  * offer, the covers of real templates (`covers`, the free samples) standing in its pocket in two
  * ranks, and the price on a paper tag tied to its top right corner. Under it, as wide as the
- * folder, a tally of the rollout phases the toolkit reaches (`phases`, from `phaseCoverage`),
- * which is an image named by those phases, and a line that says the same in words.
+ * folder, a tally of the numbered phases the toolkit reaches (`phases`, from `phaseCoverage`),
+ * which is an image named by those steps, and a line that says the same in words.
  *
  * `size="page"` is the folder of the purchase page: 34rem wide at most, centred in what holds it
  * (the page stands it at the start of its columns from 68em, beside the contents leaf, through
@@ -98,7 +98,7 @@ export function Portfolio({
   className?: string;
 }) {
   const Title = size === "page" ? "h1" : "h3";
-  const orderOf = new Map(phases.map((phase) => [phase.slug, phase.order]));
+  const numberOf = new Map(phases.map((phase) => [phase.slug, phase.number]));
   const reached = phases.filter((phase) => phase.covered);
   const first = phases[0];
   const last = phases[phases.length - 1];
@@ -114,7 +114,7 @@ export function Portfolio({
         format={template.format}
         title={template.title}
         summary={template.summary}
-        phaseOrder={orderOf.get(template.phase)}
+        phaseNumber={numberOf.get(template.phase)}
         tagClassName={styles.coverTag}
       />
     </span>
@@ -131,7 +131,7 @@ export function Portfolio({
           frontClassName={styles.front}
         >
           <BrandLockup variant="tile" size="sm" className={styles.maker} />
-          <Title className={cx("type-page", styles.title)}>Seven phases in one folder.</Title>
+          <Title className={cx("type-page", styles.title)}>Eleven phases in one folder.</Title>
           <p className={cx("type-copy", styles.summary)}>
             The change management and user adoption toolkit behind real SharePoint Online rollouts,
             ready to adapt by hand or with AI.
@@ -150,7 +150,7 @@ export function Portfolio({
       <div className={styles.reach}>
         <Tally
           total={phases.length}
-          filled={reached.map((phase) => phase.order)}
+          filled={reached.map((phase) => phase.number)}
           size="md"
           numerals
           animate

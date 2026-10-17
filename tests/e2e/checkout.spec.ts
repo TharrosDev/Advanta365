@@ -167,7 +167,9 @@ test("a link to a step opens the checkout on load; any other value opens nothing
     const other = await openPurchase(page, `/purchase?checkout=${encodeURIComponent(value)}`);
     expect(other?.status()).toBe(200);
     await expect(page.locator("dialog[open]")).toHaveCount(0);
-    await expect(page.getByRole("heading", { level: 1 })).toHaveText("Seven phases in one folder.");
+    await expect(page.getByRole("heading", { level: 1 })).toHaveText(
+      "Eleven phases in one folder.",
+    );
   }
 });
 

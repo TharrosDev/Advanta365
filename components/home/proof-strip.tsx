@@ -10,7 +10,7 @@ const FACTS = [
   { figure: EXPERIENCE, label: EXPERIENCE_UNIT },
   { figure: String(TOOLKIT.playbooks), label: "playbooks" },
   { figure: String(TOOLKIT.templates), label: "templates" },
-  { figure: "One", label: "purchase" },
+  { figure: String(TOOLKIT.jobAids), label: "job aids" },
 ] as const;
 
 /**

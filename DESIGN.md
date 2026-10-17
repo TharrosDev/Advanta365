@@ -245,18 +245,15 @@ components:
   nav-link-current:
     backgroundColor: "transparent"
     textColor: "{colors.ink}"
-  phase-tab:
+  phase-menu-link:
     backgroundColor: "{colors.paper}"
     textColor: "{colors.ink}"
-    typography: "{typography.note}"
-    rounded: "{rounded.round-2}"
+    typography: "{typography.ui}"
+    rounded: "{rounded.round-1}"
     padding: "0 0.4375rem"
-    height: "2.1875rem"
-  phase-tab-hover:
+    height: "{spacing.tap}"
+  phase-menu-link-hover:
     backgroundColor: "{colors.mark-wash}"
-  phase-tab-current:
-    backgroundColor: "{colors.mark}"
-    textColor: "{colors.ink}"
   row-link:
     backgroundColor: "transparent"
     textColor: "{colors.ink}"
@@ -319,7 +316,7 @@ White, near-black and one light blue, on cool greys that lean a few degrees towa
 
 ### Primary
 
-- **Highlighter Blue** (`mark`, #86c1ff): the buyer's colour. It fills the blank on a template cover, the marked block of a tally, a checked box, the current phase tab, a saving tag (the "Free sample" tag among them), the square before an eyebrow, the tail of the logo and the 365 on it, the headline's last words and the text selection. Under the pointer or keyboard focus it comes up inside solid buttons and behind the words of a link. On the binder it is the fill of the footer's one button.
+- **Highlighter Blue** (`mark`, #86c1ff): the buyer's colour. It fills the blank on a template cover, the marked block of a tally, a checked box, the current phase card and the numeral of the current phase in the drop-down, a saving tag (the "Free sample" tag among them), the square before an eyebrow, the tail of the logo and the 365 on it, the headline's last words and the text selection. Under the pointer or keyboard focus it comes up inside solid buttons and behind the words of a link. On the binder it is the fill of the footer's one button.
 - **Pressed Highlighter** (`mark-deep`, #5fa8f5): the highlighter one step deeper. A solid button while it is held down and a checked box under the pointer.
 - **Highlighter Wash** (`mark-wash`, #eaf4ff): the highlighter diluted to a ground. The wash band, the front and tab of a folder (the front of a page-size folder lies under a light, `card-light`), a note, the bar's button when it is the current page, the hover and focus fill of the footer's button, and the hover and focus fill of rows, outline buttons, navigation links and tabs.
 
@@ -331,7 +328,7 @@ White, near-black and one light blue, on cool greys that lean a few degrees towa
 
 - **Paper** (`paper`, #ffffff): the sheet, the body background, the sticky bar, the navigation drawer and the ground of every paper band.
 - **Paper Shade** (`paper-shade`, #f1f3f7): the far corners of a sheet, where its radial light falls off.
-- **Desk** (`desk`, #f4f5f8): the cool grey the sheets lie on. The desk band, the phase rail, striped rows and the scrollbar track.
+- **Desk** (`desk`, #f4f5f8): the cool grey the sheets lie on. The desk band, the numeral tiles of the phase lists, striped rows and the scrollbar track.
 - **Deep Desk** (`desk-deep`, #e6e8ee): a small well in the desk. Count badges, numeral tiles and the fill of every disabled control.
 - **Rule** (`rule`, #d2d5de): decorative hairlines only: ledger rules, the margin rule, the ghost lines printed on a cover.
 - **Firm Rule** (`rule-firm`, #70758a): borders that must be seen. Inputs, selects, unchecked boxes, empty tally blocks and the scrollbar thumb.
@@ -399,9 +396,9 @@ All space comes from a 7px module: 7, 14, 21, 28, 42, 56, 84, 112 and 168px. A b
 
 A large monitor gets the same page, drawn larger, and not a wider desk with the same page in its middle. Up to a 1600px window the root font size is 16px. Past it the root grows by 0.5% of every pixel of window, to 140% (22.4px) at about 2880px, and since every size and space is in rem (the module, the type, the controls, the icons and the caps on a band) the whole page scales together. The column grows faster: `page-max` is 77rem as a floor, from about 1840px of window it is 72% of the window, and it stops at `page-max-ceiling`, 120rem. On a 1920, 2560 or 3440 monitor the words span about 70% of the window, on a 4K panel the ceiling holds them at 2688px. Objects that would be lost in a wider column are drawn larger with it: the hero's headline, its hand of documents and its proof strip, the toolkit's folder on the home page, and, by a scale that stops at what the window's height leaves room for, the folder and the contents leaf of the Purchase page and the worked example's page. A few measures stay fixed on purpose: a ledger of rows with a label at one end and a link at the other holds to 64rem, and the filter sheet to 40rem, so a row is never a thousand pixels from its arrow.
 
-There are two breakpoints and no others, and a large monitor is not a third. They are written in em, which a browser reads at its own text size and not at the root size the page sets, so 40em and 68em stay where they are while the root grows; nothing changes layout at 1600px, the page only grows from there. Below 40em is the phone layout: one column, full-width stacked buttons, index rows in place of sheets. From 40em sheets stand two across and rows gain a second column; a tablet in portrait, 768px wide, is this layout, and where a pair of things has room for two columns before 68em (an aside beside a page title, the Why Advanta sheets, the Purchase folder and leaf from about 1010px) it takes them. From 68em the twelve-column grid applies: a margin in columns 1 to 3 with content in 4 to 12, the home first screen centred across the whole band, the inline navigation, the phase rail and the deeper shadows. Three container queries hide the brand name or the word Menu visually when the bar or the drawer is too narrow for them; the text stays readable to assistive technology.
+There are two breakpoints and no others, and a large monitor is not a third. They are written in em, which a browser reads at its own text size and not at the root size the page sets, so 40em and 68em stay where they are while the root grows; nothing changes layout at 1600px, the page only grows from there. Below 40em is the phone layout: one column, full-width stacked buttons, index rows in place of sheets. From 40em sheets stand two across and rows gain a second column; a tablet in portrait, 768px wide, is this layout, and where a pair of things has room for two columns before 68em (an aside beside a page title, the Why Advanta sheets, the Purchase folder and leaf from about 1010px) it takes them. From 68em the twelve-column grid applies: a margin in columns 1 to 3 with content in 4 to 12, the home first screen centred across the whole band, the inline navigation with its Phases drop-down and the deeper shadows. Three container queries hide the brand name or the word Menu visually when the bar or the drawer is too narrow for them; the text stays readable to assistive technology. A fourth, on the line of phases on Why Advanta, draws its tally only where the line itself is 72rem wide.
 
-A sticky white bar tops every page, 56px tall and 70px from 68em. From 68em a 42px strip of the desk under it holds the seven phases as tabs. Anchors and focused elements stop 21px clear of the bar. The catalog is the one page with no title block: it opens straight on its rail and results, 42px under the bar (and the phase rail), and its `h1` is read out and not shown.
+A sticky white bar tops every page, 56px tall and 70px from 68em; nothing stands under it. Anchors and focused elements stop 21px clear of the bar. The catalog is the one page with no title block: it opens straight on its rail and results, 42px under the bar, and its `h1` is read out and not shown.
 
 Bands alternate between paper and desk down a page. The wash is a single tinted moment, the ink band a single statement, and the binder is the footer. Controls are 48px tall by default, 56px large, and 40px in the desktop bar; below 68em no target is shorter than 44px.
 
@@ -412,7 +409,7 @@ Depth is layered and physical. Every paper object casts a soft shadow in the ink
 ### Shadow Vocabulary
 
 - **Depth 0, a hairline ring** (`box-shadow: 0 0 0 1px rgb(11 13 18 / 0.06)`): a sheet lying flat.
-- **Depth 1, a thumbnail or a tab** (`box-shadow: 0 0 0 1px rgb(11 13 18 / 0.05), 0 1px 2px rgb(11 13 18 / 0.06), 0 3px 6px -2px rgb(11 13 18 / 0.06)`): cover thumbnails, phase tabs on the rail, the sheets under a stack, and the back, tab and inner sheets of a folder.
+- **Depth 1, a thumbnail or a tab** (`box-shadow: 0 0 0 1px rgb(11 13 18 / 0.05), 0 1px 2px rgb(11 13 18 / 0.06), 0 3px 6px -2px rgb(11 13 18 / 0.06)`): cover thumbnails, the sheets under a stack, and the back, tab and inner sheets of a folder.
 - **Depth 2, an object at rest** (`box-shadow: 0 0 0 1px rgb(11 13 18 / 0.05), 0 2px 4px -1px rgb(11 13 18 / 0.06), 0 10px 20px -8px rgb(11 13 18 / 0.12), 0 28px 44px -24px rgb(11 13 18 / 0.14)`): the default sheet and the front of a folder.
 - **Depth 3, lifted or a panel** (`box-shadow: 0 0 0 1px rgb(11 13 18 / 0.05), 0 12px 24px -8px rgb(11 13 18 / 0.18)`; from 68em `0 0 0 1px rgb(11 13 18 / 0.05), 0 4px 8px -2px rgb(11 13 18 / 0.07), 0 20px 36px -12px rgb(11 13 18 / 0.16), 0 48px 72px -32px rgb(11 13 18 / 0.2)`): the toolkit's sheet in the comparison, the front of a page-size folder, the middle documents of the hero's hand, and the shadow a resting sheet takes when it is lifted.
 - **Depth 4, the top of a stack** (`box-shadow: 0 0 0 1px rgb(11 13 18 / 0.05), 0 20px 40px -12px rgb(11 13 18 / 0.24)`; from 68em `0 0 0 1px rgb(11 13 18 / 0.05), 0 8px 14px -4px rgb(11 13 18 / 0.08), 0 32px 56px -16px rgb(11 13 18 / 0.2), 0 84px 112px -42px rgb(11 13 18 / 0.26)`): the navigation drawer, the filter sheet and the pop-up of the catalog.
@@ -481,10 +478,10 @@ There are no boxed cards. A thing in a list is either a row on a hairline or a p
 ### Navigation
 
 - **Bar:** white and sticky, with no border and no shadow at the top of the page. It holds the brand lockup (the logo in an ink tile, with the 365 on its tail from 68em, and the name in Besley 700), the primary links from 68em, the purchase button and, below 68em, a Menu button. From 68em the row is three zones: the brand at the left, the links centred on the bar itself, the button at the right. On the home page the brand is the way back to the top: a click scrolls the page up, smoothly unless motion is reduced, and adds no history entry; on every other page it goes home.
-- **Primary links:** Catalog and Why Advanta, 40px tall, a 6px corner, soft-ink text, set wide apart. Hover and focus fill with the wash. The current page is ink text under one 2px ink line that slides from link to link; with no current page the line is not drawn.
-- **Phase rail (from 68em):** seven equal tabs standing on the bottom edge of a desk strip, white with rounded top corners at depth 1, each a Besley numeral and a name. The current phase is the highlighter inside a 2px ink edge.
-- **Phase cards:** the same seven as index cards 56px tall, with the numeral over the name: two across on a phone, and from 40em one row where the list is wide enough for all seven names (42rem), each card as wide as its name needs, and four across where it is not (the last three share the second row below 68em). At the top of the catalog below 68em they stand in one row from edge to edge, each as wide as its name (84px at least, 70px from 40em): where the seven fit, on a tablet, they share the row equally and it does not scroll; where they do not, the row scrolls sideways, so the card cut off at the edge shows there are more.
-- **Phase pager:** at the foot of a phase page, the phase before and the phase after as two links on a hairline above and below, stacked below 40em and side by side from there, the next one always at the right. Each is a faint label over the phase's numeral tile and name, with an arrow pointing its way; hover, focus and press fill it with the wash and move the arrow 3px.
+- **Primary links:** Catalog, Phases and Why Advanta, 40px tall, a 6px corner, soft-ink text, set wide apart. Hover and focus fill with the wash. The current page is ink text under one 2px ink line that slides from link to link; with no current page the line is not drawn.
+- **Phases drop-down:** a native disclosure of links to the 13 sections, each row a numeral tile and the plain name, Start here first and Used at every step last, set apart by a hairline and with an empty tile. In the bar (from 68em) its button is the word "Phases" and a chevron, drawn as a primary link; on the catalog below 68em it is an outline control that says "Jump to a phase", or names the phase the catalog is filtered on ("Phase 10 Go live and support"). The panel is paper at depth 3, at least 272px wide and at most 70% of the window tall, dropping centred under the bar's button; rows are 44px, 35px from 68em. Hover and focus fill a row with the wash; the current phase is set at 700 with its numeral tile in the highlighter inside an ink edge. It closes on Escape, a click outside it, a link and a change of page, and works without script.
+- **Phase cards:** the 13 sections as index cards 56px tall, with the numeral over the name (Start here and Used at every step have none): two across on a phone, an odd last card taking the whole row, and from 40em as many across as fit, never narrower than 200px. They stand on the home page under `#inside` and in the catalog's empty search.
+- **Phase pager:** at the foot of a phase page, the section before and the section after, in folder order, as two links on a hairline above and below, stacked below 40em and side by side from there, the next one always at the right. Each is a faint label ("Previous", "Next") over the section's numeral tile (none for Start here and Used at every step) and name, with an arrow pointing its way; hover, focus and press fill it with the wash and move the arrow 3px.
 - **Drawer (below 68em):** a paper panel on the right edge, at most 378px wide, at depth 4 over the scrim. It slides in over 320ms and its links drift in 40ms apart; closing has no animation. Rows are 49px, and the current one is highlighted with its ink ring.
 - **Text link:** ink with a 1px ink underline. On hover and focus the highlighter is drawn behind the words like a stroke of a marker and the underline thickens. On the binder the words stay as they are and the underline takes the highlighter.
 - **Row link:** a row at least 56px tall inside a ledger. Hover, focus and press fill it with the wash, underline its label and move its arrow 3px.
@@ -493,7 +490,7 @@ There are no boxed cards. A thing in a list is either a row on a hairline or a p
 
 ### Template Cover
 
-The signature object: a miniature first page of a template, printed on a paper sheet in the proportions of its format. Everything on it is sized as a share of the sheet's own width, so it reads the same as a 60px thumbnail and as the large sheet in a template's pop-up. It carries the title in Besley, one line of the summary (ending on a whole word, never inside one), ghost lines for the rest (rows of three cells on a workbook), a line drawing of the deliverable type, the phase numeral on an ink index tab at the right edge, the format tag, and one blank in the highlighter with its ink edge. The blank is the only highlighted part of a cover: it is the part the buyer writes.
+The signature object: a miniature first page of a template, printed on a paper sheet in the proportions of its format. Everything on it is sized as a share of the sheet's own width, so it reads the same as a 60px thumbnail and as the large sheet in a template's pop-up. It carries the title in Besley, one line of the summary (ending on a whole word, never inside one), ghost lines for the rest (rows of three cells on a workbook), a line drawing of the deliverable type, the phase numeral on an ink index tab at the right edge (none for Start here and Used at every step), the format tag, and one blank in the highlighter with its ink edge. The blank is the only highlighted part of a cover: it is the part the buyer writes.
 
 ### Tally and Blank
 

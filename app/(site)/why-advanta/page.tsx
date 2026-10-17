@@ -29,7 +29,7 @@ const NEXT = [
  * own page, `/contact`.
  *
  * Layout, top to bottom: the title block; the black promise (`#promise`, the 90 to 10 promise on a
- * ten-block tally, static); how it was made on paper (`#made`, four passes and the seven phases); who it is for
+ * ten-block tally, static); how it was made on paper (`#made`, four passes and the eleven phases); who it is for
  * on the desk (`#who`, five buyers as a ruled register on a sheet with two beneath it); the three
  * alternatives as three sheets on paper (`#compare`, linked from the home page, with the owner's
  * cost estimates marked as estimates); the one wash band, a plain note on the state of the site

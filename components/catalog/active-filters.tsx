@@ -10,7 +10,7 @@ import styles from "./active-filters.module.css";
 
 type ActiveFiltersProps = {
   criteria: CatalogCriteria;
-  phases: { slug: string; name: string }[];
+  phases: { slug: string; name: string; number?: number }[];
   /** The element that takes focus when the last filter goes: the result count. */
   fallbackFocusId: string;
 };

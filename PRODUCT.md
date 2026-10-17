@@ -86,15 +86,18 @@ Tagline: "Don't start from a blank prompt."
   users, Site Owners, IM Representatives) with 58 job aids, a worked example, and Copilot readiness
   material. The counts live in `TOOLKIT` in `lib/site.ts` and describe the whole toolkit, not the
   number of catalog listings.
-- **Rollout phases:** the catalog is organized in seven phases in rollout order (Make the case, Plan,
-  Design, Prepare, Communicate, Execute, Sustain), two steps each. Buyers find content by the phase
-  they are on.
+- **Rollout phases:** the catalog follows the toolkit's own folders, so a phase number on the site is
+  the folder number the buyer sees after purchase: Start here, then eleven phases in rollout order
+  (Define the change, Assess the impact, Set the strategy, Engage leaders, Plan communications, Design
+  the platform, Plan the training, Build the training, Deliver training, Go live and support, Make it
+  stick), then Used at every step. Start here and Used at every step are not numbered. Buyers find
+  content by the phase they are on.
 - **Files:** templates are editable Word, PowerPoint and Excel files, with a few print-ready PDFs.
   Buyers edit them by hand or feed them to their AI tools.
 - **Microsoft 365 products covered:** SharePoint, Teams, OneDrive, Outlook and Copilot.
 - **Ways to buy:** one: the complete toolkit, $1,499.99 CAD, a single purchase. The price is the owner's
   decision. It is set and shown in Canadian dollars, and always printed with its code ("CAD") so it
-  cannot be read as US dollars. Six templates, one for each of the first six phases, are free samples. Every
+  cannot be read as US dollars. Six templates, each from a different phase, are free samples. Every
   other template is listed in the catalog and locked until the toolkit is bought. Templates are not
   sold one at a time and there are no bundles.
 - **The worked example:** a full change management strategy for the fictional Meridian Group, an
@@ -113,7 +116,7 @@ What the storefront does today:
   documents, under a headline whose last word turns through the blanks a rollout starts from.
 - Browse a catalog by phase, deliverable type, app, audience and format, with search, a "Free samples
   only" filter and a sort (free samples first, phase order, or by title). The filters that are on show as
-  removable chips above the results, and a search that finds nothing names itself and offers the seven
+  removable chips above the results, and a search that finds nothing names itself and offers the
   phases. Catalog state lives in the URL, so every view can be shared. The six free samples open in a pop-up (from the catalog, a phase page or the home
   page); every other template shows a locked cover and answers a press with "Included with the
   toolkit."
@@ -142,7 +145,8 @@ What the storefront does today:
 
 Constraints future work must respect:
 
-- **The catalog is sample content.** Phases, steps and templates are placeholders, and the site says
+- **The catalog is sample content.** Its phases follow the toolkit's folders; its templates are
+  placeholders, and the site says
   so in plain words where a visitor meets them, not in a banner: the footer's status line, the note
   on the Purchase page, the "Free sample" tags, the line under the catalog's result count and the
   note on the state of the site on Why Advanta (`#state`). No page may imply that the catalog lists the
@@ -160,7 +164,7 @@ Constraints future work must respect:
   `pnpm test` fails if that list changes.
 - **Light scheme only.** The site sets `color-scheme: light` and has no dark mode.
 
-Terminology: "playbooks", "templates", "field guides", "job aids", "phases" and "steps"; "the
+Terminology: "playbooks", "templates", "field guides", "job aids" and "phases"; "the
 complete toolkit"; "free samples"; "Site Owners" and "IM Representatives" (IM Reps); "user adoption";
 "M365" as the short form of Microsoft 365; "30+ years".
 
@@ -172,7 +176,7 @@ Explicitly undecided:
 - Whether buyers receive updates, and how.
 - Purchase orders and invoicing for government buyers (planned, not available).
 - Whether the worked example is a free sample, a product, or both. (The six free samples are one
-  template for each of the first six phases; the worked example is not among them.)
+  template from each of six phases; the worked example, in Start here, is not among them.)
 - Which source files are the owner's to sell (rebuilt from his own know-how, as opposed to client
   deliverables under contract). This decides which real entries may replace the sample catalog.
 - The payment provider, and how a paid order is fulfilled (where orders are recorded, how the files

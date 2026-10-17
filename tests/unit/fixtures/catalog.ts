@@ -2,21 +2,27 @@ import type { Template } from "@/lib/catalog/schema";
 
 export const rawPhases = [
   {
-    slug: "prepare",
-    name: "Prepare",
-    summary: "Get people ready.",
+    slug: "build-the-training",
+    name: "Build the training",
+    label: "Build training",
+    summary: "Build what each audience needs.",
     order: 2,
-    steps: [
-      { slug: "train", name: "Train", summary: "Train people.", order: 2 },
-      { slug: "recruit", name: "Recruit", summary: "Recruit champions.", order: 1 },
-    ],
+    number: 2,
   },
   {
-    slug: "make-the-case",
-    name: "Make the case",
-    summary: "Explain why.",
+    slug: "start-here",
+    name: "Start here",
+    label: "Start here",
+    summary: "Get your bearings.",
+    order: 0,
+  },
+  {
+    slug: "define-the-change",
+    name: "Define the change",
+    label: "Define",
+    summary: "Say what is changing and why.",
     order: 1,
-    steps: [{ slug: "sponsor", name: "Sponsor", summary: "Secure a sponsor.", order: 1 }],
+    number: 1,
   },
 ];
 
@@ -26,8 +32,7 @@ export function rawTemplate(overrides: Record<string, unknown> = {}) {
     title: "Sponsor Kickoff Deck",
     summary: "A deck for the kickoff.",
     description: "Slides an executive sponsor presents at project kickoff.",
-    phase: "make-the-case",
-    step: "sponsor",
+    phase: "define-the-change",
     deliverableType: "sponsor",
     apps: ["sharepoint"],
     audiences: ["sponsor"],
@@ -40,7 +45,7 @@ export function rawTemplate(overrides: Record<string, unknown> = {}) {
   };
 }
 
-/** Two phases' worth of templates, with exactly six of them free (the number the catalog requires). */
+/** Two sections' worth of templates, with exactly six of them free (the number the catalog requires). */
 export function rawCatalog() {
   const extras = Array.from({ length: 6 }, (_, i) =>
     rawTemplate({ slug: `free-${i + 1}`, title: `Free ${i + 1}`, free: true }),
@@ -52,8 +57,7 @@ export function rawCatalog() {
       rawTemplate({
         slug: "training-plan",
         title: "Training Plan",
-        phase: "prepare",
-        step: "train",
+        phase: "build-the-training",
         deliverableType: "training",
         format: "docx",
       }),

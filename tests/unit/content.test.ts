@@ -13,15 +13,24 @@ import {
 } from "@/lib/catalog/repository";
 import { FREE_SAMPLE_COUNT } from "@/lib/catalog/validate";
 
-/** The rollout lifecycle: every phase in order, with its steps in order. */
-const LIFECYCLE = [
-  ["make-the-case", ["build-the-business-case", "secure-sponsorship"]],
-  ["plan", ["assess-impact-and-readiness", "set-the-change-strategy"]],
-  ["design", ["design-governance", "design-the-adoption-approach"]],
-  ["prepare", ["build-the-champion-network", "train-each-audience"]],
-  ["communicate", ["announce-the-change", "equip-sponsors-and-managers"]],
-  ["execute", ["go-live", "run-hypercare"]],
-  ["sustain", ["measure-adoption", "reinforce-and-hand-over"]],
+/**
+ * The toolkit's folders, in order: slug, short label, plain name and step number. Only 01 to 11 are
+ * numbered phases; Start here and Used at every step are not.
+ */
+const FOLDERS = [
+  ["start-here", "Start here", "Start here", undefined],
+  ["define-the-change", "Define", "Define the change", 1],
+  ["assess-the-impact", "Assess", "Assess the impact", 2],
+  ["set-the-strategy", "Strategize", "Set the strategy", 3],
+  ["engage-leaders", "Engage", "Engage leaders", 4],
+  ["plan-communications", "Communicate", "Plan communications", 5],
+  ["design-the-platform", "Design", "Design the platform", 6],
+  ["plan-the-training", "Plan training", "Plan the training", 7],
+  ["build-the-training", "Build training", "Build the training", 8],
+  ["deliver-training", "Train", "Deliver training", 9],
+  ["go-live-and-support", "Go live", "Go live and support", 10],
+  ["make-it-stick", "Sustain", "Make it stick", 11],
+  ["used-at-every-step", "Every step", "Used at every step", undefined],
 ];
 
 /** The six templates given away as samples. */
@@ -35,36 +44,19 @@ const FREE_SLUGS = [
 ];
 
 describe("sample catalog", () => {
-  test("has the seven phases in order, each with two steps", async () => {
+  test("has the toolkit's thirteen folders in order, numbered 1 to 11 between the two others", async () => {
     const phases = await getPhases();
-    expect(phases.map((p) => [p.slug, p.steps.map((s) => s.slug)])).toEqual(LIFECYCLE);
-    expect(phases.map((p) => p.name)).toEqual([
-      "Make the case",
-      "Plan",
-      "Design",
-      "Prepare",
-      "Communicate",
-      "Execute",
-      "Sustain",
-    ]);
-    expect(phases.map((p) => p.order)).toEqual([1, 2, 3, 4, 5, 6, 7]);
-    expect(phases.every((p) => p.steps.length === 2)).toBe(true);
-    expect((await getPhase("execute"))?.steps.map((s) => s.name)).toEqual([
-      "Go live",
-      "Run hypercare",
-    ]);
+    expect(phases.map((p) => [p.slug, p.label, p.name, p.number])).toEqual(FOLDERS);
+    expect(phases.map((p) => p.order)).toEqual([0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]);
+    expect((await getPhase("go-live-and-support"))?.name).toBe("Go live and support");
   });
 
-  test("has at least 60 templates, at least 3 in every step and 6 in every phase", async () => {
+  test("has at least 60 templates, and at least one in every section", async () => {
     const templates = await getTemplates();
     expect(templates.length).toBeGreaterThanOrEqual(60);
     for (const phase of await getPhases()) {
-      const inPhase = templates.filter((t) => t.phase === phase.slug);
-      expect(inPhase.length, phase.slug).toBeGreaterThanOrEqual(6);
-      for (const step of phase.steps) {
-        const count = inPhase.filter((t) => t.step === step.slug).length;
-        expect(count, `${phase.slug}/${step.slug}`).toBeGreaterThanOrEqual(3);
-      }
+      const count = templates.filter((t) => t.phase === phase.slug).length;
+      expect(count, phase.slug).toBeGreaterThanOrEqual(1);
     }
   });
 
@@ -134,7 +126,7 @@ describe("sample catalog", () => {
     for (const slug of FREE_SLUGS) expect((await getTemplate(slug))?.free, slug).toBe(true);
   });
 
-  test("getFreeTemplates lists the six in phase order, from six different phases", async () => {
+  test("getFreeTemplates lists the six in folder order, from six different steps", async () => {
     const free = await getFreeTemplates();
     expect(free.map((t) => t.slug).sort()).toEqual([...FREE_SLUGS].sort());
     expect(new Set(free.map((t) => t.phase)).size).toBe(6);
@@ -146,7 +138,7 @@ describe("sample catalog", () => {
   test("visible copy names no methodology or client, and follows the house typography", async () => {
     const [phases, templates] = await Promise.all([getPhases(), getTemplates()]);
     const copy = [
-      ...phases.flatMap((p) => [p.name, p.summary, ...p.steps.flatMap((s) => [s.name, s.summary])]),
+      ...phases.flatMap((p) => [p.name, p.label, p.summary]),
       ...templates.flatMap((t) => [t.title, t.summary, t.description, ...t.includes]),
     ];
     const banned =
@@ -164,7 +156,7 @@ describe("sample catalog", () => {
     expect(result.items[0]?.free).toBe(true);
   });
 
-  test("the catalog opens on the six free samples in phase order, then the rest in phase order", async () => {
+  test("the catalog opens on the six free samples in folder order, then the rest in folder order", async () => {
     const [templates, phases] = await Promise.all([getTemplates(), getPhases()]);
     const all = queryTemplates(templates, DEFAULT_CRITERIA, phases);
     const order = phases.map((phase) => phase.slug);
@@ -178,7 +170,7 @@ describe("sample catalog", () => {
       const positions = group.map((t) => order.indexOf(t.phase));
       expect(positions).toEqual([...positions].sort((x, y) => x - y));
     }
-    expect(firstPage[0]?.slug).toBe("executive-sponsor-kickoff-deck");
+    expect(firstPage[0]?.slug).toBe("change-management-strategy");
   });
 });
 
@@ -192,34 +184,18 @@ describe("repository lookups", () => {
 
   test("finds a template by slug", async () => {
     const kickoff = await getTemplate("executive-sponsor-kickoff-deck");
-    expect(kickoff?.phase).toBe("make-the-case");
-    expect(kickoff?.step).toBe("secure-sponsorship");
+    expect(kickoff?.phase).toBe("engage-leaders");
   });
 
-  test("related templates exclude the template itself and list same-step ones first", async () => {
+  test("related templates exclude the template itself and come from its section", async () => {
     const source = (await getTemplate("sharepoint-migration-impact-assessment"))!;
     const related = await getRelatedTemplates(source.slug);
     expect(related).toHaveLength(4);
     expect(related.some((t) => t.slug === source.slug)).toBe(false);
-    expect(related.every((t) => t.step === source.step)).toBe(true);
-
-    const wide = await getRelatedTemplates(source.slug, 10);
-    expect(wide).toHaveLength(10);
-    const firstOtherStep = wide.findIndex((t) => t.step !== source.step);
-    expect(firstOtherStep).toBeGreaterThan(0);
-    expect(
-      wide.slice(firstOtherStep).every((t) => t.step !== source.step && t.phase === source.phase),
-    ).toBe(true);
-  });
-
-  test("related templates fall back to the rest of the phase when the step is small", async () => {
-    const source = (await getTemplate("executive-sponsor-kickoff-deck"))!;
-    const related = await getRelatedTemplates(source.slug);
-    expect(related).toHaveLength(4);
-    expect(related.some((t) => t.slug === source.slug)).toBe(false);
     expect(related.every((t) => t.phase === source.phase)).toBe(true);
-    expect(related.slice(0, 2).every((t) => t.step === source.step)).toBe(true);
-    expect(related.slice(2).every((t) => t.step !== source.step)).toBe(true);
+
+    // The section holds eight, so asking for ten gives the other seven.
+    expect(await getRelatedTemplates(source.slug, 10)).toHaveLength(7);
   });
 
   test("related templates of an unknown slug is empty", async () => {

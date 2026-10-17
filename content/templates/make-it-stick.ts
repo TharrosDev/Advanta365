@@ -1,12 +1,10 @@
 import { sample } from "./sample";
 
 // SAMPLE CONTENT — placeholder entries for the beta, not real products.
-export const sustainTemplates = sample("sustain", [
-  // Measure adoption
+export const makeItStickTemplates = sample("make-it-stick", [
   {
     slug: "ninety-day-adoption-scorecard",
     title: "90-Day Adoption Scorecard",
-    step: "measure-adoption",
     deliverableType: "measurement",
     apps: ["sharepoint", "teams"],
     audiences: ["sponsor", "change-lead"],
@@ -25,7 +23,6 @@ export const sustainTemplates = sample("sustain", [
   {
     slug: "usage-analytics-reporting-guide",
     title: "M365 Usage Analytics Reporting Guide",
-    step: "measure-adoption",
     deliverableType: "measurement",
     apps: ["m365-general"],
     audiences: ["it-admin", "change-lead"],
@@ -40,7 +37,6 @@ export const sustainTemplates = sample("sustain", [
   {
     slug: "post-launch-pulse-survey-pack",
     title: "Post-Launch Pulse Survey Pack",
-    step: "measure-adoption",
     deliverableType: "assessment",
     apps: ["sharepoint", "m365-general"],
     audiences: ["end-user", "change-lead"],
@@ -55,7 +51,6 @@ export const sustainTemplates = sample("sustain", [
   {
     slug: "end-user-proficiency-assessment",
     title: "End-User Proficiency Assessment",
-    step: "measure-adoption",
     deliverableType: "assessment",
     apps: ["sharepoint"],
     audiences: ["end-user", "manager"],
@@ -69,24 +64,8 @@ export const sustainTemplates = sample("sustain", [
     includes: ["Task-based assessment", "Scoring guide", "Manager results summary"],
   },
   {
-    slug: "sponsor-adoption-status-report",
-    title: "Sponsor Adoption Status Report",
-    step: "measure-adoption",
-    deliverableType: "sponsor",
-    apps: ["m365-general"],
-    audiences: ["sponsor"],
-    format: "pptx",
-    adkar: ["reinforcement"],
-    pageCount: 6,
-    summary: "A six-slide monthly report that tells the sponsor where adoption stands.",
-    description:
-      "Shows progress against targets, the main obstacles, and the specific actions asked of the sponsor. Built to be read in five minutes.",
-    includes: ["Six-slide report", "Sponsor action list", "Example completed report"],
-  },
-  {
     slug: "copilot-value-realization-tracker",
     title: "Copilot Value Realization Tracker",
-    step: "measure-adoption",
     deliverableType: "measurement",
     apps: ["copilot"],
     audiences: ["sponsor", "change-lead"],
@@ -100,7 +79,6 @@ export const sustainTemplates = sample("sustain", [
   {
     slug: "benefits-realization-review-deck",
     title: "Benefits Realization Review Deck",
-    step: "measure-adoption",
     deliverableType: "measurement",
     apps: ["m365-general"],
     audiences: ["sponsor"],
@@ -112,12 +90,9 @@ export const sustainTemplates = sample("sustain", [
       "A review deck for the steering group six months after launch. Compares each expected benefit with what was achieved and recommends next steps.",
     includes: ["12-slide review deck", "Benefit comparison table", "Recommendations slide"],
   },
-
-  // Reinforce and hand over
   {
     slug: "reinforcement-and-recognition-plan",
     title: "Reinforcement and Recognition Plan",
-    step: "reinforce-and-hand-over",
     deliverableType: "plan",
     apps: ["sharepoint", "m365-general"],
     audiences: ["change-lead", "manager"],
@@ -137,7 +112,6 @@ export const sustainTemplates = sample("sustain", [
   {
     slug: "success-story-spotlight-template",
     title: "Success Story Spotlight Template",
-    step: "reinforce-and-hand-over",
     deliverableType: "communication",
     apps: ["sharepoint", "teams"],
     audiences: ["end-user"],
@@ -152,7 +126,6 @@ export const sustainTemplates = sample("sustain", [
   {
     slug: "weekly-tips-campaign-calendar",
     title: "Weekly Tips Campaign Calendar",
-    step: "reinforce-and-hand-over",
     deliverableType: "communication",
     apps: ["teams", "sharepoint", "onedrive"],
     audiences: ["end-user"],
@@ -166,7 +139,6 @@ export const sustainTemplates = sample("sustain", [
   {
     slug: "corrective-action-playbook",
     title: "Corrective Action Playbook",
-    step: "reinforce-and-hand-over",
     deliverableType: "resistance",
     apps: ["m365-general"],
     audiences: ["manager", "change-lead"],
@@ -181,7 +153,6 @@ export const sustainTemplates = sample("sustain", [
   {
     slug: "champion-recognition-kit",
     title: "Champion Recognition Kit",
-    step: "reinforce-and-hand-over",
     deliverableType: "stakeholder",
     apps: ["teams"],
     audiences: ["change-lead"],
@@ -196,7 +167,6 @@ export const sustainTemplates = sample("sustain", [
   {
     slug: "refresher-microlearning-series",
     title: "Refresher Microlearning Series",
-    step: "reinforce-and-hand-over",
     deliverableType: "training",
     apps: ["sharepoint"],
     audiences: ["end-user"],
@@ -211,7 +181,6 @@ export const sustainTemplates = sample("sustain", [
   {
     slug: "operational-handover-plan",
     title: "Operational Handover Plan",
-    step: "reinforce-and-hand-over",
     deliverableType: "plan",
     apps: ["sharepoint", "m365-general"],
     audiences: ["change-lead", "it-admin"],
@@ -226,7 +195,6 @@ export const sustainTemplates = sample("sustain", [
   {
     slug: "sustainment-roles-matrix",
     title: "Sustainment Roles and Ownership Matrix",
-    step: "reinforce-and-hand-over",
     deliverableType: "governance",
     apps: ["m365-general"],
     audiences: ["it-admin", "manager"],
@@ -238,24 +206,8 @@ export const sustainTemplates = sample("sustain", [
     includes: ["Ownership matrix", "Activity frequency guide", "Gap check sheet"],
   },
   {
-    slug: "lessons-learned-workshop-kit",
-    title: "Lessons Learned Workshop Kit",
-    step: "reinforce-and-hand-over",
-    deliverableType: "assessment",
-    apps: ["m365-general"],
-    audiences: ["change-lead"],
-    format: "pptx",
-    adkar: ["reinforcement"],
-    pageCount: 14,
-    summary: "Run a structured review of what worked and what to change next time.",
-    description:
-      "A two-hour workshop with activities for gathering honest feedback from the project team and the business. Ends with a short list of actions for future rollouts.",
-    includes: ["14-slide workshop deck", "Pre-workshop survey", "Actions summary"],
-  },
-  {
     slug: "change-closeout-report",
     title: "Change Closeout Report",
-    step: "reinforce-and-hand-over",
     deliverableType: "sponsor",
     apps: ["m365-general"],
     audiences: ["sponsor", "change-lead"],

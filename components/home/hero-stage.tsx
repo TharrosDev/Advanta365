@@ -147,7 +147,7 @@ export function HeroStage({
   samples: readonly Template[];
   phases: readonly Phase[];
 }) {
-  const orderOf = new Map(phases.map((phase) => [phase.slug, phase.order]));
+  const numberOf = new Map(phases.map((phase) => [phase.slug, phase.number]));
   const hand = arrange(samples);
   const wide = layOut(hand, WIDE);
   const narrow = layOut(hand, NARROW);
@@ -206,7 +206,7 @@ export function HeroStage({
                   format={template.format}
                   lit
                   title={template.title}
-                  phaseOrder={orderOf.get(template.phase)}
+                  phaseNumber={numberOf.get(template.phase)}
                   tagClassName={styles.coverTag}
                 />
               </TransitionLink>

@@ -8,12 +8,12 @@
 }
 
 /*
- * The phase number: Besley's own figures. Its column is 42px from 40em; on a phone it is 21px, which
- * a single digit fills, so that the longest phase name still fits on a line at 320px.
+ * The step number: Besley's own figures. Its column is 42px from 40em; on a phone it is 35px, which
+ * the two digits of 10 and 11 fill. Start here and Used at every step keep the column, empty.
  */
 .numeral {
   display: block;
-  width: var(--s-3);
+  width: calc(var(--s-1) * 5);
   font-family: var(--face-display);
   font-size: 1.625rem;
   line-height: 1.24;
@@ -21,10 +21,10 @@
   font-feature-settings: "tnum" 0;
 }
 
-/* The seven blocks of the tally: 98px, 7 blocks of 8px and 6 gaps of 7px. */
+/* The eleven blocks of the tally: 154px, 11 blocks of 7px and 10 gaps of 7px. */
 .tally {
   display: block;
-  width: calc(var(--s-1) * 14);
+  width: calc(var(--s-1) * 22);
 }
 
 /*

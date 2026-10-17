@@ -48,7 +48,7 @@ const options = <T extends string>(values: readonly T[], labels: Record<T, strin
 type FilterPanelProps = {
   criteria: CatalogCriteria;
   facets: CatalogResult["facets"];
-  phases: { slug: string; name: string }[];
+  phases: { slug: string; name: string; number?: number }[];
   /** Shown at the top of the sheet below 40em, where the rail leaves the sort order out. */
   sort?: ReactNode;
 };

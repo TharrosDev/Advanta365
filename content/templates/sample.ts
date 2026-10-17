@@ -3,7 +3,6 @@ import type { TemplateFile } from "@/lib/catalog/schema";
 type SampleInput = {
   slug: string;
   title: string;
-  step: string;
   deliverableType: string;
   apps: string[];
   audiences: string[];

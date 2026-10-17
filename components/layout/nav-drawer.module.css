@@ -166,6 +166,11 @@
 }
 
 /* On the wash of a hovered row the grey tile would go flat, so it steps to paper to stay drawn. */
+/* Start here and Used at every step have no number: their tile is not drawn. */
+.numeral:empty {
+  visibility: hidden;
+}
+
 .phase:focus-visible .numeral,
 .phase:active:not([aria-current]) .numeral {
   background: var(--paper);

@@ -38,11 +38,8 @@ export function TemplateDetail({
   /** The browser holds a licence: no sample tag or purchase button; files from the library route. */
   licensed?: boolean;
 }) {
-  const step = phase?.steps.find((candidate) => candidate.slug === template.step);
-
   const facts = [
     ...(phase ? [{ label: "Phase", value: phase.name }] : []),
-    ...(step ? [{ label: "Step", value: step.name }] : []),
     { label: "Type", value: DELIVERABLE_TYPE_LABELS[template.deliverableType] },
     { label: "Format", value: FORMAT_LABELS[template.format] },
     ...(template.pageCount
@@ -70,7 +67,7 @@ export function TemplateDetail({
             lit
             title={template.title}
             summary={template.summary}
-            phaseOrder={phase?.order}
+            phaseNumber={phase?.number}
           />
         </div>
       </div>
