@@ -133,9 +133,11 @@ What the storefront does today:
   to the Terms and the Refund policy, and payment. No payment provider is connected, so the last step
   says so, shows the order with its reference, and offers to send the order by email (so the owner
   can invoice) or to copy it.
-- A Why Advanta page (`/why-advanta`; it was About, and `/about` redirects to it): the 90 percent
-  promise, how the toolkit was made, the five buyers, the comparison of
-  alternatives (`#compare`) and a plain note on the state of the site (`#state`).
+- A Why Advanta page (`/why-advanta`; it was About, and `/about` redirects to it): one answer,
+  "Proven rollout experience, at a template price", and its proof: three reasons on the black band
+  (`#why`: proven, not plausible; yours, not rented; 90 percent done), the comparison of
+  alternatives (`#compare`), the five buyers in one short band (`#who`) and a one-line note on the
+  state of the site (`#state`).
 - A Contact page (`/contact`): one section with the one email address (`hello@advanta365.com`) as a
   link that starts an email, and what to write about (questions before buying, purchase orders and
   invoices, licence questions, accessibility feedback). It has no form, promises no reply time and

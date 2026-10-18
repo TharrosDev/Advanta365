@@ -115,7 +115,7 @@ export async function llmsIndex(): Promise<string> {
     `- ${link("Home", "/")}: what the toolkit is, the six free samples and what is inside.`,
     `- ${link("Purchase", PURCHASE_LINK.href)}: the complete toolkit, its contents and its price (${PRICE}), and the checkout.`,
     `- ${link("Catalog", "/catalog")}: the listings by phase, deliverable type, app, audience and format, with search. Sample content.`,
-    `- ${link("Why Advanta", "/why-advanta")}: the 90 percent promise, how the toolkit was made, who it is for, and how it compares with building it with AI or hiring a consultant.`,
+    `- ${link("Why Advanta", "/why-advanta")}: why the toolkit: proven in real rollouts, yours to keep for one price, and 90 percent done before you start; how it compares with building it with AI or hiring a consultant, and who it is for.`,
     `- ${link("Worked example", "/sample")}: a full change management strategy for a fictional 10,000-person organization.`,
     `- ${link("Contact", CONTACT_LINK.href)}: write to ${SITE.contactEmail} about buying, purchase orders and invoices, the licence or accessibility.`,
     "",

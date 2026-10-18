@@ -98,9 +98,8 @@ components/
   purchase/           Portfolio (the toolkit as a folder), PriceTag and the contents leaf (ContentsLeaf)
   checkout/           The checkout over the Purchase page: CheckoutDialog, its three steps, the order
                       summary and the form fields
-  about/              The Why Advanta page's sections: promise, how it was made, who it is for,
-                      comparison,
-                      state of the site
+  about/              The Why Advanta page's sections: the three reasons, the comparison and
+                      who it is for
   contact/            ContactSection, the whole Contact page as one section
   legal/              LegalPage, the one layout of the four legal pages: contents, article, policies
   company/            NextSteps (Why Advanta and Sample), StatementSection and WorkedExample (Sample)
@@ -199,7 +198,7 @@ in `components/ui/`. `docs/design-system.md` describes the system in full.
 | `desk` (default) | `--desk`, a light table  | Sections on which the paper sheets lie                        |
 | `paper`          | `--paper`, white         | Most content sections                                         |
 | `wash`           | `--mark-wash`, pale blue | Highlighted sections                                          |
-| `ink`            | `--binder`, near black   | The solution band on home and the promise band on Why Advanta |
+| `ink`            | `--binder`, near black   | The solution band on home and the reasons band on Why Advanta |
 | `binder`         | `--binder`, near black   | The footer                                                    |
 
 The `ink` and `binder` surfaces share one dark block in the stylesheet, and text on them is `--on-binder`.
@@ -349,10 +348,10 @@ live and support (`go-live-and-support`) and Make it stick (`make-it-stick`), an
    metadata description and the line under its result count (`app/(site)/catalog/page.tsx`), the "Browse
    the sample catalog" links on the home page (`components/home/featured-section.tsx` and
    `components/home/inside-section.tsx`), the "Browse the sample catalog by phase" name (`PHASES_LABEL`) of
-   the phase links in `components/home/inside-section.tsx`, `components/about/phase-line.tsx` and
+   the phase links in `components/home/inside-section.tsx` and
    `app/(site)/sample/page.tsx` (where it is also the visible eyebrow), the sample note on the Purchase page
    (`components/purchase/contents-leaf.tsx`) and the Why Advanta page's note on the state of the site
-   (`components/about/site-state.tsx`). No page reads `isSample` (only the unit tests
+   (`STATE` in `app/(site)/why-advanta/page.tsx`). No page reads `isSample` (only the unit tests
    call `hasSampleContent()`), so nothing changes by itself when the real records arrive: edit each of
    these places by hand.
    The worked example is the fictional Meridian Group. The name appears in `app/(site)/sample/page.tsx`,
@@ -365,9 +364,8 @@ live and support (`go-live-and-support`) and Make it stick (`make-it-stick`), an
 6. **Toolkit counts.** `TOOLKIT` in `lib/site.ts` holds the counts for the whole toolkit: playbooks,
    templates, field guides, job aids, training audiences and years of experience. Pages read them from
    there. The experience is also set in sentences, built from `TOOLKIT.experience`: the hero lead
-   (`components/home/hero.tsx`), the promise and "How it was made" sections of Why Advanta
-   (`components/about/promise-band.tsx` and `components/about/making-section.tsx`) and the Why Advanta page's
-   description. The counts describe the whole
+   (`components/home/hero.tsx`), the first reason on Why Advanta
+   (`components/about/reasons-band.tsx`) and the Why Advanta page's description. The counts describe the whole
    toolkit, not the number of catalog listings, and no page may imply that the catalog lists that many. The
    Purchase page's "What is inside" ledger and the hero's proof strip read them from there.
 7. **Home page.** The home page is the `sections` array in `app/(site)/page.tsx`, top to bottom: the hero,
@@ -494,9 +492,9 @@ The rest are about the site itself. None of this is legal advice.
 - [ ] **Why Advanta copy and cost estimates.** The costs of the two alternatives on Why Advanta (8 to 14
       person-months, $150K to $400K per rollout) were carried over from the earlier page as the
       owner's estimates and are labelled Estimate; confirm or replace them in
-      `components/about/compare-section.tsx`. The four passes under "How it was made"
-      (`components/about/making-section.tsx`) restate "built, delivered, revised and re-delivered"
-      and name no real revision history; the owner should read them.
+      `components/about/compare-section.tsx`. The three reasons
+      (`components/about/reasons-band.tsx`) restate "built, delivered, revised and re-delivered"
+      and "reuse on every wave", which rests on the undecided licence; the owner should read them.
 - [ ] **Legal pages.** `/privacy`, `/terms`, `/refunds` and `/accessibility` are owner-drafted
       and written from what the code does today; a lawyer should read all four before the first
       sale. The facts and decisions they need are the one object `LEGAL` in `lib/legal/facts.ts`,

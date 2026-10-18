@@ -125,7 +125,7 @@ test("/about leads to Why Advanta, which no longer holds the contact section", a
   expect(new URL(page.url()).pathname).toBe("/why-advanta");
   await expect(page).toHaveTitle(/Why Advanta/);
   await expect(page.getByRole("heading", { level: 1 })).toHaveText(
-    "Change content that has met real users.",
+    "Proven rollout experience, at a template price.",
   );
   await expect(page.locator("#contact")).toHaveCount(0);
   await expect(page.getByRole("main").locator('a[href^="mailto:"]')).toHaveCount(0);
