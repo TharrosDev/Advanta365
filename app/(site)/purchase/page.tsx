@@ -41,7 +41,7 @@ type PurchasePageProps = {
  * opens on its stage, one band of paper, 42px under the bar (56px from 68em). On the stage, from 68em, the folder
  * stands at the left (columns 1 to 6, with the price on the tag that hangs from it and the tally of
  * the phases it reaches under it) and the contents leaf at the right (columns 8 to 12, centred on
- * the folder; column 7 is the room the tag hangs into). The heading on the folder's front, "Seven
+ * the folder; column 7 is the room the tag hangs into). The heading on the folder's front, "Eleven
  * phases in one folder.", is the page's one `h1`. The leaf holds the `h2` "What is inside", the
  * ledger of counts read from `TOOLKIT`, the Checkout button, the way to write to us (for a
  * purchase order, or a question) and the note that the catalog is sample content. On a large

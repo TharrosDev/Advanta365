@@ -2,9 +2,25 @@
 
 This document describes the visual system of the Advanta365 site: the concept, the colour and type tokens, the bands and grid, depth, motion, every UI primitive, and the accessibility floor. The source of truth is the code. The token values below are copied from `app/globals.css`, and the primitives are the files in `components/ui/`.
 
+## Contents
+
+1. [Concept](#1-concept)
+2. [Where the system lives](#2-where-the-system-lives)
+3. [Colour](#3-colour)
+4. [Bands](#4-bands)
+5. [Type](#5-type)
+6. [Space, grid and layout](#6-space-grid-and-layout)
+7. [Depth](#7-depth)
+8. [Motion](#8-motion)
+9. [Primitives](#9-primitives)
+10. [Logo and icons](#10-logo-and-icons)
+11. [Do and do not](#11-do-and-do-not)
+12. [Accessibility floor](#12-accessibility-floor)
+13. [Contributing checklist](#13-contributing-checklist)
+
 ## 1. Concept
 
-Advanta365 sells one thing: the complete change management and user adoption toolkit for Microsoft 365 rollouts, for $1,499.99 CAD. Six templates are free samples and the rest are shown locked. Each template arrives mostly written, so the buyer's work is the last part. The site is drawn as a working copy: white sheets on a cool grey desk, set in near-black type, with a light-blue highlighter that marks the parts that belong to the buyer. Nothing moves behind the text: the grounds are plain paper and dark bands, and the motion that remains belongs to the objects on them.
+Advanta365 sells one thing: the complete change management and user adoption toolkit for Microsoft 365 rollouts, for $1,499.99 CAD. Six templates are free samples and the rest are shown locked, until a buyer's licence unlocks them in that browser. Each template arrives mostly written, so the buyer's work is the last part. The site is drawn as a working copy: white sheets on a cool grey desk, set in near-black type, with a light-blue highlighter that marks the parts that belong to the buyer. Nothing moves behind the text: the grounds are plain paper and dark bands, and the motion that remains belongs to the objects on them.
 
 Six principles guide every decision:
 
@@ -20,15 +36,15 @@ Six principles guide every decision:
 | Path | What it holds |
 | --- | --- |
 | `app/globals.css` | Every colour, type, space, depth, shape, layer and motion token; the band definitions; base element rules; the type classes; the reduced-motion safety net; the forced-colours rules. |
-| `app/motion.css` | Entrances, view transitions, paper and lift behaviour, the sticky bar's shadow, the bar's sliding underline, the ninety-percent scroll sequence, the price tag's swing, a locked tile saying no (a shake and a ring), the arrival of a pop-up, a step of the checkout settling in and a hero document straightening and the headline's split-flap word. Imported first by `globals.css`. |
+| `app/motion.css` | Entrances, view transitions, paper and lift behaviour, the sticky bar's shadow, the bar's sliding underline, the ninety-percent scroll sequence, the price tag's swing, a locked tile saying no (a shake and a ring), the arrival of a pop-up, a step of the checkout settling in, the hero's documents landing and straightening, and the headline's split-flap word. Imported first by `globals.css`. |
 | `app/layout.tsx` | Font loading (Besley and Atkinson Hyperlegible Next as CSS variables), root attributes, the boot script, and `MotionRoot`. |
 | `app/icon.svg` | The site icon: the logo mark on an ink tile. |
 | `lib/brand/mark.ts` | The logo geometry, the single source for the mark path data. |
 | `components/ui/` | The UI primitives described in section 9. |
-| `components/catalog/`, `components/purchase/`, `components/checkout/`, `components/about/`, `components/home/`, `components/layout/` | Feature components built from the primitives (section 9.8): the template tiles, locks and pop-up, the portfolio, its price tag and the contents leaf, the checkout, the sections of the Why Advanta page, the hero, the bar's purchase button and the footer. |
+| `components/*/` (every folder but `ui/`) | Feature components built from the primitives (section 9.8): the template tiles, locks and pop-up (`catalog/`), the portfolio, its price tag and the contents leaf (`purchase/`), the checkout (`checkout/`), the sections of the Why Advanta page (`about/`), the home page (`home/`), the bar, drawer and footer (`layout/`), the Sample page's sections (`company/`), the Contact page (`contact/`), the legal pages (`legal/`), the cover of a first visit (`intro/`), the 404 (`not-found/`) and the structured data tag (`seo/`). |
 | `lib/boot/` | The inline boot script and the pure functions it mirrors. |
-| `lib/scroll/` | The scroll-seen observer and the pointer light tracker. |
-| `tests/unit/design-gate.test.ts` | The standing rules: raw colour placement, allowed media queries, the allowed `@container` files, the allowed `next/link` importer, and no canvas or WebGL anywhere. |
+| `lib/scroll/` | The scroll-seen observer, the pointer light tracker, and bringing a sideways row's current item into view. |
+| `tests/unit/design-gate.test.ts` | The standing rules: retired vocabulary, raw colour placement, no function named after a colour model, allowed media queries, no `prefers-color-scheme` or `infinite` in stylesheets, the allowed `@container` files, the allowed `next/link` importer, where animation frames and scroll listeners may live, no canvas or WebGL anywhere, the runtime dependencies and the Prosci wording ([`testing.md`](testing.md#design-gate)). |
 
 Every value a component uses should come from a token. A colour written as a hex value, `rgb()`, `oklch()` or `color-mix()` anywhere in `app`, `components` or `lib` fails the design gate, except in `app/globals.css` and `app/icon.svg`.
 
@@ -64,12 +80,17 @@ Defined on `:root` in `app/globals.css`.
 | `--bar-shadow` | `0 10px 21px -14px rgb(11 13 18 / 0.4)` | The shadow under the sticky bar once it is scrolled. |
 | `--paper-shade` | `#f1f3f7` | The far corners of a sheet. |
 | `--card-light` | `rgb(255 255 255 / 0.62)` | The light on the card stock front of a page-size folder. |
-| `--pocket-shade` | `0 -8px 14px -8px rgb(11 13 18 / 0.22)` | The shade that front casts up onto the sheets in its pocket. |
+| `--folder-inside`, `--folder-inside-deep` | the wash mixed with 22% and 40% of the mark | The inside of a page-size folder, seen behind its sheets. |
+| `--card-edge`, `--card-edge-bright` | white at 0.55 and 0.88 | The lit top edges of the folder's card stock. |
+| `--card-score`, `--card-score-lip` | ink at 0.07, white at 0.8 | The scored fold lines on the folder's front. |
+| `--card-cast` | a pair of `drop-shadow()` filters | The shade the folder's front casts up onto the sheets in its pocket. |
+| `--desk-shadow` | `rgb(11 13 18 / 0.13)` | Shadows of objects lying on the desk. |
+| `--pocket-shade` | `0 -8px 14px -8px rgb(11 13 18 / 0.22)` | Defined but no longer read: `--card-cast` took its place. |
 | `--grain` | `url("/paper/grain.png")` | A pre-rendered 128-pixel paper tooth, used by medium and large sheets. |
 
 ### 3.2 Semantic layer
 
-Components never read the raw tokens. They read the semantic layer, which every band redefines.
+Colour that changes with the band is read from the semantic layer, which every band redefines. A component that is the same on every band (a mark button, a tally block) may read the raw token itself.
 
 | Semantic token | Meaning | Default (desk band) |
 | --- | --- | --- |
@@ -84,6 +105,8 @@ Components never read the raw tokens. They read the semantic layer, which every 
 | `--line-firm` | Control borders. | `--rule-firm` |
 | `--line-ink` | Ink borders and rings. | `--ink` |
 | `--focus-ring` | The focus outline colour. | `--ink` |
+
+On the `ink` and `binder` bands `--text-faint` and `--line-firm` are both `--on-binder-soft`, `--line-ink` is `--on-binder` and `--focus-ring` is `--mark` (section 3.5).
 
 ### 3.3 Contrast
 
@@ -172,11 +195,11 @@ Both are loaded in `app/layout.tsx` with `display: "swap"` and exposed as CSS va
 
 ### 5.2 Size scale
 
-Display sizes are fluid. The minimum and maximum below are the rendered sizes at the 16px root. Every size is in rem, so on a large monitor, where the root grows (section 6.2), each size grows with it by the same factor. The home headline is also held to a sixteenth of `--page-max` from 68em, so on a large monitor its two lines still span the page.
+Display sizes are fluid. The minimum and maximum below are the rendered sizes at the 16px root. Every size is in rem, so on a large monitor, where the root grows (section 6.2), each size grows with it by the same factor. The home headline also follows the column on a large monitor (`--page-max` divided by 16.2, within what the window's height and its own container allow; section 6.2), so its two lines still span the page.
 
 | Token | Min | Max | Used by |
 | --- | --- | --- | --- |
-| `--size-poster` | 112px | 320px | The 404 numeral and the solution figure. |
+| `--size-poster` | 112px | 320px | The 404 numeral, the solution figure and a phase page's numeral (held there to 15rem). |
 | `--size-hero` | 40px | 80px | The home headline. |
 | `--size-statement` | 34px | 72px | Wide title blocks and statements. |
 | `--size-banner` | 34px | 56px | Standard page titles and section statements. |
@@ -272,11 +295,11 @@ Past a 1600px window the page is drawn larger as one piece, and a wide window is
 
 Where a thing is drawn in rem and the column grows faster than the root does, it follows the column and not the root alone:
 
-- The home hero: `--hero-cap` (`max(56rem, 57vw)`) is the most the first screen is tall, so a 16:9 and a 16:10 monitor are filled to the fold at any size. `--hero-type` is the headline's size: a sixteenth of the column when that is more than `--size-hero`, with the lead at a quarter of it. The proof strip is at most `max(64rem, --page-max * 0.8)` wide. `--stage-bleed` stands the hand of documents past the column on each side (0.2px for every pixel of window past 1920px) so that it keeps the height the window gives it.
-- The toolkit's folder on the home page takes `max(30rem, 79.7%)` of its six columns, and the "what's inside" specimen `max(20rem, 78%)` of its margin.
+- The home hero: `--hero-cap` (`max(56rem, 57vw)`) is the most the first screen is tall, so a 16:9 and a 16:10 monitor are filled to the fold at any size. `--hero-type` is the headline's size: the column divided by 16.2 when that is more than `--size-hero`, held to what 12svh and the headline's own container allow, with the lead at a quarter of it. The proof strip is at most `max(64rem, --page-max * 0.8)` wide. `--stage-bleed` stands the hand of documents past the column on each side (0.2px for every pixel of window past 1920px) so that it keeps the height the window gives it.
+- The toolkit's folder on the home page takes `max(30rem, 84%)` of its six columns, and the "what's inside" specimen `max(20rem, 78%)` of its margin.
 - The Purchase page's folder and contents leaf, and the worked example's page, are drawn larger with CSS `zoom` by `--grow`: how many times wider the column is than 77rem at the root size in use (1 up to a 1600px window, 1.15 at 2560, above 1.4 from 3440), held to what the window's height allows (`100svh` over 1150px, so 1.25 at 1440px high, the height of an ultrawide monitor) and never below 1. The ratio of two lengths is made a plain number by the tangent of the arc tangent of the pair (`tan(atan2(...))`).
 
-A few measures stay fixed, so that a row is never a thousand pixels from its arrow: a ledger of rows with a label at one end and a link or a tally at the other (the Sample page's ledgers and the list of next steps) holds to 64rem, the 404's ledger and the statement's aside hold to `--wrap-lead`, and the filter sheet is at most 40rem wide.
+A few measures stay fixed, so that a row is never a thousand pixels from its arrow: a ledger of rows with a label at one end and a link or a tally at the other (the Sample page's ledgers and the list of next steps) holds to 64rem, the Contact page's ledger to 72rem, the 404's ledger and the statement's aside hold to `--wrap-lead`, and the filter sheet is at most 40rem wide.
 
 Other layout tokens:
 
@@ -301,7 +324,6 @@ A tablet is not a stretched phone or a squeezed desktop, and the layout does not
 | A page title and its aside (`TitleBlock` with `aside`: the phase numeral, "Phase N of 11" and its tally, the worked example's page) | 40em | The `paired` grid: words and a column of `clamp(16rem, 25vw + 6rem, 18rem)`. The numeral and its count stand in a row below 68em and stack from it. |
 | The home page's toolkit: the words and the folder | each has 24rem | An auto-fit grid. |
 | The six free samples on the home page | 40em: three across; 68em: six across | A grid of three and then six equal columns, so no tile is left alone on a second row. |
-| The Why Advanta page's head and passes of the making; a buyer's name and concern; a thing not finished and its sentence | about 55em; about 52em; about 50em | Wrapping flex rows: the head (22rem) and the passes (28rem); the name (20rem) and the concern (16rem); the thing (20rem) and its sentence (24rem). The phases of the making take the full width under both. |
 | The Why Advanta comparison | 40em | The two alternatives are two columns on five shared rows (a subgrid), and the toolkit's sheet lies the full width under them. A fact stands as a line where its sheet holds both of its parts. |
 | The Purchase page's folder and contents leaf | about 1010px | An auto-fit grid of two 28rem columns, the tag lying on the folder. |
 
@@ -332,7 +354,7 @@ The site is checked at sixteen window sizes by `tests/e2e/viewports.spec.ts`, on
 | --- | --- | --- |
 | `--round-1` | 3px | Tags, counts, small tiles. |
 | `--round-2` | 6px | Pagination and small panels. |
-| `--round-3` | 10px | The top corners of the filter sheet on phones. |
+| `--round-3` | 10px | The top corners of the filter sheet on phones, the pop-up, and the back, tab and front of a page-size folder. |
 | `--edge` | 2px | Ink rings and inset borders. |
 | `--hair` | 1px | Hairlines and forced-colour borders. |
 
@@ -353,7 +375,7 @@ Depth is a shadow scale. Level 0 is a hairline ring, and higher levels lift obje
 | `--depth-0` | Hairline ring | A sheet sitting flat on the desk. |
 | `--depth-1` | Thumbnail or tab | Small covers. |
 | `--depth-2` | At rest | Sheets at rest. The default for `PaperSheet`. |
-| `--depth-3` | Lifted or panel | Lifted sheets, the toolkit's sheet in the comparison, the front of a page-size folder. |
+| `--depth-3` | Lifted or panel | Lifted sheets, the toolkit's sheet in the comparison, the Roadmap drop-down's panel, the hero's middle documents. (The front of a page-size folder casts `--card-cast` instead.) |
 | `--depth-4` | Top of a stack | The menu drawer, the filter sheet, the pop-up of the catalog and the checkout. |
 
 Values, as written in `globals.css`:
@@ -372,7 +394,7 @@ Level 3 and level 4 at 68em are the four-layer forms defined in the same file. S
 
 ### 8.1 Principles
 
-- Motion is opt-in. Every animation and movement is inside `@media (prefers-reduced-motion: no-preference)`, or starts only from a state the boot script sets when motion is allowed (the cover). Colour transitions on controls are short (`--time-swap`), and the reduced-motion safety net in `globals.css` shortens every transition.
+- Motion is opt-in. Every animation and movement is inside `@media (prefers-reduced-motion: no-preference)`, or starts only from a state the boot script sets when motion is allowed (the cover). One exception: the phone filter sheet's `sheet-up` and `scrim-in` are declared outside the query and switched off in a `reduce` block (`components/catalog/filter-panel.module.css`). Colour transitions on controls are short (`--time-swap`), and the reduced-motion safety net in `globals.css` shortens every transition.
 - Page-level motion is driven by attributes (8.5). A component's own class holds its one animation, for example `.blink` in `Blank` and `.animate` on `Tally`.
 - Surfaces never fade or slide. Content arrives; sheets respond.
 - Durations are short. Most motion is under 600ms, and the page-level entrances stay under one second.
@@ -452,11 +474,11 @@ Entrance kinds:
 | `data-price-tag` | `PriceTag` | The paper tag on its string: it swings once when it is first seen, and a little when its folder comes under the pointer. |
 | `data-nav-underline` | `PrimaryNav` | The bar's ink underline: it stands under the current link and slides to the next. |
 | `data-tile`, `data-free`, `data-locked`, `data-denied` | `TemplateTile`, `LockedTile` | A catalog tile, its kind, and the 600ms state in which a locked tile shakes and hits and fades a ring on its well in `--alert`. |
-| `data-well` | `TemplateTile` | The well of a tile: its `::before` is the red wash of a denied tile, animated by opacity. |
+| `data-well` | `TemplateTile` | The well of a tile: its `::before` is the 2px `--alert` ring of a denied tile, animated by opacity. |
 | `data-page-dialog`, `data-enter` | `PageDialog` | A pop-up: the catalog's (`data-template-dialog`) or the checkout (`data-checkout-dialog`); `data-enter` is on one that a link inside the site opened, which rises into place. |
 | `data-checkout-step`, `data-checkout-progress` | `CheckoutDialog` | A step of the checkout, which settles 10px into place when the visitor moves to it (`data-enter`), and the line under the bar, which grows to the current step. |
 | `data-hero-stage`, `data-hero-doc` | `HeroStage` | The hero's hand of six documents. Where movement is wanted they land from 0ms, the middle ones first, 110ms apart; under reduced motion or without a script they stand from the start. One under the pointer or the keyboard straightens over `--time-lift`. |
-| `data-split-flap`, `data-flap-cell`, `data-flap` | `SplitFlap` | The headline's last word, a split-flap board that turns from "prompt" through the other blanks (sheet, project, document, plan, design, idea). Each letter that changes flips once, straight to its new one (240ms, 45ms after its neighbour), its flaps in `--mark`; a letter that stays does not move; the cell's width follows the letter. It repeats for as long as it is in sight, the one motion on the site that does, until the button under the headline (`data-flap-control`, "Pause" or "Play", named "… the turning word") pauses it (WCAG 2.2.2); a turn under way finishes first, and Play turns it again 400ms later. It stands at "prompt" under reduced motion, where the button is not shown. |
+| `data-split-flap`, `data-flap-cell`, `data-flap` | `SplitFlap` | The headline's last word, a split-flap board that turns from "prompt" through the other blanks (page, project, document, plan, design, idea). Each letter that changes flips once, straight to its new one (240ms, 45ms after its neighbour), its flaps in `--mark`; a letter that stays does not move; the cell's width follows the letter. It repeats for as long as it is in sight, the one motion on the site that does, until the button under the headline (`data-flap-control`, "Pause" or "Play", named "… the turning word") pauses it (WCAG 2.2.2); a turn under way finishes first, and Play turns it again 400ms later. It stands at "prompt" under reduced motion, where the button is not shown. |
 | `data-lit-scope` | Read by the pointer tracker | Scope for a group of lit sheets that is not an article (the Purchase page's contents leaf, the Why Advanta page's toolkit sheet and the pop-up's cover each stand in one, and so does each of the hero's documents); the scope stands where the sheet rests, so a lifted sheet does not drop and lift again under a pointer at its lower edge; read by `lib/scroll/pointer.ts` and the lit selectors in `app/motion.css`. |
 
 ### 8.6 Sheets and the pointer
@@ -491,7 +513,7 @@ The home page opens with a cover: a full-viewport paper plane (`--layer-cover`) 
 - It plays once per browser session on the home page, when motion is allowed and the tab is visible. The session flag is `advanta365.intro.v1` in `sessionStorage`.
 - Any pointer press, key press, wheel or touch ends it early. The skip is quiet: the cover fades over 200ms without moving the page.
 - A backstop ends it after 5500ms regardless of events.
-- The hero has no sequence of its own: its six documents already stand under the cover, and nothing starts when it has gone.
+- Under the cover the hero's six documents wait out of sight; they land, the middle ones first, as the cover goes (section 8.5).
 
 ### 8.9 Figures and tallies
 
@@ -507,7 +529,7 @@ The home page opens with a cover: a full-viewport paper plane (`--layer-cover`) 
 
 ## 9. Primitives
 
-All primitives live in `components/ui/`. Props are shown with their defaults in parentheses. Every primitive also accepts the attributes of its root element where it is a wrapper, and `className` where it is styled. Server components are the default; only `MotionRoot` is a client component.
+All primitives live in `components/ui/`. Props are shown with their defaults in parentheses. Every primitive also accepts the attributes of its root element where it is a wrapper, and `className` where it is styled. Server components are the default; `MotionRoot`, `PageDialog` and `StepMenu` are client components.
 
 ### 9.1 Layout and surfaces
 
@@ -521,7 +543,7 @@ All primitives live in `components/ui/`. Props are shown with their defaults in 
 | `Folder` | `tab` (ReactNode), `sheets` (3, or the sheets themselves as nodes), `size` (card, page; card), `slug`, `frontClassName`, `ref`, element attributes | `<Folder size="page" tab="The complete toolkit" sheets={covers}>...</Folder>` |
 | `ShelfHead` | `eyebrow`, `title` (required), `titleAs` (h1, h2, h3; h2), `titleId`, `body`, `action`, `stack` (false), `className` | `<ShelfHead eyebrow="Free samples" title="The six free samples, one by one" action={...} />` |
 | `BandedList` | `as` (ul, ol, dl, div; ul), `className`, `ref` | `<BandedList as="dl">...</BandedList>` |
-| `BandedRow` | `as` (li, div; li), `className` | `<BandedRow as="div">...</BandedRow>` |
+| `BandedRow` | `as` (li, div; li), `ref`, `className` | `<BandedRow as="div">...</BandedRow>` |
 
 `BandedList` and `BandedRow` are also exported under the names `Ledger` and `LedgerRow`.
 
@@ -535,8 +557,8 @@ All primitives live in `components/ui/`. Props are shown with their defaults in 
 | `KeepCompounds` | `text` | `<KeepCompounds text="Go/No-Go Decision Checklist" />` |
 | `Tag` | `variant` (format, saving, plain; format), `className`, children | `<Tag variant="saving">Free sample</Tag>` |
 | `FactList` | `items` ({ label, value }[]), `className` | `<FactList items={[{ label: "Type", value: "Plan" }]} />` |
-| `Icon` | `name` (arrow, chevron, plus, minus, close, tick, bars, search), `size` (20, the width and height in pixels at the 16px root, drawn in rem), `flip` (false), `className` | `<Icon name="arrow" size={32} />` |
-| `LogoMark` | `height` ("1.5em"), `className`, `title`, `tone` (one, two; one) | `<LogoMark tone="two" height="2.5rem" />` (one fills the whole "A" in `currentColor`; two draws the right half in `--logo-half`) |
+| `Icon` | `name` (arrow, chevron, plus, minus, close, tick, bars, search, pause, play), `size` (20, the width and height in pixels at the 16px root, drawn in rem), `flip` (false), `className` | `<Icon name="arrow" size={32} />` |
+| `LogoMark` | `height` ("1.5em"), `className`, `title`, `tone` (one, two; one) | `<LogoMark tone="two" height="2.5rem" />` (one fills the whole "A" in `currentColor`; two draws the right half in `--logo-half`, a property `BrandLockup` sets, and in `currentColor` where nothing sets it) |
 | `BrandLockup` | `variant` (tile, bare; tile), `size` (sm, md; md), `className`, `nameClassName` | `<BrandLockup variant="bare" size="sm" />` |
 
 ### 9.3 Links
@@ -556,7 +578,7 @@ All primitives live in `components/ui/`. Props are shown with their defaults in 
 
 | Primitive | Props | Usage |
 | --- | --- | --- |
-| `Button` | `variant` (mark, outline, ink, text; mark), `size` (sm, md, lg; md), `fullWidth` (false), `arrow` (false), `href`, `external` (false), `linkRef`, `className`, native button attributes | `<Button variant="outline" size="lg" href="/sample" arrow>See a sample</Button>` |
+| `Button` | `variant` (mark, outline, ink, text; mark), `size` (sm, md, lg; md), `fullWidth` (false), `arrow` (false), `href`, `external` (false), `download` (with `href`: a plain anchor that downloads), `scroll`, `linkRef`, `className`, native button attributes | `<Button variant="outline" size="lg" href="/sample" arrow>See a sample</Button>` |
 | `Checkbox` | `label` (string), `count`, `disabled`, `className`, input attributes except `type` | `<Checkbox label="Sharepoint" count={12} checked={on} onChange={...} />` |
 | `Input` | `className`, input attributes | `<Input id="catalog-search" name="q" maxLength={200} />` |
 | `Select` | `className`, select attributes, children (options) | `<Select aria-label="Sort by">...</Select>` |
@@ -590,19 +612,19 @@ Button sizes: `sm` is 44px below 68em and 40px from 68em; `md` is 48px; `lg` is 
 
 ### 9.8 Feature components
 
-Built from the primitives for one part of the site; each has a doc comment that says what it does.
+Built from the primitives for one part of the site; each has a doc comment that says what it does. The table holds the ones with a design of their own; [`architecture.md`](architecture.md#53-feature-components) lists every feature component, folder by folder.
 
 | Component | Props | Usage |
 | --- | --- | --- |
-| `TemplateTile` | `template`, `phaseName`, `phaseNumber`, `href`, `headingLevel`, `scroll` (true), `denied` (false) | `<li><TemplateTile template={t} phaseName="Assess the impact" phaseNumber={2} href={catalogHref(criteria, t.slug)} headingLevel="h2" /></li>` inside a `TileGrid`. A free sample is a link; any other template is locked. |
+| `TemplateTile` | `template`, `phaseName`, `phaseNumber`, `href`, `headingLevel` (h3), `scroll` (true), `denied` (false), `unlocked` (false) | `<li><TemplateTile template={t} phaseName="Assess the impact" phaseNumber={2} href={catalogHref(criteria, t.slug)} headingLevel="h2" /></li>` inside a `TileGrid`. A free sample is a link; any other template is locked, unless `unlocked` (a browser holding a licence) makes every tile a link. |
 | `TileGrid` | `className`, children | `<TileGrid>{items}</TileGrid>`: a list with as many columns of at least 11rem (176px at the 16px root) as fit, never fewer than two. A page that holds a set number of tiles gives the grid its own columns by `className` (the home page's six free samples: three across from 40em, six from 68em). |
 | `LockedTile` | `title`, `headingLevel` (h3), `initialDenied` (false), children | Used by `TemplateTile`: the button named "<title>, locked" and its live line, "Included with the toolkit." |
 | `PageDialog` (`components/ui`) | `name` (template, checkout), `closeHref`, `labelledBy`, `bar`, `fill` (false), children | The pop-up both features share: a native modal dialog at depth 4 with a bar that holds Close; Escape, Close and the dimmed page close it. `bar` is what stands before Close. `fill` is for content that changes while it is open: the whole window below 40em (square corners, no dimmed page), and one height (46rem, or what the window leaves) and at most 64rem wide from there. |
 | `TemplateDialog` | `closeHref`, `labelledBy`, children | `<TemplateDialog closeHref="/catalog" labelledBy="title-id"><TemplateDetail ... /></TemplateDialog>`: `PageDialog` for a free sample. |
 | `CheckoutDialog` | `panel`, `disclosure` | The checkout over the Purchase page: `PageDialog` with `fill`, its bar holding the title and the three steps (a numeral tile each: ink for the current one, a tick on the highlighter for one that is done, an outline for one ahead; below 40em the bar says "Step 1 of 3" instead), a 3px line that grows to the current step, the step, and the order summary. |
 | `OrderSummary` | `variant` (panel, disclosure) | What is being bought, on the binder (white on black, highlighter ticks, the total in Besley): a column beside the form from 68em, a native `<details>` row above it below 68em. |
-| `Field`, `FieldError`, `ErrorSummary` | `id`, `label`, `required`, `hint`, `error`, children (a function that draws the control) | One field of a form: a real label, an asterisk for a needed field and "(optional)" in words for the others, a hint, the control, and an error line in the alert colour behind a 3px rule that opens with a hidden "Error:". The summary stands at the head of a form sent with something wrong, on the alert wash, takes focus and links to each field. |
-| `TemplateDetail` | `template`, `phase`, `titleId` | The pop-up's content: a large lit cover, the "Free sample" tag, the title, facts, what is included, and a button to `/purchase`. |
+| `Field`, `FieldError`, `ErrorSummary` | `Field`: `id`, `label`, `required`, `hint`, `error`, `className`, children (a function that draws the control). `FieldError`: `id`, children. `ErrorSummary`: `problems`, `ref` | One field of a form: a real label, an asterisk for a needed field and "(optional)" in words for the others, a hint, the control, and an error line in the alert colour behind a 3px rule that opens with a hidden "Error:". The summary stands at the head of a form sent with something wrong, on the alert wash, takes focus and links to each field. |
+| `TemplateDetail` | `template`, `phase`, `titleId`, `downloadable`, `licensed` | The pop-up's content: a large lit cover, the "Free sample" tag, the title, facts, what is included, and a button to `/purchase`. With `licensed` it drops the tag and the button and lists the template's files to download (`FileDownloads`); `downloadable` shows the download list at all (a file store is configured). |
 | `Portfolio` | `size` (page, section), `covers`, `phases`, `className` | `<Portfolio size="page" covers={samples} phases={phaseCoverage(phases, templates)} />`: the toolkit as a folder with its price tag and a tally of the eleven numbered phases. |
 | `PriceTag` | `className` | The price from `OFFER` on a paper tag on a string: the amount in Besley with its currency code (`CAD`) small under it. Used by `Portfolio`. |
 | `ContentsLeaf` | `className` | The Purchase page's contents leaf: a lit, dog-eared `PaperSheet` (cut as a whole along the fold, with a flap over the cut) holding a ledger (`dl`) of counts from `TOOLKIT`, each a large Besley figure with a drawn highlighter stroke, then the Checkout link (the page's main action, which opens the checkout), the line that leads to the contact page and the sample note. |
@@ -617,7 +639,7 @@ Rules for them: a catalog tile has exactly one control; a price is printed from 
 
 `components/checkout/` holds the checkout: `CheckoutDialog`, its three steps (`DetailsStep`, `ReviewStep`, `PaymentStep`), `OrderSummary` and the form parts (`Field`, `FieldError`, `ErrorSummary`), built from the kit (`PageDialog`, `Button`, `Input`, `Select`, `Textarea`, `Checkbox`, `Note`, `TextLink`, `Icon`). A step is its content over a bar of actions that is sticky at the foot of the dialog; the main action is the last one, at the right of the row from 40em and at the foot of the column below it, where each button is the bar's full width. Fields are one column below 40em and two from there (the country beside its region). The colours are the page's own: white paper for the form, the binder for the summary, the highlighter for progress and ticks, and the alert colour for errors only. Under reduced motion nothing in it moves.
 
-`components/contact/` holds `ContactSection`, the whole Contact page as one paper band, built from the kit alone (`Band`, `PageShift`, `Appear`, `BandedList`, `RowLink`, `Icon`). From 68em the `h1` stands in the margin (columns 1 to 3) at the banner size, held to the width of its three columns by the measure the index title blocks use, and the lead stands on its baseline in columns 4 to 12; under the lead the address is a `mailto:` link at the statement size with a 32px arrow (the highlighter fills in behind it on hover and focus, and its size steps down on a phone so the domain never breaks), then one sentence on what to expect; under those, an `h2` and a ledger of four `RowLink`s, each the same address with a subject, held to 64rem. Below 68em it is one column in the same order. It has no ink, no wash and no script.
+`components/contact/` holds `ContactSection`, the whole Contact page as one paper band, built from the kit alone (`Band`, `PageShift`, `Appear`, `BandedList`, `RowLink`, `Icon`). From 68em the `h1` stands in the margin (columns 1 to 3) at the banner size, held to the width of its three columns by the measure the index title blocks use, and the lead stands on its baseline in columns 4 to 12; under the lead the address is a `mailto:` link at the statement size with a 32px arrow (the highlighter fills in behind it on hover and focus, and its size steps down on a phone so the domain never breaks), then one sentence on what to expect; under those, an `h2` and a ledger of six `RowLink`s, each the same address with a subject, held to 72rem. Below 68em it is one column in the same order. It has no ink, no wash and no script.
 
 `components/legal/` holds `LegalPage`, the one layout of the four legal pages (`/privacy`, `/terms`, `/refunds`, `/accessibility`), built from the kit (`TitleBlock`, `Band`, `Eyebrow`, `BandedList`, `RowLink`, `TextLink`, `Icon`) and the type classes. The title block is the `document` form: the date the page last changed stands in the margin under a "Last updated" eyebrow, the `h1` and the summary beside it. Under it one paper band opens on a 2px ink rule, the head rule of a document, and holds three parts. The contents ("On this page") are a ledger of anchors on hairlines, each a number in the faint text colour and the section's heading; hover, focus and press give an entry the wash, ink words and an underline. The article keeps every line to 40rem (`--wrap-lead`, about 68 characters of the copy size): first the page in a few points on the wash ("In short", each point behind a tick), then the numbered sections 56px apart, each `h2` in `.type-section` behind its number in a 28px ruled tile (1px ink, 3px corner, the store's face at weight 700). The tile takes the highlighter with ink on it while its section is the `:target` of the address, so a reader who followed a link sees where it led. Paragraphs and lists are `.type-copy` 21px apart, lists carry square markers in the faint colour, named things (the browser storage entries, what is collected) are a `dl` of rows on hairlines, and a subsection is an `h3` in `.type-item`. The aside ("Policies") lists the four pages as `RowLink`s in a `BandedList`, the current one marked with `aria-current`, over a line with the contact address. From 68em the contents take columns 1 to 3 and the aside columns 10 to 12, both sticky 21px under the bar (contents taller than the window scroll inside themselves), and the article columns 4 to 9; from 40em the contents run in two columns across the top; below 68em the aside stands beside the article where 30rem and 14rem both fit and under it where they do not. Below 68em every entry of the contents is at least 44px tall. Nothing on these pages moves but the 120ms colour changes, there is no ink behind them, and at raised contrast and in forced colours the wash keeps an edge. There are no print styles: the design gate allows no `print` query.
 
@@ -625,13 +647,13 @@ Rules for them: a catalog tile has exactly one control; a price is printed from 
 
 ### 10.1 The mark
 
-The logo is an "A" made of one strip folded at its peak, in two filled halves that meet on a vertical seam: the arm on the left, which climbs, in the ink, and the leg on the right, which comes down, in the highlighter. It is drawn on a grid 48 by 44 units (`MARK_VIEWBOX`), with a flat peak 10 wide and both legs leaning 11 across for 40 down; the ink is centred in its box, 2 units clear of every side. It has no crossbar and no strokes. The geometry lives in `lib/brand/mark.ts`:
+The logo is an "A" made of one strip folded at its peak, in two filled halves that meet on a vertical seam: the arm on the left, which climbs, in the ink, and the leg on the right, which comes down, in the highlighter. It is drawn on a grid 48 by 44 units (`MARK_VIEWBOX`), with a flat peak 10 wide and legs 11 wide at the foot, their outer edges leaning 17 across for 40 down; the ink is centred in its box, 2 units clear of every side. It has no crossbar and no strokes. The geometry lives in `lib/brand/mark.ts`:
 
 - `MARK_INK_D`: the left half, the arm.
 - `MARK_HUE_D`: the right half, the leg. Its left edge runs half a unit under the arm (`MARK_SEAM_X` is 24, the leg starts at 23.5), so no hairline shows on the seam; the arm is drawn over it.
 - `MARK_PATH_D`: the whole "A" as one shape, for one ink.
 
-`BrandLockup` renders the mark in tone `two`: the arm takes `currentColor` and the leg takes `--logo-half`, which is the mark colour. `LogoMark` defaults to tone `one`, which fills the whole mark in `currentColor`. Under forced colours `--logo-half` is `currentColor`.
+`BrandLockup` renders the mark in tone `two`: the arm takes `currentColor` and the leg takes `--logo-half`, a property the lockup sets to the mark colour on its tile and on the binder (elsewhere the leg falls back to `currentColor`). `LogoMark` defaults to tone `one`, which fills the whole mark in `currentColor`. Under forced colours `--logo-half` is `currentColor`.
 
 ### 10.2 Lockups
 
@@ -639,11 +661,11 @@ The logo is an "A" made of one strip folded at its peak, in two filled halves th
 
 ### 10.3 Site icon
 
-`app/icon.svg` is the site icon: a 32 by 32 ink tile with a 7-unit corner radius, and the mark (the arm in white, the leg in blue) at 84% of its width, centred. It is generated: `node scripts/gen-icon.mjs` writes it from `lib/brand/mark.ts`, and `brand-mark.test.ts` fails when the file is not what the script writes. Its colours are the tokens' values, written out because an icon file cannot read tokens.
+`app/icon.svg` is the site icon: a 32 by 32 ink tile with a 7-unit corner radius, and the mark (the arm in white, the leg in blue) at 84% of its width, centred. It is generated: `node scripts/gen-icon.mjs` writes it from `lib/brand/mark.ts`, and `brand-mark.test.ts` fails when the file is not what the script writes. `node scripts/gen-favicon.mjs` then draws the raster set from it: `app/favicon.ico`, `app/apple-icon.png` and the manifest's icons in `public/icons/`. Its colours are the tokens' values, written out because an icon file cannot read tokens.
 
 ### 10.4 Icon set
 
-`Icon` draws eight glyphs on a 20-unit grid with a 1.75 stroke, round caps and joins, and `currentColor`. Its `size` is in pixels at the 16px root and the icon is set in rem (`size / 16`), so on a large monitor it grows with the words and the controls it stands beside (section 6.2). The names are `arrow`, `chevron`, `plus`, `minus`, `close`, `tick`, `bars` and `search` (the magnifier on the catalog search's submit button). Icons are decorative (`aria-hidden`); pair them with a visible or visually hidden label.
+`Icon` draws ten glyphs on a 20-unit grid with a 1.75 stroke, round caps and joins, and `currentColor`. Its `size` is in pixels at the 16px root and the icon is set in rem (`size / 16`), so on a large monitor it grows with the words and the controls it stands beside (section 6.2). The names are `arrow`, `chevron`, `plus`, `minus`, `close`, `tick`, `bars`, `search` (the magnifier on the catalog search's submit button), `pause` and `play` (the hero's button for its turning word). Icons are decorative (`aria-hidden`); pair them with a visible or visually hidden label.
 
 ## 11. Do and do not
 
@@ -655,7 +677,7 @@ The logo is an "A" made of one strip folded at its peak, in two filled halves th
 | Use the spacing tokens and the 7px module. | Write pixel values for spacing or type. |
 | Use `Band` for every full-width stripe, and alternate desk and paper. | Set a band ground with a raw colour or a custom class. |
 | Use `PaperSheet` for objects that sit on the desk, and set `depth` deliberately. | Build a card with a border and a radius by hand. |
-| Gate every animation and movement inside `prefers-reduced-motion: no-preference`, or start it from a state the boot script sets when motion is allowed. | Animate layout properties or add infinite animations. |
+| Gate every animation and movement inside `prefers-reduced-motion: no-preference`, or start it from a state the boot script sets when motion is allowed. | Animate layout properties, or add an animation that repeats without end (the split-flap word is the one repeat, and it has a Pause button). |
 | Use `Appear` for entrances, with `order` for sequences. | Hide content in CSS without a path that shows it again. |
 | Keep the grounds plain: paper, desk, the wash and the dark bands. | Put anything that moves behind text, or add a canvas. |
 | Use `TransitionLink` or `TextLink` for internal links. | Import `next/link` in a component. |
@@ -682,7 +704,7 @@ The logo is an "A" made of one strip folded at its peak, in two filled halves th
 ### 12.3 Targets and sizes
 
 - Interactive targets are at least 44px tall below 68em (`--tap`). The desktop bar uses a 40px control.
-- The smallest text is 12px and only in uppercase tags. Body copy is 16px.
+- The smallest text meant to be read is 12px, and only in uppercase tags. (The print drawn on a template's cover is smaller; it is decoration.) Body copy is 16px.
 - Text is sized in rem, so the browser's text size settings apply. The root uses `-webkit-text-size-adjust: 100%`. Past a 1600px window the root grows from the browser's own size (section 6.2), so a visitor's chosen size is the base of the scale and not overridden by it.
 
 ### 12.4 Media queries and modes
@@ -700,12 +722,12 @@ In stylesheets, the allowed media queries are exactly these, and the design gate
 | `(forced-colors: active)` | Blocks use system colours, and borders use `CanvasText`. |
 | `@container (max-width: 27.4em)`, `(max-width: 24.3em)` (header), `(max-width: 17em)` (nav drawer) | A name that does not fit its container is hidden visually and stays readable to assistive technology. |
 
-Scripts query only forms from this list. Stylesheets do not query `prefers-color-scheme`. `:root` declares `color-scheme: light`, and the design gate enforces this.
+Scripts query only forms from this list. Stylesheets do not query `prefers-color-scheme`. `:root` declares `color-scheme: light`; the design gate rejects `prefers-color-scheme` in any stylesheet.
 
 ### 12.5 Semantics
 
 - Site pages have one `header` (the banner), one `main` with `id="main"`, and one `footer` (the contentinfo landmark).
-- Navigation is labelled: `Primary` for the header, `Toolkit phases` for the panel of either Roadmap drop-down, `Footer` for the footer's site and legal links, `Breadcrumb` on section pages, `Pagination` on catalog pages, `Browse the sample catalog by phase` for the phase links on the home, Sample and Why Advanta pages, `Browse by phase` in the catalog's empty search, `Previous and next phase` at the foot of a phase page, and `Menu` for the site drawer.
+- Navigation is labelled: `Primary` for the header, `Toolkit phases` for the panel of either Roadmap drop-down, `Footer` for the footer's site and legal links, `Breadcrumb` on section pages, `Pagination` on catalog pages, `Browse the sample catalog by phase` for the phase links on the home and Sample pages, `Previous and next phase` at the foot of a phase page, `On this page` for a legal page's contents, `Next` on the 404, and `Menu` inside the site drawer (a dialog labelled `Site menu`). The catalog's empty search names its phase cards by their heading ("Browse by phase").
 - The current page is marked with `aria-current="page"`, and the current section with `aria-current="true"`.
 - Decorative elements are hidden from assistive technology: the 90% figure (its heading says it in words), unlabelled tallies, numerals on phase cards and in the phase lists, the specimen sheet and the cover of a first visit (a locked cover has nothing drawn over it; the tile's button says "locked").
 - Each `Tally` or count with a meaning carries a `label`.
@@ -715,7 +737,7 @@ Scripts query only forms from this list. Stylesheets do not query `prefers-color
 
 - Motion is off for reduced motion.
 - The cover never plays under reduced motion.
-- No motion is infinite.
+- No CSS animation repeats without end. The one motion that repeats, the hero's split-flap word (a script, not CSS), turns only while it is in sight, stops under the Pause button under the headline (WCAG 2.2.2) and stands still under reduced motion.
 
 ## 13. Contributing checklist
 
@@ -726,10 +748,10 @@ Scripts query only forms from this list. Stylesheets do not query `prefers-color
 - Run the checks from the repository root:
 
 ```sh
-corepack pnpm lint
-corepack pnpm typecheck
-corepack pnpm test
-corepack pnpm test:e2e
+pnpm lint
+pnpm typecheck
+pnpm test
+pnpm exec playwright test tests/e2e/<the specs the change touches>.spec.ts
 ```
 
-`corepack pnpm test` runs the design gate and the unit tests. `corepack pnpm test:e2e` builds the site, serves it on port 3100, and checks identity, motion, reduced-motion, menu and keyboard behaviour in a browser (`tests/e2e`).
+`pnpm test` runs the design gate and the unit tests. The browser specs build the site, serve it on port 3100, and check identity, motion, reduced motion, layout at every window size and keyboard behaviour (`tests/e2e`). Run the ones a change touches, `viewports.spec.ts` for any change to layout or CSS, and the whole suite (`pnpm test:e2e`) before a merge ([`testing.md`](testing.md#commands)).

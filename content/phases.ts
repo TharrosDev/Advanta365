@@ -1,8 +1,8 @@
 // The toolkit's sections, one for each of its folders and in the folders' order, so the step
 // numbers on the site match the folder numbers a buyer sees after purchase. Only folders 01 to 11
 // are numbered phases: Start here is orientation and Used at every step holds the tools used
-// throughout. `label` is the short name the line of steps on Why Advanta uses, `name` the plain
-// one menus, lists and the catalog use. The summaries are working copy: edit them here.
+// throughout. `label` is a short name (no page shows it today), `name` the plain one menus, lists
+// and the catalog use. The summaries are working copy: edit them here.
 export const phases = [
   {
     slug: "start-here",

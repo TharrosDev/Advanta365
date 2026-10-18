@@ -4,39 +4,43 @@ Advanta365 is a Next.js 16 App Router site written in React 19 and TypeScript. P
 components that read a validated catalog and compose UI primitives. Styling uses CSS Modules on top of
 global design tokens. The site ships HTML, CSS and inline SVG, and draws nothing on a canvas.
 
-Runtime dependencies are limited to `next`, `react`, `react-dom` and `zod`. Fonts come from
-`next/font/google`: Besley for display type and Atkinson Hyperlegible Next for text, both exposed as CSS
-variables (`--font-besley`, `--font-atkinson`).
+Runtime dependencies are limited to `next`, `react`, `react-dom`, `zod`, and Vercel's two measuring
+packages, `@vercel/analytics` and `@vercel/speed-insights` (rendered only on a Vercel deployment). Fonts
+come from `next/font/google`: Besley for display type and Atkinson Hyperlegible Next for text, both
+exposed as CSS variables (`--font-besley`, `--font-atkinson`).
 
-Related documents: `design-system.md` covers the visual rules and component usage.
+Related documents: [`design-system.md`](design-system.md) covers the tokens, the primitives and the
+visual rules; [`testing.md`](testing.md) the checks; [`operations.md`](operations.md) the environment,
+deployment and licences; [`content.md`](content.md) the catalog's records. `PRODUCT.md` and `DESIGN.md`
+at the root hold the product brief and the design brief.
 
 ## Contents
 
-1. Routes
-2. Server and client boundaries
-3. Content, validation and data flow
-4. Site shell
-5. Design tokens and primitives
-6. Load-in sequence and the cover
-7. Motion and page transitions
-8. Catalog URL state
-9. Test hooks and test contract
-10. Budgets
-11. Failure modes
+1. [Routes](#1-routes)
+2. [Server and client boundaries](#2-server-and-client-boundaries)
+3. [Content, validation and data flow](#3-content-validation-and-data-flow)
+4. [Site shell](#4-site-shell)
+5. [Design tokens and primitives](#5-design-tokens-and-primitives)
+6. [Load-in sequence and the cover](#6-load-in-sequence-and-the-cover)
+7. [Motion and page transitions](#7-motion-and-page-transitions)
+8. [Catalog URL state](#8-catalog-url-state)
+9. [Test hooks](#9-test-hooks)
+10. [Budgets](#10-budgets)
+11. [Failure modes](#11-failure-modes)
 
 ## 1. Routes
 
 | Path | Source | Rendering | Notes |
 |---|---|---|---|
 | `/` | `app/(site)/page.tsx` | Server, reads phases, templates and the free samples | Renders the first-visit cover, then the home sections |
-| `/purchase` | `app/(site)/purchase/page.tsx` | Dynamic (awaits `searchParams`); reads phases, templates and the free samples | Title `Purchase`; the one place a sale starts (section 3.5), and `?checkout=<step>` opens the checkout in a pop-up over it (section 3.7) |
-| `/catalog` | `app/(site)/catalog/page.tsx` | Dynamic (awaits `searchParams`) | Title `Catalog`; filters live in the URL, and `?view=<slug>` opens a free sample in a pop-up (section 8) |
+| `/purchase` | `app/(site)/purchase/page.tsx` | Dynamic (awaits `searchParams`); reads phases, templates and the free samples | Title `Purchase the complete toolkit`; the one place a sale starts (section 3.5), and `?checkout=<step>` opens the checkout in a pop-up over it (section 3.7) |
+| `/catalog` | `app/(site)/catalog/page.tsx` | Dynamic (awaits `searchParams` and reads the licence cookie) | Title `Catalog of change management templates`; filters live in the URL, and `?view=<slug>` opens a free sample in a pop-up (section 8) |
 | `/why-advanta` | `app/(site)/why-advanta/page.tsx` | Server | Title `Why Advanta` (the page was `/about`, which redirects here); sections `#why`, `#compare` (whose cost cell for the toolkit is the one price from `OFFER`), `#who` and `#state` |
-| `/contact` | `app/(site)/contact/page.tsx` | Server, static | Title `Contact`; one section (`ContactSection`) and nothing else: the `h1`, the address `SITE.contactEmail` as a `mailto:` link, and four subjects to write about, each the same address with `?subject=`. No form and no endpoint |
+| `/contact` | `app/(site)/contact/page.tsx` | Server, static | Title `Contact`; one section (`ContactSection`) and nothing else: the `h1`, the address `SITE.contactEmail` as a `mailto:` link, and six subjects to write about, each the same address with `?subject=`. No form and no endpoint |
 | `/privacy`, `/terms`, `/refunds`, `/accessibility` | `app/(site)/<name>/page.tsx` | Server, static | The four legal pages, the routes of `LEGAL_LINKS` in `lib/site.ts`: the privacy policy (with the cookies and browser storage as its section `#cookies`, and what is planned for the checkout under `#when-checkout-opens`), the terms of use and licence, the refund policy and the accessibility statement. Each page renders `LegalPage` with one `LegalDocument` from `lib/legal` and takes its title and description from it (section 5.3) |
-| `/sample` | `app/(site)/sample/page.tsx` | Server, reads phases and the worked example's contents | Title `Sample` |
+| `/sample` | `app/(site)/sample/page.tsx` | Server, reads phases and the worked example's contents | Title `Worked example: a complete change management strategy`; the visible `h1` is "A complete worked example" |
 | `/phases/[phase]` | `app/(site)/phases/[phase]/page.tsx` | Params for the 13 sections; dynamic, because it reads the licence cookie | `notFound()` for other slugs; every tile opens for a browser holding a licence (section 3.8) |
-| `/licence` | `app/licence/route.ts` | Route handler (`GET`) | Checks `t`, sets the licence cookie, 303 to `/catalog` (or `/catalog?link=invalid`, which the catalog answers with a line above the results) |
+| `/licence` | `app/licence/route.ts` | Route handler (`GET`) | Rate-limited (429); checks `t`, sets the licence cookie, 303 to `/catalog` (or `/catalog?link=invalid`, which the catalog answers with a line above the results); every answer is `Cache-Control: no-store` |
 | `/api/samples/[slug]/[fileId]` | `app/api/samples/[slug]/[fileId]/route.ts` | Route handler (`GET`) | A free sample's file; 404 for any other |
 | `/api/library/[slug]/[fileId]` | `app/api/library/[slug]/[fileId]/route.ts` | Route handler (`GET`) | Any file, with a valid licence cookie; 404 without |
 | Unmatched paths | `app/(site)/[...rest]/page.tsx`, `app/(site)/not-found.tsx`, `app/not-found.tsx` | 404 | Site 404 keeps the shell; the root 404 renders `MissingPage` without it |
@@ -88,6 +92,15 @@ Metadata, search and AI tools (`lib/seo/`):
 
 Any other unknown `/phases/<slug>` is a 404.
 
+`next.config.ts` also sets `reactStrictMode`, turns off `X-Powered-By`, and sends the security headers:
+a content security policy and the usual hardening headers on every path, `no-referrer` and `noindex` on
+`/licence`, and `noindex` on `/api/*`. [`operations.md`](operations.md#security-headers) lists them.
+
+The home page (`app/(site)/page.tsx`) is an array of sections, top to bottom: the hero (`Hero`), `#featured`
+(`FeaturedSection`, the six free samples), `#inside` (`InsideSection`, with the specimen sheet and the phase
+cards), `#toolkit` (`PortfolioSection`) and `#solution` (`SolutionSection` in
+`components/home/pitch-spread.tsx`, the ninety band). Reordering the page means reordering that array.
+
 `view` opens the pop-up only for a free sample. For a locked template nothing opens and its tile says no (or,
 where its tile is not on the page of results, a line above them does), and for any other value the catalog
 shows as it is (section 8.3).
@@ -113,8 +126,8 @@ Page layouts:
   `h1` "Contact" is at the banner size, in the margin from 68em; beside it the lead, the address as the one
   plain `mailto:` link at the statement size, and a sentence on what to expect (the email program opens, no
   form, replies by email; no reply time is promised). Under them an `h2` "What to write about" and a
-  `BandedList` of four `RowLink`s (a question before buying, purchase orders and invoices, licence questions,
-  accessibility feedback), each `mailto:` with a `subject`. The page has no client code and no endpoint.
+  `BandedList` of six `RowLink`s (a question before buying, purchase orders and invoices, an order, download
+  or refund, licence questions, privacy requests, accessibility feedback), each `mailto:` with a `subject`. The page has no client code and no endpoint.
 - `/sample`: after the statement, a paper band "Contents" holds the worked example's table of contents
   (`getWorkedExampleContents`) as a numbered `BandedList as="ol"` labelled by its heading: each section's
   title in `type-item`, then its place ("Template: …" or "Phase: …"). A free sample's place is a
@@ -136,13 +149,13 @@ Client components (files with `"use client"`):
 
 | Area | Files | Why they are client |
 |---|---|---|
-| Catalog | `components/catalog/filter-panel.tsx`, `sort-select.tsx` | Update the URL with `router.replace` |
+| Catalog | `components/catalog/filter-panel.tsx`, `sort-select.tsx`, `active-filters.tsx` | Update the URL with `router.replace` (the filter chips also move focus after a removal) |
 | Catalog tiles and pop-up | `components/catalog/locked-tile.tsx`, `components/ui/page-dialog.tsx` | The locked tile owns the denied state and its live line; the page dialog (which `TemplateDialog` and `CheckoutDialog` both render) is made modal in a layout effect and closes through the router |
 | Checkout | `components/checkout/checkout-dialog.tsx` (and the steps it imports) | Reads the step from `useSearchParams` and the order's draft from session storage with `useSyncExternalStore`; owns validation state, focus on a step change and the polite announcement. `OrderSummary` is a server component, rendered by the page and passed in |
-| Shell | `components/layout/primary-nav.tsx`, `phases-menu.tsx`, `purchase-button.tsx`, `nav-drawer.tsx` | Read `usePathname` (`PhasesMenu` also the search); the drawer owns a native dialog |
+| Shell | `components/layout/primary-nav.tsx`, `phases-menu.tsx`, `purchase-button.tsx`, `nav-drawer.tsx`, `brand-link.tsx` | Read `usePathname` (`PhasesMenu` also the search); the drawer owns a native dialog; the brand scrolls the home page to its top |
+| Hero | `components/home/hero-headline.tsx`, `split-flap.tsx` | The Pause and Play state; the board's timers and observers |
 | Not found | `components/not-found/asked-path.tsx`, `late-boot.tsx` | Read `window.location`; add the boot script when needed |
 | UI | `components/ui/motion-root.tsx` | Observers and the `data-hydrated` signal |
-| Catalog | `components/catalog/active-filters.tsx` | The filter chips (the router, and focus after a removal) |
 | Roadmap drop-down | `components/ui/step-menu.tsx` | Closes its `<details>` on Escape, a click outside, a link and a change of page |
 
 The cover is server-rendered markup (`components/intro/intro-cover.tsx`). What switches it on is an inline
@@ -164,6 +177,7 @@ content/*.ts  ->  lib/catalog/schema.ts (zod)  ->  lib/catalog/validate.ts
 | `content/templates/<slug>.ts` (`start-here.ts` to `used-at-every-step.ts`) | Templates per section |
 | `content/templates/sample.ts` | The `sample()` helper |
 | `content/taxonomy.ts` | Labels for deliverable types, apps, audiences and formats, and the list of ADKAR stage keys (stored on templates, never shown) |
+| `content/countries.ts` | The countries, provinces and states of the checkout's form (section 3.7) |
 | `content/worked-example.ts` | The worked example's table of contents: placeholder sections (`placeholder: true`, a `TODO(owner)`), each pointing at a template or a phase |
 
 `sample(phase, entries)` adds `phase`, `free` (default `false`) and `isSample: true` to each entry.
@@ -177,8 +191,8 @@ trimmed and non-empty. A template has no price: the one price is `OFFER` (sectio
 
 | Kind | Required fields |
 |---|---|
-| Phase | `slug`, `name` (the plain name), `label` (the short one, for the line of phases on Why Advanta), `summary`, `order` (integer: the folder number, 0 to 12); optional `number` (positive integer: the phase number, on 01 to 11 only) |
-| Template | `slug`, `title`, `summary`, `description`, `phase`, `deliverableType`, `apps` (at least one), `audiences` (at least one), `format`, `adkar` (may be empty), `includes` (at least one), `free` (boolean: one of the six samples given away), `isSample`; optional `pageCount` (positive integer) |
+| Phase | `slug`, `name` (the plain name), `label` (a short name; required, but no page shows it since Why Advanta's line of phases went), `summary`, `order` (integer: the folder number, 0 to 12); optional `number` (positive integer: the phase number, on 01 to 11 only) |
+| Template | `slug`, `title`, `summary`, `description`, `phase`, `deliverableType`, `apps` (at least one), `audiences` (at least one), `format`, `adkar` (may be empty), `includes` (at least one), `free` (boolean: one of the six samples given away), `isSample`, `files` (the files it is delivered as, default `[]`; section 3.8); optional `pageCount` (positive integer) |
 
 `lib/catalog/validate.ts` parses each record, sorts phases by `order`, and keeps the file order of
 templates. It then checks:
@@ -187,7 +201,10 @@ templates. It then checks:
 - the phase numbers, in `order`, run 1, 2, 3 and on (`Phase numbers must run 1 to N in order, found …`);
   the unnumbered sections can stand anywhere;
 - each template's `phase` exists;
-- exactly `FREE_SAMPLE_COUNT` (6) templates have `free: true`.
+- exactly `FREE_SAMPLE_COUNT` (6) templates have `free: true` (that they stand in different phases is a
+  convention, not a check);
+- a real record (`isSample: false`) has at least one file, file ids are unique within a template, and
+  file keys are unique across the catalog.
 
 A failure throws `CatalogError` with the message `Invalid <kind> "<slug>" — <path>: <msg>` for a record, or a
 message such as `Expected exactly 6 free templates, found 5`. The check runs when `repository.ts` is first
@@ -204,9 +221,13 @@ ESLint enforces this: imports of `@/content/*` are rejected in `app/**` and `com
 | `getPhases()`, `getPhase(slug)` | Phases in order |
 | `getTemplates()`, `getTemplate(slug)` | Templates in file order |
 | `getFreeTemplates()` | The six free samples, in folder order |
-| `getRelatedTemplates(slug, limit = 4)` | Templates of the same section, in file order; excludes the template itself |
+| `getRelatedTemplates(slug, limit = 4)` | Templates of the same section, in file order; excludes the template itself (used by tests only) |
 | `hasSampleContent()` | `true` when any template is marked as sample (used by tests only) |
 | `getWorkedExampleContents()` | `{ placeholder, sections }`: the worked example's sections resolved with `contentsRows` |
+| `getTemplateFile(slug, fileId)` | A template and one of its files, for the file routes |
+| `getTemplatesWithFiles()` | Every template with its files (the stored-files check) |
+
+Every getter is `async`, so another source can stand behind the same functions.
 
 Helpers used by pages and components:
 
@@ -221,6 +242,8 @@ Helpers used by pages and components:
 | `createScrimPress()` (`lib/scrim.ts`) | Tells a click on a dialog's dimmed page from a drag that merely ended there: it closes only when the press, the release and the click all have the dialog itself as their target. `PageDialog` and `NavDrawer` use it |
 | `previousEntryIs(navigation, href, origin)` (`lib/history.ts`) | Whether the history entry before the current one is `href`, in any order of its parameters; false whenever it cannot tell (no Navigation API, no earlier entry, another site). `PageDialog` closes with `router.back()` on true |
 | `formatPrice(cents, currency)` and `formatPriceParts(cents, currency)` (`lib/format.ts`) | Canadian-English formatting with the narrow symbol, so a dollar currency prints a bare `$`, followed by the currency code after a no-break space; whole amounts drop `.00` and other amounts keep their cents, so `149999` and `"CAD"` print `$1,499.99 CAD`. The currency is always passed in (`OFFER.currency`). `formatPriceParts` returns `{ amount, currency }` for a place that sets the code smaller than the amount (the price tag) |
+| `formatBytes(bytes)` (`lib/format.ts`) | A file's size in the download list: KB below 1 MB (rounded up, at least 1 KB), MB from there |
+| `splitCompounds(text)` (`lib/compounds.ts`) | The parts of a title, with hyphenated compounds kept whole, for `KeepCompounds` |
 | `countWord(count, form)` (`lib/format.ts`) | A count as copy writes it: a word up to twelve, digits beyond; `"capital"` for the first word of a sentence. The catalog's key line and the home page's toolkit section print `FREE_SAMPLE_COUNT` with it |
 
 ### 3.4 Catalog contents
@@ -265,10 +288,12 @@ The site sells one thing. `lib/site.ts` holds it:
 
 | Name | Value |
 |---|---|
+| `SITE` | The name, the parent company (EchoFive), the tagline, the description and the contact address |
 | `OFFER` | `{ name: "The complete toolkit", priceCents: 149999, currency: "CAD" }`. The only place the price and its currency are written; the tag, the bar's button and the Purchase page print them with `formatPrice` as `$1,499.99 CAD`, in Canadian dollars |
 | `TOOLKIT` | The counts of the whole toolkit (59 playbooks, 130 templates, 4 field guides, 58 job aids, three training audiences, "30+ years"). They are not counts of the catalog |
 | `PURCHASE_LINK` | `{ href: "/purchase", label: "Purchase" }`, first in the primary links |
 | `NAV` | Catalog and Why Advanta |
+| `LEGAL_LINKS` | The four legal pages, in order: Privacy, Terms, Refunds, Accessibility |
 | `CONTACT_LINK` | `{ href: "/contact", label: "Contact" }`. The menu below 68em lists it after the primary links (`MENU_LINKS` in `components/layout/nav-links.ts`) and the footer links to it; the bar's inline row does not |
 
 `/purchase` shows the offer. It has no title block: it opens on one stage on paper, 42px under the bar
@@ -363,7 +388,7 @@ submitting it closes the pop-up and puts nothing in the address.
    button), `start(order)` (call the route or action from step 2 and map its answer to a `PaymentStart`) and,
    for an embedded element, `Embedded`, which should load the provider's script only when it mounts, so the
    script is fetched on the Payment step and nowhere else. A provider SDK is a new runtime dependency: the
-   design gate pins the dependencies to four, so change that rule in the same change, with the reason.
+   design gate pins the dependencies to six, so change that rule in the same change, with the reason.
 5. **Return it from `getPaymentProvider()`** in `lib/checkout/provider.ts`. Nothing else in the interface
    changes: `PaymentStep` draws the pay button, and `startPayment` re-checks the order, follows a redirect
    only to an `https:` address or one on the site's own origin, hands a client secret to `Embedded`, and
@@ -378,7 +403,7 @@ submitting it closes the pop-up and puts nothing in the address.
    orders and a way to deliver the files. Delivery exists (section 3.8): the webhook calls
    `signLicence(order.reference, LICENCE_SECRET)` and emails the buyer `/licence?t=<licence>`.
 8. **Update what the site says**: the Payment step's copy if needed, the state line on Why Advanta (`STATE` in `app/(site)/why-advanta/page.tsx`), the
-   footer's status line, and the privacy policy's "When checkout opens" section (`lib/legal/privacy.ts`).
+   sample note on the Purchase page, and the privacy policy's "When checkout opens" section (`lib/legal/privacy.ts`).
    Add the provider's origins to the content security policy in `next.config.ts` (`script-src`,
    `connect-src` and `frame-src`, as its documentation lists them), or its script and frame are blocked.
 9. **Test it.** `tests/unit/checkout-provider.test.ts` already runs `startPayment` and `PaymentStep` against
@@ -393,7 +418,8 @@ submitting it closes the pop-up and puts nothing in the address.
 | `lib/files/store.ts` | `FileStore` (`stat`, `open`, optional `signedUrl`) and `getFileStore()`, read from the environment on every call: `FILE_STORE=local` and `FILE_STORE_DIR`, else `null` |
 | `lib/files/local-store.ts` | `createLocalStore(root)`: resolves a key with `realpath` and refuses anything outside the root, symbolic links included |
 | `lib/files/respond.ts` | `serveFile` (a 302 to `signedUrl` when the store has one, else the stream with `Content-Disposition: attachment`, `nosniff`, `noindex`, and `public, max-age=3600` for a free file or `private, no-store` for a licensed one), `notFound`, `tooMany`, `unavailable`, `contentDisposition` |
-| `lib/licence/token.ts` | `signLicence`, `verifyLicence`, `licenceEnv`, `ORDER_CODE`. Imports only `node:crypto`, so `scripts/mint-licence.mjs` runs it directly |
+| `lib/licence/token.ts` | `signLicence`, `verifyLicence`, `licenceEnv`, `ORDER_CODE`. Imports only `node:crypto`, so `scripts/mint-licence.mjs` runs it directly. `signLicence` refuses a secret shorter than 32 characters, and a short configured secret verifies nothing |
+| `components/catalog/file-downloads.tsx` | `FileDownloads`: a template's files as download links, with their sizes (`formatBytes`) |
 | `lib/licence/session.ts` | `hasLicence()`: whether the request's cookie holds a valid licence (`next/headers`); the catalog and the phase pages call it |
 | `lib/licence/cookie.ts` | `LICENCE_COOKIE` (`__Host-a365-licence`), `LICENCE_COOKIE_MAX_AGE` (400 days), `readCookie` |
 | `lib/http/rate-limit.ts` | `createRateLimiter` (a fixed window per client, in memory, capped) and `clientKey` |
@@ -412,6 +438,10 @@ each request (`hasLicence`, `lib/licence/session.ts`): with a licence every tile
 tag and the purchase button and links its files to `/api/library`. That only decides what the page shows. A file
 route checks, in order: the rate limit (429), the licence for `/api/library` (404), the store (503), the
 template and file (404, and for `/api/samples` a template that is not free is 404 too), then serves the file.
+
+A bad, changed or revoked link lands on `/catalog?link=invalid`, where a status line (`data-link-failed`) says
+the link did not work and to write with the order code. [`operations.md`](operations.md#issuing-a-licence)
+covers minting, revoking and rotating.
 
 **Limits.** `/licence` takes 10 requests a minute per client, each file route 60, counted per server instance.
 
@@ -492,9 +522,7 @@ alone. Below 68em the catalog renders its own `StepMenu` (section 8.4) and the d
 ### 4.4 Footer
 
 `components/layout/footer.tsx` renders `<footer data-band="binder">`, which sets the binder band. It is a server
-component. Its contents, in order:
-
-The footer is short on purpose and takes no props. It sits under a 2px highlighter edge, in three rows:
+component, short on purpose, and takes no props. It sits under a 2px highlighter edge, in three rows:
 
 1. the bare brand lockup and a `Button` link "Get the toolkit" to `PURCHASE_LINK.href` (the highlighter fill with
    ink text on the binder);
@@ -512,78 +540,25 @@ two lists share a line; from 68em the copyright stands in columns 1 to 4 of the 
 
 ### 5.1 Tokens
 
-Tokens live in `app/globals.css` under `:root`. The file also imports `app/motion.css` first. Only
-`app/globals.css` and `app/icon.svg` contain raw colour values. Components read the semantic layer.
-
-| Group | Tokens |
-|---|---|
-| Paper and ink | `--desk`, `--paper`, `--desk-deep`, `--rule`, `--rule-firm`, `--ink`, `--ink-soft`, `--ink-faint` |
-| Mark | `--mark` (#86c1ff), `--mark-deep` (#5fa8f5), `--mark-wash` (#eaf4ff), `--on-mark` (ink), `--on-ink` |
-| Binder (footer) | `--binder`, `--binder-rise`, `--on-binder`, `--on-binder-soft`, `--rule-on-binder` |
-| Errors | `--alert`, `--alert-wash` (`--alert` is also the ring on the well of a locked tile that says no) |
-| Page-size folder | `--card-light`, `--pocket-shade` |
-| Overlays | `--scrim`, `--bar-shadow` |
-| Elevation | `--depth-0` to `--depth-4` |
-| Semantic | `--ground`, `--surface`, `--stripe`, `--tile`, `--text`, `--text-soft`, `--text-faint`, `--line`, `--line-firm`, `--line-ink`, `--focus-ring` |
+Tokens live in `app/globals.css` under `:root`; the file imports `app/motion.css` first. Only
+`app/globals.css` and `app/icon.svg` contain raw colour values (and `scripts/gen-icon.mjs`, which writes the
+icon). [`design-system.md`](design-system.md) lists every token with its value and use: colour (section 3),
+bands (4), type (5), space, grid and the large-monitor scaling (6), depth (7) and motion (8.3).
 
 The semantic layer is redefined per band. `[data-band]` sets `background: var(--ground)` and
 `color: var(--text)`. The bands are `desk`, `paper`, `wash`, `ink` and `binder`. `ink` and `binder` share
 one block: binder ground with binder-rise surfaces and on-binder text. `components/ui/band.tsx` sets
-`data-band` from its `surface` prop (default `desk`).
-
-The page sets `color-scheme: light`.
-
-Type faces and classes:
-
-| Class | Face | Weight / line height |
-|---|---|---|
-| `.type-poster` | Display | 800 / 0.86 |
-| `.type-hero` | Display | 600 / 1.04 |
-| `.type-statement` | Display | 600 / 1.06 |
-| `.type-banner` | Display | 600 / 1.12 |
-| `.type-page` | Display | 600 / 1.16 |
-| `.type-section` | Display | 600 / 1.24 |
-| `.type-item` | Display | 600 / 1.3 |
-| `.type-amount` | Display | 700 / 1.1 |
-| `.type-lead` | Text | 400 / 1.5 |
-| `.type-copy` | Text | 400 / 1.58 |
-| `.type-ui` | Text | 600 / 1.375 |
-| `.type-note` | Text | 400 / 1.43 |
-| `.type-eyebrow` | Text | 700 / 1.385, uppercase, tracking 0.08em |
-| `.type-tag` | Text | 700 / 1.333, uppercase, tracking 0.06em |
-
-Display classes reset letter-spacing and turn off tabular figures. Size tokens are `clamp()` values
-(for example `--size-hero` runs from 2.5rem to 5rem). `.tabular` and `.visually-hidden` are utilities.
-
-Spacing uses a 7px module: `--s-1` (0.4375rem) through `--s-9` (10.5rem). Page layout uses `--page-max`
-(`max(77rem, min(72vw, 120rem))`, see below), `--over`, `--page-pad`, `--col-gap`, `--band-pad` (`--s-6`,
-`--s-7` from 40em), `--bar-h` (3.5rem, 4.375rem from 68em). Controls use `--tap` (2.75rem, the minimum target below 68em),
-`--control-sm` (2.5rem, desktop bar only), `--control` (3rem) and `--control-lg` (3.5rem). Shapes use
-`--round-1` to `--round-3`, `--edge` (2px) and `--hair` (1px). Layers are
-`--layer-bar` (50), `--layer-skip` (90) and `--layer-cover` (100).
+`data-band` from its `surface` prop (default `desk`); the footer sets `data-band="binder"` on its own
+`<footer>`. The page sets `color-scheme: light`.
 
 Media queries in use: `(min-width: 40em)`, `(min-width: 68em)`, `(hover: hover)`,
 `(prefers-reduced-motion: no-preference)`, `(prefers-reduced-motion: reduce)`, `(prefers-contrast: more)`
-and `(forced-colors: active)`. Nothing else is allowed (section 9.3).
-
-A large monitor is scaled, not given a breakpoint. `--over` is `max(0px, 100vw - 1600px)`, and `html` sets
-`font-size: min(140%, calc(100% + var(--over) * 0.005))`: the browser's own size (the 100%) up to a 1600px
-window, then 0.5% of every pixel past it, to 140% (22.4px) from about 2880px. The sizes and spaces in the
-stylesheets are in rem (the module, the type, the controls, the caps on a band, and since this change the
-icons, the lifts of the folder, the blur over a locked cover and the padding of a tag), so one root size
-scales the whole page together. Hairlines (`--hair`), edges (`--edge`), the radii and shadows stay in pixels. The
-em media queries are read at the browser's own size, not at the root size the page sets, so `40em` and `68em`
-do not move, and the design gate's list does not grow. `--page-max` is 77rem up to a 1600px window, so the
-grid is twelve 77px columns and eleven 28px gaps (1232px) as it was; past it the column is 72% of the
-window (from about 1840px, where that is more than 77rem) to a ceiling of 120rem, which is 2688px at the
-largest root size. Surfaces whose sizes are in rem and would stand lost in a wider column read the window or
-the column themselves, in `--page-max` or `--over`: the home hero (`--hero-cap`, `--hero-type`,
-`--stage-bleed` and the proof strip's width), and the toolkit's folder and the specimen on the home page. Two
-use CSS `zoom` with a number, `--grow`, which is how many times wider the column is than 77rem at the root
-size in use, held to what the height of the window leaves room for (`tan(atan2(...))` turns a ratio of two
-lengths into a number): the Purchase page's folder and leaf from 68em, and the worked example's page.
-A few measures stay fixed on purpose: the ledgers of the Sample page and the next steps hold to 64rem, the
-404's ledger to `--wrap-lead`, and the filter sheet to 40rem.
+and `(forced-colors: active)`. Nothing else is allowed ([`testing.md`](testing.md#standing-rules)). A large
+monitor is scaled, not given a breakpoint: past a 1600px window the root font size grows, and with it every
+size in rem ([`design-system.md`](design-system.md#large-monitors)). Surfaces that must follow the column
+faster than the root read `--page-max` or `--over` themselves (the home hero, the home page's folder and
+specimen), and two are drawn larger with CSS `zoom` by `--grow` (the Purchase page's folder and leaf from
+68em, and the worked example's page).
 
 Base rules: border-box sizing; `html` with `scroll-padding-top` set to the bar height plus `--s-3`;
 `html:has(dialog[open])` disables page scroll; headings and paragraphs have no margins; headings use
@@ -592,13 +567,13 @@ colour. The forced-colors block maps `[data-block]`, `[data-blank]` and focus to
 
 ### 5.2 Primitives (`components/ui`)
 
-Primitives are the building blocks for pages. Each one has a CSS module unless noted.
+Primitives are the building blocks for pages. Each one has a CSS module unless noted. `MotionRoot`, `PageDialog` and `StepMenu` are client components; the rest render on the server. [`design-system.md`](design-system.md#9-primitives) gives each one's props and usage.
 
 | Primitive | Purpose |
 |---|---|
 | `Band` | A full-width section with `surface` (desk, paper, wash, ink, binder), `pad` (none, title, tight, regular, roomy), and an inner `Wrap` |
 | `Wrap` | Page column: `max-width: var(--page-max)` on the content box, centred, with `--page-pad` outside it |
-| `PaperSheet` | A sheet of paper with grain, `ratio` (free, portrait 5/7, landscape 4/3, slide 16/9), `size`, `depth`, and `lit` for pointer light |
+| `PaperSheet` | A sheet of paper with grain, `ratio` (free, portrait 5/7, landscape 4/3, slide 16/9), `size`, `depth`, `turn` (degrees, kept to this sheet), and `lit` for pointer light |
 | `PaperStack` | Sheets placed behind a top sheet, each with a small offset and turn |
 | `Folder` | A folder shape with a tab and sheets that lift on hover or focus: `size` (`card`, or `page` for the portfolio, which measures itself in `cqi`), `sheets` (a number, or the sheets themselves as nodes), optional `slug` |
 | `Button` | `variant` (mark, outline, ink, text), `size` (sm, md, lg), `href` (root-relative links use `TransitionLink`), `arrow`. `aria-disabled="true"` looks like `disabled` and stays focusable |
@@ -613,11 +588,11 @@ Primitives are the building blocks for pages. Each one has a CSS module unless n
 | `Tally` | A row of blocks for counts. `animate` fills the blocks on scroll |
 | `Blank` | A blinking or steady caret bar |
 | `Note` | A short paragraph on the wash ground |
-| `Input`, `Select`, `Checkbox` | Form controls |
+| `Input`, `Select`, `Checkbox`, `Textarea` | Form controls |
 | `Pagination` | Previous, numbered pages and next |
 | `PhaseTabs` | The sections as large index cards, numeral over name (none for an unnumbered section): two across on a phone, from 40em as many across as fit (12.5rem at least). Used on the home page ("Browse the sample catalog by phase") and in the catalog's empty search ("Browse by phase") |
 | `StepMenu` | The sections as a `<details>` drop-down of links (`data-step-menu`), its panel named "Toolkit phases". The button names the current phase ("Phase 10 Go live and support") or says "Jump to a phase"; `label` replaces both ("Roadmap" in the bar), `variant` is `field` or `bar` (section 4.3) |
-| `Icon` | Inline SVG glyphs: arrow, chevron, plus, minus, close, tick, bars, search. `size` is pixels at the 16px root and the icon is set in rem, so it grows with the root on a large monitor |
+| `Icon` | Inline SVG glyphs: arrow, chevron, plus, minus, close, tick, bars, search, pause, play. `size` is pixels at the 16px root and the icon is set in rem, so it grows with the root on a large monitor |
 | `LogoMark`, `BrandLockup` | The mark, as a tile or bare lockup. `LogoMark` fills the whole "A" in one ink, or its right half in `--logo-half` with `tone="two"`; `BrandLockup` draws it on the tile or bare |
 | `KeepCompounds` | Keeps hyphenated compounds from breaking across lines |
 | `Sentences` | Splits text into sentences, optionally animated in one at a time |
@@ -644,27 +619,38 @@ Components built from the primitives for one part of the site. Each has a doc co
 | `Portfolio` | `components/purchase/portfolio.tsx` | `size` (`page`, `section`), `covers`, `phases` | The toolkit as a folder: the six sample covers in its pocket, the maker's lockup, a heading and the file formats, the `PriceTag` on its corner, and under it a tally of the eleven numbered phases (`phaseCoverage`), labelled "Phases: …" |
 | `PriceTag` | `components/purchase/price-tag.tsx` | `className` | The price from `OFFER` and "one purchase" on a paper tag hung on a string from the corner of the folder. Swings once when first seen and a little when the folder is hovered; still under reduced motion |
 | `ContentsLeaf` | `components/purchase/contents-leaf.tsx` | `className` | The toolkit's contents as a loose paper leaf with a dog-eared corner: a ledger (dl) of counts from `TOOLKIT`, then the Checkout link (to `/purchase?checkout=details`), the line to the contact page and the sample note |
-| `ContactSection` | `components/contact/contact-section.tsx` | none | The whole Contact page as one paper band (a `section` named by its `h1`): the title in the margin from 68em, the lead on its baseline, the address as a `mailto:` link at the statement size, a sentence on what to expect, then a `BandedList` of four `RowLink`s, each the address with a subject. No script |
+| `ContactSection` | `components/contact/contact-section.tsx` | none | The whole Contact page as one paper band (a `section` named by its `h1`): the title in the margin from 68em, the lead on its baseline, the address as a `mailto:` link at the statement size, a sentence on what to expect, then a `BandedList` of six `RowLink`s, each the address with a subject. No script |
 | `ReasonsBand`, `CompareSection`, `AudienceStrip` | `components/about/` | none | The sections of the Why Advanta page, in page order (section 1): the three reasons on the black band (`#why`), the three ways to start (`#compare`, which opens with `SectionHead`) and who it is for (`#who`) |
-| `TemplateTile`, `TileGrid` | `components/catalog/template-tile.tsx` | `template`, `phaseName`, `phaseNumber`, `href`, `headingLevel`, `scroll`, `denied` | One template in a grid, an `<article data-tile>` with exactly one control: a link (free sample) or a button (locked). The grid has as many columns of at least 11rem (176px at the 16px root) as fit, never fewer than two; the home page's six free samples set their own columns (`featuredGrid`: three across from 40em, six from 68em), so a row is never one tile short |
+| `TemplateTile`, `TileGrid` | `components/catalog/template-tile.tsx` | `template`, `phaseName`, `phaseNumber`, `href`, `headingLevel`, `scroll`, `denied`, `unlocked` | One template in a grid, an `<article data-tile>` with exactly one control: a link (a free sample, or any template with `unlocked`) or a button (locked). The grid has as many columns of at least 11rem (176px at the 16px root) as fit, never fewer than two; the home page's six free samples set their own columns (`featuredGrid`: three across from 40em, six from 68em), so a row is never one tile short |
 | `LockedTile` | `components/catalog/locked-tile.tsx` | `title`, `headingLevel`, `initialDenied` | The button of a locked tile, named "<title>, locked", and the line it answers with (section 8.3) |
-| `TemplateDialog` | `components/catalog/template-dialog.tsx` | `closeHref`, `labelledBy` | The pop-up of the catalog: `PageDialog` with `name="template"` (section 8.3) |
+| `TemplateDialog` | `components/catalog/template-dialog.tsx` | `closeHref`, `labelledBy`, children | The pop-up of the catalog: `PageDialog` with `name="template"` (section 8.3) |
 | `PageDialog` | `components/ui/page-dialog.tsx` | `name` (`template`, `checkout`), `closeHref`, `labelledBy`, `bar`, `fill` | The dialog both pop-ups share: a native modal `<dialog>` that is open while the page renders it and closes to `closeHref`. `bar` stands before Close; `fill` makes it the whole window below 40em and one fixed height from there |
 | `CheckoutDialog` | `components/checkout/checkout-dialog.tsx` | `panel`, `disclosure` (the two forms of `OrderSummary`) | The checkout (section 3.7) |
 | `OrderSummary` | `components/checkout/order-summary.tsx` | `variant` (`panel`, `disclosure`) | The offer, what it holds, the price, the tax line and the total before tax, on the binder: a column from 68em, a native `<details>` row below it |
 | `ActiveFilters` | `components/catalog/active-filters.tsx` | `criteria`, `phases`, `fallbackFocusId` | The filters that are on, as a row of chips above the results (section 8.4) |
 | `PhasePager` | `components/catalog/phase-pager.tsx` | `previous`, `next`, `className` | The section before and the section after, in folder order, at the foot of a phase page ("Previous and next phase") |
-| `TemplateDetail` | `components/catalog/template-detail.tsx` | `template`, `phase`, `titleId` | The content of the pop-up: large cover, "Free sample" tag, title, summary, description, facts, what is included, and the button to `/purchase` |
+| `TemplateDetail` | `components/catalog/template-detail.tsx` | `template`, `phase`, `titleId`, `downloadable`, `licensed` | The content of the pop-up: large cover, "Free sample" tag, title, summary, description, facts, what is included, and the button to `/purchase`; with `licensed`, no tag or button and the files to download (`FileDownloads`) |
 | `Hero`, `HeroStage` | `components/home/hero.tsx`, `hero-stage.tsx` | `samples`, `phases` | The first screen of the home page: headline, lead and two buttons; the stage, where the six free samples land as a hand of documents |
 | `HeroHeadline` | `components/home/hero-headline.tsx` | `headline`, `blanks` | The hero's h1, its last word a `SplitFlap`, and the button under it that pauses the word and plays it again (`data-flap-control`, shown only under `data-motion="on"`) |
-| `SplitFlap` | `components/home/split-flap.tsx` | `words`, `paused` | The headline's last word on a split-flap board: the first of `words` stands (and is what a screen reader reads); where movement is wanted it turns through the rest, each changed letter flipping once to its new one, passing over a word that would not fit its line; while `paused` it finishes the turn under way and turns no further |
+| `SplitFlap` | `components/home/split-flap.tsx` | `words`, `paused`, `tail` | The headline's last word on a split-flap board: the first of `words` stands (and is what a screen reader reads); where movement is wanted it turns through the rest, each changed letter flipping once to its new one, passing over a word that would not fit its line; while `paused` it finishes the turn under way and turns no further |
 | `ProofStrip` | `components/home/proof-strip.tsx` | none | The band's foot: 30+ years, 59 playbooks, 130 templates, 58 job aids, on opaque paper |
 | `PortfolioSection` | `components/home/portfolio-section.tsx` | `covers`, `phases` | `#toolkit` on the home page: words and the button to `/purchase`, the `Portfolio` at section size |
 | `PurchaseButton` | `components/layout/purchase-button.tsx` | `className` | The bar's call to action (section 4.1) |
 | `TitleBlock` | `components/layout/title-block.tsx` | `title`, `lead`, `form` (`index`, `document`, `wide`), `crumbs`, `meta`, `children`, `aside` | The band that opens every inner page but the catalog, holding its one `h1`. One column below 40em. With an `aside` (the phase numeral and its count, the worked example's page), from 40em the words and the aside stand side by side (`.paired`: the aside's column is `clamp(16rem, 25vw + 6rem, 18rem)`), so a tablet's first screen is not a column of words over an object; from 68em the twelve columns take over. The `index` form's grid is a size container (`.measure`), and from 68em its title is held to the three margin columns by `cqi` (the banner size is wider than they are up to about 1280px). |
 | `LegalPage` | `components/legal/legal-page.tsx` | `document` (a `LegalDocument`) | The one layout of the four legal pages. The title block in its `document` form with the date the page last changed in the margin, then one paper band under an ink rule holding, in DOM order, the table of contents (`nav` "On this page", `data-legal-toc`, plain anchors), the `article` (the page in a few points on the wash, then one `<section id data-legal-section>` per numbered section with its `h2`, subsections as `<h3 id>`) and the `aside` "Policies" (the four pages as a ledger of `RowLink`s with `aria-current`, and the contact address). From 68em the contents stand in columns 1 to 3 and the policies in columns 10 to 12, both sticky under the bar, with the article in columns 4 to 9 at a measure of 40rem; below it the contents are a ledger across the top (two columns from 40em). A server component with no script. The words are data, not markup: `lib/legal/privacy.ts`, `terms.ts`, `refunds.ts` and `accessibility.ts` each build a `LegalDocument` (`lib/legal/types.ts`) from the facts in `lib/legal/facts.ts`. That file's `LEGAL` object is the one place the owner sets the seller's legal name and address, the governing province, the date of the pages, the privacy contact, the host, the refund window, whether client work is licensed and the date of an accessibility audit; a value left `undefined` is an open item, and each page then says only what is true without it |
 
+The rest, by folder, in one line each (each file's doc comment says more):
 
+| Folder | Components |
+|---|---|
+| `components/catalog/` | `ResultList` (one page of results as a `TileGrid`, the empty states and `Pagination`), `SearchBox` (a plain `GET` form), `SortSelect` and `FilterPanel` (section 8.4), `TemplateCover` (the drawn cover of a template, in its format's shape), `FileDownloads` (section 3.8) |
+| `components/home/` | `FeaturedSection` (`#featured`), `InsideSection` (`#inside`, its rows opening with a count or a `LineDrawing` from `value-tiles.tsx`), `Specimen` (`hero-sheet.tsx`, one template written out), `SolutionSection` (`pitch-spread.tsx`, `#solution`, the ninety band) |
+| `components/about/` | `SectionHead`, the head of a Why Advanta section |
+| `components/company/` | `StatementSection` (a band that makes one statement), `WorkedExample` (the worked example drawn as a page), `NextSteps` (the closing ledger of places to go next); used by `/sample` and `/why-advanta` |
+| `components/layout/` | `Header`, `PrimaryNav`, `PhasesMenu`, `NavDrawer`, `Footer` (section 4), `BrandLink` (section 4.1), `Breadcrumbs` (the trail in a title block) |
+| `components/intro/` | `IntroCover` (the cover, section 6) and `IntroScript` (prints the boot script) |
+| `components/not-found/` | `MissingPage` (the 404), `AskedPath` (the address asked for, read in the browser), `LateBoot` (runs the boot script on a 404 rendered at request time) |
+| `components/seo/` | `JsonLd`, one `application/ld+json` script (section 1) |
 
 ## 6. Load-in sequence and the cover
 
@@ -705,6 +691,8 @@ The pure equivalent of the cover decision (`shouldPlayIntro`) lives in `lib/boot
 | `data-timeline` | `on` | Boot script, when view timelines are supported |
 | `data-intro` | `play`, `leave`; absent when done | Boot script, which also removes it on the end event |
 | `data-io` | `armed` | `MotionRoot`, in a layout effect on each pathname change |
+| `data-hydrated` | present | `MotionRoot`, in an effect, whatever the motion setting (a test hook, section 9) |
+| `data-scroll-behavior` | `smooth` | Written in `app/layout.tsx`: anchors glide, route changes still jump |
 
 ### 6.4 Timeline of the cover
 
@@ -758,7 +746,7 @@ animated property sits inside `@media (prefers-reduced-motion: no-preference)`. 
 | `data-when="load"` | `Appear` (`when` prop) | Entrance runs on page load, not on scroll |
 | `data-seen` | `watchSeen` | Set once the element has arrived in view |
 | `data-watch` | `Tally` (`animate`), `PriceTag` | Element to observe. `data-watch="half"` waits for half the element to be visible |
-| `data-ninety` | `SolutionSection` | Ninety band: the blocks fill on scroll; the figure never moves |
+| `data-ninety` | `SolutionSection` (`components/home/pitch-spread.tsx`) | Ninety band: the blocks fill on scroll; the figure never moves |
 | `--order` | `Appear`, `Sentences`, drawer items | Stagger index |
 | `data-paper`, `data-lit` | `PaperSheet` (`lit` prop) | Paper shadow and pointer tilt |
 | `data-bar` | `Header` | Shadow under the bar |
@@ -831,7 +819,7 @@ per frame. On hover the sheet moves up 6 px (`translate: 0 -6px`) and tilts from
 ### 7.5 Page transitions
 
 `PageShift` wraps route content in React's `ViewTransition` with `enter="page-in"` and `exit="page-out"`.
-It is used by the home hero, the title block and the not-found page. `TemplateCover` (named `cover-<slug>`) and
+It is used by the home hero, the title block, the not-found page and `ContactSection`. `TemplateCover` (named `cover-<slug>`) and
 `Folder` (named `folder-<slug>`) are shared elements with `share="sheet-morph"` when a caller passes a `slug`;
 no page does today, so nothing travels between pages. Opening a free sample in the pop-up is a change inside
 one page and starts no view transition.
@@ -864,7 +852,7 @@ Timing and curve tokens (`app/globals.css`):
 
 | Token | Value | Used for |
 |---|---|---|
-| `--time-swap` | 120ms | Drawer item stagger base |
+| `--time-swap` | 120ms | Colour changes on hover and on the current item; the drawer's item stagger base |
 | `--time-enter` | 240ms | Tally start delay |
 | `--time-exit` | 160ms | Scrim fade |
 | `--time-fill` | 180ms | Block fill |
@@ -883,8 +871,11 @@ Timing and curve tokens (`app/globals.css`):
 | `--curve-drop` | `cubic-bezier(0.3,1.25,0.5,1)` | Settling drop |
 | `--curve-pen` | `cubic-bezier(0.65,0,0.2,1)` | Pen strokes |
 
-Other keyframes sit in component CSS modules: `caret-blink`, `drawer-in`, `fade-in`, `link-in`, `pen-stroke`,
-`scrim-in` (the filter sheet), `sheet-up`, `sign-leave`, `tally-fill`, `cover-leave` and `cover-skip`.
+Other keyframes sit in component CSS modules: `caret-blink`, `drawer-in`, `link-in`, `scrim-in` (the drawer and
+the filter sheet), `sheet-up`, `tally-fill`, and on the cover `arm-rise`, `leg-drop`, `write`, `fade-in`,
+`sign-leave`, `cover-leave` and `cover-skip`. The cover's keyframes stand outside the no-preference query: the
+cover exists only while the boot script has set `data-intro`, which it never does under reduced motion. The filter
+sheet's are switched off in a `reduce` block.
 
 ### 7.7 The hero
 
@@ -897,7 +888,8 @@ changes flips once, straight to its new one (240ms, 45ms after the letter to its
 does not move, and the highlighter's width follows the word. Before a turn the board measures the room left on its line and passes over a word
 that would not fit, so the headline never gains a line ("document" shows only where the line has room). It
 holds still while out of sight or in a hidden tab, and while the button under the headline has paused it
-("Pause" / "Play", `data-flap-control`, in `HeroHeadline`); under reduced motion or without a script it stands at
+("Pause" / "Play", named "Pause the turning word" / "Play the turning word", `data-flap-control`, in
+`HeroHeadline`; Play turns it again 400ms after the press); under reduced motion or without a script it stands at
 "prompt", and the button is not shown. Centred, top to bottom:
 the headline and the lead, two buttons ("Get the toolkit" to `/purchase`, "See the free samples" to
 `/catalog?free=1`), the stage and the proof strip. `HeroStage` (`data-hero-stage`) holds the six free samples
@@ -934,6 +926,7 @@ The catalog's filters, search, sort and page live in the URL. A search URL is th
 | `free` | `1` | Keeps only the free samples; anything else is off |
 | `sort` | `samples` (default), `phase`, `title` | Anything else becomes `samples` |
 | `page` | integer | Must match `^[1-9]\d{0,5}$`; otherwise `1` |
+| `link` | `invalid` | Not a filter: set by `/licence` when a link did not work; a status line above the results says so (section 3.8) |
 | `view` | a template slug | Not a filter: asks for one template (section 8.3). `parseView` takes the first value if it has the shape of a slug, reading mixed case as lowercase (an old `/Templates/Change-Management-Strategy` link keeps its case through the redirect) |
 
 Facet values accept repeated keys and comma-separated lists. They are deduplicated, and unknown values are
@@ -1038,22 +1031,11 @@ control and no price.
 - `Pagination` renders links to `/catalog` with the same criteria and the new page. It renders nothing when
   there is one page.
 
-## 9. Test hooks and test contract
+## 9. Test hooks
 
-### 9.1 Commands
-
-| Command | Runs |
-|---|---|
-| `corepack pnpm test` | Vitest over `tests/unit/**/*.test.ts` |
-| `corepack pnpm test:e2e` | Playwright over `tests/e2e`, after `npm run build && npm run start -- -p 3100` (or reuses a server on port 3100 outside CI) |
-| `corepack pnpm typecheck` | `next typegen` and `tsc --noEmit` |
-| `corepack pnpm lint` | `eslint .` |
-| `corepack pnpm dev`, `build`, `start` | Development server, production build, production server |
-
-Run the scripts in `scripts/` by path, for example `node scripts/check-budgets.mjs <baseUrl>`: `scripts/gen-icon.mjs`,
-`scripts/check-budgets.mjs` and `scripts/paper-grain.mjs`.
-
-### 9.2 Attributes used by tests
+The commands, the test suites, the design gate and what each spec covers are in
+[`testing.md`](testing.md). This section lists the attributes the tests rely on, so a change to markup
+knows what it must keep.
 
 | Attribute | Where | Meaning |
 |---|---|---|
@@ -1069,98 +1051,22 @@ Run the scripts in `scripts/` by path, for example `node scripts/check-budgets.m
 | `data-ledger`, `data-folder` | Lists, folders | Rule and folder |
 | `data-portfolio`, `data-price-tag` | Purchase page, home `#toolkit` | The folder object and its tag |
 | `data-tile`, `data-free`, `data-locked`, `data-denied` | Catalog tiles | Tile and its state: free sample, locked, saying no |
-| `data-well` | Catalog tiles | The well of a tile; its `::before` is the red wash of a denied tile |
+| `data-well` | Catalog tiles | The well of a tile; its `::before` is the red ring of a denied tile |
+| `data-answer` | Catalog tiles | The line a locked tile answers with |
 | `data-page-dialog`, `data-template-dialog`, `data-checkout-dialog`, `data-enter` | Pop-ups | Any page dialog, whose it is, and that a link inside the site opened it |
 | `data-checkout-step` (`details`, `review`, `payment`), `data-order-summary` (`panel`, `disclosure`), `data-order-code`, `data-error-summary`, `data-field-error`, `data-pay` | Checkout | The step in view, the two forms of the summary, the order's code, the summary of a form's problems, an error under a field, and a provider's pay button |
 | `data-hero-stage`, `data-hero-doc` | Hero | The stage and a document |
 | `data-split-flap`, `data-flap-cell`, `data-flap`, `data-half` | Hero | The headline's turning word, one of its letters, a falling flap and a still half-letter |
 | `data-flap-control` | Hero | The button under the headline that pauses the turning word and plays it again |
 | `data-included` | Catalog | The line above the results for a locked template that has no tile on the page |
+| `data-link-failed` | Catalog | The line above the results when a licence link did not work |
+| `data-count` | Purchase page | A count in the contents leaf's ledger |
+| `data-legal`, `data-legal-toc`, `data-legal-section` | Legal pages | The layout, its table of contents and each numbered section |
+| `data-move`, `data-when` | Entrances | The entrance kind and when it plays (section 7.1) |
+| `data-blank`, `data-caret` | `Blank` | A blank line and its caret |
 | `data-nav-underline` | Bar | The sliding underline |
 | `data-cover`, `data-format` | Template covers | Format ratio |
 | `data-specimen`, `data-mark` | Home page | Specimen and highlighted phrase |
-
-### 9.3 Standing rules
-
-The design gate (`tests/unit/design-gate.test.ts`) scans every file under `app/`, `components/`, `lib/` and
-`tests/`, comments included.
-
-- Raw colour values (hex colours of 3, 4, 6 or 8 digits, and `rgb`, `hsl`, `hwb`, `lab`, `lch`, `oklab`,
-  `oklch`, `color` and `color-mix` functions) appear only in `app/globals.css` and `app/icon.svg`.
-- No stylesheet contains `prefers-color-scheme`, or the word "infinite".
-- `@media` queries are limited to the seven forms in section 5.1.
-- `@container` appears only in `header.module.css` and `nav-drawer.module.css`.
-- Only `components/ui/transition-link.tsx` imports `next/link`.
-- `package.json` dependencies are exactly `next`, `react`, `react-dom` and `zod`.
-- `<canvas`, `getContext(` and `webgl` (in any case) appear nowhere.
-- `requestAnimationFrame` calls are allowed only in `lib/scroll/`, `lib/boot/` and `components/intro/`. The
-  scroll string literal is allowed only in `lib/scroll/`.
-- The retired folders do not exist.
-
-### 9.4 Unit tests (Vitest)
-
-Each file below is in `tests/unit/`:
-
-| File | Covers |
-|---|---|
-| `content.test.ts` | The real catalog: phases, counts, no price on any template, exactly six free templates (named), sample flags, copy rules, search, the default order, related templates, the worked example's contents |
-| `query.test.ts` | Filters, the free filter, search, the `samples`, `phase` and `title` sorts (no price sort), facet counts, pagination |
-| `search-params.test.ts` | URL parsing and serialisation, `free`, `parseView`, `catalogHref`; `clearFiltersHref`, `hasFilters`, and the active-filter chips and their links |
-| `nav-links.test.ts` | The phase a page belongs to (`/phases/<slug>`), including the catalog filtered on one phase |
-| `worked-example.test.ts`, `into-view.test.ts` | The worked example's contents resolved against the catalog; how far a sideways row scrolls to show an item |
-| `scrim.test.ts`, `history.test.ts` | A click closes a dialog only when its press and release were on the dimmed page too; the entry before the current one is an address (parameters in any order), and never when the history cannot say |
-| `checkout-schema.test.ts`, `checkout-order.test.ts`, `checkout-steps.test.ts`, `checkout-provider.test.ts` | The checkout: the places and the details schema with its messages; the order schema; the order's code, summary, text and `mailto:`; the step machine and the stored draft; `getPaymentProvider()` answering `null`, `startPayment` against a fake provider, and the Payment step's markup with and without one |
-| `validate.test.ts` | Validation errors and sorting; a catalog with 0, 5, 7 or 8 free templates is rejected |
-| `coverage.test.ts`, `format.test.ts` | Helpers; `phaseCoverage` (numbered phases only), `numberedPhases`, `adjacentPhases`; `formatPrice(149999, "CAD")` is `$1,499.99 CAD`; `countWord(6)` is `six`; `formatLength(16, "pptx")` is `16 slides` |
-| `compounds.test.ts` | Compound splitting for `KeepCompounds` |
-| `brand-mark.test.ts` | Logo geometry (the two halves, the seam, the leans, the ink centred), `LogoMark` in one and two inks, and `app/icon.svg` against `scripts/gen-icon.mjs` |
-| `seo.test.ts` | Page metadata and canonical addresses, the structured data, the sitemap, robots (production and preview), the manifest's icons, and `llms.txt` / `llms-full.txt` |
-| `favicon.test.ts` | The favicon's three sizes and the size of each raster icon |
-| `boot-script.test.ts` | Runs `BOOT_SCRIPT` against stand-ins for the document, storage and media queries: reduced motion writing nothing, the motion switches, the cover decision against `shouldPlayIntro`, the skip and its click guard, the 5500 ms backstop, and the script's weight |
-| `boot-cover.test.ts` | Cover markup (no picture and no canvas, two filled halves, the name and the line under it) and timings (the arm 120 to 620, the leg 620 to 1000 with its squash, the text written by 1400, leave at 2500 with the signature gone before the paper clears, gone 200 ms after an input) |
-| `kit-motion.test.ts` | `motion.css` rules: keyframes and animations inside `no-preference`, timeline ordering, hidden states only under `data-motion="on"`, no blurred entrance, the heading's range ending first |
-| `kit-grain.test.ts` | Paper grain image format and size |
-| `legal.test.ts` | The four legal documents: the routes of `LEGAL_LINKS` in order; no empty section or block; an anchor of its own for every section and subsection; links only to pages and anchors that exist, and to the contact page and the other three; no placeholder text; the wording for set and unset facts (refund window, province, host, audit); the privacy policy names the two session storage keys (`lib/boot/state.ts`, `lib/checkout/draft.ts`) |
-| `design-gate.test.ts` | Section 9.3 |
-| `smoke.test.ts` | Test runner check |
-
-### 9.5 End-to-end tests (Playwright)
-
-Projects in `playwright.config.ts`:
-
-- `chromium`: Desktop Chrome at 1280 by 800.
-- `mobile`: Pixel 7.
-- `quiet` and `quiet-mobile`: the tests tagged `@quiet` (paint times read off the page's clock), in the
-  same two browsers, one at a time after the projects above.
-- `firefox`: runs a subset of specs when Firefox starts on the machine (`PW_FIREFOX=1` or a successful
-  `--version` check).
-
-Specs:
-
-| Spec | Projects | Covers |
-|---|---|---|
-| `browse.spec.ts` | chromium, mobile, firefox | Home to a phase and on to its free sample; the hero to the six samples; the worked example; no horizontal overflow on 8 routes |
-| `catalog.spec.ts` | chromium, mobile | The grid of tiles; six free first, the rest locked; the canonical address; no price anywhere; "Free samples only"; the sort options; filters, chips, URL restore, search, phase order and the one filtered phase marked in the drop-down, empty states, malformed parameters, the sort select keeping the picked option while the server answers, Clear all filters clearing in place with focus kept, the phone's rail (the "Jump to a phase" drop-down) and filter dialog, the sheet closing when the window grows to 68em |
-| `locked.spec.ts` | chromium, mobile | A locked tile: its button and its blurred cover with nothing drawn over it; the 600 ms denial and its line; Enter and Space; repeated presses; the shake and the red ring; reduced motion; `?view=` a locked template, on the page of results and off it; a phase page's locked tiles; without JavaScript |
-| `template-dialog.spec.ts` | chromium, mobile | The pop-up: opening from a tile, its content, Escape, Close and the dimmed page each closing it and keeping the other parameters, Back, focus, a selection dragged out of the pop-up not closing it, a close after an open from the catalog leaving no entry behind (Back leaves the catalog) and one after an open from another page staying on the catalog, values that open nothing, the home and phase tiles, without JavaScript |
-| `purchase.spec.ts` | chromium, mobile | The Purchase page: no title block, one `h1` on the folder, and the price once on the tag; the folder and the tally; the ledger; the Checkout link; no questions section, and the contents leaf beside the folder from 68em; 320px; the tag's swing; reduced motion; the home folder |
-| `checkout.spec.ts` | chromium, mobile | The checkout: opening from the link and from the address, the summary, Escape, Close, the dimmed page and Back with focus returned, one history entry for all steps, labels and autocomplete tokens, the region control, validation on blur and on submit, the whole walk to the Payment step, no order data in any address or request, the draft surviving a reload, Start over, the phone and 320px layouts, the step's movement, the catalog's pop-up unchanged, and no JavaScript |
-| `redirects.spec.ts` | chromium, mobile | The retired addresses (bundles, pricing, cart, about, template pages, the seven old phase pages) end where they should; the 308; `/contact` answering as a page |
-| `contact.spec.ts` | chromium, mobile | The Contact page: one section and one band in `main`, one `h1`, the address as the one plain `mailto:` link, no form or field, the four subject links, the fit at 320 and 1920, the footer's link to it; `/about` redirecting to `/why-advanta`, which holds no contact section |
-| `legal.spec.ts` | chromium, mobile | The four legal pages: status 200, one `h1`, the page title, the date and the summary; a table of contents whose links are the sections' ids in order, each section headed by one numbered `h2`; no id twice; links to the contact page and the other three, and the current page marked among the policies; no cookie and no storage beyond the site's own session entries; an entry of the contents brings its section into view and lights its number; the three columns from 68em and the measure; the contents first and 44px tall at 320px |
-| `hero.spec.ts` | chromium, mobile | The hero: structure and copy, with no backdrop or canvas behind the words; the six documents as links; their pop-ups; the sequence (the box from 700ms for 800ms, the documents from 1300ms, 110ms apart), once on load, again on a return inside the site, and after the cover of a first visit, under which the box stands and the documents wait; the first screen at several window sizes; no title or tag cut by a neighbour and 44px targets; the band's foot; reduced motion; no JavaScript |
-| `console.spec.ts` | chromium, mobile, firefox | Twelve routes load with no console error and no page error |
-| `header.spec.ts` | chromium only (skips the mobile project) | The banner; Catalog, the Roadmap drop-down and Why Advanta and the purchase button; centring; the 68em boundary; the sliding underline (under Roadmap on a phase page); the drop-down's 13 links, Escape and a click outside; the sticky bar; the brand returning to the top on the home page |
-| `identity.spec.ts` | chromium, mobile | Design checks in the browser: landmarks; one `h1` per page; root colours and fonts; band values; no canvas, sent or drawn; the home, Why Advanta and catalog pages at rest 5.5 s after they load; the order of the home sections; focus rings; the 365 on the mark; the tiles' covers; no overflow and minimum touch targets at 320 px |
-| `intro.spec.ts` | chromium, mobile | The cover on a first visit: its states; the mark held to 2.5 s and gone by 3.4 s; skip on a click, key press (at any time) or wheel; no cover on reload or on other routes; no cover with reduced motion, blocked storage or JavaScript off |
-| `menu.spec.ts` | mobile (in chromium every test skips) | The phone bar and drawer: brand, button and Menu at 390 and 320px; the four pages and the 13 phases; Escape, Close, the dimmed page (a drag that ends there does not close it); navigation closing it |
-| `motion.spec.ts` | chromium, mobile, firefox | Entrances hidden until scrolled into view, with timelines and without; the ninety band; a page change runs a view transition; a filter change or a pop-up starts none |
-| `reduced-motion.spec.ts` | chromium, mobile, firefox | Reduced motion on 13 routes: no motion attributes, no canvas, no running animations, no cover, every entrance in its final state; the 90% figure and the tally show their final state |
-| `not-found.spec.ts` | chromium, mobile | 404 status and content for missing paths; lowercase redirect |
-| `viewports.spec.ts` | chromium only (skips the mobile project) | The geometry guard: twelve routes (`/`, `/catalog`, `/phases/assess-the-impact`, `/purchase`, `/why-advanta`, `/contact`, `/privacy`, `/terms`, `/refunds`, `/accessibility`, `/sample`, `/nope`) at sixteen window sizes, 320 by 640 to 3840 by 2160 (192 tests): one `h1`, no element past the window's edge, from 1280 up the words span more than half of the window (not on the 404), no console or page error |
-
-`tests/e2e/support/hero.ts` gives the hero specs their helpers, and `tests/e2e/support/intro.ts` records the
-states of `data-intro` with the page clock for the cover's specs.
 
 ## 10. Budgets
 
@@ -1171,13 +1077,9 @@ states of `data-intro` with the page clock for the cover's specs.
 | Boot script | 1536 bytes gzip; must not contain `</script` or `<!--` | `boot-script.test.ts` |
 | Paper grain image | 4 KiB | `kit-grain.test.ts` |
 
-`scripts/check-budgets.mjs <baseUrl> [--record] [--pages=...]` needs a running production server, and a
-build in `.next/static` for the shader check, which reports none. `--record` writes
-`tests/budgets/baseline.json`, which holds the gzip total, the script list, the shader chunks and the shader
-total for `/`.
-
-`scripts/paper-grain.mjs` writes `public/paper/grain.png`: a 128 px indexed PNG with four palette entries
-from the ink colour at alphas 0, 0.03, 0.06 and 0.09. It fails above 4 KiB.
+How to run the budget script and refresh the baseline is in [`testing.md`](testing.md#budgets). Vercel Web
+Analytics and Speed Insights render only on a Vercel deployment, so a local production server, which the
+budget measures, does not ship them.
 
 ## 11. Failure modes
 
@@ -1188,10 +1090,10 @@ from the ink colour at alphas 0, 0.03, 0.06 and 0.09. It fails above 4 KiB.
 | Malformed catalog query | Unknown values are dropped; a bad `page` becomes `1`; an out-of-range page is clamped. The response is 200 |
 | `view` that names no template, or a locked one | Nothing opens. A locked template's tile, if it is on the page of results, is rendered saying no; if it is not, a line above the results says the template is included with the toolkit. The response is 200 |
 | Checkout | Built up to payment: no provider is connected (`getPaymentProvider()` returns `null`), so the Payment step offers the order by email and nothing can be paid for; the owner mints a licence by hand (section 3.8). Blocked session storage: the draft lasts for the page only |
-| No file store configured | Download buttons are hidden; `/api/samples` and `/api/library` answer 503 |
-| Licence missing, changed, revoked, or no `LICENCE_SECRET` | `/licence` sets nothing and goes to `/library?link=invalid`; `/api/library` answers 404; `/library` says how to get a link |
+| No file store configured | Download buttons are hidden; `/api/samples` answers 503, and so does `/api/library` to a browser holding a licence (without one it answers 404 first) |
+| Licence missing, changed, revoked, or no `LICENCE_SECRET` | `/licence` sets nothing and goes to `/catalog?link=invalid`, which says the link did not work and to write with the order code; `/api/library` answers 404 |
 | A catalog file the store does not have | The file routes answer 404; `tests/unit/stored-files.test.ts` fails |
-| Too many requests from one client | 429 with `Retry-After` |
+| Too many requests from one client | 429 with `Retry-After` (`/licence` after 10 a minute, a file route after 60) |
 | Cover cannot start | No cover; the page loads as normal |
 | Cover interrupted | Skip, or the 5500 ms backstop unsets `data-intro` |
 | Reduced motion | No cover, no motion |

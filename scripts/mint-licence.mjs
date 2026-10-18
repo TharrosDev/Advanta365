@@ -2,7 +2,7 @@
 //
 // Reads LICENCE_SECRET (the site's own, at least 32 characters) and SITE_ORIGIN (default
 // https://advanta365.com) from the environment. Send the link to the buyer; opening it once puts the
-// licence in their browser and lands them on /library. Needs Node 22.18 or later, which runs the
+// licence in their browser and lands them on the catalog, unlocked. Needs Node 22.18 or later, which runs the
 // TypeScript module below directly.
 import { signLicence } from "../lib/licence/token.ts";
 
