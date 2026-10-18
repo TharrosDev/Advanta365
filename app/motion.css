@@ -24,7 +24,7 @@
  * Every animation and transition sits inside the no-preference query, with the final state
  * outside it. Keyframes name the starting state only: the end is whatever the element is. Nothing
  * repeats, with one exception: the headline's split-flap word, whose script turns it to the next
- * word every few seconds for as long as it is in sight. No custom property is animated and no shadow
+ * word every few seconds for as long as it is in sight, until the control under it pauses it. No custom property is animated and no shadow
  * changes: a shadow that comes or goes is a second shadow on a pseudo-element whose opacity moves.
  * `animation-timeline` and `animation-range` are written after the `animation` shorthand, which
  * would reset them.

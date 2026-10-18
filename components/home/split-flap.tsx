@@ -22,6 +22,9 @@ const FIRST_HOLD = 3600;
 /** Every later word stands this long once its last letter is down. */
 const HOLD = 2600;
 
+/** Played again after a pause, the board turns this soon, so the press is answered. */
+const RESUME = 400;
+
 /**
  * One cell of the board. `char` is the letter it shows, `prev` the one whose flap is falling over
  * it (null when the cell stands still), `flips` counts the flaps so each one is drawn afresh,
@@ -107,17 +110,29 @@ function room(board: HTMLElement): number {
  * the board on its line and in what is read, with no gap before it.
  *
  * The board waits for the hero's clock (the root element losing `data-intro`) and for the page's
- * fonts, so its letters can be measured, and it holds still while it is out of sight. It never
+ * fonts, so its letters can be measured, and it holds still while it is out of sight. While
+ * `paused` it turns no further: a turn under way finishes, and the word it lands on stands until
+ * `paused` is false again, when the next turn follows `RESUME` later. It never
  * breaks its line: a word wider than the first goes up only if the line has room for it then,
  * and is passed over otherwise (on a phone, or where the first word's line is already full).
  */
-export function SplitFlap({ words, tail = "" }: { words: readonly string[]; tail?: string }) {
+export function SplitFlap({
+  words,
+  tail = "",
+  paused = false,
+}: {
+  words: readonly string[];
+  tail?: string;
+  paused?: boolean;
+}) {
   const first = words[0] ?? "";
   const length = Math.max(...words.map((word) => word.length));
   const [cells, setCells] = useState(() => standing(first, length));
   const [widths, setWidths] = useState<Record<string, number> | null>(null);
   const board = useRef<HTMLSpanElement>(null);
   const ruler = useRef<HTMLSpanElement>(null);
+  const halted = useRef(paused);
+  const resume = useRef<(() => void) | null>(null);
 
   // Every letter a cell can show, measured once in the board's own type, in ems.
   useEffect(() => {
@@ -148,6 +163,7 @@ export function SplitFlap({ words, tail = "" }: { words: readonly string[]; tail
     let index = 0;
     const wide = (word: string) => [...word].reduce((sum, char) => sum + (widths[char] ?? 0), 0);
     let seen = true;
+    let parked = false;
     let timer: ReturnType<typeof setTimeout> | undefined;
     let ticker: ReturnType<typeof setInterval> | undefined;
 
@@ -166,6 +182,10 @@ export function SplitFlap({ words, tail = "" }: { words: readonly string[]; tail
 
     const turn = () => {
       if (!moving()) return;
+      if (halted.current) {
+        parked = true;
+        return;
+      }
       if (document.hidden || !seen) {
         timer = setTimeout(turn, HOLD);
         return;
@@ -181,6 +201,12 @@ export function SplitFlap({ words, tail = "" }: { words: readonly string[]; tail
       ticker = setInterval(step, STAGGER);
     };
 
+    resume.current = () => {
+      if (!parked) return;
+      parked = false;
+      timer = setTimeout(turn, RESUME);
+    };
+
     const intro = new MutationObserver(() => {
       if (root.hasAttribute("data-intro")) return;
       intro.disconnect();
@@ -193,12 +219,18 @@ export function SplitFlap({ words, tail = "" }: { words: readonly string[]; tail
     }
 
     return () => {
+      resume.current = null;
       intro.disconnect();
       sight.disconnect();
       clearTimeout(timer);
       clearInterval(ticker);
     };
   }, [widths, words, first, length]);
+
+  useEffect(() => {
+    halted.current = paused;
+    if (!paused) resume.current?.();
+  }, [paused]);
 
   return (
     <>
