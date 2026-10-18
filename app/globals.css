@@ -60,12 +60,8 @@
   --depth-3: 0 0 0 1px rgb(11 13 18 / 0.05), 0 12px 24px -8px rgb(11 13 18 / 0.18);
   --depth-4: 0 0 0 1px rgb(11 13 18 / 0.05), 0 20px 40px -12px rgb(11 13 18 / 0.24);
 
-  /*
-   * The folder of a page: the light on its card stock front, and the shade that front casts up
-   * onto the sheets in the pocket behind it.
-   */
+  /* The folder of a page: the light on its card stock front. */
   --card-light: rgb(255 255 255 / 0.62);
-  --pocket-shade: 0 -8px 14px -8px rgb(11 13 18 / 0.22);
   /*
    * Its inside, the same stock in the front's shade (the wash a step towards the highlighter,
    * deeper down the pocket); the light along a cut edge of the stock; the two scores pressed along

@@ -85,7 +85,6 @@ Defined on `:root` in `app/globals.css`.
 | `--card-score`, `--card-score-lip` | ink at 0.07, white at 0.8 | The scored fold lines on the folder's front. |
 | `--card-cast` | a pair of `drop-shadow()` filters | The shade the folder's front casts up onto the sheets in its pocket. |
 | `--desk-shadow` | `rgb(11 13 18 / 0.13)` | Shadows of objects lying on the desk. |
-| `--pocket-shade` | `0 -8px 14px -8px rgb(11 13 18 / 0.22)` | Defined but no longer read: `--card-cast` took its place. |
 | `--grain` | `url("/paper/grain.png")` | A pre-rendered 128-pixel paper tooth, used by medium and large sheets. |
 
 ### 3.2 Semantic layer
@@ -394,7 +393,7 @@ Level 3 and level 4 at 68em are the four-layer forms defined in the same file. S
 
 ### 8.1 Principles
 
-- Motion is opt-in. Every animation and movement is inside `@media (prefers-reduced-motion: no-preference)`, or starts only from a state the boot script sets when motion is allowed (the cover). One exception: the phone filter sheet's `sheet-up` and `scrim-in` are declared outside the query and switched off in a `reduce` block (`components/catalog/filter-panel.module.css`). Colour transitions on controls are short (`--time-swap`), and the reduced-motion safety net in `globals.css` shortens every transition.
+- Motion is opt-in. Every animation and movement is inside `@media (prefers-reduced-motion: no-preference)`, or starts only from a state the boot script sets when motion is allowed (the cover). Colour transitions on controls are short (`--time-swap`), and the reduced-motion safety net in `globals.css` shortens every transition.
 - Page-level motion is driven by attributes (8.5). A component's own class holds its one animation, for example `.blink` in `Blank` and `.animate` on `Tally`.
 - Surfaces never fade or slide. Content arrives; sheets respond.
 - Durations are short. Most motion is under 600ms, and the page-level entrances stay under one second.

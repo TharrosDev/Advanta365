@@ -1,4 +1,5 @@
 import * as z from "zod/mini";
+import { ORDER_CODE } from "@/lib/licence/order-code";
 import { OFFER } from "@/lib/site";
 import { isCountry, regionProblem } from "./places";
 
@@ -34,8 +35,7 @@ export const DETAIL_LIMITS = {
 /** An address with one "@", something on both sides of it and a dot in the domain. */
 const EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
-/** An order's own code, as `orderCode` writes it: `A365-261012-K7QX2M`. */
-export const ORDER_CODE = /^A365-\d{6}-[2-9A-HJ-NP-Z]{6}$/;
+export { ORDER_CODE };
 
 const tooLong = (limit: number) => `Keep this to ${limit} characters or fewer`;
 

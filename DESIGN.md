@@ -227,7 +227,6 @@ components:
   price-tag:
     backgroundColor: "{colors.paper}"
     textColor: "{colors.ink}"
-    typography: "{typography.amount}"
     rounded: "{rounded.round-1}"
   template-dialog:
     backgroundColor: "{colors.paper}"

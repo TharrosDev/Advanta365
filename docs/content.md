@@ -26,9 +26,8 @@ live and support (`go-live-and-support`) and Make it stick (`make-it-stick`); an
 ## Replacing the sample content
 
 1. **Phases.** Edit `content/phases.ts`. Each section has a slug, a plain `name` (menus, lists, the
-   catalog), a short `label` (required by the schema; no page shows it today), a summary, an `order`
-   (its folder's number, 0 to 12) and, on the numbered phases only, a `number` (1 to 11). Slugs are
-   lower-case words joined by hyphens. The tally of the phases on the Purchase page and in the home
+   catalog), a summary, an `order` (its folder's number, 0 to 12) and, on the numbered phases only, a
+   `number` (1 to 11). Slugs are lower-case words joined by hyphens. The tally of the phases on the Purchase page and in the home
    portfolio follows the numbered phases by itself; the word "eleven" in the copy does not (see
    [Words written by hand](#words-written-by-hand)).
 2. **Templates.** Each section has one file in `content/templates/`, named by its slug

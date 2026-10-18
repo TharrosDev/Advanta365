@@ -191,7 +191,7 @@ trimmed and non-empty. A template has no price: the one price is `OFFER` (sectio
 
 | Kind | Required fields |
 |---|---|
-| Phase | `slug`, `name` (the plain name), `label` (a short name; required, but no page shows it since Why Advanta's line of phases went), `summary`, `order` (integer: the folder number, 0 to 12); optional `number` (positive integer: the phase number, on 01 to 11 only) |
+| Phase | `slug`, `name` (the plain name), `summary`, `order` (integer: the folder number, 0 to 12); optional `number` (positive integer: the phase number, on 01 to 11 only) |
 | Template | `slug`, `title`, `summary`, `description`, `phase`, `deliverableType`, `apps` (at least one), `audiences` (at least one), `format`, `adkar` (may be empty), `includes` (at least one), `free` (boolean: one of the six samples given away), `isSample`, `files` (the files it is delivered as, default `[]`; section 3.8); optional `pageCount` (positive integer) |
 
 `lib/catalog/validate.ts` parses each record, sorts phases by `order`, and keeps the file order of
@@ -418,7 +418,8 @@ submitting it closes the pop-up and puts nothing in the address.
 | `lib/files/store.ts` | `FileStore` (`stat`, `open`, optional `signedUrl`) and `getFileStore()`, read from the environment on every call: `FILE_STORE=local` and `FILE_STORE_DIR`, else `null` |
 | `lib/files/local-store.ts` | `createLocalStore(root)`: resolves a key with `realpath` and refuses anything outside the root, symbolic links included |
 | `lib/files/respond.ts` | `serveFile` (a 302 to `signedUrl` when the store has one, else the stream with `Content-Disposition: attachment`, `nosniff`, `noindex`, and `public, max-age=3600` for a free file or `private, no-store` for a licensed one), `notFound`, `tooMany`, `unavailable`, `contentDisposition` |
-| `lib/licence/token.ts` | `signLicence`, `verifyLicence`, `licenceEnv`, `ORDER_CODE`. Imports only `node:crypto`, so `scripts/mint-licence.mjs` runs it directly. `signLicence` refuses a secret shorter than 32 characters, and a short configured secret verifies nothing |
+| `lib/licence/order-code.ts` | `ORDER_CODE`, the one definition of an order code's shape. Imports nothing, so the checkout's schema (`lib/checkout/schema.ts`, which runs in the browser) and `token.ts` both re-export it without the browser bundle taking in `node:crypto` |
+| `lib/licence/token.ts` | `signLicence`, `verifyLicence`, `licenceEnv`, `ORDER_CODE`. Imports only `node:crypto` and `./order-code.ts` (by relative path with its extension, which `allowImportingTsExtensions` permits), so `scripts/mint-licence.mjs` runs it directly. `signLicence` refuses a secret shorter than 32 characters, and a short configured secret verifies nothing |
 | `components/catalog/file-downloads.tsx` | `FileDownloads`: a template's files as download links, with their sizes (`formatBytes`) |
 | `lib/licence/session.ts` | `hasLicence()`: whether the request's cookie holds a valid licence (`next/headers`); the catalog and the phase pages call it |
 | `lib/licence/cookie.ts` | `LICENCE_COOKIE` (`__Host-a365-licence`), `LICENCE_COOKIE_MAX_AGE` (400 days), `readCookie` |
@@ -874,8 +875,7 @@ Timing and curve tokens (`app/globals.css`):
 Other keyframes sit in component CSS modules: `caret-blink`, `drawer-in`, `link-in`, `scrim-in` (the drawer and
 the filter sheet), `sheet-up`, `tally-fill`, and on the cover `arm-rise`, `leg-drop`, `write`, `fade-in`,
 `sign-leave`, `cover-leave` and `cover-skip`. The cover's keyframes stand outside the no-preference query: the
-cover exists only while the boot script has set `data-intro`, which it never does under reduced motion. The filter
-sheet's are switched off in a `reduce` block.
+cover exists only while the boot script has set `data-intro`, which it never does under reduced motion.
 
 ### 7.7 The hero
 
