@@ -21,7 +21,7 @@ export function accessibility(facts: LegalFacts): LegalDocument {
     points: [
       "The site aims to meet WCAG 2.2 at level AA.",
       "Everything works with a keyboard, and nothing depends on animation.",
-      "Nothing moves by itself if you ask your system for less motion.",
+      "Nothing moves by itself if you ask your system for less motion, and the one thing that repeats has a pause button.",
       "If something gets in your way, tell us and we will fix it or get you the content another way.",
     ],
     sections: [
@@ -63,7 +63,7 @@ export function accessibility(facts: LegalFacts): LegalDocument {
             "If your system is set to reduce motion, nothing on the site moves by itself: the opening animation does not play and content does not animate in.",
             "The first visit to the home page opens with a short animation of the logo, about three seconds long. Any key, press, tap or turn of the wheel ends it at once.",
             "A locked template in the catalog shakes for about half a second when it is pressed, to say it is locked. With reduced motion it does not move, and a line of text says the same thing.",
-            "On the home page, the last word of the headline turns every few seconds, like a departures board, through the blanks a rollout starts from. It turns only while it is in view and the tab is showing, a screen reader is given the first word alone, and with reduced motion it stands still.",
+            "On the home page, the last word of the headline turns every few seconds, like a departures board, through the blanks a rollout starts from. It turns only while it is in view and the tab is showing, and the Pause button under the headline stops it until you press Play. A screen reader is given the first word alone, and with reduced motion it stands still and the button is not shown.",
             "Apart from that word, no animation on the site repeats, and none flashes.",
           ),
         ],
@@ -78,7 +78,6 @@ export function accessibility(facts: LegalFacts): LegalDocument {
             "We have not tested every page with every combination of screen reader, browser and voice control software, so a fault may exist that our checks did not find.",
             "The covers of templates in the catalog are small pictures of a page. Their content is decoration; each template’s title, description and details are given as text beside the cover.",
             "Without JavaScript, controls that open a panel, such as the phone menu and the catalog’s filter sheet, may not respond. The pages and their links still work.",
-            "The turning word on the home page has no button to pause it. WCAG asks for one when something moves for more than five seconds. Until it has one, asking your system or browser for reduced motion stops it, and scrolling it out of view pauses it.",
             "The site is in English only.",
             "The checkout does not take payment yet. The payment step that a processor will add is not built, and will be held to the same standard and covered by this statement when it is.",
           ),

@@ -22,7 +22,7 @@
  * height up, and never so large that its longer line, 15.3 of its ems, would not fit the column:
  * the column's own width, `cqi` of the band's inner box, so a scrollbar is not counted) and then
  * the hand: `--hero-room` is what is left for it once the headline's two lines and the 15.5rem of
- * everything else are taken off, and the stage narrows until its hand is no taller than that. The
+ * everything else (and the pause control's 25px, `--hero-control`, where it stands) are taken off, and the stage narrows until its hand is no taller than that. The
  * band itself is never less than 85.5% of the window; what that adds is padding under the foot
  * (`--hero-under`).
  */
@@ -71,6 +71,65 @@
   border-radius: var(--round-1);
   background: var(--mark);
   color: var(--on-mark);
+}
+
+/*
+ * The control that pauses the headline's turning word (`HeroHeadline`). It is there only where the
+ * word moves (`data-motion="on"`), centred under the headline: quiet words in the soft ink with a
+ * line icon before them, a full 44px target below 68em (32px from there), and the highlighter
+ * behind the words under the pointer or focus, as on a text button. Where it stands it takes the
+ * lead's top margin into its own height.
+ */
+.flapControl {
+  display: none;
+  align-items: center;
+  justify-content: center;
+  gap: var(--s-1);
+  min-block-size: 2.75rem;
+  margin-block-start: var(--s-1);
+  padding: 0 var(--s-2);
+  border: 0;
+  border-radius: var(--round-1);
+  background: none;
+  color: var(--text-soft);
+  cursor: pointer;
+}
+
+.flapControl > span {
+  border-radius: var(--round-1);
+  transition:
+    background-color var(--time-swap) linear,
+    box-shadow var(--time-swap) linear;
+}
+
+:global(html[data-motion="on"]) .flapControl {
+  display: inline-flex;
+}
+
+:global(html[data-motion="on"]) .flapControl + .heroLead {
+  margin-block-start: 0;
+}
+
+.flapControl:focus-visible {
+  color: var(--text);
+}
+
+.flapControl:focus-visible > span {
+  background: var(--mark);
+  box-shadow: 0 0 0 var(--edge) var(--mark);
+  color: var(--on-mark);
+}
+
+@media (hover: hover) {
+  .flapControl:hover {
+    color: var(--text);
+  }
+
+  .flapControl:hover > span {
+    background: var(--mark);
+    box-shadow: 0 0 0 var(--edge) var(--mark);
+    color: var(--on-mark);
+  }
 }
 
 /* Two lines from 68em: the measure is wider than a lead's usual one for that. */
@@ -177,7 +236,7 @@
     --hero-lead: max(var(--size-lead), var(--hero-size) / 4);
     --hero-room: calc(
       var(--hero-window) - 2.12 * var(--hero-size) - 3 * (var(--hero-lead) - var(--size-lead)) -
-        15.5rem
+        15.5rem - var(--hero-control, 0rem)
     );
     --hero-under: max(
       var(--hero-below),
@@ -209,6 +268,22 @@
 
   .heroActions {
     margin-block-start: var(--s-3);
+  }
+
+  /*
+   * The control is 32px tall here, and where it stands the lead loses its 14px margin to it: the
+   * hand gives up the 25px the control adds (`--hero-control`).
+   */
+  .flapControl {
+    min-block-size: 2rem;
+  }
+
+  :global(html[data-motion="on"]) .hero.hero {
+    --hero-control: 1.5625rem;
+  }
+
+  :global(html[data-motion="on"]) .flapControl + .heroLead.heroLead {
+    margin-block-start: 0;
   }
 }
 

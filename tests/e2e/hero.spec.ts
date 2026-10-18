@@ -20,6 +20,9 @@ import { recordIntro } from "./support/intro";
 /** The headline's last word, a split-flap board. */
 const BOARD = "[data-split-flap]";
 
+/** The control under the headline that pauses the board. */
+const CONTROL = "[data-flap-control]";
+
 /** The word the board shows, without the zero-width blanks of its empty cells or its full stop. */
 const boardWord = (page: Page) =>
   page.locator(BOARD).evaluate((board) => (board.textContent ?? "").replace(/[\u200b.]/g, ""));
@@ -558,6 +561,39 @@ test.describe("the hero", () => {
       "Don’t start your M365 rollout from a blank prompt.",
     );
   });
+
+  test("a control under the headline pauses the turning word and plays it again", async ({
+    page,
+  }) => {
+    await page.goto("/");
+    await hydrated(page);
+    const hero = page.locator(HERO);
+
+    // A button, outside the heading, named for what a press does; its label is the name's first word.
+    const pause = hero.getByRole("button", { name: "Pause the turning word", exact: true });
+    await expect(pause).toBeVisible();
+    await expect(pause).toContainText("Pause");
+    await expect(page.locator(`h1 ${CONTROL}`)).toHaveCount(0);
+    expect((await pause.boundingBox())?.height ?? 0).toBeGreaterThanOrEqual(32);
+
+    // Paused before its first turn, the word stands past the moment it would have turned.
+    await pause.click();
+    const play = hero.getByRole("button", { name: "Play the turning word", exact: true });
+    await expect(play).toBeVisible();
+    await expect(play).toBeFocused();
+    await page.waitForTimeout(5000);
+    await expect(page.locator(`${BOARD} [data-flap]`)).toHaveCount(0);
+    expect(await boardWord(page)).toBe("prompt");
+
+    // Played again, from the keyboard, it turns at once.
+    await page.keyboard.press("Enter");
+    await expect(pause).toBeVisible();
+    await expect(page.locator(`${BOARD} [data-flap]`).first()).toBeAttached({ timeout: 1500 });
+    // The heading is read the same whatever the control says.
+    await expect(page.getByRole("heading", { level: 1 })).toHaveAccessibleName(
+      "Don’t start your M365 rollout from a blank prompt.",
+    );
+  });
 });
 
 test.describe("the hero without movement", () => {
@@ -584,6 +620,8 @@ test.describe("the hero without movement", () => {
       await expect(docs).toHaveCount(6);
       for (const doc of await docs.all()) await expect(doc).toBeVisible();
       await expect(docs.first()).toHaveAttribute("href", /^\/catalog\?view=/);
+      // The word cannot move without a script, so there is nothing to pause.
+      await expect(page.locator(CONTROL)).toBeHidden();
     } finally {
       await context.close();
     }
@@ -596,6 +634,9 @@ test.describe("the hero without movement", () => {
     // The board is only measured, and only turns, where movement is wanted.
     await expect(page.locator(`${BOARD} [data-flap-cell][style]`)).toHaveCount(0);
     expect(await boardWord(page)).toBe("prompt");
+    // A word that stands still has no control to stop it.
+    await expect(page.locator(CONTROL)).toBeHidden();
+    await expect(page.getByRole("button", { name: /turning word/ })).toHaveCount(0);
   });
 });
 

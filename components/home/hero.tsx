@@ -6,15 +6,16 @@ import { PageShift } from "@/components/ui/page-shift";
 import type { Phase, Template } from "@/lib/catalog/schema";
 import { cx } from "@/lib/cx";
 import { PURCHASE_LINK, TOOLKIT } from "@/lib/site";
+import { HeroHeadline } from "./hero-headline";
 import { HeroStage } from "./hero-stage";
 import styles from "./home.module.css";
 import { ProofStrip } from "./proof-strip";
-import { SplitFlap } from "./split-flap";
 
 /**
  * The headline in two parts: the second stands on the highlighter. Together they are the h1. The
- * last word of it turns on a split-flap board through `BLANKS`; the first of them is the one that
- * stands at load and the one the heading is read with.
+ * last word of it turns on a split-flap board through `BLANKS`, with a control under it that
+ * pauses it (`HeroHeadline`); the first of them is the one that stands at load and the one the
+ * heading is read with.
  */
 const HEADLINE = "Don’t start your M365 rollout from a";
 const BLANKS = ["prompt", "page", "project", "document", "plan", "design", "idea"] as const;
@@ -29,8 +30,8 @@ const ACTIONS_TURN = 8 / 7;
  * and the lead and the two buttons; the stage, the six free samples (`samples`, with `phases` for
  * the numeral on each cover) as a hand of finished documents (`HeroStage`); and the proof strip as
  * the band's foot. From 68em all of it fits the window, down to a window 720px tall. The headline
- * never moves, but its last word turns every few seconds, letter by letter (`SplitFlap`); the
- * lead and the buttons drift in at load. The lead never breaks inside a
+ * never moves, but its last word turns every few seconds, letter by letter (`SplitFlap`), until
+ * the small control under it pauses it; the lead and the buttons drift in at load. The lead never breaks inside a
  * hyphenated word.
  */
 export function Hero({
@@ -45,12 +46,7 @@ export function Hero({
       <PageShift>
         <div className={styles.heroText}>
           <div className={styles.heroWords}>
-            <h1 className={cx("type-hero", styles.heroTitle)}>
-              {HEADLINE}{" "}
-              <span data-mark="">
-                blank <SplitFlap words={BLANKS} tail="." />
-              </span>
-            </h1>
+            <HeroHeadline headline={HEADLINE} blanks={BLANKS} />
             <Appear as="p" when="load" order={0} className={cx("type-lead", styles.heroLead)}>
               <KeepCompounds text={LEAD} />
             </Appear>

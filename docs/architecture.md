@@ -656,7 +656,8 @@ Components built from the primitives for one part of the site. Each has a doc co
 | `PhasePager` | `components/catalog/phase-pager.tsx` | `previous`, `next`, `className` | The section before and the section after, in folder order, at the foot of a phase page ("Previous and next phase") |
 | `TemplateDetail` | `components/catalog/template-detail.tsx` | `template`, `phase`, `titleId` | The content of the pop-up: large cover, "Free sample" tag, title, summary, description, facts, what is included, and the button to `/purchase` |
 | `Hero`, `HeroStage` | `components/home/hero.tsx`, `hero-stage.tsx` | `samples`, `phases` | The first screen of the home page: headline, lead and two buttons; the stage, where the six free samples land as a hand of documents |
-| `SplitFlap` | `components/home/split-flap.tsx` | `words` | The headline's last word on a split-flap board: the first of `words` stands (and is what a screen reader reads); where movement is wanted it turns through the rest, each changed letter flipping once to its new one, passing over a word that would not fit its line |
+| `HeroHeadline` | `components/home/hero-headline.tsx` | `headline`, `blanks` | The hero's h1, its last word a `SplitFlap`, and the button under it that pauses the word and plays it again (`data-flap-control`, shown only under `data-motion="on"`) |
+| `SplitFlap` | `components/home/split-flap.tsx` | `words`, `paused` | The headline's last word on a split-flap board: the first of `words` stands (and is what a screen reader reads); where movement is wanted it turns through the rest, each changed letter flipping once to its new one, passing over a word that would not fit its line; while `paused` it finishes the turn under way and turns no further |
 | `ProofStrip` | `components/home/proof-strip.tsx` | none | The band's foot: 30+ years, 59 playbooks, 130 templates, 58 job aids, on opaque paper |
 | `PortfolioSection` | `components/home/portfolio-section.tsx` | `covers`, `phases` | `#toolkit` on the home page: words and the button to `/purchase`, the `Portfolio` at section size |
 | `PurchaseButton` | `components/layout/purchase-button.tsx` | `className` | The bar's call to action (section 4.1) |
@@ -895,8 +896,9 @@ turns 3.6s after the stage's clock starts and every 2.6s after its last letter i
 changes flips once, straight to its new one (240ms, 45ms after the letter to its left), a letter that stays
 does not move, and the highlighter's width follows the word. Before a turn the board measures the room left on its line and passes over a word
 that would not fit, so the headline never gains a line ("document" shows only where the line has room). It
-holds still while out of sight or in a hidden tab, and under reduced motion or without a script it stands at
-"prompt". Centred, top to bottom:
+holds still while out of sight or in a hidden tab, and while the button under the headline has paused it
+("Pause" / "Play", `data-flap-control`, in `HeroHeadline`); under reduced motion or without a script it stands at
+"prompt", and the button is not shown. Centred, top to bottom:
 the headline and the lead, two buttons ("Get the toolkit" to `/purchase`, "See the free samples" to
 `/catalog?free=1`), the stage and the proof strip. `HeroStage` (`data-hero-stage`) holds the six free samples
 as a list of six links (`data-hero-doc`, each named by its template's title and leading to
@@ -1072,6 +1074,7 @@ Run the scripts in `scripts/` by path, for example `node scripts/check-budgets.m
 | `data-checkout-step` (`details`, `review`, `payment`), `data-order-summary` (`panel`, `disclosure`), `data-order-code`, `data-error-summary`, `data-field-error`, `data-pay` | Checkout | The step in view, the two forms of the summary, the order's code, the summary of a form's problems, an error under a field, and a provider's pay button |
 | `data-hero-stage`, `data-hero-doc` | Hero | The stage and a document |
 | `data-split-flap`, `data-flap-cell`, `data-flap`, `data-half` | Hero | The headline's turning word, one of its letters, a falling flap and a still half-letter |
+| `data-flap-control` | Hero | The button under the headline that pauses the turning word and plays it again |
 | `data-included` | Catalog | The line above the results for a locked template that has no tile on the page |
 | `data-nav-underline` | Bar | The sliding underline |
 | `data-cover`, `data-format` | Template covers | Format ratio |
