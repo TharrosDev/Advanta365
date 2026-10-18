@@ -5,7 +5,7 @@ import { pageMetadata } from "@/lib/seo/metadata";
 import { graph, IDS, webPage } from "@/lib/seo/structured-data";
 import { SITE } from "@/lib/site";
 
-const DESCRIPTION = `Write to ${SITE.name} at ${SITE.contactEmail}: questions before you buy, purchase orders and invoices, licence questions and accessibility feedback.`;
+const DESCRIPTION = `Write to ${SITE.name} at ${SITE.contactEmail}: questions before you buy, purchase orders and invoices, orders and refunds, licence questions, privacy requests and accessibility feedback.`;
 
 export const metadata: Metadata = pageMetadata({
   path: "/contact",

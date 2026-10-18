@@ -68,6 +68,9 @@ export function terms(facts: LegalFacts): LegalDocument {
             " takes your order details and offers to send them to us by email, and we answer you from there. An order sent this way is a request, not a charge.",
           ),
           p(
+            "We reply with an invoice. When it is paid, we email you a link of your own. Opening it unlocks the toolkit in the catalog on this site, in that browser, and every file can then be downloaded. Open the same link in another browser to download there too.",
+          ),
+          p(
             "We may change the price or the contents of the toolkit for future purchases. A change does not affect an order you have already paid for.",
           ),
         ],
@@ -100,12 +103,13 @@ export function terms(facts: LegalFacts): LegalDocument {
           list(
             "resell, sublicense, rent or give away the toolkit or any substantial part of it, whether changed or not;",
             "share the files outside your organization, or post them anywhere the public or another organization can reach them;",
+            "pass on the link that unlocks your downloads to anyone outside your organization;",
             "sell or distribute templates, courses or other products that are built from the toolkit;",
             "use the toolkit to build a dataset or a model that is offered to others, or a product that competes with it;",
             "remove a copyright or ownership notice from a file you pass on in a form that is substantially ours.",
           ),
           p(
-            "If these terms are broken in a serious way, we may end the licence by writing to you. You must then stop using the toolkit and delete your copies. Deliverables you have already issued inside your organization are not affected.",
+            "If your download link is shared outside your organization, we may switch it off and send you a new one. If these terms are broken in a serious way, we may end the licence by writing to you. You must then stop using the toolkit and delete your copies. Deliverables you have already issued inside your organization are not affected.",
           ),
         ],
       },

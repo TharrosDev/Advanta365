@@ -42,7 +42,7 @@ export const LEGAL: LegalFacts = {
   address: undefined,
   country: "Canada",
   governingProvince: undefined,
-  effectiveDate: "2026-10-13",
+  effectiveDate: "2026-10-18",
   privacyEmail: SITE.contactEmail,
   privacyContactName: undefined,
   hostingProvider: "Vercel",

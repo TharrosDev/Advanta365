@@ -140,7 +140,8 @@ What the storefront does today:
   state of the site (`#state`).
 - A Contact page (`/contact`): one section with the one email address (`hello@advanta365.com`) as a
   link that starts an email, and what to write about (questions before buying, purchase orders and
-  invoices, licence questions, accessibility feedback). It has no form, promises no reply time and
+  invoices, orders, downloads and refunds, licence questions, privacy requests, accessibility
+  feedback). It has no form, promises no reply time and
   names no other channel.
 - A sample page with the worked example's
   table of contents (placeholder sections, labelled as placeholders, until its file is published).

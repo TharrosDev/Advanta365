@@ -11,7 +11,7 @@ import styles from "./contact-section.module.css";
 const TITLE = "Contact";
 
 const LEAD =
-  "One address for everything: a question before you buy, a purchase order, a licence, or something on this site that does not work for you.";
+  "One address for everything: a question before you buy, an order, a licence, a privacy request, or something on this site that does not work for you.";
 
 /** What happens next, and nothing the site cannot keep: no reply time, no other channel. */
 const EXPECT =
@@ -38,9 +38,21 @@ const TOPICS: readonly { label: string; caption: string; subject: string }[] = [
     subject: "Purchase order or invoice",
   },
   {
+    label: "Your order, downloads or a refund",
+    caption:
+      "A link or a file that does not work, or a refund: give your order reference, which starts with A365.",
+    subject: "Order, download or refund",
+  },
+  {
     label: "Licence questions",
     caption: "Who may use the toolkit, and where, once it is bought.",
     subject: "Licence question",
+  },
+  {
+    label: "Privacy requests",
+    caption:
+      "A copy of what we hold about you, a correction, or a deletion. We may ask you to confirm who you are.",
+    subject: "Privacy request",
   },
   {
     label: "Accessibility feedback",
@@ -65,7 +77,7 @@ function addressParts(address: string): [string, string] {
  * on what to expect. The address is the thing to act on: a `mailto:` link set as large as a
  * statement with the arrow after it. On hover and keyboard focus the highlighter fills in behind
  * the address (the words stay ink) and the arrow moves 6px. Under them, in the same columns, the
- * `<h2>` and a ledger of four rows, each the same address with a subject line. Below 68em it is one
+ * `<h2>` and a ledger of six rows, each the same address with a subject line. Below 68em it is one
  * column in the same order.
  *
  * Every link is a plain `mailto:`, so the page needs no script and sends nothing anywhere itself.
