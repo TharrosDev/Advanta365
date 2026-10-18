@@ -124,7 +124,7 @@ Measured as WCAG 2.x contrast ratios from the token values.
 
 ### 3.5 Binder and ink surfaces
 
-`[data-band="ink"]` and `[data-band="binder"]` share one definition: ground `--binder`, surface and tile `--binder-rise`, text `--on-binder`, lines `--rule-on-binder`, focus ring `--mark`. The footer uses `binder` directly. The ink band is the surface of the home solution section and of the promise band on the about page.
+`[data-band="ink"]` and `[data-band="binder"]` share one definition: ground `--binder`, surface and tile `--binder-rise`, text `--on-binder`, lines `--rule-on-binder`, focus ring `--mark`. The footer uses `binder` directly. The ink band is the surface of the home solution section and of the reasons band on Why Advanta.
 
 ## 4. Bands
 
@@ -290,7 +290,7 @@ Other layout tokens:
 
 ### 6.3 Breakpoints
 
-Two viewport breakpoints exist: `40em` and `68em`. Below 40em is the phone layout. From 40em sheets stand two across and rows gain a second column, which is a tablet's layout (640 to 1087px wide). From 68em the site shows the inline navigation with its Roadmap drop-down, the twelve-column grid, and the four-layer depth. The header and the nav drawer also use container queries at 27.4em and 24.3em (header) and 17em (drawer), and the line of phases on Why Advanta (`PhaseLine`) one at 72rem of its own width. The other media queries in use are listed in section 12.4.
+Two viewport breakpoints exist: `40em` and `68em`. Below 40em is the phone layout. From 40em sheets stand two across and rows gain a second column, which is a tablet's layout (640 to 1087px wide). From 68em the site shows the inline navigation with its Roadmap drop-down, the twelve-column grid, and the four-layer depth. The header and the nav drawer also use container queries at 27.4em and 24.3em (header) and 17em (drawer). The other media queries in use are listed in section 12.4.
 
 A large monitor is not a third breakpoint. The breakpoints are in em, which a browser reads at its own text size and not at the root size that section 6.2 grows past a 1600px window, so they stay at 640px and 1088px, and nothing changes layout at 1600px: the page only grows. The design gate allows no other width query.
 
@@ -613,7 +613,7 @@ Built from the primitives for one part of the site; each has a doc comment that 
 
 Rules for them: a catalog tile has exactly one control; a price is printed from `OFFER` and never typed.
 
-`components/about/` holds the sections of the Why Advanta page: `PromiseBand`, `MakingSection`, `PhaseLine`, `BuyersSection`, `CompareSection`, `SiteState` and `SectionHead`; each file's doc comment says what it does.
+`components/about/` holds the sections of the Why Advanta page: `ReasonsBand`, `CompareSection`, `AudienceStrip` and `SectionHead`; each file's doc comment says what it does.
 
 `components/checkout/` holds the checkout: `CheckoutDialog`, its three steps (`DetailsStep`, `ReviewStep`, `PaymentStep`), `OrderSummary` and the form parts (`Field`, `FieldError`, `ErrorSummary`), built from the kit (`PageDialog`, `Button`, `Input`, `Select`, `Textarea`, `Checkbox`, `Note`, `TextLink`, `Icon`). A step is its content over a bar of actions that is sticky at the foot of the dialog; the main action is the last one, at the right of the row from 40em and at the foot of the column below it, where each button is the bar's full width. Fields are one column below 40em and two from there (the country beside its region). The colours are the page's own: white paper for the form, the binder for the summary, the highlighter for progress and ticks, and the alert colour for errors only. Under reduced motion nothing in it moves.
 
@@ -699,7 +699,6 @@ In stylesheets, the allowed media queries are exactly these, and the design gate
 | `(prefers-contrast: more)` | The bar gets a solid ink border, and paper sheets get a solid border. |
 | `(forced-colors: active)` | Blocks use system colours, and borders use `CanvasText`. |
 | `@container (max-width: 27.4em)`, `(max-width: 24.3em)` (header), `(max-width: 17em)` (nav drawer) | A name that does not fit its container is hidden visually and stays readable to assistive technology. |
-| `@container (min-width: 72rem)` (`PhaseLine`) | The eleven phases stand as a tally with their short labels under it; narrower, they are a list of rows with their plain names. |
 
 Scripts query only forms from this list. Stylesheets do not query `prefers-color-scheme`. `:root` declares `color-scheme: light`, and the design gate enforces this.
 

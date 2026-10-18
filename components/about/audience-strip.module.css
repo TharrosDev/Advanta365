@@ -1,0 +1,46 @@
+/* Side by side, the label stands level with the first line of the heading beside it. */
+@media (min-width: 68em) {
+  .margin {
+    padding-block-start: var(--s-1);
+  }
+}
+
+.title {
+  max-width: var(--wrap-head);
+  color: var(--text);
+}
+
+/* The buyers: boxed names on paper that wrap onto as many lines as the column needs. */
+.buyers {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--s-1);
+  margin: var(--s-4) 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.buyer {
+  min-width: 0;
+  padding: var(--s-1) var(--s-2);
+  border: var(--hair) solid var(--line-firm);
+  border-radius: var(--round-1);
+  background: var(--paper);
+  color: var(--text);
+  font-weight: 400;
+}
+
+/* A bare ink tick before the line, never a box: nothing about a statement looks selectable. */
+.proof {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--s-1);
+  max-width: var(--wrap-lead);
+  margin-block-start: var(--s-4);
+  color: var(--text-soft);
+}
+
+.tick {
+  margin-block-start: calc((1lh - 1.25rem) / 2);
+  color: var(--text);
+}

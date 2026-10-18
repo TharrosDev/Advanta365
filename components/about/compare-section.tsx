@@ -12,7 +12,7 @@ import { OFFER, TOOLKIT } from "@/lib/site";
 import { SectionHead } from "./section-head";
 import styles from "./compare-section.module.css";
 
-const TITLE = "Three ways to start.\nOne starts 90 percent of the way there.";
+const TITLE = "Three ways to start.\nOnly one is proven and yours.";
 
 const CRITERIA = ["Starting point", "Field-tested?", "Cost", "Who owns the result"] as const;
 

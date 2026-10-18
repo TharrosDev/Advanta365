@@ -1,0 +1,5 @@
+/* The state of the site: one quiet line under the places to go, at the note size. */
+.state {
+  max-width: var(--wrap-lead);
+  color: var(--text-soft);
+}

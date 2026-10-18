@@ -1,0 +1,102 @@
+.statement {
+  max-width: var(--wrap-head);
+  margin-block-start: var(--s-3);
+  color: var(--text);
+}
+
+/*
+ * The reasons. Stacked below 68em, a hairline above each; from 68em three columns sharing four
+ * rows (the figure, the heading, the sentence and the foot), so each part lines up with its
+ * neighbours whatever the length of the words.
+ */
+.reasons {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  margin: var(--s-6) 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.reason {
+  display: grid;
+  grid-template-rows: auto auto 1fr auto;
+  min-width: 0;
+  padding-block: var(--s-5);
+  border-block-start: var(--hair) solid var(--line);
+}
+
+.reason:last-child {
+  padding-block-end: 0;
+}
+
+/* The figure, its line and its tally: the evidence the heading under it rests on. */
+.proof {
+  min-width: 0;
+}
+
+.figure {
+  color: var(--text);
+}
+
+.caption {
+  margin-block-start: var(--s-1);
+  color: var(--text-soft);
+}
+
+/* A small tally at a fixed width, so four blocks and ten read as counts and not as bars. */
+.tally {
+  max-width: 16rem;
+  margin-block-start: var(--s-3);
+}
+
+.title {
+  margin-block-start: var(--s-4);
+  color: var(--text);
+}
+
+.body {
+  max-width: var(--wrap-copy);
+  margin-block-start: var(--s-2);
+  color: var(--text-soft);
+  text-wrap: pretty;
+}
+
+/* The alternative the reason beats, on a firm line at the foot of the column. */
+.instead {
+  display: flex;
+  flex-wrap: wrap;
+  column-gap: var(--s-2);
+  row-gap: var(--s-1);
+  align-items: baseline;
+  margin-block-start: var(--s-4);
+  padding-block-start: var(--s-2);
+  border-block-start: var(--edge) solid var(--mark);
+}
+
+.insteadLabel {
+  color: var(--text-faint);
+}
+
+.insteadValue {
+  color: var(--text);
+}
+
+@media (min-width: 68em) {
+  .reasons {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    grid-template-rows: repeat(4, auto);
+    column-gap: var(--col-gap);
+  }
+
+  .reason {
+    grid-row: 1 / span 4;
+    grid-template-rows: subgrid;
+    padding-block: var(--s-4) 0;
+  }
+}
+
+@media (forced-colors: active) {
+  .instead {
+    border-block-start-color: CanvasText;
+  }
+}

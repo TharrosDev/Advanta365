@@ -142,7 +142,7 @@ Adding a folder to one of these lists is a design decision: change the list in `
 | No stylesheet contains `prefers-color-scheme`. The site has one theme. | css |
 | No stylesheet contains `infinite`, in any case. | css |
 | Media queries are limited to `(min-width: 40em)`, `(min-width: 68em)`, `(hover: hover)`, `(prefers-reduced-motion: reduce)`, `(prefers-reduced-motion: no-preference)`, `(prefers-contrast: more)` and `(forced-colors: active)`. | css |
-| `@container` appears only in `components/layout/header.module.css`, `components/layout/nav-drawer.module.css` and `components/about/phase-line.module.css`. | css |
+| `@container` appears only in `components/layout/header.module.css` and `components/layout/nav-drawer.module.css`. | css |
 | Only `components/ui/transition-link.tsx` imports `next/link`. | css, ts, tsx, svg, glsl, frag and vert under `app/`, `components/`, `lib/` |
 | The runtime dependencies in `package.json` are exactly `next`, `react`, `react-dom` and `zod`. | `package.json` |
 

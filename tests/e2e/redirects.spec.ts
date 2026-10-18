@@ -77,7 +77,7 @@ test("Contact is a page of its own again, and Purchase gives the offer and its p
 
   await page.goto("/about");
   await expect(page.getByRole("heading", { level: 1 })).toHaveText(
-    "Change content that has met real users.",
+    "Proven rollout experience, at a template price.",
   );
 
   await page.goto("/purchase");

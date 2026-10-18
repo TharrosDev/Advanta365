@@ -31,7 +31,7 @@ Related documents: `design-system.md` covers the visual rules and component usag
 | `/` | `app/(site)/page.tsx` | Server, reads phases, templates and the free samples | Renders the first-visit cover, then the home sections |
 | `/purchase` | `app/(site)/purchase/page.tsx` | Dynamic (awaits `searchParams`); reads phases, templates and the free samples | Title `Purchase`; the one place a sale starts (section 3.5), and `?checkout=<step>` opens the checkout in a pop-up over it (section 3.7) |
 | `/catalog` | `app/(site)/catalog/page.tsx` | Dynamic (awaits `searchParams`) | Title `Catalog`; filters live in the URL, and `?view=<slug>` opens a free sample in a pop-up (section 8) |
-| `/why-advanta` | `app/(site)/why-advanta/page.tsx` | Server; reads the phases for the phase links | Title `Why Advanta` (the page was `/about`, which redirects here); sections `#promise`, `#made`, `#who`, `#compare` (whose cost cell for the toolkit is the one price from `OFFER`) and `#state` |
+| `/why-advanta` | `app/(site)/why-advanta/page.tsx` | Server | Title `Why Advanta` (the page was `/about`, which redirects here); sections `#why`, `#compare` (whose cost cell for the toolkit is the one price from `OFFER`), `#who` and `#state` |
 | `/contact` | `app/(site)/contact/page.tsx` | Server, static | Title `Contact`; one section (`ContactSection`) and nothing else: the `h1`, the address `SITE.contactEmail` as a `mailto:` link, and four subjects to write about, each the same address with `?subject=`. No form and no endpoint |
 | `/privacy`, `/terms`, `/refunds`, `/accessibility` | `app/(site)/<name>/page.tsx` | Server, static | The four legal pages, the routes of `LEGAL_LINKS` in `lib/site.ts`: the privacy policy (with the cookies and browser storage as its section `#cookies`, and what is planned for the checkout under `#when-checkout-opens`), the terms of use and licence, the refund policy and the accessibility statement. Each page renders `LegalPage` with one `LegalDocument` from `lib/legal` and takes its title and description from it (section 5.3) |
 | `/sample` | `app/(site)/sample/page.tsx` | Server, reads phases and the worked example's contents | Title `Sample` |
@@ -103,12 +103,12 @@ Page layouts:
   `PhasePager`, a navigation named "Previous and next phase" whose links read "Previous <name>" and "Next
   <name>" (`adjacentPhases`, in folder order); Start here has no previous link and Used at every step no next
   one. A tile on a phase page gets no `phaseName`, so it names its deliverable type alone.
-- `/why-advanta`: two headlines stand at the statement size, the `h1` and the black `#promise` band. `#who` and
-  `#compare` open with `SectionHead` at `banner`; `#made` and `#state` use `page` (`#made` because its head
-  stands in a narrow column that stays under the bar, held inside a slot as tall as the ledger because a
-  sticky grid item is held by the grid container, not its row).
-  `#compare` is three `PaperSheet`s on a six-row subgrid;
-  `#who` is a ruled register (`PaperStack`, `PaperSheet`, `BandedList`).
+- `/why-advanta`: one answer and its proof. Two headlines stand at the statement size, the `h1` (the answer)
+  and the black `#why` band, which holds the three reasons as three columns on a four-row subgrid (figure,
+  heading, sentence, and the alternative each reason beats). `#compare` opens with `SectionHead` at `banner`
+  and is three `PaperSheet`s on a six-row subgrid; `#who` is one desk band with the five buyers as a wrapping
+  row of boxed names; the page closes on `NextSteps`, with the one line on the state of the site (`#state`)
+  under its links.
 - `/contact`: one `section` in `main` and nothing else (`ContactSection`, a paper band named by its `h1`). The
   `h1` "Contact" is at the banner size, in the margin from 68em; beside it the lead, the address as the one
   plain `mailto:` link at the statement size, and a sentence on what to expect (the email program opens, no
@@ -377,7 +377,7 @@ submitting it closes the pop-up and puts nothing in the address.
    reference in the metadata. Fulfilment itself is undecided (PRODUCT.md): it needs somewhere to record
    orders and a way to deliver the files. Delivery exists (section 3.8): the webhook calls
    `signLicence(order.reference, LICENCE_SECRET)` and emails the buyer `/licence?t=<licence>`.
-8. **Update what the site says**: the Payment step's copy if needed, the Checkout entry of `SiteState`, the
+8. **Update what the site says**: the Payment step's copy if needed, the state line on Why Advanta (`STATE` in `app/(site)/why-advanta/page.tsx`), the
    footer's status line, and the privacy policy's "When checkout opens" section (`lib/legal/privacy.ts`).
    Add the provider's origins to the content security policy in `next.config.ts` (`script-src`,
    `connect-src` and `frame-src`, as its documentation lists them), or its script and frame are blocked.
@@ -457,8 +457,7 @@ button, Menu.
 The bar is `position: sticky` at `top: 0`, height `var(--bar-h)`, and is a container for two container
 queries that hide the menu word at 27.4em and below and the brand name at 24.3em and below, in that order,
 so that at 320px the mark, the button and the Menu button all stay, each a 44px target. Container queries
-are used only in `header.module.css`, `nav-drawer.module.css` and `components/about/phase-line.module.css`
-(the line of phases on Why Advanta draws its tally from 72rem of its own width).
+are used only in `header.module.css` and `nav-drawer.module.css`.
 
 ### 4.2 Nav drawer
 
@@ -646,7 +645,7 @@ Components built from the primitives for one part of the site. Each has a doc co
 | `PriceTag` | `components/purchase/price-tag.tsx` | `className` | The price from `OFFER` and "one purchase" on a paper tag hung on a string from the corner of the folder. Swings once when first seen and a little when the folder is hovered; still under reduced motion |
 | `ContentsLeaf` | `components/purchase/contents-leaf.tsx` | `className` | The toolkit's contents as a loose paper leaf with a dog-eared corner: a ledger (dl) of counts from `TOOLKIT`, then the Checkout link (to `/purchase?checkout=details`), the line to the contact page and the sample note |
 | `ContactSection` | `components/contact/contact-section.tsx` | none | The whole Contact page as one paper band (a `section` named by its `h1`): the title in the margin from 68em, the lead on its baseline, the address as a `mailto:` link at the statement size, a sentence on what to expect, then a `BandedList` of four `RowLink`s, each the address with a subject. No script |
-| `PromiseBand`, `MakingSection`, `BuyersSection`, `CompareSection`, `SiteState` | `components/about/` | none (`MakingSection` takes `phases`) | The sections of the Why Advanta page, in page order (section 1); `SectionHead` is the head they share and `PhaseLine` the phase links inside `MakingSection`: "The whole rollout, in eleven phases", the eleven numbered phases (a tally with their short labels under it where the line is 72rem wide, otherwise rows with their plain names), then "Plus Start here and Used at every step" |
+| `ReasonsBand`, `CompareSection`, `AudienceStrip` | `components/about/` | none | The sections of the Why Advanta page, in page order (section 1): the three reasons on the black band (`#why`), the three ways to start (`#compare`, which opens with `SectionHead`) and who it is for (`#who`) |
 | `TemplateTile`, `TileGrid` | `components/catalog/template-tile.tsx` | `template`, `phaseName`, `phaseNumber`, `href`, `headingLevel`, `scroll`, `denied` | One template in a grid, an `<article data-tile>` with exactly one control: a link (free sample) or a button (locked). The grid has as many columns of at least 11rem (176px at the 16px root) as fit, never fewer than two; the home page's six free samples set their own columns (`featuredGrid`: three across from 40em, six from 68em), so a row is never one tile short |
 | `LockedTile` | `components/catalog/locked-tile.tsx` | `title`, `headingLevel`, `initialDenied` | The button of a locked tile, named "<title>, locked", and the line it answers with (section 8.3) |
 | `TemplateDialog` | `components/catalog/template-dialog.tsx` | `closeHref`, `labelledBy` | The pop-up of the catalog: `PageDialog` with `name="template"` (section 8.3) |
