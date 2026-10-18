@@ -2,37 +2,65 @@
 
 Advanta365 is the storefront for a change management and user adoption toolkit for Microsoft 365 and
 SharePoint Online rollouts. It is an EchoFive product. The toolkit is playbooks, templates, field guides
-and training. The site sells one thing: the complete toolkit, for $1,499.99 CAD, shown in Canadian dollars. Six
-templates are free samples; every other template in the catalog is shown locked. There is one Purchase page
-and no cart.
+and training. The site sells one thing: the complete toolkit, for $1,499.99 CAD. Six templates are free
+samples; every other template in the catalog is shown locked. There is one Purchase page and no cart.
 
-The catalog in this repository is sample content. Its phases follow the toolkit's folders; its templates are
-placeholders, and the site labels them as a beta. The Checkout button on the Purchase page opens a checkout in a pop-up, which is
-built up to payment: no payment provider is connected, so its last step offers the order by email and nothing
-can be paid for yet. The bar's "Get the toolkit" button is a link to the Purchase page.
+## Where it stands
+
+- **The catalog is sample content.** Its sections follow the toolkit's real folders; its templates are
+  placeholders, and the site labels them as a beta. [`docs/content.md`](docs/content.md) covers
+  replacing them.
+- **Checkout is built up to payment.** The Checkout button on the Purchase page opens a checkout in a
+  pop-up. No payment provider is connected, so its last step offers the order by email and nothing can
+  be paid for yet.
+- **Delivery works by hand.** The owner turns a paid order's code into a licence link
+  (`scripts/mint-licence.mjs`). The link unlocks every template and its files in the buyer's browser.
+  Only a local-disk file store exists so far.
+- **Before the first sale**, the items in [`docs/launch-checklist.md`](docs/launch-checklist.md) must
+  be settled.
 
 ## Stack
 
-- Next.js 16 with the App Router, React 19 and TypeScript in strict mode. Packages are installed with pnpm,
-  through corepack.
-- Styling is CSS Modules, one module beside each component. Components read the design tokens that
-  `app/globals.css` defines as CSS custom properties.
-- Type is Besley for display and Atkinson Hyperlegible Next for text, loaded with `next/font/google` into
-  `--font-besley` and `--font-atkinson`.
-- Motion is CSS in `app/motion.css`, switched on by attributes. A small inline boot script
-  (`lib/boot/boot-script.ts`) sets the root attributes before the first paint.
-- Catalog records are validated with zod when the catalog loads.
-- The runtime dependencies are `next`, `react`, `react-dom` and `zod`. The design gate fails `pnpm test`
-  if that list changes.
+- Next.js 16 with the App Router, React 19 and TypeScript in strict mode. Packages are installed with
+  pnpm. The scripts in `scripts/` need Node 22.18 or later, which runs TypeScript modules directly.
+- Styling is CSS Modules, usually one beside each component (the home sections share
+  `components/home/home.module.css`). Components read the design tokens that `app/globals.css`
+  defines as CSS custom properties.
+- Type is Besley for display and Atkinson Hyperlegible Next for text, loaded with `next/font/google`.
+- Motion is CSS in `app/motion.css` and the component modules, switched on by attributes. A small
+  inline boot script (`lib/boot/boot-script.ts`) sets the root attributes before the first paint.
+- Catalog records and the checkout's order are validated with zod.
+- The runtime dependencies are `next`, `react`, `react-dom`, `zod`, `@vercel/analytics` and
+  `@vercel/speed-insights` (the last two render only on a Vercel deployment). The design gate fails
+  `pnpm test` if that list changes.
 - Tests use Vitest for units and Playwright for the browser.
+
+## Getting started
+
+```bash
+corepack enable
+```
+
+```bash
+pnpm install
+```
+
+```bash
+pnpm dev
+```
+
+The site runs at http://localhost:3000 with no environment variables: every page renders, and
+downloads are off until a file store is configured ([`docs/operations.md`](docs/operations.md#environment-variables)).
+The browser tests need Chromium once:
+
+```bash
+pnpm exec playwright install chromium
+```
 
 ## Commands
 
-Install with `pnpm install`. If `pnpm` is not on the PATH, run `corepack enable` first.
-
 | Command          | What it does                                                              |
 | ---------------- | ------------------------------------------------------------------------- |
-| `pnpm install`   | Installs the dependencies                                                 |
 | `pnpm dev`       | Runs the development server at http://localhost:3000                      |
 | `pnpm build`     | Builds the production site (`next build`)                                 |
 | `pnpm start`     | Serves the production build (`next start`)                                |
@@ -44,486 +72,154 @@ Install with `pnpm install`. If `pnpm` is not on the PATH, run `corepack enable`
 
 The scripts in `scripts/` have no package script. Run them by path from the repository root.
 
-| Command                                                | What it does                                                                                                                                                       |
-| ------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| `node scripts/gen-icon.mjs`                            | Writes `app/icon.svg` from the mark in `lib/brand/mark.ts` (run it after any change to the mark)                                                                   |
-| `node scripts/gen-favicon.mjs`                         | Writes `app/favicon.ico`, `app/apple-icon.png` and `public/icons/*.png` from the icon (run it after `gen-icon.mjs`; needs Playwright's Chromium)                   |
-| `node scripts/check-budgets.mjs http://localhost:3100` | Checks the home page's scripts against `tests/budgets/baseline.json`, and that no WebGL shader chunk comes back (needs a running production server)                |
-| `node scripts/paper-grain.mjs`                         | Writes `public/paper/grain.png`                                                                                                                                    |
-| `node scripts/mint-licence.mjs <order code>`           | Prints the licence link for a paid order (needs `LICENCE_SECRET`; `SITE_ORIGIN` defaults to https://advanta365.com). See [Files and licences](#files-and-licences) |
+| Command                                                | What it does                                                                                                        |
+| ------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------- |
+| `node scripts/gen-icon.mjs`                            | Writes `app/icon.svg` from the mark in `lib/brand/mark.ts` (run it after any change to the mark)                    |
+| `node scripts/gen-favicon.mjs`                         | Writes `app/favicon.ico`, `app/apple-icon.png` and `public/icons/*.png` from the icon (run it after `gen-icon.mjs`) |
+| `node scripts/check-budgets.mjs http://localhost:3100` | Checks the home page's script weight against `tests/budgets/baseline.json` (needs a running production server)      |
+| `node scripts/paper-grain.mjs`                         | Writes `public/paper/grain.png`                                                                                     |
+| `node scripts/mint-licence.mjs <order code>`           | Prints the licence link for a paid order (needs `LICENCE_SECRET`; see [`docs/operations.md`](docs/operations.md))   |
 
-The browser tests need Chromium once, from `pnpm exec playwright install chromium`. They reuse a server
-already running on port 3100 unless `CI` is set, so stop a stale server first. The Playwright projects are:
-
-- `chromium`: desktop Chrome at 1280 by 800.
-- `mobile`: Pixel 7.
-- `quiet` and `quiet-mobile`: the tests tagged `@quiet`, one at a time once the two above have finished.
-- `firefox`: registered only where the installed Firefox starts.
-
-`tests/e2e/viewports.spec.ts` runs in `chromium` and sets its own window sizes: seven routes at sixteen
-sizes, from a 320px phone through the tablets to a 3840px monitor. It checks that nothing is drawn past
-the window's edge and that, from 1280px up, the words of a page span more than half of the window. Run
-only the specs a change touches (see `docs/testing.md`); this one is the guard for any change to layout
-or CSS.
-
-The unit tests cover catalog validation and the six free samples, queries, URL state, phase coverage, price
-formatting, the mark and its 365, the boot script and the cover's timings, the motion stylesheet and the
-design gate.
+The full e2e suite takes about six minutes. While working, run only the specs a change touches, and
+`viewports.spec.ts` for any change to layout or CSS; run the whole suite once before a merge.
+[`docs/testing.md`](docs/testing.md) has the projects, every spec and what each guards.
 
 ## Folder layout
 
 ```
 app/
-  layout.tsx          Root html and body: the two fonts, the boot script and MotionRoot
+  layout.tsx          Root html and body: the fonts, the root metadata and site structured data, the boot
+                      script, MotionRoot, and Vercel Analytics and Speed Insights (on Vercel only)
   globals.css         Design tokens, the data-band surfaces, base rules and the type classes
-  motion.css          Motion: entrances, the ninety, page changes and the pointer's light
-  icon.svg            The site icon (generated: `node scripts/gen-icon.mjs`)
+  motion.css          Motion: entrances, the ninety, page changes, the pointer's light, the hero
   not-found.tsx       The 404 page outside the site group
   (site)/             Public pages inside the site shell
     layout.tsx        Skip link, header, main, footer
     page.tsx          Home: an array of sections, in order
-    purchase/ catalog/ phases/[phase]/ about/ sample/
+    purchase/ catalog/ phases/[phase]/ why-advanta/ sample/ contact/
     privacy/ terms/ refunds/ accessibility/
                       The four legal pages, each one LegalDocument in the shared LegalPage layout
+    not-found.tsx     The 404 page inside the shell
     [...rest]/        Calls notFound(), so unknown paths keep the site shell
+  licence/            The licence link: checks it, sets the cookie, goes on to the unlocked catalog
+  api/                The file downloads: samples/ (free samples, for anyone) and library/ (with a licence)
+  sitemap.ts robots.ts manifest.ts llms.txt/ llms-full.txt/
+                      The files for search engines and AI tools
+  opengraph-image.tsx The shared-link card (and one beside each page that has its own)
+  icon.svg favicon.ico apple-icon.png
+                      The site icons (generated: `gen-icon.mjs`, then `gen-favicon.mjs`)
 components/
-  ui/                 Primitives (see Design system)
-  layout/             Header, PrimaryNav, PhasesMenu, PurchaseButton, NavDrawer, TitleBlock, Breadcrumbs,
-                      Footer
-  home/               Home sections: hero (HeroStage, ProofStrip), featured (the six samples), inside, the
-                      portfolio, solution
-  catalog/            Template covers, tiles (TemplateTile, LockedTile), the pop-up
-                      (TemplateDialog, a PageDialog from ui/, and TemplateDetail), filters and their chips, search, sort, result
+  ui/                 Primitives (docs/design-system.md, section 9)
+  layout/             Header, PrimaryNav, PhasesMenu, PurchaseButton, NavDrawer, BrandLink, TitleBlock,
+                      Breadcrumbs, Footer, and nav-links.ts
+  home/               The home sections: Hero (HeroHeadline, SplitFlap, HeroStage, ProofStrip), featured,
+                      inside, the portfolio and the solution band
+  catalog/            Template covers, tiles (TemplateTile, LockedTile), the pop-up (TemplateDialog,
+                      TemplateDetail, FileDownloads), filters and their chips, search, sort, the result
                       list, the phase pager
   purchase/           Portfolio (the toolkit as a folder), PriceTag and the contents leaf (ContentsLeaf)
   checkout/           The checkout over the Purchase page: CheckoutDialog, its three steps, the order
                       summary and the form fields
-  about/              The Why Advanta page's sections: the three reasons, the comparison and
-                      who it is for
+  about/              The Why Advanta page's sections: the reasons, the comparison and who it is for
+  company/            StatementSection, WorkedExample and NextSteps (the Sample and Why Advanta pages)
   contact/            ContactSection, the whole Contact page as one section
-  legal/              LegalPage, the one layout of the four legal pages: contents, article, policies
-  company/            NextSteps (Why Advanta and Sample), StatementSection and WorkedExample (Sample)
+  legal/              LegalPage, the one layout of the four legal pages
   intro/              The cover of a first visit, and the tag that prints the boot script
   not-found/          MissingPage, AskedPath and LateBoot
-content/              The sample catalog: the 13 sections, one template file per section, taxonomy, and the worked
-                      example's table of contents
+  seo/                JsonLd, the structured data tag
+content/              The sample catalog: the 13 sections, one template file per section, the sample()
+                      helper, the taxonomy, the checkout's countries, and the worked example's contents
 lib/
-  site.ts             Name, parent company, tagline, contact address, TOOLKIT counts, OFFER (the one
-                      price) and NAV
-  format.ts           formatPrice (integer cents and a currency as "$1,499.99 CAD"), formatLength (slides or pages) and
-                      countWord
+  site.ts             SITE (name, parent company, tagline, contact address), TOOLKIT counts, OFFER (the one
+                      price), and the link lists (NAV, PURCHASE_LINK, CONTACT_LINK, LEGAL_LINKS)
+  format.ts           formatPrice, formatLength (slides or pages), formatBytes and countWord
   cx.ts               cx() for class names and cssVars() for custom properties
   compounds.ts        Hyphenated compounds, kept whole in titles
+  history.ts          Whether the previous history entry is a given address (closing a pop-up)
+  scrim.ts            Tells a click on a dialog's dimmed page from a drag that ended there
   brand/mark.ts       The logo mark geometry, the single source of truth
   catalog/            Schemas, validation, repository, query, URL state, phase coverage and neighbours,
                       the worked example's contents
   checkout/           The order's schemas (zod/mini), the draft kept in session storage, the step
                       machine, the order's code, text and mailto, and provider.ts: the payment seam
   boot/               The boot script and the pure decisions it mirrors
-  legal/              The four legal pages as data (privacy, terms, refunds, accessibility), their types,
-                      and facts.ts: LEGAL, the one object of facts and decisions the owner fills in
+  legal/              The four legal pages as data, their types, and facts.ts: LEGAL, the one object of
+                      facts and decisions the owner fills in
   scroll/             The observer for entrances, the pointer's light, and a sideways row's current item
                       brought into view
   files/              The file store (FileStore, the local-disk driver), the allowed file types and the
                       download responses
-  licence/            Signed licences and the cookie they live in
+  licence/            Signed licences, the cookie they live in, and hasLicence() for a request
   http/               The in-memory rate limiter
-app/licence/          The licence link: checks it, sets the cookie, goes on to the unlocked catalog
-app/api/              The file downloads: samples/ (free samples, for anyone) and library/ (with a licence)
-public/paper/         The paper grain
-scripts/              gen-icon, check-budgets, paper-grain and mint-licence
-tests/unit/           Vitest, including the design gate
+  seo/                SITE_ORIGIN, page metadata, structured data, the shared-link card and llms.txt
+public/               The paper grain and the manifest's icons
+scripts/              gen-icon, gen-favicon, check-budgets, paper-grain and mint-licence
+tests/unit/           Vitest, including the design gate, and fixtures/catalog.ts
 tests/e2e/            Playwright specs, helpers.ts and support/
 tests/fixtures/files/ Small fixture files the tests serve in place of real templates
 tests/budgets/        The baseline that check-budgets compares with
-docs/                 The design system and the architecture
+docs/                 The documentation (below)
 proxy.ts              Redirects mixed-case paths to lower case
-next.config.ts        Redirects the retired addresses (bundles, pricing, cart, about, template pages) and
-                      sets the security headers
+next.config.ts        Redirects the retired addresses and sets the security headers
+PRODUCT.md DESIGN.md  The product brief and the design brief (read by the Impeccable design tool, whose
+                      settings are in .impeccable/)
+CLAUDE.md             Working agreements for Claude Code in this repository
 ```
 
 ## Rules the code relies on
 
+Each rule names the check that enforces it, where there is one.
+
 - **Catalog reads go through the repository.** Pages and components import from
-  `lib/catalog/repository.ts`, never from `content/`. ESLint enforces this. The one exception is
-  `content/taxonomy.ts`, which holds the labels and lists of deliverable types, apps, audiences and formats.
+  `lib/catalog/repository.ts`, never from `content/` (ESLint, for `app/` and `components/`). The one
+  exception is `content/taxonomy.ts`, which holds the labels and lists of deliverable types, apps,
+  audiences, formats and ADKAR stages. Code in `lib/` may read `content/` (the checkout's places do).
 - **Catalog state lives in the URL.** Search (`q`), `phase`, `type`, `app`, `audience`, `format`, `free`
-  (`1` keeps the free samples), `sort` (`samples`, `phase` or `title`) and `page` are query parameters, and `view`
-  (a template's slug) opens a free sample in the pop-up, so every view can be shared and is rendered on the
-  server. Values within one filter combine with OR, filters combine with AND, and a page holds 24 templates.
-- **Colour, spacing, type and motion are tokens.** Raw colour values (hex and the colour functions) appear
-  only in `app/globals.css` and `app/icon.svg`.
+  (`1` keeps the free samples), `sort` (`samples`, `phase` or `title`) and `page` are query parameters, and
+  `view` (a template's slug) opens a template in the pop-up (a free sample, or any template for a
+  licence holder), so every view can be shared and is rendered on the server. Values within one filter
+  combine with OR, filters combine with AND, and a page holds 24 templates.
+- **Colour, spacing, type and motion are tokens.** Raw colour values (hex and the colour functions)
+  appear only in `app/globals.css` and `app/icon.svg` (the design gate, over `app/`, `components/` and
+  `lib/`).
 - **Layout space is the 7px scale**, `--s-1` (7px) to `--s-9` (168px). The only layout breakpoints are
   `40em` and `68em`.
 - **Sizes and spaces are in rem, so a large monitor scales the page as one piece.** Past a 1600px window
-  the root font size grows (`html` in `app/globals.css`: 16px to 1600px, 22.4px from about 2880px), and so
-  do the type, the space, the controls and the icons. The breakpoints are in em, which the root size does
-  not move. What stays in pixels is hairlines, edges, corner radii and shadows.
-- **Media queries come from a fixed list.** The design gate allows `(min-width: 40em)`,
-  `(min-width: 68em)`, `(hover: hover)`, `(prefers-reduced-motion: no-preference)`,
-  `(prefers-reduced-motion: reduce)`, `(prefers-contrast: more)` and `(forced-colors: active)`. `@container`
-  appears only in the header and navigation drawer stylesheets. Stylesheets do not use
-  `prefers-color-scheme`; the site sets `color-scheme: light` on `:root`.
-- **Motion sits behind the no-preference query.** Every keyframe and animation is inside
-  `(prefers-reduced-motion: no-preference)`, and stylesheets never contain `infinite`. Motion is switched
-  by attributes on `<html>` and on elements (see Motion).
-- **No canvas or WebGL; animation frames and scroll listeners have fixed homes.** `<canvas`, `getContext(`
-  and `webgl` appear nowhere in the source. `requestAnimationFrame` belongs in `lib/scroll/`, `lib/boot/` or
-  `components/intro/`, and scroll listeners in `lib/scroll/`.
+  the root font size grows (16px to 1600px, 22.4px from about 2880px), and so do the type, the space,
+  the controls and the icons. The breakpoints are in em, which the root size does not move. What stays
+  in pixels is hairlines, edges, corner radii and shadows.
+- **Media queries come from a fixed list** of seven, and `@container` appears only in the header and
+  navigation drawer stylesheets (the design gate). Stylesheets do not use `prefers-color-scheme`; the
+  site sets `color-scheme: light` on `:root`.
+- **Motion waits for permission.** Every keyframe and animation in `app/motion.css` is inside
+  `(prefers-reduced-motion: no-preference)` (`kit-motion.test.ts`); component stylesheets do the same or
+  switch off under `reduce`, and the cover exists only when the boot script has allowed motion. No CSS
+  animation repeats without end (the design gate bans `infinite`); the one repeat, the hero's
+  split-flap word, has a Pause button.
+- **No canvas or WebGL; animation frames and scroll listeners have fixed homes.** `<canvas`,
+  `getContext(` and `webgl` appear nowhere under `app/`, `components/` or `lib/`.
+  `requestAnimationFrame` belongs in `lib/scroll/`, `lib/boot/` or `components/intro/`, and scroll
+  listeners in `lib/scroll/` (the design gate).
 - **Internal links use `TransitionLink`**, or a primitive built on it. Only
-  `components/ui/transition-link.tsx` imports `next/link`.
+  `components/ui/transition-link.tsx` imports `next/link` (the design gate).
 - **Each page has one `h1`**, its title. The shell provides one `banner` (the header), one `main` and one
-  `contentinfo` (the footer).
-- **Storage access is guarded.** Every `localStorage` or `sessionStorage` access is wrapped in try/catch,
-  and the page renders without it.
+  `contentinfo` (the footer) (`identity.spec.ts`, `viewports.spec.ts`).
+- **Storage access is guarded.** Every `localStorage` or `sessionStorage` access is wrapped in
+  try/catch, and the page renders without it (by review; `intro.spec.ts` checks blocked storage).
 - **The price is written once.** `OFFER.priceCents` in `lib/site.ts` is integer cents (149999) and
   `OFFER.currency` its currency ("CAD"); `formatPrice` in `lib/format.ts` prints them as $1,499.99 CAD.
-- **Exactly six templates are free.** `free: true` marks them, and validation fails with any other count.
-
-`pnpm test` runs the design gate (`tests/unit/design-gate.test.ts`), which enforces the text-checkable rules
-above and blocks a fixed list of names and techniques from the source.
-
-## Design system
-
-The tokens and base rules are in `app/globals.css`, the motion rules in `app/motion.css`, and the primitives
-in `components/ui/`. `docs/design-system.md` describes the system in full.
-
-### Surfaces
-
-`Band` (`components/ui/band.tsx`) is a full-width strip of the page on one surface. Its `surface` sets
-`data-band`, and the stylesheet sets the semantic tokens for that band.
-
-| `surface`        | Ground                   | Used for                                                      |
-| ---------------- | ------------------------ | ------------------------------------------------------------- |
-| `desk` (default) | `--desk`, a light table  | Sections on which the paper sheets lie                        |
-| `paper`          | `--paper`, white         | Most content sections                                         |
-| `wash`           | `--mark-wash`, pale blue | Highlighted sections                                          |
-| `ink`            | `--binder`, near black   | The solution band on home and the reasons band on Why Advanta |
-| `binder`         | `--binder`, near black   | The footer                                                    |
-
-The `ink` and `binder` surfaces share one dark block in the stylesheet, and text on them is `--on-binder`.
-Components read the semantic tokens (`--ground`, `--surface`, `--stripe`, `--tile`, `--text`, `--text-soft`,
-`--text-faint`, `--line`, `--line-firm`, `--line-ink`, `--focus-ring`), so one component works on every band.
-
-```tsx
-import { Band } from "@/components/ui/band";
-import { Button } from "@/components/ui/button";
-
-export function Example() {
-  return (
-    <Band id="example" surface="paper" pad="roomy">
-      <Button variant="mark" size="lg" href="/catalog" arrow>
-        Browse the catalog
-      </Button>
-    </Band>
-  );
-}
-```
-
-### Colour
-
-The palette has three families. Paper and ink: `--paper`, `--paper-shade`, `--desk`, `--desk-deep`, `--rule`,
-`--rule-firm`, `--ink`, `--ink-soft` and `--ink-faint`. The highlighter: `--mark`, `--mark-deep` and
-`--mark-wash`, with `--on-mark` as the text colour on it. The binder: `--binder`, `--binder-rise` and
-`--on-binder`. Errors use `--alert` and `--alert-wash`.
-
-### Type
-
-Two faces are set as `--face-display` (Besley) and `--face-text` (Atkinson Hyperlegible Next).
-
-- Display classes, in Besley: `.type-poster`, `.type-hero`, `.type-statement`,
-  `.type-banner`, `.type-page`, `.type-section`, `.type-item` and `.type-amount`.
-- Text classes, in Atkinson Hyperlegible Next: `.type-lead`, `.type-copy`, `.type-ui`, `.type-note`,
-  `.type-eyebrow` and `.type-tag`.
-- Utilities: `.tabular` for figures that line up, and `.visually-hidden`.
-
-Display and lead sizes are `clamp()` tokens between a phone value and a desktop value. The fixed sizes are
-`--size-ui` (1rem), `--size-note` (0.875rem), `--size-eyebrow` (0.8125rem) and `--size-tag` (0.75rem).
-
-### Spacing, layout and shape
-
-- `--s-1` to `--s-9`: the 7px scale, from 7px to 168px.
-- `--page-max` and `--page-pad`: the page column and its side padding. The column is 77rem (1232px) up to a
-  1600px window. 77rem grows with the root size past that, and from about 1840px of window the column
-  follows 72% of the window, to a ceiling of 120rem. `--over` is how far the window is past 1600px, which
-  the root size and some caps read. `--col-gap` is the gap between columns.
-- `--bar-h` (56px, 70px from 68em): the sticky header.
-- `--control-sm` (40px, on the desktop bar), `--control` (48px) and `--control-lg` (56px): control heights.
-  `--tap` (44px) is the minimum target below 68em.
-- `--round-1` (3px) to `--round-3` (10px), `--edge` (2px) and `--hair` (1px).
-- `--depth-0` to `--depth-4`: elevation.
-- `--layer-bar` (50), `--layer-skip` (90) and `--layer-cover` (100): stacking order.
-
-### Motion tokens
-
-- Durations: `--time-swap` (120ms), `--time-enter` (240ms), `--time-exit` (160ms),
-  `--time-fill` (180ms), `--time-fill-gap` (80ms), `--time-lift` (260ms), `--time-ink` (400ms),
-  `--time-settle` (560ms), `--time-count` (1200ms), `--time-morph` (420ms), `--time-page-in` (260ms),
-  `--time-page-out` (140ms) and `--stagger` (70ms).
-- Curves: `--curve-settle`, `--curve-leave`, `--curve-ink`, `--curve-drop` and `--curve-pen`.
-
-### Primitives
-
-`components/ui/` holds the primitives that pages and feature components are built from.
-
-- Layout: `Band`, `Wrap`, `Split`, `ShelfHead`, `FactList`, `BandedList` and `BandedRow` (the
-  ledger), and `Note`.
-- Links and actions: `Button`, `TransitionLink`, `TextLink`, `RowLink`, `Pagination`, `PhaseTabs` and
-  `StepMenu` (the drop-down of the phases).
-- Paper and objects: `PaperSheet`, `PaperStack`, `Folder`, `Tag`, `Blank` and `Tally`.
-- Text and marks: `Eyebrow`, `Sentences`, `KeepCompounds`, `LogoMark`, `BrandLockup` and `Icon`.
-- Form controls: `Input`, `Select` and `Checkbox`.
-- Motion: `Appear`, `MotionRoot` and `PageShift`.
-
-## Motion
-
-### Attributes that switch motion
-
-| Attribute                                         | Set by                                                 | Effect                                                                                       |
-| ------------------------------------------------- | ------------------------------------------------------ | -------------------------------------------------------------------------------------------- |
-| `html[data-motion="on"]`                          | Boot script                                            | Switches on the motion rules                                                                 |
-| `html[data-timeline="on"]`                        | Boot script, where the browser supports view timelines | Entrances follow the scroll                                                                  |
-| `html[data-io="armed"]`                           | `MotionRoot`, once the observer starts                 | Entrances on browsers without view timelines                                                 |
-| `html[data-intro]`                                | Boot script                                            | The cover: `play` or `leave`; the attribute is removed at the end                            |
-| `data-move` (`drift`, `ink-in`, `settle`, `grow`) | `Appear`, `Sentences`                                  | The entrance of an element; `data-when="load"` plays it on load instead                      |
-| `data-paper`, `data-lit`                          | `PaperSheet` (the `lit` prop)                          | The sheet's shadow, its lift and its tilt toward the pointer                                 |
-| `data-bar`                                        | `Header`                                               | The shadow under the sticky bar                                                              |
-| `data-ledger`                                     | `BandedList`                                           | The rule of a ledger draws in                                                                |
-| `data-ninety`                                     | The solution band (`components/home/pitch-spread.tsx`) | The ten blocks fill; the 90% figure never moves                                              |
-| `data-watch`                                      | `Tally` with `animate`, `PriceTag`                     | The blocks fill, or the tag swings, when the element is seen                                 |
-| `data-hero-stage`, `data-hero-doc`                | `HeroStage`                                            | The documents land, the middle ones first; one under the pointer or the keyboard straightens |
-| `data-split-flap`, `data-flap-cell`, `data-flap`  | `SplitFlap`                                            | The headline's last word turns through its blanks, each changed letter flipping once         |
-| `data-tile` `data-denied`                         | `TemplateTile`, `LockedTile`                           | A locked tile says no: it shakes, a red ring on its well hits and fades                      |
-| `data-page-dialog` `data-enter`                   | `PageDialog` (the catalog's pop-up, the checkout)      | The pop-up rises as the page dims                                                            |
-| `data-price-tag`                                  | `PriceTag`                                             | The tag swings on its string                                                                 |
-| `data-nav-underline`                              | `PrimaryNav`                                           | The bar's underline slides to the current link                                               |
-
-Entrances follow the scroll where view timelines exist and fall back to an intersection observer elsewhere.
-Every animation sits behind the no-preference query, and the stylesheet forces durations to 0.01ms under
-reduced motion.
-
-### The cover
-
-A first visit to `/` in a browser session plays a cover. The arm of the mark rises, the leg in the highlighter
-drops and lands with a little weight, and the site name and "An EchoFive product" are written in under it.
-The finished signature stands from 1.4 to 2.5 seconds, and the cover is gone at 2.95 seconds. A press, a key, a wheel turn or a touch ends it. Reduced
-motion skips it. The hero then plays its sequence: the six documents land, the middle ones first, by 1.1
-seconds. Under reduced motion or without a script the documents stand from the start. The prompt is only the first blank: from 3.6 seconds the headline's last word turns,
-split-flap fashion, through sheet, project, document, plan, design and idea and back, skipping a word that
-would not fit its line. Under reduced motion or without a script it stays "prompt".
-
-## Replacing the sample content
-
-The catalog has 13 sections, one for each of the toolkit's folders 00 to 12, in folder order: Start here
-(`start-here`), then eleven numbered phases, Define the change (`define-the-change`), Assess the impact
-(`assess-the-impact`), Set the strategy (`set-the-strategy`), Engage leaders (`engage-leaders`), Plan
-communications (`plan-communications`), Design the platform (`design-the-platform`), Plan the training
-(`plan-the-training`), Build the training (`build-the-training`), Deliver training (`deliver-training`), Go
-live and support (`go-live-and-support`) and Make it stick (`make-it-stick`), and last Used at every step
-(`used-at-every-step`). Start here and Used at every step have no number.
-
-1. **Phases.** Edit `content/phases.ts`. Each section has a slug, a plain `name` (menus, lists, the
-   catalog), a short `label` (the line of phases on Why Advanta), a summary, an `order` (its folder's
-   number, 0 to 12) and, on the numbered phases only, a `number` (1 to 11). Slugs are lower-case words
-   joined by hyphens. The catalog's metadata description writes the phase count out as "eleven"
-   (`app/(site)/catalog/page.tsx`), so change it by hand if the count changes. The tally of the phases on
-   the Purchase page and in the home portfolio follows the numbered phases automatically.
-2. **Templates.** Each section has one file in `content/templates/`, named by its slug
-   (`start-here.ts` to `used-at-every-step.ts`). `index.ts` joins them in folder order. A template gives
-   its phase, deliverable type, apps, audiences, format, ADKAR
-   stages (`adkar`, stored and not shown), an optional page count (shown as slides for a PowerPoint deck
-   and pages for every other format), what it includes, and `free` (true for a
-   free sample). Real records are written out in full with `isSample: false`. The `sample()` helper in
-   `content/templates/sample.ts` adds `isSample: true` (and `free: false` unless the entry says otherwise) and
-   belongs only in the sample files. There is no price on a template: the one price is `OFFER` in
-   `lib/site.ts`.
-3. **Free samples.** Exactly six templates have `free: true` (`FREE_SAMPLE_COUNT` in
-   `lib/catalog/validate.ts`), each in a different phase. They are the six on the home page, the
-   ones that open in the pop-up and the covers in the folder on the Purchase page.
-4. **Validation.** `lib/catalog/repository.ts` validates the catalog when it loads. `pnpm test` and
-   `pnpm build` fail with the record and field named if a record is invalid, a slug repeats, a template
-   names a phase that is missing, the phase numbers do not run 1, 2, 3 and on in order, or the number of
-   free templates is not six.
-5. **Sample labels.** The sample wording is plain text, edited by hand, in these places: the catalog's
-   metadata description and the line under its result count (`app/(site)/catalog/page.tsx`), the "Browse
-   the sample catalog" links on the home page (`components/home/featured-section.tsx` and
-   `components/home/inside-section.tsx`), the "Browse the sample catalog by phase" name (`PHASES_LABEL`) of
-   the phase links in `components/home/inside-section.tsx` and
-   `app/(site)/sample/page.tsx` (where it is also the visible eyebrow), the sample note on the Purchase page
-   (`components/purchase/contents-leaf.tsx`) and the Why Advanta page's note on the state of the site
-   (`STATE` in `app/(site)/why-advanta/page.tsx`). No page reads `isSample` (only the unit tests
-   call `hasSampleContent()`), so nothing changes by itself when the real records arrive: edit each of
-   these places by hand.
-   The worked example is the fictional Meridian Group. The name appears in `app/(site)/sample/page.tsx`,
-   `content/templates/start-here.ts` and `content/worked-example.ts`. That last
-   file holds the example's table of contents on `/sample`: placeholder sections, labelled as such on the
-   page, until the real file is published. The 10,000 figure also
-   appears on the home page, in `components/home/inside-section.tsx` and `components/home/pitch-spread.tsx`.
-   `tests/unit/content.test.ts` and the browser specs in `tests/e2e/` check the sample catalog by name and
-   count, so they need updating with the real catalog.
-6. **Toolkit counts.** `TOOLKIT` in `lib/site.ts` holds the counts for the whole toolkit: playbooks,
-   templates, field guides, job aids, training audiences and years of experience. Pages read them from
-   there. The experience is also set in sentences, built from `TOOLKIT.experience`: the hero lead
-   (`components/home/hero.tsx`), the first reason on Why Advanta
-   (`components/about/reasons-band.tsx`) and the Why Advanta page's description. The counts describe the whole
-   toolkit, not the number of catalog listings, and no page may imply that the catalog lists that many. The
-   Purchase page's "What is inside" ledger and the hero's proof strip read them from there.
-7. **Home page.** The home page is the `sections` array in `app/(site)/page.tsx`, top to bottom: the hero,
-   `#featured`, `#inside`, `#toolkit` and `#solution`.
-   Reordering the page means reordering that array. The specimen in `#inside` shows the
-   first free sample. The hero's documents, `#featured` and the covers in the folder of `#toolkit` are the six
-   free samples. The phase coverage in the folder comes from `phaseCoverage()` in
-   `lib/catalog/coverage.ts`.
-
-## Path to production
-
-The code already has the seams that a production build connects to.
-
-| Concern       | Seam in the code                                                                                                                                            |
-| ------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Catalog data  | Files in `content/`, read through `lib/catalog/repository.ts`. Its functions are async, so another source can implement the same functions.                 |
-| Record shapes | `lib/catalog/schema.ts` defines the phase and template records, and `lib/catalog/validate.ts` checks them.                                                  |
-| The offer     | `OFFER` in `lib/site.ts`: its name and its price in cents. The tag, the bar's button and the Purchase page all print it.                                    |
-| Checkout      | `getPaymentProvider()` in `lib/checkout/provider.ts` returns `null`: a provider is returned from there (`docs/architecture.md`, section 3.7).               |
-| Files         | `getFileStore()` in `lib/files/store.ts`: a `FileStore` driver for the real files (section 3.8 of `docs/architecture.md`). Only a local-disk driver exists. |
-| Licences      | `signLicence()` in `lib/licence/token.ts`: the owner mints one by hand today; a payment webhook calls the same function.                                    |
-| Page metadata | The root `metadata` in `app/layout.tsx`, and each page's metadata export.                                                                                   |
-
-Items to settle before launch, from content and commercial terms to the worked example's file, are in
-[Before public launch](#before-public-launch) at the end of this file.
-
-## Files and licences
-
-Each template lists the files it is delivered as (`files` on the record: an id, the name the buyer saves,
-the key where the store keeps it, its size and its SHA-256). Validation fails on an unsafe key, an
-extension outside `lib/files/types.ts`, a repeated key or id, and a real record (`isSample: false`) with no
-files.
-
-- **Free samples** download from their pop-up, from `/api/samples/<slug>/<file id>`. Any other template's
-  file answers 404 there, the same as a file that does not exist.
-- **Everything else** needs a licence. The owner turns an order code into a link with
-  `node scripts/mint-licence.mjs A365-YYMMDD-XXXXXX` and sends it. Opening `/licence?t=…` once puts the
-  licence in an `HttpOnly` cookie (`__Host-a365-licence`, 400 days) and lands on the catalog. In that browser
-  every tile of the catalog and the phase pages is unlocked, and any template opens in the pop-up with its
-  files to download. `/api/library/<slug>/<file id>` serves a file to a browser holding a valid licence and
-  answers 404 otherwise, so a tile unlocked by hand in the page never unlocks a file.
-- A licence holds the order code and the time it was issued, signed with HMAC-SHA256, and nothing
-  personal. It does not expire. To withdraw one, add its order code to `LICENCE_REVOKED`.
-- With no store configured, download buttons are hidden and the file routes answer 503.
-
-| Variable                  | Meaning                                                                                     |
-| ------------------------- | ------------------------------------------------------------------------------------------- |
-| `FILE_STORE`              | `local` for the local-disk driver; unset turns downloads off                                |
-| `FILE_STORE_DIR`          | The folder the local driver serves, relative to the working directory or absolute           |
-| `LICENCE_SECRET`          | Signs and verifies licences; at least 32 characters; server only; never committed           |
-| `LICENCE_SECRET_PREVIOUS` | The secret before a rotation; verifies only, so links sent before the rotation keep working |
-| `LICENCE_REVOKED`         | Order codes, comma separated, whose licences no longer work                                 |
-
-**On Vercel.** A function's response body is limited to 4.5 MB, so the local driver cannot serve real
-decks there. Production needs a driver whose `signedUrl` returns a short-lived address from an object store
-(R2 or S3, for example); the routes already redirect to it when a driver has one. Before launch, check the
-real files against the catalog with
-`FILE_STORE=local FILE_STORE_DIR=<folder> pnpm vitest run tests/unit/stored-files.test.ts`.
-
-**Rate limits.** `/licence` allows 10 requests a minute per client and each file route 60. The counter is
-in memory, per server instance, and resets on a cold start, so it only slows one client on one instance.
-Set a Vercel Firewall rate-limit rule on `/licence` and `/api/` (per IP) for real enforcement.
-
-**Security headers.** `next.config.ts` sends a content security policy on every route (the site's own
-origin only; no plugins, no framing, no foreign form posts), `nosniff`, a referrer policy,
-`X-Frame-Options: DENY`, a permissions policy and HSTS. Inline scripts stay allowed so pages can be static,
-so the policy does not stop an injected inline script. Preview deployments also allow Vercel's toolbar
-sources. A payment provider will need its own origins added (section 3.7 of `docs/architecture.md`).
+- **Exactly six templates are free.** `free: true` marks them, and validation fails with any other
+  count.
 
 ## Documentation
 
-- [`docs/design-system.md`](docs/design-system.md): the design system. It covers the surfaces, colour, type,
-  the 7px scale, motion, depth and paper objects, the primitives, the CSS Modules rules, the design gate and
-  the accessibility floor.
-- [`docs/architecture.md`](docs/architecture.md): the architecture. It covers the server and client
-  boundaries, routes, the site shell, the boot script and the cover, motion, budgets, test hooks and the
-  test contract.
-- [`docs/testing.md`](docs/testing.md): the checks, the browser projects and every spec.
-
-## Before public launch
-
-The first five items come from the owner's pitch and messaging document (2026-10-10), in his
-words; the second is given without the names it lists. Under each is where the site stands today.
-The rest are about the site itself. None of this is legal advice.
-
-- [ ] **Prosci wording.** Prosci and ADKAR are Prosci's trademarks. "Built by a Prosci-certified
-      practitioner" describes the owner, which is fine if the certification is current.
-      "Prosci-aligned" or "Prosci-approved content" suggests an endorsement Prosci hasn't given.
-      Keep Prosci on the person, not the product, and check Prosci's trademark-use guidance at
-      prosci.com.
-  - On the site: Prosci appears only as "built by a Prosci-certified practitioner" and the
-    footer's non-affiliation and trademark notice; the design gate (`tests/unit/design-gate.test.ts`)
-    fails on any other line that names Prosci. ADKAR appears in no visible copy; the `adkar` field
-    on a template is data and is not rendered.
-- [ ] **Old product branding.** Client references (department names and terms, client platform
-      names) were removed from the source material. The earlier product name is now Advanta365
-      throughout, and the content for the other earlier product and for the provisioning tool has
-      been removed. One government platform name stays only in labelled government examples.
-  - On the site: none of these names appears. This README does not spell them out either; the
-    list is the `banned` pattern in `tests/unit/content.test.ts`, which checks every phase and
-    template text. Run the same search over the real files before they are offered.
-- [ ] **Ownership of the source material.** Confirm which files were rebuilt from the owner's own
-      know-how and which began as client deliverables under contract. Only the first group is
-      clearly his to sell.
-  - On the site: nothing to change until this is settled. It decides which real entries may
-    replace the sample catalog.
-- [ ] **"30+ years" and "used with real clients."** Both are true. Keep the wording general
-      ("refined across client rollouts") rather than suggesting named clients endorse it.
-  - On the site: the experience is always written "30+ years", and no client, department or
-    platform is named. Public-sector copy says "proven in Canadian public-sector environments" and
-    does not claim a bilingual or French product (the job aids are English only today).
-- [ ] **Counts on the site.** 59 / 130 / 4 / 58 (playbooks, templates, field guides, job aids)
-      match the folder as of the date of that document.
-  - On the site: the counts are read from `TOOLKIT` in `lib/site.ts`. Recount the folder before
-    launch and change them there.
-- [ ] **The worked example's file.** `/sample` describes the Meridian Group worked example and
-      says its file cannot be downloaded in this beta. It needs the real file, and its real table of
-      contents: `content/worked-example.ts` lists placeholder sections (the pieces `/sample` names; a
-      free sample links to its template in the catalog, a locked template is named in plain text with
-      no link, and a phase links to its page) that the page marks "Placeholder"; replace them
-      and set `placeholder` to false. The sample catalog
-      also lists the worked example as a locked template; decide whether it is a free sample, a
-      product, or both.
-- [ ] **Why Advanta copy and cost estimates.** The costs of the two alternatives on Why Advanta (8 to 14
-      person-months, $150K to $400K per rollout) were carried over from the earlier page as the
-      owner's estimates and are labelled Estimate; confirm or replace them in
-      `components/about/compare-section.tsx`. The three reasons
-      (`components/about/reasons-band.tsx`) restate "built, delivered, revised and re-delivered"
-      and "reuse on every wave", which rests on the undecided licence; the owner should read them.
-- [ ] **Legal pages.** `/privacy`, `/terms`, `/refunds` and `/accessibility` are owner-drafted
-      and written from what the code does today; a lawyer should read all four before the first
-      sale. The facts and decisions they need are the one object `LEGAL` in `lib/legal/facts.ts`,
-      and a page says only what is true without a value that is still `undefined`. Open: the
-      seller's legal name with its suffix (`entity`, now the bare company name) and postal address
-      (`address`); the governing province (`governingProvince`); the refund window in days
-      (`refundWindowDays`) and whether the default policy stands (an order not yet downloaded is
-      refunded, a faulty or misdescribed file is replaced or refunded, otherwise final after
-      download); whether consultants may use the toolkit for clients (`clientWorkAllowed`, now
-      no); a named privacy contact (`privacyContactName`); the host (`hostingProvider`, set from
-      the `.vercel` folder of this working copy, to confirm); the date (`effectiveDate`), to move on
-      every change; and an accessibility audit (`accessibilityAuditDate`). Also to confirm: that
-      the licence is perpetual and for one organization, that sales tax is added before payment,
-      and that liability is capped at the price paid.
-  - On the site: the privacy policy describes what is there now (one cookie, for buyers only;
-    Vercel Web Analytics and Speed Insights, which set no cookie; two session storage entries, the
-    checkout's draft among them; and contact by email) and keeps what is planned for the checkout under
-    "When checkout opens" without naming a processor. Rewrite that part, and the refund policy's
-    last section, when a payment provider is connected. `tests/unit/legal.test.ts` checks the
-    wording for set and unset facts.
-- [ ] **Checkout.** It is built up to payment. Connect a payment provider (`docs/architecture.md`,
-      section 3.7), and have its webhook mint the licence (`signLicence`) and email the link.
-      Until then the Payment step offers the order by email, and the owner mints each link by hand
-      with `scripts/mint-licence.mjs`.
-- [ ] **A production file store.** Only the local-disk driver exists, and on Vercel a function
-      cannot answer with more than 4.5 MB. Add a driver that signs short-lived addresses (R2 or S3),
-      set `LICENCE_SECRET` in the host's settings, and run the stored-files check against the real
-      files ([Files and licences](#files-and-licences)).
-- [ ] **"Not downloaded" in the refund policy.** The site keeps no record of downloads, so it
-      cannot tell whether an order's files were downloaded, which is the test the refund policy uses.
-      Decide whether to keep a download log or change the policy's wording.
-- [ ] **Firewall rule.** Add a Vercel Firewall rate-limit rule on `/licence` and `/api/`.
+| Document                                               | What it covers                                                                                                                                                                                                                                                                                        |
+| ------------------------------------------------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| [`docs/architecture.md`](docs/architecture.md)         | How the site works: routes and redirects, metadata and AI search files, server and client boundaries, the catalog's data flow, the checkout and its payment seam, files and licences, the site shell, the boot script and the cover, motion, catalog URL state, test hooks, budgets and failure modes |
+| [`docs/design-system.md`](docs/design-system.md)       | The visual system: colour and contrast, bands, type, the 7px scale and layout, depth, motion, every primitive, the logo, and the accessibility floor                                                                                                                                                  |
+| [`docs/testing.md`](docs/testing.md)                   | The commands, every unit test and browser spec, the design gate, budgets, and how to add a test                                                                                                                                                                                                       |
+| [`docs/operations.md`](docs/operations.md)             | Environment variables, the file store, issuing and revoking licences, deploying on Vercel, security headers, rate limits, and the seams a production build connects to                                                                                                                                |
+| [`docs/content.md`](docs/content.md)                   | The catalog's records, replacing the sample content, and every place a count or a sample label is written by hand                                                                                                                                                                                     |
+| [`docs/launch-checklist.md`](docs/launch-checklist.md) | What must be settled before the first sale                                                                                                                                                                                                                                                            |
+| [`docs/superpowers/`](docs/superpowers/README.md)      | Dated design records of earlier work (specs and plans), kept for their reasoning                                                                                                                                                                                                                      |
+| [`PRODUCT.md`](PRODUCT.md), [`DESIGN.md`](DESIGN.md)   | The product brief (buyers, positioning, constraints) and the design brief, read by the Impeccable design tool                                                                                                                                                                                         |

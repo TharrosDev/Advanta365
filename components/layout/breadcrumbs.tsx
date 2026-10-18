@@ -3,7 +3,7 @@ import { cx } from "@/lib/cx";
 import styles from "./breadcrumbs.module.css";
 
 /**
- * The trail of a page: `Home / Prepare`. Every item but the last is a link; the last item is the
+ * The trail of a page: `Home / Define the change`. Every item but the last is a link; the last item is the
  * current page, set heavier. The items sit on one baseline and wrap as whole items; a separator
  * stays at the end of the item before it, so no line starts with one. The separators are decorative
  * and hidden from assistive technology.

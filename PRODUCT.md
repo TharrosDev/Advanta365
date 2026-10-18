@@ -119,9 +119,11 @@ What the storefront does today:
   removable chips above the results, and a search that finds nothing names itself and offers the
   phases. Catalog state lives in the URL, so every view can be shared. The six free samples open in a pop-up (from the catalog, a phase page or the home
   page); every other template shows a locked cover and answers a press with "Included with the
-  toolkit."
-- One Purchase page (`/purchase`): the toolkit as a folder with its price on a tag and, beside it from
-  68em (under it below), a contents leaf: what is inside, the Checkout button, the way to write to us
+  toolkit.", until a licence opens it.
+- Every section of the toolkit has a page of its own (`/phases/<slug>`: "Phase N of 11", or "Before
+  phase 1" and "Alongside phases 1 to 11"), reached from the bar's "Roadmap" drop-down.
+- One Purchase page (`/purchase`): the toolkit as a folder with its price on a tag and, beside it where the window has room (from about
+  1010px; under it below), a contents leaf: what is inside, the Checkout button, the way to write to us
   (for a purchase order, or a question) and the note that the catalog is sample content. The page has
   no title block: it opens on the folder. There are no questions on the page. There is no cart and no
   pricing page. The old addresses of those pages, of the bundle
@@ -133,38 +135,49 @@ What the storefront does today:
   to the Terms and the Refund policy, and payment. No payment provider is connected, so the last step
   says so, shows the order with its reference, and offers to send the order by email (so the owner
   can invoice) or to copy it.
+- Delivery by licence link. The owner turns a paid order's code into a link
+  (`scripts/mint-licence.mjs`); opening it puts a licence in that browser, where every tile opens and
+  each template's files download. The six free samples download for anyone. Downloads appear only
+  once a file store is configured, and the free samples' files are still fixtures.
 - A Why Advanta page (`/why-advanta`; it was About, and `/about` redirects to it): one answer,
   "Proven rollout experience, at a template price", and its proof: three reasons on the black band
-  (`#why`: proven, not plausible; yours, not rented; 90 percent done), the comparison of
+  (`#why`: proven, not plausible; yours, not rented; ready, not blank, with its 90% figure), the comparison of
   alternatives (`#compare`), the five buyers in one short band (`#who`) and a one-line note on the
   state of the site (`#state`).
 - A Contact page (`/contact`): one section with the one email address (`hello@advanta365.com`) as a
-  link that starts an email, and what to write about (questions before buying, purchase orders and
+  link that starts an email, and six things to write about, each a link that starts an email with its
+  subject filled in (questions before buying, purchase orders and
   invoices, orders, downloads and refunds, licence questions, privacy requests, accessibility
   feedback). It has no form, promises no reply time and
   names no other channel.
 - A sample page with the worked example's
   table of contents (placeholder sections, labelled as placeholders, until its file is published).
+- Four legal pages (`/privacy`, `/terms`, `/refunds`, `/accessibility`), drafted from what the code
+  does and waiting for a lawyer's reading.
+- What search engines and AI tools read: page metadata and shared-link cards, structured data, a
+  sitemap, `robots.txt`, and `/llms.txt` and `/llms-full.txt`.
 
 Constraints future work must respect:
 
 - **The catalog is sample content.** Its phases follow the toolkit's folders; its templates are
   placeholders, and the site says
-  so in plain words where a visitor meets them, not in a banner: the footer's status line, the note
+  so in plain words where a visitor meets them, not in a banner: the beta notes on `/sample`, the note
   on the Purchase page, the "Free sample" tags, the line under the catalog's result count and the
   note on the state of the site on Why Advanta (`#state`). No page may imply that the catalog lists the
   full toolkit. The price is written once, in `lib/site.ts`, and printed from there.
 - **Checkout stops at payment.** No payment provider is connected: the checkout takes an order as far
   as the Payment step, which says so and offers the order by email. Nothing can be paid for on the
-  site yet, locked templates stay locked for every visitor, and there are no accounts. The seam a
+  site yet. Locked templates stay locked for every visitor without a licence, a licence is issued by
+  hand, and there are no accounts. The seam a
   provider plugs into is `lib/checkout/provider.ts` (docs/architecture.md, section 3.7).
-- **An order never leaves the browser on its own.** There is no backend. The checkout keeps the order
+- **An order never leaves the browser on its own.** The checkout has no backend (the site's only
+  server routes are the licence link and the file downloads). It keeps the order
   in the tab's session storage, never writes it into an address, sends it nowhere, and asks for no
   card details of any kind.
 - **The worked example's file cannot be downloaded yet.**
 - **English only.** The job aids are English only today. No bilingual or French claim.
-- **Runtime dependencies are fixed** at `next`, `react`, `react-dom` and `zod`; the design gate in
-  `pnpm test` fails if that list changes.
+- **Runtime dependencies are fixed** at `next`, `react`, `react-dom`, `zod`, `@vercel/analytics` and
+  `@vercel/speed-insights`; the design gate in `pnpm test` fails if that list changes.
 - **Light scheme only.** The site sets `color-scheme: light` and has no dark mode.
 
 Terminology: "playbooks", "templates", "field guides", "job aids" and "phases"; "the
@@ -175,15 +188,17 @@ Decided: the toolkit is sold as one purchase at $1,499.99 CAD.
 
 Explicitly undecided:
 
-- Licence terms. The stated intent is one licence per organization, reused across every wave.
+- Licence terms. Drafted on `/terms` (one organization, non-exclusive, non-transferable, no expiry;
+  consultants write first), waiting for the owner's and a lawyer's confirmation.
 - Whether buyers receive updates, and how.
-- Purchase orders and invoicing for government buyers (planned, not available).
+- Purchase orders and invoicing for government buyers. Today a purchase order number can go with an
+  order, and orders are invoiced by hand from the emailed order.
 - Whether the worked example is a free sample, a product, or both. (The six free samples are one
   template from each of six phases; the worked example, in Start here, is not among them.)
 - Which source files are the owner's to sell (rebuilt from his own know-how, as opposed to client
   deliverables under contract). This decides which real entries may replace the sample catalog.
-- The payment provider, and how a paid order is fulfilled (where orders are recorded, how the files
-  are delivered).
+- The payment provider, where orders are recorded, and the production file store. Delivery itself is
+  built (a licence link, then downloads), and is run by hand until a provider's webhook takes over.
 
 ## Brand Commitments
 
@@ -239,7 +254,8 @@ Absent. Future work must not fabricate any of these:
 - No testimonials, client names, logos, case studies, press or endorsements.
 - No adoption metrics, benchmarks or outcome statistics from real rollouts.
 - No real catalog entries or published licence terms.
-- No downloadable sample file and no product screenshots or previews of real documents.
+- No real sample file (the free samples' files are fixtures) and no product screenshots or previews of
+  real documents.
 - No named author. The practitioner is described, not named, on the site.
 
 ## Product Principles
@@ -250,7 +266,7 @@ Derived from the answers above (inferred as a set; each rests on a stated fact).
    absent, say less instead of inventing it.
 2. **Honest about its state.** Sample content is labelled as sample, the beta as a beta, estimates as
    estimates, and what is not built as not built. The labels are plain words in the place a visitor
-   meets the thing (the footer's status line, the Purchase page's note, the "Free sample" tags, the
+   meets the thing (the beta notes on `/sample`, the Purchase page's note, the "Free sample" tags, the
    note under the catalog's result count and the Why Advanta page's note on the state of the site),
    not a
    banner above the page.
@@ -269,7 +285,8 @@ Derived from the answers above (inferred as a set; each rests on a stated fact).
 - **Legibility is a stated owner requirement:** he rejected a colour because text on it was hard to
   read.
 - All motion is optional. Under reduced motion, raised contrast, forced colours or no JavaScript,
-  the site stays complete, and under reduced motion nothing moves by itself.
+  the site stays complete, and under reduced motion nothing moves by itself. The one motion that
+  repeats, the hero's turning word, has a Pause button (WCAG 2.2.2).
 - Keyboard use, visible focus, a skip link, one `h1` per page, labelled navigation, and targets of at
   least 44px on phones are the floor the site already keeps (`docs/design-system.md`, section 12).
 - English only today.
