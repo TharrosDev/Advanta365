@@ -1,3 +1,5 @@
+import { readFileSync } from "node:fs";
+import { fileURLToPath } from "node:url";
 import { describe, expect, it } from "vitest";
 import { INTRO_FLAG } from "@/lib/boot/state";
 import { DRAFT_KEY } from "@/lib/checkout/draft";
@@ -236,6 +238,21 @@ describe("the privacy policy against the code", () => {
     expect(text).toContain("strictly necessary");
     expect(text).toContain("400 days");
     expect(text).toContain("no tracking cookies");
+  });
+
+  it("names the visit and speed measurements the root layout mounts", () => {
+    const layout = readFileSync(
+      fileURLToPath(new URL("../../app/layout.tsx", import.meta.url)),
+      "utf8",
+    );
+    const text = words(document);
+    for (const [module, name] of [
+      ["@vercel/analytics", "Vercel Web Analytics"],
+      ["@vercel/speed-insights", "Vercel Speed Insights"],
+    ] as const) {
+      expect(layout.includes(module), module).toBe(text.includes(name));
+    }
+    expect(text).not.toMatch(/no analytics/i);
   });
 
   it("keeps what is planned for the checkout in a part of its own", () => {

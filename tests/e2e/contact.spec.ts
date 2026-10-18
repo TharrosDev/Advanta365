@@ -10,7 +10,9 @@ const ADDRESS = `mailto:${SITE.contactEmail}`;
 const TOPICS = [
   "A question before you buy",
   "Purchase orders and invoices",
+  "Your order, downloads or a refund",
   "Licence questions",
+  "Privacy requests",
   "Accessibility feedback",
 ];
 
@@ -50,7 +52,7 @@ test("the address is one link that starts an email, and it is the size of a targ
   await expect(main.locator("form, input, textarea, select, button")).toHaveCount(0);
 });
 
-test("what to write about is a list of four links, each the address with a subject", async ({
+test("what to write about is a list of six links, each the address with a subject", async ({
   page,
 }) => {
   await page.goto("/contact");

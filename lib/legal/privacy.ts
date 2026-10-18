@@ -6,8 +6,9 @@ import type { LegalFacts } from "./facts";
 import { heading, link, list, p, terms, type LegalDocument } from "./types";
 
 /**
- * `/privacy`. Written from what the code does: the site runs no analytics and has no account or form
- * that sends anything to us; it keeps two entries in the browser's session storage (one preference,
+ * `/privacy`. Written from what the code does: the site has no account or form that sends anything
+ * to us; the root layout mounts Vercel Web Analytics and Speed Insights, which set no cookie and keep
+ * nothing in the browser; it keeps two entries in the browser's session storage (one preference,
  * `lib/boot/state.ts`, and the checkout's draft, `lib/checkout/draft.ts`) and sets one cookie, only
  * for a buyer who opens their licence link (`lib/licence/cookie.ts`); the fonts are served from the
  * site itself. The checkout has no
@@ -27,10 +28,10 @@ export function privacy(facts: LegalFacts): LegalDocument {
   return {
     href: "/privacy",
     title: "Privacy policy",
-    description: `What ${SITE.name} collects, what it keeps in your browser and what it does not do: no tracking cookies, no analytics, no accounts.`,
+    description: `What ${SITE.name} collects, what it keeps in your browser and what it does not do: no tracking cookies, no advertising, no accounts, and visit counts that do not identify you.`,
     summary: `${SITE.name} is built to work without knowing who you are. This page says what the site handles, what it keeps in your browser, and what changes when a checkout opens.`,
     points: [
-      "The site sets no tracking cookies and runs no analytics, advertising or tracking scripts.",
+      "The site sets no tracking cookies and runs no advertising. It counts visits and measures page speed without cookies and without identifying you.",
       "There are no accounts and no forms that send us anything. We hear from you only when you email us.",
       "What the site keeps in your browser's session storage stays there, and is gone when you close the tab. The one cookie is set only for buyers, to download their files.",
       "No payment is taken on the site today, so no payment details are collected.",
@@ -66,7 +67,11 @@ export function privacy(facts: LegalFacts): LegalDocument {
             ],
             [
               "Technical request data",
-              `${hosted} Like any web server, it handles the technical details of each request so that it can send you the page and keep the service running and secure: your IP address, the browser and device type your browser reports, the address of the page asked for, and the time. A catalog search or filter is part of the page’s address, so it is part of that request. We do not use this data to identify you or to build a profile of you.`,
+              `${hosted} Like any web server, it handles the technical details of each request so that it can send you the page and keep the service running and secure: your IP address, the browser and device type your browser reports, the address of the page asked for, and the time. A catalog search or filter is part of the page’s address, so it is part of that request. To protect the download links, the site counts the requests from each IP address over a minute, in memory, and keeps no record of them. We do not use this data to identify you or to build a profile of you.`,
+            ],
+            [
+              "Visit counts and page speed",
+              "Each page reports that it was viewed and how quickly it loaded and responded, as described under “Analytics, advertising and other services”. We see these figures only as totals.",
             ],
           ),
           p(
@@ -79,7 +84,7 @@ export function privacy(facts: LegalFacts): LegalDocument {
         title: "Cookies and browser storage",
         blocks: [
           p(
-            "The site sets no tracking cookies. It sets one cookie, and only for a buyer: when you open the link from your order email, it keeps your licence so this browser can download the files you bought. The cookie is strictly necessary for that, so there is no cookie banner and nothing to accept or decline.",
+            "The site sets no tracking cookies, and its visit counts and speed measurements use none. It sets one cookie, and only for a buyer: when you open the link from your order email, it keeps your licence so this browser can download the files you bought. The cookie is strictly necessary for that, so there is no cookie banner and nothing to accept or decline.",
           ),
           p(
             "The site also keeps up to two entries in your browser’s session storage. The site never sends them to us or to anyone else, and your browser deletes them when you close the tab. The first holds no personal information.",
@@ -107,14 +112,31 @@ export function privacy(facts: LegalFacts): LegalDocument {
         id: "third-parties",
         title: "Analytics, advertising and other services",
         blocks: [
+          p(
+            `The site uses two measurement services from Vercel${facts.hostingProvider === "Vercel" ? ", the company that hosts it" : ""}. They tell us how many people visit, which pages they read, and whether the pages are fast enough.`,
+          ),
+          terms(
+            [
+              "Vercel Web Analytics",
+              "Records each page view: the page, the page you came from, your browser, operating system and type of device, and your country. To count visitors without a cookie it uses a code worked out from your request, which Vercel discards after 24 hours. It sets no cookie, stores nothing in your browser, and does not follow you to other sites.",
+            ],
+            [
+              "Vercel Speed Insights",
+              "Records how long a page took to load, draw and respond to you, with the page, your type of device, browser and connection. It sets no cookie and stores nothing in your browser.",
+            ],
+          ),
+          p(
+            "We see the results only as totals and trends. We do not use them to identify anyone, and they are not used for advertising. If you would rather not be counted, a content blocker or turning off JavaScript stops both, and the site still works.",
+          ),
+          p("Beyond that:"),
           list(
-            "No analytics or visitor measurement of any kind.",
+            "No other analytics, session recording or heat maps.",
             "No advertising, remarketing or social media pixels.",
             "No embedded content from other sites, such as videos, maps or chat widgets.",
             "No font service: the two typefaces are served from the site itself, so your browser makes no request to another company to show the text.",
           ),
           p(
-            `Every file a page needs comes from the site’s own address. The one company that handles your request is ${host}, as described under “What we collect”.`,
+            `Every file a page needs, the measurement scripts included, comes from the site’s own address, and the measurements are sent back to it. The one company that handles your request is ${host}, as described under “What we collect”.`,
           ),
         ],
       },

@@ -87,7 +87,7 @@ export function refunds(facts: LegalFacts): LegalDocument {
           p(
             "Email ",
             mail,
-            " from the address you bought with, or tell us the name on the order, and say what went wrong. The ",
+            " from the address you bought with, give your order reference (it starts with A365 and is on your order and invoice) or the name on the order, and say what went wrong. The ",
             link(CONTACT_LINK.href, "Contact page"),
             " has the same address. If a file is the problem, the file name and what happens when you open it help us fix it quickly.",
           ),
@@ -121,7 +121,7 @@ export function refunds(facts: LegalFacts): LegalDocument {
         title: "Where the site stands today",
         blocks: [
           p(
-            "The site does not take payment yet: the checkout sends us your order by email and charges nothing. This policy applies from the first sale, however the toolkit is paid for. If it changes when online payment opens, the date at the top of the page will change with it.",
+            "The site does not take payment yet: the checkout sends us your order by email and charges nothing. We reply with an invoice, and the link to your files follows once it is paid. This policy applies from the first sale, however the toolkit is paid for. If it changes when online payment opens, the date at the top of the page will change with it.",
           ),
           p(
             "See also the ",

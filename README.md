@@ -509,8 +509,9 @@ The rest are about the site itself. None of this is legal advice.
       every change; and an accessibility audit (`accessibilityAuditDate`). Also to confirm: that
       the licence is perpetual and for one organization, that sales tax is added before payment,
       and that liability is capped at the price paid.
-  - On the site: the privacy policy describes what is there now (no cookies, no analytics, three
-    session storage entries, the checkout's draft among them, and contact by email) and keeps what is planned for the checkout under
+  - On the site: the privacy policy describes what is there now (one cookie, for buyers only;
+    Vercel Web Analytics and Speed Insights, which set no cookie; two session storage entries, the
+    checkout's draft among them; and contact by email) and keeps what is planned for the checkout under
     "When checkout opens" without naming a processor. Rewrite that part, and the refund policy's
     last section, when a payment provider is connected. `tests/unit/legal.test.ts` checks the
     wording for set and unset facts.
