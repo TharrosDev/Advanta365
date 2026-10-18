@@ -4,7 +4,6 @@ export const rawPhases = [
   {
     slug: "build-the-training",
     name: "Build the training",
-    label: "Build training",
     summary: "Build what each audience needs.",
     order: 2,
     number: 2,
@@ -12,14 +11,12 @@ export const rawPhases = [
   {
     slug: "start-here",
     name: "Start here",
-    label: "Start here",
     summary: "Get your bearings.",
     order: 0,
   },
   {
     slug: "define-the-change",
     name: "Define the change",
-    label: "Define",
     summary: "Say what is changing and why.",
     order: 1,
     number: 1,

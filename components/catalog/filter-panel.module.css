@@ -69,12 +69,10 @@
 .sheet[open] {
   display: flex;
   flex-direction: column;
-  animation: sheet-up var(--time-enter) var(--curve-settle);
 }
 
 .sheet::backdrop {
   background: var(--scrim);
-  animation: scrim-in var(--time-exit) linear;
 }
 
 .bar,
@@ -126,10 +124,14 @@
   }
 }
 
-@media (prefers-reduced-motion: reduce) {
-  .sheet[open],
-  .sheet::backdrop {
-    animation: none;
+/* Opening: the sheet rises from the bottom edge as the scrim fades in. Closing has no animation. */
+@media (prefers-reduced-motion: no-preference) {
+  .sheet[open] {
+    animation: sheet-up var(--time-enter) var(--curve-settle);
+  }
+
+  .sheet[open]::backdrop {
+    animation: scrim-in var(--time-exit) linear;
   }
 }
 

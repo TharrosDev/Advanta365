@@ -1,7 +1,8 @@
 import { createHmac, timingSafeEqual } from "node:crypto";
+import { ORDER_CODE } from "./order-code.ts";
 
-// This module imports nothing but node:crypto and uses no path alias, so scripts/mint-licence.mjs can
-// run it directly under Node's type stripping.
+// This module imports nothing but node:crypto and ./order-code.ts, by a relative path with its
+// extension, so scripts/mint-licence.mjs can run it directly under Node's type stripping.
 
 /**
  * A licence: proof that an order was paid, which the owner issues (scripts/mint-licence.mjs) and a
@@ -11,8 +12,7 @@ import { createHmac, timingSafeEqual } from "node:crypto";
  * expire; a revoked order (LICENCE_REVOKED) is the only way to withdraw one.
  */
 
-/** The checkout's order code (`orderCode` in lib/checkout/order.ts): A365-YYMMDD-XXXXXX. */
-export const ORDER_CODE = /^A365-\d{6}-[2-9A-HJ-NP-Z]{6}$/;
+export { ORDER_CODE };
 
 /** The shortest secret that signs or verifies anything. */
 const MIN_SECRET = 32;

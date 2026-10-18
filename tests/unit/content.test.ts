@@ -14,23 +14,23 @@ import {
 import { FREE_SAMPLE_COUNT } from "@/lib/catalog/validate";
 
 /**
- * The toolkit's folders, in order: slug, short label, plain name and step number. Only 01 to 11 are
- * numbered phases; Start here and Used at every step are not.
+ * The toolkit's folders, in order: slug, plain name and step number. Only 01 to 11 are numbered
+ * phases; Start here and Used at every step are not.
  */
 const FOLDERS = [
-  ["start-here", "Start here", "Start here", undefined],
-  ["define-the-change", "Define", "Define the change", 1],
-  ["assess-the-impact", "Assess", "Assess the impact", 2],
-  ["set-the-strategy", "Strategize", "Set the strategy", 3],
-  ["engage-leaders", "Engage", "Engage leaders", 4],
-  ["plan-communications", "Communicate", "Plan communications", 5],
-  ["design-the-platform", "Design", "Design the platform", 6],
-  ["plan-the-training", "Plan training", "Plan the training", 7],
-  ["build-the-training", "Build training", "Build the training", 8],
-  ["deliver-training", "Train", "Deliver training", 9],
-  ["go-live-and-support", "Go live", "Go live and support", 10],
-  ["make-it-stick", "Sustain", "Make it stick", 11],
-  ["used-at-every-step", "Every step", "Used at every step", undefined],
+  ["start-here", "Start here", undefined],
+  ["define-the-change", "Define the change", 1],
+  ["assess-the-impact", "Assess the impact", 2],
+  ["set-the-strategy", "Set the strategy", 3],
+  ["engage-leaders", "Engage leaders", 4],
+  ["plan-communications", "Plan communications", 5],
+  ["design-the-platform", "Design the platform", 6],
+  ["plan-the-training", "Plan the training", 7],
+  ["build-the-training", "Build the training", 8],
+  ["deliver-training", "Deliver training", 9],
+  ["go-live-and-support", "Go live and support", 10],
+  ["make-it-stick", "Make it stick", 11],
+  ["used-at-every-step", "Used at every step", undefined],
 ];
 
 /** The six templates given away as samples. */
@@ -46,7 +46,7 @@ const FREE_SLUGS = [
 describe("sample catalog", () => {
   test("has the toolkit's thirteen folders in order, numbered 1 to 11 between the two others", async () => {
     const phases = await getPhases();
-    expect(phases.map((p) => [p.slug, p.label, p.name, p.number])).toEqual(FOLDERS);
+    expect(phases.map((p) => [p.slug, p.name, p.number])).toEqual(FOLDERS);
     expect(phases.map((p) => p.order)).toEqual([0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]);
     expect((await getPhase("go-live-and-support"))?.name).toBe("Go live and support");
   });
@@ -138,7 +138,7 @@ describe("sample catalog", () => {
   test("visible copy names no methodology or client, and follows the house typography", async () => {
     const [phases, templates] = await Promise.all([getPhases(), getTemplates()]);
     const copy = [
-      ...phases.flatMap((p) => [p.name, p.label, p.summary]),
+      ...phases.flatMap((p) => [p.name, p.summary]),
       ...templates.flatMap((t) => [t.title, t.summary, t.description, ...t.includes]),
     ];
     const banned =

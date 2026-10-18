@@ -69,12 +69,6 @@ describe("validateCatalog", () => {
     expect(() => validateCatalog(swapped)).toThrow(CatalogError);
   });
 
-  test("rejects a section without a short label", () => {
-    const catalog = rawCatalog();
-    catalog.phases = catalog.phases.map((phase) => ({ ...phase, label: undefined })) as never;
-    expect(() => validateCatalog(catalog)).toThrow(/label/);
-  });
-
   test("rejects an unknown deliverable type", () => {
     expect(() => validateCatalog(withTemplate({ deliverableType: "poster" }))).toThrow(
       CatalogError,

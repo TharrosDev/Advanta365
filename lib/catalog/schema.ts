@@ -7,14 +7,13 @@ const text = z.string().trim().min(1);
 
 /**
  * One section of the toolkit, matching one of its folders. `name` is the plain name menus, lists and
- * the catalog use; `label` is a short one (no page shows it today). `order` is the folder's number. `number`
- * is the phase number, which only the numbered phases have: the orientation folder before them and
- * the folder of tools used throughout have none.
+ * the catalog use. `order` is the folder's number. `number` is the phase number, which only the
+ * numbered phases have: the orientation folder before them and the folder of tools used throughout
+ * have none.
  */
 export const PhaseSchema = z.object({
   slug,
   name: text,
-  label: text,
   summary: text,
   order: z.number().int(),
   number: z.number().int().positive().optional(),
