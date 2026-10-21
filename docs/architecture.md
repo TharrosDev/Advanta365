@@ -49,7 +49,8 @@ Metadata, search and AI tools (`lib/seo/`):
 
 - The root layout (`app/layout.tsx`) sets `metadataBase` to `SITE_ORIGIN` (`lib/seo/origin.ts`: the environment
   variable of the same name, else `https://advanta365.com`), the title template `%s · Advanta365`, the default
-  title `Advanta365 · Don’t start from a blank prompt.` (the home page keeps it), the description built from the
+  title `Advanta365 · Change management toolkit for Microsoft 365 and SharePoint` (the home page keeps it; the
+  tagline stays on the page and out of titles, cards and structured data), the description built from the
   toolkit counts, the author, publisher and keywords, `robots` (`index, follow` with large image previews; `noindex,
   nofollow` on a Vercel deployment that is not production), the search-console tags from
   `GOOGLE_SITE_VERIFICATION` and `BING_SITE_VERIFICATION` when set, and the alternates that point at `/llms.txt`
@@ -288,7 +289,7 @@ The site sells one thing. `lib/site.ts` holds it:
 
 | Name | Value |
 |---|---|
-| `SITE` | The name, the parent company (EchoFive), the tagline, the description and the contact address |
+| `SITE` | The name, the parent company (EchoFive), the tagline, the summary search results lead with, the description and the contact address |
 | `OFFER` | `{ name: "The complete toolkit", priceCents: 149999, currency: "CAD" }`. The only place the price and its currency are written; the tag, the bar's button and the Purchase page print them with `formatPrice` as `$1,499.99 CAD`, in Canadian dollars |
 | `TOOLKIT` | The counts of the whole toolkit (59 playbooks, 130 templates, 4 field guides, 58 job aids, three training audiences, "30+ years"). They are not counts of the catalog |
 | `PURCHASE_LINK` | `{ href: "/purchase", label: "Purchase" }`, first in the primary links |

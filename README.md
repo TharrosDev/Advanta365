@@ -130,7 +130,7 @@ components/
 content/              The sample catalog: the 13 sections, one template file per section, the sample()
                       helper, the taxonomy, the checkout's countries, and the worked example's contents
 lib/
-  site.ts             SITE (name, parent company, tagline, contact address), TOOLKIT counts, OFFER (the one
+  site.ts             SITE (name, parent company, tagline, summary, contact address), TOOLKIT counts, OFFER (the one
                       price), and the link lists (NAV, PURCHASE_LINK, CONTACT_LINK, LEGAL_LINKS)
   format.ts           formatPrice, formatLength (slides or pages), formatBytes and countWord
   cx.ts               cx() for class names and cssVars() for custom properties

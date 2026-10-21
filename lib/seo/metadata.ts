@@ -1,15 +1,15 @@
 import type { Metadata } from "next";
 import { SITE } from "@/lib/site";
 
-/** The title of the home page, and of any page that names none: the name and the tagline. */
-export const DEFAULT_TITLE = `${SITE.name} · ${SITE.tagline}`;
+/** The title of the home page, and of any page that names none: the name and what the site is. */
+export const DEFAULT_TITLE = `${SITE.name} · ${SITE.summary}`;
 
 /** The home page's card, the one every page without a card of its own shows. */
 const DEFAULT_IMAGE = {
   url: "/opengraph-image",
   width: 1200,
   height: 630,
-  alt: `${SITE.name}: ${SITE.tagline} Change management and user adoption content for Microsoft 365 and SharePoint Online.`,
+  alt: `${SITE.name}: ${SITE.summary}. Change management and user adoption content for Microsoft 365 and SharePoint Online.`,
   type: "image/png",
 };
 

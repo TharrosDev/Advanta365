@@ -19,7 +19,7 @@ export default async function Image({ params }: { params: Promise<{ phase: strin
   const [phase, phases] = await Promise.all([getPhase((await params).phase), getPhases()]);
   const total = numberedPhases(phases).length;
   if (!phase) {
-    return ogCard({ label: "The toolkit", title: SITE.tagline });
+    return ogCard({ label: "The toolkit", title: SITE.summary });
   }
   const first = numberedPhases(phases)[0];
   return ogCard({
