@@ -18,8 +18,8 @@ import { absoluteUrl } from "@/lib/seo/origin";
 import { graph, IDS, phaseList, product, templateList, webPage } from "@/lib/seo/structured-data";
 import { SITE } from "@/lib/site";
 
-// The home page keeps the default title, the name and the tagline (PRODUCT.md: the page title
-// carries the prompt), and names itself as its canonical address.
+// The home page keeps the default title, the name and what the site is (the tagline is left out
+// of search results on purpose), and names itself as its canonical address.
 export const metadata: Metadata = pageMetadata({ path: "/", description: SITE.description });
 
 /**

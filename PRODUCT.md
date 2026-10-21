@@ -66,7 +66,9 @@ Tagline: "Don't start from a blank prompt."
   an empty AI prompt, and the toolkit fills all of them. On the home page the headline's last word
   turns, split-flap fashion, through prompt, page, project, document, plan, design and idea, so
   the promise reads as wider than AI. "Prompt" stays the tagline's word because it is the blank most
-  buyers meet first now, and it is the one the page title, a screen reader and a still page carry.
+  buyers meet first now, and it is the one a screen reader and a still page carry. Search results,
+  shared-link cards and structured data do not lead with it: they say what the site is
+  (`SITE.summary`), so the prompt is not what the site is found or described by.
 
 - The content has met real users, sponsors and skeptical records managers. It was refined across
   client rollouts over 30+ years by a Prosci-certified practitioner. AI output is plausible but

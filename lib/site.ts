@@ -16,6 +16,8 @@ export const SITE = {
   /** The company the product belongs to: "Advanta365 is a product of EchoFive." */
   parent: "EchoFive",
   tagline: "Don’t start from a blank prompt.",
+  /** What the site is, in the words buyers search with: the line search results and shared links lead with, in place of the tagline. */
+  summary: "Change management toolkit for Microsoft 365 and SharePoint",
   description: `The change management and user adoption toolkit behind real SharePoint Online rollouts: ${TOOLKIT.playbooks} playbooks, ${TOOLKIT.templates} templates, ${TOOLKIT.fieldGuides} field guides and full training for ${TOOLKIT.trainingAudiences} audiences, ready to adapt by hand or with AI.`,
   contactEmail: "hello@advanta365.com",
 } as const;

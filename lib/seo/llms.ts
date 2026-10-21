@@ -54,7 +54,7 @@ const STATUS = [
 ];
 
 const KEY_FACTS = [
-  `Tagline: “${SITE.tagline}” A rollout stalls in front of an empty prompt, page, project, document, plan or design; the toolkit fills all of them.`,
+  `What it is: ${SITE.summary}. A rollout stalls in front of an empty page, project, document, plan or design; the toolkit fills all of them.`,
   `Price: ${PRICE} for the complete toolkit, one purchase. The price is set in Canadian dollars. Templates are not sold one at a time and there are no bundles.`,
   `Free samples: ${countWord(FREE_SAMPLE_COUNT)} templates, each from a different phase, can be opened on the site for free.`,
   `Files: editable Word, PowerPoint and Excel files, with a few print-ready PDFs. Buyers edit them by hand or feed them to their AI tools.`,
