@@ -17,8 +17,10 @@ export const SITE = {
   parent: "EchoFive",
   tagline: "Don’t start from a blank prompt.",
   /** What the site is, in the words buyers search with: the line search results and shared links lead with, in place of the tagline. */
-  summary: "Change management toolkit for Microsoft 365 and SharePoint",
+  summary: "Microsoft 365 change management toolkit",
   description: `The change management and user adoption toolkit behind real SharePoint Online rollouts: ${TOOLKIT.playbooks} playbooks, ${TOOLKIT.templates} templates, ${TOOLKIT.fieldGuides} field guides and full training for ${TOOLKIT.trainingAudiences} audiences, ready to adapt by hand or with AI.`,
+  /** The description for search results and shared links: short enough that no engine cuts it, keyword first. */
+  snippet: `Change management toolkit for Microsoft 365 and SharePoint Online: ${TOOLKIT.playbooks} playbooks, ${TOOLKIT.templates} templates, ${TOOLKIT.jobAids} job aids and training. Try free samples.`,
   contactEmail: "hello@advanta365.com",
 } as const;
 

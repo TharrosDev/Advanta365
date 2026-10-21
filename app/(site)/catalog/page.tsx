@@ -32,7 +32,7 @@ import styles from "./page.module.css";
 // a page of results, a template in `view`) names the plain catalog as its canonical one.
 const TITLE = "Catalog of change management templates";
 const DESCRIPTION =
-  "Change management and user adoption templates for Microsoft 365 and SharePoint Online, organized by the eleven phases of a rollout, as the toolkit's folders are. The listings shown are sample content, searchable by phase, type, app and audience, with six free samples.";
+  "Browse change management and user adoption templates for Microsoft 365 and SharePoint Online by rollout phase, type, app and audience. Six free samples.";
 
 export const metadata: Metadata = pageMetadata({
   path: "/catalog",

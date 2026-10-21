@@ -29,7 +29,7 @@ export async function generateStaticParams() {
 
 /** The page's title: the section's name, and what it holds. */
 function phaseTitle(phase: Phase): string {
-  return `${phase.name}: Microsoft 365 change management templates`;
+  return `${phase.name}: M365 change management`;
 }
 
 /** The summary, then where the section stands among the phases of a rollout. */
@@ -38,7 +38,9 @@ function phaseDescription(phase: Phase, total: number): string {
     phase.number === undefined
       ? `A section of the ${SITE.name} toolkit for Microsoft 365 and SharePoint Online rollouts.`
       : `Phase ${phase.number} of ${total} of a Microsoft 365 or SharePoint Online rollout, in the ${SITE.name} change management toolkit.`;
-  return `${phase.summary} ${place}`;
+  const full = `${phase.summary} ${place}`;
+  // A result shows about 160 characters: past that, the summary alone says more than a cut sentence.
+  return full.length <= 160 ? full : phase.summary;
 }
 
 export async function generateMetadata({ params }: PhasePageProps): Promise<Metadata> {
