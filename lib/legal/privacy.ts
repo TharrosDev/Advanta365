@@ -28,7 +28,7 @@ export function privacy(facts: LegalFacts): LegalDocument {
   return {
     href: "/privacy",
     title: "Privacy policy",
-    description: `What ${SITE.name} collects, what it keeps in your browser and what it does not do: no tracking cookies, no advertising, no accounts, and visit counts that do not identify you.`,
+    description: `What ${SITE.name} collects and keeps: no tracking cookies, no advertising, no accounts, and visit counts that do not identify you.`,
     summary: `${SITE.name} is built to work without knowing who you are. This page says what the site handles, what it keeps in your browser, and what changes when a checkout opens.`,
     points: [
       "The site sets no tracking cookies and runs no advertising. It counts visits and measures page speed without cookies and without identifying you.",

@@ -9,7 +9,7 @@ export const contentType = OG_CONTENT_TYPE;
 
 export default function Image() {
   return ogCard({
-    label: "Change management for Microsoft 365 and SharePoint Online",
+    label: "For Microsoft 365 and SharePoint Online",
     title: SITE.summary,
     body: `The toolkit behind real rollouts, refined over ${TOOLKIT.experience}: ready to use as is or tailor with AI.`,
   });

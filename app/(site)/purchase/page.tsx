@@ -9,10 +9,9 @@ import { Band } from "@/components/ui/band";
 import { phaseCoverage } from "@/lib/catalog/coverage";
 import { getFreeTemplates, getPhases, getTemplates } from "@/lib/catalog/repository";
 import { CHECKOUT_PARAM, parseCheckoutStep } from "@/lib/checkout/steps";
-import { formatPrice } from "@/lib/format";
 import { pageMetadata } from "@/lib/seo/metadata";
 import { graph, IDS, product, webPage } from "@/lib/seo/structured-data";
-import { OFFER, PURCHASE_LINK, SITE, TOOLKIT } from "@/lib/site";
+import { PURCHASE_LINK, SITE, TOOLKIT } from "@/lib/site";
 import styles from "./page.module.css";
 
 // Every address of the page (the checkout open on a step in `checkout`) names the plain page as its
@@ -21,7 +20,7 @@ const TITLE = "Purchase the complete toolkit";
 // The structured data states the price once, in its offer; the page's own description in it leaves the
 // price out, because the page prints it once, on the tag (the data is inside `<main>`).
 const ABOUT = `One toolkit, one price: ${TOOLKIT.playbooks} playbooks, ${TOOLKIT.templates} templates, ${TOOLKIT.fieldGuides} field guides and training for ${TOOLKIT.trainingAudiences} audiences for Microsoft 365 and SharePoint Online change management, in a single purchase`;
-const DESCRIPTION = `${ABOUT} of ${formatPrice(OFFER.priceCents, OFFER.currency)}.`;
+const DESCRIPTION = `One toolkit, one price: ${TOOLKIT.playbooks} playbooks, ${TOOLKIT.templates} templates, ${TOOLKIT.fieldGuides} field guides, ${TOOLKIT.jobAids} job aids and training for Microsoft 365 change management.`;
 
 export const metadata: Metadata = pageMetadata({
   path: PURCHASE_LINK.href,

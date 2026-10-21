@@ -16,7 +16,7 @@ const TITLE = "Proven rollout experience, at a template price.";
 
 const LEAD = `${SITE.name} is the change management and user adoption toolkit for Microsoft 365 and SharePoint Online. Field-tested in real rollouts, yours to keep, for ${formatPrice(OFFER.priceCents, OFFER.currency)}.`;
 
-const DESCRIPTION = `Why ${SITE.name}, a product of ${SITE.parent}: change management and user adoption content for Microsoft 365 and SharePoint Online, refined across client rollouts over ${TOOLKIT.experience}, owned outright for one price, and 90 percent done before you start. Compared with building it with AI or hiring a consultant.`;
+const DESCRIPTION = `Why ${SITE.name}, a product of ${SITE.parent}: Microsoft 365 change management content refined over ${TOOLKIT.experience} of rollouts, yours to keep for one price.`;
 
 /** The state of the site, said once and plainly (PRODUCT.md: the note on Why Advanta). */
 const STATE =

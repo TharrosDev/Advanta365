@@ -21,9 +21,9 @@ import { pageMetadata } from "@/lib/seo/metadata";
 import { graph, IDS, webPage } from "@/lib/seo/structured-data";
 import styles from "./page.module.css";
 
-const TITLE = "Worked example: a complete change management strategy";
+const TITLE = "Worked example: change management strategy";
 const DESCRIPTION =
-  "A fully worked change management strategy for a fictional 10,000-person organization shows how the pieces of a Microsoft 365 or SharePoint Online rollout fit together, from the business case to sustainment.";
+  "A fully worked change management strategy for a fictional 10,000-person organization: how a Microsoft 365 rollout fits together, end to end.";
 
 export const metadata: Metadata = pageMetadata({
   path: "/sample",

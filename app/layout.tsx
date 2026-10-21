@@ -1,6 +1,6 @@
 import { Analytics } from "@vercel/analytics/next";
 import { SpeedInsights } from "@vercel/speed-insights/next";
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Atkinson_Hyperlegible_Next, Besley } from "next/font/google";
 import type { ReactNode } from "react";
 import { IntroScript } from "@/components/intro/intro-script-tag";
@@ -47,8 +47,10 @@ const VERIFICATION: Metadata["verification"] = {
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_ORIGIN),
   title: { default: DEFAULT_TITLE, template: `%s · ${SITE.name}` },
-  description: SITE.description,
+  description: SITE.snippet,
   applicationName: SITE.name,
+  referrer: "origin-when-cross-origin",
+  formatDetection: { telephone: false, email: false, address: false },
   authors: [{ name: SITE.parent, url: SITE_ORIGIN }],
   creator: SITE.parent,
   publisher: SITE.parent,
@@ -72,12 +74,15 @@ export const metadata: Metadata = {
     siteName: SITE.name,
     locale: OG_LOCALE,
     title: DEFAULT_TITLE,
-    description: SITE.description,
+    description: SITE.snippet,
   },
-  twitter: { card: "summary_large_image", title: DEFAULT_TITLE, description: SITE.description },
+  twitter: { card: "summary_large_image", title: DEFAULT_TITLE, description: SITE.snippet },
   verification: VERIFICATION,
   alternates: { types: LLMS_ALTERNATES },
 };
+
+// The browser's toolbar takes the paper's white, as the manifest does.
+export const viewport: Viewport = { themeColor: "white" };
 
 // `IntroScript` comes first in the body, so it runs before anything is painted. It writes the
 // switches of the motion system on `<html>` (`data-motion`, `data-timeline`, and `data-intro` for

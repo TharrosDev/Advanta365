@@ -94,6 +94,89 @@ function Tile({ size }: { size: number }) {
   );
 }
 
+/**
+ * A stack of three sheets of the toolkit's paper, the front one a template with its title lines, a
+ * highlighter stroke and the three file types it comes in. It pictures the product on every card
+ * that has no figure of its own, so a shared link shows something to open, not only words.
+ */
+function Stack() {
+  const sheet = (rotate: number, x: number, y: number, front = false) => ({
+    display: "flex",
+    flexDirection: "column" as const,
+    position: "absolute" as const,
+    left: x,
+    top: y,
+    width: 292,
+    height: 372,
+    padding: 28,
+    background: token("paper"),
+    border: `2px solid ${front ? token("ink") : token("rule")}`,
+    borderRadius: 10,
+    transform: `rotate(${rotate}deg)`,
+    boxShadow: front ? `10px 12px 0 ${token("rule")}` : "none",
+  });
+  const bar = (width: number, color: string, height = 14) => ({
+    display: "flex",
+    width,
+    height,
+    marginTop: 14,
+    background: color,
+    borderRadius: 3,
+  });
+  return (
+    <div style={{ display: "flex", position: "relative", width: 360, height: 400 }}>
+      <div style={sheet(-9, 4, 14)} />
+      <div style={sheet(5, 34, 6)} />
+      <div style={sheet(-1.5, 22, 18, true)}>
+        <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+          <Tile size={34} />
+          <div style={{ display: "flex", fontSize: 18, fontWeight: 700, color: token("ink-faint") }}>
+            Template
+          </div>
+        </div>
+        <div style={bar(220, token("ink"), 22)} />
+        <div style={bar(170, token("ink"), 22)} />
+        <div style={{ ...bar(120, token("mark"), 16), marginTop: 20 }} />
+        <div style={bar(228, token("rule"), 10)} />
+        <div style={bar(212, token("rule"), 10)} />
+        <div style={bar(228, token("rule"), 10)} />
+        <div style={bar(150, token("rule"), 10)} />
+        <div style={{ display: "flex", flexGrow: 1 }} />
+        <div style={{ display: "flex", gap: 8 }}>
+          {["DOCX", "PPTX", "XLSX"].map((type) => (
+            <div
+              key={type}
+              style={{
+                display: "flex",
+                fontSize: 16,
+                fontWeight: 700,
+                padding: "3px 10px",
+                background: token("mark-wash"),
+                color: token("ink-soft"),
+                borderRadius: 4,
+              }}
+            >
+              {type}
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/** One of the toolkit's counts, the figure large over its name. */
+function Stat({ value, name }: { value: number; name: string }) {
+  return (
+    <div style={{ display: "flex", alignItems: "baseline", gap: 8 }}>
+      <div style={{ display: "flex", fontSize: 30, fontWeight: 700, color: token("ink") }}>
+        {value}
+      </div>
+      <div style={{ display: "flex", fontSize: 22 }}>{name}</div>
+    </div>
+  );
+}
+
 export type OgCardInput = {
   /** The small label over the headline. */
   label: string;
@@ -109,9 +192,8 @@ export type OgCardInput = {
 
 /** The card, as the image a route's `opengraph-image` file returns. */
 export async function ogCard({ label, title, body, aside, asideNote }: OgCardInput) {
-  const titleSize = title.length > 48 ? 60 : title.length > 30 ? 72 : 84;
+  const titleSize = title.length > 48 ? 60 : title.length > 30 ? (aside ? 72 : 64) : aside ? 84 : 76;
   const host = new URL(SITE_ORIGIN).host;
-  const counts = `${TOOLKIT.playbooks} playbooks · ${TOOLKIT.templates} templates · ${TOOLKIT.fieldGuides} field guides · ${TOOLKIT.jobAids} job aids`;
 
   return new ImageResponse(
     <div
@@ -130,7 +212,7 @@ export async function ogCard({ label, title, body, aside, asideNote }: OgCardInp
           display: "flex",
           flexDirection: "column",
           flexGrow: 1,
-          padding: "56px 72px 40px",
+          padding: "48px 72px 32px",
         }}
       >
         <div style={{ display: "flex", alignItems: "center", gap: 20 }}>
@@ -208,18 +290,38 @@ export async function ogCard({ label, title, body, aside, asideNote }: OgCardInp
                 </div>
               ) : null}
             </div>
-          ) : null}
+          ) : (
+            <div style={{ display: "flex", width: 300, height: 330 }}>
+              <div
+                style={{
+                  display: "flex",
+                  transform: "scale(0.8)",
+                  transformOrigin: "top left",
+                }}
+              >
+                <Stack />
+              </div>
+            </div>
+          )}
         </div>
 
         <div
           style={{
             display: "flex",
             justifyContent: "space-between",
+            alignItems: "center",
+            paddingTop: 20,
+            borderTop: `2px solid ${token("rule")}`,
             fontSize: 22,
             color: token("ink-faint"),
           }}
         >
-          <div style={{ display: "flex" }}>{counts}</div>
+          <div style={{ display: "flex", gap: 36 }}>
+            <Stat value={TOOLKIT.playbooks} name="playbooks" />
+            <Stat value={TOOLKIT.templates} name="templates" />
+            <Stat value={TOOLKIT.fieldGuides} name="field guides" />
+            <Stat value={TOOLKIT.jobAids} name="job aids" />
+          </div>
           <div style={{ display: "flex", fontWeight: 700, color: token("ink") }}>{host}</div>
         </div>
       </div>

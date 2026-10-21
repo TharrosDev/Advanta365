@@ -10,7 +10,8 @@ import sitemap from "@/app/sitemap";
 import { getPhases, getTemplates } from "@/lib/catalog/repository";
 import { LEGAL_DOCUMENTS } from "@/lib/legal";
 import { llmsFull, llmsIndex } from "@/lib/seo/llms";
-import { pageMetadata } from "@/lib/seo/metadata";
+import type { Metadata } from "next";
+import { DEFAULT_TITLE, pageMetadata } from "@/lib/seo/metadata";
 import { absoluteUrl, SITE_ORIGIN } from "@/lib/seo/origin";
 import {
   IDS,
@@ -55,6 +56,53 @@ describe("page metadata", () => {
     expect(JSON.stringify(shared.openGraph)).toContain("/opengraph-image");
     expect(own.openGraph).not.toHaveProperty("images");
     expect(own.twitter).not.toHaveProperty("images");
+  });
+});
+
+describe("what a search result shows", () => {
+  // Google cuts a title near 60 characters and a description near 160; past that the words that
+  // sell the page are lost, so every page's own lines stay inside both.
+  it("keeps every page's title and description inside what a result shows", async () => {
+    const pages = await Promise.all([
+      import("@/app/(site)/page"),
+      import("@/app/(site)/catalog/page"),
+      import("@/app/(site)/purchase/page"),
+      import("@/app/(site)/sample/page"),
+      import("@/app/(site)/why-advanta/page"),
+      import("@/app/(site)/contact/page"),
+      import("@/app/(site)/privacy/page"),
+      import("@/app/(site)/terms/page"),
+      import("@/app/(site)/refunds/page"),
+      import("@/app/(site)/accessibility/page"),
+      import("@/app/(site)/phases/[phase]/page"),
+    ]);
+    const phases = await getPhases();
+    const over: string[] = [];
+    let checked = 0;
+    for (const page of pages as {
+      metadata?: Metadata;
+      generateMetadata?: (props: { params: Promise<{ phase: string }> }) => Promise<Metadata>;
+    }[]) {
+      const all = page.metadata
+        ? [page.metadata]
+        : page.generateMetadata
+          ? await Promise.all(
+              phases.map((phase) =>
+                page.generateMetadata!({ params: Promise.resolve({ phase: phase.slug }) }),
+              ),
+            )
+          : [];
+      for (const metadata of all) {
+        checked += 1;
+        const title = metadata.title ? `${metadata.title} · ${SITE.name}` : DEFAULT_TITLE;
+        const description = String(metadata.description);
+        if (title.length > 60 || description.length > 160) {
+          over.push(`${title} (${title.length}) / ${description} (${description.length})`);
+        }
+      }
+    }
+    expect(checked).toBeGreaterThan(10);
+    expect(over).toEqual([]);
   });
 });
 

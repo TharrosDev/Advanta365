@@ -62,7 +62,11 @@ Metadata, search and AI tools (`lib/seo/`):
 - Shared-link cards are drawn by `next/og` at build time (`lib/seo/og-card.tsx`): `app/opengraph-image.tsx` (the
   home page and every page without its own), and one each for `/catalog`, `/purchase`, `/why-advanta`, `/sample`
   and every `/phases/[phase]`. Their colours are read from the tokens in `app/globals.css`; their faces are fetched
-  from Google Fonts during the build, with the renderer's own face if that fails.
+  from Google Fonts during the build, with the renderer's own face if that fails. A card is the brand at the head,
+  a label, a headline, a line, and the toolkit's counts over the highlighter's edge; with no figure of its own it
+  also pictures a stack of template sheets (DOCX, PPTX, XLSX), so a shared link shows something to open.
+- Titles stay within 60 characters and descriptions within 160, what a search result shows (`SITE.snippet` is the
+  home page's); `seo.test.ts` fails when a page's own lines run over.
 - Structured data (`lib/seo/structured-data.ts`, rendered by `components/seo/json-ld.tsx` as
   `application/ld+json`): the root layout renders the company (`Organization`, EchoFive), the brand and the
   `WebSite` with the catalog's search as its `SearchAction` on every page; each page adds its own `WebPage` kind

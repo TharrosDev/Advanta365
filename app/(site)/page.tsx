@@ -20,7 +20,7 @@ import { SITE } from "@/lib/site";
 
 // The home page keeps the default title, the name and what the site is (the tagline is left out
 // of search results on purpose), and names itself as its canonical address.
-export const metadata: Metadata = pageMetadata({ path: "/", description: SITE.description });
+export const metadata: Metadata = pageMetadata({ path: "/", description: SITE.snippet });
 
 /**
  * The specimen in the margin of `#inside` shows one real template: its title and summary, and the
